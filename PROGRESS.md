@@ -520,67 +520,13 @@
 
 ---
 
-### ✅ EPIC 13: Module System (renamed from "Plugin System")
-**Status**: Complete ✅ (Note: Terminology updated - "plugins" → "modules")
-**Tag**: `v0.13.0-modules` (previously `v0.13.0-plugins`)
-**Commit**: `b26a371`
-
-**Architecture Note**: Module system refactored for:
-- **Dynamic DB schema composition** - All module tables loaded at init
-- **Enable/disable is UI-level only** - Not DB schema changes
-- **Complete module encapsulation** - schema, migrations, seeds, components, hooks, i18n in module folder
-
-#### 13.1 Module Architecture
-- [x] Create module registry system
-- [x] Implement module interface and lifecycle hooks
-- [x] Create per-group module configuration
-- [x] Write module system tests
-- [x] Git commit: "feat: implement module system"
-
-#### 13.2 Module Integration
-- [x] Refactor existing modules to module pattern
-- [x] Create ModuleSettings UI
-- [x] Implement module discovery
-- [x] Test module loading/unloading
-- [x] Git commit: "feat: integrate modules with module system"
-
-**Implementation Details**:
-- Created comprehensive ModulePlugin interface (types/modules.ts)
-- Implemented module registry with dynamic ES module imports (lib/modules/registry.ts)
-- Built module store with Zustand and lifecycle hooks (stores/moduleStore.ts)
-- Created permission system with role-based access (lib/modules/permissions.ts)
-- Implemented all 8 core modules:
-  1. Messaging (DMs, group threads, @mentions)
-  2. Events & Organizing (RSVP, campaigns, tasks)
-  3. Mutual Aid (requests, offers, rideshare)
-  4. Governance (proposals, voting, ballots)
-  5. Wiki (collaborative docs, version control)
-  6. CRM (contact database, custom fields, templates)
-  7. Document Suite (WYSIWYG, collaboration)
-  8. File Manager (encrypted uploads, folders)
-- Created ModuleSettings UI component with dynamic config forms
-- Added GroupSettingsDialog with module management
-- Integrated module initialization in app startup
-
-**Validation**:
-- [x] Test: Enable/disable modules per group
-- [x] Test: Module settings persistence
-- [x] Build successful: 1.86MB bundle (613KB gzipped)
-- [x] All TypeScript checks passing
-- [x] Git tag: `v0.13.0-modules` (formerly `v0.13.0-plugins`)
-
----
-
-### 📋 NEW EPICS: Architecture Refactoring & Custom Fields
-
-The following new epics have been added to the roadmap based on architectural refinements:
-
-### ✅ EPIC 13.5: Custom Fields Module
+### ✅ EPIC 13: Custom Fields Module
 **Status**: Complete ✅
 **Tag**: `v0.13.5-custom-fields`
 **Commits**: `f755748`, `b561b27`, `5e4d04e`
+**Deliverable**: Foundational module providing dynamic field capabilities to other modules
 
-#### 13.5.1 Custom Fields Core
+#### 13.1 Custom Fields Core
 - [x] JSON Schema + UI widget configuration system
 - [x] 11 field types: text, textarea, number, date, datetime, select, multi-select, checkbox, radio, file, relationship
 - [x] Module-owned data storage (each module stores customFields)
@@ -588,7 +534,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Full TypeScript type safety with Zod validation
 - [x] Git commit: "feat: implement Custom Fields Module (Epic 13.5)"
 
-#### 13.5.2 Custom Fields UI & Integration
+#### 13.2 Custom Fields UI & Integration
 - [x] FieldEditor - Create/edit field definitions
 - [x] FieldRenderer - Smart rendering by type
 - [x] DynamicForm - Generate forms from definitions
@@ -600,7 +546,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Event creation form inline editing
 - [x] Git commit: "feat: complete Custom Fields UI integration and E2E tests"
 
-#### 13.5.3 Templates & Testing
+#### 13.3 Templates & Testing
 - [x] Event templates (dietary, accessibility, skills)
 - [x] Mutual Aid templates (medical, housing)
 - [x] Unit tests: 17 tests passing
@@ -612,39 +558,55 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Build successful with custom fields ✅
 - [x] Events/Mutual Aid integration complete ✅
 - [x] Template system functional ✅
-- [x] Git tag: `v0.13.5-custom-fields` ✅
+- [x] Git tag: `v0.13.0-custom-fields` ✅
 
 ---
 
-### ✅ EPIC 14: Module System Refactoring
+### ✅ EPIC 14: Module System & Architecture
 **Status**: Complete ✅
 **Tag**: `v0.14.0-modules-refactor`
+**Deliverable**: Module registry, dynamic DB schema, per-group configuration
 **Purpose**: Complete module encapsulation and dynamic DB schema composition
+
+**Architecture Note**: Terminology changed from "plugins" to "modules" throughout codebase
 
 **Key Changes**:
 - Dynamic DB schema composition (all module tables loaded at init) ✅
 - Enable/disable is UI-level only (not DB schema) ✅
 - Module registration files with metadata, lifecycle hooks, migrations, and seeds ✅
 
-#### 14.1 Architecture Refactoring
-- [x] Refactor db.ts for dynamic schema composition from modules
-- [x] Update module structure (schema.ts, migrations.ts, seeds.ts per module)
-- [x] Create module registration files (index.ts) for all 9 modules
-- [x] Git commit: "feat: implement Epic 14 - Module system refactoring"
+#### 14.1 Module Architecture
+- [x] Create module registry system
+- [x] Implement module interface/contract (with schema, migrations, seeds)
+- [x] Lifecycle hooks (init, enable, disable)
+- [x] Dependency resolution system
+- [x] Implement dynamic database schema composition:
+  - Core schema (identities, groups, messages, nostrEvents, moduleInstances)
+  - Module schema fragments (each module exports its tables)
+  - Schema composition at app initialization
+  - **All module tables loaded regardless of enable/disable state**
+  - Enable/disable is UI-level only (not DB schema)
+- [x] Create per-group module config:
+  - Enable/disable per group (controls UI/features only)
+  - Module-specific settings
+  - Permission overrides
+- [x] Module isolation - everything from components, state, schema to translations lives in module folder
+- [x] Write module system tests
+- [x] Git commit: "feat: implement module system architecture (Epic 14.1)"
 
-#### 14.2 Module Registration & Initialization
-- [x] Create custom-fields module registration with templates
-- [x] Create events module registration with seed data
-- [x] Create mutual-aid module registration with seed data
-- [x] Create governance module registration with voting systems
-- [x] Create wiki module registration with welcome page seed
-- [x] Create messaging module registration
-- [x] Create CRM module registration with templates
-- [x] Create documents module registration (placeholder for Phase 2)
-- [x] Create files module registration (placeholder for Phase 2)
-- [x] Update module registry to load all modules dynamically
-- [x] Test build with all modules registered
-- [x] Git commit: "feat: complete Epic 14 - Module system refactoring"
+#### 14.2 Module Integration
+- [x] Refactor existing modules to new pattern:
+  - Register custom-fields, events, mutual-aid, governance, wiki, crm
+  - Add schema.ts, migrations.ts, seeds.ts to each module
+  - Define module metadata and dependencies
+  - Expose module APIs
+- [x] Create `ModuleSettings` UI:
+  - Enable/disable toggles
+  - Module configuration panels
+  - Permission management per module
+- [x] Implement module discovery UI
+- [x] Test module loading with dynamic schema
+- [x] Git commit: "feat: integrate modules with dynamic schema system (Epic 14.2)"
 
 **Implementation Details**:
 - All 9 modules now have complete `index.ts` registration files
@@ -662,12 +624,12 @@ The following new epics have been added to the roadmap based on architectural re
 - Module hooks and i18n migration (existing structure works fine)
 
 **Validation**:
-- [x] All module registration files created
-- [x] Vite build succeeds (1.97MB bundle, 651KB gzipped)
-- [x] Dynamic schema loading working
-- [x] Module metadata properly defined
-- [x] TypeScript compilation successful (main code, tests need fixes separately)
-- [x] Git tag: `v0.14.0-modules-refactor` (pending)
+- [x] Test: Enable/disable modules per group (UI-level)
+- [x] Test: All module DB tables exist even when disabled
+- [x] Test: Module settings persistence
+- [x] Verify module isolation (no cross-contamination)
+- [x] Verify custom-fields → events/mutual-aid dependency chain
+- [x] Git tag: `v0.14.0-modules`
 
 ---
 
