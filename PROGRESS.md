@@ -10,7 +10,8 @@
 **Date**: 2025-10-05
 **Version**: v0.17.0-testing
 **Build**: Successful ✅ (1.97MB bundle, 648KB gzipped)
-**Completed Epics**: 1-17 (Foundation through Testing & Quality)
+**Completed Epics**: 1-16 (Foundation through Security Hardening)
+**Partial Epics**: 17 (Testing - unit tests ✅, integration/E2E ⚠️)
 **Test Status**: 88/88 unit tests passing ✅
 
 ---
@@ -711,9 +712,9 @@ The following new epics have been added to the roadmap based on architectural re
 
 ---
 
-### ✅ Epic 17: Testing & Quality (renumbered from Epic 15)
-**Status**: Complete ✅
-**Tag**: `v0.17.0-testing`
+### ⚠️ Epic 17: Testing & Quality (renumbered from Epic 15)
+**Status**: Partial ⚠️ (Unit tests complete, Integration/E2E pending)
+**Tag**: `v0.17.0-testing` (partial)
 **Commit**: `04e51fe`
 
 #### 17.1 Unit Test Coverage
@@ -757,46 +758,30 @@ The following new epics have been added to the roadmap based on architectural re
 
 #### 17.3 E2E Tests with Playwright
 - [x] Create E2E test structure in `/tests/e2e/`
-- [x] Write comprehensive E2E test suites:
-  - **auth.spec.ts** (4 tests):
-    - Create new identity
-    - Import existing identity
-    - Switch between identities
-    - Export private key
-  - **groups.spec.ts** (6 tests):
-    - Create new group
-    - View group dashboard
-    - Enable/disable modules per group
-    - Invite members
-    - Update group settings
-  - **messaging.spec.ts** (3 tests):
-    - Send and view direct messages
-    - Send group messages
-    - Unread message indicators
-  - **events.spec.ts** (5 tests):
-    - Create new event
-    - RSVP to event
-    - View calendar
-    - Export to iCal
-    - Filter events by date range
-- [x] Configure test patterns for user journeys
-- [x] Git commit: "test: add comprehensive E2E test suite"
+- [x] Write E2E test stubs for critical flows:
+  - **auth.spec.ts** (4 scenarios) - Identity creation, import, export, switching
+  - **groups.spec.ts** (6 scenarios) - Group creation, settings, module management
+  - **messaging.spec.ts** (3 scenarios) - DMs, group messages
+  - **events.spec.ts** (5 scenarios) - Event creation, RSVP, calendar, export
+- [ ] Configure Playwright properly (playwright.config.ts)
+- [ ] Fix E2E test imports and dependencies
+- [ ] Run E2E tests against live app
+- [ ] Verify all E2E tests pass
+- [ ] Git commit: "test: configure and run E2E tests" (PENDING)
 
-**E2E Test Coverage**:
-- Authentication flows (identity creation, import, export)
-- Group management (creation, settings, module config)
-- Messaging (DMs, group threads)
-- Events (creation, RSVP, calendar, export)
-- All critical user paths covered
+**E2E Test Status**:
+- Test scenarios defined (18 scenarios)
+- NOT YET RUNNING - requires Playwright config and app deployment
+- Integration with live app pending
 
 **Validation**:
 - [x] All unit tests passing (88/88)
 - [x] Coverage >80% for crypto modules (NIP-17: 84%+)
-- [x] Integration test templates created (19 tests, IndexedDB mocking deferred)
-- [x] E2E tests created for all critical paths (18 test scenarios)
+- [ ] Integration tests working (19 tests created, IndexedDB mocking needed)
+- [ ] E2E tests running and passing (18 scenarios stubbed, NOT running)
 - [x] Build successful: 1.97MB bundle (648KB gzipped)
 - [x] No TypeScript errors
-- [x] Git tag: `v0.17.0-testing`
+- [ ] Git tag: `v0.17.0-testing` (PARTIAL - unit tests only)
 
 ---
 
