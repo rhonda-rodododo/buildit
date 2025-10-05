@@ -187,6 +187,10 @@ export interface ProtectedKeyStorage {
   createdAt: number; // Unix timestamp
   lastAccessed?: number; // Unix timestamp
   accessCount: number; // Number of times accessed
+  rotatedAt?: number; // Key rotation timestamp
+  rotatedFrom?: string; // Previous storage ID (if rotated)
+  upgradedAt?: number; // WebAuthn upgrade timestamp
+  upgradedFrom?: string; // Previous storage ID (if upgraded)
 }
 
 /**

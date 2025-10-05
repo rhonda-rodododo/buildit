@@ -288,6 +288,135 @@ export class ProtectedKeyStorageService {
     }
     return bytes;
   }
+
+  /**
+   * Rotate encryption key and re-encrypt all protected keys
+   * This allows changing password or upgrading encryption without losing keys
+   */
+  public async rotateEncryptionKey(
+    storages: ProtectedKeyStorage[],
+    oldPassword: string,
+    newPassword: string,
+    credential?: WebAuthnCredential
+  ): Promise<ProtectedKeyStorage[]> {
+    const rotatedStorages: ProtectedKeyStorage[] = [];
+
+    for (const storage of storages) {
+      try {
+        // 1. Decrypt with old key
+        const privateKey = await this.retrieveProtectedKey(
+          storage,
+          credential,
+          oldPassword
+        );
+
+        // 2. Re-encrypt with new key
+        const newEncryptionKey = await this.deriveEncryptionKey(newPassword);
+        const { encryptedData, salt, iv } = await this.encryptKey(
+          privateKey,
+          newEncryptionKey
+        );
+
+        // 3. Create new storage with rotated encryption
+        const rotatedStorage: ProtectedKeyStorage = {
+          ...storage,
+          encryptedKey: encryptedData,
+          salt,
+          iv,
+          rotatedAt: Date.now(),
+          rotatedFrom: storage.id,
+        };
+
+        rotatedStorages.push(rotatedStorage);
+      } catch (error) {
+        console.error(`Failed to rotate key ${storage.id}:`, error);
+        throw new Error(`Key rotation failed for storage ${storage.id}`);
+      }
+    }
+
+    return rotatedStorages;
+  }
+
+  /**
+   * Upgrade storage to use WebAuthn protection
+   * Re-encrypts keys with WebAuthn credential
+   */
+  public async upgradeToWebAuthn(
+    storage: ProtectedKeyStorage,
+    credential: WebAuthnCredential,
+    currentPassword: string
+  ): Promise<ProtectedKeyStorage> {
+    // Verify WebAuthn credential
+    const isValid = await webAuthnService.verifyCredential(credential);
+    if (!isValid) {
+      throw new Error('WebAuthn verification failed');
+    }
+
+    // Decrypt with current password
+    const privateKey = await this.retrieveProtectedKey(
+      storage,
+      undefined,
+      currentPassword
+    );
+
+    // Re-encrypt with WebAuthn protection
+    const upgradedStorage = await this.storeProtectedKey(
+      privateKey,
+      storage.deviceId,
+      credential,
+      currentPassword
+    );
+
+    return {
+      ...upgradedStorage,
+      upgradedAt: Date.now(),
+      upgradedFrom: storage.id,
+    };
+  }
+
+  /**
+   * Batch re-encryption for all keys in database
+   * Useful for password changes or security upgrades
+   */
+  public async batchReencrypt(
+    keys: Array<{ id: string; encryptedKey: string; salt: string; iv: string }>,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<Array<{ id: string; encryptedKey: string; salt: string; iv: string }>> {
+    const reencryptedKeys = [];
+
+    for (const key of keys) {
+      try {
+        // Decrypt with old password
+        const oldEncryptionKey = await this.deriveEncryptionKey(oldPassword);
+        const decryptedKey = await this.decryptKey(
+          key.encryptedKey,
+          oldEncryptionKey,
+          key.salt,
+          key.iv
+        );
+
+        // Re-encrypt with new password
+        const newEncryptionKey = await this.deriveEncryptionKey(newPassword);
+        const { encryptedData, salt, iv } = await this.encryptKey(
+          decryptedKey,
+          newEncryptionKey
+        );
+
+        reencryptedKeys.push({
+          id: key.id,
+          encryptedKey: encryptedData,
+          salt,
+          iv,
+        });
+      } catch (error) {
+        console.error(`Failed to re-encrypt key ${key.id}:`, error);
+        throw new Error(`Re-encryption failed for key ${key.id}`);
+      }
+    }
+
+    return reencryptedKeys;
+  }
 }
 
 // Export singleton instance
