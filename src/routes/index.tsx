@@ -20,6 +20,7 @@ import { getAllModules } from '@/lib/modules/registry';
 import { CampaignPage } from '@/pages/public/CampaignPage';
 import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
+import { BulkOperationsPage } from '@/pages/BulkOperationsPage';
 
 /**
  * Get module routes by scope
@@ -115,6 +116,10 @@ export const routes: RouteObject[] = [
           {
             path: 'analytics',
             element: <AnalyticsPage />,
+          },
+          {
+            path: 'bulk-operations',
+            element: <BulkOperationsPage />,
           },
           {
             path: 'groups',
