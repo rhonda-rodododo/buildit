@@ -799,23 +799,25 @@ buildn/
 ---
 
 ### **EPIC 14: Security Hardening** (2.5 hours)
-**Deliverable**: Tor integration, key rotation
+**Deliverable**: WebAuthn key protection, Tor integration, security audit
 
-#### 14.1 Advanced Key Management (1h)
-- Implement NIP-46 (remote signing):
-  - Nostr Connect protocol
-  - Remote signer communication
-- Fetch nostr-tools NIP-46 docs via Context7
+#### 14.1 WebAuthn Key Protection (1h)
+- Implement WebAuthn/Passkey integration:
+  - Use Web Authentication API for key protection
+  - Create secure key storage with WebAuthn-protected encryption
+  - Add biometric authentication option (fingerprint, Face ID)
+  - Support hardware security keys (YubiKey, etc.)
+- Fetch WebAuthn documentation via Context7 or web search
 - Create key rotation system:
   - Generate new keys
   - Re-encrypt data with new keys
   - Revocation mechanism
 - Implement key backup/recovery:
   - Encrypted backup export
-  - Recovery phrase (BIP-39 compatible)
-  - Social recovery (optional)
-- Write security tests
-- Git commit: "feat: implement advanced key management"
+  - WebAuthn-verified recovery
+  - Multi-device sync (optional)
+- Write security tests for WebAuthn flow
+- Git commit: "feat: implement WebAuthn key protection"
 
 #### 14.2 Tor Integration (1h)
 - Add Tor proxy configuration:
@@ -828,21 +830,25 @@ buildn/
 - Test Tor connectivity (if available)
 - Git commit: "feat: add Tor integration"
 
-#### 14.3 Security Audit (0.5h)
+#### 14.3 Security Audit & Hardening (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
   - Test encryption/decryption edge cases
   - Review permission bypass attempts
-- Implement security headers
-- Add Content Security Policy
+- Implement Content Security Policy (CSP)
+- Add security headers (HSTS, X-Frame-Options, X-Content-Type-Options)
+- Implement rate limiting for sensitive operations
+- Add session timeout and auto-lock
 - Create security documentation
-- Git commit: "feat: security hardening"
+- Git commit: "feat: security hardening and audit"
 
 **Epic 14 Validation**:
+- Test: WebAuthn authentication with biometrics
 - Test: Key rotation and data re-encryption
 - Test: Tor connection to .onion relays
-- Run security audit tools
+- Run security audit tools (OWASP ZAP, npm audit)
+- Verify CSP and security headers
 - Git tag: `v0.14.0-security`
 
 ---

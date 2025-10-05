@@ -568,29 +568,37 @@
 **Status**: Pending ⏳
 **Tag**: `v0.14.0-security`
 
-#### 14.1 Advanced Key Management
-- [ ] Implement NIP-46 (remote signing, hardware wallet)
-- [ ] Create key rotation system
-- [ ] Implement key backup/recovery
-- [ ] Write security tests
-- [ ] Git commit: "feat: implement advanced key management"
+#### 14.1 WebAuthn Key Protection
+- [ ] Implement WebAuthn/Passkey integration for key protection
+- [ ] Create secure key storage using Web Crypto API with WebAuthn-protected encryption
+- [ ] Add biometric authentication option (fingerprint, Face ID)
+- [ ] Implement key backup/recovery with WebAuthn verification
+- [ ] Create key rotation system with re-encryption
+- [ ] Write security tests for WebAuthn flow
+- [ ] Git commit: "feat: implement WebAuthn key protection"
 
 #### 14.2 Tor Integration
 - [ ] Add Tor proxy configuration (.onion relays)
 - [ ] Create TorSettings component
+- [ ] Implement SOCKS5 proxy support
+- [ ] Add .onion relay list
 - [ ] Test Tor connectivity
 - [ ] Git commit: "feat: add Tor integration"
 
-#### 14.3 Security Audit
+#### 14.3 Security Audit & Hardening
 - [ ] Run security audit (XSS, CSRF, encryption)
-- [ ] Implement security headers and CSP
+- [ ] Implement Content Security Policy (CSP)
+- [ ] Add security headers (HSTS, X-Frame-Options, etc.)
+- [ ] Implement rate limiting for sensitive operations
+- [ ] Add session timeout and auto-lock
 - [ ] Create security documentation
-- [ ] Git commit: "feat: security hardening"
+- [ ] Git commit: "feat: security hardening and audit"
 
 **Validation**:
-- [ ] Test: Hardware wallet signing
-- [ ] Test: Key rotation
-- [ ] Test: Tor connection
+- [ ] Test: WebAuthn authentication flow
+- [ ] Test: Key rotation with re-encryption
+- [ ] Test: Tor connection to .onion relays
+- [ ] Security audit passing
 - [ ] Git tag: `v0.14.0-security`
 
 ---
