@@ -926,10 +926,82 @@ buildit-network/
 
 ---
 
-### **EPIC 16: Security Hardening** (3.5 hours)
+### **EPIC 16: Navigation & Routing Overhaul** (2.5 hours)
+**Deliverable**: Complete navigation system using react-router-dom with responsive patterns
+
+#### 16.1 Core Routing Setup (0.5h)
+- Implement react-router-dom routes for all core functionality
+- Create route structure for app-level and group-level navigation
+- Define module route registration interface:
+  - Modules define their own slugs for top-level routes
+  - Support both app-level and group-level routes
+  - Allow modules to define sub-routes within their components
+- Implement nested routing for groups (`/groups/:groupId/*`)
+- Add 404 handling and error boundaries
+- Create route guards for module permissions
+- Git commit: "feat: implement core routing with react-router-dom (Epic 16.1)"
+
+#### 16.2 Account Settings & User Profile (0.5h)
+- Create separate Account Settings page (`/settings/*`)
+- Implement responsive navigation:
+  - Side navigation for desktop (Settings tabs)
+  - Dropdown navigation for mobile viewport
+- Move Security tab from main landing page to Account Settings
+- Create User Profile section in Account Settings
+- Add tabs: Profile, Security, Privacy, Notifications, Preferences
+- Implement settings persistence
+- Git commit: "feat: create account settings with responsive navigation (Epic 16.2)"
+
+#### 16.3 Main App Navigation (0.75h)
+- Create responsive main navigation component:
+  - Side navigation for desktop (with module list)
+  - Dropdown/hamburger menu for mobile
+- Add dynamic module loading in navigation:
+  - Show all installed modules at the top
+  - Automatically update when modules are installed/removed
+- Create breadcrumb navigation for deep routes
+- Implement navigation state persistence
+- Add keyboard shortcuts for navigation
+- Git commit: "feat: implement main app navigation (Epic 16.3)"
+
+#### 16.4 Group Navigation (0.5h)
+- Create group-level navigation component:
+  - Side navigation for desktop (group modules only)
+  - Dropdown/hamburger menu for mobile
+- Show only enabled modules for each group dynamically:
+  - Filter modules based on group configuration
+  - Update navigation when modules are enabled/disabled
+- Add group switcher in navigation
+- Integrate module enable/disable state with nav visibility
+- Git commit: "feat: implement group navigation (Epic 16.4)"
+
+#### 16.5 Module Route System & Testing (0.25h)
+- Update module interface to support route registration:
+  - Define ModuleRoute interface in module system
+  - Allow modules to register top-level routes
+  - Support lazy loading for module routes
+- Test all routing scenarios:
+  - Deep linking works correctly
+  - Navigation state persists across page reloads
+  - Module routes load dynamically
+  - Responsive navigation works on all viewports
+- Git commit: "feat: complete module route system (Epic 16.5)"
+
+**Epic 16 Validation**:
+- Test: All routes working with proper nesting
+- Test: Navigation responsive on mobile/tablet/desktop
+- Test: Modules register and display routes correctly
+- Test: Account settings accessible and organized
+- Test: Group navigation shows only enabled modules
+- Test: Deep linking and browser back/forward work
+- Git tag: `v0.16.0-routing`
+
+---
+
+### **EPIC 17: Security Hardening** (3.5 hours)
 **Deliverable**: WebAuthn key protection, device management, Tor integration, security audit
 
-#### 16.1 WebAuthn Key Protection (1h)
+#### 17.1 WebAuthn Key Protection (1h)
 - Implement WebAuthn/Passkey integration:
   - Use Web Authentication API for key protection
   - Create secure key storage with WebAuthn-protected encryption
@@ -945,9 +1017,9 @@ buildit-network/
   - WebAuthn-verified recovery
   - Multi-device sync (optional)
 - Write security tests for WebAuthn flow
-- Git commit: "feat: implement WebAuthn key protection (Epic 16.1)"
+- Git commit: "feat: implement WebAuthn key protection (Epic 17.1)"
 
-#### 16.2 Device Management & Visibility (1h)
+#### 17.2 Device Management & Visibility (1h)
 - Create device tracking system:
   - Device fingerprinting (browser, OS, screen resolution)
   - Track active sessions (device ID, IP, last active, location estimate)
@@ -971,9 +1043,9 @@ buildit-network/
   - Limit device fingerprinting detail
   - Auto-expire old sessions
 - Write device management tests
-- Git commit: "feat: implement device management and visibility (Epic 16.2)"
+- Git commit: "feat: implement device management and visibility (Epic 17.2)"
 
-#### 16.3 Tor Integration (1h)
+#### 17.3 Tor Integration (1h)
 - Add Tor proxy configuration:
   - SOCKS5 proxy support
   - .onion relay connections
@@ -982,9 +1054,9 @@ buildit-network/
 - Create `TorSettings` component
 - Add Tor status indicator
 - Test Tor connectivity (if available)
-- Git commit: "feat: add Tor integration (Epic 16.3)"
+- Git commit: "feat: add Tor integration (Epic 17.3)"
 
-#### 16.4 Security Audit & Hardening (0.5h)
+#### 17.4 Security Audit & Hardening (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
@@ -995,9 +1067,9 @@ buildit-network/
 - Implement rate limiting for sensitive operations
 - Add session timeout and auto-lock
 - Create security documentation
-- Git commit: "feat: security hardening and audit (Epic 16.4)"
+- Git commit: "feat: security hardening and audit (Epic 17.4)"
 
-**Epic 16 Validation**:
+**Epic 17 Validation**:
 - Test: WebAuthn authentication with biometrics
 - Test: Device authorization and revocation
 - Test: Remote sign-out from all devices
@@ -1006,14 +1078,14 @@ buildit-network/
 - Test: Tor connection to .onion relays
 - Run security audit tools (OWASP ZAP, bun audit)
 - Verify CSP and security headers
-- Git tag: `v0.16.0-security`
+- Git tag: `v0.17.0-security`
 
 ---
 
-### **EPIC 17: Testing & Quality** (2 hours)
+### **EPIC 18: Testing & Quality** (2 hours)
 **Deliverable**: Comprehensive test coverage, E2E tests, performance
 
-#### 17.1 Unit Test Coverage (0.5h)
+#### 18.1 Unit Test Coverage (0.5h)
 - Ensure >80% coverage for all core modules
 - Write missing unit tests:
   - Edge cases in crypto functions
@@ -1022,9 +1094,9 @@ buildit-network/
   - Custom fields validation
   - Database module tests
 - Run coverage report: `bun run test:coverage`
-- Git commit: "test: improve unit test coverage (Epic 17.1)"
+- Git commit: "test: improve unit test coverage (Epic 18.1)"
 
-#### 17.2 Integration Tests (0.5h)
+#### 18.2 Integration Tests (0.5h)
 - Write integration tests:
   - Nostr client ↔ Storage sync
   - Encryption ↔ Storage (encrypted persistence)
@@ -1033,9 +1105,9 @@ buildit-network/
   - Database ↔ CRM templates
   - Multi-relay failover
 - Test error recovery scenarios
-- Git commit: "test: add integration tests (Epic 17.2)"
+- Git commit: "test: add integration tests (Epic 18.2)"
 
-#### 17.3 E2E Tests (1h)
+#### 18.3 E2E Tests (1h)
 - Write Playwright E2E tests:
   - User journey: Register → Create group → Send message
   - Event flow: Create event with custom fields → RSVP → Export calendar
@@ -1047,20 +1119,20 @@ buildit-network/
 - Test offline/online transitions
 - Test module enable/disable per group
 - Run E2E suite: `bun run test:e2e`
-- Git commit: "test: add E2E tests (Epic 17.3)"
+- Git commit: "test: add E2E tests (Epic 18.3)"
 
-**Epic 17 Validation**:
+**Epic 18 Validation**:
 - All tests passing: `bun run test:all`
 - Coverage: >80% overall, >90% for core
 - E2E tests: All critical paths covered
-- Git tag: `v0.17.0-testing`
+- Git tag: `v0.18.0-testing`
 
 ---
 
-### **EPIC 18: Polish & Production Prep** (2 hours)
+### **EPIC 19: Polish & Production Prep** (2 hours)
 **Deliverable**: Performance optimization, docs, deployment ready
 
-#### 18.1 Performance Optimization (1h)
+#### 19.1 Performance Optimization (1h)
 - Implement performance optimizations:
   - Virtual scrolling for long lists (messages, contacts, database tables)
   - Lazy loading for modules
@@ -1073,9 +1145,9 @@ buildit-network/
   - Verify smooth scrolling
 - Run Lighthouse audit
 - Optimize bundle size
-- Git commit: "perf: optimize performance (Epic 18.1)"
+- Git commit: "perf: optimize performance (Epic 19.1)"
 
-#### 18.2 Documentation (0.5h)
+#### 19.2 Documentation (0.5h)
 - Create user documentation:
   - Getting started guide
   - Feature walkthroughs
@@ -1088,9 +1160,9 @@ buildit-network/
   - Database/CRM template creation
   - Contribution guidelines
 - Update PROGRESS.md with final completion status
-- Git commit: "docs: add user and developer documentation (Epic 18.2)"
+- Git commit: "docs: add user and developer documentation (Epic 19.2)"
 
-#### 18.3 Production Build (0.5h)
+#### 19.3 Production Build (0.5h)
 - Configure production build:
   - Environment variables
   - Build optimization
@@ -1101,9 +1173,9 @@ buildit-network/
   - Service worker (offline support)
 - Test production build locally
 - Create deployment guide
-- Git commit: "chore: production build configuration (Epic 18.3)"
+- Git commit: "chore: production build configuration (Epic 19.3)"
 
-**Epic 18 Validation**:
+**Epic 19 Validation**:
 - Lighthouse score: >90 all categories
 - Bundle size: <500KB initial
 - PWA installable and works offline

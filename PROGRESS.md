@@ -671,7 +671,7 @@ The following new epics have been added to the roadmap based on architectural re
 
 ---
 
-### 📋 EPIC 15: Database & CRM Modules (NEW - Planned)
+### 📋 EPIC 15: Database & CRM Modules (Planned)
 **Status**: Planned 📋
 **Tag**: `v0.15.0-database-crm` (planned)
 **Purpose**: Airtable-like database with CRM templates
@@ -685,12 +685,65 @@ The following new epics have been added to the roadmap based on architectural re
 
 ---
 
-### ✅ Epic 16: Security Hardening (renumbered from Epic 14)
-**Status**: Partial Complete ✅ (16.1-16.2 complete)
-**Tag**: `v0.16.0-security` (planned, was `v0.14.0-security`)
+### 📋 EPIC 16: Navigation & Routing Overhaul (NEW - Planned)
+**Status**: Planned 📋
+**Tag**: `v0.16.0-routing` (planned)
+**Purpose**: Complete navigation system using react-router-dom with responsive patterns
+
+#### 16.1 Core Routing Setup
+- [ ] Implement react-router-dom routes for all core functionality
+- [ ] Create route structure for app-level and group-level navigation
+- [ ] Define module route registration interface (modules define their own slugs/routes)
+- [ ] Implement nested routing for groups (`/groups/:groupId/*`)
+- [ ] Add 404 handling and error boundaries
+
+#### 16.2 Account Settings & User Profile
+- [ ] Create separate Account Settings page (`/settings/*`)
+- [ ] Implement side navigation for desktop (Settings tabs)
+- [ ] Implement dropdown navigation for mobile viewport
+- [ ] Move Security tab from main landing page to Account Settings
+- [ ] Create User Profile section in Account Settings
+- [ ] Add tabs: Profile, Security, Privacy, Notifications, Preferences
+
+#### 16.3 Main App Navigation
+- [ ] Create responsive main navigation component
+- [ ] Implement side navigation for desktop (with module list)
+- [ ] Implement dropdown/hamburger menu for mobile
+- [ ] Add dynamic module loading in navigation (show all installed modules)
+- [ ] Create breadcrumb navigation for deep routes
+- [ ] Implement navigation state persistence
+
+#### 16.4 Group Navigation
+- [ ] Create group-level navigation component
+- [ ] Implement side navigation for desktop (group modules only)
+- [ ] Implement dropdown/hamburger menu for mobile
+- [ ] Show only enabled modules for each group dynamically
+- [ ] Add group switcher in navigation
+- [ ] Integrate module enable/disable state with nav visibility
+
+#### 16.5 Module Route System
+- [ ] Define ModuleRoute interface in module system
+- [ ] Allow modules to register top-level routes (app and group level)
+- [ ] Support module sub-routes within their components
+- [ ] Create route guards for module permissions
+- [ ] Implement lazy loading for module routes
+
+**Validation**:
+- [ ] All routes working with proper nesting
+- [ ] Navigation responsive on mobile/tablet/desktop
+- [ ] Modules register and display routes correctly
+- [ ] Account settings accessible and organized
+- [ ] Group navigation shows only enabled modules
+- [ ] Git tag: `v0.16.0-routing`
+
+---
+
+### ✅ Epic 17: Security Hardening (renumbered from Epic 14, then Epic 16)
+**Status**: Partial Complete ✅ (17.1-17.2 complete)
+**Tag**: `v0.17.0-security` (planned, was `v0.16.0-security`, originally `v0.14.0-security`)
 **Commit**: `e672edc`
 
-#### 16.1 WebAuthn Key Protection
+#### 17.1 WebAuthn Key Protection
 - [x] Implement WebAuthn/Passkey integration for key protection
 - [x] Create secure key storage using Web Crypto API with WebAuthn-protected encryption
 - [x] Add biometric authentication option (fingerprint, Face ID)
@@ -702,7 +755,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Support hardware security keys (YubiKey, etc.)
 - [x] Git commit: "feat: implement Epic 14 - WebAuthn key protection and device management (14.1-14.2)"
 
-#### 16.2 Device Management & Visibility
+#### 17.2 Device Management & Visibility
 - [x] Create device tracking system (device fingerprinting using FingerprintJS)
 - [x] Track active sessions per device (browser, OS, IP, last active)
 - [x] Implement DeviceFingerprintService with browser/OS detection
@@ -717,7 +770,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Initialize device tracking on app startup
 - [x] Git commit: "feat: implement Epic 14 - WebAuthn key protection and device management (14.1-14.2)"
 
-#### 16.3 Tor Integration
+#### 17.3 Tor Integration
 - [ ] Add Tor proxy configuration (.onion relays) - DEFERRED
 - [ ] Create TorSettings component - DEFERRED
 - [ ] Implement SOCKS5 proxy support - DEFERRED
@@ -725,7 +778,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] Test Tor connectivity - DEFERRED
 - [ ] Git commit: "feat: add Tor integration" - DEFERRED
 
-#### 16.4 Security Audit & Hardening
+#### 17.4 Security Audit & Hardening
 - [ ] Run security audit (XSS, CSRF, encryption) - DEFERRED
 - [ ] Implement Content Security Policy (CSP) - DEFERRED
 - [ ] Add security headers (HSTS, X-Frame-Options, etc.) - DEFERRED
@@ -756,16 +809,16 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] Login notifications for new devices - PENDING
 - [ ] Tor connection to .onion relays - DEFERRED
 - [ ] Security audit - DEFERRED
-- [x] Git tag: `v0.16.0-security` (planned)
+- [x] Git tag: `v0.17.0-security` (planned)
 
 ---
 
-### ⚠️ Epic 17: Testing & Quality (renumbered from Epic 15)
+### ⚠️ Epic 18: Testing & Quality (renumbered from Epic 15, then Epic 17)
 **Status**: Partial ⚠️ (Unit tests complete, Integration/E2E pending)
-**Tag**: `v0.17.0-testing` (partial)
+**Tag**: `v0.18.0-testing` (partial)
 **Commit**: `04e51fe`
 
-#### 17.1 Unit Test Coverage
+#### 18.1 Unit Test Coverage
 - [x] Ensure >80% coverage for all core modules
 - [x] Write missing unit tests for:
   - Module store (16 tests)
@@ -793,7 +846,7 @@ The following new epics have been added to the roadmap based on architectural re
   - State management and validation
   - Error handling and edge cases
 
-#### 17.2 Integration Tests (Foundation)
+#### 18.2 Integration Tests (Foundation)
 - [x] Create integration test structure
 - [x] Write integration test templates:
   - Nostr Client ↔ Storage sync (5 tests) - requires IndexedDB mocking
@@ -804,7 +857,7 @@ The following new epics have been added to the roadmap based on architectural re
 
 **Note**: Integration tests created but require fake-indexeddb or similar mocking. Deferred to future iteration.
 
-#### 17.3 E2E Tests with Playwright
+#### 18.3 E2E Tests with Playwright
 - [x] Create E2E test structure in `/tests/e2e/`
 - [x] Write E2E test stubs for critical flows:
   - **auth.spec.ts** (4 scenarios) - Identity creation, import, export, switching
@@ -829,27 +882,27 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] E2E tests running and passing (18 scenarios stubbed, NOT running)
 - [x] Build successful: 1.97MB bundle (648KB gzipped)
 - [x] No TypeScript errors
-- [ ] Git tag: `v0.17.0-testing` (PARTIAL - unit tests only)
+- [ ] Git tag: `v0.18.0-testing` (PARTIAL - unit tests only)
 
 ---
 
-### Epic 18: Production Prep (renumbered from Epic 16)
+### Epic 19: Production Prep (renumbered from Epic 16, then Epic 18)
 **Status**: Pending ⏳
 **Tag**: `v1.0.0-mvp`
 
-#### 18.1 Performance Optimization
+#### 19.1 Performance Optimization
 - [ ] Implement virtual scrolling and lazy loading
 - [ ] Code splitting by route
 - [ ] Optimize bundle size
 - [ ] Git commit: "perf: optimize performance"
 
-#### 18.2 Documentation
+#### 19.2 Documentation
 - [ ] Create user and developer documentation
 - [ ] Module development guides (custom fields, database, CRM)
 - [ ] Update PROGRESS.md with final status
 - [ ] Git commit: "docs: add user and developer documentation"
 
-#### 18.3 Production Build
+#### 19.3 Production Build
 - [ ] Configure production build and deployment
 - [ ] PWA setup with offline support
 - [ ] Create deployment guide

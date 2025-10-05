@@ -1,0 +1,545 @@
+/**
+ * CRM Templates
+ * Pre-built templates for common organizing use cases
+ */
+
+import type { CustomField } from '../custom-fields/types';
+import type { ViewConfig } from '../database/types';
+
+export interface CRMTemplate {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'organizing' | 'fundraising' | 'legal' | 'volunteer' | 'civil-defense';
+  fields: Partial<CustomField>[];
+  defaultViews: Array<{
+    name: string;
+    type: 'table' | 'board' | 'calendar' | 'gallery';
+    config: Partial<ViewConfig>;
+  }>;
+}
+
+/**
+ * Union Organizing Template
+ * Contact management for union campaigns
+ */
+export const unionOrganizingTemplate: CRMTemplate = {
+  id: 'union-organizing',
+  name: 'Union Organizing',
+  description: 'Manage contacts, actions, and timeline for union campaigns',
+  icon: '✊',
+  category: 'organizing',
+  fields: [
+    {
+      name: 'full_name',
+      label: 'Full Name',
+      schema: { type: 'string', required: true },
+      widget: { widget: 'text', placeholder: 'John Doe' },
+      order: 0,
+    },
+    {
+      name: 'email',
+      label: 'Email',
+      schema: { type: 'string', format: 'email' },
+      widget: { widget: 'text', placeholder: 'john@example.com' },
+      order: 1,
+    },
+    {
+      name: 'phone',
+      label: 'Phone',
+      schema: { type: 'string' },
+      widget: { widget: 'text', placeholder: '+1 (555) 123-4567' },
+      order: 2,
+    },
+    {
+      name: 'department',
+      label: 'Department',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 3,
+    },
+    {
+      name: 'support_level',
+      label: 'Support Level',
+      schema: { type: 'string', enum: ['Strong Yes', 'Lean Yes', 'Undecided', 'Lean No', 'Strong No', 'Unknown'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Strong Yes', label: 'Strong Yes (5)' },
+          { value: 'Lean Yes', label: 'Lean Yes (4)' },
+          { value: 'Undecided', label: 'Undecided (3)' },
+          { value: 'Lean No', label: 'Lean No (2)' },
+          { value: 'Strong No', label: 'Strong No (1)' },
+          { value: 'Unknown', label: 'Unknown' },
+        ],
+      },
+      order: 4,
+    },
+    {
+      name: 'organizer',
+      label: 'Assigned Organizer',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 5,
+    },
+    {
+      name: 'last_contact',
+      label: 'Last Contact Date',
+      schema: { type: 'string', format: 'date' },
+      widget: { widget: 'date' },
+      order: 6,
+    },
+    {
+      name: 'notes',
+      label: 'Notes',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea', placeholder: 'Conversation notes, concerns, etc.' },
+      order: 7,
+    },
+    {
+      name: 'signed_card',
+      label: 'Signed Union Card',
+      schema: { type: 'boolean' },
+      widget: { widget: 'checkbox' },
+      order: 8,
+    },
+  ],
+  defaultViews: [
+    {
+      name: 'All Contacts',
+      type: 'table',
+      config: {},
+    },
+    {
+      name: 'By Support Level',
+      type: 'board',
+      config: { boardGroupBy: 'support_level' },
+    },
+  ],
+};
+
+/**
+ * Fundraising Template
+ * Donor contact management
+ */
+export const fundraisingTemplate: CRMTemplate = {
+  id: 'fundraising',
+  name: 'Fundraising',
+  description: 'Track donors, contributions, and campaigns',
+  icon: '💰',
+  category: 'fundraising',
+  fields: [
+    {
+      name: 'donor_name',
+      label: 'Donor Name',
+      schema: { type: 'string', required: true },
+      widget: { widget: 'text' },
+      order: 0,
+    },
+    {
+      name: 'email',
+      label: 'Email',
+      schema: { type: 'string', format: 'email' },
+      widget: { widget: 'text' },
+      order: 1,
+    },
+    {
+      name: 'phone',
+      label: 'Phone',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 2,
+    },
+    {
+      name: 'total_donated',
+      label: 'Total Donated',
+      schema: { type: 'number', minimum: 0 },
+      widget: { widget: 'number', placeholder: '0.00' },
+      order: 3,
+    },
+    {
+      name: 'last_donation_date',
+      label: 'Last Donation Date',
+      schema: { type: 'string', format: 'date' },
+      widget: { widget: 'date' },
+      order: 4,
+    },
+    {
+      name: 'donor_level',
+      label: 'Donor Level',
+      schema: { type: 'string', enum: ['Major', 'Regular', 'Occasional', 'One-time', 'Prospect'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Major', label: 'Major ($1000+)' },
+          { value: 'Regular', label: 'Regular ($100-999)' },
+          { value: 'Occasional', label: 'Occasional ($10-99)' },
+          { value: 'One-time', label: 'One-time' },
+          { value: 'Prospect', label: 'Prospect' },
+        ],
+      },
+      order: 5,
+    },
+    {
+      name: 'preferred_contact',
+      label: 'Preferred Contact Method',
+      schema: { type: 'string', enum: ['Email', 'Phone', 'Mail', 'In-person'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Email', label: 'Email' },
+          { value: 'Phone', label: 'Phone' },
+          { value: 'Mail', label: 'Mail' },
+          { value: 'In-person', label: 'In-person' },
+        ],
+      },
+      order: 6,
+    },
+    {
+      name: 'notes',
+      label: 'Notes',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea' },
+      order: 7,
+    },
+  ],
+  defaultViews: [
+    {
+      name: 'All Donors',
+      type: 'table',
+      config: {},
+    },
+    {
+      name: 'By Donor Level',
+      type: 'board',
+      config: { boardGroupBy: 'donor_level' },
+    },
+  ],
+};
+
+/**
+ * Legal/NLG Tracking Template
+ * Track arrestees, court dates, lawyers
+ */
+export const legalTrackingTemplate: CRMTemplate = {
+  id: 'legal-tracking',
+  name: 'Legal/NLG Tracking',
+  description: 'Track cases, arrestees, lawyers, and court dates',
+  icon: '⚖️',
+  category: 'legal',
+  fields: [
+    {
+      name: 'case_name',
+      label: 'Case Name',
+      schema: { type: 'string', required: true },
+      widget: { widget: 'text' },
+      order: 0,
+    },
+    {
+      name: 'arrestee_name',
+      label: 'Arrestee Name',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 1,
+    },
+    {
+      name: 'arrest_date',
+      label: 'Arrest Date',
+      schema: { type: 'string', format: 'date' },
+      widget: { widget: 'date' },
+      order: 2,
+    },
+    {
+      name: 'charges',
+      label: 'Charges',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea' },
+      order: 3,
+    },
+    {
+      name: 'case_status',
+      label: 'Case Status',
+      schema: { type: 'string', enum: ['Active', 'Pending', 'Resolved', 'Dismissed', 'Convicted', 'Appealing'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Active', label: 'Active' },
+          { value: 'Pending', label: 'Pending' },
+          { value: 'Resolved', label: 'Resolved' },
+          { value: 'Dismissed', label: 'Dismissed' },
+          { value: 'Convicted', label: 'Convicted' },
+          { value: 'Appealing', label: 'Appealing' },
+        ],
+      },
+      order: 4,
+    },
+    {
+      name: 'assigned_lawyer',
+      label: 'Assigned Lawyer',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 5,
+    },
+    {
+      name: 'next_court_date',
+      label: 'Next Court Date',
+      schema: { type: 'string', format: 'date' },
+      widget: { widget: 'date' },
+      order: 6,
+    },
+    {
+      name: 'bail_amount',
+      label: 'Bail Amount',
+      schema: { type: 'number' },
+      widget: { widget: 'number' },
+      order: 7,
+    },
+    {
+      name: 'notes',
+      label: 'Notes',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea' },
+      order: 8,
+    },
+  ],
+  defaultViews: [
+    {
+      name: 'All Cases',
+      type: 'table',
+      config: {},
+    },
+    {
+      name: 'By Status',
+      type: 'board',
+      config: { boardGroupBy: 'case_status' },
+    },
+    {
+      name: 'Court Calendar',
+      type: 'calendar',
+      config: { calendarDateField: 'next_court_date' },
+    },
+  ],
+};
+
+/**
+ * Volunteer Management Template
+ * Track volunteers, skills, availability
+ */
+export const volunteerManagementTemplate: CRMTemplate = {
+  id: 'volunteer-management',
+  name: 'Volunteer Management',
+  description: 'Track volunteers, skills, shifts, and availability',
+  icon: '🙋',
+  category: 'volunteer',
+  fields: [
+    {
+      name: 'volunteer_name',
+      label: 'Volunteer Name',
+      schema: { type: 'string', required: true },
+      widget: { widget: 'text' },
+      order: 0,
+    },
+    {
+      name: 'email',
+      label: 'Email',
+      schema: { type: 'string', format: 'email' },
+      widget: { widget: 'text' },
+      order: 1,
+    },
+    {
+      name: 'phone',
+      label: 'Phone',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 2,
+    },
+    {
+      name: 'skills',
+      label: 'Skills',
+      schema: { type: 'array', items: { type: 'string' } },
+      widget: {
+        widget: 'multi-select',
+        options: [
+          { value: 'First Aid', label: 'First Aid' },
+          { value: 'Legal Observer', label: 'Legal Observer' },
+          { value: 'Medic', label: 'Medic' },
+          { value: 'Communications', label: 'Communications' },
+          { value: 'De-escalation', label: 'De-escalation' },
+          { value: 'Translation', label: 'Translation' },
+          { value: 'Social Media', label: 'Social Media' },
+          { value: 'Fundraising', label: 'Fundraising' },
+        ],
+      },
+      order: 3,
+    },
+    {
+      name: 'availability',
+      label: 'Availability',
+      schema: { type: 'array', items: { type: 'string' } },
+      widget: {
+        widget: 'multi-select',
+        options: [
+          { value: 'Weekdays', label: 'Weekdays' },
+          { value: 'Weekends', label: 'Weekends' },
+          { value: 'Evenings', label: 'Evenings' },
+          { value: 'On-call', label: 'On-call' },
+        ],
+      },
+      order: 4,
+    },
+    {
+      name: 'volunteer_status',
+      label: 'Status',
+      schema: { type: 'string', enum: ['Active', 'Inactive', 'On Leave', 'Prospective'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Active', label: 'Active' },
+          { value: 'Inactive', label: 'Inactive' },
+          { value: 'On Leave', label: 'On Leave' },
+          { value: 'Prospective', label: 'Prospective' },
+        ],
+      },
+      order: 5,
+    },
+    {
+      name: 'background_check',
+      label: 'Background Check Complete',
+      schema: { type: 'boolean' },
+      widget: { widget: 'checkbox' },
+      order: 6,
+    },
+    {
+      name: 'notes',
+      label: 'Notes',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea' },
+      order: 7,
+    },
+  ],
+  defaultViews: [
+    {
+      name: 'All Volunteers',
+      type: 'table',
+      config: {},
+    },
+    {
+      name: 'By Status',
+      type: 'board',
+      config: { boardGroupBy: 'volunteer_status' },
+    },
+  ],
+};
+
+/**
+ * Civil Defense Template
+ * Emergency contacts, resources, skills for mutual aid
+ */
+export const civilDefenseTemplate: CRMTemplate = {
+  id: 'civil-defense',
+  name: 'Civil Defense',
+  description: 'Emergency contacts, resources, and skills for community defense',
+  icon: '🛡️',
+  category: 'civil-defense',
+  fields: [
+    {
+      name: 'contact_name',
+      label: 'Contact Name',
+      schema: { type: 'string', required: true },
+      widget: { widget: 'text' },
+      order: 0,
+    },
+    {
+      name: 'phone',
+      label: 'Phone',
+      schema: { type: 'string' },
+      widget: { widget: 'text' },
+      order: 1,
+    },
+    {
+      name: 'emergency_skills',
+      label: 'Emergency Skills',
+      schema: { type: 'array', items: { type: 'string' } },
+      widget: {
+        widget: 'multi-select',
+        options: [
+          { value: 'EMT', label: 'EMT' },
+          { value: 'Paramedic', label: 'Paramedic' },
+          { value: 'Nurse', label: 'Nurse' },
+          { value: 'Doctor', label: 'Doctor' },
+          { value: 'Mental Health', label: 'Mental Health' },
+          { value: 'Legal', label: 'Legal' },
+          { value: 'Shelter Coord', label: 'Shelter Coordinator' },
+          { value: 'Food Prep', label: 'Food Preparation' },
+        ],
+      },
+      order: 2,
+    },
+    {
+      name: 'resources_available',
+      label: 'Resources Available',
+      schema: { type: 'array', items: { type: 'string' } },
+      widget: {
+        widget: 'multi-select',
+        options: [
+          { value: 'Shelter Space', label: 'Shelter Space' },
+          { value: 'Vehicle', label: 'Vehicle/Transport' },
+          { value: 'Medical Supplies', label: 'Medical Supplies' },
+          { value: 'Food/Water', label: 'Food/Water' },
+          { value: 'Communications', label: 'Communications Equipment' },
+          { value: 'Generator', label: 'Generator/Power' },
+        ],
+      },
+      order: 3,
+    },
+    {
+      name: 'availability_zone',
+      label: 'Availability Zone',
+      schema: { type: 'string' },
+      widget: { widget: 'text', placeholder: 'Neighborhood/district' },
+      order: 4,
+    },
+    {
+      name: 'contact_preference',
+      label: 'Emergency Contact Method',
+      schema: { type: 'string', enum: ['Phone Call', 'SMS', 'Signal', 'Radio', 'In-person'] },
+      widget: {
+        widget: 'select',
+        options: [
+          { value: 'Phone Call', label: 'Phone Call' },
+          { value: 'SMS', label: 'SMS' },
+          { value: 'Signal', label: 'Signal' },
+          { value: 'Radio', label: 'Radio' },
+          { value: 'In-person', label: 'In-person' },
+        ],
+      },
+      order: 5,
+    },
+    {
+      name: 'notes',
+      label: 'Notes',
+      schema: { type: 'string' },
+      widget: { widget: 'textarea' },
+      order: 6,
+    },
+  ],
+  defaultViews: [
+    {
+      name: 'All Contacts',
+      type: 'table',
+      config: {},
+    },
+  ],
+};
+
+/**
+ * All available CRM templates
+ */
+export const CRM_TEMPLATES: CRMTemplate[] = [
+  unionOrganizingTemplate,
+  fundraisingTemplate,
+  legalTrackingTemplate,
+  volunteerManagementTemplate,
+  civilDefenseTemplate,
+];
