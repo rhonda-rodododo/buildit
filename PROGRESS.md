@@ -1311,10 +1311,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 
-### 🚀 EPIC 21: Social Features & UX Overhaul (NEW - In Progress)
-**Status**: In Progress 🚀
-**Tag**: `v0.21.0-social-features` (planned)
+### 🚀 EPIC 21: Social Features & UX Overhaul (SUBSTANTIALLY COMPLETE)
+**Status**: 80% Complete ✅ (4/5 sub-epics done)
+**Tag**: `v0.21.0-social-features` (planned for final release with Nostr)
 **Purpose**: Transform BuildIt Network into a social-first platform with activity feed and microblogging
+**Completion**: Epics 21.1-21.4 fully implemented, Epic 21.5 (Nostr) deferred pending protocol layer work
 
 #### 21.1 Microblogging Module
 - [x] Create microblogging module structure (types, schema, store, components)
@@ -1373,7 +1374,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [x] Add module-specific filter options with dropdown menu
 - [x] Git commit: "feat: implement feed aggregation system (Epic 21.4)" - 1c2583f
 
-#### 21.5 Nostr Protocol Integration
+#### 21.5 Nostr Protocol Integration ⏸️ (DEFERRED)
 - [ ] Implement NIP-01 text notes (kind 1) for posts
 - [ ] Implement NIP-07 reactions (kind 7)
 - [ ] Implement NIP-06 reposts (kind 6)
@@ -1381,6 +1382,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [ ] Sync posts from relays to local storage
 - [ ] Handle deleted posts and replaceable events
 - [ ] Git commit: "feat: integrate microblogging with Nostr protocol (Epic 21.5)"
+
+**Deferral Rationale**: Nostr protocol integration requires significant infrastructure work on the core protocol layer. This is better suited as a dedicated epic once the Nostr relay and event system is fully implemented. The local-first social features (21.1-21.4) provide full functionality without Nostr integration.
 
 **Implementation Details (21.1-21.2)**:
 - **Module Structure**: Complete self-contained module in src/modules/microblogging/
@@ -1462,6 +1465,13 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [x] Filter UI implemented (dropdown structure in place)
 - [ ] Dropdown menu interaction (minor UI issue - structure correct)
 
+**Seed Data (Comprehensive Demo)**:
+- **Posts**: 3 welcome/guide posts with hashtags
+- **Events**: 3 events (workshop, rally, meeting) with varying dates, privacy levels
+- **Mutual Aid**: 3 items (food request, transport offer, housing request) with categories, expiration
+- **Governance**: 3 proposals (rent strike, profit sharing, garden purchase) with different voting methods and statuses
+- **Wiki**: 3 pages (security, power mapping, consensus) with versions and categories
+
 **Validation**:
 - [x] Build successful after adding Epic 21.1
 - [x] All TypeScript compilation passing
@@ -1469,11 +1479,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [x] Reaction system functional
 - [x] Feed filtering working
 - [x] Seed posts loading correctly
-- [x] Git commit created: 03f5f5c
-- [x] Comments system (Epic 21.3) - c7072f8
-- [x] Feed aggregation (Epic 21.4) - 1c2583f
-- [ ] Nostr integration (Epic 21.5)
-- [ ] Git tag: `v0.21.0-social-features` (pending completion)
+- [x] Feed aggregation displaying all content types
+- [x] Event cards with RSVP, location, capacity, tags
+- [x] Mutual aid cards with status badges, categories, expiration
+- [x] Comment threading working with nested replies
+- [x] Git commits: 03f5f5c (21.1), c7072f8 (21.3), 1c2583f (21.4), b0b359d (seed data)
+- [x] Substantially complete (4/5 sub-epics)
+- [ ] Nostr integration (Epic 21.5) - deferred
+- [ ] Git tag: `v0.21.0-social-features` (pending Nostr integration)
 
 ---
 
