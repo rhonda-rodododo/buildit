@@ -123,3 +123,30 @@ export interface GroupMemberUpdate {
   role?: GroupRole
   permissions?: GroupPermission[]
 }
+
+// Group messaging types
+export interface GroupThread {
+  id: string
+  groupId: string
+  title: string
+  createdBy: string
+  createdAt: number
+  lastMessageAt: number
+  messageCount: number
+  category?: string
+  pinned?: boolean
+}
+
+export interface GroupMessage {
+  id: string
+  threadId: string
+  groupId: string
+  from: string
+  content: string
+  timestamp: number
+  replyTo?: string
+  reactions?: Record<string, string[]> // emoji -> pubkeys[]
+  edited?: boolean
+  editedAt?: number
+  deleted?: boolean
+}

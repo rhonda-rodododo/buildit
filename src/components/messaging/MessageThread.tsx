@@ -1,6 +1,7 @@
 import { FC, useEffect, useRef, useState } from 'react'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { loadConversationHistory, sendDirectMessage, subscribeToDirectMessages } from '@/core/messaging/dm'
 import { getNostrClient } from '@/core/nostr/client'
 import { Card } from '@/components/ui/card'
@@ -14,6 +15,7 @@ interface MessageThreadProps {
 export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
   const { getConversationMessages, setMessages, addMessage, markAsRead, conversations } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
+  const { addNotification } = useNotificationStore()
   const [messageInput, setMessageInput] = useState('')
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -48,6 +50,19 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
       (message) => {
         if (message.conversationId === conversationId) {
           addMessage(message)
+
+          // Show notification if message is from someone else
+          if (message.from !== currentIdentity.publicKey) {
+            addNotification({
+              type: 'new_dm',
+              title: 'New Message',
+              message: `${message.from.slice(0, 8)}...: ${message.content.slice(0, 50)}`,
+              metadata: {
+                conversationId: message.conversationId,
+                fromPubkey: message.from,
+              },
+            })
+          }
         }
       },
       Math.floor(Date.now() / 1000)

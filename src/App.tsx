@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { MessagingView } from '@/components/messaging/MessagingView'
 import { GroupsView } from '@/components/groups/GroupsView'
+import { NotificationCenter } from '@/components/notifications/NotificationCenter'
 import { initializeDatabase } from '@/core/storage/db'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,7 @@ const App: FC = () => {
             Social Action Network
           </h1>
           <div className="flex items-center gap-2 sm:gap-4">
+            <NotificationCenter />
             <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
               {currentIdentity.name}
             </span>

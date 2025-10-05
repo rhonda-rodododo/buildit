@@ -1,11 +1,18 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { GroupThreadList } from '@/components/messaging/GroupThreadList'
+import { GroupThreadView } from '@/components/messaging/GroupThreadView'
+import { CreateThreadDialog } from '@/components/messaging/CreateThreadDialog'
+import { useMessagingStore } from '@/stores/messagingStore'
+import { hexToBytes } from '@noble/hashes/utils'
 
 export const GroupView: FC = () => {
   const { activeGroup } = useGroupsStore()
+  const { activeThreadId } = useMessagingStore()
+  const [createThreadOpen, setCreateThreadOpen] = useState(false)
 
   if (!activeGroup) {
     return (
@@ -62,13 +69,33 @@ export const GroupView: FC = () => {
             </TabsList>
 
             {activeGroup.enabledModules.includes('messaging') && (
-              <TabsContent value="messaging">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Group Messaging</h3>
-                  <p className="text-muted-foreground">
-                    Group messaging feature coming soon...
-                  </p>
-                </Card>
+              <TabsContent value="messaging" className="h-[calc(100vh-300px)]">
+                <div className="grid grid-cols-3 gap-4 h-full">
+                  <div className="col-span-1 border rounded-lg overflow-hidden">
+                    <GroupThreadList
+                      groupId={activeGroup.id}
+                      onCreateThread={() => setCreateThreadOpen(true)}
+                    />
+                  </div>
+                  <div className="col-span-2 border rounded-lg overflow-hidden">
+                    {activeThreadId && activeGroup.encryptedGroupKey ? (
+                      <GroupThreadView
+                        threadId={activeThreadId}
+                        groupId={activeGroup.id}
+                        groupKey={hexToBytes(activeGroup.encryptedGroupKey)}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        Select a thread or create a new one to start messaging
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <CreateThreadDialog
+                  open={createThreadOpen}
+                  onOpenChange={setCreateThreadOpen}
+                  groupId={activeGroup.id}
+                />
               </TabsContent>
             )}
 
