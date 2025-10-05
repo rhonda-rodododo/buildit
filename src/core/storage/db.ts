@@ -138,6 +138,18 @@ export interface DBNostrEvent {
   sig: string
 }
 
+export interface DBModuleInstance {
+  id: string // primary key: `${groupId}:${moduleId}`
+  moduleId: string
+  groupId: string
+  state: 'disabled' | 'enabled' | 'loading' | 'error'
+  config: Record<string, unknown>
+  enabledAt: number
+  enabledBy: string
+  lastError?: string
+  updatedAt: number
+}
+
 /**
  * BuildIt Network Database
  */
@@ -154,6 +166,7 @@ export class BuildItDB extends Dexie {
   wikiPages!: Table<DBWikiPage, string>
   mutualAidRequests!: Table<DBMutualAidRequest, string>
   nostrEvents!: Table<DBNostrEvent, string>
+  moduleInstances!: Table<DBModuleInstance, string>
 
   constructor() {
     super('BuildItNetworkDB')
@@ -171,6 +184,7 @@ export class BuildItDB extends Dexie {
       wikiPages: 'id, groupId, title, category, updated, updatedBy',
       mutualAidRequests: 'id, groupId, type, category, status, created, createdBy',
       nostrEvents: 'id, kind, pubkey, created_at',
+      moduleInstances: 'id, [groupId+moduleId], groupId, moduleId, state, updatedAt',
     })
   }
 

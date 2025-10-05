@@ -1,0 +1,84 @@
+import { FC, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ModuleSettings from '@/components/modules/ModuleSettings';
+import type { DBGroup } from '@/core/storage/db';
+
+interface GroupSettingsDialogProps {
+  group: DBGroup;
+  trigger?: React.ReactNode;
+}
+
+export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigger }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button variant="outline" size="sm">
+            Settings
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle>{group.name} Settings</DialogTitle>
+          <DialogDescription>Manage group settings, modules, and members</DialogDescription>
+        </DialogHeader>
+
+        <Tabs defaultValue="modules" className="flex-1 overflow-hidden flex flex-col">
+          <TabsList className="w-full">
+            <TabsTrigger value="modules" className="flex-1">
+              Modules
+            </TabsTrigger>
+            <TabsTrigger value="general" className="flex-1">
+              General
+            </TabsTrigger>
+            <TabsTrigger value="members" className="flex-1">
+              Members
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="flex-1 overflow-y-auto mt-4">
+            <TabsContent value="modules" className="mt-0">
+              <ModuleSettings groupId={group.id} />
+            </TabsContent>
+
+            <TabsContent value="general" className="mt-0">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium">General Settings</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure general group settings
+                  </p>
+                </div>
+                {/* TODO: Implement general settings */}
+                <p className="text-muted-foreground">General settings coming soon...</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="members" className="mt-0">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium">Member Management</h3>
+                  <p className="text-sm text-muted-foreground">Manage group members and roles</p>
+                </div>
+                {/* TODO: Implement member management */}
+                <p className="text-muted-foreground">Member management coming soon...</p>
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+};

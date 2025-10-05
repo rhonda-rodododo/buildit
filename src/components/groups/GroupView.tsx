@@ -1,11 +1,11 @@
 import { FC, useState } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GroupThreadList } from '@/components/messaging/GroupThreadList'
 import { GroupThreadView } from '@/components/messaging/GroupThreadView'
 import { CreateThreadDialog } from '@/components/messaging/CreateThreadDialog'
+import { GroupSettingsDialog } from '@/components/groups/GroupSettingsDialog'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { hexToBytes } from '@noble/hashes/utils'
 import { EventsView } from '@/modules/events/components/EventsView'
@@ -36,9 +36,7 @@ export const GroupView: FC = () => {
             <h2 className="text-2xl font-bold">{activeGroup.name}</h2>
             <p className="text-muted-foreground mt-1">{activeGroup.description}</p>
           </div>
-          <Button variant="outline" size="sm">
-            Settings
-          </Button>
+          <GroupSettingsDialog group={activeGroup} />
         </div>
 
         {/* Group Info */}
