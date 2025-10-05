@@ -8,6 +8,7 @@
 - ALWAYS use clean UX principles, and pay attention to mobile responsiveness/UX, offline support, user friendliness, accessibility, and internationalization
 - ALWAYS track your progress, and track changes to requirements in PROMPT.md and PROGRESS.md, changes impacting any of the files below, and use git commit and git logs to track/review changes.
 - When installing shadcn ui components, just copy the code directly from the latest github files. there is an issue with the shadcn UI registry. Do not just invent your own shadcn ui components, they should ALWAYS be the latest canonical ones
+- Modules should be modular, all new features across modules should load to their respective interfaces dynamically from the module registry
 
 
 ## 📚 Project Documentation

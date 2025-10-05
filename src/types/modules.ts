@@ -116,6 +116,7 @@ export interface ModuleRoute {
   path: string;
   component: React.ComponentType;
   exact?: boolean;
+  scope?: 'app' | 'group'; // Where the route is mounted (default: 'group')
 }
 
 /**
