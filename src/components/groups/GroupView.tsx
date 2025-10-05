@@ -8,6 +8,11 @@ import { GroupThreadView } from '@/components/messaging/GroupThreadView'
 import { CreateThreadDialog } from '@/components/messaging/CreateThreadDialog'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { hexToBytes } from '@noble/hashes/utils'
+import { EventsView } from '@/modules/events/components/EventsView'
+import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
+import { GovernanceView } from '@/modules/governance/components/GovernanceView'
+import { WikiView } from '@/modules/wiki/components/WikiView'
+import { CRMView } from '@/modules/crm/components/CRMView'
 
 export const GroupView: FC = () => {
   const { activeGroup } = useGroupsStore()
@@ -101,56 +106,31 @@ export const GroupView: FC = () => {
 
             {activeGroup.enabledModules.includes('events') && (
               <TabsContent value="events">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Events</h3>
-                  <p className="text-muted-foreground">
-                    Events management coming soon...
-                  </p>
-                </Card>
+                <EventsView groupId={activeGroup.id} />
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('mutual-aid') && (
               <TabsContent value="mutual-aid">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Mutual Aid</h3>
-                  <p className="text-muted-foreground">
-                    Mutual aid requests and offers coming soon...
-                  </p>
-                </Card>
+                <MutualAidView />
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('governance') && (
               <TabsContent value="governance">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Governance</h3>
-                  <p className="text-muted-foreground">
-                    Proposals and voting coming soon...
-                  </p>
-                </Card>
+                <GovernanceView />
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('wiki') && (
               <TabsContent value="wiki">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Wiki</h3>
-                  <p className="text-muted-foreground">
-                    Knowledge base coming soon...
-                  </p>
-                </Card>
+                <WikiView />
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('crm') && (
               <TabsContent value="crm">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">CRM</h3>
-                  <p className="text-muted-foreground">
-                    Contact management coming soon...
-                  </p>
-                </Card>
+                <CRMView />
               </TabsContent>
             )}
           </Tabs>
