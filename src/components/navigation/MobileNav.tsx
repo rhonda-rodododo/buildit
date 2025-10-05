@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useModuleStore } from '@/stores/moduleStore';
 import { Button } from '@/components/ui/button';
 import { SheetClose } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 export const MobileNav: FC = () => {
   const { registry } = useModuleStore();
@@ -13,7 +14,6 @@ export const MobileNav: FC = () => {
     { to: '/app', label: 'Home', icon: Home, end: true },
     { to: '/app/messages', label: 'Messages', icon: MessageSquare },
     { to: '/app/groups', label: 'Groups', icon: Users },
-    { to: '/app/settings', label: 'Settings', icon: Settings },
   ];
 
   // Get all installed modules
@@ -32,7 +32,7 @@ export const MobileNav: FC = () => {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 overflow-auto p-4 space-y-6">
+      <div className="flex-1 overflow-auto p-4 space-y-4">
         {/* Core Navigation */}
         <nav className="space-y-1">
           {coreLinks.map((link) => (
@@ -42,7 +42,7 @@ export const MobileNav: FC = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'hover:bg-muted'
@@ -58,23 +58,48 @@ export const MobileNav: FC = () => {
 
         {/* Installed Modules */}
         {modules.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-muted-foreground px-3">
-              Modules
-            </h3>
-            <nav className="space-y-1">
-              {modules.map((module) => (
-                <div
-                  key={module.metadata.id}
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground"
-                >
-                  <span>{module.metadata.icon}</span>
-                  {module.metadata.name}
-                </div>
-              ))}
-            </nav>
-          </div>
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
+                Modules
+              </h3>
+              <nav className="space-y-1">
+                {modules.map((module) => (
+                  <div
+                    key={module.metadata.id}
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground"
+                    title={module.metadata.description}
+                  >
+                    <span className="text-base">{module.metadata.icon}</span>
+                    <span className="flex-1">{module.metadata.name}</span>
+                  </div>
+                ))}
+              </nav>
+            </div>
+          </>
         )}
+
+        {/* Settings */}
+        <div>
+          <Separator className="mb-4" />
+          <SheetClose asChild>
+            <NavLink
+              to="/app/settings"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted'
+                )
+              }
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </NavLink>
+          </SheetClose>
+        </div>
       </div>
     </div>
   );

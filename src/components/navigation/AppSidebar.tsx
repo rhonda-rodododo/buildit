@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Home, MessageSquare, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useModuleStore } from '@/stores/moduleStore';
+import { Separator } from '@/components/ui/separator';
 
 interface AppSidebarProps {
   className?: string;
@@ -15,7 +16,6 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
     { to: '/app', label: 'Home', icon: Home, end: true },
     { to: '/app/messages', label: 'Messages', icon: MessageSquare },
     { to: '/app/groups', label: 'Groups', icon: Users },
-    { to: '/app/settings', label: 'Settings', icon: Settings },
   ];
 
   // Get all installed modules
@@ -24,7 +24,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
   return (
     <aside
       className={cn(
-        'w-64 border-r bg-muted/10 p-4 space-y-6',
+        'w-64 border-r bg-card p-4 flex flex-col gap-4 overflow-y-auto',
         className
       )}
     >
@@ -37,10 +37,10 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
             end={link.end}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
                 isActive
                   ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted'
+                  : 'text-foreground hover:bg-muted'
               )
             }
           >
@@ -52,23 +52,46 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
 
       {/* Installed Modules */}
       {modules.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-muted-foreground px-3">
-            Modules
-          </h3>
-          <nav className="space-y-1">
-            {modules.map((module) => (
-              <div
-                key={module.metadata.id}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground"
-              >
-                <span>{module.metadata.icon}</span>
-                {module.metadata.name}
-              </div>
-            ))}
-          </nav>
-        </div>
+        <>
+          <Separator />
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
+              Modules
+            </h3>
+            <nav className="space-y-1">
+              {modules.map((module) => (
+                <div
+                  key={module.metadata.id}
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-not-allowed"
+                  title={module.metadata.description}
+                >
+                  <span className="text-base">{module.metadata.icon}</span>
+                  <span className="flex-1">{module.metadata.name}</span>
+                </div>
+              ))}
+            </nav>
+          </div>
+        </>
       )}
+
+      {/* Settings at bottom */}
+      <div>
+        <Separator className="mb-4" />
+        <NavLink
+          to="/app/settings"
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'text-foreground hover:bg-muted'
+            )
+          }
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </NavLink>
+      </div>
     </aside>
   );
 };
