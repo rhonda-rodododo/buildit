@@ -219,7 +219,7 @@ export const GroupRuleSchema = z.object({
 });
 
 export const ViewConfigSchema = z.object({
-  columnWidths: z.record(z.number()).optional(),
+  columnWidths: z.record(z.string(), z.number()).optional(),
   columnOrder: z.array(z.string()).optional(),
   boardGroupBy: z.string().optional(),
   boardCardFields: z.array(z.string()).optional(),
@@ -265,7 +265,7 @@ export const DatabaseRecordSchema = z.object({
   id: z.string(),
   tableId: z.string(),
   groupId: z.string(),
-  customFields: z.record(z.unknown()),
+  customFields: z.record(z.string(), z.unknown()),
   created: z.number(),
   createdBy: z.string(),
   updated: z.number(),

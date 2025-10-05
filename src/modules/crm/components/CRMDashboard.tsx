@@ -10,6 +10,13 @@ import { databaseManager } from '@/modules/database/databaseManager';
 import { CRM_TEMPLATES, type CRMTemplate } from '../templates';
 import { useDatabaseStore } from '@/modules/database/databaseStore';
 import { DatabaseDashboard } from '@/modules/database/components/DatabaseDashboard';
+import {
+  unionOrganizingSeedData,
+  fundraisingSeedData,
+  legalTrackingSeedData,
+  volunteerManagementSeedData,
+  civilDefenseSeedData,
+} from '../seedData';
 
 interface CRMDashboardProps {
   groupId: string;
@@ -61,6 +68,27 @@ export function CRMDashboard({ groupId, userPubkey }: CRMDashboardProps) {
         viewTemplate.name,
         viewTemplate.type
       );
+    }
+
+    // Load seed data for the template
+    const seedDataMap: Record<string, Array<{ customFields: Record<string, unknown> }>> = {
+      'union-organizing': unionOrganizingSeedData,
+      'fundraising': fundraisingSeedData,
+      'legal-nlg-tracking': legalTrackingSeedData,
+      'volunteer-management': volunteerManagementSeedData,
+      'civil-defense': civilDefenseSeedData,
+    };
+
+    const seedData = seedDataMap[template.id];
+    if (seedData) {
+      for (const record of seedData) {
+        await databaseManager.createRecord(
+          table.id,
+          groupId,
+          userPubkey,
+          record.customFields
+        );
+      }
     }
 
     setShowTemplates(false);

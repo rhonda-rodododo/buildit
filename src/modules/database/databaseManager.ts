@@ -351,7 +351,7 @@ export class DatabaseManager {
         const bValue = b.customFields[sort.fieldName];
 
         const comparison =
-          aValue === bValue ? 0 : aValue > bValue ? 1 : -1;
+          aValue === bValue ? 0 : (aValue as number | string) > (bValue as number | string) ? 1 : -1;
 
         if (comparison !== 0) {
           return sort.direction === 'asc' ? comparison : -comparison;
