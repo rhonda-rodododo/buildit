@@ -1,5 +1,4 @@
 import Dexie, { type Table } from 'dexie'
-import type { NostrEvent } from '@/types/nostr'
 
 // Database schema interfaces
 export interface DBIdentity {

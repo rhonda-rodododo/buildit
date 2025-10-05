@@ -5,7 +5,6 @@ import {
   importFromNsec,
   exportToNsec,
   exportToNpub,
-  decodeNpub,
   isValidPubkey,
   isValidNsec,
   isValidNpub,

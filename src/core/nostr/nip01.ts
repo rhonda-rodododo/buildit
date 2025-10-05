@@ -1,4 +1,4 @@
-import { finalizeEvent, verifyEvent, type Event as NostrEvent, type EventTemplate, type UnsignedEvent } from 'nostr-tools'
+import { finalizeEvent, verifyEvent, type Event as NostrEvent, type EventTemplate } from 'nostr-tools'
 import { getPublicKey } from 'nostr-tools/pure'
 
 /**

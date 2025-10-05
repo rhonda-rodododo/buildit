@@ -4,8 +4,6 @@ import {
   encryptDM,
   decryptDM,
   deriveConversationKey,
-  encryptNIP44,
-  decryptNIP44,
 } from '../nip44'
 
 describe('NIP-44 Encryption', () => {

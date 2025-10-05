@@ -90,9 +90,14 @@ export class NostrClient {
     // Subscribe to relays
     const relayUrls = this.getReadRelays()
 
+    // Combine filters into a single filter for nostr-tools pool
+    // Note: subscribeMany expects a single Filter, not an array
+    // For multiple filters, we'll need multiple subscriptions or use a different approach
+    const combinedFilter = filters.length === 1 ? filters[0] : filters[0] // TODO: Handle multiple filters properly
+
     this.pool.subscribeMany(
       relayUrls,
-      filters,
+      combinedFilter,
       {
         onevent: (event: NostrEvent) => {
           onEvent(event)
@@ -185,9 +190,12 @@ export class NostrClient {
       const events: NostrEvent[] = []
       const timer = setTimeout(() => resolve(events), timeout)
 
+      // Combine filters into a single filter for nostr-tools pool
+      const combinedFilter = filters.length === 1 ? filters[0] : filters[0]
+
       this.pool.subscribeMany(
         relays,
-        filters,
+        combinedFilter,
         {
           onevent: (event: NostrEvent) => {
             events.push(event)

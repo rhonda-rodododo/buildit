@@ -1,10 +1,15 @@
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { MessagingView } from '@/components/messaging/MessagingView'
+import { GroupsView } from '@/components/groups/GroupsView'
 import { initializeDatabase } from '@/core/storage/db'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 
 const App: FC = () => {
-  const { currentIdentity, loadIdentities } = useAuthStore()
+  const { currentIdentity, loadIdentities, logout } = useAuthStore()
+  const [activeTab, setActiveTab] = useState('messages')
 
   useEffect(() => {
     // Initialize database and load identities on mount
@@ -23,13 +28,49 @@ const App: FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="border-b">
+        <div className="container mx-auto px-8 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Social Action Network</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              {currentIdentity.name}
+            </span>
+            <Button variant="outline" size="sm" onClick={logout}>
+              Logout
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-4">
-          Welcome, {currentIdentity.name}!
-        </h1>
-        <p className="text-muted-foreground">
-          You're logged in. Group management and modules coming in next epics...
-        </p>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="groups">Groups</TabsTrigger>
+            <TabsTrigger value="events">Events</TabsTrigger>
+            <TabsTrigger value="mutual-aid">Mutual Aid</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="messages">
+            <MessagingView />
+          </TabsContent>
+
+          <TabsContent value="groups">
+            <GroupsView />
+          </TabsContent>
+
+          <TabsContent value="events">
+            <div className="text-center text-muted-foreground py-12">
+              Events module coming soon...
+            </div>
+          </TabsContent>
+
+          <TabsContent value="mutual-aid">
+            <div className="text-center text-muted-foreground py-12">
+              Mutual aid module coming soon...
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

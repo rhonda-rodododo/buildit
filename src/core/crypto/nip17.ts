@@ -1,4 +1,4 @@
-import { finalizeEvent, generateSecretKey, getPublicKey, type UnsignedEvent, type Event as NostrEvent } from 'nostr-tools'
+import { finalizeEvent, generateSecretKey } from 'nostr-tools'
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from './nip44'
 import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
 
@@ -37,8 +37,6 @@ export function createSeal(
   rumor: Rumor,
   senderPrivateKey: Uint8Array
 ): Seal {
-  const senderPubkey = getPublicKey(senderPrivateKey)
-
   // Encrypt the rumor
   const conversationKey = deriveConversationKey(senderPrivateKey, rumor.tags.find(t => t[0] === 'p')?.[1] || '')
   const encryptedContent = encryptNIP44(JSON.stringify(rumor), conversationKey)
@@ -64,7 +62,6 @@ export function createGiftWrap(
 ): GiftWrap {
   // Generate ephemeral key for anonymity
   const ephemeralPrivateKey = generateSecretKey()
-  const ephemeralPubkey = getPublicKey(ephemeralPrivateKey)
 
   // Encrypt the seal for the recipient
   const conversationKey = deriveConversationKey(ephemeralPrivateKey, recipientPubkey)
