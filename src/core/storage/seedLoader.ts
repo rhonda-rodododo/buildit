@@ -4,7 +4,6 @@
  */
 
 import type { BuildItDB } from './db';
-import type { ModuleSeed } from '@/types/modules';
 import { getAllModules } from '@/modules';
 
 /**
@@ -144,35 +143,35 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
   await db.events
     .where('groupId')
     .equals(groupId)
-    .filter((e) => e.id.includes('event-') || e.id.includes('example-'))
+    .filter((e: { id: string }) => e.id.includes('event-') || e.id.includes('example-'))
     .delete();
 
   // Clear mutual aid with seed IDs
   await db.mutualAidRequests
     .where('groupId')
     .equals(groupId)
-    .filter((r) => r.id.includes('ma-') || r.id.includes('aid-') || r.id.includes('example-'))
+    .filter((r: { id: string }) => r.id.includes('ma-') || r.id.includes('aid-') || r.id.includes('example-'))
     .delete();
 
   // Clear proposals with seed IDs
   await db.proposals
     .where('groupId')
     .equals(groupId)
-    .filter((p) => p.id.includes('proposal-'))
+    .filter((p: { id: string }) => p.id.includes('proposal-'))
     .delete();
 
   // Clear wiki pages with seed IDs
   await db.wikiPages
     .where('groupId')
     .equals(groupId)
-    .filter((p) => p.id.includes('wiki-'))
+    .filter((p: { id: string }) => p.id.includes('wiki-'))
     .delete();
 
   // Clear database tables and records with seed IDs
   await db.databaseTables
     .where('groupId')
     .equals(groupId)
-    .filter((t) => t.id.includes('table-'))
+    .filter((t: { id: string }) => t.id.includes('table-'))
     .delete();
 
   await db.databaseRecords.where('groupId').equals(groupId).delete();
@@ -183,7 +182,7 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
   await db.customFields
     .where('groupId')
     .equals(groupId)
-    .filter((f) => f.id.includes('field-'))
+    .filter((f: { id: string }) => f.id.includes('field-'))
     .delete();
 
   console.log(`✅ Demo data cleared for group ${groupId}`);

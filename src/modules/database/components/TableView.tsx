@@ -30,7 +30,7 @@ interface TableViewProps {
   onRecordUpdate?: (recordId: string, updates: Partial<DatabaseRecord>) => void;
 }
 
-export function TableView({ table, view, records, onRecordClick, onRecordUpdate }: TableViewProps) {
+export function TableView({ table, records, onRecordClick }: TableViewProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 

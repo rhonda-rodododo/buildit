@@ -87,8 +87,11 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
       await CustomFieldsManager.createField(
         groupId,
         entityType,
-        fieldData,
-        'system' // Template fields created by system
+        {
+          ...fieldData,
+          createdBy: 'system', // Template fields created by system
+        },
+        'system'
       );
     }
 

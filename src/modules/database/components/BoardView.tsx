@@ -6,7 +6,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { DatabaseRecord, DatabaseTable, DatabaseView } from '../types';
-import type { CustomField } from '@/modules/custom-fields/types';
 
 interface BoardViewProps {
   table: DatabaseTable;
