@@ -19,6 +19,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getAllModules } from '@/lib/modules/registry';
 import { CampaignPage } from '@/pages/public/CampaignPage';
 import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
+import { AnalyticsPage } from '@/pages/AnalyticsPage';
 
 /**
  * Get module routes by scope
@@ -110,6 +111,10 @@ export const routes: RouteObject[] = [
           {
             path: 'messages',
             element: <MessagesPage />,
+          },
+          {
+            path: 'analytics',
+            element: <AnalyticsPage />,
           },
           {
             path: 'groups',
