@@ -769,7 +769,7 @@ buildn/
 - Implement module manager:
   - Load/unload modules
   - Dependency resolution
-  - Module isolation
+  - Module isolation - everything from components, state, schema to translations should live in the module folder
 - Create per-group module config:
   - Enable/disable per group
   - Module-specific settings

@@ -5,8 +5,8 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { loadConversationHistory, sendDirectMessage, subscribeToDirectMessages } from '@/core/messaging/dm'
 import { getNostrClient } from '@/core/nostr/client'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { UserMentionInput } from '@/components/mentions/UserMentionInput'
 
 interface MessageThreadProps {
   conversationId: string
@@ -102,13 +102,6 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
-
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -193,14 +186,15 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
 
       {/* Input */}
       <div className="border-t p-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Type a message..."
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            disabled={sending}
-          />
+        <div className="flex gap-2 items-end">
+          <div className="flex-1">
+            <UserMentionInput
+              value={messageInput}
+              onChange={setMessageInput}
+              placeholder="Type a message... (use @ to mention)"
+              rows={1}
+            />
+          </div>
           <Button onClick={handleSend} disabled={sending || !messageInput.trim()}>
             Send
           </Button>
