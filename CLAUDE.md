@@ -52,7 +52,7 @@ See ARCHITECTURE.md for detailed system design.
 - Document categories and tagging
 - Search functionality
 
-### 6. Relationship CRM
+### 6. Relationship CRM/Database
 - Airtable-style interface
 - Shared contact databases per group
 - Custom fields and views
@@ -65,7 +65,9 @@ Plugin architecture allows for:
 - Per-group feature toggles
 - Custom permission schemes
 - Module-specific settings
+- cross-group views - such as events, aid requests, almost any non-
 Plugins are not user created yet, only officially provided plugins - this allows us to encapsulate all of the above, and make some functionality reusable
+
 
 ## Security & Privacy
 See PRIVACY.md for threat model and security architecture.
