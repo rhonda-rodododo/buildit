@@ -17,6 +17,8 @@ import { PreferencesSettings } from '@/pages/settings/PreferencesSettings';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getAllModules } from '@/lib/modules/registry';
+import { CampaignPage } from '@/pages/public/CampaignPage';
+import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
 
 /**
  * Get module routes by scope
@@ -64,6 +66,24 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <ErrorBoundary />,
     children: [
+      {
+        // Public routes (no auth required)
+        path: 'campaigns/:slug',
+        element: <CampaignPage />,
+      },
+      {
+        path: 'wiki',
+        children: [
+          {
+            index: true,
+            element: <PublicWikiPage />,
+          },
+          {
+            path: ':slug',
+            element: <PublicWikiPage />,
+          },
+        ],
+      },
       {
         // Auth routes (unauthenticated)
         element: <AuthLayout />,
