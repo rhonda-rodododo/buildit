@@ -1,4 +1,7 @@
 import type { ModulePlugin } from '@/types/modules';
+import { mutualAidSchema } from './schema';
+import { mutualAidMigrations } from './migrations';
+import { mutualAidSeeds } from './seeds';
 
 // Placeholder component
 const MutualAidPlaceholder = () => <div>Mutual Aid Module (Coming Soon)</div>;
@@ -8,6 +11,10 @@ const MutualAidPlaceholder = () => <div>Mutual Aid Module (Coming Soon)</div>;
  * Resource request/offer system, solidarity network
  */
 export const MutualAidModule: ModulePlugin = {
+  schema: mutualAidSchema,
+  migrations: mutualAidMigrations,
+  seeds: mutualAidSeeds,
+
   metadata: {
     id: 'mutual-aid',
     type: 'mutual-aid',

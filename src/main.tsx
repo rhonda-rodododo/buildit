@@ -7,11 +7,15 @@ import { initializeDatabase } from '@/core/storage/db'
 import './index.css'
 import './i18n/config'
 
-// Initialize database and modules
+// Initialize modules and database
+// IMPORTANT: Modules must be initialized first to register their schemas
 async function initializeApp() {
   try {
-    await initializeDatabase()
+    // Step 1: Initialize modules (registers schemas with db)
     await initializeModules()
+
+    // Step 2: Initialize database (opens db with all module schemas)
+    await initializeDatabase()
   } catch (error) {
     console.error('Failed to initialize app:', error)
   }

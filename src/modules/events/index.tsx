@@ -1,4 +1,7 @@
 import type { ModulePlugin } from '@/types/modules';
+import { eventsSchema } from './schema';
+import { eventsMigrations } from './migrations';
+import { eventsSeeds } from './seeds';
 
 // Placeholder component - will be implemented in future epic
 const EventsPlaceholder = () => <div>Events Module (Coming Soon)</div>;
@@ -8,6 +11,11 @@ const EventsPlaceholder = () => <div>Events Module (Coming Soon)</div>;
  * Event creation, RSVP system, campaign coordination
  */
 export const EventsModule: ModulePlugin = {
+  // Database schema
+  schema: eventsSchema,
+  migrations: eventsMigrations,
+  seeds: eventsSeeds,
+
   metadata: {
     id: 'events',
     type: 'events',

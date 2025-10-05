@@ -1,10 +1,17 @@
 import type { ModulePlugin } from '@/types/modules';
+import { messagingSchema } from './schema';
+import { messagingMigrations } from './migrations';
+import { messagingSeeds } from './seeds';
 
 /**
  * Messaging Module
  * Provides DM and group messaging with E2E encryption
  */
 export const MessagingModule: ModulePlugin = {
+  schema: messagingSchema,
+  migrations: messagingMigrations,
+  seeds: messagingSeeds,
+
   metadata: {
     id: 'messaging',
     type: 'messaging',

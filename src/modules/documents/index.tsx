@@ -1,4 +1,7 @@
 import type { ModulePlugin } from '@/types/modules';
+import { documentsSchema } from './schema';
+import { documentsMigrations } from './migrations';
+import { documentsSeeds } from './seeds';
 
 // Placeholder component
 const DocumentsPlaceholder = () => <div>Documents Module (Coming Soon)</div>;
@@ -8,6 +11,10 @@ const DocumentsPlaceholder = () => <div>Documents Module (Coming Soon)</div>;
  * WYSIWYG document editor with collaboration
  */
 export const DocumentsModule: ModulePlugin = {
+  schema: documentsSchema,
+  migrations: documentsMigrations,
+  seeds: documentsSeeds,
+
   metadata: {
     id: 'documents',
     type: 'documents',

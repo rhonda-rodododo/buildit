@@ -1,11 +1,18 @@
 import type { ModulePlugin } from '@/types/modules';
 import GovernanceDashboard from '@/components/governance/GovernanceDashboard';
+import { governanceSchema } from './schema';
+import { governanceMigrations } from './migrations';
+import { governanceSeeds } from './seeds';
 
 /**
  * Governance Module
  * Proposals, voting systems, decision making
  */
 export const GovernanceModule: ModulePlugin = {
+  schema: governanceSchema,
+  migrations: governanceMigrations,
+  seeds: governanceSeeds,
+
   metadata: {
     id: 'governance',
     type: 'governance',

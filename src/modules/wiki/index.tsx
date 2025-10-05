@@ -1,11 +1,18 @@
 import type { ModulePlugin } from '@/types/modules';
 import WikiDashboard from '@/components/wiki/WikiDashboard';
+import { wikiSchema } from './schema';
+import { wikiMigrations } from './migrations';
+import { wikiSeeds } from './seeds';
 
 /**
  * Wiki / Knowledge Base Module
  * Collaborative documentation with version control
  */
 export const WikiModule: ModulePlugin = {
+  schema: wikiSchema,
+  migrations: wikiMigrations,
+  seeds: wikiSeeds,
+
   metadata: {
     id: 'wiki',
     type: 'wiki',

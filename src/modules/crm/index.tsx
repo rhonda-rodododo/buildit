@@ -1,11 +1,18 @@
 import type { ModulePlugin } from '@/types/modules';
 import CRMDashboard from '@/components/crm/CRMDashboard';
+import { crmSchema } from './schema';
+import { crmMigrations } from './migrations';
+import { crmSeeds } from './seeds';
 
 /**
  * CRM / Contact Database Module
  * Airtable-style contact management with custom fields
  */
 export const CRMModule: ModulePlugin = {
+  schema: crmSchema,
+  migrations: crmMigrations,
+  seeds: crmSeeds,
+
   metadata: {
     id: 'crm',
     type: 'crm',

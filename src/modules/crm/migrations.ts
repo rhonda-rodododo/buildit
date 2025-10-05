@@ -1,0 +1,19 @@
+/**
+ * CRM Module Migrations
+ * Handles version upgrades for the CRM module schema
+ */
+
+import type { ModuleMigration } from '@/types/modules';
+
+/**
+ * All migrations for the CRM module
+ */
+export const crmMigrations: ModuleMigration[] = [
+  {
+    version: 1,
+    description: 'Initial contacts table',
+    migrate: async (_db) => {
+      console.log('CRM module v1: Initial schema created');
+    },
+  },
+];

@@ -1,4 +1,7 @@
 import type { ModulePlugin } from '@/types/modules';
+import { filesSchema } from './schema';
+import { filesMigrations } from './migrations';
+import { filesSeeds } from './seeds';
 
 // Placeholder component
 const FilesPlaceholder = () => <div>File Manager (Coming Soon)</div>;
@@ -8,6 +11,10 @@ const FilesPlaceholder = () => <div>File Manager (Coming Soon)</div>;
  * File and folder management with encryption
  */
 export const FilesModule: ModulePlugin = {
+  schema: filesSchema,
+  migrations: filesMigrations,
+  seeds: filesSeeds,
+
   metadata: {
     id: 'files',
     type: 'files',

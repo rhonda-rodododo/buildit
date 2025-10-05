@@ -1,5 +1,6 @@
 import type { ModulePlugin } from '@/types/modules';
 import { useModuleStore } from '@/stores/moduleStore';
+import { db } from '@/core/storage/db';
 
 /**
  * Module loader definition
@@ -63,6 +64,11 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
     if (!plugin) {
       console.error(`No module plugin found in module ${loader.id}`);
       return null;
+    }
+
+    // Register module schema with database (before db.open())
+    if (plugin.schema && plugin.schema.length > 0) {
+      db.addModuleSchema(plugin.metadata.id, plugin.schema);
     }
 
     return plugin;
