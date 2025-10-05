@@ -1,13 +1,17 @@
-import { FC, useState } from 'react'
+import { FC, useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { useEvents } from '../hooks/useEvents'
 import { EventPrivacy, CreateEventFormData } from '../types'
 import { Plus } from 'lucide-react'
+import { CustomFieldsManager } from '@/modules/custom-fields/customFieldsManager'
+import { DynamicForm } from '@/modules/custom-fields/components/DynamicForm'
+import type { CustomField, CustomFieldValues } from '@/modules/custom-fields/types'
 
 interface CreateEventDialogProps {
   groupId?: string
@@ -18,6 +22,8 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
   const { createEvent } = useEvents()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [customFields, setCustomFields] = useState<CustomField[]>([])
+  const [customFieldValues, setCustomFieldValues] = useState<CustomFieldValues>({})
 
   const [formData, setFormData] = useState<CreateEventFormData>({
     title: '',
@@ -28,12 +34,22 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
     groupId,
   })
 
+  // Load custom fields for events in this group
+  useEffect(() => {
+    if (groupId && open) {
+      CustomFieldsManager.loadFields(groupId, 'event').then(setCustomFields)
+    }
+  }, [groupId, open])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      await createEvent(formData)
+      await createEvent({
+        ...formData,
+        customFields: customFieldValues,
+      })
       setOpen(false)
       setFormData({
         title: '',
@@ -43,6 +59,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
         privacy: 'public',
         groupId,
       })
+      setCustomFieldValues({})
       onEventCreated?.()
     } catch (error) {
       console.error('Failed to create event:', error)
@@ -181,6 +198,59 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                 Location will be revealed at this time
               </p>
             </div>
+          )}
+
+          {customFields.length > 0 && (
+            <>
+              <Separator className="my-6" />
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Additional Information</h3>
+                {customFields.sort((a, b) => a.order - b.order).map((field) => (
+                  <div key={field.id} className="space-y-2">
+                    <Label htmlFor={field.name}>
+                      {field.label}
+                      {field.schema.required && <span className="text-destructive ml-1">*</span>}
+                    </Label>
+                    {field.widget.widget === 'text' && (
+                      <Input
+                        id={field.name}
+                        value={(customFieldValues[field.name] as string) || ''}
+                        onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                        placeholder={field.widget.placeholder}
+                      />
+                    )}
+                    {field.widget.widget === 'textarea' && (
+                      <Textarea
+                        id={field.name}
+                        value={(customFieldValues[field.name] as string) || ''}
+                        onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                        placeholder={field.widget.placeholder}
+                      />
+                    )}
+                    {field.widget.widget === 'select' && field.widget.options && (
+                      <Select
+                        value={(customFieldValues[field.name] as string) || ''}
+                        onValueChange={(value) => setCustomFieldValues({ ...customFieldValues, [field.name]: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={field.widget.placeholder || 'Select an option'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {field.widget.options.map((option) => (
+                            <SelectItem key={String(option.value)} value={String(option.value)}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {field.widget.helpText && (
+                      <p className="text-sm text-muted-foreground">{field.widget.helpText}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
 
           <div className="flex gap-2 justify-end">
