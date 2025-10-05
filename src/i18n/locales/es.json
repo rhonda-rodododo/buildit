@@ -1,0 +1,123 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "una red de acción social"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "createIdentity": "Crear identidad",
+    "importKey": "Importar clave",
+    "name": "Nombre",
+    "privateKey": "Clave privada",
+    "generateNew": "Generar nueva identidad"
+  },
+  "nav": {
+    "messages": "Mensajes",
+    "groups": "Grupos",
+    "events": "Eventos",
+    "mutualAid": "Ayuda mutua"
+  },
+  "messages": {
+    "title": "Mensajes",
+    "newConversation": "Nueva conversación",
+    "conversations": "Conversaciones",
+    "noMessages": "Aún no hay mensajes",
+    "typeMessage": "Escribe un mensaje...",
+    "send": "Enviar"
+  },
+  "groups": {
+    "title": "Grupos",
+    "createGroup": "Crear grupo",
+    "noGroups": "Aún no hay grupos",
+    "groupName": "Nombre del grupo",
+    "description": "Descripción",
+    "privacy": "Privacidad",
+    "public": "Público",
+    "private": "Privado",
+    "secret": "Secreto",
+    "enabledModules": "Módulos habilitados",
+    "settings": "Configuración",
+    "members": "miembros"
+  },
+  "events": {
+    "title": "Eventos",
+    "createEvent": "Crear evento",
+    "noEvents": "Aún no hay eventos",
+    "eventName": "Nombre del evento",
+    "location": "Ubicación",
+    "startTime": "Hora de inicio",
+    "endTime": "Hora de finalización",
+    "capacity": "Capacidad",
+    "rsvp": "Confirmar asistencia",
+    "going": "Asistiré",
+    "maybe": "Tal vez",
+    "notGoing": "No asistiré",
+    "exportCalendar": "Exportar a calendario"
+  },
+  "mutualAid": {
+    "title": "Ayuda mutua",
+    "createRequest": "Crear solicitud/oferta",
+    "requests": "Solicitudes activas",
+    "offers": "Ofertas disponibles",
+    "noRequests": "No hay solicitudes activas",
+    "noOffers": "No hay ofertas disponibles",
+    "rideShare": "Viajes solidarios",
+    "browse": "Explorar",
+    "myItems": "Mis elementos",
+    "matches": "Coincidencias"
+  },
+  "governance": {
+    "title": "Gobernanza",
+    "createProposal": "Crear propuesta",
+    "activeProposals": "Propuestas activas",
+    "voting": "Votación",
+    "history": "Historial",
+    "noProposals": "Aún no hay propuestas",
+    "draftProposals": "Borradores de propuestas",
+    "openForVoting": "Abierto para votación",
+    "decisionHistory": "Historial de decisiones",
+    "votingMethods": "Métodos de votación disponibles",
+    "simpleMajority": "Mayoría simple",
+    "rankedChoice": "Voto preferencial",
+    "quadraticVoting": "Votación cuadrática",
+    "consensus": "Consenso"
+  },
+  "wiki": {
+    "title": "Base de conocimientos",
+    "newPage": "Nueva página",
+    "search": "Buscar en wiki...",
+    "noPages": "Aún no hay páginas",
+    "gettingStarted": "Comenzando",
+    "organizingResources": "Recursos de organización",
+    "legalSafety": "Legal y seguridad"
+  },
+  "crm": {
+    "title": "Base de datos de contactos",
+    "addContact": "Añadir contacto",
+    "noContacts": "Aún no hay contactos",
+    "tableView": "Vista de tabla",
+    "boardView": "Vista de tablero",
+    "calendarView": "Vista de calendario",
+    "templates": "Plantillas disponibles",
+    "unionOrganizing": "Organización sindical",
+    "fundraising": "Recaudación de fondos",
+    "legalTracking": "Seguimiento legal"
+  },
+  "common": {
+    "create": "Crear",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  }
+}

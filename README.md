@@ -45,12 +45,16 @@ Claude Code will autonomously build the entire application in under 30 hours.
 
 ## 📚 Documentation
 
-- **[PROMPT.md](PROMPT.md)** - Autonomous build instructions for Claude Code (9 epics + i18n)
-- **[ENCRYPTION_STRATEGY.md](ENCRYPTION_STRATEGY.md)** - Encryption architecture and decisions
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and data flow
-- **[PRIVACY.md](PRIVACY.md)** - Threat model and security considerations
+### For Users
 - **[GETTING_STARTED.md](GETTING_STARTED.md)** - User guide and developer setup
-- **[CLAUDE_CODE_EXECUTION.md](CLAUDE_CODE_EXECUTION.md)** - Execution guide for Claude Code
+- **[PRIVACY.md](PRIVACY.md)** - Threat model and security considerations
+
+### For Developers
+- **[CLAUDE.md](CLAUDE.md)** - Project overview and navigation guide
+- **[PROMPT.md](PROMPT.md)** - Complete execution plan for autonomous build (all epics)
+- **[PROGRESS.md](PROGRESS.md)** - Detailed progress tracking with checkboxes (current status)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and data flow
+- **[ENCRYPTION_STRATEGY.md](ENCRYPTION_STRATEGY.md)** - Encryption architecture and decisions
 
 ## 🏗️ Architecture
 

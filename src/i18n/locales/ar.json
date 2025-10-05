@@ -1,0 +1,123 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "شبكة العمل الاجتماعي"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "createIdentity": "إنشاء هوية",
+    "importKey": "استيراد مفتاح",
+    "name": "الاسم",
+    "privateKey": "المفتاح الخاص",
+    "generateNew": "إنشاء هوية جديدة"
+  },
+  "nav": {
+    "messages": "الرسائل",
+    "groups": "المجموعات",
+    "events": "الأحداث",
+    "mutualAid": "المساعدة المتبادلة"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "newConversation": "محادثة جديدة",
+    "conversations": "المحادثات",
+    "noMessages": "لا توجد رسائل بعد",
+    "typeMessage": "اكتب رسالة...",
+    "send": "إرسال"
+  },
+  "groups": {
+    "title": "المجموعات",
+    "createGroup": "إنشاء مجموعة",
+    "noGroups": "لا توجد مجموعات بعد",
+    "groupName": "اسم المجموعة",
+    "description": "الوصف",
+    "privacy": "الخصوصية",
+    "public": "عام",
+    "private": "خاص",
+    "secret": "سري",
+    "enabledModules": "الوحدات المفعلة",
+    "settings": "الإعدادات",
+    "members": "الأعضاء"
+  },
+  "events": {
+    "title": "الأحداث",
+    "createEvent": "إنشاء حدث",
+    "noEvents": "لا توجد أحداث بعد",
+    "eventName": "اسم الحدث",
+    "location": "الموقع",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "capacity": "السعة",
+    "rsvp": "تأكيد الحضور",
+    "going": "سأحضر",
+    "maybe": "ربما",
+    "notGoing": "لن أحضر",
+    "exportCalendar": "تصدير إلى التقويم"
+  },
+  "mutualAid": {
+    "title": "المساعدة المتبادلة",
+    "createRequest": "إنشاء طلب/عرض",
+    "requests": "الطلبات النشطة",
+    "offers": "العروض المتاحة",
+    "noRequests": "لا توجد طلبات نشطة",
+    "noOffers": "لا توجد عروض متاحة",
+    "rideShare": "مشاركة الرحلات التضامنية",
+    "browse": "تصفح",
+    "myItems": "عناصري",
+    "matches": "التطابقات"
+  },
+  "governance": {
+    "title": "الحوكمة",
+    "createProposal": "إنشاء مقترح",
+    "activeProposals": "المقترحات النشطة",
+    "voting": "التصويت",
+    "history": "السجل",
+    "noProposals": "لا توجد مقترحات بعد",
+    "draftProposals": "مسودات المقترحات",
+    "openForVoting": "مفتوح للتصويت",
+    "decisionHistory": "سجل القرارات",
+    "votingMethods": "طرق التصويت المتاحة",
+    "simpleMajority": "الأغلبية البسيطة",
+    "rankedChoice": "التصويت الترتيبي",
+    "quadraticVoting": "التصويت التربيعي",
+    "consensus": "الإجماع"
+  },
+  "wiki": {
+    "title": "قاعدة المعرفة",
+    "newPage": "صفحة جديدة",
+    "search": "البحث في الويكي...",
+    "noPages": "لا توجد صفحات بعد",
+    "gettingStarted": "البداية",
+    "organizingResources": "موارد التنظيم",
+    "legalSafety": "القانون والسلامة"
+  },
+  "crm": {
+    "title": "قاعدة بيانات جهات الاتصال",
+    "addContact": "إضافة جهة اتصال",
+    "noContacts": "لا توجد جهات اتصال بعد",
+    "tableView": "عرض الجدول",
+    "boardView": "عرض اللوحة",
+    "calendarView": "عرض التقويم",
+    "templates": "القوالب المتاحة",
+    "unionOrganizing": "التنظيم النقابي",
+    "fundraising": "جمع التبرعات",
+    "legalTracking": "التتبع القانوني"
+  },
+  "common": {
+    "create": "إنشاء",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح"
+  }
+}

@@ -4,6 +4,7 @@ import { LoginForm } from '@/components/auth/LoginForm'
 import { MessagingView } from '@/components/messaging/MessagingView'
 import { GroupsView } from '@/components/groups/GroupsView'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { EventsView } from '@/modules/events/components/EventsView'
 import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
 import { initializeDatabase } from '@/core/storage/db'
@@ -43,6 +44,7 @@ const App: FC = () => {
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <NotificationCenter />
+            <LanguageSwitcher />
             <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
               {currentIdentity.name}
             </span>

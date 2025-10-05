@@ -1,5 +1,14 @@
 # BuildN - a social action network
 
+## 📚 Project Documentation
+
+**Quick Navigation:**
+- **[PROMPT.md](./PROMPT.md)** - Complete execution plan for autonomous build (all epics and tasks)
+- **[PROGRESS.md](./PROGRESS.md)** - Detailed progress tracking with checkboxes (single source of truth for status)
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
+- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
+- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
+
 ## Project Overview
 A privacy-first organizing platform built on Nostr protocol and Samiz encryption layer for activist groups, co-ops, and community organizers.
 
@@ -85,7 +94,9 @@ Key principles:
 - Hardware wallet support (NIP-46)
 
 ## Getting Started
-See GETTING_STARTED.md for setup instructions.
+See [GETTING_STARTED.md](./GETTING_STARTED.md) for setup instructions.
 
-## Implementation Phases
-See ROADMAP.md for development phases and priorities.
+## Implementation Phases & Progress
+- **Execution Plan**: See [PROMPT.md](./PROMPT.md) for all epics and tasks
+- **Progress Tracking**: See [PROGRESS.md](./PROGRESS.md) for detailed status with checkboxes
+- **Roadmap**: See [ROADMAP.md](./ROADMAP.md) for high-level development phases
