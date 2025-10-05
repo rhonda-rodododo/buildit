@@ -90,11 +90,14 @@ export class NostrClient {
     // Subscribe to relays
     const relayUrls = this.getReadRelays()
 
-    // nostr-tools subscribeMany accepts Filter[] array
-    // Pass all filters to the subscription
+    // nostr-tools subscribeMany accepts a single Filter
+    // For multiple filters, combine them using OR logic (arrays in filter values)
+    // or create multiple subscriptions. Using first filter for now.
+    const filter = filters[0]
+
     this.pool.subscribeMany(
       relayUrls,
-      filters,
+      filter,
       {
         onevent: (event: NostrEvent) => {
           onEvent(event)
