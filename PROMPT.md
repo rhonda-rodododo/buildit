@@ -1,0 +1,810 @@
+# AUTONOMOUS BUILD PROMPT: Social Action Network
+
+**Target**: Build a production-ready MVP in under 30 hours of focused execution time.
+
+## 🎯 EXECUTION PHILOSOPHY
+
+You are an expert team of architects, engineers, and product builders working autonomously. This is a **complete greenfield build** from setup to deployment. Work efficiently by:
+
+1. **Building incrementally** - Each epic produces working, testable features
+2. **Leveraging git commits** - Track all major changes with clear commit messages
+3. **Using MCP tools proactively** - Context7 for docs, Puppeteer for testing, IDE diagnostics
+4. **Testing continuously** - Run tests after each feature, fix failures immediately
+5. **Refactoring fearlessly** - Use git to track changes, don't create alternative files
+6. **Building on primitives** - Create reusable components from the start
+
+## 📋 PRE-EXECUTION CHECKLIST
+
+Before starting any epic, ensure:
+- [ ] Latest library documentation fetched via Context7 MCP
+- [ ] Previous epic's tests passing (if not Epic 1)
+- [ ] Git repository initialized with proper .gitignore
+- [ ] All diagnostics clear from previous work
+
+## 🏗️ ARCHITECTURE DECISIONS
+
+### Frontend Stack (Final Decisions)
+- **Framework**: React 18 + TypeScript 5.3+ + Vite
+- **UI Library**: **shadcn/ui** (not Tailwind+DaisyUI) - Better primitives, React Native prep
+- **Styling**: Tailwind CSS with design tokens in CSS variables
+- **State**: Zustand with persistence middleware
+- **Storage**: Dexie.js (IndexedDB wrapper)
+- **Testing**: Vitest + React Testing Library + Playwright
+- **Nostr**: nostr-tools library
+- **Crypto** (See ENCRYPTION_STRATEGY.md for details):
+  - @noble/secp256k1 (Nostr key operations)
+  - **NIP-17** (gift-wrapped NIP-44) for DMs - Best metadata protection
+  - NIP-44 encryption (ChaCha20-Poly1305, HMAC-SHA256)
+  - Noise Protocol for large groups >100 (Phase 2: forward secrecy)
+  - Future: BLE mesh with Noise (offline BitChat-style)
+
+### Why shadcn/ui?
+1. **Component primitives** - Radix UI primitives are headless and composable
+2. **Design token system** - CSS variables work across web and native
+3. **Copy-paste architecture** - Components are owned by us, fully customizable
+4. **TypeScript-first** - Excellent type safety
+5. **React Native ready** - Primitives pattern translates to react-native-reanimated
+
+### Project Structure
+```
+buildit-network/
+├── src/
+│   ├── core/                 # Core infrastructure (Nostr, crypto, storage)
+│   │   ├── nostr/           # Nostr client, relay management, NIPs
+│   │   ├── crypto/          # Samiz encryption, key management
+│   │   └── storage/         # Dexie database, sync, cache
+│   ├── lib/                 # Shared libraries and utilities
+│   │   ├── auth/           # Authentication logic
+│   │   ├── groups/         # Group management
+│   │   └── permissions/    # Permission system
+│   ├── modules/            # Feature modules (plugins)
+│   │   ├── events/
+│   │   ├── mutual-aid/
+│   │   ├── governance/
+│   │   ├── wiki/
+│   │   └── crm/
+│   ├── components/         # Shared UI components
+│   │   ├── ui/            # shadcn/ui components
+│   │   ├── layouts/       # Layout components
+│   │   └── common/        # Shared business components
+│   ├── stores/            # Zustand stores
+│   ├── hooks/             # Custom React hooks
+│   ├── types/             # TypeScript types/interfaces
+│   └── App.tsx
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+└── docs/
+    └── epics/             # Per-epic documentation
+```
+
+## 🚀 EXECUTION EPICS
+
+### **EPIC 1: Foundation & Infrastructure** (6 hours)
+**Deliverable**: Project setup, core Nostr client, basic encryption, storage layer
+
+#### 1.1 Project Initialization (1h)
+- [ ] Read ENCRYPTION_STRATEGY.md to understand encryption architecture
+- [ ] Initialize Vite + React + TypeScript project
+- [ ] Install core dependencies (check package versions with Context7):
+  - nostr-tools (includes NIP-44, NIP-17 utilities)
+  - @noble/secp256k1 (Nostr signatures)
+  - zustand, dexie, zod (validation)
+  - shadcn/ui (install CLI and core components)
+  - vitest, @testing-library/react, playwright
+- [ ] Configure TypeScript (strict mode, paths, strict null checks)
+- [ ] Set up Tailwind + design tokens in globals.css
+- [ ] Configure Vitest with coverage
+- [ ] Initialize git, create initial commit
+- [ ] Create .env.example with relay URLs
+- [ ] Add .gitignore (node_modules, dist, .env, *.local)
+
+#### 1.2 Nostr Core (2h)
+- [ ] Fetch nostr-tools latest docs via Context7: `/nbd-wtf/nostr-tools`
+- [ ] Implement `NostrClient` class:
+  - Relay pool connection management (use nostr-tools)
+  - Event publishing with retry logic
+  - Subscription management with filters
+  - Connection health monitoring
+  - Relay redundancy and failover
+- [ ] Implement NIPs (see ENCRYPTION_STRATEGY.md):
+  - NIP-01 (basic protocol) - event creation, validation, signing
+  - NIP-44 (encryption) - ChaCha20-Poly1305, HMAC-SHA256
+  - NIP-17 (private DMs) - gift-wrapped messages with metadata protection
+  - NIP-59 (seals & gift wraps) - two-layer encryption
+- [ ] Write unit tests for Nostr client (80%+ coverage)
+- [ ] Git commit: "feat: implement Nostr client with NIP-01/17/44/59"
+
+#### 1.3 Crypto Layer (NIP-17 Encryption) (2h)
+- [ ] Read ENCRYPTION_STRATEGY.md encryption decision matrix
+- [ ] Fetch NIP-44 and @noble/secp256k1 docs via Context7
+- [ ] Create `NIP17Crypto` class:
+  - NIP-44 encryption/decryption (ChaCha20-Poly1305)
+  - Seal creation (unsigned rumor → sealed event)
+  - Gift wrap creation (sealed event → gift-wrapped for recipient)
+  - Metadata randomization (timestamps within 2-day window)
+  - Ephemeral key generation for anonymity
+- [ ] Create `KeyManager` class:
+  - Store keys securely (encrypted in IndexedDB)
+  - Key import/export (nsec/npub format)
+  - Multi-identity support
+  - Conversation key derivation (HKDF)
+- [ ] Implement message flow:
+  - DM: rumor → seal → gift wrap → publish
+  - Group (<100): multiple gift wraps (one per member)
+- [ ] Write comprehensive crypto tests (edge cases, invalid inputs)
+- [ ] Git commit: "feat: implement NIP-17 encryption layer"
+
+#### 1.4 Storage Layer (1h)
+- [ ] Define Dexie schema (see ARCHITECTURE.md)
+- [ ] Implement database class with tables:
+  - identities, groups, groupMembers, messages, events, etc.
+- [ ] Create sync service (relay → IndexedDB)
+- [ ] Implement caching strategy (LRU for recent events)
+- [ ] Write storage tests
+- [ ] Git commit: "feat: implement storage layer with Dexie"
+
+**Epic 1 Validation**:
+- [ ] Run all tests: `npm test`
+- [ ] Check coverage: >80% for core modules
+- [ ] Verify no TypeScript errors: `tsc --noEmit`
+- [ ] Git tag: `v0.1.0-foundation`
+
+---
+
+### **EPIC 2: Auth, Groups & Basic UI** (5 hours)
+**Deliverable**: User can create identity, create/join groups, basic group dashboard
+
+#### 2.1 Authentication System (1.5h)
+- [ ] Create Zustand auth store:
+  - Current identity state
+  - Login/logout actions
+  - Identity switching
+- [ ] Implement auth components using shadcn/ui:
+  - `LoginForm` (import nsec or generate new)
+  - `IdentitySelector` (switch between identities)
+  - `KeyExportDialog` (backup keys)
+- [ ] Create `useAuth` hook
+- [ ] Add auth guard for protected routes
+- [ ] Write auth flow tests
+- [ ] Git commit: "feat: implement authentication system"
+
+#### 2.2 Group Management (2h)
+- [ ] Create Zustand groups store:
+  - Active group, groups list, memberships
+  - CRUD operations for groups
+- [ ] Implement Group Nostr events (kind 39000):
+  - Create group event with encrypted metadata
+  - Parse and decrypt group events
+  - Handle group invitations
+- [ ] Create group components:
+  - `CreateGroupForm` (with module selection)
+  - `GroupList` (user's groups)
+  - `GroupInviteDialog`
+  - `GroupSettings`
+- [ ] Implement permission system (admin/moderator/member/read-only)
+- [ ] Write group management tests
+- [ ] Git commit: "feat: implement group management"
+
+#### 2.3 Core UI Setup (1.5h)
+- [ ] Install shadcn/ui components:
+  - button, card, dialog, form, input, select, tabs, etc.
+- [ ] Create layout components:
+  - `AppShell` (sidebar + main content)
+  - `Sidebar` (navigation)
+  - `TopBar` (user menu, notifications)
+- [ ] Create design token system in CSS variables:
+  - Colors (primary, secondary, accent, neutral, semantic)
+  - Spacing, typography, shadows, borders
+  - Dark mode support
+- [ ] Implement routing (react-router-dom):
+  - `/login`, `/groups`, `/groups/:id/*`
+- [ ] Create `GroupDashboard` component with module tabs
+- [ ] Test responsive layouts with Puppeteer
+- [ ] Git commit: "feat: create core UI and layouts"
+
+**Epic 2 Validation**:
+- [ ] Manual test: Create identity → Create group → View dashboard
+- [ ] Run Puppeteer tests for UI flows
+- [ ] Check TypeScript errors and ESLint warnings
+- [ ] Git tag: `v0.2.0-auth-groups`
+
+---
+
+### **EPIC 3: Messaging & Communication** (4 hours)
+**Deliverable**: Encrypted DMs and group threads working end-to-end
+
+#### 3.1 Direct Messaging (1.5h)
+- [ ] Create messages store (Zustand):
+  - DM threads, message history, unread counts
+- [ ] Implement DM Nostr events (NIP-04):
+  - Encrypt message content
+  - Publish encrypted DM events
+  - Decrypt received DMs
+- [ ] Create messaging components:
+  - `DMThreadList` (conversation list)
+  - `DMThread` (message thread view)
+  - `MessageComposer` (send messages)
+  - `MessageBubble` (individual message)
+- [ ] Implement real-time message subscription
+- [ ] Add message pagination
+- [ ] Write messaging tests
+- [ ] Git commit: "feat: implement direct messaging"
+
+#### 3.2 Group Messaging (2h)
+- [ ] Extend messages store for group threads
+- [ ] Implement group message encryption (Samiz):
+  - Derive message keys from group key
+  - Encrypt with XChaCha20-Poly1305
+  - Publish to group's relay
+- [ ] Create group messaging components:
+  - `GroupThreadList` (thread categories)
+  - `GroupThread` (encrypted group messages)
+  - `CreateThreadDialog`
+- [ ] Implement message sync and history
+- [ ] Add typing indicators (optional, metadata concern)
+- [ ] Write group messaging tests
+- [ ] Git commit: "feat: implement group messaging"
+
+#### 3.3 Notifications (0.5h)
+- [ ] Create notifications store
+- [ ] Implement notification types:
+  - New DM, new group message
+  - Group invitation, event RSVP
+  - Proposal updates, vote reminders
+- [ ] Create `NotificationCenter` component
+- [ ] Add browser notifications (with permission)
+- [ ] Git commit: "feat: add notification system"
+
+**Epic 3 Validation**:
+- [ ] Test E2E: Send encrypted DM between two identities
+- [ ] Test E2E: Group message encryption/decryption
+- [ ] Verify message history persists after reload
+- [ ] Check for memory leaks in subscriptions
+- [ ] Git tag: `v0.3.0-messaging`
+
+---
+
+### **EPIC 4: Events Module** (3 hours)
+**Deliverable**: Full event creation, RSVP, calendar view
+
+#### 4.1 Events Core (1.5h)
+- [ ] Create events store (Zustand)
+- [ ] Define Event Nostr kind (31923 - parameterized replaceable)
+- [ ] Implement event privacy levels:
+  - Public (unencrypted)
+  - Group (encrypted with group key)
+  - Private (encrypted, limited visibility)
+  - Direct Action (time-delayed location reveal)
+- [ ] Create Event data model with Zod validation
+- [ ] Implement event CRUD operations
+- [ ] Write events core tests
+- [ ] Git commit: "feat: implement events core"
+
+#### 4.2 Events UI (1h)
+- [ ] Create event components:
+  - `CreateEventForm` (with privacy selector)
+  - `EventList` (calendar view using shadcn/ui calendar)
+  - `EventCard` (event summary card)
+  - `EventDetail` (full event view)
+  - `RSVPButton` (going/maybe/not going)
+- [ ] Implement event filters and search
+- [ ] Add event capacity management
+- [ ] Create event reminder system
+- [ ] Git commit: "feat: create events UI"
+
+#### 4.3 Calendar Integration (0.5h)
+- [ ] Implement iCal export:
+  - Generate .ics files from events
+  - Download handler
+- [ ] Create calendar view (month/week/day)
+- [ ] Add event timezone handling
+- [ ] Test calendar functionality
+- [ ] Git commit: "feat: add calendar integration"
+
+**Epic 4 Validation**:
+- [ ] Test: Create event with each privacy level
+- [ ] Test: RSVP flow and capacity limits
+- [ ] Test: Export to iCal and import to external calendar
+- [ ] Verify event persistence and sync
+- [ ] Git tag: `v0.4.0-events`
+
+---
+
+### **EPIC 5: Mutual Aid Module** (3 hours)
+**Deliverable**: Request/offer system, ride share matching
+
+#### 5.1 Mutual Aid Core (1.5h)
+- [ ] Create mutualAid store (Zustand)
+- [ ] Define Request/Offer data models:
+  - Categories (food, housing, transport, skills, etc.)
+  - Status workflow (open → matched → fulfilled → closed)
+  - Privacy settings per request
+- [ ] Implement matching algorithm:
+  - Category matching
+  - Location-based matching (privacy-aware)
+  - Time availability matching
+- [ ] Create Nostr kinds for requests/offers
+- [ ] Write mutual aid core tests
+- [ ] Git commit: "feat: implement mutual aid core"
+
+#### 5.2 Request/Offer UI (1h)
+- [ ] Create mutual aid components:
+  - `CreateRequestForm` / `CreateOfferForm`
+  - `RequestList` / `OfferList` (with filters)
+  - `RequestCard` / `OfferCard`
+  - `MatchingDialog` (show matches)
+  - `ResourceDirectory` (community resources)
+- [ ] Implement search and filters:
+  - By category, location, date range
+  - By status, urgency
+- [ ] Add request/offer messaging
+- [ ] Git commit: "feat: create mutual aid UI"
+
+#### 5.3 Ride Share Network (0.5h)
+- [ ] Extend mutual aid for ride shares:
+  - Route matching logic
+  - Pickup/dropoff privacy
+  - Ride capacity
+- [ ] Create `RideShareForm` and `RideMatchList`
+- [ ] Implement ride coordination messaging
+- [ ] Test ride share flows
+- [ ] Git commit: "feat: add ride share network"
+
+**Epic 5 Validation**:
+- [ ] Test: Create request → Create matching offer → Match
+- [ ] Test: Ride share route matching
+- [ ] Verify privacy controls on location data
+- [ ] Git tag: `v0.5.0-mutual-aid`
+
+---
+
+### **EPIC 6: Governance Module** (3.5 hours)
+**Deliverable**: Proposals, discussions, multiple voting systems
+
+#### 6.1 Proposals System (1.5h)
+- [ ] Create governance store (Zustand)
+- [ ] Define Proposal data model:
+  - Title, description, proposal type
+  - Discussion thread
+  - Voting configuration
+  - Amendment system
+- [ ] Implement proposal lifecycle:
+  - Draft → Discussion → Voting → Decided
+  - Amendment proposals
+- [ ] Create proposal Nostr events
+- [ ] Write proposal tests
+- [ ] Git commit: "feat: implement proposals system"
+
+#### 6.2 Voting Systems (1.5h)
+- [ ] Implement voting methods:
+  - Simple majority (yes/no/abstain)
+  - Ranked-choice (RCV)
+  - Quadratic voting (with token allocation)
+  - D'Hondt method (proportional representation)
+  - Consensus (threshold-based)
+- [ ] Implement anonymous ballots:
+  - Blind signatures for anonymity
+  - ZK proof of membership (simplified)
+  - Vote encryption
+- [ ] Create vote tallying logic per method
+- [ ] Implement audit log system
+- [ ] Write comprehensive voting tests
+- [ ] Git commit: "feat: implement voting systems"
+
+#### 6.3 Governance UI (0.5h)
+- [ ] Create governance components:
+  - `CreateProposalForm`
+  - `ProposalList` (by status)
+  - `ProposalDetail` (with discussion)
+  - `VotingInterface` (adapts to voting method)
+  - `ResultsDisplay` (with visualizations)
+  - `AuditLog` (decision history)
+- [ ] Add proposal notifications
+- [ ] Test voting UI flows
+- [ ] Git commit: "feat: create governance UI"
+
+**Epic 6 Validation**:
+- [ ] Test: Create proposal → Discuss → Vote → Tally (each method)
+- [ ] Test: Anonymous ballot verification
+- [ ] Verify audit log integrity
+- [ ] Git tag: `v0.6.0-governance`
+
+---
+
+### **EPIC 7: Knowledge Base Module** (2.5 hours)
+**Deliverable**: Wiki with markdown editor, versioning, search
+
+#### 7.1 Wiki Core (1h)
+- [ ] Create wiki store (Zustand)
+- [ ] Define WikiPage data model:
+  - Title, content (markdown), category, tags
+  - Version history
+  - Edit permissions
+- [ ] Implement version control:
+  - Diff generation
+  - Rollback functionality
+  - Conflict resolution
+- [ ] Create wiki Nostr events
+- [ ] Implement search (full-text with lunr.js or similar)
+- [ ] Write wiki core tests
+- [ ] Git commit: "feat: implement wiki core"
+
+#### 7.2 Markdown Editor (1h)
+- [ ] Install markdown editor (e.g., @uiw/react-md-editor or similar)
+- [ ] Fetch latest markdown editor docs via Context7
+- [ ] Create wiki components:
+  - `WikiEditor` (markdown with preview)
+  - `WikiPageList` (by category/tag)
+  - `WikiPage` (rendered view)
+  - `VersionHistory` (diff viewer)
+  - `WikiSearch`
+- [ ] Add collaborative editing indicators
+- [ ] Implement auto-save
+- [ ] Git commit: "feat: add markdown editor"
+
+#### 7.3 Wiki Organization (0.5h)
+- [ ] Implement category system
+- [ ] Create tag management
+- [ ] Add page linking (wiki-style [[links]])
+- [ ] Create wiki navigation (sidebar tree)
+- [ ] Test wiki functionality
+- [ ] Git commit: "feat: add wiki organization"
+
+**Epic 7 Validation**:
+- [ ] Test: Create page → Edit → View history → Rollback
+- [ ] Test: Search functionality
+- [ ] Test: Collaborative editing conflicts
+- [ ] Git tag: `v0.7.0-wiki`
+
+---
+
+### **EPIC 8: CRM Module** (3 hours)
+**Deliverable**: Airtable-style contact database with views
+
+#### 8.1 CRM Core (1h)
+- [ ] Create crm store (Zustand)
+- [ ] Define Contact data model:
+  - Core fields (name, email, phone, notes)
+  - Custom fields (dynamic schema)
+  - Privacy controls per field
+  - Tags and categories
+- [ ] Implement field types:
+  - Text, number, date, select, multi-select
+  - Relationship (link to other contacts)
+  - File attachments
+- [ ] Create contact Nostr events (with field encryption)
+- [ ] Write CRM core tests
+- [ ] Git commit: "feat: implement CRM core"
+
+#### 8.2 CRM Views (1.5h)
+- [ ] Install table library (e.g., @tanstack/react-table)
+- [ ] Fetch @tanstack/react-table docs via Context7
+- [ ] Implement view types:
+  - Table view (sortable, filterable)
+  - Board view (Kanban-style)
+  - Calendar view (for date-based fields)
+- [ ] Create CRM components:
+  - `CRMTable` (with virtual scrolling)
+  - `ContactCard` (detailed view)
+  - `CreateContactForm`
+  - `CustomFieldManager`
+  - `ViewSelector` (switch between views)
+- [ ] Implement sorting, filtering, grouping
+- [ ] Add bulk operations
+- [ ] Git commit: "feat: create CRM views"
+
+#### 8.3 Templates & Import/Export (0.5h)
+- [ ] Create CRM templates:
+  - Union organizing
+  - Fundraising contacts
+  - Volunteer management
+  - Legal tracking (NLG/Amnesty style)
+  - Civil defense coordination
+- [ ] Implement CSV import/export
+- [ ] Add template application logic
+- [ ] Test import/export flows
+- [ ] Git commit: "feat: add CRM templates"
+
+**Epic 8 Validation**:
+- [ ] Test: Create contacts → Apply template → Switch views
+- [ ] Test: Custom fields and privacy controls
+- [ ] Test: Import CSV → Edit → Export
+- [ ] Git tag: `v0.8.0-crm`
+
+---
+
+### **EPIC 9: Module Plugin System** (2 hours)
+**Deliverable**: Module registry, per-group configuration, permissions
+
+#### 9.1 Plugin Architecture (1h)
+- [ ] Create plugin registry system:
+  - Module interface/contract
+  - Lifecycle hooks (init, enable, disable)
+  - Inter-module communication
+- [ ] Implement module manager:
+  - Load/unload modules
+  - Dependency resolution
+  - Module isolation
+- [ ] Create per-group module config:
+  - Enable/disable per group
+  - Module-specific settings
+  - Permission overrides
+- [ ] Write plugin system tests
+- [ ] Git commit: "feat: implement plugin system"
+
+#### 9.2 Module Integration (1h)
+- [ ] Refactor existing modules to plugin pattern:
+  - Register events, mutual-aid, governance, wiki, crm
+  - Define module metadata
+  - Expose module APIs
+- [ ] Create `ModuleSettings` UI:
+  - Enable/disable toggles
+  - Module configuration panels
+  - Permission management per module
+- [ ] Implement module discovery UI
+- [ ] Test module loading/unloading
+- [ ] Git commit: "feat: integrate modules with plugin system"
+
+**Epic 9 Validation**:
+- [ ] Test: Enable/disable modules per group
+- [ ] Test: Module settings persistence
+- [ ] Verify module isolation (no cross-contamination)
+- [ ] Git tag: `v0.9.0-plugins`
+
+---
+
+### **EPIC 10: Security Hardening** (2.5 hours)
+**Deliverable**: Tor integration, hardware wallet support, key rotation
+
+#### 10.1 Advanced Key Management (1h)
+- [ ] Implement NIP-46 (remote signing):
+  - Nostr Connect protocol
+  - Hardware wallet integration (for compatible devices)
+  - Remote signer communication
+- [ ] Fetch nostr-tools NIP-46 docs via Context7
+- [ ] Create key rotation system:
+  - Generate new keys
+  - Re-encrypt data with new keys
+  - Revocation mechanism
+- [ ] Implement key backup/recovery:
+  - Encrypted backup export
+  - Recovery phrase (BIP-39 compatible)
+  - Social recovery (optional)
+- [ ] Write security tests
+- [ ] Git commit: "feat: implement advanced key management"
+
+#### 10.2 Tor Integration (1h)
+- [ ] Add Tor proxy configuration:
+  - SOCKS5 proxy support
+  - .onion relay connections
+  - Connection through Tor browser
+- [ ] Implement Tor-specific relay list
+- [ ] Create `TorSettings` component
+- [ ] Add Tor status indicator
+- [ ] Test Tor connectivity (if available)
+- [ ] Git commit: "feat: add Tor integration"
+
+#### 10.3 Security Audit (0.5h)
+- [ ] Run security audit:
+  - Check for XSS vulnerabilities
+  - Verify CSRF protection
+  - Test encryption/decryption edge cases
+  - Review permission bypass attempts
+- [ ] Implement security headers
+- [ ] Add Content Security Policy
+- [ ] Create security documentation
+- [ ] Git commit: "feat: security hardening"
+
+**Epic 10 Validation**:
+- [ ] Test: Hardware wallet signing (if device available)
+- [ ] Test: Key rotation and data re-encryption
+- [ ] Test: Tor connection to .onion relays
+- [ ] Run security audit tools
+- [ ] Git tag: `v0.10.0-security`
+
+---
+
+### **EPIC 11: Testing & Quality** (2 hours)
+**Deliverable**: Comprehensive test coverage, E2E tests, performance
+
+#### 11.1 Unit Test Coverage (0.5h)
+- [ ] Ensure >80% coverage for all core modules
+- [ ] Write missing unit tests:
+  - Edge cases in crypto functions
+  - Error handling in Nostr client
+  - Store action tests
+- [ ] Run coverage report: `npm run test:coverage`
+- [ ] Git commit: "test: improve unit test coverage"
+
+#### 11.2 Integration Tests (0.5h)
+- [ ] Write integration tests:
+  - Nostr client ↔ Storage sync
+  - Encryption ↔ Storage (encrypted persistence)
+  - Module ↔ Plugin system
+  - Multi-relay failover
+- [ ] Test error recovery scenarios
+- [ ] Git commit: "test: add integration tests"
+
+#### 11.3 E2E Tests (1h)
+- [ ] Write Playwright E2E tests:
+  - User journey: Register → Create group → Send message
+  - Event flow: Create → RSVP → Export calendar
+  - Governance: Create proposal → Vote → See results
+  - Mutual aid: Create request → Match → Fulfill
+- [ ] Test multi-device sync (multiple browser contexts)
+- [ ] Test offline/online transitions
+- [ ] Run E2E suite: `npm run test:e2e`
+- [ ] Git commit: "test: add E2E tests"
+
+**Epic 11 Validation**:
+- [ ] All tests passing: `npm run test:all`
+- [ ] Coverage: >80% overall, >90% for core
+- [ ] E2E tests: All critical paths covered
+- [ ] Git tag: `v0.11.0-testing`
+
+---
+
+### **EPIC 12: Polish & Production Prep** (2 hours)
+**Deliverable**: Performance optimization, docs, deployment ready
+
+#### 12.1 Performance Optimization (1h)
+- [ ] Implement performance optimizations:
+  - Virtual scrolling for long lists (messages, contacts)
+  - Lazy loading for modules
+  - Code splitting by route
+  - Image optimization
+  - IndexedDB query optimization
+- [ ] Use Puppeteer to test performance:
+  - Measure page load times
+  - Check for layout shifts
+  - Verify smooth scrolling
+- [ ] Run Lighthouse audit
+- [ ] Optimize bundle size
+- [ ] Git commit: "perf: optimize performance"
+
+#### 12.2 Documentation (0.5h)
+- [ ] Create user documentation:
+  - Getting started guide
+  - Feature walkthroughs
+  - Security best practices
+- [ ] Create developer docs:
+  - API documentation
+  - Module development guide
+  - Contribution guidelines
+- [ ] Update ROADMAP.md with completion status
+- [ ] Git commit: "docs: add user and developer documentation"
+
+#### 12.3 Production Build (0.5h)
+- [ ] Configure production build:
+  - Environment variables
+  - Build optimization
+  - Source maps (for debugging)
+- [ ] Create deployment configuration:
+  - Static hosting (Vercel/Netlify)
+  - PWA manifest
+  - Service worker (offline support)
+- [ ] Test production build locally
+- [ ] Create deployment guide
+- [ ] Git commit: "chore: production build configuration"
+
+**Epic 12 Validation**:
+- [ ] Lighthouse score: >90 all categories
+- [ ] Bundle size: <500KB initial
+- [ ] PWA installable and works offline
+- [ ] All documentation complete
+- [ ] Git tag: `v1.0.0-mvp`
+
+---
+
+## 🧰 TOOLING STRATEGY
+
+### Context7 MCP (Documentation)
+Use proactively for:
+- nostr-tools: `/nbd-wtf/nostr-tools`
+- Zustand: `/pmndrs/zustand`
+- Dexie.js: `/websites/dexie`
+- shadcn/ui: `/shadcn-ui/ui`
+- Vitest: `/vitest-dev/vitest`
+- @tanstack/react-table: Query as needed
+- Markdown editors: Query when implementing
+
+### Puppeteer MCP (Browser Testing)
+Use for:
+- Visual regression testing
+- E2E user flows
+- Performance monitoring
+- Console error detection
+
+### IDE MCP (Diagnostics)
+Use for:
+- Real-time TypeScript errors
+- Linting issues
+- Build diagnostics
+
+---
+
+## 🔄 GIT WORKFLOW
+
+### Commit Strategy
+- **Feature commits**: `feat: <description>` (after each sub-task)
+- **Refactor commits**: `refactor: <description>`
+- **Test commits**: `test: <description>`
+- **Fix commits**: `fix: <description>`
+- **Epic tags**: `v0.X.0-<epic-name>` (after each epic validation)
+
+### Branch Strategy (Optional)
+- Main branch: `main`
+- Epic branches: `epic/1-foundation`, `epic/2-auth`, etc.
+- Merge to main after epic validation
+
+---
+
+## 🎯 SUCCESS CRITERIA
+
+### Functional Requirements ✅
+- [x] Identity creation and management
+- [x] Group creation and membership
+- [x] Encrypted DMs and group messages
+- [x] Event creation, RSVP, calendar export
+- [x] Mutual aid requests/offers with matching
+- [x] Proposals and multi-method voting
+- [x] Wiki with versioning and search
+- [x] CRM with custom fields and views
+- [x] Module plugin system
+- [x] Security features (Tor, hardware wallet)
+
+### Technical Requirements ✅
+- [x] TypeScript strict mode, no `any` except strategic
+- [x] Test coverage >80% (core >90%)
+- [x] All E2E tests passing
+- [x] Lighthouse score >90
+- [x] Bundle size <500KB initial
+- [x] Works offline (PWA)
+- [x] Responsive design (mobile/tablet/desktop)
+
+### Documentation Requirements ✅
+- [x] User guides
+- [x] Developer documentation
+- [x] Security documentation
+- [x] Deployment guide
+
+---
+
+## 🚨 IMPORTANT REMINDERS
+
+1. **NO WORKAROUNDS**: Fix underlying issues, don't create temporary solutions
+2. **REFACTOR, DON'T DUPLICATE**: Use git to track changes, rewrite files completely
+3. **USE MCP TOOLS**: Context7 for docs, Puppeteer for testing, IDE for diagnostics
+4. **TEST CONTINUOUSLY**: Run tests after each feature, fix immediately
+5. **COMMIT FREQUENTLY**: Track all changes with clear messages
+6. **TYPE SAFETY**: Avoid `any`, use strategic typing, reuse types
+7. **COMPONENT REUSE**: Build on primitives, make features declarative
+8. **PERFORMANCE FIRST**: Virtual scrolling, lazy loading, code splitting
+9. **SECURITY CONSCIOUS**: E2E encryption, privacy by default, audit regularly
+10. **DOCUMENTATION**: Comment complex logic, document public APIs
+
+---
+
+## 📊 PROGRESS TRACKING
+
+After each epic:
+1. Run all tests: `npm run test:all`
+2. Check diagnostics: IDE MCP tool
+3. Verify functionality: Manual testing + Puppeteer
+4. Git tag: `v0.X.0-<epic-name>`
+5. Update this document with ✅ checkmarks
+
+---
+
+## 🚀 EXECUTION START
+
+1. Initialize project (Epic 1.1)
+2. Fetch all library docs via Context7
+3. Begin building incrementally
+4. Commit frequently
+5. Test continuously
+6. Ship MVP in <30 hours
+
+**LET'S BUILD!** 🔨
