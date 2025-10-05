@@ -16,7 +16,8 @@ const App: FC = () => {
     initializeDatabase().then(() => {
       loadIdentities()
     })
-  }, [loadIdentities])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (!currentIdentity) {
     return (
@@ -43,7 +44,10 @@ const App: FC = () => {
       </div>
 
       <div className="container mx-auto p-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={(value) => {
+          console.log('Tab changing to:', value)
+          setActiveTab(value)
+        }}>
           <TabsList className="mb-6">
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
