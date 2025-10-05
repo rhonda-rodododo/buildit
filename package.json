@@ -1,0 +1,49 @@
+{
+  "name": "buildit-network",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, and community organizers.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["nostr", "privacy", "organizing", "activism", "encryption"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/ui": "^3.2.4",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.37.0",
+    "happy-dom": "^19.0.2",
+    "jsdom": "^27.0.0",
+    "playwright": "^1.55.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@noble/secp256k1": "^3.0.0",
+    "dexie": "^4.2.0",
+    "nostr-tools": "^2.17.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.3",
+    "zod": "^4.1.11",
+    "zustand": "^5.0.8"
+  }
+}
