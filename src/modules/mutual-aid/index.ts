@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { mutualAidSchema } from './schema';
+import { mutualAidSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -98,41 +99,7 @@ export const mutualAidModule: ModulePlugin = {
     },
   ],
 
-  seeds: [
-    {
-      name: 'example-requests',
-      description: 'Create example mutual aid requests',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const exampleRequests = [
-          {
-            id: `aid-${groupId}-food-1`,
-            groupId,
-            type: 'request' as const,
-            category: 'food',
-            title: 'Food for Community Kitchen',
-            description: 'Looking for donations of non-perishable food items for our community kitchen',
-            status: 'open' as const,
-            createdBy: userPubkey,
-            created: now,
-          },
-          {
-            id: `aid-${groupId}-transport-1`,
-            groupId,
-            type: 'offer' as const,
-            category: 'transport',
-            title: 'Rides to Protest',
-            description: 'Offering rides to Saturday protest. Can fit 4 people.',
-            status: 'open' as const,
-            createdBy: userPubkey,
-            created: now,
-          },
-        ];
-
-        await db.table('mutualAidRequests').bulkAdd(exampleRequests);
-      },
-    },
-  ],
+  seeds: mutualAidSeeds,
 
   getDefaultConfig: () => ({
     allowAnonymousRequests: true,

@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { customFieldsSchema } from './schema';
+import { customFieldsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -77,132 +78,7 @@ export const customFieldsModule: ModulePlugin = {
     },
   ],
 
-  seeds: [
-    {
-      name: 'event-templates',
-      description: 'Example custom fields for events',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const eventFields = [
-          {
-            id: `${groupId}-event-dietary`,
-            groupId,
-            entityType: 'event',
-            name: 'dietary_preferences',
-            label: 'Dietary Preferences',
-            schema: JSON.stringify({
-              type: 'array',
-              items: { type: 'string' },
-              uniqueItems: true,
-            }),
-            widget: JSON.stringify({
-              type: 'multi-select',
-              options: ['Vegan', 'Vegetarian', 'Gluten-free', 'Halal', 'Kosher', 'No restrictions'],
-            }),
-            order: 0,
-            created: now,
-            createdBy: userPubkey,
-            updated: now,
-          },
-          {
-            id: `${groupId}-event-accessibility`,
-            groupId,
-            entityType: 'event',
-            name: 'accessibility_needs',
-            label: 'Accessibility Needs',
-            schema: JSON.stringify({
-              type: 'string',
-            }),
-            widget: JSON.stringify({
-              type: 'textarea',
-              placeholder: 'Describe any accessibility requirements...',
-            }),
-            order: 1,
-            created: now,
-            createdBy: userPubkey,
-            updated: now,
-          },
-          {
-            id: `${groupId}-event-skills`,
-            groupId,
-            entityType: 'event',
-            name: 'skills_needed',
-            label: 'Skills Needed',
-            schema: JSON.stringify({
-              type: 'array',
-              items: { type: 'string' },
-            }),
-            widget: JSON.stringify({
-              type: 'multi-select',
-              options: [
-                'First Aid',
-                'Legal Observer',
-                'Medic',
-                'Communications',
-                'De-escalation',
-                'Sign Language',
-                'Translation',
-              ],
-            }),
-            order: 2,
-            created: now,
-            createdBy: userPubkey,
-            updated: now,
-          },
-        ];
-
-        await db.table('customFields').bulkAdd(eventFields);
-      },
-    },
-    {
-      name: 'mutual-aid-templates',
-      description: 'Example custom fields for mutual aid',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const aidFields = [
-          {
-            id: `${groupId}-aid-medical`,
-            groupId,
-            entityType: 'aid-request',
-            name: 'medical_needs',
-            label: 'Medical Needs',
-            schema: JSON.stringify({
-              type: 'string',
-            }),
-            widget: JSON.stringify({
-              type: 'textarea',
-              placeholder: 'Describe medical needs, allergies, medications...',
-            }),
-            order: 0,
-            created: now,
-            createdBy: userPubkey,
-            updated: now,
-          },
-          {
-            id: `${groupId}-aid-housing`,
-            groupId,
-            entityType: 'aid-request',
-            name: 'housing_type',
-            label: 'Housing Type Needed',
-            schema: JSON.stringify({
-              type: 'string',
-              enum: ['Emergency', 'Short-term', 'Long-term', 'Transitional'],
-            }),
-            widget: JSON.stringify({
-              type: 'select',
-              options: ['Emergency', 'Short-term', 'Long-term', 'Transitional'],
-            }),
-            order: 1,
-            created: now,
-            createdBy: userPubkey,
-            updated: now,
-          },
-        ];
-
-        await db.table('customFields').bulkAdd(aidFields);
-      },
-    },
-  ],
+  seeds: customFieldsSeeds,
 
   getDefaultConfig: () => ({
     allowUserFields: false,

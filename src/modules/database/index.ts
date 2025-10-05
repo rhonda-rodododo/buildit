@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { databaseSchema } from './schema';
+import { databaseSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -82,7 +83,7 @@ export const databaseModule: ModulePlugin = {
     },
   ],
 
-  seeds: [],
+  seeds: databaseSeeds,
 
   getDefaultConfig: () => ({
     maxTablesPerGroup: 50,

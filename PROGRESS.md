@@ -671,6 +671,41 @@ The following new epics have been added to the roadmap based on architectural re
 
 ---
 
+### ✅ EPIC 14.5: Demo Data & Module Seeding
+**Status**: Complete ✅
+**Tag**: `v0.14.5-demo-data`
+**Purpose**: Create comprehensive demo/seed data for all modules to showcase features
+
+#### 14.5.1 Core Module Seeds
+- [x] Events module: Comprehensive events (rally, workshop, meeting, skillshare, training, direct action, mutual aid, social, canvassing) ✅
+- [x] Mutual Aid module: All categories (food, housing, transport, skills, childcare, supplies, financial, emotional support) ✅
+- [x] Governance module: All voting methods (simple, ranked-choice, quadratic, d'hondt, consensus) with draft/discussion/voting/decided states ✅
+- [x] Wiki module: Comprehensive starter pages (Welcome, Code of Conduct, Security Culture, Organizing Toolkit, Meeting Protocols, Know Your Rights) ✅
+- [x] Custom Fields module: Example field templates (dietary, skills, transportation, accessibility) ✅
+
+#### 14.5.2 Advanced Module Seeds
+- [x] Database module: Sample tables (Action Tracker with calendar/board/table views, Resource Library with gallery view) ✅
+- [x] Database records with custom fields and relationships ✅
+- [x] Multiple view types demonstrated (table, board, calendar, gallery) ✅
+
+#### 14.5.3 Demo Data Loading System
+- [x] Created seedLoader.ts utility in core/storage ✅
+- [x] loadAllSeeds() function to load all module seeds ✅
+- [x] loadModuleSeeds() for specific module seeding ✅
+- [x] hasDemoData() to check if demo data exists ✅
+- [x] clearDemoData() to remove all seed data ✅
+- [x] Integrated into CreateGroupDialog with checkbox option ✅
+- [x] Seeds automatically loaded for enabled modules only ✅
+
+**Validation**:
+- [x] All active modules have comprehensive seed data ✅
+- [x] Seed data demonstrates all module features ✅
+- [x] Demo data checkbox in group creation works ✅
+- [x] Seeds loaded via module system pattern ✅
+- [x] Git tag: `v0.14.5-demo-data` (pending)
+
+---
+
 ### 📋 EPIC 15: Database & CRM Modules (Planned)
 **Status**: Planned 📋
 **Tag**: `v0.15.0-database-crm` (planned)
@@ -682,6 +717,56 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] CRM templates (Union, Fundraising, Legal/NLG, Civil Defense, etc.)
 
 **Validation**: Create tables, apply CRM templates, manage data
+
+---
+
+### 📋 EPIC 15.5: Forms, Fundraising & Public Pages Module (NEW - Planned)
+**Status**: Planned 📋
+**Tag**: `v0.15.5-forms-fundraising` (planned)
+**Purpose**: Simple CMS for creating public-facing forms, fundraising pages, and group websites
+
+**Dependencies**: Wiki module, Custom Fields module, Database module
+
+#### 15.5.1 Forms Builder
+- [ ] Create forms module extending custom-fields
+- [ ] Visual form builder with drag-and-drop fields
+- [ ] Form types: Contact, Survey, RSVP, Registration, Volunteer Sign-up
+- [ ] Conditional logic (show/hide fields based on responses)
+- [ ] Form submission handling and notifications
+- [ ] Anonymous submissions with optional identity verification
+- [ ] Anti-spam protection (rate limiting, CAPTCHA optional)
+
+#### 15.5.2 Fundraising Pages
+- [ ] Fundraising campaign builder
+- [ ] Goal tracking and thermometer visualization
+- [ ] Donation tiers and rewards
+- [ ] Payment integration planning (crypto, external payment processors)
+- [ ] Recurring donation support
+- [ ] Donor privacy controls (anonymous donations)
+- [ ] Fundraising campaign templates (bail funds, strike funds, mutual aid funds)
+
+#### 15.5.3 Public Pages & Simple CMS
+- [ ] Public page builder using wiki markdown + custom layouts
+- [ ] Page templates: About, Events Calendar, Contact, Resources
+- [ ] Custom domain support (CNAME configuration)
+- [ ] SEO controls (meta tags, Open Graph, Twitter cards)
+- [ ] Public/private page visibility controls
+- [ ] Page analytics (privacy-respecting, no third-party tracking)
+
+#### 15.5.4 Integration & Publishing
+- [ ] Embed forms in wiki pages and public pages
+- [ ] Publish forms as standalone pages with custom URLs
+- [ ] Form submissions stored in Database module tables
+- [ ] Email notifications for form submissions
+- [ ] Export form responses to CSV
+- [ ] Webhook support for integrations
+
+**Validation**:
+- [ ] Create fundraising page with goal tracking
+- [ ] Build multi-step form with conditional logic
+- [ ] Publish public-facing group website
+- [ ] Test form submissions and data export
+- [ ] Git tag: `v0.15.5-forms-fundraising`
 
 ---
 
@@ -738,12 +823,112 @@ The following new epics have been added to the roadmap based on architectural re
 
 ---
 
-### ✅ Epic 17: Security Hardening (renumbered from Epic 14, then Epic 16)
-**Status**: Partial Complete ✅ (17.1-17.2 complete)
-**Tag**: `v0.17.0-security` (planned, was `v0.16.0-security`, originally `v0.14.0-security`)
+### 📋 EPIC 16.5: Documents & Files Module Implementation (NEW - Planned)
+**Status**: Planned 📋
+**Tag**: `v0.16.5-docs-files` (planned)
+**Purpose**: Complete implementation of Documents and Files modules (currently placeholders)
+
+#### 16.5.1 Documents Module (WYSIWYG Editor)
+- [ ] Install and configure rich text editor (TipTap, Lexical, or ProseMirror)
+- [ ] Create Document schema and store
+- [ ] Implement WYSIWYG document editor with collaborative features
+- [ ] Document types: Article, Report, Manifesto, Press Release, Meeting Notes
+- [ ] Real-time collaboration (operational transformation or CRDTs)
+- [ ] Version history and rollback
+- [ ] Document templates with variables
+- [ ] Export formats: PDF, HTML, Markdown, DOCX
+- [ ] Document encryption for sensitive content
+- [ ] Comments and annotations
+
+#### 16.5.2 Files Module (Storage & Organization)
+- [ ] Implement encrypted file upload with progress tracking
+- [ ] Create folder/directory structure with drag-and-drop
+- [ ] File preview for common types (images, PDFs, text, video)
+- [ ] File sharing with expiring links
+- [ ] File versioning and history
+- [ ] Storage backend integration:
+  - NIP-96 (HTTP File Storage)
+  - Blossom protocol support
+  - IPFS integration (optional)
+  - Local IndexedDB caching
+- [ ] File organization: tags, favorites, recent files
+- [ ] Bulk operations: multi-select, move, delete, download as zip
+- [ ] File search and filtering
+- [ ] Storage quota management per group
+
+#### 16.5.3 Integration & Cross-Module Features
+- [ ] Attach files to messages, events, proposals, wiki pages
+- [ ] Link documents from any module
+- [ ] Media library for reusable images/files
+- [ ] Document and file permissions (inherit from group roles)
+- [ ] Activity log for documents and files
+- [ ] Implement seed data for both modules
+
+**Validation**:
+- [ ] Create collaborative document with real-time editing
+- [ ] Upload files, organize in folders, share with links
+- [ ] Attach files to events and messages
+- [ ] Export documents to multiple formats
+- [ ] Test file encryption and decryption
+- [ ] Git tag: `v0.16.5-docs-files`
+
+---
+
+### 📋 EPIC 17: Translation & Advanced i18n (NEW - Planned)
+**Status**: Planned 📋
+**Tag**: `v0.17.0-i18n-complete` (planned)
+**Purpose**: Complete translation of all UI strings and advanced internationalization features
+
+**Current Status**: i18n infrastructure exists (Epic 10), English complete, other languages stubbed
+
+#### 17.1 Complete Translations
+- [ ] Translate all UI strings to Spanish (es.json)
+- [ ] Translate all UI strings to French (fr.json)
+- [ ] Translate all UI strings to Arabic (ar.json)
+- [ ] Add additional languages: German, Portuguese, Mandarin, Hindi
+- [ ] Module-specific translation namespaces
+- [ ] Translation management workflow (contributions, review, updates)
+
+#### 17.2 Advanced i18n Features
+- [ ] Date/time localization with timezone support (use date-fns or Luxon)
+- [ ] Number and currency formatting (Intl.NumberFormat)
+- [ ] Relative time formatting ("2 hours ago")
+- [ ] Pluralization rules for all languages
+- [ ] RTL (right-to-left) layout testing and fixes for Arabic
+- [ ] Locale-specific formatting (addresses, phone numbers)
+- [ ] Calendar localization (week starts on Monday/Sunday)
+
+#### 17.3 Translation Tooling
+- [ ] Extract translatable strings from components automatically
+- [ ] Missing translation detection and warnings
+- [ ] Translation coverage reports per locale
+- [ ] Crowdsourced translation contribution system
+- [ ] Translation review and approval workflow
+- [ ] Fallback chain (locale → base language → English)
+
+#### 17.4 Content Localization
+- [ ] Allow multilingual content in wiki pages
+- [ ] Event descriptions in multiple languages
+- [ ] Group descriptions and announcements in multiple languages
+- [ ] User preference for content language
+- [ ] Auto-translate using privacy-respecting services (optional)
+
+**Validation**:
+- [ ] All UI strings translated for at least 3 languages
+- [ ] Date/time formatting works correctly for all locales
+- [ ] RTL layout works perfectly for Arabic
+- [ ] Missing translations detected and warned
+- [ ] Pluralization correct in all languages
+- [ ] Git tag: `v0.17.0-i18n-complete`
+
+---
+
+### ✅ Epic 18: Security Hardening (renumbered from Epic 14 → 16 → 17 → 18)
+**Status**: Partial Complete ✅ (18.1-18.2 complete)
+**Tag**: `v0.18.0-security` (planned)
 **Commit**: `e672edc`
 
-#### 17.1 WebAuthn Key Protection
+#### 18.1 WebAuthn Key Protection
 - [x] Implement WebAuthn/Passkey integration for key protection
 - [x] Create secure key storage using Web Crypto API with WebAuthn-protected encryption
 - [x] Add biometric authentication option (fingerprint, Face ID)
@@ -755,7 +940,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Support hardware security keys (YubiKey, etc.)
 - [x] Git commit: "feat: implement Epic 14 - WebAuthn key protection and device management (14.1-14.2)"
 
-#### 17.2 Device Management & Visibility
+#### 18.2 Device Management & Visibility
 - [x] Create device tracking system (device fingerprinting using FingerprintJS)
 - [x] Track active sessions per device (browser, OS, IP, last active)
 - [x] Implement DeviceFingerprintService with browser/OS detection
@@ -770,7 +955,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [x] Initialize device tracking on app startup
 - [x] Git commit: "feat: implement Epic 14 - WebAuthn key protection and device management (14.1-14.2)"
 
-#### 17.3 Tor Integration
+#### 18.3 Tor Integration
 - [ ] Add Tor proxy configuration (.onion relays) - DEFERRED
 - [ ] Create TorSettings component - DEFERRED
 - [ ] Implement SOCKS5 proxy support - DEFERRED
@@ -778,7 +963,7 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] Test Tor connectivity - DEFERRED
 - [ ] Git commit: "feat: add Tor integration" - DEFERRED
 
-#### 17.4 Security Audit & Hardening
+#### 18.4 Security Audit & Hardening
 - [ ] Run security audit (XSS, CSRF, encryption) - DEFERRED
 - [ ] Implement Content Security Policy (CSP) - DEFERRED
 - [ ] Add security headers (HSTS, X-Frame-Options, etc.) - DEFERRED
@@ -809,16 +994,16 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] Login notifications for new devices - PENDING
 - [ ] Tor connection to .onion relays - DEFERRED
 - [ ] Security audit - DEFERRED
-- [x] Git tag: `v0.17.0-security` (planned)
+- [x] Git tag: `v0.18.0-security` (planned)
 
 ---
 
-### ⚠️ Epic 18: Testing & Quality (renumbered from Epic 15, then Epic 17)
+### ⚠️ Epic 19: Testing & Quality (renumbered from Epic 15 → 17 → 18 → 19)
 **Status**: Partial ⚠️ (Unit tests complete, Integration/E2E pending)
-**Tag**: `v0.18.0-testing` (partial)
+**Tag**: `v0.19.0-testing` (partial)
 **Commit**: `04e51fe`
 
-#### 18.1 Unit Test Coverage
+#### 19.1 Unit Test Coverage
 - [x] Ensure >80% coverage for all core modules
 - [x] Write missing unit tests for:
   - Module store (16 tests)
@@ -846,7 +1031,7 @@ The following new epics have been added to the roadmap based on architectural re
   - State management and validation
   - Error handling and edge cases
 
-#### 18.2 Integration Tests (Foundation)
+#### 19.2 Integration Tests (Foundation)
 - [x] Create integration test structure
 - [x] Write integration test templates:
   - Nostr Client ↔ Storage sync (5 tests) - requires IndexedDB mocking
@@ -857,7 +1042,7 @@ The following new epics have been added to the roadmap based on architectural re
 
 **Note**: Integration tests created but require fake-indexeddb or similar mocking. Deferred to future iteration.
 
-#### 18.3 E2E Tests with Playwright
+#### 19.3 E2E Tests with Playwright
 - [x] Create E2E test structure in `/tests/e2e/`
 - [x] Write E2E test stubs for critical flows:
   - **auth.spec.ts** (4 scenarios) - Identity creation, import, export, switching
@@ -882,27 +1067,27 @@ The following new epics have been added to the roadmap based on architectural re
 - [ ] E2E tests running and passing (18 scenarios stubbed, NOT running)
 - [x] Build successful: 1.97MB bundle (648KB gzipped)
 - [x] No TypeScript errors
-- [ ] Git tag: `v0.18.0-testing` (PARTIAL - unit tests only)
+- [ ] Git tag: `v0.19.0-testing` (PARTIAL - unit tests only)
 
 ---
 
-### Epic 19: Production Prep (renumbered from Epic 16, then Epic 18)
+### Epic 20: Production Prep (renumbered from Epic 16 → 18 → 19 → 20)
 **Status**: Pending ⏳
 **Tag**: `v1.0.0-mvp`
 
-#### 19.1 Performance Optimization
+#### 20.1 Performance Optimization
 - [ ] Implement virtual scrolling and lazy loading
 - [ ] Code splitting by route
 - [ ] Optimize bundle size
 - [ ] Git commit: "perf: optimize performance"
 
-#### 19.2 Documentation
+#### 20.2 Documentation
 - [ ] Create user and developer documentation
 - [ ] Module development guides (custom fields, database, CRM)
 - [ ] Update PROGRESS.md with final status
 - [ ] Git commit: "docs: add user and developer documentation"
 
-#### 19.3 Production Build
+#### 20.3 Production Build
 - [ ] Configure production build and deployment
 - [ ] PWA setup with offline support
 - [ ] Create deployment guide

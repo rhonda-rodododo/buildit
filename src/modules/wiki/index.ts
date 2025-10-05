@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { wikiSchema } from './schema';
+import { wikiSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -89,46 +90,7 @@ export const wikiModule: ModulePlugin = {
     },
   ],
 
-  seeds: [
-    {
-      name: 'welcome-page',
-      description: 'Create a welcome page',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const welcomePage = {
-          id: `wiki-${groupId}-welcome`,
-          groupId,
-          title: 'Welcome to Our Wiki',
-          content: `# Welcome!
-
-This is your group's collaborative knowledge base. Use this space to:
-
-- Document your organizing strategies
-- Share skills and resources
-- Create guides and how-tos
-- Build institutional knowledge
-
-## Getting Started
-
-Click the "New Page" button to create your first page. You can organize pages with:
-
-- **Categories**: Group related pages together
-- **Tags**: Add keywords for easy discovery
-- **Links**: Connect pages with [[wiki-style links]]
-
-Happy documenting! ✊`,
-          category: 'Getting Started',
-          tags: ['welcome', 'guide'],
-          version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-        };
-
-        await db.table('wikiPages').add(welcomePage);
-      },
-    },
-  ],
+  seeds: wikiSeeds,
 
   getDefaultConfig: () => ({
     allowPublicPages: false,

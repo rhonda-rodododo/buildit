@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { governanceSchema } from './schema';
+import { governanceSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -95,29 +96,7 @@ export const governanceModule: ModulePlugin = {
     },
   ],
 
-  seeds: [
-    {
-      name: 'example-proposal',
-      description: 'Create an example proposal',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const exampleProposal = {
-          id: `proposal-${groupId}-example`,
-          groupId,
-          title: 'Adopt Consensus Decision-Making',
-          description:
-            'Proposal to adopt consensus decision-making for major group decisions. This would require all members to consent or stand aside, with blocking concerns requiring discussion.',
-          status: 'discussion' as const,
-          votingMethod: 'consensus' as const,
-          votingDeadline: now + 14 * 24 * 60 * 60 * 1000, // 2 weeks from now
-          createdBy: userPubkey,
-          created: now,
-        };
-
-        await db.table('proposals').add(exampleProposal);
-      },
-    },
-  ],
+  seeds: governanceSeeds,
 
   getDefaultConfig: () => ({
     defaultVotingMethod: 'simple',

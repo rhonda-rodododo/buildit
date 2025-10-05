@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { eventsSchema } from './schema';
+import { eventsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 
 /**
@@ -89,32 +90,7 @@ export const eventsModule: ModulePlugin = {
     },
   ],
 
-  seeds: [
-    {
-      name: 'example-event',
-      description: 'Create an example event',
-      data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
-        const now = Date.now();
-        const exampleEvent = {
-          id: `event-${groupId}-example`,
-          groupId,
-          title: 'Community Organizing Meeting',
-          description: 'Monthly planning meeting for community organizing',
-          startTime: now + 7 * 24 * 60 * 60 * 1000, // 1 week from now
-          endTime: now + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000, // 2 hours duration
-          location: 'Community Center',
-          privacy: 'group' as const,
-          capacity: 50,
-          createdBy: userPubkey,
-          createdAt: now,
-          updatedAt: now,
-          tags: 'organizing,planning,meeting',
-        };
-
-        await db.table('events').add(exampleEvent);
-      },
-    },
-  ],
+  seeds: eventsSeeds,
 
   getDefaultConfig: () => ({
     allowPublicEvents: true,

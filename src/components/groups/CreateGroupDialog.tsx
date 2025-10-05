@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { loadAllSeeds } from '@/core/storage/seedLoader'
+import { db } from '@/core/storage/db'
 import type { GroupPrivacyLevel, GroupModule } from '@/types/group'
 
 interface CreateGroupDialogProps {
@@ -28,6 +31,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   const [description, setDescription] = useState('')
   const [privacyLevel, setPrivacyLevel] = useState<GroupPrivacyLevel>('private')
   const [selectedModules, setSelectedModules] = useState<GroupModule[]>(['messaging'])
+  const [loadDemoData, setLoadDemoData] = useState(false)
   const [creating, setCreating] = useState(false)
 
   const { createGroup } = useGroupsStore()
@@ -46,7 +50,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
     setCreating(true)
     try {
-      await createGroup(
+      const group = await createGroup(
         {
           name: name.trim(),
           description: description.trim(),
@@ -57,11 +61,20 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
         currentIdentity.publicKey
       )
 
+      // Load demo data if requested
+      if (loadDemoData && group) {
+        console.log('📦 Loading demo data for new group...')
+        await loadAllSeeds(db, group.id, currentIdentity.publicKey, {
+          moduleIds: selectedModules,
+        })
+      }
+
       // Reset form
       setName('')
       setDescription('')
       setPrivacyLevel('private')
       setSelectedModules(['messaging'])
+      setLoadDemoData(false)
       setOpen(false)
     } catch (error) {
       console.error('Failed to create group:', error)
@@ -146,6 +159,26 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   </div>
                 </Card>
               ))}
+            </div>
+          </div>
+
+          {/* Demo Data Option */}
+          <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg">
+            <Checkbox
+              id="demo-data"
+              checked={loadDemoData}
+              onCheckedChange={(checked) => setLoadDemoData(checked as boolean)}
+            />
+            <div className="flex-1">
+              <Label
+                htmlFor="demo-data"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Load demo data
+              </Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Populate the group with example events, wiki pages, proposals, and resources to help you get started
+              </p>
             </div>
           </div>
 

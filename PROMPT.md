@@ -626,8 +626,7 @@ buildit-network/
   - Confirm `baseColor` is set (currently "blue")
   - Verify all aliases are correct
 - Git commit: "refactor: update shadcn/ui Vite configuration"
-- make sure we are using this command to install components `bunx --bun shadcn@latest add [component]`
-- all components in `src/components/ui` should be replaced with the CLI installed ones. if this breaks some implementations, create work items/epics to fix them if necessary
+
 
 #### 11.2 Theming System (1h)
 - Implement CSS variables theming (recommended approach):
@@ -873,6 +872,58 @@ buildit-network/
 
 ---
 
+### **EPIC 14.5: Demo Data & Module Seeding** (1.5 hours)
+**Deliverable**: Comprehensive seed data for all modules and group templates
+
+#### 14.5.1 Core Module Seeds (0.5h)
+- Create realistic seed data for events module:
+  - Protests, meetings, workshops, direct actions
+  - Various privacy levels and RSVP scenarios
+- Create seed data for mutual aid module:
+  - Sample requests/offers across all categories
+  - Food, housing, transportation, skills
+- Create seed data for governance module:
+  - Example proposals using all voting methods
+  - Draft, active, and completed proposals
+- Create seed data for wiki module:
+  - Starter pages: safety guides, resources, how-tos
+  - Categories and tags
+- Create messaging thread templates
+- Git commit: "feat: add core module seed data (Epic 14.5.1)"
+
+#### 14.5.2 Advanced Module Seeds (0.5h)
+- Create custom field templates for common scenarios
+- Create sample database tables and views
+- Populate CRM templates with realistic data
+- Create document templates (meeting notes, action plans)
+- Create file folder structure templates
+- Git commit: "feat: add advanced module seed data (Epic 14.5.2)"
+
+#### 14.5.3 Group Templates & Onboarding (0.5h)
+- Create group template system:
+  - Union Chapter template (governance + events + wiki)
+  - Mutual Aid Network template (mutual-aid + messaging + crm)
+  - Activist Collective template (all modules enabled)
+- Each template includes:
+  - Pre-configured module settings
+  - Relevant seed data
+  - Permission templates
+  - Welcome content
+- Create onboarding wizard:
+  - Template selection UI
+  - Template customization
+  - Initial group setup
+- Git commit: "feat: add group templates and onboarding (Epic 14.5.3)"
+
+**Epic 14.5 Validation**:
+- Test: Create group from each template
+- Test: All seed data displays correctly
+- Test: Templates demonstrate module features
+- Test: Onboarding wizard functional
+- Git tag: `v0.14.5-demo-data`
+
+---
+
 ### **EPIC 15: Database & CRM Modules** (3 hours)
 **Deliverable**: Airtable-like database module and CRM with templates
 
@@ -923,6 +974,56 @@ buildit-network/
 - Test: All view types work correctly
 - Test: Relationships and queries functional
 - Git tag: `v0.15.0-database-crm`
+
+---
+
+### **EPIC 15.5: Forms, Fundraising & Public Pages Module** (3 hours)
+**Deliverable**: CMS for public-facing forms, fundraising campaigns, and group websites
+**Dependencies**: Wiki module, Custom Fields module, Database module
+
+#### 15.5.1 Forms Builder (1h)
+- Create forms module extending custom-fields
+- Implement visual form builder with drag-and-drop
+- Form types: Contact, Survey, RSVP, Registration, Volunteer Sign-up
+- Conditional logic (show/hide fields based on responses)
+- Form submission handling and notifications
+- Anonymous submissions with optional identity verification
+- Anti-spam protection (rate limiting, honeypot, optional CAPTCHA)
+- Create form components: FormBuilder, FormRenderer, FormSubmissions
+- Git commit: "feat: implement forms builder (Epic 15.5.1)"
+
+#### 15.5.2 Fundraising Pages (1h)
+- Create fundraising campaign builder
+- Goal tracking and thermometer visualization
+- Donation tiers and rewards
+- Payment integration planning (crypto, external processors)
+- Recurring donation support
+- Donor privacy controls (anonymous donations)
+- Campaign templates: bail funds, strike funds, mutual aid funds, legal defense
+- Create fundraising components: CampaignBuilder, DonationForm, CampaignProgress
+- Git commit: "feat: implement fundraising pages (Epic 15.5.2)"
+
+#### 15.5.3 Public Pages & CMS Integration (1h)
+- Create public page system extending wiki
+- Page templates: About, Events Calendar, Contact, Resources
+- SEO controls (meta tags, Open Graph, Twitter cards)
+- Custom domain support (CNAME configuration)
+- Public/private page visibility controls
+- Privacy-respecting page analytics
+- Embed forms in wiki and public pages
+- Form submissions → Database tables
+- Export responses to CSV
+- Webhook support for integrations
+- Create public pages components: PublicPageBuilder, PageTemplateSelector
+- Git commit: "feat: implement public pages and CMS (Epic 15.5.3)"
+
+**Epic 15.5 Validation**:
+- Test: Create multi-step form with conditional logic
+- Test: Build fundraising campaign with goal tracking
+- Test: Publish public-facing group website
+- Test: Embed form in wiki page
+- Test: Form submission → Database → Export CSV
+- Git tag: `v0.15.5-forms-fundraising`
 
 ---
 
@@ -998,10 +1099,114 @@ buildit-network/
 
 ---
 
-### **EPIC 17: Security Hardening** (3.5 hours)
+### **EPIC 16.5: Documents & Files Module Implementation** (2.5 hours)
+**Deliverable**: Full implementation of Documents (WYSIWYG) and Files (storage) modules
+**Current Status**: Both modules exist as placeholders
+
+#### 16.5.1 Documents Module - WYSIWYG Editor (1.5h)
+- Install rich text editor (TipTap recommended, or Lexical/ProseMirror)
+- Fetch editor docs via Context7
+- Implement Document data model (schema, types, store)
+- Create WYSIWYG editor features:
+  - Rich formatting, tables, images, code blocks
+  - @mentions support
+  - Document types: Article, Report, Manifesto, Press Release, Meeting Notes
+- Implement collaboration features:
+  - Real-time editing (OT or CRDTs)
+  - Cursor presence, comments, suggestions
+- Add version control (auto-save, history, rollback)
+- Create document templates with variables
+- Implement export (PDF, HTML, Markdown, DOCX optional)
+- Add encryption for sensitive documents
+- Create components: DocumentEditor, DocumentViewer, VersionHistory, CommentsSidebar
+- Git commit: "feat: implement documents module with WYSIWYG (Epic 16.5.1)"
+
+#### 16.5.2 Files Module - Storage & Management (1h)
+- Implement encrypted file upload with progress tracking
+- Create hierarchical folder structure with drag-and-drop
+- Implement file preview (images, PDFs, text, video, audio)
+- Add file sharing with expiring links
+- Implement file versioning
+- Configure storage backends (NIP-96, Blossom, IPFS optional, IndexedDB cache)
+- Add file organization (tags, favorites, recent, search)
+- Implement bulk operations (multi-select, move, delete, download as ZIP)
+- Add storage quota management per group
+- Create components: FileUploader, FileExplorer, FilePreview, ShareLinkDialog
+- Git commit: "feat: implement files module with storage (Epic 16.5.2)"
+
+#### 16.5.3 Cross-Module Integration & Seeds (0.25h)
+- Implement file attachments across all modules
+- Create document linking system
+- Build media library (shared media pool per group)
+- Configure permissions (inherit from group roles, per-file overrides)
+- Implement activity logs (document edit history, file access)
+- Create seed data (sample documents, folder structure, mock files)
+- Git commit: "feat: add cross-module integration and seeds (Epic 16.5.3)"
+
+**Epic 16.5 Validation**:
+- Test: Create document with real-time collaboration
+- Test: Upload files, organize in folders
+- Test: Attach files to messages and events
+- Test: Export document to PDF and Markdown
+- Test: File encryption/decryption
+- Test: Share link with expiration
+- Git tag: `v0.16.5-docs-files`
+
+---
+
+### **EPIC 17: Translation & Advanced i18n** (2 hours)
+**Deliverable**: Complete UI translations and advanced internationalization
+**Current Status**: i18n infrastructure exists (Epic 10), only English complete
+
+#### 17.1 Complete Translations (0.75h)
+- Translate all UI strings to Spanish (es.json)
+- Translate all UI strings to French (fr.json)
+- Translate all UI strings to Arabic (ar.json)
+- Add additional languages: German, Portuguese, Mandarin, Hindi
+- Implement module-specific translation namespaces
+- Create translation contribution workflow (export, import, review)
+- Git commit: "feat: add complete translations for 7 languages (Epic 17.1)"
+
+#### 17.2 Advanced i18n Features (0.75h)
+- Install date/time library (date-fns or Luxon with locale support)
+- Fetch library docs via Context7
+- Implement localized formatting:
+  - Date/time with timezone support
+  - Relative time ("2 hours ago")
+  - Number formatting (1,000 vs 1.000)
+  - Currency formatting
+  - Locale-specific formats (addresses, phone numbers)
+- Configure calendar localization (first day of week, week numbering)
+- Implement pluralization (ICU message format, plural rules)
+- Test and fix RTL layout for Arabic (mirror icons, bidirectional text)
+- Git commit: "feat: implement advanced i18n features (Epic 17.2)"
+
+#### 17.3 Translation Tooling & Content Localization (0.5h)
+- Create translation extraction tool (extract strings, generate templates)
+- Implement translation warnings (missing translations, validation)
+- Add content localization:
+  - Multilingual wiki pages
+  - Event descriptions in multiple languages
+  - Group descriptions/announcements
+  - User language preference
+- Create crowdsourced translation system (submission form, review, approval)
+- Optional: Privacy-respecting translation (local models or privacy-focused APIs)
+- Git commit: "feat: add translation tooling and content localization (Epic 17.3)"
+
+**Epic 17 Validation**:
+- Test: Switch between all 7 languages
+- Test: Date/time formats correct for each locale
+- Test: RTL layout works perfectly for Arabic
+- Test: Pluralization correct in all languages
+- Test: Missing translations fall back gracefully
+- Git tag: `v0.17.0-i18n-complete`
+
+---
+
+### **EPIC 18: Security Hardening** (3.5 hours)
 **Deliverable**: WebAuthn key protection, device management, Tor integration, security audit
 
-#### 17.1 WebAuthn Key Protection (1h)
+#### 18.1 WebAuthn Key Protection (1h)
 - Implement WebAuthn/Passkey integration:
   - Use Web Authentication API for key protection
   - Create secure key storage with WebAuthn-protected encryption
@@ -1017,9 +1222,9 @@ buildit-network/
   - WebAuthn-verified recovery
   - Multi-device sync (optional)
 - Write security tests for WebAuthn flow
-- Git commit: "feat: implement WebAuthn key protection (Epic 17.1)"
+- Git commit: "feat: implement WebAuthn key protection (Epic 18.1)"
 
-#### 17.2 Device Management & Visibility (1h)
+#### 18.2 Device Management & Visibility (1h)
 - Create device tracking system:
   - Device fingerprinting (browser, OS, screen resolution)
   - Track active sessions (device ID, IP, last active, location estimate)
@@ -1043,9 +1248,9 @@ buildit-network/
   - Limit device fingerprinting detail
   - Auto-expire old sessions
 - Write device management tests
-- Git commit: "feat: implement device management and visibility (Epic 17.2)"
+- Git commit: "feat: implement device management and visibility (Epic 18.2)"
 
-#### 17.3 Tor Integration (1h)
+#### 18.3 Tor Integration (1h)
 - Add Tor proxy configuration:
   - SOCKS5 proxy support
   - .onion relay connections
@@ -1054,9 +1259,9 @@ buildit-network/
 - Create `TorSettings` component
 - Add Tor status indicator
 - Test Tor connectivity (if available)
-- Git commit: "feat: add Tor integration (Epic 17.3)"
+- Git commit: "feat: add Tor integration (Epic 18.3)"
 
-#### 17.4 Security Audit & Hardening (0.5h)
+#### 18.4 Security Audit & Hardening (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
@@ -1067,9 +1272,9 @@ buildit-network/
 - Implement rate limiting for sensitive operations
 - Add session timeout and auto-lock
 - Create security documentation
-- Git commit: "feat: security hardening and audit (Epic 17.4)"
+- Git commit: "feat: security hardening and audit (Epic 18.4)"
 
-**Epic 17 Validation**:
+**Epic 18 Validation**:
 - Test: WebAuthn authentication with biometrics
 - Test: Device authorization and revocation
 - Test: Remote sign-out from all devices
@@ -1078,14 +1283,14 @@ buildit-network/
 - Test: Tor connection to .onion relays
 - Run security audit tools (OWASP ZAP, bun audit)
 - Verify CSP and security headers
-- Git tag: `v0.17.0-security`
+- Git tag: `v0.18.0-security`
 
 ---
 
-### **EPIC 18: Testing & Quality** (2 hours)
+### **EPIC 19: Testing & Quality** (2 hours)
 **Deliverable**: Comprehensive test coverage, E2E tests, performance
 
-#### 18.1 Unit Test Coverage (0.5h)
+#### 19.1 Unit Test Coverage (0.5h)
 - Ensure >80% coverage for all core modules
 - Write missing unit tests:
   - Edge cases in crypto functions
@@ -1094,9 +1299,9 @@ buildit-network/
   - Custom fields validation
   - Database module tests
 - Run coverage report: `bun run test:coverage`
-- Git commit: "test: improve unit test coverage (Epic 18.1)"
+- Git commit: "test: improve unit test coverage (Epic 19.1)"
 
-#### 18.2 Integration Tests (0.5h)
+#### 19.2 Integration Tests (0.5h)
 - Write integration tests:
   - Nostr client ↔ Storage sync
   - Encryption ↔ Storage (encrypted persistence)
@@ -1105,9 +1310,9 @@ buildit-network/
   - Database ↔ CRM templates
   - Multi-relay failover
 - Test error recovery scenarios
-- Git commit: "test: add integration tests (Epic 18.2)"
+- Git commit: "test: add integration tests (Epic 19.2)"
 
-#### 18.3 E2E Tests (1h)
+#### 19.3 E2E Tests (1h)
 - Write Playwright E2E tests:
   - User journey: Register → Create group → Send message
   - Event flow: Create event with custom fields → RSVP → Export calendar
@@ -1119,20 +1324,20 @@ buildit-network/
 - Test offline/online transitions
 - Test module enable/disable per group
 - Run E2E suite: `bun run test:e2e`
-- Git commit: "test: add E2E tests (Epic 18.3)"
+- Git commit: "test: add E2E tests (Epic 19.3)"
 
-**Epic 18 Validation**:
+**Epic 19 Validation**:
 - All tests passing: `bun run test:all`
 - Coverage: >80% overall, >90% for core
 - E2E tests: All critical paths covered
-- Git tag: `v0.18.0-testing`
+- Git tag: `v0.19.0-testing`
 
 ---
 
-### **EPIC 19: Polish & Production Prep** (2 hours)
+### **EPIC 20: Polish & Production Prep** (2 hours)
 **Deliverable**: Performance optimization, docs, deployment ready
 
-#### 19.1 Performance Optimization (1h)
+#### 20.1 Performance Optimization (1h)
 - Implement performance optimizations:
   - Virtual scrolling for long lists (messages, contacts, database tables)
   - Lazy loading for modules
@@ -1145,9 +1350,9 @@ buildit-network/
   - Verify smooth scrolling
 - Run Lighthouse audit
 - Optimize bundle size
-- Git commit: "perf: optimize performance (Epic 19.1)"
+- Git commit: "perf: optimize performance (Epic 20.1)"
 
-#### 19.2 Documentation (0.5h)
+#### 20.2 Documentation (0.5h)
 - Create user documentation:
   - Getting started guide
   - Feature walkthroughs
@@ -1160,9 +1365,9 @@ buildit-network/
   - Database/CRM template creation
   - Contribution guidelines
 - Update PROGRESS.md with final completion status
-- Git commit: "docs: add user and developer documentation (Epic 19.2)"
+- Git commit: "docs: add user and developer documentation (Epic 20.2)"
 
-#### 19.3 Production Build (0.5h)
+#### 20.3 Production Build (0.5h)
 - Configure production build:
   - Environment variables
   - Build optimization
@@ -1173,9 +1378,9 @@ buildit-network/
   - Service worker (offline support)
 - Test production build locally
 - Create deployment guide
-- Git commit: "chore: production build configuration (Epic 19.3)"
+- Git commit: "chore: production build configuration (Epic 20.3)"
 
-**Epic 19 Validation**:
+**Epic 20 Validation**:
 - Lighthouse score: >90 all categories
 - Bundle size: <500KB initial
 - PWA installable and works offline
