@@ -22,6 +22,7 @@ export default defineConfig({
     environment: 'node', // Node for crypto, jsdom for UI tests (configure per-file if needed)
     environmentMatchGlobs: [
       ['**/*.ui.test.{ts,tsx}', 'jsdom'], // UI tests use jsdom
+      ['**/integration/**/*.test.{ts,tsx}', 'jsdom'], // Integration tests need jsdom + IndexedDB
       ['**/__tests__/**', 'node'], // Crypto/core tests use node
     ],
     setupFiles: './src/test/setup.ts',

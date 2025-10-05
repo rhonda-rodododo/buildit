@@ -27,61 +27,133 @@ A privacy-first organizing platform built on Nostr protocol and NIP-17 encryptio
 ## Architecture
 See ARCHITECTURE.md for detailed system design.
 
-## Feature Modules
+## Module System Architecture
 
-### 1. Core Communication (Foundation)
-- Privacy-aware DMs with E2E encryption
-- Encrypted group threads
-- Public microblogging
-- Nostr relay management
+**Core Principle**: All modules are loaded at app initialization. Enable/disable is purely a per-group configuration that controls UI visibility and features, NOT database schema loading.
 
-### 2. Events & Organizing  (modules)
+### Core vs Modular Separation
+
+**CORE (always present, `src/core/`)**:
+- Identity management (keypairs, profiles)
+- Groups (creation, membership, roles, permissions)
+- Basic messaging (DMs - essential for coordination)
+- Nostr protocol layer (relays, events, signing)
+- Encryption (NIP-17, NIP-44)
+- Storage foundation (Dexie with dynamic schema composition)
+- Module system itself (registry, loading, lifecycle)
+
+**MODULAR (optional features, `src/modules/`)**:
+- **Custom Fields** (base) - Dynamic field capabilities for other modules
+- **Events** - Event creation, RSVPs, campaigns (uses custom-fields)
+- **Mutual Aid** - Requests, offers, rideshare (uses custom-fields)
+- **Governance** - Proposals, voting systems, ballots
+- **Wiki** - Collaborative knowledge base, version control
+- **Database** - Airtable-like data management (uses custom-fields)
+- **CRM** - Contact management with templates (uses database)
+- **Document Suite** - WYSIWYG editor, collaboration
+- **File Manager** - Encrypted file storage, folders
+- All future modules
+
+### Module Dependency Chain
+
+```
+Custom Fields (foundational)
+├── Events (extends Custom Fields)
+├── Mutual Aid (extends Custom Fields)
+├── Database (extends Custom Fields)
+│   └── CRM (uses Database + templates)
+└── Other modules as needed
+```
+
+### Module Structure (Complete Encapsulation)
+
+Each module is fully self-contained:
+```
+src/modules/[module-name]/
+├── index.ts              # Module registration
+├── schema.ts             # DB tables, types
+├── migrations.ts         # Version upgrades
+├── seeds.ts              # Example/template data
+├── types.ts              # TypeScript interfaces
+├── [module]Store.ts      # Zustand store
+├── [module]Manager.ts    # Business logic
+├── components/           # ALL UI components
+├── hooks/                # Module hooks
+└── i18n/                 # Module translations
+```
+
+### Dynamic Database Schema Composition
+
+- All module tables loaded at initialization regardless of enable/disable state
+- Schema composed from core + all available module schemas
+- Enable/disable is UI-level only - data persists when modules disabled
+- New modules require database version migration
+
+### Feature Overview by Module
+
+#### 1. Custom Fields (Base Module)
+- Field types: text, number, date, select, multi-select, file, relationship
+- Field validation and serialization
+- UI components for rendering/editing
+- Foundation for Events, Mutual Aid, Database
+
+#### 2. Events & Organizing
 - Event creation with privacy levels (public/group/private/direct-action)
 - RSVP system with capacity management
 - Campaign coordination across multiple events
-- Task assignment and tracking
+- Custom fields for dietary preferences, skills, etc.
 - Calendar integration (iCal export)
 
-### 3. Mutual Aid (modules)
-- Resource request/offer system (with optional per-requester trusted intermediaries)
+#### 3. Mutual Aid
+- Resource request/offer system
 - Solidarity ride share network
 - Request matching algorithm
+- Custom fields for specific needs, allergies, availability
 - Community resource directory
 
-### 4. Co-ops & Governance  (modules)
+#### 4. Governance
 - Proposal creation and discussion
-- Multiple voting systems (simple, ranked-choice, quadratic, D'Hondt_method, consensus)
+- Multiple voting systems (simple, ranked-choice, quadratic, D'Hondt method, consensus)
 - Anonymous ballots with optional identity verification
 - Decision history and audit logs
-- Member management
 
-### 5. Knowledge Base  (modules)
+#### 5. Wiki (Knowledge Base)
 - Collaborative wiki with version control
 - Markdown editor
 - Document categories and tagging
 - Search functionality
 
-### 6. Relationship CRM/Database
-- Airtable-style interface
+#### 6. Database (Airtable-like)
+- Create tables from scratch using custom fields
+- Multiple views: table, board, calendar, gallery
+- Define relationships (one-to-many, many-to-many)
+- Query system (filtering, sorting, grouping)
+
+#### 7. CRM (Contact Management)
+- Uses Database module with pre-built templates
+- Templates: Union Organizing, Fundraising, Volunteer Management, Legal/NLG Tracking, Civil Defense
 - Shared contact databases per group
-- Custom fields and views
 - Privacy controls per field
-- provide templates for everything from organizing unions and collectives, fundraising, volunteer management, human rights/legal tracking (ala NLG/Amensty International), civil defense, etc
 
-## Individual/Groups Module System
-Each group can enable/configure modules independently. Users can use various modules themselves.
+#### 8. Document Suite
+- WYSIWYG editor for comprehensive documents
+- Longform posts or shared with colleagues
+- Document types and collaboration
+- Inspiration: Cryptpad, Tresorit
 
-Module architecture allows for:
-- Per-group feature toggles
-- Custom permission schemes
-- Module-specific settings
-- cross-group views - such as events, aid requests, almost any non-
-Modules are not user created yet, only officially provided Modules - this allows us to encapsulate all of the above, and make some functionality reusable
+#### 9. File Manager
+- Encrypted file uploads and storage
+- Folder organization (group or private)
+- File sharing with privacy controls
+- Inspiration: DocumentCloud, OwnCloud
 
-## Document Suite/File Manager
-- create end edit comprehensive wyswiyg documents, either to be posted longform or to be shared with colleauges. repeat for other document types
-- manage and upload files, folders, in groups or privately
-- inspiration: Cryptpad, Tresorit, DocumentCloud/OwnCloud, etc
+### Module Configuration
+
+- **Per-group toggles**: Each group can enable/disable modules independently
+- **Custom permissions**: Module-specific permission schemes
+- **Module settings**: Configuration per module per group
+- **Cross-group views**: Events, aid requests viewable across groups (where permitted)
+- **Official modules only**: Users cannot create modules (ensures encapsulation and quality)
 
 ## Security & Privacy
 See PRIVACY.md for threat model and security architecture.
@@ -94,6 +166,8 @@ Key principles:
 - Hardware wallet support (NIP-46)
 
 ## Implementation Phases & Progress
-- **Execution Plan**: See [PROMPT.md](./PROMPT.md) for all epics (1-16) and tasks
+- **Execution Plan**: See [PROMPT.md](./PROMPT.md) for all epics (1-18) and tasks
 - **Progress Tracking**: See [PROGRESS.md](./PROGRESS.md) for detailed status with checkboxes
-- **Current Status**: Epics 1-10, 12.1-12.2, 13 complete (v0.13.0-plugins)
+- **Current Status**: Epics 1-13 complete (v0.13.0-modules)
+- **Architecture Updates**: New epics added for Custom Fields (13.5), Module Refactoring (14), Database/CRM (15)
+- **Epic Renumbering**: Security (16), Testing (17), Production (18) - see PROGRESS.md

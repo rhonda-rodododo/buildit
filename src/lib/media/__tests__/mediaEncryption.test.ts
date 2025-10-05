@@ -204,7 +204,11 @@ describe('Media Encryption', () => {
   describe('Edge Cases', () => {
     it('should handle large files', async () => {
       const largeContent = new Uint8Array(1024 * 1024); // 1MB
-      crypto.getRandomValues(largeContent);
+      // Fill in chunks to avoid crypto.getRandomValues 65,536 byte limit
+      for (let i = 0; i < largeContent.length; i += 65536) {
+        const chunk = largeContent.subarray(i, Math.min(i + 65536, largeContent.length));
+        crypto.getRandomValues(chunk);
+      }
       const largeFile = new File([largeContent], 'large.bin', { type: 'application/octet-stream' });
 
       const { encryptedBlob, keyString, iv } = await encryptFile(largeFile);

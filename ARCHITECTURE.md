@@ -35,6 +35,29 @@ BuildIt Network - a social action network is built on a decentralized architectu
 └─────────────────────────────────────────────────────┘
 ```
 
+## Core vs Modular Separation
+
+**Core Functionality** (`src/core/`):
+- Identity management (keypairs, profiles)
+- Groups (creation, membership, roles, permissions)
+- Basic messaging (DMs - essential for coordination)
+- Nostr protocol layer (relays, events, signing)
+- Encryption (NIP-17, NIP-44)
+- Storage foundation (Dexie initialization, but schema extended by modules)
+- Module system itself (registry, loading, lifecycle)
+
+**Modular Functionality** (`src/modules/`):
+- **Custom Fields** - Base module for dynamic fields (foundational)
+- **Events** - Event creation, RSVPs, campaigns (extends Custom Fields)
+- **Mutual Aid** - Requests, offers, rideshare (extends Custom Fields)
+- **Governance** - Proposals, voting systems, ballots
+- **Wiki** - Collaborative knowledge base, version control
+- **Database** - Airtable-like data management (extends Custom Fields)
+- **CRM** - Contact management with templates (uses Database)
+- **Document Suite** - WYSIWYG editor, collaboration
+- **File Manager** - Encrypted file storage, folders
+- All future modules
+
 ## Core Components
 
 ### 1. Nostr Client Layer
@@ -103,34 +126,55 @@ for each member: gift wrap individually →
 publish multiple wrapped events
 ```
 
-### 3. Storage Layer
+### 3. Storage Layer (Dynamic Schema Composition)
 
-**Purpose**: Local-first data persistence with IndexedDB
+**Purpose**: Local-first data persistence with IndexedDB, dynamically composed from modules
 
-**Schema**:
+**Schema Composition Strategy**:
 ```typescript
-// Dexie database schema
-{
-  identities: 'pubkey, name, created',
-  groups: 'id, name, adminPubkey, created',
-  groupMembers: '[groupId+pubkey], groupId, pubkey, role',
-  messages: 'id, groupId, authorPubkey, timestamp',
-  events: 'id, groupId, title, startTime',
-  rsvps: '[eventId+pubkey], eventId, pubkey, status',
-  proposals: 'id, groupId, status, created',
-  votes: '[proposalId+voterPubkey], proposalId, voterPubkey',
-  contacts: 'id, groupId, name, email',
-  wikiPages: 'id, groupId, title, updated'
-}
+// Core tables (always present)
+const coreSchema = {
+  identities: 'publicKey, name, created, lastUsed',
+  groups: 'id, name, created, privacy',
+  groupMembers: '++id, [groupId+pubkey], groupId, pubkey, role',
+  messages: 'id, groupId, authorPubkey, recipientPubkey, timestamp, threadId',
+  nostrEvents: 'id, kind, pubkey, created_at',
+  moduleInstances: 'id, [groupId+moduleId], groupId, moduleId, state, updatedAt'
+};
+
+// Module schemas (loaded dynamically)
+import { eventsSchema } from '@/modules/events/schema';
+import { mutualAidSchema } from '@/modules/mutual-aid/schema';
+import { governanceSchema } from '@/modules/governance/schema';
+// ... import all module schemas
+
+// Composed schema at initialization
+const completeSchema = {
+  ...coreSchema,
+  ...eventsSchema,
+  ...mutualAidSchema,
+  ...governanceSchema,
+  // ... all other module schemas
+};
+
+// Database initialized with complete schema
+const db = new Dexie('BuildItNetworkDB');
+db.version(1).stores(completeSchema);
 ```
+
+**Key Points**:
+- **All module tables are loaded** regardless of enable/disable state
+- **Enable/disable is UI-level only** - data persists even when module disabled
+- **New modules** require database migration (version bump)
+- **Each module owns** its schema, migrations, and seed data
 
 **Files**:
 ```
 src/core/storage/
-├── db.ts               # Dexie database definition
+├── db.ts               # Dexie database with dynamic schema composition
 ├── cache.ts            # Event caching strategy
 ├── sync.ts             # Sync with Nostr relays
-└── migrations.ts       # Schema version migrations
+└── migrations.ts       # Schema version migrations (orchestrates module migrations)
 ```
 
 ## Application Layer
@@ -148,14 +192,14 @@ interface Group {
   adminPubkeys: string[];  // Group administrators
   created: number;
   privacy: 'public' | 'private';
-  enabledModules: ModuleConfig[];
+  enabledModules: string[];  // Module IDs (e.g., ['events', 'mutual-aid'])
+  moduleConfigs: Record<string, ModuleConfig>;  // Per-module settings
   groupKey?: string;       // Encrypted group key
 }
 
 interface ModuleConfig {
-  module: 'events' | 'mutual-aid' | 'governance' | 'wiki' | 'crm';
   enabled: boolean;
-  settings: Record;
+  settings: Record<string, unknown>;
 }
 ```
 
@@ -169,42 +213,193 @@ interface ModuleConfig {
     ["name", "Group Name"],
     ["privacy", "private"],
     ["admin", "admin-pubkey-1"],
-    ["admin", "admin-pubkey-2"]
+    ["admin", "admin-pubkey-2"],
+    ["module", "events"],
+    ["module", "mutual-aid"]
   ]
 }
 ```
 
-### Module System
+### Module System Architecture
 
-Each module follows a consistent pattern:
+**Core Principle**: All modules are loaded at initialization. Enable/disable is purely a per-group configuration setting that controls UI visibility and feature access, NOT database schema loading.
+
+**Module Registry Flow**:
+```
+1. App initialization
+   ↓
+2. Module registry imports all available modules
+   ↓
+3. Each module exports schema fragment
+   ↓
+4. Core composes complete Dexie schema from all modules
+   ↓
+5. Database initialized with ALL module tables
+   ↓
+6. Groups configure which modules are enabled (UI-level only)
+```
 
 **Module Interface**:
 ```typescript
 interface Module {
-  id: string;
-  name: string;
-  initialize(group: Group): Promise;
+  id: string;                                    // Unique module ID
+  name: string;                                  // Display name
+  description: string;                           // Module description
+  version: string;                               // Semantic version
+  dependencies?: string[];                       // Module dependencies
+
+  // Schema
+  schema: DexieSchema;                           // DB tables for this module
+  migrations?: Migration[];                      // Version upgrades
+  seeds?: SeedData[];                           // Example/template data
+
+  // Lifecycle
+  initialize(group: Group): Promise<void>;
+  enable(groupId: string): Promise<void>;
+  disable(groupId: string): Promise<void>;
+
+  // Nostr integration
   getEventKinds(): number[];
-  handleEvent(event: NostrEvent): Promise;
+  handleEvent(event: NostrEvent): Promise<void>;
+
+  // UI
   renderUI(): React.ComponentType;
+  renderSettings?(): React.ComponentType;
 }
 ```
 
-**Event Module Example**:
+**Module Structure (Complete Encapsulation)**:
+```
+src/modules/[module-name]/
+├── index.ts              # Module registration & exports
+├── schema.ts             # Database schema (Dexie tables, types)
+├── migrations.ts         # Schema version upgrades
+├── seeds.ts              # Example data and templates
+├── types.ts              # TypeScript interfaces
+├── [moduleName]Store.ts  # Zustand store (module state)
+├── [moduleName]Manager.ts # Business logic
+├── components/           # ALL UI components for this module
+│   ├── [Component].tsx
+│   └── ...
+├── hooks/                # Module-specific React hooks
+│   ├── use[Module].ts
+│   └── ...
+└── i18n/                 # Module translations
+    ├── en.json
+    ├── es.json
+    └── ...
+```
+
+**Example: Events Module**:
 ```
 src/modules/events/
-├── types.ts            # TypeScript interfaces
-├── EventManager.ts     # Business logic
-├── nostr.ts            # Nostr event handling
+├── index.ts              # Exports EventsModule
+├── schema.ts             # DBEvent, DBRSVP tables
+├── migrations.ts         # v1→v2 add imageUrl field
+├── seeds.ts              # Sample events for demo
+├── types.ts              # Event, RSVP, Privacy types
+├── eventsStore.ts        # Zustand store
+├── eventManager.ts       # Business logic
 ├── components/
 │   ├── EventList.tsx
 │   ├── EventDetail.tsx
-│   ├── CreateEvent.tsx
-│   └── RSVPButton.tsx
-└── hooks/
-    ├── useEvents.ts
-    └── useRSVPs.ts
+│   ├── CreateEventForm.tsx
+│   ├── RSVPButton.tsx
+│   └── CalendarView.tsx
+├── hooks/
+│   ├── useEvents.ts
+│   └── useRSVPs.ts
+└── i18n/
+    ├── en.json           # "events.create.title": "Create Event"
+    └── es.json
 ```
+
+### Custom Fields System
+
+**Architecture**: Custom Fields is the foundational module that provides dynamic field capabilities to other modules.
+
+**Module Dependency Chain**:
+```
+Custom Fields (base)
+├── Events (extends Custom Fields)
+├── Mutual Aid (extends Custom Fields)
+├── Database (extends Custom Fields)
+│   └── CRM (uses Database + templates)
+└── Other modules as needed
+```
+
+**Custom Fields Module Provides**:
+- Field type definitions (text, number, date, select, multi-select, file)
+- Field validation and serialization
+- UI components for field rendering and editing
+- Storage layer for custom field data
+
+**Field Type System**:
+```typescript
+type FieldType =
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'select'
+  | 'multi-select'
+  | 'file'
+  | 'relationship';
+
+interface CustomField {
+  id: string;
+  name: string;
+  type: FieldType;
+  required: boolean;
+  options?: string[];        // For select types
+  validation?: ValidationRule;
+}
+
+interface CustomFieldValue {
+  fieldId: string;
+  entityId: string;          // Event ID, Contact ID, etc.
+  value: unknown;
+}
+```
+
+**Module Usage Examples**:
+
+**Events Module** (lightweight extension):
+```typescript
+// Events extends Custom Fields for dynamic attributes
+interface Event {
+  id: string;
+  title: string;
+  startTime: number;
+  // Standard fields...
+  customFields: CustomFieldValue[];  // Dietary prefs, skill requirements, etc.
+}
+```
+
+**Database Module** (full Airtable-like system):
+```typescript
+// Database provides complete data management
+interface DatabaseTable {
+  id: string;
+  name: string;
+  fields: CustomField[];     // Uses Custom Fields for schema
+  views: View[];             // Table, board, calendar views
+  relationships: Relationship[];
+}
+
+// CRM uses Database for opinionated templates
+interface CRMTemplate {
+  name: string;              // "Union Organizing", "Legal Tracking"
+  baseTable: DatabaseTable;
+  customViews: View[];
+  workflows: Workflow[];
+}
+```
+
+**Benefits of This Architecture**:
+1. **Separation of Concerns**: Lightweight modules only import Custom Fields
+2. **Progressive Enhancement**: Database builds on Custom Fields for power users
+3. **Reusability**: Custom Fields used across Events, Mutual Aid, Database, etc.
+4. **Flexibility**: CRM templates leverage full Database capabilities
 
 ## Data Flow
 

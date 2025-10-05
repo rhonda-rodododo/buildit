@@ -50,36 +50,53 @@ Before starting any epic, ensure:
 
 ### Project Structure
 ```
-buildn/
+buildit-network/
 ├── src/
-│   ├── core/                 # Core infrastructure (Nostr, crypto, storage)
-│   │   ├── nostr/           # Nostr client, relay management, NIPs
-│   │   ├── crypto/          # NIP-17 encryption, key management
-│   │   └── storage/         # Dexie database, sync, cache
-│   ├── lib/                 # Shared libraries and utilities
-│   │   ├── auth/           # Authentication logic
-│   │   ├── groups/         # Group management
-│   │   └── permissions/    # Permission system
-│   ├── modules/            # Feature modules (plugins)
-│   │   ├── events/
-│   │   ├── mutual-aid/
-│   │   ├── governance/
-│   │   ├── wiki/
-│   │   └── crm/
-│   ├── components/         # Shared UI components
-│   │   ├── ui/            # shadcn/ui components
-│   │   ├── layouts/       # Layout components
-│   │   └── common/        # Shared business components
-│   ├── stores/            # Zustand stores
-│   ├── hooks/             # Custom React hooks
-│   ├── types/             # TypeScript types/interfaces
+│   ├── core/                   # Core infrastructure (always present)
+│   │   ├── nostr/             # Nostr client, relay management, NIPs
+│   │   ├── crypto/            # NIP-17 encryption, key management
+│   │   └── storage/           # Dexie database with dynamic schema composition
+│   ├── lib/                   # Shared libraries and utilities
+│   │   ├── auth/             # Authentication logic
+│   │   ├── groups/           # Group management
+│   │   ├── permissions/      # Permission system
+│   │   └── modules/          # Module registry and lifecycle
+│   ├── modules/              # Feature modules (completely encapsulated)
+│   │   ├── custom-fields/   # Base module for dynamic fields (foundational)
+│   │   ├── events/          # Event creation, RSVPs (uses custom-fields)
+│   │   ├── mutual-aid/      # Requests, offers (uses custom-fields)
+│   │   ├── governance/      # Proposals, voting
+│   │   ├── wiki/            # Knowledge base
+│   │   ├── database/        # Airtable-like system (uses custom-fields)
+│   │   ├── crm/             # Contact management (uses database)
+│   │   ├── documents/       # Document suite
+│   │   └── files/           # File manager
+│   │
+│   │   # Each module contains:
+│   │   # ├── index.ts              # Module registration
+│   │   # ├── schema.ts             # DB tables, types
+│   │   # ├── migrations.ts         # Version upgrades
+│   │   # ├── seeds.ts              # Example/template data
+│   │   # ├── types.ts              # TypeScript interfaces
+│   │   # ├── [module]Store.ts     # Zustand store
+│   │   # ├── [module]Manager.ts   # Business logic
+│   │   # ├── components/          # ALL UI components
+│   │   # ├── hooks/               # Module hooks
+│   │   # └── i18n/                # Module translations
+│   │
+│   ├── components/           # Shared UI components only
+│   │   ├── ui/              # shadcn/ui components
+│   │   └── layouts/         # Layout components
+│   ├── stores/              # Core Zustand stores only
+│   ├── hooks/               # Shared React hooks only
+│   ├── types/               # Core TypeScript types only
 │   └── App.tsx
 ├── tests/
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
 └── docs/
-    └── epics/             # Per-epic documentation
+    └── epics/               # Per-epic documentation
 ```
 
 ## 🚀 EXECUTION EPICS
@@ -758,50 +775,161 @@ buildn/
 
 ---
 
-### **EPIC 13: Module Plugin System** (2 hours)
-**Deliverable**: Module registry, per-group configuration, permissions
+### **EPIC 13: Custom Fields Module** (2.5 hours)
+**Deliverable**: Foundational module providing dynamic field capabilities to other modules
 
-#### 13.1 Plugin Architecture (1h)
-- Create plugin registry system:
-  - Module interface/contract
+#### 13.1 Custom Fields Core (1h)
+- Create custom-fields module structure:
+  - schema.ts - DBCustomField, DBCustomFieldValue tables
+  - types.ts - FieldType enum, CustomField, CustomFieldValue interfaces
+  - customFieldsStore.ts - Zustand store for field management
+  - customFieldsManager.ts - Business logic for field CRUD
+- Implement field types:
+  - text, number, date, select, multi-select, file, relationship
+- Create field validation system:
+  - Required fields, format validation, custom rules
+- Implement field serialization/deserialization
+- Write custom fields core tests
+- Git commit: "feat: implement custom fields module (Epic 13.1)"
+
+#### 13.2 Custom Fields UI (1h)
+- Create field management components:
+  - `FieldEditor` - Create/edit field definitions
+  - `FieldRenderer` - Render field based on type
+  - `FieldValueInput` - Input component for each field type
+- Create field type components:
+  - TextFieldInput, NumberFieldInput, DateFieldInput
+  - SelectFieldInput, MultiSelectFieldInput
+  - FileFieldInput, RelationshipFieldInput
+- Implement field validation UI
+- Add field drag-and-drop reordering
+- Git commit: "feat: create custom fields UI (Epic 13.2)"
+
+#### 13.3 Module Integration Examples (0.5h)
+- Update Events module to use custom fields:
+  - Add customFields array to Event interface
+  - Example fields: dietary preferences, skill requirements
+- Update Mutual Aid module to use custom fields:
+  - Add customFields to AidRequest/AidOffer
+  - Example fields: allergies, specific needs, availability
+- Create integration documentation
+- Test custom fields in events and mutual aid
+- Git commit: "feat: integrate custom fields in events and mutual aid (Epic 13.3)"
+
+**Epic 13 Validation**:
+- Test: Create custom field → Use in event → Save → Display
+- Test: All field types work correctly
+- Test: Field validation enforced
+- Verify custom fields persist and sync
+- Git tag: `v0.13.0-custom-fields`
+
+---
+
+### **EPIC 14: Module System & Architecture** (2 hours)
+**Deliverable**: Module registry, dynamic DB schema, per-group configuration
+
+**Note**: Terminology changed from "plugins" to "modules" throughout codebase
+
+#### 14.1 Module Architecture (1h)
+- Create module registry system:
+  - Module interface/contract (with schema, migrations, seeds)
   - Lifecycle hooks (init, enable, disable)
-  - Inter-module communication
-- Implement module manager:
-  - Load/unload modules
-  - Dependency resolution
-  - Module isolation - everything from components, state, schema to translations should live in the module folder
+  - Dependency resolution system
+- Implement dynamic database schema composition:
+  - Core schema (identities, groups, messages, nostrEvents, moduleInstances)
+  - Module schema fragments (each module exports its tables)
+  - Schema composition at app initialization
+  - **All module tables loaded regardless of enable/disable state**
+  - Enable/disable is UI-level only (not DB schema)
 - Create per-group module config:
-  - Enable/disable per group
+  - Enable/disable per group (controls UI/features only)
   - Module-specific settings
   - Permission overrides
-- Write plugin system tests
-- Git commit: "feat: implement plugin system"
+- Module isolation - everything from components, state, schema to translations lives in module folder
+- Write module system tests
+- Git commit: "feat: implement module system architecture (Epic 14.1)"
 
-#### 13.2 Module Integration (1h)
-- Refactor existing modules to plugin pattern:
-  - Register events, mutual-aid, governance, wiki, crm
-  - Define module metadata
+#### 14.2 Module Integration (1h)
+- Refactor existing modules to new pattern:
+  - Register custom-fields, events, mutual-aid, governance, wiki, crm
+  - Add schema.ts, migrations.ts, seeds.ts to each module
+  - Define module metadata and dependencies
   - Expose module APIs
 - Create `ModuleSettings` UI:
   - Enable/disable toggles
   - Module configuration panels
   - Permission management per module
 - Implement module discovery UI
-- Test module loading/unloading
-- Git commit: "feat: integrate modules with plugin system"
+- Test module loading with dynamic schema
+- Git commit: "feat: integrate modules with dynamic schema system (Epic 14.2)"
 
-**Epic 13 Validation**:
-- Test: Enable/disable modules per group
+**Epic 14 Validation**:
+- Test: Enable/disable modules per group (UI-level)
+- Test: All module DB tables exist even when disabled
 - Test: Module settings persistence
 - Verify module isolation (no cross-contamination)
-- Git tag: `v0.13.0-plugins`
+- Verify custom-fields → events/mutual-aid dependency chain
+- Git tag: `v0.14.0-modules`
 
 ---
 
-### **EPIC 14: Security Hardening** (3.5 hours)
+### **EPIC 15: Database & CRM Modules** (3 hours)
+**Deliverable**: Airtable-like database module and CRM with templates
+
+#### 15.1 Database Module Core (1.5h)
+- Create database module (extends custom-fields):
+  - schema.ts - DBTable, DBView, DBRelationship tables
+  - types.ts - DatabaseTable, View, Relationship interfaces
+  - databaseStore.ts - Zustand store for table management
+  - databaseManager.ts - Business logic for tables, views, relationships
+- Implement table creation from scratch:
+  - Add custom fields to define table schema
+  - Create views (table, board, calendar, gallery)
+  - Define relationships (one-to-many, many-to-many)
+- Implement query system:
+  - Filtering, sorting, grouping
+  - View-specific queries
+- Write database module tests
+- Git commit: "feat: implement database module core (Epic 15.1)"
+
+#### 15.2 Database Module UI (1h)
+- Create database components:
+  - `TableBuilder` - Visual table schema editor
+  - `ViewSelector` - Switch between views
+  - `TableView` - Spreadsheet-like table view
+  - `BoardView` - Kanban board view
+  - `CalendarView` - Calendar view for date fields
+  - `GalleryView` - Image/card gallery view
+- Implement CRUD operations UI
+- Add bulk operations and imports
+- Git commit: "feat: create database module UI (Epic 15.2)"
+
+#### 15.3 CRM Module with Templates (0.5h)
+- Create CRM module (uses database module):
+  - Pre-built templates using DatabaseTable
+  - Template: Union Organizing (contacts, actions, timeline)
+  - Template: Fundraising (donors, campaigns, contributions)
+  - Template: Volunteer Management (volunteers, shifts, skills)
+  - Template: Legal/NLG Tracking (cases, arrestees, lawyers, court dates)
+  - Template: Civil Defense (emergency contacts, resources, skills)
+- Create CRM template selector UI
+- Implement template instantiation
+- Test CRM templates
+- Git commit: "feat: add CRM module with templates (Epic 15.3)"
+
+**Epic 15 Validation**:
+- Test: Create database table from scratch
+- Test: Apply CRM template → Customize → Use
+- Test: All view types work correctly
+- Test: Relationships and queries functional
+- Git tag: `v0.15.0-database-crm`
+
+---
+
+### **EPIC 16: Security Hardening** (3.5 hours)
 **Deliverable**: WebAuthn key protection, device management, Tor integration, security audit
 
-#### 14.1 WebAuthn Key Protection (1h)
+#### 16.1 WebAuthn Key Protection (1h)
 - Implement WebAuthn/Passkey integration:
   - Use Web Authentication API for key protection
   - Create secure key storage with WebAuthn-protected encryption
@@ -817,9 +945,9 @@ buildn/
   - WebAuthn-verified recovery
   - Multi-device sync (optional)
 - Write security tests for WebAuthn flow
-- Git commit: "feat: implement WebAuthn key protection"
+- Git commit: "feat: implement WebAuthn key protection (Epic 16.1)"
 
-#### 14.2 Device Management & Visibility (1h)
+#### 16.2 Device Management & Visibility (1h)
 - Create device tracking system:
   - Device fingerprinting (browser, OS, screen resolution)
   - Track active sessions (device ID, IP, last active, location estimate)
@@ -843,9 +971,9 @@ buildn/
   - Limit device fingerprinting detail
   - Auto-expire old sessions
 - Write device management tests
-- Git commit: "feat: implement device management and visibility"
+- Git commit: "feat: implement device management and visibility (Epic 16.2)"
 
-#### 14.3 Tor Integration (1h)
+#### 16.3 Tor Integration (1h)
 - Add Tor proxy configuration:
   - SOCKS5 proxy support
   - .onion relay connections
@@ -854,9 +982,9 @@ buildn/
 - Create `TorSettings` component
 - Add Tor status indicator
 - Test Tor connectivity (if available)
-- Git commit: "feat: add Tor integration"
+- Git commit: "feat: add Tor integration (Epic 16.3)"
 
-#### 14.4 Security Audit & Hardening (0.5h)
+#### 16.4 Security Audit & Hardening (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
@@ -867,9 +995,9 @@ buildn/
 - Implement rate limiting for sensitive operations
 - Add session timeout and auto-lock
 - Create security documentation
-- Git commit: "feat: security hardening and audit"
+- Git commit: "feat: security hardening and audit (Epic 16.4)"
 
-**Epic 14 Validation**:
+**Epic 16 Validation**:
 - Test: WebAuthn authentication with biometrics
 - Test: Device authorization and revocation
 - Test: Remote sign-out from all devices
@@ -878,56 +1006,63 @@ buildn/
 - Test: Tor connection to .onion relays
 - Run security audit tools (OWASP ZAP, npm audit)
 - Verify CSP and security headers
-- Git tag: `v0.14.0-security`
+- Git tag: `v0.16.0-security`
 
 ---
 
-### **EPIC 15: Testing & Quality** (2 hours)
+### **EPIC 17: Testing & Quality** (2 hours)
 **Deliverable**: Comprehensive test coverage, E2E tests, performance
 
-#### 15.1 Unit Test Coverage (0.5h)
+#### 17.1 Unit Test Coverage (0.5h)
 - Ensure >80% coverage for all core modules
 - Write missing unit tests:
   - Edge cases in crypto functions
   - Error handling in Nostr client
   - Store action tests
+  - Custom fields validation
+  - Database module tests
 - Run coverage report: `npm run test:coverage`
-- Git commit: "test: improve unit test coverage"
+- Git commit: "test: improve unit test coverage (Epic 17.1)"
 
-#### 15.2 Integration Tests (0.5h)
+#### 17.2 Integration Tests (0.5h)
 - Write integration tests:
   - Nostr client ↔ Storage sync
   - Encryption ↔ Storage (encrypted persistence)
-  - Module ↔ Plugin system
+  - Module ↔ Module system (dependency resolution)
+  - Custom Fields ↔ Events/Mutual Aid integration
+  - Database ↔ CRM templates
   - Multi-relay failover
 - Test error recovery scenarios
-- Git commit: "test: add integration tests"
+- Git commit: "test: add integration tests (Epic 17.2)"
 
-#### 15.3 E2E Tests (1h)
+#### 17.3 E2E Tests (1h)
 - Write Playwright E2E tests:
   - User journey: Register → Create group → Send message
-  - Event flow: Create → RSVP → Export calendar
+  - Event flow: Create event with custom fields → RSVP → Export calendar
   - Governance: Create proposal → Vote → See results
-  - Mutual aid: Create request → Match → Fulfill
+  - Mutual aid: Create request with custom fields → Match → Fulfill
+  - Database: Create table → Add custom fields → Create views
+  - CRM: Apply template → Customize → Add records
 - Test multi-device sync (multiple browser contexts)
 - Test offline/online transitions
+- Test module enable/disable per group
 - Run E2E suite: `npm run test:e2e`
-- Git commit: "test: add E2E tests"
+- Git commit: "test: add E2E tests (Epic 17.3)"
 
-**Epic 15 Validation**:
+**Epic 17 Validation**:
 - All tests passing: `npm run test:all`
 - Coverage: >80% overall, >90% for core
 - E2E tests: All critical paths covered
-- Git tag: `v0.15.0-testing`
+- Git tag: `v0.17.0-testing`
 
 ---
 
-### **EPIC 16: Polish & Production Prep** (2 hours)
+### **EPIC 18: Polish & Production Prep** (2 hours)
 **Deliverable**: Performance optimization, docs, deployment ready
 
-#### 16.1 Performance Optimization (1h)
+#### 18.1 Performance Optimization (1h)
 - Implement performance optimizations:
-  - Virtual scrolling for long lists (messages, contacts)
+  - Virtual scrolling for long lists (messages, contacts, database tables)
   - Lazy loading for modules
   - Code splitting by route
   - Image optimization
@@ -938,21 +1073,24 @@ buildn/
   - Verify smooth scrolling
 - Run Lighthouse audit
 - Optimize bundle size
-- Git commit: "perf: optimize performance"
+- Git commit: "perf: optimize performance (Epic 18.1)"
 
-#### 16.2 Documentation (0.5h)
+#### 18.2 Documentation (0.5h)
 - Create user documentation:
   - Getting started guide
   - Feature walkthroughs
+  - Module usage guides (custom fields, database, CRM)
   - Security best practices
 - Create developer docs:
   - API documentation
-  - Module development guide
+  - Module development guide (creating new modules)
+  - Custom Fields integration guide
+  - Database/CRM template creation
   - Contribution guidelines
 - Update PROGRESS.md with final completion status
-- Git commit: "docs: add user and developer documentation"
+- Git commit: "docs: add user and developer documentation (Epic 18.2)"
 
-#### 16.3 Production Build (0.5h)
+#### 18.3 Production Build (0.5h)
 - Configure production build:
   - Environment variables
   - Build optimization
@@ -963,9 +1101,9 @@ buildn/
   - Service worker (offline support)
 - Test production build locally
 - Create deployment guide
-- Git commit: "chore: production build configuration"
+- Git commit: "chore: production build configuration (Epic 18.3)"
 
-**Epic 16 Validation**:
+**Epic 18 Validation**:
 - Lighthouse score: >90 all categories
 - Bundle size: <500KB initial
 - PWA installable and works offline
