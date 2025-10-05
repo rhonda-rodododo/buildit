@@ -590,10 +590,84 @@ buildn/
 
 ---
 
-### **EPIC 11: Social Network Features** (3.5 hours)
+### **EPIC 11: shadcn/ui Refinement** (2 hours)
+**Deliverable**: Proper shadcn/ui setup, theming system, dark mode implementation
+
+#### 11.1 Vite Configuration & Setup (0.5h)
+- Verify and update Vite configuration per shadcn/ui docs:
+  - Update `vite.config.ts` with proper path aliases
+  - Add `@tailwindcss/vite` plugin
+  - Ensure `path` module is properly imported
+- Update TypeScript configuration:
+  - Add `baseUrl` and `paths` to both `tsconfig.json` and `tsconfig.app.json`
+  - Ensure IDE path resolution works correctly
+- Update `src/index.css`:
+  - Replace with `@import "tailwindcss";`
+  - Remove old Tailwind directives if present
+- Verify `components.json` configuration:
+  - Set `tailwind.cssVariables: true` (recommended)
+  - Confirm `baseColor` is set (currently "blue")
+  - Verify all aliases are correct
+- Git commit: "refactor: update shadcn/ui Vite configuration"
+- make sure we are using this command to install components `bunx --bun shadcn@latest add [component]`
+- all components in `src/components/ui` should be replaced with the CLI installed ones. if this breaks some implementations, create work items/epics to fix them if necessary
+
+#### 11.2 Theming System (1h)
+- Implement CSS variables theming (recommended approach):
+  - Dynamically import css from `/src/themes/` depending on the user configuration
+  - Use OKLCH color format for all color variables
+- Add custom colors if needed:
+  - Warning/success states
+  - Brand-specific colors for BuildN
+  - Use `@theme inline` for custom color registration
+- Validate the components display the themes and components exactly as in this page, where the theme css files are copied from
+  - https://ui.shadcn.com/themes
+- Test theming:
+  - Verify all components use CSS variables correctly
+  - Check color contrast for accessibility
+  - Test responsiveness of theme system
+- Git commit: "feat: implement proper shadcn/ui theming with CSS variables"
+
+#### 11.3 Dark Mode Implementation (0.5h)
+- Create `ThemeProvider` component:
+  - Copy theme provider from shadcn/ui Vite dark mode docs
+  - Implement theme context (dark/light/system)
+  - Add localStorage persistence with key "buildn-ui-theme"
+  - Handle system preference detection
+  - Apply theme class to document root
+- Create `useTheme` hook:
+  - Export from theme-provider.tsx
+  - Provide theme state and setTheme function
+- Wrap app with ThemeProvider:
+  - Update `App.tsx` or `main.tsx`
+  - Set default theme to "system"
+- Create `ModeToggle` component:
+  - Dropdown with Light/Dark/System options
+  - Use lucide-react icons (Sun/Moon)
+  - Add to app header/settings area
+- Test dark mode:
+  - Toggle between light, dark, system modes
+  - Verify localStorage persistence
+  - Test all components in both themes
+  - Ensure smooth transitions
+- Git commit: "feat: add dark mode with theme switcher"
+
+**Epic 11 Validation**:
+- Vite config matches shadcn/ui documentation
+- CSS variables theming works correctly
+- Dark mode toggles properly (light/dark/system)
+- Theme persists across page reloads
+- All components render correctly in both themes
+- No console errors related to theming
+- Git tag: `v0.11.0-theming`
+- the 
+
+---
+
+### **EPIC 12: Social Network Features** (3.5 hours)
 **Deliverable**: Friends list, user autocomplete, rich media support
 
-#### 11.1 Social Graph & Contacts (1.5h)
+#### 12.1 Social Graph & Contacts (1.5h)
 - Create contacts store (Zustand)
 - Implement Nostr contact list (NIP-02):
   - Follow/unfollow users
@@ -613,7 +687,7 @@ buildn/
 - Write contacts tests
 - Git commit: "feat: implement social graph and contacts"
 
-#### 11.2 User Autocomplete System (1h)
+#### 12.2 User Autocomplete System (1h)
 - Create autocomplete service:
   - Index contacts by display name and npub
   - Index group members per group
@@ -636,7 +710,7 @@ buildn/
 - Write autocomplete tests
 - Git commit: "feat: add user autocomplete and @mentions"
 
-#### 11.3 Rich Media Support (1h)
+#### 12.3 Rich Media Support (1h)
 - Implement media handling:
   - Image upload (NIP-94 - File Metadata)
   - Video upload (with thumbnail generation)
@@ -674,20 +748,20 @@ buildn/
 - Write media handling tests
 - Git commit: "feat: add rich media support with encryption"
 
-**Epic 11 Validation**:
+**Epic 12 Validation**:
 - Test: Add friend → See in contacts list → @mention in message
 - Test: Upload image → Post to microblog → View in feed
 - Test: Autocomplete shows friends and group members
 - Test: Encrypted media upload/download
 - Verify EXIF stripping and privacy controls
-- Git tag: `v0.11.0-social`
+- Git tag: `v0.12.0-social`
 
 ---
 
-### **EPIC 12: Module Plugin System** (2 hours)
+### **EPIC 13: Module Plugin System** (2 hours)
 **Deliverable**: Module registry, per-group configuration, permissions
 
-#### 12.1 Plugin Architecture (1h)
+#### 13.1 Plugin Architecture (1h)
 - Create plugin registry system:
   - Module interface/contract
   - Lifecycle hooks (init, enable, disable)
@@ -703,7 +777,7 @@ buildn/
 - Write plugin system tests
 - Git commit: "feat: implement plugin system"
 
-#### 12.2 Module Integration (1h)
+#### 13.2 Module Integration (1h)
 - Refactor existing modules to plugin pattern:
   - Register events, mutual-aid, governance, wiki, crm
   - Define module metadata
@@ -716,18 +790,18 @@ buildn/
 - Test module loading/unloading
 - Git commit: "feat: integrate modules with plugin system"
 
-**Epic 12 Validation**:
+**Epic 13 Validation**:
 - Test: Enable/disable modules per group
 - Test: Module settings persistence
 - Verify module isolation (no cross-contamination)
-- Git tag: `v0.12.0-plugins`
+- Git tag: `v0.13.0-plugins`
 
 ---
 
-### **EPIC 13: Security Hardening** (2.5 hours)
+### **EPIC 14: Security Hardening** (2.5 hours)
 **Deliverable**: Tor integration, hardware wallet support, key rotation
 
-#### 13.1 Advanced Key Management (1h)
+#### 14.1 Advanced Key Management (1h)
 - Implement NIP-46 (remote signing):
   - Nostr Connect protocol
   - Hardware wallet integration (for compatible devices)
@@ -744,7 +818,7 @@ buildn/
 - Write security tests
 - Git commit: "feat: implement advanced key management"
 
-#### 13.2 Tor Integration (1h)
+#### 14.2 Tor Integration (1h)
 - Add Tor proxy configuration:
   - SOCKS5 proxy support
   - .onion relay connections
@@ -755,7 +829,7 @@ buildn/
 - Test Tor connectivity (if available)
 - Git commit: "feat: add Tor integration"
 
-#### 13.3 Security Audit (0.5h)
+#### 14.3 Security Audit (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
@@ -766,19 +840,19 @@ buildn/
 - Create security documentation
 - Git commit: "feat: security hardening"
 
-**Epic 13 Validation**:
+**Epic 14 Validation**:
 - Test: Hardware wallet signing (if device available)
 - Test: Key rotation and data re-encryption
 - Test: Tor connection to .onion relays
 - Run security audit tools
-- Git tag: `v0.13.0-security`
+- Git tag: `v0.14.0-security`
 
 ---
 
-### **EPIC 14: Testing & Quality** (2 hours)
+### **EPIC 15: Testing & Quality** (2 hours)
 **Deliverable**: Comprehensive test coverage, E2E tests, performance
 
-#### 14.1 Unit Test Coverage (0.5h)
+#### 15.1 Unit Test Coverage (0.5h)
 - Ensure >80% coverage for all core modules
 - Write missing unit tests:
   - Edge cases in crypto functions
@@ -787,7 +861,7 @@ buildn/
 - Run coverage report: `npm run test:coverage`
 - Git commit: "test: improve unit test coverage"
 
-#### 14.2 Integration Tests (0.5h)
+#### 15.2 Integration Tests (0.5h)
 - Write integration tests:
   - Nostr client ↔ Storage sync
   - Encryption ↔ Storage (encrypted persistence)
@@ -796,7 +870,7 @@ buildn/
 - Test error recovery scenarios
 - Git commit: "test: add integration tests"
 
-#### 14.3 E2E Tests (1h)
+#### 15.3 E2E Tests (1h)
 - Write Playwright E2E tests:
   - User journey: Register → Create group → Send message
   - Event flow: Create → RSVP → Export calendar
@@ -807,18 +881,18 @@ buildn/
 - Run E2E suite: `npm run test:e2e`
 - Git commit: "test: add E2E tests"
 
-**Epic 14 Validation**:
+**Epic 15 Validation**:
 - All tests passing: `npm run test:all`
 - Coverage: >80% overall, >90% for core
 - E2E tests: All critical paths covered
-- Git tag: `v0.14.0-testing`
+- Git tag: `v0.15.0-testing`
 
 ---
 
-### **EPIC 15: Polish & Production Prep** (2 hours)
+### **EPIC 16: Polish & Production Prep** (2 hours)
 **Deliverable**: Performance optimization, docs, deployment ready
 
-#### 15.1 Performance Optimization (1h)
+#### 16.1 Performance Optimization (1h)
 - Implement performance optimizations:
   - Virtual scrolling for long lists (messages, contacts)
   - Lazy loading for modules
@@ -833,7 +907,7 @@ buildn/
 - Optimize bundle size
 - Git commit: "perf: optimize performance"
 
-#### 15.2 Documentation (0.5h)
+#### 16.2 Documentation (0.5h)
 - Create user documentation:
   - Getting started guide
   - Feature walkthroughs
@@ -845,7 +919,7 @@ buildn/
 - Update ROADMAP.md with completion status
 - Git commit: "docs: add user and developer documentation"
 
-#### 15.3 Production Build (0.5h)
+#### 16.3 Production Build (0.5h)
 - Configure production build:
   - Environment variables
   - Build optimization
@@ -858,7 +932,7 @@ buildn/
 - Create deployment guide
 - Git commit: "chore: production build configuration"
 
-**Epic 15 Validation**:
+**Epic 16 Validation**:
 - Lighthouse score: >90 all categories
 - Bundle size: <500KB initial
 - PWA installable and works offline

@@ -395,11 +395,61 @@
 
 ## 🚀 Pending Epics (Phase 2)
 
-### Epic 11: Social Network Features
+### Epic 11: shadcn/ui Refinement
 **Status**: Pending ⏳
-**Tag**: `v0.11.0-social`
+**Tag**: `v0.11.0-theming`
 
-#### 11.1 Social Graph & Contacts
+#### 11.1 Vite Configuration & Setup
+- [ ] Verify and update vite.config.ts with proper path aliases and @tailwindcss/vite plugin
+- [ ] Update TypeScript configuration (tsconfig.json and tsconfig.app.json) with baseUrl and paths
+- [ ] Update src/index.css to use @import "tailwindcss"
+- [ ] Verify components.json configuration (cssVariables: true, baseColor: blue)
+- [ ] Audit existing components to ensure only official shadcn/ui components are used
+- [ ] Remove or fix any custom/non-official component implementations
+- [ ] Test shadcn CLI component installation workflow
+- [ ] Git commit: "refactor: update shadcn/ui Vite configuration"
+
+#### 11.2 Theming System
+- [ ] Implement CSS variables theming in src/index.css
+- [ ] Define all required variables in :root and .dark scopes using OKLCH format
+- [ ] Configure complete color system (background, card, popover, primary, secondary, muted, accent, destructive)
+- [ ] Add border colors (border, input, ring)
+- [ ] Add chart colors (chart-1 through chart-5)
+- [ ] Add sidebar colors (sidebar, sidebar-primary, sidebar-accent, etc.)
+- [ ] Configure blue theme with proper OKLCH values (hue ~252)
+- [ ] Add custom BuildN brand colors if needed using @theme inline
+- [ ] Test theming across all components
+- [ ] Check color contrast for accessibility
+- [ ] Git commit: "feat: implement proper shadcn/ui theming with CSS variables"
+
+#### 11.3 Dark Mode Implementation
+- [ ] Create ThemeProvider component (components/theme-provider.tsx)
+- [ ] Implement useTheme hook with dark/light/system support
+- [ ] Add localStorage persistence with key "buildn-ui-theme"
+- [ ] Wrap app with ThemeProvider in main.tsx or App.tsx
+- [ ] Create ModeToggle component with dropdown (Light/Dark/System)
+- [ ] Add ModeToggle to app header or settings area
+- [ ] Test theme switching and persistence
+- [ ] Verify all components work in both light and dark modes
+- [ ] Git commit: "feat: add dark mode with theme switcher"
+
+**Validation**:
+- [ ] Vite config matches shadcn/ui documentation
+- [ ] Only official shadcn/ui components are used (verified via audit)
+- [ ] CSS variables theming works correctly
+- [ ] Dark mode toggles properly (light/dark/system)
+- [ ] Theme persists across page reloads
+- [ ] All components render correctly in both themes
+- [ ] No console errors related to theming
+- [ ] Git tag: `v0.11.0-theming`
+
+---
+
+### Epic 12: Social Network Features
+**Status**: Pending ⏳
+**Tag**: `v0.12.0-social`
+
+#### 12.1 Social Graph & Contacts
 - [ ] Create contacts store with Zustand
 - [ ] Implement NIP-02 (Nostr contact list)
 - [ ] Define relationship types (friends, following, blocked)
@@ -408,7 +458,7 @@
 - [ ] Write contacts tests
 - [ ] Git commit: "feat: implement social graph and contacts"
 
-#### 11.2 User Autocomplete System
+#### 12.2 User Autocomplete System
 - [ ] Create autocomplete service with fuzzy matching
 - [ ] Implement @mention parsing and detection
 - [ ] Create autocomplete components (UserMentionInput, UserAutocompleteDropdown)
@@ -417,7 +467,7 @@
 - [ ] Write autocomplete tests
 - [ ] Git commit: "feat: add user autocomplete and @mentions"
 
-#### 11.3 Rich Media Support
+#### 12.3 Rich Media Support
 - [ ] Implement media handling (images, videos, audio, documents)
 - [ ] Create media storage strategy (NIP-94, NIP-96, Blossom, IPFS)
 - [ ] Implement media encryption for privacy
@@ -433,22 +483,22 @@
 - [ ] Test: Upload image → Post to microblog
 - [ ] Test: Autocomplete works across all inputs
 - [ ] Test: Encrypted media upload/download
-- [ ] Git tag: `v0.11.0-social`
+- [ ] Git tag: `v0.12.0-social`
 
 ---
 
-### Epic 12: Module Plugin System
+### Epic 13: Module Plugin System
 **Status**: Pending ⏳
-**Tag**: `v0.12.0-plugins`
+**Tag**: `v0.13.0-plugins`
 
-#### 12.1 Plugin Architecture
+#### 13.1 Plugin Architecture
 - [ ] Create plugin registry system
 - [ ] Implement module interface and lifecycle hooks
 - [ ] Create per-group module configuration
 - [ ] Write plugin system tests
 - [ ] Git commit: "feat: implement plugin system"
 
-#### 12.2 Module Integration
+#### 13.2 Module Integration
 - [ ] Refactor existing modules to plugin pattern
 - [ ] Create ModuleSettings UI
 - [ ] Implement module discovery
@@ -458,28 +508,28 @@
 **Validation**:
 - [ ] Test: Enable/disable modules per group
 - [ ] Test: Module settings persistence
-- [ ] Git tag: `v0.12.0-plugins`
+- [ ] Git tag: `v0.13.0-plugins`
 
 ---
 
-### Epic 13: Security Hardening
+### Epic 14: Security Hardening
 **Status**: Pending ⏳
-**Tag**: `v0.13.0-security`
+**Tag**: `v0.14.0-security`
 
-#### 13.1 Advanced Key Management
+#### 14.1 Advanced Key Management
 - [ ] Implement NIP-46 (remote signing, hardware wallet)
 - [ ] Create key rotation system
 - [ ] Implement key backup/recovery
 - [ ] Write security tests
 - [ ] Git commit: "feat: implement advanced key management"
 
-#### 13.2 Tor Integration
+#### 14.2 Tor Integration
 - [ ] Add Tor proxy configuration (.onion relays)
 - [ ] Create TorSettings component
 - [ ] Test Tor connectivity
 - [ ] Git commit: "feat: add Tor integration"
 
-#### 13.3 Security Audit
+#### 14.3 Security Audit
 - [ ] Run security audit (XSS, CSRF, encryption)
 - [ ] Implement security headers and CSP
 - [ ] Create security documentation
@@ -489,25 +539,25 @@
 - [ ] Test: Hardware wallet signing
 - [ ] Test: Key rotation
 - [ ] Test: Tor connection
-- [ ] Git tag: `v0.13.0-security`
+- [ ] Git tag: `v0.14.0-security`
 
 ---
 
-### Epic 14: Testing & Quality
+### Epic 15: Testing & Quality
 **Status**: Pending ⏳
-**Tag**: `v0.14.0-testing`
+**Tag**: `v0.15.0-testing`
 
-#### 14.1 Unit Test Coverage
+#### 15.1 Unit Test Coverage
 - [ ] Ensure >80% coverage for all core modules
 - [ ] Write missing unit tests
 - [ ] Git commit: "test: improve unit test coverage"
 
-#### 14.2 Integration Tests
+#### 15.2 Integration Tests
 - [ ] Write integration tests for all modules
 - [ ] Test error recovery scenarios
 - [ ] Git commit: "test: add integration tests"
 
-#### 14.3 E2E Tests
+#### 15.3 E2E Tests
 - [ ] Write Playwright E2E tests for all user journeys
 - [ ] Test multi-device sync
 - [ ] Test offline/online transitions
@@ -516,26 +566,26 @@
 **Validation**:
 - [ ] All tests passing
 - [ ] Coverage >80% overall
-- [ ] Git tag: `v0.14.0-testing`
+- [ ] Git tag: `v0.15.0-testing`
 
 ---
 
-### Epic 15: Production Prep
+### Epic 16: Production Prep
 **Status**: Pending ⏳
 **Tag**: `v1.0.0-mvp`
 
-#### 15.1 Performance Optimization
+#### 16.1 Performance Optimization
 - [ ] Implement virtual scrolling and lazy loading
 - [ ] Code splitting by route
 - [ ] Optimize bundle size
 - [ ] Git commit: "perf: optimize performance"
 
-#### 15.2 Documentation
+#### 16.2 Documentation
 - [ ] Create user and developer documentation
 - [ ] Update ROADMAP.md
 - [ ] Git commit: "docs: add user and developer documentation"
 
-#### 15.3 Production Build
+#### 16.3 Production Build
 - [ ] Configure production build and deployment
 - [ ] PWA setup with offline support
 - [ ] Create deployment guide
