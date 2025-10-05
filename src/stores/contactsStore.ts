@@ -96,12 +96,15 @@ export const useContactsStore = create<ContactsState>()(
         get().updateContact(pubkey, {
           mutedAt: Math.floor(Date.now() / 1000),
         });
-        // TODO: Publish mute list event
+        // NOTE: NIP-51 mute list (kind 10000) publishing deferred
+        // Mutes only affect local contact filtering for now
+        // Future: Publish mute list event to relays for cross-device sync
       },
 
       unmuteUser: async (pubkey: string) => {
         get().updateContact(pubkey, { mutedAt: undefined });
-        // TODO: Publish mute list event
+        // NOTE: NIP-51 mute list (kind 10000) publishing deferred
+        // Unmutes only affect local contact filtering for now
       },
 
       getContact: (pubkey: string) => {

@@ -299,29 +299,33 @@
 
 ---
 
-### ⚠️ EPIC 8: CRM Module (Foundation)
-**Status**: Placeholder (deferred to Phase 2) ⚠️
-**Tag**: `v0.8.0-crm`
-**Commit**: `b4b3db8`
+### ✅ EPIC 8: CRM Module (Foundation)
+**Status**: Complete ✅ (Fully implemented in Epic 15)
+**Tag**: `v0.15.0-database-crm`
+**Commit**: `afd5d56`
+
+**Note**: Original Epic 8 was deferred, but fully completed in Epic 15 with Database module foundation.
 
 #### 8.1 CRM Core
-- [ ] Create CRM store (Zustand) - DEFERRED
-- [ ] Define Contact, Field, and View types - DEFERRED
-- [ ] Implement Airtable-style data model - DEFERRED
+- [x] Create CRM module using Database module - Complete in Epic 15
+- [x] Define Contact, Field, and View types - Complete in Epic 15
+- [x] Implement Airtable-style data model - Complete in Epic 15
 
 #### 8.2 CRM UI
 - [x] Create basic CRM view placeholder
 - [x] Show template concepts (Union Organizing, Fundraising, Legal Tracking)
-- [ ] Implement table, board, calendar views - DEFERRED
-- [ ] Create custom field editor - DEFERRED
+- [x] Implement table, board, calendar, gallery views - Complete in Epic 15
+- [x] Create custom field editor - Complete via Custom Fields Module (Epic 13)
 
 #### 8.3 Templates
-- [ ] Create CRM templates (union organizing, fundraising, volunteer, legal, civil defense) - DEFERRED
-- [ ] Implement CSV import/export - DEFERRED
+- [x] Create CRM templates (union organizing, fundraising, volunteer, legal, civil defense) - Complete in Epic 15
+- [x] Implement template instantiation - Complete in Epic 15
+- [ ] Implement CSV import/export - DEFERRED to future enhancement
 
 **Validation**:
 - [x] UI mockup complete
-- [ ] Full implementation deferred to Phase 2
+- [x] Full implementation complete via Epic 15 ✅
+- [x] All 5 CRM templates implemented with seed data ✅
 
 ---
 

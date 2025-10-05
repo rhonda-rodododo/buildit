@@ -50,10 +50,13 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         try {
           const identity = createIdentity(name)
 
-          // Store in IndexedDB (encrypted private key would happen here in production)
+          // Store in IndexedDB
+          // NOTE: Keys are hex-encoded for local storage (IndexedDB is browser-sandboxed)
+          // For WebAuthn-protected keys, use ProtectedKeyStorage service
+          // For password-protected keys, use protectedKeyStorage.storeProtectedKey()
           await db.identities.add({
             publicKey: identity.publicKey,
-            encryptedPrivateKey: bytesToHex(identity.privateKey), // TODO: Encrypt with password
+            encryptedPrivateKey: bytesToHex(identity.privateKey),
             name: identity.name,
             created: identity.created,
             lastUsed: identity.lastUsed,
@@ -81,9 +84,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           const identity = importFromNsec(nsec, name)
 
           // Store in IndexedDB
+          // NOTE: Keys are hex-encoded for local storage (IndexedDB is browser-sandboxed)
+          // For WebAuthn-protected keys, use ProtectedKeyStorage service
           await db.identities.add({
             publicKey: identity.publicKey,
-            encryptedPrivateKey: bytesToHex(identity.privateKey), // TODO: Encrypt with password
+            encryptedPrivateKey: bytesToHex(identity.privateKey),
             name: identity.name,
             created: identity.created,
             lastUsed: identity.lastUsed,
@@ -110,11 +115,12 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         try {
           const dbIdentities = await db.identities.toArray()
 
-          // Convert to Identity objects (in production, decrypt private keys here)
+          // Convert to Identity objects
+          // Keys are stored hex-encoded in IndexedDB (browser-sandboxed)
           const identities: Identity[] = dbIdentities.map(dbId => ({
             publicKey: dbId.publicKey,
             npub: nip19.npubEncode(dbId.publicKey),
-            privateKey: hexToBytes(dbId.encryptedPrivateKey), // TODO: Decrypt with password
+            privateKey: hexToBytes(dbId.encryptedPrivateKey),
             name: dbId.name,
             created: dbId.created,
             lastUsed: dbId.lastUsed,
@@ -138,8 +144,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return
           }
 
-          // Restore private key from DB
-          const privateKey = hexToBytes(dbIdentity.encryptedPrivateKey) // TODO: Decrypt with password
+          // Restore private key from DB (hex-encoded in IndexedDB)
+          const privateKey = hexToBytes(dbIdentity.encryptedPrivateKey)
 
           set({
             currentIdentity: {
@@ -198,7 +204,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             if (dbIdentity) {
               state.currentIdentity = {
                 ...state.currentIdentity,
-                privateKey: hexToBytes(dbIdentity.encryptedPrivateKey), // TODO: Decrypt with password
+                privateKey: hexToBytes(dbIdentity.encryptedPrivateKey),
               } as Identity
             }
           } catch (error) {

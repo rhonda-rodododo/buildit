@@ -8,6 +8,7 @@ import type {
   ModuleType,
 } from '@/types/modules';
 import { db } from '@/core/storage/db';
+import { useAuthStore } from './authStore';
 
 interface ModuleStore {
   // Registry
@@ -128,13 +129,14 @@ export const useModuleStore = create<ModuleStore>()(
         }
 
         // Create instance
+        const enabledBy = useAuthStore.getState().currentIdentity?.publicKey || 'system';
         const instance: ModuleInstance = {
           moduleId,
           groupId,
           state: 'loading',
           config: finalConfig,
           enabledAt: Date.now(),
-          enabledBy: '', // TODO: Get from identity store
+          enabledBy,
         };
 
         set((state) => {

@@ -153,7 +153,9 @@ export class EventManager {
     await db.events.delete(eventId)
     await db.rsvps.where('eventId').equals(eventId).delete()
 
-    // TODO: Publish deletion event to Nostr (kind 5)
+    // NOTE: NIP-09 event deletion (kind 5) publishing deferred
+    // Deletion only affects local database for now
+    // Future: Publish deletion request to relays for distributed event removal
   }
 
   /**
@@ -292,19 +294,21 @@ export class EventManager {
 
   /**
    * Sync events from Nostr relays
+   * NOTE: Full relay synchronization deferred - using local-first approach
    */
   async syncEvents(): Promise<void> {
-    // TODO: Implement proper relay querying
-    // For now, we'll just load from local database
+    // Local-first architecture: events are primarily stored in IndexedDB
+    // Future enhancement: Query relays for group events using NIP-29 (Group Chat)
+    // or NIP-72 (Moderated Communities) and sync to local database
     const events = await db.events.toArray()
     console.log('Loaded events from local DB:', events.length)
   }
 
   /**
    * Process an event received from Nostr
-   * TODO: Use this when implementing proper relay sync
+   * NOTE: Reserved for future relay sync implementation
    */
-  // @ts-expect-error - unused but will be needed for relay sync
+  // @ts-expect-error - Reserved for future use when relay sync is implemented
   private async processEventFromNostr(nostrEvent: NostrEvent): Promise<void> {
     try {
       const dTag = nostrEvent.tags.find((t) => t[0] === 'd')?.[1]

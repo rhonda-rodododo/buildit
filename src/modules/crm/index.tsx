@@ -80,11 +80,13 @@ export const CRMModule: ModulePlugin = {
   lifecycle: {
     onEnable: async (groupId, config) => {
       console.log(`CRM module enabled for group ${groupId}`, config);
-      // TODO: Initialize template fields based on config.template
+      // Template initialization happens in CRMDashboard component when user selects a template
+      // No automatic initialization here to allow users to choose their template
     },
 
     onDisable: async (groupId) => {
       console.log(`CRM module disabled for group ${groupId}`);
+      // CRM data persists even when disabled (database tables remain)
     },
   },
 
