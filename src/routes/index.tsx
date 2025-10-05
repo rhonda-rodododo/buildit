@@ -22,6 +22,9 @@ import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { BulkOperationsPage } from '@/pages/BulkOperationsPage';
 import { ContactDetailPage } from '@/pages/ContactDetailPage';
+import { EngagementPage } from '@/pages/EngagementPage';
+import { OnboardingDemoPage } from '@/pages/OnboardingDemoPage';
+import { NotificationsDemoPage } from '@/pages/NotificationsDemoPage';
 
 /**
  * Get module routes by scope
@@ -125,6 +128,18 @@ export const routes: RouteObject[] = [
           {
             path: 'contacts/:contactId',
             element: <ContactDetailPage />,
+          },
+          {
+            path: 'engagement',
+            element: <EngagementPage />,
+          },
+          {
+            path: 'onboarding',
+            element: <OnboardingDemoPage />,
+          },
+          {
+            path: 'notifications',
+            element: <NotificationsDemoPage />,
           },
           {
             path: 'groups',
