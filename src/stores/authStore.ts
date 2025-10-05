@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Identity } from '@/types/identity'
 import { createIdentity, importFromNsec } from '@/core/crypto/keyManager'
 import { db } from '@/core/storage/db'
-import { bytesToHex } from '@noble/hashes/utils'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import * as nip19 from 'nostr-tools/nip19'
 
 interface AuthState {
@@ -18,6 +18,7 @@ interface AuthActions {
   createNewIdentity: (name: string) => Promise<Identity>
   importIdentity: (nsec: string, name: string) => Promise<Identity>
   loadIdentities: () => Promise<void>
+  loadCurrentIdentityPrivateKey: () => Promise<void>
   removeIdentity: (publicKey: string) => Promise<void>
   logout: () => void
 }
@@ -113,7 +114,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           const identities: Identity[] = dbIdentities.map(dbId => ({
             publicKey: dbId.publicKey,
             npub: nip19.npubEncode(dbId.publicKey),
-            privateKey: new Uint8Array(0), // Placeholder - load from secure storage
+            privateKey: hexToBytes(dbId.encryptedPrivateKey), // TODO: Decrypt with password
             name: dbId.name,
             created: dbId.created,
             lastUsed: dbId.lastUsed,
@@ -123,6 +124,31 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to load identities'
           set({ error: errorMsg, isLoading: false })
+        }
+      },
+
+      loadCurrentIdentityPrivateKey: async () => {
+        const current = get().currentIdentity
+        if (!current) return
+
+        try {
+          const dbIdentity = await db.identities.get(current.publicKey)
+          if (!dbIdentity) {
+            console.error('Identity not found in database')
+            return
+          }
+
+          // Restore private key from DB
+          const privateKey = hexToBytes(dbIdentity.encryptedPrivateKey) // TODO: Decrypt with password
+
+          set({
+            currentIdentity: {
+              ...current,
+              privateKey,
+            },
+          })
+        } catch (error) {
+          console.error('Failed to load private key:', error)
         }
       },
 
@@ -155,9 +181,31 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         currentIdentity: state.currentIdentity
-          ? { ...state.currentIdentity, privateKey: new Uint8Array(0) } // Don't persist private key
+          ? {
+              publicKey: state.currentIdentity.publicKey,
+              npub: state.currentIdentity.npub,
+              name: state.currentIdentity.name,
+              created: state.currentIdentity.created,
+              lastUsed: state.currentIdentity.lastUsed,
+            }
           : null,
       }),
+      onRehydrateStorage: () => async (state) => {
+        // After rehydrating from localStorage, restore the full Identity with private key from DB
+        if (state?.currentIdentity) {
+          try {
+            const dbIdentity = await db.identities.get(state.currentIdentity.publicKey)
+            if (dbIdentity) {
+              state.currentIdentity = {
+                ...state.currentIdentity,
+                privateKey: hexToBytes(dbIdentity.encryptedPrivateKey), // TODO: Decrypt with password
+              } as Identity
+            }
+          } catch (error) {
+            console.error('Failed to restore private key on rehydration:', error)
+          }
+        }
+      },
     }
   )
 )

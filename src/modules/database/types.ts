@@ -284,3 +284,81 @@ export const DatabaseRelationshipSchema = z.object({
   created: z.number(),
   createdBy: z.string(),
 });
+
+/**
+ * Database Template
+ * Pre-configured table templates for quick setup
+ */
+export interface DatabaseTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'general' | 'crm' | 'project' | 'inventory' | 'custom';
+  icon?: string;
+
+  // Template configuration
+  tables: DatabaseTableTemplate[];
+  relationships: DatabaseRelationshipTemplate[];
+
+  // Metadata
+  isBuiltIn: boolean; // System templates vs user templates
+  groupId?: string; // If user template
+  created: number;
+  createdBy?: string;
+  updated: number;
+}
+
+/**
+ * Table Template (without group/time metadata)
+ */
+export interface DatabaseTableTemplate {
+  name: string;
+  description?: string;
+  icon?: string;
+  fields: CustomField[];
+  defaultViews?: DatabaseViewTemplate[];
+}
+
+/**
+ * View Template (without group/time metadata)
+ */
+export interface DatabaseViewTemplate {
+  name: string;
+  type: ViewType;
+  config: ViewConfig;
+  filters?: FilterRule[];
+  sorts?: SortRule[];
+  groups?: GroupRule[];
+  visibleFields?: string[];
+  order: number;
+}
+
+/**
+ * Relationship Template (without group/time metadata)
+ */
+export interface DatabaseRelationshipTemplate {
+  sourceTableName: string;
+  sourceFieldName: string;
+  targetTableName: string;
+  targetFieldName: string;
+  type: RelationshipType;
+  onDelete: OnDeleteAction;
+}
+
+/**
+ * Zod Schema for Templates
+ */
+export const DatabaseTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1).max(100),
+  description: z.string(),
+  category: z.enum(['general', 'crm', 'project', 'inventory', 'custom']),
+  icon: z.string().optional(),
+  tables: z.array(z.any()), // DatabaseTableTemplate[]
+  relationships: z.array(z.any()), // DatabaseRelationshipTemplate[]
+  isBuiltIn: z.boolean(),
+  groupId: z.string().optional(),
+  created: z.number(),
+  createdBy: z.string().optional(),
+  updated: z.number(),
+});

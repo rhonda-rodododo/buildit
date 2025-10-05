@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, createElement } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -60,8 +60,8 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ groupId, className }) => {
               )
             }
           >
-            <span>{module.metadata.icon}</span>
-            {module.metadata.name}
+            {createElement(module.metadata.icon, { className: 'h-5 w-5 flex-shrink-0' })}
+            <span>{module.metadata.name}</span>
           </NavLink>
         ))}
       </nav>
