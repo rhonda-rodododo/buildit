@@ -1,228 +1,89 @@
-# BuildN - a social action network
+# BuildIt Network - a social action network
 
-> A privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, and community organizers.
+> A privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, unions, and community organizers.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-5C5CFF)](https://claude.ai/code)
 
-## 🌟 Features
+## 🤖 For Claude Code
 
-- 🔐 **End-to-End Encryption** - NIP-17 protocol with metadata protection
-- 📅 **Event Management** - Create events with multiple privacy levels, RSVP tracking
-- 🤝 **Mutual Aid** - Resource sharing and ride share network
-- 🗳️ **Governance** - Proposals with multiple voting systems (simple, ranked-choice, quadratic, etc.)
-- 📚 **Knowledge Base** - Collaborative wiki with version control
-- 📊 **CRM** - Airtable-style contact management with custom fields
-- 🔌 **Plugin System** - Modular architecture, enable features per group
-- 🌐 **Decentralized** - Built on Nostr protocol, censorship-resistant
-- 🔒 **Privacy-First** - Tor integration, hardware wallet support, metadata randomization
+This project is designed for autonomous execution by Claude Code.
 
-## 🚀 Quick Start
-
-### For Users
+### Quick Start
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd buildn
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
+# Execute the autonomous build plan
+Read PROMPT.md and execute all epics sequentially
 ```
 
-Open [http://localhost:5174](http://localhost:5174) and create your identity!
+### Documentation Structure
 
-### For Claude Code (Autonomous Build)
+- **[CLAUDE.md](./CLAUDE.md)** - Project overview and navigation guide (START HERE)
+- **[PROMPT.md](./PROMPT.md)** - Complete execution plan with all epics and tasks
+- **[PROGRESS.md](./PROGRESS.md)** - Current status and progress tracking with checkboxes
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
+- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
+- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
 
-```
-Please execute PROMPT.md to build the complete BuildN MVP.
-```
-
-Claude Code will autonomously build the entire application in under 30 hours.
-
-## 📚 Documentation
-
-### For Users
-- **[GETTING_STARTED.md](GETTING_STARTED.md)** - User guide and developer setup
-- **[PRIVACY.md](PRIVACY.md)** - Threat model and security considerations
-
-### For Developers
-- **[CLAUDE.md](CLAUDE.md)** - Project overview and navigation guide
-- **[PROMPT.md](PROMPT.md)** - Complete execution plan for autonomous build (all epics)
-- **[PROGRESS.md](PROGRESS.md)** - Detailed progress tracking with checkboxes (current status)
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and data flow
-- **[ENCRYPTION_STRATEGY.md](ENCRYPTION_STRATEGY.md)** - Encryption architecture and decisions
-
-## 🏗️ Architecture
-
-### Tech Stack
+## 🏗️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **UI**: shadcn/ui (Radix primitives + Tailwind CSS)
+- **UI**: shadcn/ui (Radix primitives) + Tailwind CSS
 - **State**: Zustand with persistence
 - **Storage**: Dexie.js (IndexedDB)
-- **Nostr**: nostr-tools
+- **Protocol**: Nostr (nostr-tools)
 - **Encryption**:
   - NIP-17 (gift-wrapped NIP-44) for DMs and small groups
   - Noise Protocol for large groups (Phase 2)
-  - Future: BLE mesh for offline communication
+  - Future: BLE mesh for offline
+- **i18n**: react-i18next (English, Spanish, French, Arabic with RTL)
 - **Testing**: Vitest + React Testing Library + Playwright
 
-### Encryption
+## 🎯 Current Status
 
-We use a **layered encryption approach**:
+**Version**: v0.13.0-plugins
+**Completed Epics**: 1-10, 12.1-12.2, 13
+**Build**: Successful ✅ (1.86MB bundle, 613KB gzipped)
 
-1. **DMs**: NIP-17 (best metadata protection)
-2. **Small Groups (<100)**: NIP-17 multi-wrap
-3. **Large Groups (>100)**: Noise Protocol (Phase 2)
-4. **Future Offline**: Noise Protocol over BLE mesh
+See [PROGRESS.md](./PROGRESS.md) for detailed status.
 
-See [ENCRYPTION_STRATEGY.md](ENCRYPTION_STRATEGY.md) for full details.
+## 📊 Module System
 
-### Modules (Plugins)
+Completed modules (all as plugins):
+- ✅ **Messaging** - DMs, group threads, @mentions
+- ✅ **Events** - Event management, RSVPs, calendar
+- ✅ **Mutual Aid** - Resource sharing, ride shares
+- ✅ **Governance** - Proposals, multiple voting methods
+- ✅ **Wiki** - Collaborative docs with versioning
+- ✅ **CRM** - Contact database with custom fields
+- ✅ **Document Suite** - WYSIWYG editor, collaboration
+- ✅ **File Manager** - Encrypted uploads, folders
 
-Each group can independently enable:
-
-- **Events** - Event management, RSVPs, calendar integration
-- **Mutual Aid** - Resource requests/offers, ride sharing
-- **Governance** - Proposals, multiple voting methods, anonymous ballots
-- **Wiki** - Knowledge base with versioning and search
-- **CRM** - Contact database with custom fields and views
-
-## 🔒 Security & Privacy
+## 🔒 Security Features
 
 - ✅ End-to-end encryption (NIP-17/44)
-- ✅ Metadata protection (timestamp randomization, ephemeral keys)
-- ✅ Tor integration for anonymity
-- ✅ Hardware wallet support (NIP-46)
-- ✅ Local-first storage (IndexedDB)
+- ✅ Metadata protection
+- ✅ Local-first storage
 - ✅ Multi-identity support
-- ✅ Zero-knowledge relay architecture
+- ✅ Multi-language (i18n with RTL)
+- ✅ Module plugin architecture
 
-**Threat Model**: See [PRIVACY.md](PRIVACY.md)
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-npm run test
-
-# Unit tests with coverage
-npm run test:coverage
-
-# E2E tests
-npm run test:e2e
-
-# All tests
-npm run test:all
-```
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-buildit-network/
-├── src/
-│   ├── core/              # Core infrastructure
-│   │   ├── nostr/        # Nostr client, NIPs
-│   │   ├── crypto/       # NIP-17 encryption
-│   │   └── storage/      # Dexie database
-│   ├── lib/              # Shared libraries
-│   ├── modules/          # Feature modules
-│   ├── components/       # UI components
-│   ├── stores/           # Zustand stores
-│   └── hooks/            # React hooks
-└── tests/                # Tests
-```
-
-### Key Commands
+## 🚀 Development Commands
 
 ```bash
-npm run dev          # Development server
-npm run build        # Production build
-npm run preview      # Preview production build
-npm run test         # Run tests
-npm run lint         # Lint code
-npm run type-check   # TypeScript check
+npm install        # Install dependencies
+npm run dev        # Development server
+npm run build      # Production build
+npm run test       # Run tests
+npm run lint       # Lint code
 ```
-
-## 🌍 Deployment
-
-### Static Hosting
-
-Deploy to Vercel, Netlify, or any static host:
-
-```bash
-npm run build
-# Upload 'dist' folder
-```
-
-### PWA (Progressive Web App)
-
-The app works offline and can be installed:
-
-```bash
-npm run build
-# PWA manifest and service worker included
-```
-
-### Self-Hosting
-
-```bash
-# Build
-npm run build
-
-# Serve with any static server
-npx serve dist
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [contribution guidelines](CONTRIBUTING.md) first.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`npm run test:all`)
-5. Commit with clear messages (`git commit -m 'feat: add amazing feature'`)
-6. Push to your fork (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
 
 ## 📜 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- **Nostr Protocol** - Decentralized social protocol
-- **shadcn/ui** - Beautiful UI components
-- **Zustand** - State management
-- **Dexie.js** - IndexedDB wrapper
-- **BitChat** - Inspiration for offline mesh networking
-- **NIP Authors** - For encryption specifications (NIP-17, NIP-44, NIP-59)
-
-## 🔗 Links
-
-- [Nostr Protocol](https://nostr.com/)
-- [NIP-17 Spec](https://github.com/nostr-protocol/nips/blob/master/17.md)
-- [NIP-44 Spec](https://github.com/nostr-protocol/nips/blob/master/44.md)
-- [Noise Protocol Framework](https://noiseprotocol.org/)
-- [BitChat (Inspiration)](https://github.com/permissionlesstech/bitchat)
-
-## 📞 Support
-
-- **Documentation**: See `/docs` folder
-- **Issues**: [GitHub Issues](https://github.com/your-org/buildit-network/issues)
-- **Security**: Report privately to security@example.com
-
 ---
 
-**Built with ❤️ for activists, organizers, and communities fighting for change.**
+**Built with ❤️ using Claude Code for activists, organizers, and communities fighting for change.**
 
 **Privacy is a right, not a privilege.**

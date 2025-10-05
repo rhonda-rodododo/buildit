@@ -1,4 +1,4 @@
-# AUTONOMOUS BUILD PROMPT: BuildN - a social action network
+# AUTONOMOUS BUILD PROMPT: BuildIt Network - a social action network
 
 > **Execution Plan** - For progress tracking with checkboxes, see [PROGRESS.md](./PROGRESS.md)
 
@@ -54,7 +54,7 @@ buildn/
 ├── src/
 │   ├── core/                 # Core infrastructure (Nostr, crypto, storage)
 │   │   ├── nostr/           # Nostr client, relay management, NIPs
-│   │   ├── crypto/          # Samiz encryption, key management
+│   │   ├── crypto/          # NIP-17 encryption, key management
 │   │   └── storage/         # Dexie database, sync, cache
 │   ├── lib/                 # Shared libraries and utilities
 │   │   ├── auth/           # Authentication logic
@@ -237,7 +237,7 @@ buildn/
 
 #### 3.2 Group Messaging (2h)
 - Extend messages store for group threads
-- Implement group message encryption (Samiz):
+- Implement group message encryption (NIP-17):
   - Derive message keys from group key
   - Encrypt with XChaCha20-Poly1305
   - Publish to group's relay
@@ -519,15 +519,15 @@ buildn/
 ---
 
 ### **EPIC 9: Branding & Theme Update** (2 hours) ✅
-**Deliverable**: Rebrand to BuildN, implement shadcn/ui blue theme, responsive layout
+**Deliverable**: Rebrand to BuildIt Network, implement shadcn/ui blue theme, responsive layout
 
 #### 9.1 Rebranding (0.5h)
 - Create centralized app configuration (src/config/app.ts)
-- Define app name: "BuildN - a social action network"
+- Define app name: "BuildIt Network - a social action network"
 - Update all components to use APP_CONFIG
 - Update package.json name and description
 - Update README.md, CLAUDE.md, and documentation
-- Git commit: "feat: rebrand to BuildN"
+- Git commit: "feat: rebrand to BuildIt Network"
 
 #### 9.2 shadcn/ui Blue Theme (1h)
 - Update components.json baseColor to "blue"
@@ -547,7 +547,7 @@ buildn/
 - Git commit: "feat: improve responsive layout"
 
 **Epic 9 Validation**:
-- App displays "BuildN - a social action network" branding
+- App displays "BuildIt Network - a social action network" branding
 - Blue theme matches shadcn/ui reference design
 - Layout works well on mobile, tablet, and desktop
 - Git tag: `v0.9.0-buildn`
@@ -618,7 +618,7 @@ buildn/
   - Use OKLCH color format for all color variables
 - Add custom colors if needed:
   - Warning/success states
-  - Brand-specific colors for BuildN
+  - Brand-specific colors for BuildIt Network
   - Use `@theme inline` for custom color registration
 - Validate the components display the themes and components exactly as in this page, where the theme css files are copied from
   - https://ui.shadcn.com/themes
@@ -916,7 +916,7 @@ buildn/
   - API documentation
   - Module development guide
   - Contribution guidelines
-- Update ROADMAP.md with completion status
+- Update PROGRESS.md with final completion status
 - Git commit: "docs: add user and developer documentation"
 
 #### 16.3 Production Build (0.5h)

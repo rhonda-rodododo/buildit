@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Based on analysis of Nostr encryption protocols (NIP-04, NIP-44, NIP-17), Noise Protocol Framework (used in WireGuard, BitChat), and Signal Protocol, this document defines the encryption architecture for the Social Action Network.
+Based on analysis of Nostr encryption protocols (NIP-04, NIP-44, NIP-17), Noise Protocol Framework (used in WireGuard, BitChat), and Signal Protocol, this document defines the encryption architecture for BuildIt Network - a social action network.
 
 **Strategic Decision**: Use a **layered encryption approach** that combines the best of each protocol for different use cases.
 

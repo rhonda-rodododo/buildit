@@ -27,7 +27,7 @@
 - Public event announcements
 - Stored unencrypted on relays
 
-**Encrypted (Samiz)**
+**Encrypted (NIP-17)**
 - Direct messages
 - Group messages
 - Private events

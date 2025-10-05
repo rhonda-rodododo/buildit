@@ -1,4 +1,4 @@
-# BuildN - a social action network
+# BuildIt Network - a social action network
 
 ## 📚 Project Documentation
 
@@ -10,7 +10,7 @@
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
 
 ## Project Overview
-A privacy-first organizing platform built on Nostr protocol and Samiz encryption layer for activist groups, co-ops, and community organizers.
+A privacy-first organizing platform built on Nostr protocol and NIP-17 encryption layer for activist groups, co-ops, unions, and community organizers.
 
 ## Core Technologies
 - **Protocol**: Nostr (decentralized social protocol)
@@ -93,10 +93,7 @@ Key principles:
 - Tor integration option
 - Hardware wallet support (NIP-46)
 
-## Getting Started
-See [GETTING_STARTED.md](./GETTING_STARTED.md) for setup instructions.
-
 ## Implementation Phases & Progress
-- **Execution Plan**: See [PROMPT.md](./PROMPT.md) for all epics and tasks
+- **Execution Plan**: See [PROMPT.md](./PROMPT.md) for all epics (1-16) and tasks
 - **Progress Tracking**: See [PROGRESS.md](./PROGRESS.md) for detailed status with checkboxes
-- **Roadmap**: See [ROADMAP.md](./ROADMAP.md) for high-level development phases
+- **Current Status**: Epics 1-10, 12.1-12.2, 13 complete (v0.13.0-plugins)

@@ -2,14 +2,14 @@
 
 ## Overview
 
-The Social Action Network is built on a decentralized architecture using the Nostr protocol as the foundation, with Samiz encryption providing privacy-aware group communication.
+BuildIt Network - a social action network is built on a decentralized architecture using the Nostr protocol as the foundation, with NIP-17 encryption providing privacy-aware group communication.
 
 ## High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   Client Layer                       │
-│  (React + TypeScript + Tailwind/DaisyUI)            │
+│  (React + TypeScript + shadcn/ui + Tailwind)        │
 └──────────────────┬──────────────────────────────────┘
                    │
 ┌──────────────────▼──────────────────────────────────┐
@@ -25,7 +25,7 @@ The Social Action Network is built on a decentralized architecture using the Nos
 │                Core Layer                            │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
 │  │   Nostr     │  │   Crypto    │  │   Storage   │ │
-│  │   Client    │  │   (Samiz)   │  │   (Dexie)   │ │
+│  │   Client    │  │  (NIP-17)   │  │   (Dexie)   │ │
 │  └─────────────┘  └─────────────┘  └─────────────┘ │
 └──────────────────┬──────────────────────────────────┘
                    │
@@ -215,7 +215,7 @@ src/modules/events/
    ↓
 2. EventManager.createEvent(data)
    ↓
-3. Encrypt private fields with group key (Samiz)
+3. Encrypt private fields with group key (NIP-17)
    ↓
 4. Build Nostr event (kind: 31923)
    ↓
