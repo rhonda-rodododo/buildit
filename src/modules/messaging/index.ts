@@ -6,6 +6,7 @@
 import type { ModulePlugin } from '@/types/modules';
 import { messagingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
+import { MessageSquare } from 'lucide-react';
 
 /**
  * Messaging Module Plugin
@@ -18,7 +19,7 @@ export const messagingModule: ModulePlugin = {
     description: 'Encrypted direct messages and group threads with @mentions',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'MessageSquare',
+    icon: MessageSquare,
     capabilities: [
       {
         id: 'direct-messages',

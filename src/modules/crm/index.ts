@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { crmSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { CRM_TEMPLATES } from './templates';
+import { Users } from 'lucide-react';
 
 /**
  * CRM Module Plugin
@@ -19,7 +20,7 @@ export const crmModule: ModulePlugin = {
     description: 'Contact management with pre-built templates (Union, Fundraising, Legal, Volunteer, Civil Defense)',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Users',
+    icon: Users,
     capabilities: [
       {
         id: 'template-management',

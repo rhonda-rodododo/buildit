@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { documentsSchema } from './schema';
+import { FileText } from 'lucide-react';
 
 /**
  * Documents Module Plugin (Placeholder)
@@ -17,7 +18,7 @@ export const documentsModule: ModulePlugin = {
     description: 'WYSIWYG editor for comprehensive documents (Phase 2)',
     version: '0.1.0',
     author: 'BuildIt Network',
-    icon: 'FileText',
+    icon: FileText,
     capabilities: [
       {
         id: 'document-creation',

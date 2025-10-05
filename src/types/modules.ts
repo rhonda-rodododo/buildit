@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { BuildItDB } from '@/core/storage/db';
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * Module Types
@@ -55,7 +56,7 @@ export interface ModuleMetadata {
   description: string;
   version: string;
   author: string;
-  icon: string;
+  icon: LucideIcon;
   capabilities: ModuleCapability[];
   configSchema: ModuleConfigField[];
   requiredPermission: ModulePermission;

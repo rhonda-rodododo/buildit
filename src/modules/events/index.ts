@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { eventsSchema } from './schema';
 import { eventsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Calendar } from 'lucide-react';
 
 /**
  * Events Module Plugin
@@ -19,7 +20,7 @@ export const eventsModule: ModulePlugin = {
     description: 'Create events, manage RSVPs, and coordinate campaigns',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Calendar',
+    icon: Calendar,
     capabilities: [
       {
         id: 'event-creation',

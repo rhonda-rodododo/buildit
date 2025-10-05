@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { mutualAidSchema } from './schema';
 import { mutualAidSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Heart } from 'lucide-react';
 
 /**
  * Mutual Aid Module Plugin
@@ -19,7 +20,7 @@ export const mutualAidModule: ModulePlugin = {
     description: 'Request and offer resources, coordinate rideshares',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Heart',
+    icon: Heart,
     capabilities: [
       {
         id: 'request-creation',

@@ -59,16 +59,19 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
               Modules
             </h3>
             <nav className="space-y-1">
-              {modules.map((module) => (
-                <div
-                  key={module.metadata.id}
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-not-allowed"
-                  title={module.metadata.description}
-                >
-                  <span className="text-base">{module.metadata.icon}</span>
-                  <span className="flex-1">{module.metadata.name}</span>
-                </div>
-              ))}
+              {modules.map((module) => {
+                const Icon = module.metadata.icon;
+                return (
+                  <div
+                    key={module.metadata.id}
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-not-allowed"
+                    title={module.metadata.description}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="flex-1">{module.metadata.name}</span>
+                  </div>
+                );
+              })}
             </nav>
           </div>
         </>

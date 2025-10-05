@@ -5,6 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { filesSchema } from './schema';
+import { FolderOpen } from 'lucide-react';
 
 /**
  * Files Module Plugin (Placeholder)
@@ -17,7 +18,7 @@ export const filesModule: ModulePlugin = {
     description: 'Encrypted file uploads and storage (Phase 2)',
     version: '0.1.0',
     author: 'BuildIt Network',
-    icon: 'FolderOpen',
+    icon: FolderOpen,
     capabilities: [
       {
         id: 'file-upload',

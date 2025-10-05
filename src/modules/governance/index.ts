@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { governanceSchema } from './schema';
 import { governanceSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Vote } from 'lucide-react';
 
 /**
  * Governance Module Plugin
@@ -19,7 +20,7 @@ export const governanceModule: ModulePlugin = {
     description: 'Democratic decision-making with multiple voting systems',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Vote',
+    icon: Vote,
     capabilities: [
       {
         id: 'proposal-creation',

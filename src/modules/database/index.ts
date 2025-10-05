@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { databaseSchema } from './schema';
 import { databaseSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Database } from 'lucide-react';
 
 /**
  * Database Module Plugin
@@ -19,7 +20,7 @@ export const databaseModule: ModulePlugin = {
     description: 'Airtable-like database with custom tables, views, and relationships',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Database',
+    icon: Database,
     capabilities: [
       {
         id: 'table-management',

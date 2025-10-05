@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { wikiSchema } from './schema';
 import { wikiSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Book } from 'lucide-react';
 
 /**
  * Wiki Module Plugin
@@ -19,7 +20,7 @@ export const wikiModule: ModulePlugin = {
     description: 'Collaborative knowledge base with markdown editor and version control',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Book',
+    icon: Book,
     capabilities: [
       {
         id: 'page-creation',

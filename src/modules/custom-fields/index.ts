@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { customFieldsSchema } from './schema';
 import { customFieldsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
+import { Settings } from 'lucide-react';
 
 /**
  * Custom Fields Module Plugin
@@ -19,7 +20,7 @@ export const customFieldsModule: ModulePlugin = {
     description: 'Foundational module providing dynamic field capabilities to other modules',
     version: '1.0.0',
     author: 'BuildIt Network',
-    icon: 'Settings',
+    icon: Settings,
     capabilities: [
       {
         id: 'field-management',
