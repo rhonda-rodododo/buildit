@@ -7,14 +7,28 @@ import { FC, useEffect } from 'react';
 import { PostComposer } from '@/modules/microblogging/components/PostComposer';
 import { ActivityFeed } from '@/components/feed/ActivityFeed';
 import { usePostsStore } from '@/modules/microblogging/postsStore';
+import { useEventsStore } from '@/modules/events/eventsStore';
+import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore';
+import { useGovernanceStore } from '@/modules/governance/governanceStore';
+import { useWikiStore } from '@/modules/wiki/wikiStore';
+import { useAuthStore } from '@/stores/authStore';
 import { microbloggingSeeds } from '@/modules/microblogging/schema';
 
 export const HomePage: FC = () => {
   const { posts, createPost } = usePostsStore();
+  const { events, addEvent } = useEventsStore();
+  const { aidItems, addAidItem } = useMutualAidStore();
+  const { proposals, addProposal } = useGovernanceStore();
+  const { pages, addPage } = useWikiStore();
+  const { currentIdentity } = useAuthStore();
 
   useEffect(() => {
-    // Load seed posts if no posts exist (demo data)
-    const loadSeedPosts = async () => {
+    // Load seed data if collections are empty (demo data)
+    const loadSeedData = async () => {
+      const userPubkey = currentIdentity?.id || 'demo-user';
+      const now = Date.now();
+
+      // Load seed posts
       if (posts.length === 0) {
         for (const seedPost of microbloggingSeeds.posts) {
           await createPost({
@@ -25,9 +39,203 @@ export const HomePage: FC = () => {
           });
         }
       }
+
+      // Load seed events
+      if (events.length === 0) {
+        const seedEvents = [
+          {
+            id: 'event-1',
+            title: 'Community Organizing Workshop',
+            description: 'Learn the fundamentals of grassroots organizing, power mapping, and building coalitions. Perfect for new organizers!',
+            location: 'Community Center, 123 Main St',
+            startTime: now + 7 * 24 * 60 * 60 * 1000, // 1 week from now
+            endTime: now + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000, // 2 hours later
+            privacy: 'public' as const,
+            capacity: 50,
+            createdBy: userPubkey,
+            createdAt: now - 2 * 24 * 60 * 60 * 1000, // 2 days ago
+            updatedAt: now - 2 * 24 * 60 * 60 * 1000,
+            tags: ['workshop', 'organizing', 'training'],
+            coHosts: [],
+          },
+          {
+            id: 'event-2',
+            title: 'Climate Justice Rally',
+            description: 'Join us for a peaceful rally demanding climate action now! Bring signs, friends, and your voice.',
+            location: 'City Hall Plaza',
+            startTime: now + 3 * 24 * 60 * 60 * 1000, // 3 days from now
+            privacy: 'public' as const,
+            createdBy: userPubkey,
+            createdAt: now - 5 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 5 * 24 * 60 * 60 * 1000,
+            tags: ['climate', 'rally', 'direct-action'],
+            coHosts: [],
+          },
+          {
+            id: 'event-3',
+            title: 'Solidarity Network Meeting',
+            description: 'Monthly meeting for mutual aid coordinators. Discuss ongoing projects, share resources, and plan for next month.',
+            startTime: now + 10 * 24 * 60 * 60 * 1000, // 10 days from now
+            privacy: 'group' as const,
+            groupId: 'solidarity-network',
+            createdBy: userPubkey,
+            createdAt: now - 1 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 1 * 24 * 60 * 60 * 1000,
+            tags: ['mutual-aid', 'meeting'],
+            coHosts: [],
+          },
+        ];
+
+        for (const event of seedEvents) {
+          addEvent(event);
+        }
+      }
+
+      // Load seed mutual aid requests
+      if (aidItems.length === 0) {
+        const seedAidItems = [
+          {
+            id: 'aid-1',
+            groupId: 'mutual-aid-network',
+            type: 'request' as const,
+            category: 'food',
+            title: 'Food assistance for family of 4',
+            description: 'Lost job last week, need groceries for my family until I start new position next month. Any help appreciated!',
+            status: 'open' as const,
+            location: 'East Side',
+            createdBy: userPubkey,
+            createdAt: now - 3 * 60 * 60 * 1000, // 3 hours ago
+            updatedAt: now - 3 * 60 * 60 * 1000,
+            expiresAt: now + 14 * 24 * 60 * 60 * 1000, // 2 weeks from now
+            customFields: {},
+          },
+          {
+            id: 'aid-2',
+            groupId: 'mutual-aid-network',
+            type: 'offer' as const,
+            category: 'transport',
+            title: 'Rides to medical appointments',
+            description: 'Have a car and flexible schedule. Happy to provide rides to doctor appointments, pharmacy pickups, etc.',
+            status: 'open' as const,
+            location: 'Downtown area',
+            createdBy: userPubkey,
+            createdAt: now - 2 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 2 * 24 * 60 * 60 * 1000,
+            customFields: {},
+          },
+          {
+            id: 'aid-3',
+            groupId: 'mutual-aid-network',
+            type: 'request' as const,
+            category: 'housing',
+            title: 'Temporary housing needed',
+            description: 'Evicted from apartment, need temporary place to stay while I find new housing. Clean, quiet, can help with chores.',
+            status: 'open' as const,
+            createdBy: userPubkey,
+            createdAt: now - 12 * 60 * 60 * 1000, // 12 hours ago
+            updatedAt: now - 12 * 60 * 60 * 1000,
+            expiresAt: now + 7 * 24 * 60 * 60 * 1000,
+            customFields: {},
+          },
+        ];
+
+        for (const item of seedAidItems) {
+          addAidItem(item);
+        }
+      }
+
+      // Load seed proposals
+      if (proposals.length === 0) {
+        const seedProposals = [
+          {
+            id: 'proposal-1',
+            groupId: 'tenant-union',
+            title: 'Rent Strike Resolution',
+            description: 'Proposal to organize a coordinated rent strike in response to landlord refusing to make critical repairs. Includes legal support fund and media strategy.',
+            status: 'voting' as const,
+            votingMethod: 'consensus' as const,
+            votingDeadline: now + 5 * 24 * 60 * 60 * 1000, // 5 days from now
+            createdBy: userPubkey,
+            createdAt: now - 3 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 3 * 24 * 60 * 60 * 1000,
+          },
+          {
+            id: 'proposal-2',
+            groupId: 'worker-coop',
+            title: 'Profit Sharing Amendment',
+            description: 'Amend our bylaws to increase profit sharing from 40% to 60% for worker-owners. Remaining 40% for growth fund and community reinvestment.',
+            status: 'discussion' as const,
+            votingMethod: 'simple' as const,
+            createdBy: userPubkey,
+            createdAt: now - 6 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 6 * 24 * 60 * 60 * 1000,
+          },
+          {
+            id: 'proposal-3',
+            groupId: 'community-land-trust',
+            title: 'Purchase Community Garden Plot',
+            description: 'Proposal to purchase the vacant lot at 456 Elm St for a community garden. Total cost $15,000. Seeking approval and fundraising plan.',
+            status: 'decided' as const,
+            votingMethod: 'quadratic' as const,
+            createdBy: userPubkey,
+            createdAt: now - 15 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 8 * 24 * 60 * 60 * 1000,
+          },
+        ];
+
+        for (const proposal of seedProposals) {
+          addProposal(proposal);
+        }
+      }
+
+      // Load seed wiki pages
+      if (pages.length === 0) {
+        const seedPages = [
+          {
+            id: 'wiki-1',
+            groupId: 'organizing-collective',
+            title: 'Security Best Practices',
+            content: '# Security Culture for Activists\n\n## Digital Security\n- Use encrypted messaging (Signal, Wire)\n- Enable 2FA on all accounts\n- Use VPN when organizing online\n\n## Operational Security\n- Need-to-know information sharing\n- Secure meeting locations\n- Counter-surveillance awareness\n\n## Legal Know Your Rights\n- Right to remain silent\n- Right to legal representation\n- Do not consent to searches',
+            category: 'security',
+            tags: ['security', 'opsec', 'digital-security', 'legal'],
+            version: 3,
+            createdAt: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+            updatedAt: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday
+            updatedBy: userPubkey,
+          },
+          {
+            id: 'wiki-2',
+            groupId: 'organizing-collective',
+            title: 'Power Mapping Guide',
+            content: '# How to Power Map\n\nPower mapping helps identify targets, allies, and opponents in campaigns.\n\n## Steps:\n1. Identify decision-makers\n2. Map relationships and influence\n3. Find pressure points\n4. Build coalition of allies\n5. Design escalating tactics',
+            category: 'strategy',
+            tags: ['organizing', 'strategy', 'power-mapping'],
+            version: 1,
+            createdAt: now - 7 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 7 * 24 * 60 * 60 * 1000,
+            updatedBy: userPubkey,
+          },
+          {
+            id: 'wiki-3',
+            groupId: 'organizing-collective',
+            title: 'Consensus Decision Making',
+            content: '# Consensus Process\n\n## Overview\nConsensus is a decision-making process that seeks agreement from all participants.\n\n## Process\n1. **Proposal**: Present idea clearly\n2. **Clarifying Questions**: Ensure understanding\n3. **Discussion**: Concerns and amendments\n4. **Temperature Check**: Gauge support\n5. **Call for Consensus**: Test for agreement\n6. **Blocks**: Address fundamental objections',
+            category: 'governance',
+            tags: ['consensus', 'governance', 'decision-making'],
+            version: 2,
+            createdAt: now - 20 * 24 * 60 * 60 * 1000,
+            updatedAt: now - 4 * 24 * 60 * 60 * 1000,
+            updatedBy: userPubkey,
+          },
+        ];
+
+        for (const page of seedPages) {
+          addPage(page);
+        }
+      }
     };
 
-    loadSeedPosts();
+    loadSeedData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
