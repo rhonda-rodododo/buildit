@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { CustomFieldValues } from '@/modules/custom-fields/types'
 
 /**
  * Event privacy levels determining encryption and visibility
@@ -32,6 +33,8 @@ export const EventSchema = z.object({
   locationRevealTime: z.number().optional(),
   // Co-hosting support
   coHosts: z.array(z.string()).default([]), // Pubkeys
+  // Custom fields (dynamic fields from custom-fields module)
+  customFields: z.record(z.unknown()).optional(), // CustomFieldValues
 })
 
 export type Event = z.infer<typeof EventSchema>
@@ -84,4 +87,5 @@ export interface CreateEventFormData {
   imageUrl?: string
   locationRevealTime?: Date
   groupId?: string
+  customFields?: CustomFieldValues
 }

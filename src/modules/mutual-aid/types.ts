@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { CustomFieldValues } from '@/modules/custom-fields/types'
 
 /**
  * Mutual aid request/offer types
@@ -66,6 +67,8 @@ export const AidItemSchema = z.object({
   // Matching
   matchedWith: z.string().optional(), // ID of matched request/offer
   fulfilledBy: z.string().optional(), // Pubkey of fulfiller
+  // Custom fields (dynamic fields from custom-fields module)
+  customFields: z.record(z.unknown()).optional(), // CustomFieldValues
 })
 
 export type AidItem = z.infer<typeof AidItemSchema>
@@ -128,6 +131,7 @@ export interface CreateAidItemFormData {
   isAnonymous?: boolean
   showLocation?: boolean
   groupId?: string
+  customFields?: CustomFieldValues
 }
 
 /**

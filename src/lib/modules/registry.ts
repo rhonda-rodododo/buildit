@@ -7,7 +7,7 @@ import { db } from '@/core/storage/db';
  */
 interface ModuleLoader {
   id: string;
-  load: () => Promise<{ [key: string]: ModulePlugin }>;
+  load: () => Promise<any>; // Module can export default or named exports
 }
 
 /**
@@ -61,11 +61,18 @@ const MODULE_LOADERS: ModuleLoader[] = [
 async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
   try {
     const module = await loader.load();
-    // Find the exported module plugin (should be named like MessagingModule, EventsModule, etc.)
-    const plugin = Object.values(module).find(
-      (value): value is ModulePlugin =>
-        typeof value === 'object' && value !== null && 'metadata' in value
-    );
+
+    // Try default export first
+    let plugin: ModulePlugin | null = null;
+    if ('default' in module && typeof module.default === 'object' && module.default !== null && 'metadata' in module.default) {
+      plugin = module.default as ModulePlugin;
+    } else {
+      // Fallback: find first exported module plugin (named like MessagingModule, EventsModule, etc.)
+      plugin = Object.values(module).find(
+        (value): value is ModulePlugin =>
+          typeof value === 'object' && value !== null && 'metadata' in value
+      ) || null;
+    }
 
     if (!plugin) {
       console.error(`No module plugin found in module ${loader.id}`);

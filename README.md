@@ -71,11 +71,11 @@ Completed modules (all as plugins):
 ## 🚀 Development Commands
 
 ```bash
-npm install        # Install dependencies
-npm run dev        # Development server
-npm run build      # Production build
-npm run test       # Run tests
-npm run lint       # Lint code
+bun install        # Install dependencies
+bun run dev        # Development server
+bun run build      # Production build
+bun run test       # Run tests
+bun run lint       # Lint code
 ```
 
 ## 📜 License

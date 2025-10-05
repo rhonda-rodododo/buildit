@@ -166,7 +166,7 @@ buildit-network/
 - Git commit: "feat: implement storage layer with Dexie"
 
 **Epic 1 Validation**:
-- Run all tests: `npm test`
+- Run all tests: `bun test`
 - Check coverage: >80% for core modules
 - Verify no TypeScript errors: `tsc --noEmit`
 - Git tag: `v0.1.0-foundation`
@@ -1004,7 +1004,7 @@ buildit-network/
 - Test: New device notifications
 - Test: Key rotation and data re-encryption
 - Test: Tor connection to .onion relays
-- Run security audit tools (OWASP ZAP, npm audit)
+- Run security audit tools (OWASP ZAP, bun audit)
 - Verify CSP and security headers
 - Git tag: `v0.16.0-security`
 
@@ -1021,7 +1021,7 @@ buildit-network/
   - Store action tests
   - Custom fields validation
   - Database module tests
-- Run coverage report: `npm run test:coverage`
+- Run coverage report: `bun run test:coverage`
 - Git commit: "test: improve unit test coverage (Epic 17.1)"
 
 #### 17.2 Integration Tests (0.5h)
@@ -1046,11 +1046,11 @@ buildit-network/
 - Test multi-device sync (multiple browser contexts)
 - Test offline/online transitions
 - Test module enable/disable per group
-- Run E2E suite: `npm run test:e2e`
+- Run E2E suite: `bun run test:e2e`
 - Git commit: "test: add E2E tests (Epic 17.3)"
 
 **Epic 17 Validation**:
-- All tests passing: `npm run test:all`
+- All tests passing: `bun run test:all`
 - Coverage: >80% overall, >90% for core
 - E2E tests: All critical paths covered
 - Git tag: `v0.17.0-testing`
@@ -1204,7 +1204,7 @@ Use for:
 ## 📊 PROGRESS TRACKING
 
 After each epic:
-1. Run all tests: `npm run test:all`
+1. Run all tests: `bun run test:all`
 2. Check diagnostics: IDE MCP tool
 3. Verify functionality: Manual testing + Puppeteer
 4. Git tag: `v0.X.0-<epic-name>`

@@ -6,6 +6,7 @@
 - ALWAYS use high quality third party libraries when applicable, and check the context7 docs
 - ALWAYS try to solve problems rather than working around them, and if you don't completely implement something, take note of that.
 - ALWAYS use clean UX principles, and pay attention to mobile responsiveness/UX, offline support, user friendliness, accessibility, and internationalization
+- ALWAYS track your progress, and track changes to requirements in PROMPT.md and PROGRESS.md, changes impacting any of the files below, and use git commit and git logs to track/review changes
 
 ## 📚 Project Documentation
 

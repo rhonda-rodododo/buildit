@@ -72,6 +72,9 @@ export const CustomFieldsModule: ModulePlugin = {
   validateConfig: () => true,
 };
 
+// Default export for module registry
+export default CustomFieldsModule;
+
 /**
  * Export utilities for other modules to use
  */
