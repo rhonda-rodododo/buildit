@@ -1,4 +1,4 @@
-import { SimplePool, type Event as NostrEvent, type Filter } from 'nostr-tools'
+import { SimplePool, type Event as NostrEvent, type Filter, mergeFilters } from 'nostr-tools'
 import type { RelayConfig, RelayStatus, Subscription, PublishResult } from '@/types/nostr'
 
 export class NostrClient {
@@ -91,13 +91,12 @@ export class NostrClient {
     const relayUrls = this.getReadRelays()
 
     // nostr-tools subscribeMany accepts a single Filter
-    // For multiple filters, combine them using OR logic (arrays in filter values)
-    // or create multiple subscriptions. Using first filter for now.
-    const filter = filters[0]
+    // Merge multiple filters into one using OR logic (arrays in filter values)
+    const mergedFilter = filters.length === 1 ? filters[0] : mergeFilters(...filters)
 
     this.pool.subscribeMany(
       relayUrls,
-      filter,
+      mergedFilter,
       {
         onevent: (event: NostrEvent) => {
           onEvent(event)
