@@ -1310,3 +1310,253 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
+
+### 🚀 EPIC 21: Social Features & UX Overhaul (NEW - In Progress)
+**Status**: In Progress 🚀
+**Tag**: `v0.21.0-social-features` (planned)
+**Purpose**: Transform BuildIt Network into a social-first platform with activity feed and microblogging
+
+#### 21.1 Microblogging Module
+- [x] Create microblogging module structure (types, schema, store, components)
+- [x] Implement Post type with privacy levels (public, followers, group, encrypted)
+- [x] Create postsStore with Zustand for CRUD operations
+- [x] Implement 6 reaction types (❤️ ✊ 🔥 👀 😂 👍)
+- [x] Add comments support with threading
+- [x] Implement reposts and quote posts
+- [x] Add bookmark functionality
+- [x] Create PostComposer component with:
+  - Rich text input with character counter
+  - Privacy selector with detailed descriptions
+  - Hashtag and mention detection (#tag, @user)
+  - Media attachment buttons (image, video, location, calendar, docs, emoji)
+- [x] Create PostCard component with:
+  - Avatar and author info
+  - Content with hashtag rendering
+  - Reaction picker with 6 emoji types
+  - Action buttons (React, Comment, Repost, Bookmark, Share)
+  - Engagement stats (reaction/comment/repost counts)
+- [x] Create seed posts with welcome content and privacy guide
+- [x] Install @radix-ui/react-avatar dependency
+- [x] Create shadcn/ui Avatar component
+- [x] Create shadcn/ui Skeleton component
+- [x] Git commit: "feat: implement microblogging and activity feed (Epic 21.1)"
+
+#### 21.2 Activity Feed
+- [x] Create ActivityFeed component with unified content aggregation
+- [x] Implement feed filter tabs (All Activity, My Groups, Mentions)
+- [x] Add Refresh and Filter controls
+- [x] Create loading states with skeleton loaders
+- [x] Implement empty states with contextual messaging
+- [x] Add infinite scroll with load more functionality
+- [x] Create HomePage as new default page with sticky composer
+- [x] Update routing: /app → HomePage (feed as default)
+- [x] Update AppSidebar: "Home" → "Feed" with newspaper icon
+- [x] Load seed posts on first visit to populate demo content
+- [x] Git commit: included in Epic 21.1
+
+#### 21.3 Comments System
+- [ ] Create Comment UI components (CommentList, CommentThread, CommentInput)
+- [ ] Implement comment threading display (nested replies)
+- [ ] Add comment actions (reply, react, delete)
+- [ ] Integrate comments into PostCard
+- [ ] Create comment composer with @mentions
+- [ ] Add comment notifications
+- [ ] Git commit: "feat: implement comments system (Epic 21.3)"
+
+#### 21.4 Feed Aggregation
+- [ ] Extend ActivityFeed to show events from Events module
+- [ ] Aggregate mutual aid requests/offers in feed
+- [ ] Show governance proposals in feed
+- [ ] Display wiki page updates in feed
+- [ ] Implement unified feed item component
+- [ ] Add module-specific filter options
+- [ ] Git commit: "feat: aggregate all modules in activity feed (Epic 21.4)"
+
+#### 21.5 Nostr Protocol Integration
+- [ ] Implement NIP-01 text notes (kind 1) for posts
+- [ ] Implement NIP-07 reactions (kind 7)
+- [ ] Implement NIP-06 reposts (kind 6)
+- [ ] Add relay publishing for posts
+- [ ] Sync posts from relays to local storage
+- [ ] Handle deleted posts and replaceable events
+- [ ] Git commit: "feat: integrate microblogging with Nostr protocol (Epic 21.5)"
+
+**Implementation Details (21.1-21.2)**:
+- **Module Structure**: Complete self-contained module in src/modules/microblogging/
+- **Data Model**:
+  - Posts with privacy levels, media attachments, hashtags, mentions
+  - Reactions with 6 emoji types
+  - Comments with threading support (depth tracking)
+  - Reposts with quote support
+  - Bookmarks for saving posts
+- **State Management**: Zustand store with persistence for offline support
+- **Database**: Dexie schema with tables for posts, reactions, comments, reposts, bookmarks
+- **UI Components**:
+  - PostComposer: Rich composer with 104 char in demo, privacy selector, hashtag detection
+  - PostCard: Full engagement UI with reaction picker, action buttons
+  - ActivityFeed: Unified feed with filter tabs, loading states
+  - HomePage: New default page with sticky composer and feed
+- **Navigation**: Feed as default route, updated sidebar with newspaper icon
+- **Seed Data**: 3 welcome posts with getting started guide and privacy tips
+
+**Testing (21.1-21.2)**:
+- [x] Post creation with hashtag extraction
+- [x] Reaction picker opens with 6 emoji types
+- [x] Reactions add/remove correctly
+- [x] Feed displays posts with correct formatting
+- [x] Seed posts load on first visit
+- [x] Mobile-responsive design
+- [x] Character counter and hashtag detection working
+- [x] Privacy selector shows descriptions
+
+**Files Created (21.1-21.2)**:
+- `src/modules/microblogging/types.ts` - Type definitions
+- `src/modules/microblogging/schema.ts` - Dexie schema and seeds
+- `src/modules/microblogging/postsStore.ts` - Zustand store
+- `src/modules/microblogging/components/PostComposer.tsx` - Post composer
+- `src/modules/microblogging/components/PostCard.tsx` - Post display
+- `src/modules/microblogging/index.ts` - Module registration
+- `src/components/feed/ActivityFeed.tsx` - Unified feed
+- `src/pages/HomePage.tsx` - New default page
+- `src/components/ui/skeleton.tsx` - Loading skeleton
+- `src/components/ui/avatar.tsx` - Avatar component
+
+**Validation**:
+- [x] Build successful after adding Epic 21.1
+- [x] All TypeScript compilation passing
+- [x] Post creation and display working
+- [x] Reaction system functional
+- [x] Feed filtering working
+- [x] Seed posts loading correctly
+- [x] Git commit created: 03f5f5c
+- [ ] Comments system (Epic 21.3)
+- [ ] Feed aggregation (Epic 21.4)
+- [ ] Nostr integration (Epic 21.5)
+- [ ] Git tag: `v0.21.0-social-features` (pending completion)
+
+---
+
+
+### 🎯 SPECTRUM OF SUPPORT ROADMAP (Post-Epic 21)
+
+**Based on**: Training for Change's Spectrum of Support methodology  
+**Documentation**: [SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md), [SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md), [SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)
+
+**Current Coverage**: 41% → 55% (after Epic 21) → 77% (goal)  
+**Purpose**: Serve the full spectrum from neutrals to core organizers
+
+See [PROMPT.md Spectrum of Support Roadmap](./PROMPT.md#-spectrum-of-support-roadmap-post-mvp) for full epic details.
+
+---
+
+### 🌐 EPIC 21B: Public Pages & Outreach (2 hours) - **PRIORITY NEXT**
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 55% → 62%  
+**Tag**: `v0.21B.0-public-pages`
+
+- [ ] 21B.1 Public Campaign Pages (1h)
+- [ ] 21B.2 Public Wiki & FAQ (0.5h)
+- [ ] 21B.3 Contact Forms (0.5h)
+
+**Purpose**: Enable neutrals (Tyler persona) to learn about campaigns without joining
+
+---
+
+### 📊 EPIC 22: Analytics & Reporting Dashboard (2 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 62% → 65%  
+**Tag**: `v0.22.0-analytics`
+
+- [ ] 22.1 CRM Analytics (1h) - Support level distribution, contact rate, pipeline
+- [ ] 22.2 Campaign Analytics (1h) - Membership growth, event metrics, engagement trends
+
+**Purpose**: Enable core organizers (Keisha persona) to make data-driven decisions
+
+---
+
+### ⚡ EPIC 23: Bulk Operations & Scaling Tools (2 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 65% → 68%  
+**Tag**: `v0.23.0-bulk-ops`
+
+- [ ] 23.1 Bulk Selection & Actions (1h) - Multi-select, bulk message, bulk updates
+- [ ] 23.2 Automated Follow-Ups & Tasks (1h) - Task management, automation rules
+
+**Purpose**: Enable core organizers to scale operations
+
+---
+
+### 📝 EPIC 24: Activity Logging & Contact History (2 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 68% → 70%  
+**Tag**: `v0.24.0-activity-logs`
+
+- [ ] 24.1 Contact Activity Log (1h) - Auto-log messages, events, field updates
+- [ ] 24.2 Conversation History View (1h) - DM threads, search, timeline integration
+
+**Purpose**: Track all interactions per contact for organizing
+
+---
+
+### 🪜 EPIC 25: Engagement Ladder & Activation (3 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 70% → 75%  
+**Tag**: `v0.25.0-engagement-ladder`
+
+- [ ] 25.1 Engagement Ladder UI (1.5h) - Level detection, next steps, milestones
+- [ ] 25.2 Personalized Onboarding (1h) - Different flows by entry point
+- [ ] 25.3 Smart Notifications (0.5h) - Context-aware notifications
+
+**Purpose**: Guide passive supporters to active participation
+
+---
+
+### 🔒 EPIC 26: Anonymous Engagement & Privacy Controls (2 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: 75% → 77%  
+**Tag**: `v0.26.0-privacy`
+
+- [ ] 26.1 Anonymous Reactions & Voting (1h)
+- [ ] 26.2 Covert Supporter Role (0.5h)
+- [ ] 26.3 Privacy Dashboard (0.5h)
+
+**Purpose**: Enable safe participation for those fearing retaliation
+
+---
+
+### 🛡️ EPIC 27: Infiltration Countermeasures (3 hours)
+
+**Status**: Not Started ⏳  
+**Coverage Impact**: Maintains 77% with security  
+**Tag**: `v0.27.0-security`
+
+- [ ] 27.1 Member Verification System (1h) - QR verification, trust scores
+- [ ] 27.2 Anomaly Detection & Warnings (1.5h) - Mass access, honeypots
+- [ ] 27.3 Audit Logs (0.5h) - Track sensitive actions
+
+**Purpose**: Protect high-risk campaigns from infiltration
+
+---
+
+## 📈 Spectrum Coverage Projection
+
+| Persona | Current | → Epic 21 | → 21B | → 22-24 | → 25-27 | Target |
+|---------|---------|-----------|-------|---------|---------|--------|
+| Keisha (Core Organizer) | 65% | 70% | 70% | 90% | 95% | 90%+ |
+| Marcus (Volunteer) | 50% | 75% | 75% | 80% | 90% | 85%+ |
+| Aisha (Passive Support) | 45% | 60% | 70% | 75% | 85% | 80%+ |
+| Tyler (Neutral) | 30% | 45% | 65% | 65% | 75% | 70%+ |
+| Elena (Researcher) | 15% | 30% | 60% | 60% | 65% | 65%+ |
+| **Overall Average** | **41%** | **55%** | **62%** | **68%** | **77%** | **77%** |
+
+**Total Investment**: ~20 hours across Epics 21B-27  
+**Outcome**: Full Spectrum of Support methodology enabled
+
+---
+

@@ -1,7 +1,9 @@
 import { FC, useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { useDeviceStore } from '@/stores/deviceStore'
+import { usePostsStore } from '@/modules/microblogging/postsStore'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { HomePage } from '@/pages/HomePage'
 import { MessagingView } from '@/components/messaging/MessagingView'
 import { GroupsView } from '@/components/groups/GroupsView'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
@@ -11,6 +13,7 @@ import { EventsView } from '@/modules/events/components/EventsView'
 import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
 import { SecurityPage } from '@/pages/settings/SecurityPage'
 import { initializeDatabase } from '@/core/storage/db'
+import { microbloggingSeeds } from '@/modules/microblogging/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { APP_CONFIG } from '@/config/app'
@@ -18,7 +21,8 @@ import { APP_CONFIG } from '@/config/app'
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
   const { initializeCurrentDevice, checkWebAuthnSupport } = useDeviceStore()
-  const [activeTab, setActiveTab] = useState('messages')
+  const { posts, createPost } = usePostsStore()
+  const [activeTab, setActiveTab] = useState('feed')
 
   useEffect(() => {
     // Initialize database and load identities on mount
@@ -27,6 +31,18 @@ const App: FC = () => {
       // Initialize device tracking and WebAuthn support
       await checkWebAuthnSupport()
       await initializeCurrentDevice()
+
+      // Load seed posts if no posts exist (demo data)
+      if (posts.length === 0) {
+        for (const seedPost of microbloggingSeeds.posts) {
+          await createPost({
+            content: seedPost.content,
+            contentType: seedPost.contentType,
+            visibility: seedPost.visibility,
+            hashtags: seedPost.hashtags,
+          })
+        }
+      }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -69,12 +85,17 @@ const App: FC = () => {
           setActiveTab(value)
         }}>
           <TabsList className="mb-4 sm:mb-6 w-full max-w-3xl bg-muted/50 p-1">
+            <TabsTrigger value="feed" className="flex-1">Feed</TabsTrigger>
             <TabsTrigger value="messages" className="flex-1">Messages</TabsTrigger>
             <TabsTrigger value="groups" className="flex-1">Groups</TabsTrigger>
             <TabsTrigger value="events" className="flex-1">Events</TabsTrigger>
             <TabsTrigger value="mutual-aid" className="flex-1">Mutual Aid</TabsTrigger>
             <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="feed">
+            <HomePage />
+          </TabsContent>
 
           <TabsContent value="messages">
             <MessagingView />

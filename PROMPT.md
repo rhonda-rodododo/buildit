@@ -1517,3 +1517,228 @@ After each epic:
 6. Ship MVP in <30 hours
 
 **LET'S BUILD!** 🔨
+
+---
+
+## 🎯 SPECTRUM OF SUPPORT ROADMAP (Post-MVP)
+
+**Based on**: Training for Change's Spectrum of Support methodology
+**Documentation**: See [SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md), [SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md), [SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)
+
+**Current Coverage**: 41% across full engagement spectrum (Neutral → Active Support)
+**Goal**: 77% coverage to serve organizers from neutrals to leaders
+
+### Why This Matters
+
+BuildIt Network currently serves **core organizers well (65%)** but **fails to reach** passive supporters (45%) and neutrals (30%). The Spectrum of Support methodology requires features for ALL engagement levels:
+- **Active Support** (core organizers) - Need power tools: analytics, bulk ops, task management
+- **Passive Support** (sympathizers) - Need low-friction engagement: anonymous reactions, activity feed
+- **Neutral** (undecided) - Need information: public pages, FAQs, social proof
+- **Opposition** (researchers, infiltrators) - Need transparency (passive) and defenses (active)
+
+### Epic 21B: Public Pages & Outreach (2 hours) - PRIORITY
+
+**NOTE**: Epic 21 (Microblogging & Activity Feed) is IN PROGRESS. This is Epic 21B for public-facing features.
+
+**Problem**: Can't reach neutrals or passive supporters (30% coverage for neutrals)
+
+#### 21B.1 Public Campaign Pages (1h)
+- Campaign landing page (no login required)
+- About page (mission, values, demands)
+- Public events calendar
+- Public news/updates feed
+- SEO controls (meta tags, Open Graph)
+- Custom domain support (CNAME)
+
+#### 21B.2 Public Wiki & FAQ (0.5h)
+- Mark wiki pages as "public" (group admins choose)
+- Public wiki accessible without login
+- FAQ pages for common questions
+- "Know Your Rights" guides
+- Public resources library
+
+#### 21B.3 Contact Forms (0.5h)
+- Contact form on public pages
+- Form submissions → DM to group admins
+- Anti-spam (rate limiting, honeypot)
+- Anonymous submissions or require email
+
+**Validation**:
+- [ ] Public campaign page visible without login
+- [ ] Public wiki pages accessible
+- [ ] Contact form working
+- [ ] SEO tags implemented
+- [ ] Git tag: `v0.21B.0-public-pages`
+
+### Epic 22: Analytics & Reporting (2 hours)
+
+**Problem**: Core organizers can't make data-driven decisions (need for Keisha persona)
+
+#### 22.1 CRM Analytics (1h)
+- Support level distribution chart
+- Contact rate metrics (conversations per week)
+- Pipeline movement (neutral → passive → active)
+- Organizer performance dashboard
+- Department/shift analysis
+
+#### 22.2 Campaign Analytics (1h)
+- Membership growth tracking
+- Event attendance metrics (RSVP vs. actual)
+- Governance participation (vote turnout)
+- Engagement trends (posts, reactions, comments)
+- Win tracking and timeline
+
+**Validation**:
+- [ ] CRM analytics dashboard working
+- [ ] Campaign metrics displayed
+- [ ] Can export reports as CSV
+- [ ] Git tag: `v0.22.0-analytics`
+
+### Epic 23: Bulk Operations & Scaling (2 hours)
+
+**Problem**: Organizers can't scale operations (need for Keisha persona)
+
+#### 23.1 Bulk Selection & Actions (1h)
+- Multi-select in CRM (checkboxes)
+- Select all with filters
+- Bulk actions: Send message, update field, assign task, add tag, export
+- Progress indicators for long operations
+
+#### 23.2 Automated Follow-Ups (1h)
+- Follow-up reminders (contact again in X days)
+- Automated task creation (if no response in 3 days)
+- Task assignment to organizers
+- Task queue and tracking
+
+**Validation**:
+- [ ] Can multi-select contacts
+- [ ] Bulk message sending works
+- [ ] Task management functional
+- [ ] Git tag: `v0.23.0-bulk-ops`
+
+### Epic 24: Activity Logging & Contact History (2 hours)
+
+**Problem**: No conversation history per contact (need for Keisha persona)
+
+#### 24.1 Contact Activity Log (1h)
+- Auto-log messages sent/received
+- Auto-log event RSVPs and attendance
+- Auto-log field updates (support level changes)
+- Manual notes (organizer-added)
+- Timeline view per contact
+
+#### 24.2 Conversation History View (1h)
+- Message thread view (all DMs with contact)
+- Group messages where contact mentioned
+- Integrated with activity timeline
+- Search within conversation
+
+**Validation**:
+- [ ] Activity auto-logs messages
+- [ ] Timeline view working
+- [ ] Conversation history displays
+- [ ] Git tag: `v0.24.0-activity-logs`
+
+### Epic 25: Engagement Ladder & Activation (3 hours)
+
+**Problem**: Passive supporters don't know next steps (need for Aisha/Marcus personas)
+
+#### 25.1 Engagement Ladder UI (1.5h)
+- Engagement level detection (observer → participant → contributor → organizer → leader)
+- Personalized next-step suggestions
+- Progress visualization
+- Milestone celebrations
+
+#### 25.2 Personalized Onboarding (1h)
+- Different onboarding flows for different entry points
+- Neutral: Public visitor → Watch video → Read FAQ → Vote in poll → Join
+- Passive Support: New member → Choose interests → See feed → First action
+- Active Support: Engaged member → Organizing tutorial → CRM training
+
+#### 25.3 Smart Notifications (0.5h)
+- Context-aware notifications by engagement level
+- Observers: "5 people posted today"
+- Participants: "You haven't posted in 2 weeks"
+- Contributors: "You've attended 3 events! Ready to lead one?"
+- Organizers: "You have 5 tasks due this week"
+
+**Validation**:
+- [ ] Engagement level auto-detects
+- [ ] Next-step suggestions appear
+- [ ] Onboarding adapts to entry point
+- [ ] Git tag: `v0.25.0-engagement-ladder`
+
+### Epic 26: Anonymous Engagement & Privacy (2 hours)
+
+**Problem**: Passive supporters fear retaliation (need for Aisha persona)
+
+#### 26.1 Anonymous Reactions & Voting (1h)
+- Anonymous reactions (count visible, not identity)
+- Anonymous poll responses
+- Privacy controls per action
+
+#### 26.2 Covert Supporter Role (0.5h)
+- "Covert supporter" role (participate internally, hidden from public)
+- Hidden from public member lists
+- Can't be @mentioned publicly
+
+#### 26.3 Privacy Dashboard (0.5h)
+- Privacy audit (what's public vs. private)
+- Visibility controls (who can see profile, posts)
+- Opt-out of discovery features
+- Download my data (GDPR export)
+
+**Validation**:
+- [ ] Anonymous reactions work
+- [ ] Covert role hides from public
+- [ ] Privacy dashboard functional
+- [ ] Git tag: `v0.26.0-privacy`
+
+### Epic 27: Infiltration Countermeasures (3 hours)
+
+**Problem**: No defenses against infiltration (security need for all high-risk campaigns)
+
+#### 27.1 Member Verification (1h)
+- In-person verification (QR code scan)
+- Verified badge
+- Vouching system
+- Trust score (0-100)
+
+#### 27.2 Anomaly Detection (1.5h)
+- Mass data access detection
+- Unusual posting patterns
+- Rapid friending/following
+- Honeypot triggers
+- Admin notifications for suspicious activity
+
+#### 27.3 Audit Logs (0.5h)
+- Track all sensitive actions
+- Admin-only view
+- Filter by user, action type, date
+- Export for investigation
+
+**Validation**:
+- [ ] Verification system works
+- [ ] Anomaly detection triggers
+- [ ] Audit logs track actions
+- [ ] Git tag: `v0.27.0-security`
+
+---
+
+## 📈 Spectrum Coverage Projection
+
+| Epic | Focus | Coverage Impact | Priority |
+|------|-------|----------------|----------|
+| **Epic 21** (In Progress) | Activity Feed & Microblogging | 41% → 55% | **HIGHEST** |
+| **Epic 21B** | Public Pages | 55% → 62% | **HIGHEST** |
+| **Epic 22** | Analytics | 62% → 65% | **HIGH** |
+| **Epic 23** | Bulk Operations | 65% → 68% | **HIGH** |
+| **Epic 24** | Activity Logging | 68% → 70% | **MEDIUM** |
+| **Epic 25** | Engagement Ladder | 70% → 75% | **MEDIUM** |
+| **Epic 26** | Anonymous Engagement | 75% → 77% | **MEDIUM** |
+| **Epic 27** | Security Hardening | 77% (maintains) | **ONGOING** |
+
+**Total Investment**: ~20 hours across 7 epics
+**Outcome**: Full Spectrum of Support methodology enabled
+
+---

@@ -13,12 +13,20 @@
 
 ## 📚 Project Documentation
 
+**📋 [PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation index and navigation guide
+
 **Quick Navigation:**
 - **[PROMPT.md](./PROMPT.md)** - Complete execution plan for autonomous build (all epics and tasks)
 - **[PROGRESS.md](./PROGRESS.md)** - Detailed progress tracking with checkboxes (single source of truth for status)
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
 - **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
+
+**User Research & Strategy:**
+- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas across engagement spectrum (Neutral → Active Support)
+- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Feature gap analysis and coverage metrics
+- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Implementation roadmap for full spectrum support
+- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social layer strategy and community management
 
 ## Project Overview
 A privacy-first organizing platform built on Nostr protocol and NIP-17 encryption layer for activist groups, co-ops, unions, and community organizers.

@@ -29,6 +29,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CommentThread } from './CommentThread';
+import { CommentInput } from './CommentInput';
 
 interface PostCardProps {
   post: Post;
@@ -62,9 +64,11 @@ export const PostCard: FC<PostCardProps> = ({
     hasBookmarked,
     bookmarkPost,
     unbookmarkPost,
+    getPostComments,
   } = usePostsStore();
 
   const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const [showComments, setShowComments] = useState(showThread);
 
   const myReaction = getMyReaction(post.id);
   const isReposted = hasReposted(post.id);
@@ -251,7 +255,10 @@ export const PostCard: FC<PostCardProps> = ({
           variant="ghost"
           size="sm"
           className="flex-1 justify-center"
-          onClick={onCommentClick}
+          onClick={() => {
+            setShowComments(!showComments);
+            onCommentClick?.();
+          }}
         >
           <MessageCircle className="w-4 h-4 mr-2" />
           Comment
@@ -285,12 +292,18 @@ export const PostCard: FC<PostCardProps> = ({
         </Button>
       </div>
 
-      {/* Comments thread (if showing) */}
-      {showThread && post.commentCount > 0 && (
-        <div className="mt-4 pt-4 border-t">
-          <p className="text-sm text-muted-foreground">
-            Comments thread will be implemented in Epic 21.3
-          </p>
+      {/* Comments section */}
+      {showComments && (
+        <div className="mt-4 pt-4 border-t space-y-4">
+          {/* Comment input */}
+          <CommentInput postId={post.id} />
+
+          {/* Comments thread */}
+          {post.commentCount > 0 && (
+            <div className="pt-2">
+              <CommentThread postId={post.id} comments={getPostComments(post.id)} />
+            </div>
+          )}
         </div>
       )}
     </Card>

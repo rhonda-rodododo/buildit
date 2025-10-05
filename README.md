@@ -18,12 +18,19 @@ Read PROMPT.md and execute all epics sequentially
 
 ### Documentation Structure
 
+**Core Documentation:**
 - **[CLAUDE.md](./CLAUDE.md)** - Project overview and navigation guide (START HERE)
 - **[PROMPT.md](./PROMPT.md)** - Complete execution plan with all epics and tasks
 - **[PROGRESS.md](./PROGRESS.md)** - Current status and progress tracking with checkboxes
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
 - **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
+
+**User Research & Product Strategy:**
+- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas (Neutral → Active Support)
+- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Gap analysis (41% current coverage)
+- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Roadmap to 77% coverage
+- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social & community features
 
 ## 🏗️ Tech Stack
 
