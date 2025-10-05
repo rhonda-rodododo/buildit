@@ -17,6 +17,27 @@ export default defineConfig({
       '@/types': path.resolve(__dirname, './src/types'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+          'vendor-crypto': ['@noble/secp256k1', 'nostr-tools'],
+          'vendor-utils': ['zustand', 'dexie', 'zod', 'clsx', 'tailwind-merge'],
+          // Module chunks (lazy loaded)
+          'module-events': ['src/modules/events/index.ts'],
+          'module-governance': ['src/modules/governance/index.ts'],
+          'module-wiki': ['src/modules/wiki/index.ts'],
+          'module-mutual-aid': ['src/modules/mutual-aid/index.ts'],
+          'module-database': ['src/modules/database/index.ts'],
+          'module-crm': ['src/modules/crm/index.ts'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600, // Increase from 500KB default
+  },
   test: {
     globals: true,
     environment: 'node', // Node for crypto, jsdom for UI tests (configure per-file if needed)

@@ -4,7 +4,7 @@
  */
 
 import type { BuildItDB } from './db';
-import { getAllModules } from '@/modules';
+import { getAllModules } from '@/lib/modules/registry';
 
 /**
  * Load seed data for all modules
