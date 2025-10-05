@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
+import { useDeviceStore } from '@/stores/deviceStore'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { MessagingView } from '@/components/messaging/MessagingView'
 import { GroupsView } from '@/components/groups/GroupsView'
@@ -8,6 +9,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ModeToggle } from '@/components/mode-toggle'
 import { EventsView } from '@/modules/events/components/EventsView'
 import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
+import { SecurityPage } from '@/pages/SecurityPage'
 import { initializeDatabase } from '@/core/storage/db'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -15,12 +17,16 @@ import { APP_CONFIG } from '@/config/app'
 
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
+  const { initializeCurrentDevice, checkWebAuthnSupport } = useDeviceStore()
   const [activeTab, setActiveTab] = useState('messages')
 
   useEffect(() => {
     // Initialize database and load identities on mount
-    initializeDatabase().then(() => {
+    initializeDatabase().then(async () => {
       loadIdentities()
+      // Initialize device tracking and WebAuthn support
+      await checkWebAuthnSupport()
+      await initializeCurrentDevice()
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -62,11 +68,12 @@ const App: FC = () => {
           console.log('Tab changing to:', value)
           setActiveTab(value)
         }}>
-          <TabsList className="mb-4 sm:mb-6 w-full max-w-2xl bg-muted/50 p-1">
+          <TabsList className="mb-4 sm:mb-6 w-full max-w-3xl bg-muted/50 p-1">
             <TabsTrigger value="messages" className="flex-1">Messages</TabsTrigger>
             <TabsTrigger value="groups" className="flex-1">Groups</TabsTrigger>
             <TabsTrigger value="events" className="flex-1">Events</TabsTrigger>
             <TabsTrigger value="mutual-aid" className="flex-1">Mutual Aid</TabsTrigger>
+            <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
           </TabsList>
 
           <TabsContent value="messages">
@@ -83,6 +90,10 @@ const App: FC = () => {
 
           <TabsContent value="mutual-aid">
             <MutualAidView />
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecurityPage />
           </TabsContent>
         </Tabs>
       </div>

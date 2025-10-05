@@ -21,9 +21,11 @@ export function generateKeyPair(): KeyPair {
  */
 export function createIdentity(name: string = 'Anonymous'): Identity {
   const { privateKey, publicKey } = generateKeyPair()
+  const npub = nip19.npubEncode(publicKey)
 
   return {
     publicKey,
+    npub,
     privateKey,
     name,
     created: Date.now(),
@@ -44,9 +46,11 @@ export function importFromNsec(nsec: string, name: string = 'Imported'): Identit
 
     const privateKey = decoded.data as Uint8Array
     const publicKey = getPublicKey(privateKey)
+    const npub = nip19.npubEncode(publicKey)
 
     return {
       publicKey,
+      npub,
       privateKey,
       name,
       created: Date.now(),

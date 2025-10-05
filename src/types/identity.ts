@@ -1,5 +1,6 @@
 export interface Identity {
   publicKey: string // hex
+  npub: string // bech32-encoded public key
   privateKey: Uint8Array
   name: string
   created: number

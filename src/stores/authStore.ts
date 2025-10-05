@@ -4,6 +4,7 @@ import type { Identity } from '@/types/identity'
 import { createIdentity, importFromNsec } from '@/core/crypto/keyManager'
 import { db } from '@/core/storage/db'
 import { bytesToHex } from '@noble/hashes/utils'
+import * as nip19 from 'nostr-tools/nip19'
 
 interface AuthState {
   currentIdentity: Identity | null
@@ -111,6 +112,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           // Convert to Identity objects (in production, decrypt private keys here)
           const identities: Identity[] = dbIdentities.map(dbId => ({
             publicKey: dbId.publicKey,
+            npub: nip19.npubEncode(dbId.publicKey),
             privateKey: new Uint8Array(0), // Placeholder - load from secure storage
             name: dbId.name,
             created: dbId.created,
