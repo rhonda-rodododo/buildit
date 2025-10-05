@@ -1,0 +1,123 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "a social action network"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "createIdentity": "Create Identity",
+    "importKey": "Import Key",
+    "name": "Name",
+    "privateKey": "Private Key",
+    "generateNew": "Generate New Identity"
+  },
+  "nav": {
+    "messages": "Messages",
+    "groups": "Groups",
+    "events": "Events",
+    "mutualAid": "Mutual Aid"
+  },
+  "messages": {
+    "title": "Messages",
+    "newConversation": "New Conversation",
+    "conversations": "Conversations",
+    "noMessages": "No messages yet",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "groups": {
+    "title": "Groups",
+    "createGroup": "Create Group",
+    "noGroups": "No groups yet",
+    "groupName": "Group Name",
+    "description": "Description",
+    "privacy": "Privacy",
+    "public": "Public",
+    "private": "Private",
+    "secret": "Secret",
+    "enabledModules": "Enabled Modules",
+    "settings": "Settings",
+    "members": "members"
+  },
+  "events": {
+    "title": "Events",
+    "createEvent": "Create Event",
+    "noEvents": "No events yet",
+    "eventName": "Event Name",
+    "location": "Location",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "capacity": "Capacity",
+    "rsvp": "RSVP",
+    "going": "Going",
+    "maybe": "Maybe",
+    "notGoing": "Not Going",
+    "exportCalendar": "Export to Calendar"
+  },
+  "mutualAid": {
+    "title": "Mutual Aid",
+    "createRequest": "Create Request/Offer",
+    "requests": "Active Requests",
+    "offers": "Available Offers",
+    "noRequests": "No active requests",
+    "noOffers": "No available offers",
+    "rideShare": "Solidarity Ride Share",
+    "browse": "Browse",
+    "myItems": "My Items",
+    "matches": "Matches"
+  },
+  "governance": {
+    "title": "Governance",
+    "createProposal": "Create Proposal",
+    "activeProposals": "Active Proposals",
+    "voting": "Voting",
+    "history": "History",
+    "noProposals": "No proposals yet",
+    "draftProposals": "Draft Proposals",
+    "openForVoting": "Open for Voting",
+    "decisionHistory": "Decision History",
+    "votingMethods": "Voting Methods Available",
+    "simpleMajority": "Simple Majority",
+    "rankedChoice": "Ranked Choice",
+    "quadraticVoting": "Quadratic Voting",
+    "consensus": "Consensus"
+  },
+  "wiki": {
+    "title": "Knowledge Base",
+    "newPage": "New Page",
+    "search": "Search wiki...",
+    "noPages": "No pages yet",
+    "gettingStarted": "Getting Started",
+    "organizingResources": "Organizing Resources",
+    "legalSafety": "Legal & Safety"
+  },
+  "crm": {
+    "title": "Contact Database",
+    "addContact": "Add Contact",
+    "noContacts": "No contacts yet",
+    "tableView": "Table View",
+    "boardView": "Board View",
+    "calendarView": "Calendar View",
+    "templates": "Available Templates",
+    "unionOrganizing": "Union Organizing",
+    "fundraising": "Fundraising",
+    "legalTracking": "Legal Tracking"
+  },
+  "common": {
+    "create": "Create",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}

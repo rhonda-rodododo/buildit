@@ -1,4 +1,4 @@
-# Social Action Network
+# BuildN - a social action network
 
 > A privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, and community organizers.
 
@@ -24,7 +24,7 @@
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd buildit-network
+cd buildn
 
 # Install dependencies
 npm install
@@ -33,19 +33,19 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) and create your identity!
+Open [http://localhost:5174](http://localhost:5174) and create your identity!
 
 ### For Claude Code (Autonomous Build)
 
 ```
-Please execute PROMPT.md to build the complete Social Action Network MVP.
+Please execute PROMPT.md to build the complete BuildN MVP.
 ```
 
 Claude Code will autonomously build the entire application in under 30 hours.
 
 ## 📚 Documentation
 
-- **[PROMPT.md](PROMPT.md)** - Autonomous build instructions for Claude Code (12 epics)
+- **[PROMPT.md](PROMPT.md)** - Autonomous build instructions for Claude Code (9 epics + i18n)
 - **[ENCRYPTION_STRATEGY.md](ENCRYPTION_STRATEGY.md)** - Encryption architecture and decisions
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and data flow
 - **[PRIVACY.md](PRIVACY.md)** - Threat model and security considerations

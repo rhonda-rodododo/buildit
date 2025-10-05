@@ -118,13 +118,13 @@ export const GroupView: FC = () => {
 
             {activeGroup.enabledModules.includes('governance') && (
               <TabsContent value="governance">
-                <GovernanceView />
+                <GovernanceView groupId={activeGroup.id} />
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('wiki') && (
               <TabsContent value="wiki">
-                <WikiView />
+                <WikiView groupId={activeGroup.id} />
               </TabsContent>
             )}
 

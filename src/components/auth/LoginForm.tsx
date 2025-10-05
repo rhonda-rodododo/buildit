@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { APP_CONFIG } from '@/config/app'
 
 export const LoginForm: FC = () => {
   const { createNewIdentity, importIdentity } = useAuthStore()
@@ -39,8 +40,8 @@ export const LoginForm: FC = () => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>BuildIt Network</CardTitle>
-        <CardDescription>Privacy-first organizing platform</CardDescription>
+        <CardTitle>{APP_CONFIG.fullName}</CardTitle>
+        <CardDescription>{APP_CONFIG.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="create">

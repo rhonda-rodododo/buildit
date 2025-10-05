@@ -106,17 +106,32 @@
 
 **Deliverable**: Groups have wiki for documentation and CRM for contacts
 
-## Phase 7: Polish & Security (Weeks 25-28)
+## Phase 7: Internationalization (Weeks 25-26)
+**Goal**: Multi-language support for global organizing
+
+### Week 25-26: i18n Implementation
+- [ ] Install and configure react-i18next
+- [ ] Create translation file structure
+- [ ] Implement English locale (base)
+- [ ] Prepare Spanish, French, Arabic locales
+- [ ] Wrap all UI strings in translation functions
+- [ ] Language switcher component
+- [ ] RTL support for Arabic
+- [ ] Date/time localization
+
+**Deliverable**: Multi-language platform with 4 languages supported
+
+## Phase 8: Polish & Security (Weeks 27-30)
 **Goal**: Security hardening, UX improvements, testing
 
-### Week 25-26: Security
+### Week 27-28: Security
 - [ ] Security audit
 - [ ] Tor integration
 - [ ] Hardware wallet support (NIP-46)
 - [ ] Key rotation mechanisms
 - [ ] Penetration testing
 
-### Week 27-28: UX & Performance
+### Week 29-30: UX & Performance
 - [ ] Mobile responsive design
 - [ ] Performance optimization
 - [ ] Accessibility improvements
@@ -129,5 +144,7 @@
 - Mobile apps (React Native)
 - Advanced analytics
 - Federated relay infrastructure
-- Custom plugin development SDK
+- Custom module development SDK
 - Integration APIs
+- Document Suite/File Manager
+- Advanced CRM with Airtable-style interface

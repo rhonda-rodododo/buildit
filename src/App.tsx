@@ -9,6 +9,7 @@ import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
 import { initializeDatabase } from '@/core/storage/db'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { APP_CONFIG } from '@/config/app'
 
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
@@ -34,9 +35,12 @@ const App: FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Social Action Network
-          </h1>
+          <div>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              {APP_CONFIG.name}
+            </h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">{APP_CONFIG.tagline}</p>
+          </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <NotificationCenter />
             <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
@@ -49,16 +53,16 @@ const App: FC = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-screen-2xl">
         <Tabs value={activeTab} onValueChange={(value) => {
           console.log('Tab changing to:', value)
           setActiveTab(value)
         }}>
-          <TabsList className="mb-4 sm:mb-6 grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0 bg-muted/50 p-1">
-            <TabsTrigger value="messages" className="text-xs sm:text-sm">Messages</TabsTrigger>
-            <TabsTrigger value="groups" className="text-xs sm:text-sm">Groups</TabsTrigger>
-            <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
-            <TabsTrigger value="mutual-aid" className="text-xs sm:text-sm">Mutual Aid</TabsTrigger>
+          <TabsList className="mb-4 sm:mb-6 w-full max-w-2xl bg-muted/50 p-1">
+            <TabsTrigger value="messages" className="flex-1">Messages</TabsTrigger>
+            <TabsTrigger value="groups" className="flex-1">Groups</TabsTrigger>
+            <TabsTrigger value="events" className="flex-1">Events</TabsTrigger>
+            <TabsTrigger value="mutual-aid" className="flex-1">Mutual Aid</TabsTrigger>
           </TabsList>
 
           <TabsContent value="messages">

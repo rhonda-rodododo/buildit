@@ -1,4 +1,4 @@
-# Social Action Network
+# BuildN - a social action network
 
 ## Project Overview
 A privacy-first organizing platform built on Nostr protocol and Samiz encryption layer for activist groups, co-ops, and community organizers.
@@ -26,27 +26,27 @@ See ARCHITECTURE.md for detailed system design.
 - Public microblogging
 - Nostr relay management
 
-### 2. Events & Organizing
+### 2. Events & Organizing  (modules)
 - Event creation with privacy levels (public/group/private/direct-action)
 - RSVP system with capacity management
 - Campaign coordination across multiple events
 - Task assignment and tracking
 - Calendar integration (iCal export)
 
-### 3. Mutual Aid
+### 3. Mutual Aid (modules)
 - Resource request/offer system (with optional per-requester trusted intermediaries)
 - Solidarity ride share network
 - Request matching algorithm
 - Community resource directory
 
-### 4. Co-ops & Governance
+### 4. Co-ops & Governance  (modules)
 - Proposal creation and discussion
 - Multiple voting systems (simple, ranked-choice, quadratic, D'Hondt_method, consensus)
 - Anonymous ballots with optional identity verification
 - Decision history and audit logs
 - Member management
 
-### 5. Knowledge Base
+### 5. Knowledge Base  (modules)
 - Collaborative wiki with version control
 - Markdown editor
 - Document categories and tagging
@@ -59,15 +59,20 @@ See ARCHITECTURE.md for detailed system design.
 - Privacy controls per field
 - provide templates for everything from organizing unions and collectives, fundraising, volunteer management, human rights/legal tracking (ala NLG/Amensty International), civil defense, etc
 
-## Groups Plugin System
-Each group can enable/configure modules independently.
-Plugin architecture allows for:
+## Individual/Groups Module System
+Each group can enable/configure modules independently. Users can use various modules themselves.
+
+Module architecture allows for:
 - Per-group feature toggles
 - Custom permission schemes
 - Module-specific settings
 - cross-group views - such as events, aid requests, almost any non-
-Plugins are not user created yet, only officially provided plugins - this allows us to encapsulate all of the above, and make some functionality reusable
+Modules are not user created yet, only officially provided Modules - this allows us to encapsulate all of the above, and make some functionality reusable
 
+## Document Suite/File Manager
+- create end edit comprehensive wyswiyg documents, either to be posted longform or to be shared with colleauges. repeat for other document types
+- manage and upload files, folders, in groups or privately
+- inspiration: Cryptpad, Tresorit, DocumentCloud/OwnCloud, etc
 
 ## Security & Privacy
 See PRIVACY.md for threat model and security architecture.
