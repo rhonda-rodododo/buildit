@@ -26,6 +26,7 @@ import { EngagementPage } from '@/pages/EngagementPage';
 import { OnboardingDemoPage } from '@/pages/OnboardingDemoPage';
 import { NotificationsDemoPage } from '@/pages/NotificationsDemoPage';
 import { PrivacyDemoPage } from '@/pages/PrivacyDemoPage';
+import { SecurityDemoPage } from '@/pages/SecurityDemoPage';
 
 /**
  * Get module routes by scope
@@ -145,6 +146,10 @@ export const routes: RouteObject[] = [
           {
             path: 'privacy',
             element: <PrivacyDemoPage />,
+          },
+          {
+            path: 'security',
+            element: <SecurityDemoPage />,
           },
           {
             path: 'groups',
