@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, MessageSquare, Users, Settings } from 'lucide-react';
+import { Newspaper, MessageSquare, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useModuleStore } from '@/stores/moduleStore';
 import { Separator } from '@/components/ui/separator';
@@ -13,7 +13,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
   const { registry } = useModuleStore();
 
   const coreLinks = [
-    { to: '/app', label: 'Home', icon: Home, end: true },
+    { to: '/app', label: 'Feed', icon: Newspaper, end: true },
     { to: '/app/messages', label: 'Messages', icon: MessageSquare },
     { to: '/app/groups', label: 'Groups', icon: Users },
   ];

@@ -3,6 +3,7 @@ import { RootLayout } from '@/layouts/RootLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { AppLayout } from '@/layouts/AppLayout';
 import { LoginPage } from '@/pages/LoginPage';
+import { HomePage } from '@/pages/HomePage';
 import { MessagesPage } from '@/pages/MessagesPage';
 import { GroupsPage } from '@/pages/GroupsPage';
 import { GroupLayout } from '@/layouts/GroupLayout';
@@ -80,7 +81,11 @@ export const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <MessagesPage />,
+            element: <HomePage />,
+          },
+          {
+            path: 'feed',
+            element: <HomePage />,
           },
           {
             path: 'messages',
