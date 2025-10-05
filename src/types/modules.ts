@@ -6,6 +6,7 @@ import type { BuildItDB } from '@/core/storage/db';
  * Each group can enable/configure modules independently
  */
 export type ModuleType =
+  | 'custom-fields' // Foundational module
   | 'messaging'
   | 'events'
   | 'mutual-aid'

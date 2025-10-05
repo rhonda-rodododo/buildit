@@ -13,8 +13,14 @@ interface ModuleLoader {
 /**
  * All available modules with dynamic imports
  * This is the ONLY place where modules are imported
+ *
+ * IMPORTANT: custom-fields must load first as it's a dependency for other modules
  */
 const MODULE_LOADERS: ModuleLoader[] = [
+  {
+    id: 'custom-fields',
+    load: () => import('@/modules/custom-fields'),
+  },
   {
     id: 'messaging',
     load: () => import('@/modules/messaging'),

@@ -167,6 +167,22 @@ export interface DBMutualAidRequest {
   expiresAt?: number;
 }
 
+// Custom Fields module
+export interface DBCustomField {
+  id: string;
+  groupId: string;
+  entityType: string;
+  name: string;
+  label: string;
+  schema: string; // JSON
+  widget: string; // JSON
+  order: number;
+  created: number;
+  createdBy: string;
+  updated: number;
+}
+
+
 /**
  * Core database schema (always present)
  */
@@ -224,6 +240,7 @@ export class BuildItDB extends Dexie {
   contacts!: Table<DBContact, string>;
   wikiPages!: Table<DBWikiPage, string>;
   mutualAidRequests!: Table<DBMutualAidRequest, string>;
+  customFields!: Table<DBCustomField, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
