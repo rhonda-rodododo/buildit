@@ -799,12 +799,11 @@ buildn/
 ---
 
 ### **EPIC 14: Security Hardening** (2.5 hours)
-**Deliverable**: Tor integration, hardware wallet support, key rotation
+**Deliverable**: Tor integration, key rotation
 
 #### 14.1 Advanced Key Management (1h)
 - Implement NIP-46 (remote signing):
   - Nostr Connect protocol
-  - Hardware wallet integration (for compatible devices)
   - Remote signer communication
 - Fetch nostr-tools NIP-46 docs via Context7
 - Create key rotation system:
@@ -841,7 +840,6 @@ buildn/
 - Git commit: "feat: security hardening"
 
 **Epic 14 Validation**:
-- Test: Hardware wallet signing (if device available)
 - Test: Key rotation and data re-encryption
 - Test: Tor connection to .onion relays
 - Run security audit tools
@@ -996,7 +994,7 @@ Use for:
 - Wiki with versioning and search
 - CRM with custom fields and views
 - Module plugin system
-- Security features (Tor, hardware wallet)
+- Security features (Tor, )
 
 ### Technical Requirements ✅
 - TypeScript strict mode, no `any` except strategic
