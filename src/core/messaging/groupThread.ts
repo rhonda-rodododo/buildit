@@ -1,6 +1,6 @@
 import { type Event as NostrEvent } from 'nostr-tools'
 import { NostrClient } from '@/core/nostr/client'
-import { createEvent } from '@/core/nostr/nip01'
+import { createEventFromTemplate } from '@/core/nostr/nip01'
 import { encryptNIP44, decryptNIP44 } from '@/core/crypto/nip44'
 import type { GroupThread, GroupMessage } from '@/types/group'
 
@@ -23,7 +23,7 @@ export async function createGroupThread(
   category: string | undefined,
   privateKey: Uint8Array
 ): Promise<NostrEvent> {
-  const event = createEvent(
+  const event = createEventFromTemplate(
     {
       kind: GROUP_MESSAGE_KINDS.CREATE_THREAD,
       content: JSON.stringify({
@@ -69,7 +69,7 @@ export async function sendGroupMessage(
     tags.push(['e', replyTo, '', 'reply'])
   }
 
-  const event = createEvent(
+  const event = createEventFromTemplate(
     {
       kind: GROUP_MESSAGE_KINDS.THREAD_MESSAGE,
       content: encryptedContent,
@@ -229,7 +229,7 @@ export async function editGroupMessage(
 ): Promise<NostrEvent> {
   const encryptedContent = encryptNIP44(newContent, groupKey)
 
-  const event = createEvent(
+  const event = createEventFromTemplate(
     {
       kind: GROUP_MESSAGE_KINDS.EDIT_MESSAGE,
       content: encryptedContent,
@@ -251,7 +251,7 @@ export async function deleteGroupMessage(
   messageId: string,
   privateKey: Uint8Array
 ): Promise<NostrEvent> {
-  const event = createEvent(
+  const event = createEventFromTemplate(
     {
       kind: GROUP_MESSAGE_KINDS.DELETE_MESSAGE,
       content: '',
@@ -274,7 +274,7 @@ export async function addReaction(
   emoji: string,
   privateKey: Uint8Array
 ): Promise<NostrEvent> {
-  const event = createEvent(
+  const event = createEventFromTemplate(
     {
       kind: GROUP_MESSAGE_KINDS.REACTION,
       content: emoji,

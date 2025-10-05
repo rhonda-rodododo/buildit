@@ -1,5 +1,5 @@
 import { type Event as NostrEvent } from 'nostr-tools'
-import { createEvent } from '@/core/nostr/nip01'
+import { createEventFromTemplate } from '@/core/nostr/nip01'
 import { NostrClient } from '@/core/nostr/client'
 import type {
   Group,
@@ -30,7 +30,7 @@ export async function createGroup(
   }
 
   // Create group creation event (kind 39000)
-  const creationEvent = createEvent(
+  const creationEvent = createEventFromTemplate(
     {
       kind: 39000, // CREATE_GROUP
       content: JSON.stringify(groupMetadata),
@@ -97,7 +97,7 @@ export async function inviteToGroup(
 ): Promise<NostrEvent> {
   const now = Math.floor(Date.now() / 1000)
 
-  const invitationEvent = createEvent(
+  const invitationEvent = createEventFromTemplate(
     {
       kind: 39006, // INVITATION
       content: message || `You've been invited to join this group`,
@@ -126,7 +126,7 @@ export async function acceptInvitation(
 ): Promise<NostrEvent> {
   const now = Math.floor(Date.now() / 1000)
 
-  const joinEvent = createEvent(
+  const joinEvent = createEventFromTemplate(
     {
       kind: 39004, // JOIN_REQUEST (also used for accepting invitations)
       content: 'Accepted invitation',
@@ -155,7 +155,7 @@ export async function leaveGroup(
 ): Promise<NostrEvent> {
   const now = Math.floor(Date.now() / 1000)
 
-  const leaveEvent = createEvent(
+  const leaveEvent = createEventFromTemplate(
     {
       kind: 39005, // LEAVE_GROUP
       content: reason || 'Left the group',
@@ -188,7 +188,7 @@ export async function updateGroupMetadata(
 ): Promise<NostrEvent> {
   const now = Math.floor(Date.now() / 1000)
 
-  const metadataEvent = createEvent(
+  const metadataEvent = createEventFromTemplate(
     {
       kind: 39001, // METADATA
       content: JSON.stringify(updates),
@@ -217,7 +217,7 @@ export async function updateMemberRole(
 ): Promise<NostrEvent> {
   const now = Math.floor(Date.now() / 1000)
 
-  const roleUpdateEvent = createEvent(
+  const roleUpdateEvent = createEventFromTemplate(
     {
       kind: 39002, // ADMINS (role management)
       content: JSON.stringify({ role: newRole }),

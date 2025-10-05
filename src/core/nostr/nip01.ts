@@ -2,13 +2,51 @@ import { finalizeEvent, verifyEvent, type Event as NostrEvent, type EventTemplat
 import { getPublicKey } from 'nostr-tools/pure'
 
 /**
+ * Generate a unique event ID
+ */
+export function generateEventId(): string {
+  return crypto.randomUUID()
+}
+
+/**
  * Create and sign a Nostr event
  */
 export function createEvent(
+  kind: number,
+  content: string,
+  tags: string[][],
+  privateKey: string
+): NostrEvent {
+  const template: EventTemplate = {
+    kind,
+    content,
+    tags,
+    created_at: Math.floor(Date.now() / 1000),
+  }
+  // Convert hex private key to Uint8Array
+  const privKeyBytes = hexToBytes(privateKey)
+  return finalizeEvent(template, privKeyBytes)
+}
+
+/**
+ * Create and sign a Nostr event from template
+ */
+export function createEventFromTemplate(
   template: EventTemplate,
   privateKey: Uint8Array
 ): NostrEvent {
   return finalizeEvent(template, privateKey)
+}
+
+/**
+ * Convert hex string to Uint8Array
+ */
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16)
+  }
+  return bytes
 }
 
 /**
@@ -33,7 +71,7 @@ export function createTextNote(
   privateKey: Uint8Array,
   tags: string[][] = []
 ): NostrEvent {
-  return createEvent(
+  return createEventFromTemplate(
     {
       kind: 1,
       content,
@@ -57,7 +95,7 @@ export function createMetadataEvent(
   },
   privateKey: Uint8Array
 ): NostrEvent {
-  return createEvent(
+  return createEventFromTemplate(
     {
       kind: 0,
       content: JSON.stringify(metadata),
@@ -77,7 +115,7 @@ export function createDeletionEvent(
   reason?: string
 ): NostrEvent {
   const tags = eventIds.map(id => ['e', id])
-  return createEvent(
+  return createEventFromTemplate(
     {
       kind: 5,
       content: reason || '',

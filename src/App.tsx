@@ -4,6 +4,7 @@ import { LoginForm } from '@/components/auth/LoginForm'
 import { MessagingView } from '@/components/messaging/MessagingView'
 import { GroupsView } from '@/components/groups/GroupsView'
 import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import { EventsView } from '@/modules/events/components/EventsView'
 import { initializeDatabase } from '@/core/storage/db'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -68,9 +69,7 @@ const App: FC = () => {
           </TabsContent>
 
           <TabsContent value="events">
-            <div className="text-center text-muted-foreground py-12">
-              Events module coming soon...
-            </div>
+            <EventsView />
           </TabsContent>
 
           <TabsContent value="mutual-aid">

@@ -43,25 +43,29 @@ export interface DBMessage {
 
 export interface DBEvent {
   id: string // event id
-  groupId: string
+  groupId?: string
   title: string
   description: string
   startTime: number
-  endTime: number
+  endTime?: number
   location?: string
   privacy: 'public' | 'group' | 'private' | 'direct-action'
   capacity?: number
   createdBy: string
-  created: number
-  tags: string[]
+  createdAt: number
+  updatedAt: number
+  tags: string // comma-separated
+  imageUrl?: string
+  locationRevealTime?: number
 }
 
 export interface DBRSVP {
   id?: number
   eventId: string
-  pubkey: string
+  userPubkey: string
   status: 'going' | 'maybe' | 'not-going'
   timestamp: number
+  note?: string
 }
 
 export interface DBProposal {
@@ -160,7 +164,7 @@ export class BuildItDB extends Dexie {
       groupMembers: '++id, [groupId+pubkey], groupId, pubkey, role',
       messages: 'id, groupId, authorPubkey, recipientPubkey, timestamp, threadId',
       events: 'id, groupId, startTime, createdBy, privacy',
-      rsvps: '++id, [eventId+pubkey], eventId, pubkey, status',
+      rsvps: '++id, [eventId+userPubkey], eventId, userPubkey, status',
       proposals: 'id, groupId, status, created, createdBy',
       votes: '++id, [proposalId+voterPubkey], proposalId, voterPubkey',
       contacts: 'id, groupId, name, email, created, updated',
