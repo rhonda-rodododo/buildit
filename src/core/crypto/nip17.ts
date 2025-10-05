@@ -44,7 +44,7 @@ export function createSeal(
   const encryptedContent = encryptNIP44(JSON.stringify(rumor), conversationKey)
 
   // Create and sign the seal
-  const sealTemplate: UnsignedEvent = {
+  const sealTemplate = {
     kind: 13,
     content: encryptedContent,
     created_at: randomizeTimestamp(),
@@ -71,7 +71,7 @@ export function createGiftWrap(
   const encryptedContent = encryptNIP44(JSON.stringify(seal), conversationKey)
 
   // Create and sign the gift wrap
-  const giftWrapTemplate: UnsignedEvent = {
+  const giftWrapTemplate = {
     kind: 1059,
     content: encryptedContent,
     created_at: randomizeTimestamp(),

@@ -18,7 +18,11 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'node', // Use node environment for crypto functions
+    environment: 'node', // Node for crypto, jsdom for UI tests (configure per-file if needed)
+    environmentMatchGlobs: [
+      ['**/*.ui.test.{ts,tsx}', 'jsdom'], // UI tests use jsdom
+      ['**/__tests__/**', 'node'], // Crypto/core tests use node
+    ],
     setupFiles: './src/test/setup.ts',
     coverage: {
       provider: 'v8',
