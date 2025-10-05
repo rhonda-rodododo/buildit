@@ -723,7 +723,28 @@
 - [x] All 4 view types working correctly
 - [x] CRM templates instantiate with fields and seed data
 - [ ] Database module tests (deferred)
-- [x] Git tag: `v0.15.0-database-crm` (pending)
+- [x] Git tag: `v0.15.0-database-crm`
+
+**Future Enhancements** (deferred to later epics):
+- [ ] **Template Builder UI** (Epic 15.6 planned)
+  - Visual template creation and editing interface
+  - Template sharing levels: public, group-level, user-owned
+  - Community template marketplace
+  - Template versioning and updates
+  - Import/export template definitions
+- [ ] **Media & File Attachments** (Epic 15.7 planned)
+  - File field type with drag-and-drop upload
+  - Inline attachment preview in all views
+  - Bulk file operations (download, delete, move)
+  - Direct integration with Files module
+  - File type validation and size limits
+- [ ] **Geo Field & Map View** (Epic 15.8 planned)
+  - Geographic coordinate field type (lat/lng)
+  - Map view for records with location data
+  - Proximity queries and radius filtering
+  - Privacy-respecting mapping integration
+  - Route planning and optimization for field operations
+  - Heatmap visualization for density analysis
 
 ---
 

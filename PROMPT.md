@@ -975,6 +975,24 @@ buildit-network/
 - Test: Relationships and queries functional
 - Git tag: `v0.15.0-database-crm`
 
+**Epic 15 Future Enhancements** (deferred):
+- [ ] Template Builder UI
+  - Visual template creation and editing
+  - Template sharing (public, group-level, user-owned)
+  - Template marketplace for community templates
+  - Template versioning and updates
+- [ ] Media & File Attachments
+  - File field type with direct upload support
+  - Attachment preview in table/board/gallery views
+  - Bulk file operations
+  - Integration with Files module
+- [ ] Geo Field & Map View
+  - Geographic coordinate field type
+  - Map view for records with location data
+  - Proximity queries and filtering
+  - Integration with mapping services (privacy-respecting)
+  - Route planning for field operations
+
 ---
 
 ### **EPIC 15.5: Forms, Fundraising & Public Pages Module** (3 hours)
