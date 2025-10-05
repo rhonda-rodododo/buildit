@@ -1354,14 +1354,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [x] Load seed posts on first visit to populate demo content
 - [x] Git commit: included in Epic 21.1
 
-#### 21.3 Comments System
-- [ ] Create Comment UI components (CommentList, CommentThread, CommentInput)
-- [ ] Implement comment threading display (nested replies)
-- [ ] Add comment actions (reply, react, delete)
-- [ ] Integrate comments into PostCard
-- [ ] Create comment composer with @mentions
-- [ ] Add comment notifications
-- [ ] Git commit: "feat: implement comments system (Epic 21.3)"
+#### 21.3 Comments System ✅
+- [x] Create Comment UI components (CommentList, CommentThread, CommentInput)
+- [x] Implement comment threading display (nested replies)
+- [x] Add comment actions (reply, react, delete)
+- [x] Integrate comments into PostCard
+- [x] Create comment composer with @mentions
+- [ ] Add comment notifications (deferred to notification epic)
+- [x] Git commit: "feat: implement comment threading system (Epic 21.3)" - c7072f8
 
 #### 21.4 Feed Aggregation
 - [ ] Extend ActivityFeed to show events from Events module
@@ -1421,6 +1421,18 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - `src/components/ui/skeleton.tsx` - Loading skeleton
 - `src/components/ui/avatar.tsx` - Avatar component
 
+**Testing (21.3)**:
+- [x] Comment posting with keyboard shortcuts (Ctrl+Enter, Escape)
+- [x] Reply threading with visual hierarchy (left border)
+- [x] Nested comments up to 5 levels deep
+- [x] Delete comments (author only)
+- [x] Comment count updates correctly
+- [x] Mobile-responsive design
+
+**Files Created (21.3)**:
+- `src/modules/microblogging/components/CommentInput.tsx` - Comment composer
+- `src/modules/microblogging/components/CommentThread.tsx` - Threaded comment display
+
 **Validation**:
 - [x] Build successful after adding Epic 21.1
 - [x] All TypeScript compilation passing
@@ -1429,7 +1441,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [x] Feed filtering working
 - [x] Seed posts loading correctly
 - [x] Git commit created: 03f5f5c
-- [ ] Comments system (Epic 21.3)
+- [x] Comments system (Epic 21.3) - c7072f8
 - [ ] Feed aggregation (Epic 21.4)
 - [ ] Nostr integration (Epic 21.5)
 - [ ] Git tag: `v0.21.0-social-features` (pending completion)
