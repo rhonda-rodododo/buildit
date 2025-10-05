@@ -798,8 +798,8 @@ buildn/
 
 ---
 
-### **EPIC 14: Security Hardening** (2.5 hours)
-**Deliverable**: WebAuthn key protection, Tor integration, security audit
+### **EPIC 14: Security Hardening** (3.5 hours)
+**Deliverable**: WebAuthn key protection, device management, Tor integration, security audit
 
 #### 14.1 WebAuthn Key Protection (1h)
 - Implement WebAuthn/Passkey integration:
@@ -819,7 +819,33 @@ buildn/
 - Write security tests for WebAuthn flow
 - Git commit: "feat: implement WebAuthn key protection"
 
-#### 14.2 Tor Integration (1h)
+#### 14.2 Device Management & Visibility (1h)
+- Create device tracking system:
+  - Device fingerprinting (browser, OS, screen resolution)
+  - Track active sessions (device ID, IP, last active, location estimate)
+  - Store device metadata in IndexedDB
+- Implement device authorization:
+  - New device approval flow
+  - Trusted devices list
+  - Device naming and icons
+- Create DeviceManager component:
+  - Show all active sessions with details
+  - Current device highlighted
+  - Last active timestamp
+  - Remote revocation buttons
+- Add security features:
+  - "Sign out all other devices" button
+  - Login notifications for new devices
+  - Suspicious activity alerts
+  - Device activity history log
+- Privacy controls:
+  - Option to anonymize IP addresses
+  - Limit device fingerprinting detail
+  - Auto-expire old sessions
+- Write device management tests
+- Git commit: "feat: implement device management and visibility"
+
+#### 14.3 Tor Integration (1h)
 - Add Tor proxy configuration:
   - SOCKS5 proxy support
   - .onion relay connections
@@ -830,7 +856,7 @@ buildn/
 - Test Tor connectivity (if available)
 - Git commit: "feat: add Tor integration"
 
-#### 14.3 Security Audit & Hardening (0.5h)
+#### 14.4 Security Audit & Hardening (0.5h)
 - Run security audit:
   - Check for XSS vulnerabilities
   - Verify CSRF protection
@@ -845,6 +871,9 @@ buildn/
 
 **Epic 14 Validation**:
 - Test: WebAuthn authentication with biometrics
+- Test: Device authorization and revocation
+- Test: Remote sign-out from all devices
+- Test: New device notifications
 - Test: Key rotation and data re-encryption
 - Test: Tor connection to .onion relays
 - Run security audit tools (OWASP ZAP, npm audit)

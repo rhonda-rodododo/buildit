@@ -577,7 +577,20 @@
 - [ ] Write security tests for WebAuthn flow
 - [ ] Git commit: "feat: implement WebAuthn key protection"
 
-#### 14.2 Tor Integration
+#### 14.2 Device Management & Visibility
+- [ ] Create device tracking system (device fingerprinting)
+- [ ] Track active sessions per device (browser, OS, IP, last active)
+- [ ] Implement device authorization flow (new device approval)
+- [ ] Create DeviceManager component with active sessions list
+- [ ] Add remote device revocation (sign out other devices)
+- [ ] Implement "trusted devices" list
+- [ ] Add login notifications for new devices
+- [ ] Show device activity history
+- [ ] Add privacy controls (anonymize IPs, limit tracking)
+- [ ] Write device management tests
+- [ ] Git commit: "feat: implement device management and visibility"
+
+#### 14.3 Tor Integration
 - [ ] Add Tor proxy configuration (.onion relays)
 - [ ] Create TorSettings component
 - [ ] Implement SOCKS5 proxy support
@@ -585,7 +598,7 @@
 - [ ] Test Tor connectivity
 - [ ] Git commit: "feat: add Tor integration"
 
-#### 14.3 Security Audit & Hardening
+#### 14.4 Security Audit & Hardening
 - [ ] Run security audit (XSS, CSRF, encryption)
 - [ ] Implement Content Security Policy (CSP)
 - [ ] Add security headers (HSTS, X-Frame-Options, etc.)
@@ -596,6 +609,8 @@
 
 **Validation**:
 - [ ] Test: WebAuthn authentication flow
+- [ ] Test: Device authorization and revocation
+- [ ] Test: Remote sign-out from all devices
 - [ ] Test: Key rotation with re-encryption
 - [ ] Test: Tor connection to .onion relays
 - [ ] Security audit passing
