@@ -70,120 +70,6 @@ export interface DBModuleInstance {
 }
 
 /**
- * MODULE SCHEMA INTERFACES
- * Re-exported from module schema files for convenience
- * These types are always available even when modules are disabled
- */
-
-// Events module
-export interface DBEvent {
-  id: string;
-  groupId?: string;
-  title: string;
-  description: string;
-  startTime: number;
-  endTime?: number;
-  location?: string;
-  privacy: 'public' | 'group' | 'private' | 'direct-action';
-  capacity?: number;
-  createdBy: string;
-  createdAt: number;
-  updatedAt: number;
-  tags: string;
-  imageUrl?: string;
-  locationRevealTime?: number;
-}
-
-export interface DBRSVP {
-  id?: number;
-  eventId: string;
-  userPubkey: string;
-  status: 'going' | 'maybe' | 'not-going';
-  timestamp: number;
-  note?: string;
-}
-
-// Governance module
-export interface DBProposal {
-  id: string;
-  groupId: string;
-  title: string;
-  description: string;
-  status: 'draft' | 'discussion' | 'voting' | 'decided';
-  votingMethod: 'simple' | 'ranked-choice' | 'quadratic' | 'dhondt' | 'consensus';
-  votingDeadline?: number;
-  createdBy: string;
-  created: number;
-}
-
-export interface DBVote {
-  id?: number;
-  proposalId: string;
-  voterPubkey: string;
-  encryptedBallot: string;
-  timestamp: number;
-}
-
-// CRM module
-export interface DBContact {
-  id: string;
-  groupId: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  notes?: string;
-  customFields: Record<string, unknown>;
-  tags: string[];
-  created: number;
-  updated: number;
-}
-
-// Wiki module
-export interface DBWikiPage {
-  id: string;
-  groupId: string;
-  title: string;
-  content: string;
-  category?: string;
-  tags: string[];
-  version: number;
-  created: number;
-  updated: number;
-  updatedBy: string;
-}
-
-// Mutual Aid module
-export interface DBMutualAidRequest {
-  id: string;
-  groupId: string;
-  type: 'request' | 'offer';
-  category: string;
-  title: string;
-  description: string;
-  status: 'open' | 'matched' | 'fulfilled' | 'closed';
-  location?: string;
-  createdBy: string;
-  created: number;
-  expiresAt?: number;
-}
-
-// Custom Fields module
-export interface DBCustomField {
-  id: string;
-  groupId: string;
-  entityType: string;
-  name: string;
-  label: string;
-  schema: string; // JSON
-  widget: string; // JSON
-  order: number;
-  created: number;
-  createdBy: string;
-  updated: number;
-}
-
-
-/**
  * Core database schema (always present)
  */
 const CORE_SCHEMA: TableSchema[] = [
@@ -232,18 +118,12 @@ export class BuildItDB extends Dexie {
   nostrEvents!: Table<DBNostrEvent, string>;
   moduleInstances!: Table<DBModuleInstance, string>;
 
-  // Module tables (loaded dynamically, but always available)
-  events!: Table<DBEvent, string>;
-  rsvps!: Table<DBRSVP, number>;
-  proposals!: Table<DBProposal, string>;
-  votes!: Table<DBVote, number>;
-  contacts!: Table<DBContact, string>;
-  wikiPages!: Table<DBWikiPage, string>;
-  mutualAidRequests!: Table<DBMutualAidRequest, string>;
-  customFields!: Table<DBCustomField, string>;
-
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
+
+  // Dynamic tables from modules
+  // Modules access via: db['tableName'] or db.table('tableName')
+  [key: string]: any;
 
   constructor() {
     super('BuildItNetworkDB');
@@ -308,6 +188,14 @@ export class BuildItDB extends Dexie {
     }
 
     this._initializeSchema(CORE_SCHEMA);
+  }
+
+  /**
+   * Get a typed table reference
+   * Modules should use this for type-safe access
+   */
+  getTable<T>(tableName: string): Table<T, any> {
+    return this.table(tableName);
   }
 
   /**

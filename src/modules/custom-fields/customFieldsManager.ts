@@ -15,7 +15,8 @@ export class CustomFieldsManager {
    */
   static async loadFields(groupId: string, entityType: EntityType): Promise<CustomField[]> {
     try {
-      const dbFields = await db.customFields
+      const customFieldsTable = db.getTable<any>('customFields');
+      const dbFields = await customFieldsTable
         .where({ groupId, entityType })
         .sortBy('order');
 
@@ -66,7 +67,8 @@ export class CustomFieldsManager {
       CustomFieldSchema.parse(field);
 
       // Store in DB
-      await db.customFields.add({
+      const customFieldsTable = db.getTable<any>('customFields');
+      await customFieldsTable.add({
         ...field,
         schema: JSON.stringify(field.schema),
         widget: JSON.stringify(field.widget),
@@ -92,7 +94,8 @@ export class CustomFieldsManager {
       CustomFieldSchema.parse(field);
 
       // Update in DB
-      await db.customFields.update(field.id, {
+      const customFieldsTable = db.getTable<any>('customFields');
+      await customFieldsTable.update(field.id, {
         ...field,
         schema: JSON.stringify(field.schema),
         widget: JSON.stringify(field.widget),
@@ -116,7 +119,8 @@ export class CustomFieldsManager {
   static async deleteField(fieldId: string, groupId: string, entityType: EntityType): Promise<boolean> {
     try {
       // Delete field
-      await db.customFields.delete(fieldId);
+      const customFieldsTable = db.getTable<any>('customFields');
+      await customFieldsTable.delete(fieldId);
 
       // Update store
       useCustomFieldsStore.getState().deleteField(fieldId, groupId, entityType);
