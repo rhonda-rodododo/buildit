@@ -10,7 +10,6 @@ import { useEvents } from '../hooks/useEvents'
 import { EventPrivacy, CreateEventFormData } from '../types'
 import { Plus } from 'lucide-react'
 import { CustomFieldsManager } from '@/modules/custom-fields/customFieldsManager'
-import { DynamicForm } from '@/modules/custom-fields/components/DynamicForm'
 import type { CustomField, CustomFieldValues } from '@/modules/custom-fields/types'
 
 interface CreateEventDialogProps {

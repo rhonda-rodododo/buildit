@@ -34,7 +34,7 @@ export const EventSchema = z.object({
   // Co-hosting support
   coHosts: z.array(z.string()).default([]), // Pubkeys
   // Custom fields (dynamic fields from custom-fields module)
-  customFields: z.record(z.unknown()).optional(), // CustomFieldValues
+  customFields: z.record(z.string(), z.unknown()).optional(), // CustomFieldValues
 })
 
 export type Event = z.infer<typeof EventSchema>

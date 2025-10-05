@@ -68,7 +68,7 @@ export const AidItemSchema = z.object({
   matchedWith: z.string().optional(), // ID of matched request/offer
   fulfilledBy: z.string().optional(), // Pubkey of fulfiller
   // Custom fields (dynamic fields from custom-fields module)
-  customFields: z.record(z.unknown()).optional(), // CustomFieldValues
+  customFields: z.record(z.string(), z.unknown()).optional(), // CustomFieldValues
 })
 
 export type AidItem = z.infer<typeof AidItemSchema>

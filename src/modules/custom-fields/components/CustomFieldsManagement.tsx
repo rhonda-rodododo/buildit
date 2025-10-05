@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { CustomFieldsManager } from '../customFieldsManager';
 import { FieldEditor } from './FieldEditor';
-import { getTemplatesByEntityType, type FieldTemplate } from '../templates';
+import { getTemplatesByEntityType } from '../templates';
 import type { CustomField, EntityType } from '../types';
 import {
   Select,
