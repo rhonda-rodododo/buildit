@@ -9,11 +9,11 @@ export const MessagingView: FC = () => {
   const { activeConversationId } = useMessagingStore()
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex flex-col sm:flex-row h-[calc(100vh-14rem)] sm:h-[calc(100vh-10rem)] gap-4">
       {/* Sidebar - Conversation List */}
-      <div className="w-80 border-r pr-4 flex flex-col">
+      <div className="w-full sm:w-80 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 sm:pr-4 flex flex-col max-h-64 sm:max-h-none">
         <div className="mb-4">
-          <NewConversationDialog trigger={<Button className="w-full">New Conversation</Button>} />
+          <NewConversationDialog trigger={<Button className="w-full text-sm">New Conversation</Button>} />
         </div>
         <div className="flex-1 overflow-y-auto">
           <ConversationList />
@@ -21,11 +21,11 @@ export const MessagingView: FC = () => {
       </div>
 
       {/* Main - Message Thread */}
-      <div className="flex-1 border rounded-lg overflow-hidden">
+      <div className="flex-1 border rounded-lg overflow-hidden min-h-[300px]">
         {activeConversationId ? (
           <MessageThread conversationId={activeConversationId} />
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
+          <div className="h-full flex items-center justify-center text-muted-foreground text-sm p-4 text-center">
             Select a conversation or start a new one
           </div>
         )}

@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button'
 
 export const GroupsView: FC = () => {
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex flex-col sm:flex-row h-[calc(100vh-14rem)] sm:h-[calc(100vh-10rem)] gap-4">
       {/* Sidebar - Group List */}
-      <div className="w-80 border-r pr-4 flex flex-col">
+      <div className="w-full sm:w-80 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 sm:pr-4 flex flex-col max-h-64 sm:max-h-none">
         <div className="mb-4">
-          <CreateGroupDialog trigger={<Button className="w-full">Create Group</Button>} />
+          <CreateGroupDialog trigger={<Button className="w-full text-sm">Create Group</Button>} />
         </div>
         <div className="flex-1 overflow-y-auto">
           <GroupList />
@@ -18,7 +18,7 @@ export const GroupsView: FC = () => {
       </div>
 
       {/* Main - Group View */}
-      <div className="flex-1 border rounded-lg overflow-hidden">
+      <div className="flex-1 border rounded-lg overflow-hidden min-h-[300px]">
         <GroupView />
       </div>
     </div>
