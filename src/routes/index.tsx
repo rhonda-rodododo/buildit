@@ -21,6 +21,7 @@ import { CampaignPage } from '@/pages/public/CampaignPage';
 import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { BulkOperationsPage } from '@/pages/BulkOperationsPage';
+import { ContactDetailPage } from '@/pages/ContactDetailPage';
 
 /**
  * Get module routes by scope
@@ -120,6 +121,10 @@ export const routes: RouteObject[] = [
           {
             path: 'bulk-operations',
             element: <BulkOperationsPage />,
+          },
+          {
+            path: 'contacts/:contactId',
+            element: <ContactDetailPage />,
           },
           {
             path: 'groups',
