@@ -2,7 +2,6 @@ import { FC, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { initializeDatabase } from '@/core/storage/db';
 
 /**
  * Root layout - handles app initialization
@@ -13,13 +12,13 @@ export const RootLayout: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Initialize database and load identities on mount
-    initializeDatabase().then(async () => {
+    // Load identities on mount (database is initialized in main.tsx)
+    (async () => {
       await loadIdentities();
       // Initialize device tracking and WebAuthn support
       await checkWebAuthnSupport();
       await initializeCurrentDevice();
-    });
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

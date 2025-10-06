@@ -12,7 +12,6 @@ import { ModeToggle } from '@/components/mode-toggle'
 import { EventsView } from '@/modules/events/components/EventsView'
 import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
 import { SecurityPage } from '@/pages/settings/SecurityPage'
-import { initializeDatabase } from '@/core/storage/db'
 import { microbloggingSeeds } from '@/modules/microblogging/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -25,15 +24,16 @@ const App: FC = () => {
   const [activeTab, setActiveTab] = useState('feed')
 
   useEffect(() => {
-    // Initialize database and load identities on mount
-    initializeDatabase().then(async () => {
-      loadIdentities()
-      // Initialize device tracking and WebAuthn support
-      await checkWebAuthnSupport()
-      await initializeCurrentDevice()
+    // Load identities on mount (database is initialized in main.tsx)
+    loadIdentities()
 
-      // Load seed posts if no posts exist (demo data)
-      if (posts.length === 0) {
+    // Initialize device tracking and WebAuthn support
+    checkWebAuthnSupport()
+    initializeCurrentDevice()
+
+    // Load seed posts if no posts exist (demo data)
+    if (posts.length === 0) {
+      (async () => {
         for (const seedPost of microbloggingSeeds.posts) {
           await createPost({
             content: seedPost.content,
