@@ -1051,8 +1051,8 @@
 - [x] Device authorization and revocation working
 - [x] Remote sign-out from all devices functional
 - [x] Privacy controls implemented
-- [ ] Key rotation with re-encryption - PENDING
-- [ ] Login notifications for new devices - PENDING
+- [x] Key rotation with re-encryption ✅ (Epic 18.1 - commit 4a85f77)
+- [x] Login notifications for new devices ✅ (Epic 18.2 - commit f300b86)
 - [ ] Tor connection to .onion relays - DEFERRED
 - [ ] Security audit - DEFERRED
 - [x] Git tag: `v0.18.0-security` (planned)
