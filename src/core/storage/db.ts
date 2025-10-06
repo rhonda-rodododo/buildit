@@ -274,6 +274,10 @@ export async function initializeDatabase(): Promise<void> {
     // Create database instance with all collected module schemas
     _dbInstance = new BuildItDB(schemaRegistry);
 
+    // Setup encryption hooks before opening
+    const { setupEncryptionHooks } = await import('./encryption');
+    setupEncryptionHooks(_dbInstance);
+
     // Open the database
     await _dbInstance.open();
 

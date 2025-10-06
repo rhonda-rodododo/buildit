@@ -39,6 +39,10 @@ async function initializeApp() {
     const authStore = useAuthStore.getState()
     if (authStore.currentIdentity) {
       await authStore.loadCurrentIdentityPrivateKey()
+
+      // Step 5: Start syncing Nostr events for all groups
+      const { startAllGroupsSync } = await import('@/core/storage/sync')
+      await startAllGroupsSync()
     }
 
     console.log('✅ App initialization complete')
