@@ -93,8 +93,55 @@ const DEMO_DATA = {
 
 export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => {
   const handleExportCSV = () => {
-    // TODO: Implement CSV export
-    console.log('Exporting campaign analytics to CSV...');
+    // Generate CSV data
+    const csvRows = [
+      // Header
+      ['Metric', 'Value'],
+      ['Total Members', '342'],
+      ['Member Growth (this month)', '+28'],
+      ['Average Event Attendance', '45'],
+      ['Show-up Rate', '67%'],
+      ['Vote Turnout', '64%'],
+      ['Active Votes', '2'],
+      ['Engagement Rate', '6.8%'],
+      ['Total Reactions', '842'],
+      [''],
+      ['Event', 'RSVPs', 'Show-ups', 'Show-up Rate'],
+      ...DEMO_DATA.eventAttendance.map(event => [
+        event.name,
+        event.rsvps.toString(),
+        event.showUps.toString(),
+        event.showUpRate
+      ]),
+      [''],
+      ['Vote', 'Turnout', 'Outcome'],
+      ...DEMO_DATA.votes.map(vote => [
+        vote.title,
+        vote.turnout,
+        vote.outcome
+      ]),
+      [''],
+      ['Top Contributor', 'Posts', 'Reactions'],
+      ...DEMO_DATA.topContributors.map(contributor => [
+        contributor.name,
+        contributor.posts.toString(),
+        contributor.reactions.toString()
+      ])
+    ];
+
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `campaign-analytics-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

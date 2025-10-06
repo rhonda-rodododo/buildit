@@ -58,8 +58,50 @@ export const CRMAnalytics: FC<CRMAnalyticsProps> = ({ className }) => {
   }, []);
 
   const handleExportCSV = () => {
-    // TODO: Implement CSV export
-    console.log('Exporting CRM analytics to CSV...');
+    // Generate CSV data
+    const csvRows = [
+      // Header
+      ['Metric', 'Value'],
+      ['Total Contacts', totalContacts.toString()],
+      ['Contact Rate (per week)', '47'],
+      ['Pipeline Conversions (this month)', '20'],
+      ['Average Days to Convert', '21'],
+      [''],
+      ['Support Level', 'Count', 'Percentage'],
+      ...DEMO_DATA.supportLevelDistribution.map(item => [
+        item.level,
+        item.count.toString(),
+        item.percentage.toString()
+      ]),
+      [''],
+      ['Movement Type', 'Count'],
+      ...DEMO_DATA.pipelineMovement.map(item => [
+        item.label,
+        item.count.toString()
+      ]),
+      [''],
+      ['Organizer', 'Contacts', 'Conversions', 'Conversion Rate'],
+      ...DEMO_DATA.organizerPerformance.map(item => [
+        item.name,
+        item.contacts.toString(),
+        item.conversions.toString(),
+        item.conversionRate
+      ])
+    ];
+
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `crm-analytics-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
