@@ -65,11 +65,13 @@ export interface EventWithRSVPs extends Event {
 }
 
 /**
- * Nostr event kinds for events
+ * Nostr event kinds for events (imported from centralized sync module)
  */
+import { BUILD_IT_KINDS } from '@/core/storage/sync'
+
 export const EVENT_KINDS = {
-  EVENT: 31923, // Parameterized replaceable event
-  RSVP: 31924,  // RSVP event
+  EVENT: BUILD_IT_KINDS.EVENT,
+  RSVP: BUILD_IT_KINDS.RSVP,
 } as const
 
 /**
