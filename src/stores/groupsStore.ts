@@ -193,8 +193,6 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       },
 
       toggleModule: async (groupId, module) => {
-        set({ isLoading: true, error: null })
-
         try {
           const group = get().groups.find(g => g.id === groupId)
           if (!group) throw new Error('Group not found')
@@ -206,7 +204,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           await get().updateGroup(groupId, { enabledModules })
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to toggle module'
-          set({ error: errorMsg, isLoading: false })
+          set({ error: errorMsg })
         }
       },
     }),

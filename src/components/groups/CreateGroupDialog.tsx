@@ -149,8 +149,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                     <input
                       type="checkbox"
                       checked={selectedModules.includes(module.value)}
-                      onChange={() => toggleModule(module.value)}
-                      className="mt-1"
+                      onChange={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-1 pointer-events-none"
+                      readOnly
                     />
                     <div className="flex-1">
                       <p className="font-medium text-sm">{module.label}</p>
