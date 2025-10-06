@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       error: null,
 
       // Actions
-      setCurrentIdentity: (identity) => {
+      setCurrentIdentity: async (identity) => {
         set({ currentIdentity: identity, error: null })
 
         // Update last used timestamp in DB
@@ -41,6 +41,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           db.identities.update(identity.publicKey, {
             lastUsed: Date.now(),
           }).catch(console.error)
+
+          // Load private key from DB if not already loaded
+          if (!identity.privateKey) {
+            await get().loadCurrentIdentityPrivateKey()
+          }
         }
       },
 
@@ -198,18 +203,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       }),
       onRehydrateStorage: () => async (state) => {
         // After rehydrating from localStorage, restore the full Identity with private key from DB
+        // NOTE: We defer database access to avoid opening the DB before modules register schemas
         if (state?.currentIdentity) {
-          try {
-            const dbIdentity = await db.identities.get(state.currentIdentity.publicKey)
-            if (dbIdentity) {
-              state.currentIdentity = {
-                ...state.currentIdentity,
-                privateKey: hexToBytes(dbIdentity.encryptedPrivateKey),
-              } as Identity
-            }
-          } catch (error) {
-            console.error('Failed to restore private key on rehydration:', error)
-          }
+          // The private key will be loaded lazily via loadCurrentIdentityPrivateKey()
+          // when the app actually needs it (after database initialization)
         }
       },
     }

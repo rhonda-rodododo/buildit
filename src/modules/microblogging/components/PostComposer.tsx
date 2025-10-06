@@ -10,6 +10,7 @@ import type { PostPrivacy, CreatePostInput } from '../types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -85,11 +86,11 @@ export const PostComposer: FC<PostComposerProps> = ({
       setPrivacy('group');
       onPostCreated?.();
 
-      // Show success toast (TODO: implement toast system)
-      console.log('Post created successfully');
+      // Show success toast
+      toast.success('Post created successfully');
     } catch (error) {
       console.error('Failed to create post:', error);
-      // Show error toast
+      toast.error('Failed to create post')
     } finally {
       setIsPosting(false);
     }

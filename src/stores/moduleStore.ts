@@ -295,6 +295,7 @@ export const useModuleStore = create<ModuleStore>()(
       },
 
       loadModuleInstances: async () => {
+        console.log('📥 Loading module instances from database...');
         const instances = await db.moduleInstances.toArray();
         const instanceMap = new Map<string, ModuleInstance>();
 
@@ -312,7 +313,7 @@ export const useModuleStore = create<ModuleStore>()(
         }
 
         set({ instances: instanceMap });
-        console.log(`Loaded ${instances.length} module instances from database`);
+        console.log(`✅ Loaded ${instances.length} module instances from database`);
       },
     }),
     {

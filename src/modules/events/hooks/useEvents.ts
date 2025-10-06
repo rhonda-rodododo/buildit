@@ -147,7 +147,7 @@ export function useEvents(groupId?: string) {
 
     // After syncing, reload from database
     // This is a simplified approach; in production, we'd want more granular updates
-  }, [currentIdentity, groupId])
+  }, [currentIdentity])
 
   /**
    * Get event with RSVP data
@@ -160,10 +160,13 @@ export function useEvents(groupId?: string) {
     [currentIdentity, getEventWithRSVPs]
   )
 
-  // Auto-sync events on mount and when group changes
-  useEffect(() => {
-    syncEvents()
-  }, [syncEvents])
+  // Auto-sync events on mount only
+  // Disabled auto-sync to prevent infinite loops
+  // Users can manually sync using the syncEvents function
+  // useEffect(() => {
+  //   syncEvents()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return {
     events: filteredEvents,

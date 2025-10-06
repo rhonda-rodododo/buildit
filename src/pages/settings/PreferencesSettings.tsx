@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ModeToggle } from '@/components/mode-toggle';
+import { ColorThemePicker } from '@/components/color-theme-picker';
 
 export const PreferencesSettings: FC = () => {
   return (
@@ -13,14 +14,18 @@ export const PreferencesSettings: FC = () => {
             Manage your app preferences and appearance
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Language</label>
             <LanguageSwitcher />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Theme</label>
+            <label className="text-sm font-medium">Color Mode</label>
             <ModeToggle />
+          </div>
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Theme</label>
+            <ColorThemePicker />
           </div>
         </CardContent>
       </Card>

@@ -50,6 +50,18 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
     setCreating(true)
     try {
+      // Ensure private key is loaded from DB
+      const { loadCurrentIdentityPrivateKey } = useAuthStore.getState()
+      if (!currentIdentity.privateKey) {
+        await loadCurrentIdentityPrivateKey()
+      }
+
+      // Get the updated identity with private key
+      const updatedIdentity = useAuthStore.getState().currentIdentity
+      if (!updatedIdentity?.privateKey) {
+        throw new Error('Failed to load private key')
+      }
+
       const group = await createGroup(
         {
           name: name.trim(),
@@ -57,8 +69,8 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
           privacyLevel,
           enabledModules: selectedModules,
         },
-        currentIdentity.privateKey,
-        currentIdentity.publicKey
+        updatedIdentity.privateKey,
+        updatedIdentity.publicKey
       )
 
       // Load demo data if requested

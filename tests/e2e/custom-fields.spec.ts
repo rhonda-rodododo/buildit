@@ -7,7 +7,26 @@ import { test, expect } from '@playwright/test';
 test.describe('Custom Fields Module', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // TODO: Set up test identity and group
+
+    // Set up test identity - Check if already created
+    const hasIdentity = await page.locator('[data-testid="identity-selector"]').isVisible().catch(() => false);
+
+    if (!hasIdentity) {
+      // Create test identity
+      await page.fill('[data-testid="identity-name-input"]', 'E2E Test User');
+      await page.click('[data-testid="create-identity-button"]');
+      await page.waitForSelector('[data-testid="identity-selector"]');
+    }
+
+    // Create test group if not exists
+    const hasGroup = await page.locator('[data-testid="group-settings"]').isVisible().catch(() => false);
+
+    if (!hasGroup) {
+      await page.click('[data-testid="create-group-button"]');
+      await page.fill('[data-testid="group-name-input"]', 'E2E Test Group');
+      await page.click('[data-testid="submit-group-button"]');
+      await page.waitForSelector('[data-testid="group-settings"]');
+    }
   });
 
   test('should create a custom field definition', async ({ page }) => {

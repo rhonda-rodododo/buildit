@@ -120,17 +120,33 @@ export class BuildItDB extends Dexie {
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
+  private schemaInitialized: boolean = false;
 
   // Dynamic tables from modules
   // Modules access via: db['tableName'] or db.table('tableName')
+  events?: Table<any, any>;
+  rsvps?: Table<any, any>;
+  mutualAidRequests?: Table<any, any>;
+  proposals?: Table<any, any>;
+  wikiPages?: Table<any, any>;
+  databaseTables?: Table<any, any>;
+  databaseRecords?: Table<any, any>;
+  databaseViews?: Table<any, any>;
+  customFields?: Table<any, any>;
   [key: string]: any;
 
-  constructor() {
+  constructor(moduleSchemas: Map<string, TableSchema[]>) {
     super('BuildItNetworkDB');
 
-    // Initialize with core schema only
-    // Module schemas will be added via addModuleSchema()
+    console.log('🏗️  BuildItDB constructor called with', moduleSchemas.size, 'module schemas');
+
+    // Store module schemas BEFORE initializing
+    this.moduleSchemas = moduleSchemas;
+
+    // Schema MUST be initialized in constructor before db.open()
+    // Initialize with core + all module schemas
     this._initializeSchema(CORE_SCHEMA);
+    this.schemaInitialized = true;
   }
 
   /**
@@ -155,20 +171,17 @@ export class BuildItDB extends Dexie {
       }
     }
 
-    this.version(1).stores(schemaMap);
+    // Use version based on number of module schemas + 1 for core
+    // This ensures schema updates when modules are added
+    const version = this.moduleSchemas.size + 1;
+    console.log(`Initializing database version ${version} with ${Object.keys(schemaMap).length} tables`);
+    this.version(version).stores(schemaMap);
   }
 
-  /**
-   * Add module schema to database
-   * This should be called during module registration (before db.open())
-   */
+  // This method is no longer needed - schemas are passed to constructor
+  // Keeping for backward compatibility during transition
   addModuleSchema(moduleId: string, schema: TableSchema[]): void {
-    if (this.isOpen()) {
-      throw new Error('Cannot add module schema after database is opened');
-    }
-
-    this.moduleSchemas.set(moduleId, schema);
-    console.log(`Registered schema for module: ${moduleId} (${schema.length} tables)`);
+    throw new Error('addModuleSchema() is deprecated. Schemas must be passed to constructor.');
   }
 
   /**
@@ -178,16 +191,9 @@ export class BuildItDB extends Dexie {
     return new Map(this.moduleSchemas);
   }
 
-  /**
-   * Reinitialize database with all registered module schemas
-   * Call this after all modules have registered their schemas
-   */
+  // No longer needed - schema is initialized in constructor
   reinitializeWithModules(): void {
-    if (this.isOpen()) {
-      throw new Error('Cannot reinitialize schema while database is open');
-    }
-
-    this._initializeSchema(CORE_SCHEMA);
+    console.log('⚠️  reinitializeWithModules() is deprecated - schema initialized in constructor');
   }
 
   /**
@@ -221,22 +227,61 @@ export class BuildItDB extends Dexie {
   }
 }
 
-// Singleton instance
-export const db = new BuildItDB();
+// Schema registry - collects schemas from modules BEFORE db is created
+const schemaRegistry = new Map<string, TableSchema[]>();
+
+/**
+ * Register a module schema (called during module loading)
+ * This must be called BEFORE initializeDatabase()
+ */
+export function registerModuleSchema(moduleId: string, schema: TableSchema[]): void {
+  if (_dbInstance) {
+    throw new Error('Cannot register schemas after database is initialized');
+  }
+  schemaRegistry.set(moduleId, schema);
+  console.log(`📋 Registered schema for module: ${moduleId} (${schema.length} tables)`);
+}
+
+// Singleton instance - created only in initializeDatabase()
+let _dbInstance: BuildItDB | null = null;
+
+/**
+ * Get the database instance
+ * NOTE: This will throw if called before initializeDatabase()
+ */
+export function getDB(): BuildItDB {
+  if (!_dbInstance) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.');
+  }
+  return _dbInstance;
+}
+
+// Legacy export for backward compatibility during transition
+export const db = new Proxy({} as BuildItDB, {
+  get(target, prop) {
+    return getDB()[prop as keyof BuildItDB];
+  }
+});
 
 /**
  * Initialize database (call this on app startup AFTER modules are registered)
  */
 export async function initializeDatabase(): Promise<void> {
   try {
-    // Reinitialize with all module schemas
-    db.reinitializeWithModules();
+    console.log('🔧 Initializing database...');
+    console.log(`📦 Module schemas collected: ${schemaRegistry.size}`);
+
+    // Create database instance with all collected module schemas
+    _dbInstance = new BuildItDB(schemaRegistry);
 
     // Open the database
-    await db.open();
-    console.log('Database initialized successfully with all module schemas');
+    await _dbInstance.open();
+
+    const tables = _dbInstance.tables.map(t => t.name);
+    console.log(`✅ Database initialized successfully`);
+    console.log(`📊 Total tables: ${tables.length}`, tables);
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    console.error('❌ Failed to initialize database:', error);
     throw error;
   }
 }

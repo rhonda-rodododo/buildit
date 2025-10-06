@@ -9,6 +9,7 @@ import type { EventFeedItem } from './types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEventsStore } from '@/modules/events/eventsStore';
 import {
   Calendar,
   MapPin,
@@ -70,8 +71,8 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
   };
 
   const getRSVPCount = () => {
-    // TODO: Get actual RSVP count from store
-    return 0;
+    const { rsvps } = useEventsStore.getState();
+    return rsvps.filter(rsvp => rsvp.eventId === event.id && rsvp.status === 'going').length;
   };
 
   return (

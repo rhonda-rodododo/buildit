@@ -5,6 +5,8 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useAuthStore } from '@/stores/authStore';
+import { db } from '@/core/storage/db';
 import type {
   Post,
   Reaction,
@@ -103,9 +105,10 @@ export const usePostsStore = create<PostsState>()(
 
       // Create post
       createPost: async (input: CreatePostInput): Promise<Post> => {
+        const currentIdentity = useAuthStore.getState().currentIdentity;
         const newPost: Post = {
           id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          authorId: '', // Will be set by manager with current user
+          authorId: currentIdentity?.publicKey || '',
           content: input.content,
           contentType: input.contentType || 'text',
           media: input.media,
@@ -183,7 +186,12 @@ export const usePostsStore = create<PostsState>()(
               p.visibility.groupIds?.some((gid) => activeFilter.groupIds?.includes(gid))
           );
         } else if (activeFilter.type === 'mentions') {
-          // TODO: Filter by mentions of current user
+          const currentIdentity = useAuthStore.getState().currentIdentity;
+          if (currentIdentity) {
+            filteredPosts = filteredPosts.filter((p) =>
+              p.mentions.includes(currentIdentity.publicKey)
+            );
+          }
         } else if (activeFilter.type === 'bookmarks') {
           const { myBookmarks } = get();
           filteredPosts = filteredPosts.filter((p) => myBookmarks.has(p.id));
@@ -224,27 +232,39 @@ export const usePostsStore = create<PostsState>()(
 
       // Load more posts (pagination)
       loadMorePosts: async (): Promise<void> => {
-        const { feedFilter, posts } = get();
+        const { feedFilter } = get();
         const currentOffset = feedFilter.offset || 0;
+        const limit = feedFilter.limit || 20;
 
-        set({
-          isLoadingFeed: true,
-          feedFilter: {
-            ...feedFilter,
-            offset: currentOffset + (feedFilter.limit || 20),
-          },
-        });
+        set({ isLoadingFeed: true });
 
-        // TODO: Fetch from database/Nostr
-        // For now, just mark as loaded
-        setTimeout(() => {
+        try {
+          // Fetch posts from database
+          const dbPosts = await db.posts
+            .orderBy('createdAt')
+            .reverse()
+            .offset(currentOffset)
+            .limit(limit)
+            .toArray();
+
+          set((state) => ({
+            posts: [...state.posts, ...dbPosts],
+            feedFilter: {
+              ...feedFilter,
+              offset: currentOffset + limit,
+            },
+            hasMorePosts: dbPosts.length === limit,
+            isLoadingFeed: false,
+          }));
+        } catch (error) {
+          console.error('Failed to load more posts:', error);
           set({ isLoadingFeed: false });
-        }, 500);
+        }
       },
 
       // Add reaction
       addReaction: async (postId: string, type: ReactionType): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newReaction: Reaction = {
           id: `reaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           postId,
@@ -271,7 +291,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Remove reaction
       removeReaction: async (postId: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
 
         set((state) => {
           const myReactions = new Map(state.myReactions);
@@ -307,7 +327,7 @@ export const usePostsStore = create<PostsState>()(
         content: string,
         parentCommentId?: string
       ): Promise<Comment> => {
-        const authorId = ''; // TODO: Get current user ID
+        const authorId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const parentComment = parentCommentId
           ? get().comments.find((c) => c.id === parentCommentId)
           : undefined;
@@ -357,7 +377,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Repost
       repost: async (postId: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
           id: `repost-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           postId,
@@ -384,7 +404,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Quote post (repost with comment)
       quotePost: async (postId: string, content: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
           id: `repost-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           postId,
@@ -412,7 +432,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Unrepost
       unrepost: async (postId: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
 
         set((state) => {
           const myReposts = new Set(state.myReposts);
@@ -439,7 +459,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Bookmark post
       bookmarkPost: async (postId: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newBookmark: Bookmark = {
           id: `bookmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           postId,
@@ -465,7 +485,7 @@ export const usePostsStore = create<PostsState>()(
 
       // Unbookmark post
       unbookmarkPost: async (postId: string): Promise<void> => {
-        const userId = ''; // TODO: Get current user ID
+        const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
 
         set((state) => {
           const myBookmarks = new Set(state.myBookmarks);
@@ -506,10 +526,27 @@ export const usePostsStore = create<PostsState>()(
       // Refresh feed
       refreshFeed: async (): Promise<void> => {
         set({ isLoadingFeed: true });
-        // TODO: Fetch from database/Nostr
-        setTimeout(() => {
+
+        try {
+          // Fetch latest posts from database
+          // Note: Nostr sync will be added in future iteration
+          const limit = get().feedFilter.limit || 20;
+          const dbPosts = await db.posts
+            .orderBy('createdAt')
+            .reverse()
+            .limit(limit)
+            .toArray();
+
+          set({
+            posts: dbPosts,
+            feedFilter: { ...get().feedFilter, offset: 0 },
+            hasMorePosts: dbPosts.length === limit,
+            isLoadingFeed: false,
+          });
+        } catch (error) {
+          console.error('Failed to refresh feed:', error);
           set({ isLoadingFeed: false });
-        }, 500);
+        }
       },
 
       // Clear cache

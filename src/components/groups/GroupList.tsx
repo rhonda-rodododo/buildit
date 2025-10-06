@@ -15,7 +15,8 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
     if (!currentIdentity) return
 
     loadGroups(currentIdentity.publicKey)
-  }, [currentIdentity, loadGroups])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIdentity])
 
   const handleSelectGroup = (groupId: string) => {
     const group = groups.find(g => g.id === groupId)

@@ -80,7 +80,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className }) => {
           type: 'post',
           timestamp: post.createdAt,
           authorId: post.authorId,
-          groupId: undefined, // TODO: Add groupId support to posts
+          groupId: post.visibility.groupIds?.[0], // Use first group ID from visibility
           data: post,
         });
       });
@@ -184,8 +184,13 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className }) => {
   const filteredItems = useMemo(() => {
     if (activeTab === 'all') {
       return feedItems;
+    } else if (activeTab === 'my-groups') {
+      // TODO: Filter by user's groups when group membership tracking is implemented
+      return feedItems.filter(item => item.groupId !== undefined);
+    } else if (activeTab === 'mentions') {
+      // TODO: Filter by mentions when mention tracking is fully implemented
+      return feedItems;
     }
-    // TODO: Implement filtering for my-groups and mentions
     return feedItems;
   }, [feedItems, activeTab]);
 

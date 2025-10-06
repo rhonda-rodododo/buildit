@@ -1,6 +1,6 @@
 import type { ModulePlugin } from '@/types/modules';
 import { useModuleStore } from '@/stores/moduleStore';
-import { db } from '@/core/storage/db';
+import { registerModuleSchema } from '@/core/storage/db';
 
 /**
  * Module loader definition
@@ -79,9 +79,11 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
       return null;
     }
 
-    // Register module schema with database (before db.open())
+    // Register module schema with the schema registry (before db instance is created)
     if (plugin.schema && plugin.schema.length > 0) {
-      db.addModuleSchema(plugin.metadata.id, plugin.schema);
+      registerModuleSchema(plugin.metadata.id, plugin.schema);
+    } else {
+      console.log(`⏭️  Module ${plugin.metadata.id} has no schema`);
     }
 
     return plugin;
@@ -98,7 +100,7 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
 export async function initializeModules(): Promise<void> {
   const moduleStore = useModuleStore.getState();
 
-  console.log('Initializing modules...');
+  console.log('📦 Initializing modules...');
 
   const loadPromises = MODULE_LOADERS.map(async (loader) => {
     const plugin = await loadModule(loader);
@@ -109,10 +111,11 @@ export async function initializeModules(): Promise<void> {
 
   await Promise.all(loadPromises);
 
-  // Load persisted module instances from database
-  await moduleStore.loadModuleInstances();
+  // NOTE: Do NOT load module instances here!
+  // This must happen AFTER database is opened (in main.tsx)
+  // because db access triggers auto-open with incomplete schema
 
-  console.log(`${MODULE_LOADERS.length} modules initialized successfully`);
+  console.log(`✅ ${MODULE_LOADERS.length} modules registered successfully`);
 }
 
 /**
