@@ -138,9 +138,7 @@ export class BuildItDB extends Dexie {
   constructor(moduleSchemas: Map<string, TableSchema[]>) {
     super('BuildItNetworkDB');
 
-    const timestamp = () => `[${new Date().toISOString()}]`;
-    console.log(timestamp(), '🏗️  [BuildItDB CONSTRUCTOR] Called with', moduleSchemas.size, 'module schemas');
-    console.log(timestamp(), '    Stack trace:', new Error().stack);
+    console.log('🏗️  BuildItDB constructor called with', moduleSchemas.size, 'module schemas');
 
     // Store module schemas BEFORE initializing
     this.moduleSchemas = moduleSchemas;
@@ -149,8 +147,6 @@ export class BuildItDB extends Dexie {
     // Initialize with core + all module schemas
     this._initializeSchema(CORE_SCHEMA);
     this.schemaInitialized = true;
-
-    console.log(timestamp(), '    [BuildItDB CONSTRUCTOR] Schema initialized');
   }
 
   /**
@@ -234,43 +230,19 @@ export class BuildItDB extends Dexie {
 // Schema registry - collects schemas from modules BEFORE db is created
 const schemaRegistry = new Map<string, TableSchema[]>();
 
-// Debug: Expose registry to window for inspection
-if (typeof window !== 'undefined') {
-  // Create a unique ID for this module instance
-  const moduleInstanceId = `db-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-  console.log(`[DB MODULE] New db.ts instance created: ${moduleInstanceId}`);
-
-  (window as any).__DEBUG_SCHEMA_REGISTRY = schemaRegistry;
-  (window as any).__DEBUG_DB_INSTANCE = () => _dbInstance;
-  (window as any).__DB_MODULE_INSTANCE_ID = moduleInstanceId;
-
-  // Track all instances
-  if (!(window as any).__ALL_DB_INSTANCES) {
-    (window as any).__ALL_DB_INSTANCES = [];
-  }
-  (window as any).__ALL_DB_INSTANCES.push({ id: moduleInstanceId, registry: schemaRegistry });
-}
-
 /**
  * Register a module schema (called during module loading)
  * This must be called BEFORE initializeDatabase()
  */
 export function registerModuleSchema(moduleId: string, schema: TableSchema[]): void {
-  const timestamp = () => `[${new Date().toISOString()}]`;
-
-  console.log(timestamp(), `📋 [DB] registerModuleSchema CALLED for: ${moduleId}`);
-  console.log(timestamp(), `    _dbInstance exists: ${!!_dbInstance}`);
-  console.log(timestamp(), `    schemaRegistry.size before: ${schemaRegistry.size}`);
-
   if (_dbInstance) {
     // Database already initialized (probably due to HMR), skip registration
-    console.warn(timestamp(), `⚠️  DB already initialized, skipping schema registration for: ${moduleId}`);
+    console.warn(`⚠️  DB already initialized, skipping schema registration for: ${moduleId}`);
     return;
   }
 
   schemaRegistry.set(moduleId, schema);
-  console.log(timestamp(), `📋 Registered schema for module: ${moduleId} (${schema.length} tables)`);
-  console.log(timestamp(), `    schemaRegistry.size after: ${schemaRegistry.size}`);
+  console.log(`📋 Registered schema for module: ${moduleId} (${schema.length} tables)`);
 }
 
 /**
@@ -305,46 +277,31 @@ export const db = new Proxy({} as BuildItDB, {
  * Initialize database (call this on app startup AFTER modules are registered)
  */
 export async function initializeDatabase(): Promise<void> {
-  const timestamp = () => `[${new Date().toISOString()}]`;
-
-  // Debug: Track function call
-  if (typeof window !== 'undefined') {
-    (window as any).__INITIALIZE_DATABASE_CALLED = true;
-    console.log(timestamp(), '🔧 [DB] initializeDatabase() CALLED');
-  }
-
   // Prevent re-initialization (important for HMR)
   if (_dbInstance) {
-    console.warn(timestamp(), '⚠️  Database already initialized, skipping...');
+    console.warn('⚠️  Database already initialized, skipping...');
     return;
   }
 
   try {
-    console.log(timestamp(), '🔧 Initializing database...');
-    console.log(timestamp(), `📦 Module schemas collected: ${schemaRegistry.size}`);
-    console.log(timestamp(), `📦 Module IDs in registry: ${Array.from(schemaRegistry.keys()).join(', ')}`);
+    console.log('🔧 Initializing database...');
+    console.log(`📦 Module schemas collected: ${schemaRegistry.size}`);
 
     // Create database instance with all collected module schemas
-    console.log(timestamp(), '🏗️  Creating BuildItDB instance...');
     _dbInstance = new BuildItDB(schemaRegistry);
-    console.log(timestamp(), '✓ BuildItDB instance created');
 
     // Setup encryption hooks before opening
-    console.log(timestamp(), '🔒 Setting up encryption hooks...');
     const { setupEncryptionHooks } = await import('./encryption');
     setupEncryptionHooks(_dbInstance);
-    console.log(timestamp(), '✓ Encryption hooks set up');
 
     // Open the database
-    console.log(timestamp(), '📂 Opening database...');
     await _dbInstance.open();
-    console.log(timestamp(), '✓ Database opened');
 
     const tables = _dbInstance.tables.map(t => t.name);
-    console.log(timestamp(), `✅ Database initialized successfully`);
-    console.log(timestamp(), `📊 Total tables: ${tables.length}`, tables);
+    console.log(`✅ Database initialized successfully`);
+    console.log(`📊 Total tables: ${tables.length}`, tables);
   } catch (error) {
-    console.error(timestamp(), '❌ Failed to initialize database:', error);
+    console.error('❌ Failed to initialize database:', error);
     throw error;
   }
 }
