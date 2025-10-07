@@ -8,6 +8,7 @@ import { eventsSchema } from './schema';
 import { eventsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Calendar } from 'lucide-react';
+import { EventsView } from './components/EventsView';
 
 /**
  * Events Module Plugin
@@ -78,6 +79,16 @@ export const eventsModule: ModulePlugin = {
       console.log(`Events module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'events',
+      component: EventsView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Events',
+    },
+  ],
 
   schema: eventsSchema,
 

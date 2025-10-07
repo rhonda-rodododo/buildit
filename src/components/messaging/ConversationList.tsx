@@ -6,10 +6,11 @@ import { getNostrClient } from '@/core/nostr/client'
 import { Card } from '@/components/ui/card'
 
 interface ConversationListProps {
-  onSelectConversation?: (conversationId: string) => void
+  onSelectConversation?: (conversationId: string) => void;
+  groupId?: string; // Optional: filter conversations to specific group
 }
 
-export const ConversationList: FC<ConversationListProps> = ({ onSelectConversation }) => {
+export const ConversationList: FC<ConversationListProps> = ({ onSelectConversation, groupId }) => {
   const { conversations, setConversations, activeConversationId, setActiveConversation } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
 

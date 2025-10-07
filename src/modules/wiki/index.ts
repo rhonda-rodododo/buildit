@@ -8,6 +8,7 @@ import { wikiSchema } from './schema';
 import { wikiSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Book } from 'lucide-react';
+import { WikiView } from './components/WikiView';
 
 /**
  * Wiki Module Plugin
@@ -78,6 +79,16 @@ export const wikiModule: ModulePlugin = {
       console.log(`Wiki module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'wiki',
+      component: WikiView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Wiki',
+    },
+  ],
 
   schema: wikiSchema,
 

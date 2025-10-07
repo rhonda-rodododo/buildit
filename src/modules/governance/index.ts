@@ -8,6 +8,7 @@ import { governanceSchema } from './schema';
 import { governanceSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Vote } from 'lucide-react';
+import { GovernanceView } from './components/GovernanceView';
 
 /**
  * Governance Module Plugin
@@ -84,6 +85,16 @@ export const governanceModule: ModulePlugin = {
       console.log(`Governance module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'governance',
+      component: GovernanceView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Governance',
+    },
+  ],
 
   schema: governanceSchema,
 

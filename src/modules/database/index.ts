@@ -8,6 +8,7 @@ import { databaseSchema } from './schema';
 import { databaseSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Database } from 'lucide-react';
+import { EditableTableView } from './components/EditableTableView';
 
 /**
  * Database Module Plugin
@@ -71,6 +72,16 @@ export const databaseModule: ModulePlugin = {
       console.log(`Database module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'database',
+      component: EditableTableView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Database',
+    },
+  ],
 
   schema: databaseSchema,
 

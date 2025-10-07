@@ -8,6 +8,7 @@ import { crmSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { CRM_TEMPLATES } from './templates';
 import { Users } from 'lucide-react';
+import { CRMView } from './components/CRMView';
 
 /**
  * CRM Module Plugin
@@ -58,6 +59,16 @@ export const crmModule: ModulePlugin = {
       console.log(`CRM module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'crm',
+      component: CRMView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'CRM',
+    },
+  ],
 
   schema: crmSchema,
 

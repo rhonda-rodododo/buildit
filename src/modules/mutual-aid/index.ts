@@ -8,6 +8,7 @@ import { mutualAidSchema } from './schema';
 import { mutualAidSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Heart } from 'lucide-react';
+import { MutualAidView } from './components/MutualAidView';
 
 /**
  * Mutual Aid Module Plugin
@@ -87,6 +88,16 @@ export const mutualAidModule: ModulePlugin = {
       console.log(`Mutual Aid module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'mutual-aid',
+      component: MutualAidView,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Mutual Aid',
+    },
+  ],
 
   schema: mutualAidSchema,
 

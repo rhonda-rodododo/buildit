@@ -42,8 +42,8 @@ const App: FC = () => {
             hashtags: seedPost.hashtags,
           })
         }
-      }
-    })
+      })();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

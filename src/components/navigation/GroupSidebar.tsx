@@ -1,33 +1,61 @@
 import { FC, createElement } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useModuleStore } from '@/stores/moduleStore';
+import { useGroupContext } from '@/contexts/GroupContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface GroupSidebarProps {
-  groupId: string;
   className?: string;
 }
 
-export const GroupSidebar: FC<GroupSidebarProps> = ({ groupId, className }) => {
-  const { getGroupModules, registry } = useModuleStore();
+export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
+  const { groupId, group, availableModules, isModuleEnabled, isLoading, error } = useGroupContext();
 
-  // Get enabled modules for this group
-  const moduleInstances = getGroupModules(groupId).filter(
-    (instance) => instance.state === 'enabled'
-  );
+  if (isLoading) {
+    return (
+      <aside className={cn('w-64 border-r bg-muted/10 p-4 space-y-4', className)}>
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </aside>
+    );
+  }
 
-  const enabledModules = moduleInstances
-    .map((instance) => registry.get(instance.moduleId)?.plugin)
-    .filter((plugin): plugin is NonNullable<typeof plugin> => plugin !== undefined);
+  if (error || !group) {
+    return (
+      <aside className={cn('w-64 border-r bg-muted/10 p-4', className)}>
+        <div className="text-sm text-muted-foreground">
+          {error || 'Group not found'}
+        </div>
+      </aside>
+    );
+  }
+
+  // Get routes from enabled modules
+  const enabledModuleRoutes = availableModules
+    .filter(module => isModuleEnabled(module.metadata.id))
+    .flatMap(module =>
+      (module.routes || [])
+        .filter(route => route.scope === 'group')
+        .map(route => ({
+          path: route.path,
+          label: route.label || module.metadata.name,
+          icon: module.metadata.icon,
+          moduleId: module.metadata.id,
+        }))
+    );
 
   return (
-    <aside
-      className={cn(
-        'w-64 border-r bg-muted/10 p-4 space-y-4',
-        className
-      )}
-    >
+    <aside className={cn('w-64 border-r bg-muted/10 p-4 space-y-6', className)}>
+      {/* Group name */}
+      <div className="px-3">
+        <h2 className="text-lg font-semibold truncate">{group.name}</h2>
+        <p className="text-xs text-muted-foreground truncate">{group.description}</p>
+      </div>
+
       <nav className="space-y-1">
         {/* Dashboard link */}
         <NavLink
@@ -46,11 +74,48 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ groupId, className }) => {
           Dashboard
         </NavLink>
 
-        {/* Module links */}
-        {enabledModules.map((module) => (
+        {/* Feed link */}
+        <NavLink
+          to={`/app/groups/${groupId}/feed`}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            )
+          }
+        >
+          <MessageSquare className="h-4 w-4" />
+          Feed
+        </NavLink>
+
+        {/* Members link */}
+        <NavLink
+          to={`/app/groups/${groupId}/members`}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            )
+          }
+        >
+          <Users className="h-4 w-4" />
+          Members
+        </NavLink>
+
+        {/* Divider */}
+        {enabledModuleRoutes.length > 0 && (
+          <div className="border-t my-2" />
+        )}
+
+        {/* Module route links */}
+        {enabledModuleRoutes.map((route) => (
           <NavLink
-            key={module.metadata.id}
-            to={`/app/groups/${groupId}/${module.metadata.id}`}
+            key={route.path}
+            to={`/app/groups/${groupId}/${route.path}`}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
@@ -60,10 +125,29 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ groupId, className }) => {
               )
             }
           >
-            {createElement(module.metadata.icon, { className: 'h-5 w-5 flex-shrink-0' })}
-            <span>{module.metadata.name}</span>
+            {createElement(route.icon, { className: 'h-4 w-4 flex-shrink-0' })}
+            <span className="truncate">{route.label}</span>
           </NavLink>
         ))}
+
+        {/* Divider */}
+        <div className="border-t my-2" />
+
+        {/* Settings link */}
+        <NavLink
+          to={`/app/groups/${groupId}/settings`}
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted'
+            )
+          }
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </NavLink>
       </nav>
     </aside>
   );

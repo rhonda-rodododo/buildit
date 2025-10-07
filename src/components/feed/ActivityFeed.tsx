@@ -38,9 +38,10 @@ import {
 
 interface ActivityFeedProps {
   className?: string;
+  groupId?: string; // Optional: filter to specific group
 }
 
-export const ActivityFeed: FC<ActivityFeedProps> = ({ className }) => {
+export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
   const { posts, refreshFeed: refreshPosts, isLoadingFeed: isLoadingPosts } =
     usePostsStore();
   const eventsStore = useEventsStore();

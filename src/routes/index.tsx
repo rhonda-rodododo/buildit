@@ -27,6 +27,10 @@ import { OnboardingDemoPage } from '@/pages/OnboardingDemoPage';
 import { NotificationsDemoPage } from '@/pages/NotificationsDemoPage';
 import { PrivacyDemoPage } from '@/pages/PrivacyDemoPage';
 import { SecurityDemoPage } from '@/pages/SecurityDemoPage';
+import { GroupFeedPage } from '@/pages/GroupFeedPage';
+import { GroupMembersPage } from '@/pages/GroupMembersPage';
+import { GroupSettingsPage } from '@/pages/GroupSettingsPage';
+import { GroupMessagesPage } from '@/pages/GroupMessagesPage';
 
 /**
  * Get module routes by scope
@@ -165,6 +169,22 @@ export const routes: RouteObject[] = [
                   {
                     index: true,
                     element: <GroupDashboard />,
+                  },
+                  {
+                    path: 'feed',
+                    element: <GroupFeedPage />,
+                  },
+                  {
+                    path: 'members',
+                    element: <GroupMembersPage />,
+                  },
+                  {
+                    path: 'settings',
+                    element: <GroupSettingsPage />,
+                  },
+                  {
+                    path: 'messages',
+                    element: <GroupMessagesPage />,
                   },
                   // Dynamically loaded module routes (group-scoped)
                   ...getModuleRoutes('group'),

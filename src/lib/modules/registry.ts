@@ -42,6 +42,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
     load: () => import('@/modules/wiki'),
   },
   {
+    id: 'database',
+    load: () => import('@/modules/database'),
+  },
+  {
     id: 'crm',
     load: () => import('@/modules/crm'),
   },
@@ -52,6 +56,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
   {
     id: 'files',
     load: () => import('@/modules/files'),
+  },
+  {
+    id: 'microblogging',
+    load: () => import('@/modules/microblogging'),
   },
 ];
 

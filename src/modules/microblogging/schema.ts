@@ -118,6 +118,7 @@ export const microbloggingMigrations = [
   // Version 1: Initial schema
   {
     version: 1,
+    description: 'Initialize microblogging schema with default values',
     migrate: async (db: any) => {
       // Posts table
       await db.posts.toCollection().modify((post: Post) => {

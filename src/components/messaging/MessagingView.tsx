@@ -5,7 +5,11 @@ import { NewConversationDialog } from './NewConversationDialog'
 import { Button } from '@/components/ui/button'
 import { useMessagingStore } from '@/stores/messagingStore'
 
-export const MessagingView: FC = () => {
+interface MessagingViewProps {
+  groupId?: string;
+}
+
+export const MessagingView: FC<MessagingViewProps> = ({ groupId }) => {
   const { activeConversationId } = useMessagingStore()
 
   return (
@@ -16,7 +20,7 @@ export const MessagingView: FC = () => {
           <NewConversationDialog trigger={<Button className="w-full text-sm">New Conversation</Button>} />
         </div>
         <div className="flex-1 overflow-y-auto">
-          <ConversationList />
+          <ConversationList groupId={groupId} />
         </div>
       </div>
 

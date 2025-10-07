@@ -13,9 +13,11 @@ export type ModuleType =
   | 'mutual-aid'
   | 'governance'
   | 'wiki'
+  | 'database'
   | 'crm'
   | 'documents'
-  | 'files';
+  | 'files'
+  | 'microblogging';
 
 /**
  * Module Capability - defines what a module can do
@@ -118,6 +120,8 @@ export interface ModuleRoute {
   component: React.ComponentType;
   exact?: boolean;
   scope?: 'app' | 'group'; // Where the route is mounted (default: 'group')
+  requiresEnabled?: boolean; // Only show if module is enabled for group (default: true for group scope)
+  label?: string; // Display label for navigation
 }
 
 /**

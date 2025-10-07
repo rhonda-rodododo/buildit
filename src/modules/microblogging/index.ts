@@ -100,7 +100,7 @@ export const microbloggingModule: ModulePlugin = {
 
   migrations: microbloggingMigrations,
 
-  seeds: microbloggingSeeds.posts,
+  seeds: [], // TODO: Implement proper ModuleSeed format for demo posts
 
   getDefaultConfig: () => ({
     allowPublicPosts: true,
