@@ -118,10 +118,10 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'node', // Node for crypto, jsdom for UI tests (configure per-file if needed)
+    environment: 'happy-dom', // Use happy-dom for better test compatibility
     environmentMatchGlobs: [
-      ['**/*.ui.test.{ts,tsx}', 'jsdom'], // UI tests use jsdom
-      ['**/integration/**/*.test.{ts,tsx}', 'jsdom'], // Integration tests need jsdom + IndexedDB
+      ['**/*.ui.test.{ts,tsx}', 'happy-dom'], // UI tests use happy-dom
+      ['**/integration/**/*.test.{ts,tsx}', 'happy-dom'], // Integration tests need happy-dom + IndexedDB
       ['**/__tests__/**', 'node'], // Crypto/core tests use node
     ],
     setupFiles: './src/test/setup.ts',

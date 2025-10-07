@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { NostrClient } from '@/core/nostr/client';
-import { db } from '@/core/storage/db';
-import { getPublicKey, nip19 } from 'nostr-tools';
+import { getDB } from '@/core/storage/db';
+import { type UnsignedEvent } from 'nostr-tools';
+import { generateTestKeypair, createTestNostrClient, signEvent } from '@/test/test-utils';
 
 describe('Nostr Client ↔ Storage Integration', () => {
   let client: NostrClient;
@@ -10,41 +11,47 @@ describe('Nostr Client ↔ Storage Integration', () => {
 
   beforeEach(async () => {
     // Generate test keys
-    testPrivkey = generatePrivateKey();
-    testPubkey = getPublicKey(testPrivkey);
+    const keypair = generateTestKeypair();
+    testPrivkey = keypair.privateKey;
+    testPubkey = keypair.publicKey;
 
-    // Initialize client
-    client = new NostrClient(['wss://relay.damus.io', 'wss://nos.lol']);
+    // Initialize client with test relays
+    client = createTestNostrClient();
 
     // Clear test data
+    const db = getDB();
     await db.nostrEvents.clear();
   });
 
   afterEach(async () => {
     if (client) {
-      client.disconnect();
+      client.close();
     }
+    const db = getDB();
     await db.nostrEvents.clear();
   });
 
   describe('Event Storage Sync', () => {
     it('should store published events in IndexedDB', async () => {
-      const event = {
+      const event: UnsignedEvent = {
         kind: 1,
         content: 'Test event',
         tags: [],
         created_at: Math.floor(Date.now() / 1000),
+        pubkey: testPubkey,
       };
 
-      const signedEvent = await client.signEvent(event, testPrivkey);
+      const signedEvent = signEvent(event, testPrivkey);
 
       // Store in DB
+      const db = getDB();
       await db.nostrEvents.add({
         ...signedEvent,
         receivedAt: Date.now(),
       });
 
-      const stored = await db.nostrEvents
+      const db2 = getDB();
+      const stored = await db2.nostrEvents
         .where('id')
         .equals(signedEvent.id)
         .first();
@@ -55,15 +62,16 @@ describe('Nostr Client ↔ Storage Integration', () => {
     });
 
     it('should retrieve events by kind', async () => {
+      const db = getDB();
       // Add multiple events with different kinds
-      const events = [
-        { kind: 1, content: 'Note 1', tags: [], created_at: Math.floor(Date.now() / 1000) },
-        { kind: 1, content: 'Note 2', tags: [], created_at: Math.floor(Date.now() / 1000) + 1 },
-        { kind: 3, content: 'Contact list', tags: [], created_at: Math.floor(Date.now() / 1000) + 2 },
+      const events: UnsignedEvent[] = [
+        { kind: 1, content: 'Note 1', tags: [], created_at: Math.floor(Date.now() / 1000), pubkey: testPubkey },
+        { kind: 1, content: 'Note 2', tags: [], created_at: Math.floor(Date.now() / 1000) + 1, pubkey: testPubkey },
+        { kind: 3, content: 'Contact list', tags: [], created_at: Math.floor(Date.now() / 1000) + 2, pubkey: testPubkey },
       ];
 
       for (const event of events) {
-        const signed = await client.signEvent(event, testPrivkey);
+        const signed = signEvent(event, testPrivkey);
         await db.nostrEvents.add({
           ...signed,
           receivedAt: Date.now(),
@@ -78,15 +86,17 @@ describe('Nostr Client ↔ Storage Integration', () => {
     });
 
     it('should retrieve events by author', async () => {
-      const otherPrivkey = generatePrivateKey();
-      const otherPubkey = getPublicKey(otherPrivkey);
+      const db = getDB();
+      const otherKeypair = generateTestKeypair();
+      const otherPrivkey = otherKeypair.privateKey;
+      const otherPubkey = otherKeypair.publicKey;
 
-      const event1 = await client.signEvent(
-        { kind: 1, content: 'From test user', tags: [], created_at: Math.floor(Date.now() / 1000) },
+      const event1 = signEvent(
+        { kind: 1, content: 'From test user', tags: [], created_at: Math.floor(Date.now() / 1000), pubkey: testPubkey },
         testPrivkey
       );
-      const event2 = await client.signEvent(
-        { kind: 1, content: 'From other user', tags: [], created_at: Math.floor(Date.now() / 1000) },
+      const event2 = signEvent(
+        { kind: 1, content: 'From other user', tags: [], created_at: Math.floor(Date.now() / 1000), pubkey: otherPubkey },
         otherPrivkey
       );
 
@@ -105,8 +115,9 @@ describe('Nostr Client ↔ Storage Integration', () => {
 
   describe('Subscription and Storage', () => {
     it('should handle event deduplication', async () => {
-      const event = await client.signEvent(
-        { kind: 1, content: 'Duplicate test', tags: [], created_at: Math.floor(Date.now() / 1000) },
+      const db = getDB();
+      const event = signEvent(
+        { kind: 1, content: 'Duplicate test', tags: [], created_at: Math.floor(Date.now() / 1000), pubkey: testPubkey },
         testPrivkey
       );
 
@@ -119,12 +130,14 @@ describe('Nostr Client ↔ Storage Integration', () => {
     });
 
     it('should update replaceable events', async () => {
-      const kind0Event1 = await client.signEvent(
+      const db = getDB();
+      const kind0Event1 = signEvent(
         {
           kind: 0,
           content: JSON.stringify({ name: 'Alice', about: 'First version' }),
           tags: [],
           created_at: Math.floor(Date.now() / 1000),
+          pubkey: testPubkey,
         },
         testPrivkey
       );
@@ -132,36 +145,38 @@ describe('Nostr Client ↔ Storage Integration', () => {
       await db.nostrEvents.add({ ...kind0Event1, receivedAt: Date.now() });
 
       // Create newer version
-      const kind0Event2 = await client.signEvent(
+      const kind0Event2 = signEvent(
         {
           kind: 0,
           content: JSON.stringify({ name: 'Alice', about: 'Updated version' }),
           tags: [],
           created_at: Math.floor(Date.now() / 1000) + 10,
+          pubkey: testPubkey,
         },
         testPrivkey
       );
 
       // Replace old event with new one (simulating replaceable event behavior)
-      await db.nostrEvents
-        .where('[kind+pubkey]')
-        .equals([0, testPubkey])
-        .delete();
+      // For replaceable events (kind 0), delete old and add new
+      const oldEvents = await db.nostrEvents
+        .where('kind')
+        .equals(0)
+        .and((event) => event.pubkey === testPubkey)
+        .toArray();
+
+      for (const oldEvent of oldEvents) {
+        await db.nostrEvents.delete(oldEvent.id);
+      }
+
       await db.nostrEvents.add({ ...kind0Event2, receivedAt: Date.now() });
 
       const stored = await db.nostrEvents
-        .where('[kind+pubkey]')
-        .equals([0, testPubkey])
+        .where('kind')
+        .equals(0)
+        .and((event) => event.pubkey === testPubkey)
         .first();
 
       expect(stored?.content).toContain('Updated version');
     });
   });
 });
-
-// Helper function
-function generatePrivateKey(): string {
-  const privateKey = new Uint8Array(32);
-  crypto.getRandomValues(privateKey);
-  return Array.from(privateKey, (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
