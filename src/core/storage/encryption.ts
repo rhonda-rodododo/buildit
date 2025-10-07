@@ -4,8 +4,7 @@
  */
 
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from '@/core/crypto/nip44';
-import { hexToBytes, bytesToHex } from '@noble/hashes/utils';
-
+import { useAuthStore } from '@/stores/authStore';
 
 /**
  * Fields that should be encrypted in each table
@@ -158,13 +157,13 @@ export function setupEncryptionHooks(db: any): void {
     if (!table) continue; // Table doesn't exist yet (module not loaded)
 
     // Hook: Encrypt on create
-    table.hook('creating', (primKey: any, obj: any, transaction: any) => {
+    table.hook('creating', (_primKey: any, obj: any, _transaction: any) => {
       const groupId = obj.groupId; // Most tables have groupId
       return encryptObject(obj, tableName, groupId);
     });
 
     // Hook: Encrypt on update
-    table.hook('updating', (modifications: any, primKey: any, obj: any, transaction: any) => {
+    table.hook('updating', (modifications: any, _primKey: any, obj: any, _transaction: any) => {
       const groupId = obj?.groupId;
 
       // Encrypt modified fields
