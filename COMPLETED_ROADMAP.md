@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-07 (Epic 32 completed)
+**Last Updated**: 2025-10-07 (Epic 28.5 completed)
 
 ---
 
@@ -45,6 +45,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 30 | v0.30.0 | ✅ | `v0.30.0-security-audit` | Security audit preparation - encryption docs, threat model, rate limiting, vulnerability disclosure program |
 | 35 | v0.31.0 | ✅ | `v0.31.0-performance` | Performance optimization - 69% bundle reduction (760KB→233KB brotli) |
 | 32 | v0.32.0 | ✅ | `v0.32.0-documents` | Documents module with TipTap WYSIWYG editor, CRDT collaboration, PDF export |
+| 28.5 | v0.28.5 | ✅ | `v0.28.5-routing-refactor` | Group-based routing with dynamic module paths and GroupContext provider |
 
 ---
 
@@ -313,9 +314,9 @@ See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) for active and upcoming epics.
 ---
 
 **Last Updated**: 2025-10-07
-**Total Epics Completed**: 29
-**Total Git Tags**: 29
-**Current Version**: v0.31.0-performance
+**Total Epics Completed**: 30
+**Total Git Tags**: 30
+**Current Version**: v0.32.0-documents
 
 ---
 
@@ -426,4 +427,31 @@ Implemented full-featured Documents module with TipTap WYSIWYG editor and real-t
 - Bundle size: +60KB for Yjs + dependencies
 
 **Reference**: [CRDT_COLLABORATION_IMPLEMENTATION.md](./CRDT_COLLABORATION_IMPLEMENTATION.md)
+
+### Epic 28.5: Routing Refactor - Group-Based Paths ✅
+**Tag**: `v0.28.5-routing-refactor` | **Commits**: `git log v0.28.5-routing-refactor`
+
+Implemented proper group-based routing where each group has distinct URL paths and modules load dynamically based on group configuration.
+
+**Key Deliverables**:
+- GroupContext provider with useGroupContext() hook for accessing current groupId
+- Module routes dynamically registered based on enabled modules
+- Group-level pages: feed, messages, members, settings
+- Navigation sidebar shows only enabled modules for current group
+- Breadcrumbs show correct path hierarchy
+- Deep linking support for all group and module routes
+
+**Route Structure**:
+```
+/app/groups/:groupId                 # Group dashboard
+/app/groups/:groupId/feed            # Group-specific feed
+/app/groups/:groupId/messages        # Group chat
+/app/groups/:groupId/members         # Member management
+/app/groups/:groupId/settings        # Group settings
+/app/groups/:groupId/[module]        # Module routes (if enabled)
+```
+
+**Architecture Impact**: Establishes foundation for social features by providing proper routing context for all group-based operations.
+
+**Reference**: [ARCHITECTURE.md](./ARCHITECTURE.md), `/src/routes/index.tsx`, `/src/contexts/GroupContext.tsx`
 

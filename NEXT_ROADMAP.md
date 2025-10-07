@@ -24,115 +24,16 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-07 (Epic 32 completed)
-**Active Epic**: Epic 28.5 (Routing Refactor)
+**Last Updated**: 2025-10-07 (Epic 28.5 completed)
+**Active Epic**: Epic 33 (Files Module)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 91% for organizing platform features (+2% with Documents module)
+**Completion**: 92% for organizing platform features (+1% with routing refactor)
 
 ---
 
 ## 🔴 Critical Path: Production Readiness
-
-### Epic 28.5: Routing Refactor - Group-Based Paths 🛣️
-**Status**: ✅ Complete
-**Priority**: P0 - Foundation for Social Features
-**Effort**: 10-12 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Current routing uses `/app/groups/:groupId` but modules are accessed via tabs. Need proper group-based routing where each group has distinct URL paths and modules load dynamically based on group configuration.
-
-**Tasks**:
-- [ ] **Task 1**: Update Module Route Registration (2h)
-  - Ensure all modules register routes with correct paths
-  - Add route registration to documents and files modules
-  - Verify routes respect group module enable/disable config
-  - Update module plugin type to support `requiresEnabled` flag
-
-- [ ] **Task 2**: Create GroupContext Provider (1h)
-  - Create `src/contexts/GroupContext.tsx` with `useGroupContext()` hook
-  - Provide current groupId, group data, and enabled modules
-  - Wrap GroupLayout with context provider
-  - Handle groupId changes and navigation
-
-- [ ] **Task 3**: Refactor Navigation Components (3h)
-  - Update `GroupSidebar` to show only enabled module routes
-  - Filter navigation items based on group's enabled modules
-  - Update `Breadcrumbs` for group-aware paths
-  - Ensure `MobileNav` works with new structure
-  - Add active route highlighting
-
-- [ ] **Task 4**: Update Module Components (2h)
-  - Refactor module views to use `useGroupContext()`
-  - Update data fetching to filter by current groupId
-  - Remove groupId props in favor of context
-  - Ensure all module views work within group context
-
-- [ ] **Task 5**: Create Group-Level Pages (2h)
-  - Create `GroupFeedPage` (group-specific activity feed)
-  - Create `GroupMembersPage` (member management UI)
-  - Create `GroupSettingsPage` (group configuration)
-  - Create `GroupMessagesPage` (group chat view)
-  - Register these routes in router
-
-- [ ] **Task 6**: Update Route Configuration (1h)
-  - Update `src/routes/index.tsx` with new group routes
-  - Add group-level routes: feed, messages, members, settings
-  - Ensure module routes are properly nested
-  - Add route guards for module access
-
-- [ ] **Task 7**: Testing & Verification (1h)
-  - Test navigation between groups
-  - Verify module enable/disable works
-  - Test deep linking to module pages
-  - Verify breadcrumbs and back navigation
-  - Test mobile navigation
-
-**Target Route Structure**:
-```
-/app/groups                          # Group list
-/app/groups/:groupId                 # Group dashboard
-/app/groups/:groupId/feed            # Group-specific feed
-/app/groups/:groupId/messages        # Group chat
-/app/groups/:groupId/members         # Member management
-/app/groups/:groupId/settings        # Group settings
-/app/groups/:groupId/events          # Events module (if enabled)
-/app/groups/:groupId/mutual-aid      # Mutual aid module (if enabled)
-/app/groups/:groupId/governance      # Governance module (if enabled)
-/app/groups/:groupId/wiki            # Wiki module (if enabled)
-/app/groups/:groupId/database        # Database module (if enabled)
-/app/groups/:groupId/crm             # CRM module (if enabled)
-/app/groups/:groupId/documents       # Documents module (if enabled)
-/app/groups/:groupId/files           # File manager module (if enabled)
-/app/groups/:groupId/microblogging   # Microblogging module (if enabled)
-```
-
-**Acceptance Criteria**:
-- Each group has its own distinct route path
-- Module routes are dynamically registered based on module configuration
-- Navigation sidebar shows only enabled modules for current group
-- GroupContext provides groupId to all nested components
-- All module views work within group context
-- Deep linking works for all group and module routes
-- Breadcrumbs show correct path hierarchy
-- Mobile navigation works with new structure
-
-**Testing Requirements**:
-- Navigate to different groups and verify URL changes
-- Enable/disable module and verify route appears/disappears
-- Test deep linking: `/app/groups/abc123/events`
-- Verify breadcrumbs show correct path
-- Test back/forward browser navigation
-
-**Reference Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), `/src/routes/index.tsx`, `/src/modules/*/index.ts`
-
-**Git Commit Format**: `feat: implement group-based routing with dynamic module paths (Epic 28.5)`
-
-**Git Tag**: `v0.28.5-routing-refactor`
-
----
 
 ### Epic 31: Legal & Compliance Documentation 📋
 **Status**: Not Started
@@ -833,5 +734,5 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 ---
 
 **Last Updated**: 2025-10-07
-**Total Epics Pending**: 10 (Epic 28.5, 31-39)
+**Total Epics Pending**: 9 (Epic 31, 33-39)
 **Total Backlog Items**: 10+
