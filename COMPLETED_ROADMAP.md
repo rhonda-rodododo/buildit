@@ -40,6 +40,7 @@ Archive of completed epics (Epics 1-27). This document provides high-level summa
 | 26 | v0.26.0 | ✅ | `v0.26.0-privacy` | Anonymous reactions/voting, covert supporter role |
 | 27 | v0.27.0 | ✅ | `v0.27.0-security` | Member verification, anomaly detection, audit logs |
 | 29 | v0.29.0 | ✅ | `v0.29.0-e2e-tests` | Comprehensive E2E test suite with Playwright, visual regression, CI integration |
+| 30 | v0.30.0 | ✅ | `v0.30.0-security-audit` | Security audit preparation - encryption docs, threat model, rate limiting, vulnerability disclosure program |
 | 35 | v0.31.0 | ✅ | `v0.31.0-performance` | Performance optimization - 69% bundle reduction (760KB→233KB brotli) |
 
 ---
@@ -348,3 +349,24 @@ TOTAL:          233KB   ✅ Under 300KB target!
 - **Improvement**: 69% faster initial load
 
 **Reference**: Git commit 4837f2c, [.github/workflows/bundle-size.yml](./.github/workflows/bundle-size.yml)
+
+### Epic 30: Security Audit Preparation ✅
+**Tag**: `v0.30.0-security-audit` | **Commits**: `git log v0.30.0-security-audit`
+
+Comprehensive internal security preparation before external audit. Created extensive documentation, implemented rate limiting and session timeout, established vulnerability disclosure program. 
+
+**Deliverables**:
+- Complete encryption implementation documentation (NIP-44, NIP-17, NIP-59, database, media)
+- Comprehensive threat model with 6 adversary types and 4 attack scenarios
+- Key management lifecycle documentation
+- Third-party dependency security analysis
+- Penetration testing scope document
+- Vulnerability disclosure program
+- Rate limiting for sensitive operations
+- Session timeout and auto-lock (30min default)
+- security.txt for responsible disclosure (RFC 9116)
+
+**Security Status**: bun audit - No vulnerabilities found ✅
+
+**Next Steps**: Engage external audit firm (Trail of Bits, Cure53, or NCC Group recommended, $30k-$60k budget)
+

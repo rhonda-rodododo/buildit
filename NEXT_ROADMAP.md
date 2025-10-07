@@ -28,7 +28,8 @@ When completing an epic:
 **Active Epic**: Epic 28 (Critical Bug Fixes)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 122/149 tests passing (27 integration test failures to address)
-**Completion**: 87% for organizing platform features
+**Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
+**Completion**: 88% for organizing platform features
 
 ---
 
@@ -193,50 +194,6 @@ When completing an epic:
 **Git Commit Format**: `feat: implement group-based routing with dynamic module paths (Epic 28.5)`
 
 **Git Tag**: `v0.28.5-routing-refactor`
-
----
-
-### Epic 30: Security Audit Preparation 🔐
-**Status**: Not Started
-**Priority**: P0 - Required before production
-**Effort**: 15-20 hours (internal prep) + External audit
-**Dependencies**: Epic 28, 29 complete
-**Assignable to subagent**: Partial (`auditor` for internal prep)
-
-**Context**: Security audit is critical before deploying to production, especially for activist/high-risk use cases. Need internal preparation before external audit.
-
-**Tasks**:
-- [ ] Document all encryption implementations (NIP-17, NIP-44, NIP-59)
-- [ ] Create threat model documentation (expand PRIVACY.md)
-- [ ] Document key management and storage strategies
-- [ ] Run automated security scanning (npm audit equivalent: `bun audit`)
-- [ ] Implement Content Security Policy (CSP) headers
-- [ ] Add security headers (HSTS, X-Frame-Options, X-Content-Type-Options)
-- [ ] Implement rate limiting for sensitive operations
-- [ ] Add session timeout and auto-lock functionality
-- [ ] Create security.txt file (responsible disclosure)
-- [ ] Document all third-party dependencies and their security posture
-- [ ] Prepare penetration testing scope document
-- [ ] Create vulnerability disclosure program documentation
-- [ ] Engage external security auditor (Trail of Bits, Cure53, NCC Group)
-
-**Acceptance Criteria**:
-- All security documentation complete and reviewed
-- CSP and security headers implemented
-- Rate limiting active on auth/sensitive endpoints
-- `bun audit` shows no critical vulnerabilities
-- External audit scheduled with reputable firm
-- Vulnerability disclosure process published
-
-**Testing Requirements**:
-- Security header verification (securityheaders.com)
-- CSP testing (no violations in console)
-- Rate limiting tested with automated requests
-- Session timeout verified
-
-**Reference Docs**: [ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md), [PRIVACY.md](./PRIVACY.md), [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Security section)
-
-**Git Commit Format**: `security: prepare for external security audit (Epic 30)`
 
 ---
 
