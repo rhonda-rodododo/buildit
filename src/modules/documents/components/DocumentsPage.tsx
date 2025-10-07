@@ -6,6 +6,8 @@ import { FC, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useGroupsStore } from '@/stores/groupsStore'
+import { getNostrClient } from '@/core/nostr/client'
 import { documentManager } from '../documentManager'
 import { TipTapEditor } from './TipTapEditor'
 import { documentTemplates } from '../templates'
@@ -13,7 +15,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FileText, Plus, Save, Download, History, FileX } from 'lucide-react'
+import { FileText, Plus, Save, Download, FileX, Users } from 'lucide-react'
+import { getPublicKey } from 'nostr-tools'
+import type { DBGroupMember } from '@/core/storage/db'
 import {
   Select,
   SelectContent,
@@ -24,8 +28,8 @@ import {
 
 export const DocumentsPage: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
-  const navigate = useNavigate()
   const currentIdentity = useAuthStore(state => state.currentIdentity)
+  const { groups, groupMembers, loadGroupMembers } = useGroupsStore()
 
   const { documents, getGroupDocuments, currentDocumentId, setCurrentDocument } = useDocumentsStore()
   const [title, setTitle] = useState('')
@@ -33,9 +37,18 @@ export const DocumentsPage: FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isCreating, setIsCreating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [collaborationEnabled, setCollaborationEnabled] = useState(true) // Enable by default
 
   const groupDocs = groupId ? getGroupDocuments(groupId) : []
   const currentDoc = currentDocumentId ? documents.get(currentDocumentId) : null
+  const nostrClient = getNostrClient()
+
+  // Load group members for collaboration
+  useEffect(() => {
+    if (groupId && collaborationEnabled) {
+      loadGroupMembers(groupId)
+    }
+  }, [groupId, collaborationEnabled, loadGroupMembers])
 
   useEffect(() => {
     if (currentDoc) {
@@ -97,17 +110,22 @@ export const DocumentsPage: FC = () => {
     }
   }
 
-  const handleExport = async (format: 'html' | 'markdown' | 'text') => {
+  const handleExport = async (format: 'html' | 'markdown' | 'text' | 'pdf') => {
     if (!currentDoc) return
 
-    const exported = await documentManager.exportDocument(currentDoc.id, format)
-    const blob = new Blob([exported], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${currentDoc.title}.${format === 'markdown' ? 'md' : format}`
-    a.click()
-    URL.revokeObjectURL(url)
+    if (format === 'pdf') {
+      // PDF export handles download internally
+      await documentManager.exportDocument(currentDoc.id, 'pdf')
+    } else {
+      const exported = await documentManager.exportDocument(currentDoc.id, format)
+      const blob = new Blob([exported], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${currentDoc.title}.${format === 'markdown' ? 'md' : format}`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
   }
 
   return (
@@ -187,7 +205,15 @@ export const DocumentsPage: FC = () => {
                 placeholder="Document title"
               />
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving}>
+                <Button
+                  variant={collaborationEnabled ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCollaborationEnabled(!collaborationEnabled)}
+                >
+                  <Users className="h-4 w-4 mr-1" />
+                  {collaborationEnabled ? 'Collaboration On' : 'Enable Collaboration'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving || collaborationEnabled}>
                   <Save className="h-4 w-4 mr-1" /> {isSaving ? 'Saving...' : 'Save'}
                 </Button>
                 <Select onValueChange={(format) => handleExport(format as any)}>
@@ -199,12 +225,24 @@ export const DocumentsPage: FC = () => {
                     <SelectItem value="html">HTML</SelectItem>
                     <SelectItem value="markdown">Markdown</SelectItem>
                     <SelectItem value="text">Text</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex-1 overflow-auto p-4">
-              <TipTapEditor content={content} onChange={setContent} />
+              <TipTapEditor
+                content={content}
+                onChange={setContent}
+                enableCollaboration={collaborationEnabled && !!currentDoc && !!groupId && !!nostrClient && !!currentIdentity?.privateKey}
+                documentId={currentDoc.id}
+                groupId={groupId}
+                nostrClient={nostrClient}
+                userPrivateKey={currentIdentity?.privateKey}
+                userPublicKey={currentIdentity?.privateKey ? getPublicKey(currentIdentity.privateKey) : undefined}
+                userName={currentIdentity?.name || 'Anonymous'}
+                collaboratorPubkeys={groupId && groupMembers.get(groupId) ? groupMembers.get(groupId)!.map((m: DBGroupMember) => m.pubkey) : []}
+              />
             </div>
           </>
         ) : (

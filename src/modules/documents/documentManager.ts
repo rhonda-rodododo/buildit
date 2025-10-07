@@ -4,9 +4,12 @@
  */
 
 import { getPublicKey, finalizeEvent, type Event as NostrEvent } from 'nostr-tools'
-import type { Document, DocumentVersion, CreateDocumentInput, UpdateDocumentInput, DocumentExportFormat } from './types'
+import jsPDF from 'jspdf'
+import type { Document, DocumentVersion, CreateDocumentInput, UpdateDocumentInput, DocumentExportFormat, DocumentCollaborationSession } from './types'
 import { useDocumentsStore } from './documentsStore'
 import { db } from '@/core/storage/db'
+import { createDocumentRoom } from './providers/EncryptedNostrProvider'
+import type { NostrClient } from '@/core/nostr/client'
 
 // Custom Nostr kind for documents
 export const DOCUMENT_KIND = 30023 // Long-form content (NIP-23)
@@ -57,7 +60,7 @@ class DocumentManager {
         ['title', input.title],
         ['published_at', String(Math.floor(now / 1000))],
         ['summary', input.title],
-        ...input.tags.map(tag => ['t', tag]),
+        ...(input.tags || []).map(tag => ['t', tag]),
       ],
       content: initialContent,
     }, authorPrivkey)
@@ -258,19 +261,31 @@ class DocumentManager {
   }
 
   private exportToPDF(document: Document): string {
-    // For PDF export, we'll return HTML that can be printed via window.print()
-    // In a real implementation, you'd use a library like jsPDF or html2pdf
-    const html = this.exportToHTML(document)
+    // Create PDF using jsPDF
+    const pdf = new jsPDF()
 
-    // Trigger print dialog
-    const printWindow = window.open('', '_blank')
-    if (printWindow) {
-      printWindow.document.write(html)
-      printWindow.document.close()
-      printWindow.print()
-    }
+    // Add title
+    pdf.setFontSize(20)
+    pdf.text(document.title, 20, 20)
 
-    return html
+    // Add metadata
+    pdf.setFontSize(10)
+    pdf.setTextColor(100)
+    pdf.text(`Created: ${new Date(document.createdAt).toLocaleDateString()}`, 20, 30)
+    pdf.text(`Updated: ${new Date(document.updatedAt).toLocaleDateString()}`, 20, 35)
+    pdf.text(`Version: ${document.version}`, 20, 40)
+
+    // Add content (strip HTML and add as text)
+    pdf.setFontSize(12)
+    pdf.setTextColor(0)
+    const content = document.content.replace(/<[^>]*>/g, '').replace(/\n\n+/g, '\n')
+    const splitContent = pdf.splitTextToSize(content, 170)
+    pdf.text(splitContent, 20, 50)
+
+    // Download PDF
+    pdf.save(`${document.title}.pdf`)
+
+    return 'PDF generated and downloaded'
   }
 
   /**
@@ -284,6 +299,71 @@ class DocumentManager {
       document,
       versions: versions.sort((a, b) => b.version - a.version),
     }
+  }
+
+  /**
+   * Start a collaboration session for a document
+   */
+  async startCollaboration(
+    documentId: string,
+    groupId: string,
+    nostrClient: NostrClient,
+    userPrivateKey: Uint8Array,
+    collaboratorPubkeys: string[]
+  ): Promise<DocumentCollaborationSession> {
+    const document = useDocumentsStore.getState().getDocument(documentId)
+    if (!document) {
+      throw new Error('Document not found')
+    }
+
+    const now = Date.now()
+    const userPubkey = getPublicKey(userPrivateKey)
+
+    // Create collaboration session
+    const session: DocumentCollaborationSession = {
+      documentId,
+      groupId,
+      roomId: documentId, // Use document ID as room ID
+      participants: [userPubkey],
+      isActive: true,
+      createdAt: now,
+      lastActivity: now,
+    }
+
+    // Store in DB
+    await db.table('documentCollaboration').add(session)
+
+    // Create document room on Nostr
+    await createDocumentRoom(
+      nostrClient,
+      userPrivateKey,
+      collaboratorPubkeys,
+      documentId,
+      document.title
+    )
+
+    return session
+  }
+
+  /**
+   * End a collaboration session
+   */
+  async endCollaboration(documentId: string): Promise<void> {
+    await db.table('documentCollaboration')
+      .where('documentId')
+      .equals(documentId)
+      .modify({ isActive: false })
+  }
+
+  /**
+   * Get active collaboration session for a document
+   */
+  async getCollaborationSession(documentId: string): Promise<DocumentCollaborationSession | null> {
+    const session = await db.table('documentCollaboration')
+      .where({ documentId, isActive: true })
+      .first()
+
+    return session?.data || null
   }
 }
 

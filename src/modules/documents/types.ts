@@ -62,3 +62,32 @@ export interface UpdateDocumentInput {
   isPublic?: boolean
   collaborators?: string[]
 }
+
+/**
+ * CRDT Collaboration Session
+ * Tracks active collaboration sessions for documents
+ */
+export interface DocumentCollaborationSession {
+  documentId: string
+  groupId: string
+  roomId: string // Nostr room ID for CRDT sync
+  participants: string[] // Active participant pubkeys
+  isActive: boolean
+  createdAt: number
+  lastActivity: number
+}
+
+/**
+ * Participant Presence
+ * Real-time cursor and user presence data
+ */
+export interface ParticipantPresence {
+  pubkey: string
+  name: string
+  color: string // Cursor color
+  cursor?: {
+    anchor: number
+    head: number
+  }
+  lastSeen: number
+}

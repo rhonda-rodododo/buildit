@@ -16,4 +16,9 @@ export const documentsSchema: TableSchema[] = [
     schema: 'id, documentId, version',
     indexes: ['id', 'documentId', 'version'],
   },
+  {
+    name: 'documentCollaboration',
+    schema: 'documentId, groupId, isActive',
+    indexes: ['documentId', 'groupId', 'isActive'],
+  },
 ];

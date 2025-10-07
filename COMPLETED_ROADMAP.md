@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-07
+**Last Updated**: 2025-10-07 (Epic 32 completed)
 
 ---
 
@@ -44,6 +44,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 29 | v0.29.0 | ✅ | `v0.29.0-e2e-tests` | Comprehensive E2E test suite with Playwright, visual regression, CI integration |
 | 30 | v0.30.0 | ✅ | `v0.30.0-security-audit` | Security audit preparation - encryption docs, threat model, rate limiting, vulnerability disclosure program |
 | 35 | v0.31.0 | ✅ | `v0.31.0-performance` | Performance optimization - 69% bundle reduction (760KB→233KB brotli) |
+| 32 | v0.32.0 | ✅ | `v0.32.0-documents` | Documents module with TipTap WYSIWYG editor, CRDT collaboration, PDF export |
 
 ---
 
@@ -387,4 +388,42 @@ Fixed 5 critical bugs preventing production deployment and breaking key features
 **Test Results**: 121/149 passing (up from 95/149), integration test reliability greatly improved
 
 **Impact**: Governance voting system now functional, device security features working, better user experience with error handling
+
+### Epic 32: Documents Module with CRDT Collaboration ✅
+**Tag**: `v0.32.0-documents` | **Commits**: `git log v0.32.0-documents`
+
+Implemented full-featured Documents module with TipTap WYSIWYG editor and real-time collaborative editing using CRDT technology.
+
+**Deliverables**:
+- TipTap WYSIWYG editor with rich formatting (bold, italic, headings, lists, tables, images, code blocks)
+- Real-time collaborative editing with Yjs CRDT
+- Custom EncryptedNostrProvider for privacy-preserving sync over Nostr
+- NIP-17 encryption for all collaborative edits (zero-knowledge relays)
+- Presence indicators with colored cursors and participant avatars
+- y-indexeddb for offline support and local persistence
+- PDF export with jsPDF
+- Markdown, HTML, and plain text export
+- Document version control and snapshots
+- 5 document templates (meeting notes, proposals, manifestos, press releases, action plans)
+- Comprehensive E2E tests (6 tests covering collaboration, offline sync, encryption)
+
+**Architecture Highlights**:
+- **CRDT**: Conflict-free replicated data types ensure eventual consistency
+- **Privacy**: All CRDT updates wrapped with NIP-17 gift-wrapping before relay transmission
+- **Offline-First**: Full editing capabilities offline, syncs when reconnected
+- **Performance**: Only diffs synced, not full document (~60KB bundle size increase)
+
+**Technical Implementation**:
+- Custom Yjs provider extending Observable pattern
+- Awareness protocol for cursor positions and user presence
+- Binary update encoding/decoding with base64 serialization
+- Event kind 9001 for CRDT sync messages
+- DocumentCollaboration table for session tracking
+
+**Testing**:
+- E2E tests verify: two-user editing, conflict-free merging, offline sync, cursor presence, encrypted sync, PDF export
+- Build successful, type errors fixed
+- Bundle size: +60KB for Yjs + dependencies
+
+**Reference**: [CRDT_COLLABORATION_IMPLEMENTATION.md](./CRDT_COLLABORATION_IMPLEMENTATION.md)
 
