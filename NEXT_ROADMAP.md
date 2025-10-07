@@ -25,78 +25,15 @@ When completing an epic:
 ## 📊 Current Status
 
 **Last Updated**: 2025-10-07
-**Active Epic**: Epic 28 (Critical Bug Fixes)
+**Active Epic**: Epic 28.5 (Routing Refactor)
 **Build Status**: ✅ Successful (233KB brotli initial load)
-**Test Status**: 122/149 tests passing (27 integration test failures to address)
+**Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 88% for organizing platform features
+**Completion**: 89% for organizing platform features
 
 ---
 
 ## 🔴 Critical Path: Production Readiness
-
-### Epic 28: Critical Bug Fixes 🔴
-**Status**: Not Started
-**Priority**: P0 - Blocking
-**Effort**: 5-10 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`bug-fixer`)
-
-**Context**: Three critical bugs prevent production deployment and break key features.
-
-**Tasks**:
-- [ ] **BUG-001**: Fix Governance CreateProposalDialog not connected to backend
-  - File: `/src/modules/governance/components/CreateProposalDialog.tsx` (lines 31-56)
-  - Issue: Only logs to console, doesn't call `proposalManager.createProposal()`
-  - Impact: Users cannot create proposals - entire Governance voting system non-functional from UI
-  - Fix: Replace console.log with actual proposalManager integration
-  - Estimated: 30 minutes
-
-- [ ] **BUG-002**: Fix all Integration Tests (IndexedDB/Nostr)
-  - Files: `/src/tests/integration/*.test.ts`
-  - Issue 1: IndexedDB API missing (`fake-indexeddb` not configured in Vitest)
-  - Issue 2: NostrClient missing `disconnect()` method
-  - Impact: 0/19 integration tests passing - cannot verify Nostr↔Storage sync
-  - Fix: Configure IndexedDB polyfill, add disconnect() to NostrClient
-  - Estimated: 2-3 hours
-
-- [ ] **BUG-003**: Fix Device Trust/Revocation Functions
-  - File: `/src/lib/notifications/DeviceLoginNotifications.ts` (lines 99, 124)
-  - Issue: `db.table('devices').update()` fails with "undefined"
-  - Impact: Device trust/revoke features broken in security system
-  - Fix: Verify 'devices' table exists in schema and is initialized
-  - Estimated: 1 hour
-
-- [ ] **BUG-006**: Add error display to LoginForm
-  - File: `/src/components/auth/LoginForm.tsx`
-  - Issue: Login errors only logged to console, no user feedback
-  - Fix: Add error state and Alert component for user-facing messages
-  - Estimated: 30 minutes
-
-- [ ] **BUG-007**: Remove @ts-ignore/@ts-expect-error suppressions
-  - Files: DeviceLoginNotifications.ts (5), eventManager.ts (1)
-  - Fix: Properly type interfaces or use type assertions with guards
-  - Estimated: 1-2 hours
-
-**Acceptance Criteria**:
-- All 5 bugs fixed and verified
-- Integration tests passing (19/19)
-- Governance proposal creation working from UI
-- Device trust/revoke working
-- Login form shows errors
-- Zero @ts-ignore in modified files
-
-**Testing Requirements**:
-- `bun test` - all tests passing
-- Manual test: Create proposal in Governance module
-- Manual test: Trust/revoke device in Security page
-- Manual test: Trigger login error and verify UI message
-
-**Reference Docs**: [BUGS.md](./BUGS.md)
-
-**Git Commit Format**: `fix: resolve critical bugs (Epic 28 - BUG-001 through BUG-007)`
-
----
 
 ### Epic 28.5: Routing Refactor - Group-Based Paths 🛣️
 **Status**: ✅ Complete
@@ -884,6 +821,5 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 ---
 
 **Last Updated**: 2025-10-07
-**Total Epics Pending**: 11 (Epic 28, 28.5, 30-39)
+**Total Epics Pending**: 10 (Epic 28.5, 31-39)
 **Total Backlog Items**: 10+
-**Next Git Tag**: `v0.28.0-bugfixes` (after Epic 28 complete)
