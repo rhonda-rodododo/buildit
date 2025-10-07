@@ -39,6 +39,7 @@ Archive of completed epics (Epics 1-27). This document provides high-level summa
 | 25 | v0.25.0 | ✅ | `v0.25.0-engagement-ladder` | Engagement ladder UI and personalized onboarding |
 | 26 | v0.26.0 | ✅ | `v0.26.0-privacy` | Anonymous reactions/voting, covert supporter role |
 | 27 | v0.27.0 | ✅ | `v0.27.0-security` | Member verification, anomaly detection, audit logs |
+| 29 | v0.29.0 | ✅ | `v0.29.0-e2e-tests` | Comprehensive E2E test suite with Playwright, visual regression, CI integration |
 
 ---
 
@@ -276,6 +277,15 @@ Built MemberVerification component with trust score system (0-100), QR code veri
 
 ---
 
+### Epic 29: E2E Test Suite with Playwright ✅
+**Tag**: `v0.29.0-e2e-tests` | **Commits**: `git log v0.27.0-security..v0.29.0-e2e-tests`
+
+Implemented comprehensive end-to-end test suite with Playwright including authentication flow tests (4 scenarios: user registration/identity creation, nsec import, key export/backup, identity switching), group management tests (6 scenarios: group creation, settings modification, module enable/disable, member invitation, permission changes, deletion), messaging tests (3 scenarios: send/receive DM, group message threads, notification delivery), events tests (5 scenarios: event creation with custom fields, RSVP flow, calendar view, iCal export, privacy levels), governance tests (3 scenarios: proposal creation for all voting methods, voting flow, results display), mutual aid tests (3 scenarios: request creation, offer matching, fulfillment flow), CI integration for E2E tests, and visual regression testing with screenshots. 18+ E2E test scenarios passing, tests run in CI/CD pipeline, visual regression baseline established, cross-browser testing (Chrome, Firefox), and documentation for running E2E tests.
+
+**Reference**: `/tests/e2e/` directory, [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Testing section)
+
+---
+
 ## Technology Stack Summary
 
 - **Protocol**: Nostr (decentralized)
@@ -297,7 +307,7 @@ See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) for active and upcoming epics.
 
 ---
 
-**Last Updated**: 2025-10-06
-**Total Epics Completed**: 27
-**Total Git Tags**: 27
+**Last Updated**: 2025-10-07
+**Total Epics Completed**: 28
+**Total Git Tags**: 28
 **Current Version**: v1.0.0-mvp (with Spectrum of Support extensions)

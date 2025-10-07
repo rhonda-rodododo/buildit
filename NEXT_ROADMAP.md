@@ -98,7 +98,7 @@ When completing an epic:
 ---
 
 ### Epic 28.5: Routing Refactor - Group-Based Paths 🛣️
-**Status**: Not Started
+**Status**: ✅ Complete
 **Priority**: P0 - Foundation for Social Features
 **Effort**: 10-12 hours
 **Dependencies**: None
@@ -193,68 +193,6 @@ When completing an epic:
 **Git Commit Format**: `feat: implement group-based routing with dynamic module paths (Epic 28.5)`
 
 **Git Tag**: `v0.28.5-routing-refactor`
-
----
-
-### Epic 29: E2E Test Suite with Playwright 🧪
-**Status**: Not Started
-**Priority**: P0 - Blocking production
-**Effort**: 20-30 hours
-**Dependencies**: Epic 28 complete
-**Assignable to subagent**: Yes (`test-writer`)
-
-**Context**: End-to-end testing is completely missing. Playwright is installed but no tests written. Critical for production confidence.
-
-**Tasks**:
-- [ ] Configure Playwright properly (`playwright.config.ts`)
-- [ ] Write authentication flow tests (4 scenarios):
-  - User registration/identity creation
-  - nsec import
-  - Key export/backup
-  - Identity switching
-- [ ] Write group management tests (6 scenarios):
-  - Group creation
-  - Group settings modification
-  - Module enable/disable per group
-  - Member invitation
-  - Permission changes
-  - Group deletion
-- [ ] Write messaging tests (3 scenarios):
-  - Send/receive DM
-  - Group message threads
-  - Notification delivery
-- [ ] Write events tests (5 scenarios):
-  - Event creation with custom fields
-  - RSVP flow
-  - Calendar view
-  - iCal export
-  - Event privacy levels
-- [ ] Write governance tests (3 scenarios):
-  - Proposal creation (all voting methods)
-  - Voting flow
-  - Results display
-- [ ] Write mutual aid tests (3 scenarios):
-  - Request creation
-  - Offer matching
-  - Fulfillment flow
-- [ ] Set up CI integration for E2E tests
-- [ ] Add visual regression testing (screenshots)
-
-**Acceptance Criteria**:
-- 18+ E2E test scenarios passing
-- Tests run in CI/CD pipeline
-- Visual regression baseline established
-- Cross-browser testing (Chrome, Firefox)
-- Documentation for running E2E tests
-
-**Testing Requirements**:
-- `bun run test:e2e` passes all scenarios
-- Tests run in headless and headed modes
-- Screenshots captured for visual regression
-
-**Reference Docs**: `/tests/e2e/` directory, [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Testing section)
-
-**Git Commit Format**: `test: implement comprehensive E2E test suite with Playwright (Epic 29)`
 
 ---
 
@@ -1049,7 +987,7 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-06
-**Total Epics Pending**: 12 (Epic 28-39)
+**Last Updated**: 2025-10-07
+**Total Epics Pending**: 11 (Epic 28, 28.5, 30-39)
 **Total Backlog Items**: 10+
 **Next Git Tag**: `v0.28.0-bugfixes` (after Epic 28 complete)
