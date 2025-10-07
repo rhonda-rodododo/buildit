@@ -54,7 +54,7 @@ export class EventManager {
     await this.nostrClient.publish(nostrEvent)
 
     // Store in local database
-    await db.events.add({
+    await db.events?.add({
       id: event.id,
       groupId: event.groupId,
       title: event.title,
@@ -212,7 +212,7 @@ export class EventManager {
         note,
       })
     } else {
-      await db.rsvps.add({
+      await db.rsvps?.add({
         eventId,
         userPubkey,
         status,
@@ -354,7 +354,7 @@ export class EventManager {
           })
         }
       } else {
-        await db.events.add({
+        await db.events?.add({
           id: event.id,
           groupId: event.groupId,
           title: event.title,

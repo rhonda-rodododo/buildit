@@ -5,7 +5,6 @@
  */
 
 import { FC, useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,9 +14,7 @@ import {
   Flag,
   Eye,
   EyeOff,
-  Shield,
-  Info
-} from 'lucide-react';
+  Shield} from 'lucide-react';
 
 interface Reaction {
   type: 'like' | 'love' | 'idea' | 'concern';
@@ -36,7 +33,6 @@ interface AnonymousReactionsProps {
 }
 
 export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
-  postId,
   initialReactions = [
     { type: 'like', count: 12, userReacted: false, anonymous: false },
     { type: 'love', count: 5, userReacted: false, anonymous: false },

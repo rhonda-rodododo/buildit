@@ -1,0 +1,43 @@
+# Security Policy for BuildIt Network
+# https://securitytxt.org/
+
+Contact: mailto:security@builditnetwork.org
+Contact: https://github.com/builditnetwork/buildit-network/security/advisories/new
+Expires: 2026-10-07T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://builditnetwork.org/.well-known/security.txt
+
+# PGP Key for encrypted reports (optional - add when available)
+# Encryption: https://builditnetwork.org/pgp-key.txt
+
+Acknowledgments: https://builditnetwork.org/security-acknowledgments
+
+Policy: https://builditnetwork.org/vulnerability-disclosure
+
+# Security Researchers
+#
+# We welcome responsible disclosure of security vulnerabilities.
+# Please see our vulnerability disclosure policy for guidelines.
+#
+# What we're interested in:
+# - Authentication/authorization bypass
+# - Private key exposure or weak key generation
+# - Encryption vulnerabilities (NIP-44, NIP-17, media encryption)
+# - XSS, CSRF, or other web vulnerabilities
+# - Rate limiting bypass
+# - Session fixation or hijacking
+# - Dependency vulnerabilities
+#
+# Out of scope:
+# - Social engineering attacks
+# - Physical security
+# - Denial of service (DoS/DDoS)
+# - Issues in third-party services or relays
+# - Self-XSS that requires user action
+#
+# Rewards:
+# - Hall of fame listing (with permission)
+# - Acknowledgment in release notes
+# - Potential bounty (to be determined)
+#
+# Thank you for helping keep BuildIt Network secure!

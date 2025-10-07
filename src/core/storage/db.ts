@@ -58,7 +58,7 @@ export interface DBNostrEvent {
 }
 
 export interface DBModuleInstance {
-  id: string; // primary key: `${groupId}:${moduleId}`
+  id: string; // primary key: `${groupId}:$`
   moduleId: string;
   groupId: string;
   state: 'disabled' | 'enabled' | 'loading' | 'error';
@@ -100,7 +100,7 @@ const CORE_SCHEMA: TableSchema[] = [
   },
   {
     name: 'moduleInstances',
-    schema: 'id, [groupId+moduleId], groupId, moduleId, state, updatedAt',
+    schema: 'id, [groupId+moduleId], groupId, state, updatedAt',
     indexes: ['id', '[groupId+moduleId]', 'groupId', 'moduleId', 'state', 'updatedAt'],
   },
 ];
@@ -164,7 +164,7 @@ export class BuildItDB extends Dexie {
     for (const [moduleId, schemas] of this.moduleSchemas.entries()) {
       for (const table of schemas) {
         if (schemaMap[table.name]) {
-          console.warn(`Table ${table.name} from module ${moduleId} conflicts with existing table`);
+          console.warn(`Table ${table.name} from module $ conflicts with existing table`);
         } else {
           schemaMap[table.name] = table.schema;
         }
@@ -237,12 +237,12 @@ const schemaRegistry = new Map<string, TableSchema[]>();
 export function registerModuleSchema(moduleId: string, schema: TableSchema[]): void {
   if (_dbInstance) {
     // Database already initialized (probably due to HMR), skip registration
-    console.warn(`⚠️  DB already initialized, skipping schema registration for: ${moduleId}`);
+    console.warn(`⚠️  DB already initialized, skipping schema registration for: $`);
     return;
   }
 
   schemaRegistry.set(moduleId, schema);
-  console.log(`📋 Registered schema for module: ${moduleId} (${schema.length} tables)`);
+  console.log(`📋 Registered schema for module: $ (${schema.length} tables)`);
 }
 
 /**

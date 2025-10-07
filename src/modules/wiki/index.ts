@@ -8,7 +8,10 @@ import { wikiSchema } from './schema';
 import { wikiSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Book } from 'lucide-react';
-import { WikiView } from './components/WikiView';
+import { lazy } from 'react';
+
+// Lazy load WikiView to reduce initial bundle size (includes heavy md-editor)
+const WikiView = lazy(() => import('./components/WikiView').then(m => ({ default: m.WikiView })));
 
 /**
  * Wiki Module Plugin

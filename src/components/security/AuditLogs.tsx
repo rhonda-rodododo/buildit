@@ -17,13 +17,10 @@ import {
   Filter,
   Shield,
   UserPlus,
-  UserMinus,
   Lock,
-  Unlock,
   Eye,
   Edit,
   Trash,
-  Settings,
   CheckCircle,
   XCircle,
   Info
@@ -56,7 +53,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
   isAdmin = false,
   className
 }) => {
-  const [logs, setLogs] = useState<AuditLog[]>([
+  const [logs, _setLogs] = useState<AuditLog[]>([
     {
       id: 'log-1',
       action: 'Suspended member account',

@@ -29,7 +29,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseTables.add(actionTrackerTable);
+      await db.databaseTables?.add(actionTrackerTable);
 
       // Create custom fields for this table
       const tableFields = [
@@ -168,7 +168,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.customFields.bulkAdd(tableFields);
+      await db.customFields?.bulkAdd(tableFields);
 
       // Create views
       const tableView: DBView = {
@@ -231,7 +231,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseViews.bulkAdd([tableView, boardView, calendarView]);
+      await db.databaseViews?.bulkAdd([tableView, boardView, calendarView]);
 
       // Create sample records
       const sampleRecords: DBRecord[] = [
@@ -288,7 +288,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.databaseRecords.bulkAdd(sampleRecords);
+      await db.databaseRecords?.bulkAdd(sampleRecords);
 
       console.log(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
     },
@@ -312,7 +312,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseTables.add(resourceTable);
+      await db.databaseTables?.add(resourceTable);
 
       // Create custom fields
       const resourceFields = [
@@ -423,7 +423,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.customFields.bulkAdd(resourceFields);
+      await db.customFields?.bulkAdd(resourceFields);
 
       // Create gallery view for resources
       const galleryView: DBView = {
@@ -447,7 +447,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseViews.add(galleryView);
+      await db.databaseViews?.add(galleryView);
 
       // Sample resource records
       const resources: DBRecord[] = [
@@ -501,7 +501,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.databaseRecords.bulkAdd(resources);
+      await db.databaseRecords?.bulkAdd(resources);
 
       console.log(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
     },

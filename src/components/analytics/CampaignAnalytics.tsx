@@ -233,7 +233,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
         <div className="space-y-4">
           {/* Simple bar chart */}
           <div className="flex items-end gap-4 h-48">
-            {DEMO_DATA.membershipGrowth.monthlyData.map((data, index) => (
+            {DEMO_DATA.membershipGrowth.monthlyData.map((data, _index) => (
               <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
                 <div className="flex-1 w-full flex items-end">
                   <div
@@ -372,10 +372,10 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
 
         <h4 className="text-sm font-semibold mb-3">Top Contributors</h4>
         <div className="space-y-2">
-          {DEMO_DATA.engagementMetrics.topContributors.map((contributor, index) => (
+          {DEMO_DATA.engagementMetrics.topContributors.map((contributor, idx) => (
             <div key={contributor.name} className="flex items-center gap-3">
               <span className="text-sm font-medium text-muted-foreground w-6">
-                #{index + 1}
+                #{idx + 1}
               </span>
               <span className="flex-1 text-sm font-medium">{contributor.name}</span>
               <span className="text-xs text-muted-foreground">

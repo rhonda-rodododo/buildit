@@ -10,7 +10,7 @@ interface ConversationListProps {
   groupId?: string; // Optional: filter conversations to specific group
 }
 
-export const ConversationList: FC<ConversationListProps> = ({ onSelectConversation, groupId }) => {
+export const ConversationList: FC<ConversationListProps> = ({ onSelectConversation}) => {
   const { conversations, setConversations, activeConversationId, setActiveConversation } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
 

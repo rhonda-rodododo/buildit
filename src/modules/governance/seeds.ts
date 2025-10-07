@@ -240,7 +240,7 @@ Select 5 delegates to represent us in the Housing Justice Coalition using D'Hond
         },
       ];
 
-      await db.proposals.bulkAdd(exampleProposals);
+      await db.proposals?.bulkAdd(exampleProposals);
       console.log(`Seeded ${exampleProposals.length} proposals demonstrating all voting methods for group ${groupId}`);
     },
   },

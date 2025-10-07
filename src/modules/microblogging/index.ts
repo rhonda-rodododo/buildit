@@ -4,7 +4,7 @@
  */
 
 import type { ModulePlugin } from '@/types/modules';
-import { microbloggingSchema, microbloggingMigrations, microbloggingSeeds } from './schema';
+import { microbloggingSchema, microbloggingMigrations} from './schema';
 import { MessageSquare } from 'lucide-react';
 
 /**

@@ -2,12 +2,38 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from 'rollup-plugin-visualizer'
+import viteCompression from 'vite-plugin-compression'
 import path from 'path'
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    visualizer({
+      open: false,
+      filename: './dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
+    // Brotli compression (better than gzip)
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240, // Only compress files > 10KB
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      deleteOriginFile: false,
+    }),
+    // Also create gzip versions for older servers
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240,
+      algorithm: 'gzip',
+      ext: '.gz',
+      deleteOriginFile: false,
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
@@ -98,23 +124,84 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-dialog', '@radix-ui/react-select'],
-          'vendor-crypto': ['@noble/secp256k1', 'nostr-tools'],
-          'vendor-utils': ['zustand', 'dexie', 'zod', 'clsx', 'tailwind-merge'],
-          // Module chunks (lazy loaded)
-          'module-events': ['src/modules/events/index.ts'],
-          'module-governance': ['src/modules/governance/index.ts'],
-          'module-wiki': ['src/modules/wiki/index.ts'],
-          'module-mutual-aid': ['src/modules/mutual-aid/index.ts'],
-          'module-database': ['src/modules/database/index.ts'],
-          'module-crm': ['src/modules/crm/index.ts'],
+        manualChunks: (id) => {
+          // Core vendor libraries
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/react-router-dom/')) {
+            return 'vendor-router';
+          }
+
+          // Crypto libraries
+          if (id.includes('@noble/secp256k1') || id.includes('nostr-tools')) {
+            return 'vendor-crypto';
+          }
+
+          // UI libraries - split by package for better caching
+          if (id.includes('@radix-ui/')) {
+            return 'vendor-radix';
+          }
+          if (id.includes('lucide-react')) {
+            return 'vendor-icons';
+          }
+
+          // Heavy markdown editor - separate chunk
+          if (id.includes('@uiw/react-md-editor')) {
+            return 'vendor-md-editor';
+          }
+
+          // Table/data visualization libraries
+          if (id.includes('@tanstack/react-table') || id.includes('@tanstack/react-virtual')) {
+            return 'vendor-table';
+          }
+          if (id.includes('@hello-pangea/dnd')) {
+            return 'vendor-dnd';
+          }
+
+          // Date libraries
+          if (id.includes('date-fns')) {
+            return 'vendor-date';
+          }
+
+          // State management and storage
+          if (id.includes('zustand') || id.includes('dexie')) {
+            return 'vendor-state';
+          }
+
+          // Utilities
+          if (id.includes('node_modules/') && (
+            id.includes('clsx') ||
+            id.includes('tailwind-merge') ||
+            id.includes('zod') ||
+            id.includes('class-variance-authority')
+          )) {
+            return 'vendor-utils';
+          }
+
+          // Module chunks - let them be lazy loaded naturally
+          if (id.includes('src/modules/wiki/')) {
+            return 'module-wiki';
+          }
+          if (id.includes('src/modules/events/')) {
+            return 'module-events';
+          }
+          if (id.includes('src/modules/database/')) {
+            return 'module-database';
+          }
+          if (id.includes('src/modules/governance/')) {
+            return 'module-governance';
+          }
+          if (id.includes('src/modules/mutual-aid/')) {
+            return 'module-mutual-aid';
+          }
+          if (id.includes('src/modules/crm/')) {
+            return 'module-crm';
+          }
         },
       },
     },
-    chunkSizeWarningLimit: 600, // Increase from 500KB default
+    chunkSizeWarningLimit: 500, // Keep at 500KB to catch issues
   },
   test: {
     globals: true,

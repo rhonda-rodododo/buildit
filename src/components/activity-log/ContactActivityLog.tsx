@@ -12,8 +12,6 @@ import { formatDistanceToNow, format } from 'date-fns';
 import {
   Mail,
   Calendar,
-  UserPlus,
-  MessageSquare,
   FileText,
   CheckCircle,
   Clock,
@@ -106,7 +104,6 @@ const DEMO_ACTIVITIES: ActivityItem[] = [
 ];
 
 export const ContactActivityLog: FC<ContactActivityLogProps> = ({
-  contactId,
   contactName,
   className
 }) => {
@@ -203,7 +200,7 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
               <p className="text-muted-foreground">No activities found</p>
             </Card>
           ) : (
-            filteredActivities.map((activity, index) => (
+            filteredActivities.map((activity, _index) => (
               <div key={activity.id} className="relative pl-12">
                 {/* Icon */}
                 <div

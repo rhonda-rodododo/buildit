@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback} from 'react'
 import { useEventsStore } from '../eventsStore'
 import { EventManager } from '../eventManager'
 import { NostrClient } from '@/core/nostr/client'

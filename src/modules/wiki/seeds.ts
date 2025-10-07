@@ -533,7 +533,7 @@ You have the right to remain silent and you should use it! 🤐`,
         },
       ];
 
-      await db.wikiPages.bulkAdd(examplePages);
+      await db.wikiPages?.bulkAdd(examplePages);
       console.log(`Seeded ${examplePages.length} comprehensive wiki pages for group ${groupId}`);
     },
   },

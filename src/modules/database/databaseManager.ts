@@ -54,7 +54,7 @@ export class DatabaseManager {
       updated: table.updated,
     };
 
-    await db.databaseTables.add(dbTable);
+    await db.databaseTables?.add(dbTable);
 
     // Add to store
     useDatabaseStore.getState().addTable(table);
@@ -191,7 +191,7 @@ export class DatabaseManager {
       updated: view.updated,
     };
 
-    await db.databaseViews.add(dbView);
+    await db.databaseViews?.add(dbView);
     useDatabaseStore.getState().addView(view);
 
     return view;
@@ -260,7 +260,7 @@ export class DatabaseManager {
       updatedBy: record.updatedBy,
     };
 
-    await db.databaseRecords.add(dbRecord);
+    await db.databaseRecords?.add(dbRecord);
     useDatabaseStore.getState().addRecord(record);
 
     return record;
@@ -477,7 +477,7 @@ export class DatabaseManager {
       createdBy: relationship.createdBy,
     };
 
-    await db.databaseRelationships.add(dbRelationship);
+    await db.databaseRelationships?.add(dbRelationship);
     useDatabaseStore.getState().addRelationship(relationship);
 
     return relationship;

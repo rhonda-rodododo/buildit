@@ -16,7 +16,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
   Tag,
   Edit,
   UserPlus,
@@ -65,7 +64,7 @@ const DEMO_CONTACTS: Record<string, Contact> = {
 
 export const ContactDetailPage: FC = () => {
   const { contactId } = useParams<{ contactId: string }>();
-  const [contact, setContact] = useState<Contact | null>(
+  const [contact, _setContact] = useState<Contact | null>(
     contactId ? DEMO_CONTACTS[contactId] : null
   );
 

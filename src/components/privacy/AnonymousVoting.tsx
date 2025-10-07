@@ -43,7 +43,6 @@ interface AnonymousVotingProps {
 }
 
 export const AnonymousVoting: FC<AnonymousVotingProps> = ({
-  proposalId,
   proposalTitle,
   proposalDescription,
   voteType = 'yes-no-abstain',

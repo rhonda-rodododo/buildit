@@ -41,8 +41,8 @@ interface ActivityFeedProps {
   groupId?: string; // Optional: filter to specific group
 }
 
-export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
-  const { posts, refreshFeed: refreshPosts, isLoadingFeed: isLoadingPosts } =
+export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
+  const { posts, refreshFeed: refreshPosts, isLoadingFeed: _isLoadingPosts } =
     usePostsStore();
   const eventsStore = useEventsStore();
   const mutualAidStore = useMutualAidStore();

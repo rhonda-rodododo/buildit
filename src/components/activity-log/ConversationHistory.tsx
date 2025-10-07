@@ -15,11 +15,9 @@ import {
   Send,
   Search,
   Filter,
-  Calendar,
   Hash,
   Users,
-  Lock,
-  Globe
+  Lock
 } from 'lucide-react';
 import {
   DropdownMenu,

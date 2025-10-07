@@ -105,9 +105,9 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
     }
   ]);
 
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [_selectedMember, _setSelectedMember] = useState<Member | null>(null);
   const [showQRScanner, setShowQRScanner] = useState(false);
-  const [vouchInput, setVouchInput] = useState('');
+  const [_vouchInput, setVouchInput] = useState('');
 
   const handleVerifyMember = (memberId: string) => {
     setMembers(prev => prev.map(m =>

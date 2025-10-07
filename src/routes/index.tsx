@@ -1,36 +1,65 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { RootLayout } from '@/layouts/RootLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { AppLayout } from '@/layouts/AppLayout';
-import { LoginPage } from '@/pages/LoginPage';
-import { HomePage } from '@/pages/HomePage';
-import { MessagesPage } from '@/pages/MessagesPage';
-import { GroupsPage } from '@/pages/GroupsPage';
-import { GroupLayout } from '@/layouts/GroupLayout';
-import { GroupDashboard } from '@/pages/GroupDashboard';
-import { SettingsLayout } from '@/layouts/SettingsLayout';
-import { ProfileSettings } from '@/pages/settings/ProfileSettings';
-import { SecuritySettings } from '@/pages/settings/SecuritySettings';
-import { PrivacySettings } from '@/pages/settings/PrivacySettings';
-import { NotificationSettings } from '@/pages/settings/NotificationSettings';
-import { PreferencesSettings } from '@/pages/settings/PreferencesSettings';
-import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getAllModules } from '@/lib/modules/registry';
-import { CampaignPage } from '@/pages/public/CampaignPage';
-import { PublicWikiPage } from '@/pages/public/PublicWikiPage';
-import { AnalyticsPage } from '@/pages/AnalyticsPage';
-import { BulkOperationsPage } from '@/pages/BulkOperationsPage';
-import { ContactDetailPage } from '@/pages/ContactDetailPage';
-import { EngagementPage } from '@/pages/EngagementPage';
-import { OnboardingDemoPage } from '@/pages/OnboardingDemoPage';
-import { NotificationsDemoPage } from '@/pages/NotificationsDemoPage';
-import { PrivacyDemoPage } from '@/pages/PrivacyDemoPage';
-import { SecurityDemoPage } from '@/pages/SecurityDemoPage';
-import { GroupFeedPage } from '@/pages/GroupFeedPage';
-import { GroupMembersPage } from '@/pages/GroupMembersPage';
-import { GroupSettingsPage } from '@/pages/GroupSettingsPage';
-import { GroupMessagesPage } from '@/pages/GroupMessagesPage';
+
+// Loading fallback component
+const LoadingPage = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+      <p className="mt-4 text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
+// Lazy load pages for code splitting
+const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })));
+const MessagesPage = lazy(() => import('@/pages/MessagesPage').then(m => ({ default: m.MessagesPage })));
+const GroupsPage = lazy(() => import('@/pages/GroupsPage').then(m => ({ default: m.GroupsPage })));
+const GroupLayout = lazy(() => import('@/layouts/GroupLayout').then(m => ({ default: m.GroupLayout })));
+const GroupDashboard = lazy(() => import('@/pages/GroupDashboard').then(m => ({ default: m.GroupDashboard })));
+const GroupFeedPage = lazy(() => import('@/pages/GroupFeedPage').then(m => ({ default: m.GroupFeedPage })));
+const GroupMembersPage = lazy(() => import('@/pages/GroupMembersPage').then(m => ({ default: m.GroupMembersPage })));
+const GroupSettingsPage = lazy(() => import('@/pages/GroupSettingsPage').then(m => ({ default: m.GroupSettingsPage })));
+const GroupMessagesPage = lazy(() => import('@/pages/GroupMessagesPage').then(m => ({ default: m.GroupMessagesPage })));
+
+// Settings pages
+const SettingsLayout = lazy(() => import('@/layouts/SettingsLayout').then(m => ({ default: m.SettingsLayout })));
+const ProfileSettings = lazy(() => import('@/pages/settings/ProfileSettings').then(m => ({ default: m.ProfileSettings })));
+const SecuritySettings = lazy(() => import('@/pages/settings/SecuritySettings').then(m => ({ default: m.SecuritySettings })));
+const PrivacySettings = lazy(() => import('@/pages/settings/PrivacySettings').then(m => ({ default: m.PrivacySettings })));
+const NotificationSettings = lazy(() => import('@/pages/settings/NotificationSettings').then(m => ({ default: m.NotificationSettings })));
+const PreferencesSettings = lazy(() => import('@/pages/settings/PreferencesSettings').then(m => ({ default: m.PreferencesSettings })));
+
+// Public pages
+const CampaignPage = lazy(() => import('@/pages/public/CampaignPage').then(m => ({ default: m.CampaignPage })));
+const PublicWikiPage = lazy(() => import('@/pages/public/PublicWikiPage').then(m => ({ default: m.PublicWikiPage })));
+
+// Feature pages
+const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const BulkOperationsPage = lazy(() => import('@/pages/BulkOperationsPage').then(m => ({ default: m.BulkOperationsPage })));
+const ContactDetailPage = lazy(() => import('@/pages/ContactDetailPage').then(m => ({ default: m.ContactDetailPage })));
+const EngagementPage = lazy(() => import('@/pages/EngagementPage').then(m => ({ default: m.EngagementPage })));
+
+// Demo pages
+const OnboardingDemoPage = lazy(() => import('@/pages/OnboardingDemoPage').then(m => ({ default: m.OnboardingDemoPage })));
+const NotificationsDemoPage = lazy(() => import('@/pages/NotificationsDemoPage').then(m => ({ default: m.NotificationsDemoPage })));
+const PrivacyDemoPage = lazy(() => import('@/pages/PrivacyDemoPage').then(m => ({ default: m.PrivacyDemoPage })));
+const SecurityDemoPage = lazy(() => import('@/pages/SecurityDemoPage').then(m => ({ default: m.SecurityDemoPage })));
+
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+
+// Wrapper to add Suspense to lazy-loaded components
+const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
+  <Suspense fallback={<LoadingPage />}>
+    <Component />
+  </Suspense>
+);
 
 /**
  * Get module routes by scope
@@ -81,18 +110,18 @@ export const routes: RouteObject[] = [
       {
         // Public routes (no auth required)
         path: 'campaigns/:slug',
-        element: <CampaignPage />,
+        element: withSuspense(CampaignPage),
       },
       {
         path: 'wiki',
         children: [
           {
             index: true,
-            element: <PublicWikiPage />,
+            element: withSuspense(PublicWikiPage),
           },
           {
             path: ':slug',
-            element: <PublicWikiPage />,
+            element: withSuspense(PublicWikiPage),
           },
         ],
       },
@@ -102,7 +131,7 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: 'login',
-            element: <LoginPage />,
+            element: withSuspense(LoginPage),
           },
         ],
       },
@@ -113,78 +142,78 @@ export const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <HomePage />,
+            element: withSuspense(HomePage),
           },
           {
             path: 'feed',
-            element: <HomePage />,
+            element: withSuspense(HomePage),
           },
           {
             path: 'messages',
-            element: <MessagesPage />,
+            element: withSuspense(MessagesPage),
           },
           {
             path: 'analytics',
-            element: <AnalyticsPage />,
+            element: withSuspense(AnalyticsPage),
           },
           {
             path: 'bulk-operations',
-            element: <BulkOperationsPage />,
+            element: withSuspense(BulkOperationsPage),
           },
           {
             path: 'contacts/:contactId',
-            element: <ContactDetailPage />,
+            element: withSuspense(ContactDetailPage),
           },
           {
             path: 'engagement',
-            element: <EngagementPage />,
+            element: withSuspense(EngagementPage),
           },
           {
             path: 'onboarding',
-            element: <OnboardingDemoPage />,
+            element: withSuspense(OnboardingDemoPage),
           },
           {
             path: 'notifications',
-            element: <NotificationsDemoPage />,
+            element: withSuspense(NotificationsDemoPage),
           },
           {
             path: 'privacy',
-            element: <PrivacyDemoPage />,
+            element: withSuspense(PrivacyDemoPage),
           },
           {
             path: 'security',
-            element: <SecurityDemoPage />,
+            element: withSuspense(SecurityDemoPage),
           },
           {
             path: 'groups',
             children: [
               {
                 index: true,
-                element: <GroupsPage />,
+                element: withSuspense(GroupsPage),
               },
               {
                 path: ':groupId',
-                element: <GroupLayout />,
+                element: withSuspense(GroupLayout),
                 children: [
                   {
                     index: true,
-                    element: <GroupDashboard />,
+                    element: withSuspense(GroupDashboard),
                   },
                   {
                     path: 'feed',
-                    element: <GroupFeedPage />,
+                    element: withSuspense(GroupFeedPage),
                   },
                   {
                     path: 'members',
-                    element: <GroupMembersPage />,
+                    element: withSuspense(GroupMembersPage),
                   },
                   {
                     path: 'settings',
-                    element: <GroupSettingsPage />,
+                    element: withSuspense(GroupSettingsPage),
                   },
                   {
                     path: 'messages',
-                    element: <GroupMessagesPage />,
+                    element: withSuspense(GroupMessagesPage),
                   },
                   // Dynamically loaded module routes (group-scoped)
                   ...getModuleRoutes('group'),
@@ -196,31 +225,31 @@ export const routes: RouteObject[] = [
           ...getModuleRoutes('app'),
           {
             path: 'settings',
-            element: <SettingsLayout />,
+            element: withSuspense(SettingsLayout),
             children: [
               {
                 index: true,
-                element: <ProfileSettings />,
+                element: withSuspense(ProfileSettings),
               },
               {
                 path: 'profile',
-                element: <ProfileSettings />,
+                element: withSuspense(ProfileSettings),
               },
               {
                 path: 'security',
-                element: <SecuritySettings />,
+                element: withSuspense(SecuritySettings),
               },
               {
                 path: 'privacy',
-                element: <PrivacySettings />,
+                element: withSuspense(PrivacySettings),
               },
               {
                 path: 'notifications',
-                element: <NotificationSettings />,
+                element: withSuspense(NotificationSettings),
               },
               {
                 path: 'preferences',
-                element: <PreferencesSettings />,
+                element: withSuspense(PreferencesSettings),
               },
             ],
           },
@@ -228,7 +257,7 @@ export const routes: RouteObject[] = [
       },
       {
         path: '*',
-        element: <NotFoundPage />,
+        element: withSuspense(NotFoundPage),
       },
     ],
   },

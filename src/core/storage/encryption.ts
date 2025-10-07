@@ -5,7 +5,7 @@
 
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from '@/core/crypto/nip44';
 import { hexToBytes, bytesToHex } from '@noble/hashes/utils';
-import { useAuthStore } from '@/stores/authStore';
+
 
 /**
  * Fields that should be encrypted in each table

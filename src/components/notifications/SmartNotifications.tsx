@@ -13,7 +13,6 @@ import {
   Calendar,
   Users,
   MessageSquare,
-  Target,
   TrendingUp,
   Megaphone,
   AlertCircle,

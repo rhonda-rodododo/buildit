@@ -44,7 +44,7 @@ export function GroupContextProvider({ children }: GroupContextProviderProps) {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
 
-  const { groups, loadGroups, loadGroupMembers, groupMembers } = useGroupsStore();
+  const { groups, loadGroupMembers, groupMembers } = useGroupsStore();
   const { registry } = useModuleStore();
 
   const [group, setGroup] = useState<DBGroup | null>(null);

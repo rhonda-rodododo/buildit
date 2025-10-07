@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const PrivacyDemoPage: FC = () => {
-  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('medium');
+  const [_riskLevel, _setRiskLevel] = useState<'low' | 'medium' | 'high'>('medium');
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
