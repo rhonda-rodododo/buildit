@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useModuleStore } from '@/stores/moduleStore';
 import type { ModulePlugin } from '@/types/modules';
+import { FileText } from 'lucide-react';
 
-// TODO: These tests need to be updated to match the current module system implementation
-// The current tests use an old flat ModulePlugin structure and test dependency features
-// that aren't implemented yet. Skip for now.
-describe.skip('Module System Integration', () => {
+describe('Module System Integration', () => {
   beforeEach(() => {
     // Reset module store by creating a new instance
     useModuleStore.setState({
@@ -14,152 +12,134 @@ describe.skip('Module System Integration', () => {
     });
   });
 
-  describe('Module Dependency Resolution', () => {
-    it('should load modules in dependency order', () => {
-      const store = useModuleStore.getState();
-
-      // Base module (no dependencies)
-      const customFieldsModule: ModulePlugin = {
+  describe('Module Registration', () => {
+    it('should register a module successfully', async () => {
+      const testModule: ModulePlugin = {
         metadata: {
-          id: 'custom-fields',
+          id: 'test-module',
           type: 'custom-fields',
-          name: 'Custom Fields',
+          name: 'Test Module',
           version: '1.0.0',
-          description: 'Base module for custom fields',
-          author: 'BuildIt',
-          icon: {} as any,
+          description: 'Test module for unit tests',
+          author: 'BuildIt Team',
+          icon: FileText,
           capabilities: [],
           configSchema: [],
           requiredPermission: 'member',
         },
       };
 
-      // Dependent module
-      const eventsModule: ModulePlugin = {
+      await useModuleStore.getState().registerModule(testModule);
+
+      const store = useModuleStore.getState();
+      expect(store.registry.has('test-module')).toBe(true);
+      const entry = store.registry.get('test-module');
+      expect(entry?.plugin.metadata.name).toBe('Test Module');
+    });
+
+    it('should not re-register an already registered module', async () => {
+      const testModule: ModulePlugin = {
         metadata: {
-          id: 'events',
-          type: 'events',
-          name: 'Events',
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
           version: '1.0.0',
-          description: 'Events module',
+          description: 'Test',
           author: 'BuildIt',
-          icon: {} as any,
+          icon: FileText,
           capabilities: [],
           configSchema: [],
           requiredPermission: 'member',
         },
-        dependencies: ['custom-fields'],
       };
 
-      store.registerModule(customFieldsModule);
-      store.registerModule(eventsModule);
+      await useModuleStore.getState().registerModule(testModule);
+      await useModuleStore.getState().registerModule(testModule); // Try to register again
 
-      expect(store.registry.has('custom-fields')).toBe(true);
-      expect(store.registry.has('events')).toBe(true);
+      const store = useModuleStore.getState();
+      expect(store.registry.size).toBe(1);
     });
 
-    it('should throw error when dependency is missing', () => {
-      const store = useModuleStore.getState();
+    it('should call onRegister lifecycle hook', async () => {
+      let registerCalled = false;
 
-      const eventsModule: ModulePlugin = {
-        id: 'events',
-        name: 'Events',
-        version: '1.0.0',
-        description: 'Events module',
-        dependencies: ['custom-fields'], // Missing dependency
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
+      const testModule: ModulePlugin = {
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+        lifecycle: {
+          onRegister: async () => {
+            registerCalled = true;
+          },
+        },
       };
 
-      expect(() => store.registerModule(eventsModule)).toThrow();
-    });
-
-    it('should handle complex dependency chains', () => {
-      const store = useModuleStore.getState();
-
-      const customFields: ModulePlugin = {
-        id: 'custom-fields',
-        name: 'Custom Fields',
-        version: '1.0.0',
-        description: 'Base',
-        dependencies: [],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-      };
-
-      const database: ModulePlugin = {
-        id: 'database',
-        name: 'Database',
-        version: '1.0.0',
-        description: 'Database',
-        dependencies: ['custom-fields'],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-      };
-
-      const crm: ModulePlugin = {
-        id: 'crm',
-        name: 'CRM',
-        version: '1.0.0',
-        description: 'CRM',
-        dependencies: ['database'],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-      };
-
-      store.registerModule(customFields);
-      store.registerModule(database);
-      store.registerModule(crm);
-
-      expect(store.registry.size).toBe(3);
+      await useModuleStore.getState().registerModule(testModule);
+      expect(registerCalled).toBe(true);
     });
   });
 
   describe('Module Enable/Disable per Group', () => {
-    it('should enable module for specific group', () => {
+    it('should enable module for specific group', async () => {
       const store = useModuleStore.getState();
 
       const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: { setting1: 'value1' },
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+        getDefaultConfig: () => ({ setting1: 'value1' }),
       };
 
-      store.registerModule(testModule);
-      store.enableModule('test-module', 'group-1', { setting1: 'custom' });
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module', { setting1: 'custom' });
 
       const groupModules = store.getGroupModules('group-1');
       expect(groupModules).toHaveLength(1);
-      expect(groupModules[0].id).toBe('test-module');
+      expect(groupModules[0].moduleId).toBe('test-module');
       expect(groupModules[0].config.setting1).toBe('custom');
+      expect(groupModules[0].state).toBe('enabled');
     });
 
-    it('should isolate module config per group', () => {
+    it('should isolate module config per group', async () => {
       const store = useModuleStore.getState();
 
       const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: { setting1: 'default' },
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+        getDefaultConfig: () => ({ setting1: 'default' }),
       };
 
-      store.registerModule(testModule);
-      store.enableModule('test-module', 'group-1', { setting1: 'config1' });
-      store.enableModule('test-module', 'group-2', { setting1: 'config2' });
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module', { setting1: 'config1' });
+      await store.enableModule('group-2', 'test-module', { setting1: 'config2' });
 
       const group1Modules = store.getGroupModules('group-1');
       const group2Modules = store.getGroupModules('group-2');
@@ -168,110 +148,159 @@ describe.skip('Module System Integration', () => {
       expect(group2Modules[0].config.setting1).toBe('config2');
     });
 
-    it('should disable module for specific group only', () => {
+    it('should disable module for specific group only', async () => {
       const store = useModuleStore.getState();
 
       const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
       };
 
-      store.registerModule(testModule);
-      store.enableModule('test-module', 'group-1');
-      store.enableModule('test-module', 'group-2');
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module');
+      await store.enableModule('group-2', 'test-module');
 
-      store.disableModule('test-module', 'group-1');
+      await store.disableModule('group-1', 'test-module');
 
-      expect(store.isModuleEnabled('test-module', 'group-1')).toBe(false);
-      expect(store.isModuleEnabled('test-module', 'group-2')).toBe(true);
+      expect(store.isModuleEnabled('group-1', 'test-module')).toBe(false);
+      expect(store.isModuleEnabled('group-2', 'test-module')).toBe(true);
     });
   });
 
   describe('Module Lifecycle Hooks', () => {
-    it('should call onRegister hook', () => {
-      const store = useModuleStore.getState();
-      let registerCalled = false;
-
-      const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-        onRegister: () => {
-          registerCalled = true;
-        },
-      };
-
-      store.registerModule(testModule);
-      expect(registerCalled).toBe(true);
-    });
-
-    it('should call onEnable and onDisable hooks', () => {
+    it('should call onEnable and onDisable hooks', async () => {
       const store = useModuleStore.getState();
       let enableCalled = false;
       let disableCalled = false;
 
       const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: {},
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-        onEnable: () => {
-          enableCalled = true;
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
         },
-        onDisable: () => {
-          disableCalled = true;
+        lifecycle: {
+          onEnable: async () => {
+            enableCalled = true;
+          },
+          onDisable: async () => {
+            disableCalled = true;
+          },
         },
       };
 
-      store.registerModule(testModule);
-      store.enableModule('test-module', 'group-1');
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module');
       expect(enableCalled).toBe(true);
 
-      store.disableModule('test-module', 'group-1');
+      await store.disableModule('group-1', 'test-module');
       expect(disableCalled).toBe(true);
     });
 
-    it('should call onConfigUpdate hook', () => {
+    it('should call onConfigUpdate hook', async () => {
       const store = useModuleStore.getState();
       let configUpdateCalled = false;
       let updatedConfig: any;
 
       const testModule: ModulePlugin = {
-        id: 'test-module',
-        name: 'Test Module',
-        version: '1.0.0',
-        description: 'Test',
-        dependencies: [],
-        defaultConfig: { setting1: 'default' },
-        configSchema: { type: 'object', properties: {} },
-        permissions: [],
-        onConfigUpdate: (_groupId, config) => {
-          configUpdateCalled = true;
-          updatedConfig = config;
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+        getDefaultConfig: () => ({ setting1: 'default' }),
+        lifecycle: {
+          onConfigUpdate: async (_groupId, config) => {
+            configUpdateCalled = true;
+            updatedConfig = config;
+          },
         },
       };
 
-      store.registerModule(testModule);
-      store.enableModule('test-module', 'group-1');
-      store.updateModuleConfig('test-module', 'group-1', { setting1: 'updated' });
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module');
+      await store.updateModuleConfig('group-1', 'test-module', { setting1: 'updated' });
 
       expect(configUpdateCalled).toBe(true);
       expect(updatedConfig.setting1).toBe('updated');
+    });
+  });
+
+  describe('Module Queries', () => {
+    it('should get module instance for a group', async () => {
+      const store = useModuleStore.getState();
+
+      const testModule: ModulePlugin = {
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+      };
+
+      await store.registerModule(testModule);
+      await store.enableModule('group-1', 'test-module');
+
+      const instance = store.getModuleInstance('group-1', 'test-module');
+      expect(instance).toBeDefined();
+      expect(instance?.moduleId).toBe('test-module');
+      expect(instance?.groupId).toBe('group-1');
+    });
+
+    it('should check if module is enabled for a group', async () => {
+      const store = useModuleStore.getState();
+
+      const testModule: ModulePlugin = {
+        metadata: {
+          id: 'test-module',
+          type: 'custom-fields',
+          name: 'Test Module',
+          version: '1.0.0',
+          description: 'Test',
+          author: 'BuildIt',
+          icon: FileText,
+          capabilities: [],
+          configSchema: [],
+          requiredPermission: 'member',
+        },
+      };
+
+      await store.registerModule(testModule);
+      expect(store.isModuleEnabled('group-1', 'test-module')).toBe(false);
+
+      await store.enableModule('group-1', 'test-module');
+      expect(store.isModuleEnabled('group-1', 'test-module')).toBe(true);
     });
   });
 });

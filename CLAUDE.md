@@ -1,32 +1,122 @@
 # BuildIt Network - a social action network
 
-## Guiding Principle
-- You are an expert software engineer with extensive experience in react, typescript, webcrypto, in e2ee encryption, and in building social media platforms
+## ⚙️ Package Manager
+
+**This project uses `bun` exclusively. Always use `bun` commands, never `npm` or `yarn`.**
+
+```bash
+bun install        # Install dependencies
+bun run dev        # Start dev server
+bun test           # Run tests
+bun run build      # Production build
+```
+
+## Guiding Principles for Claude Code
+
+- You are an expert software engineer with extensive experience in React, TypeScript, WebCrypto, E2EE encryption, and building social media platforms
 - ALWAYS be honest about what is complete or not and check to make sure it's completed fully to spec before marking it done
 - ALWAYS use high quality third party libraries when applicable, and check the context7 docs
-- ALWAYS try to solve problems rather than working around them, and if you don't completely implement something, take note of that.
+- ALWAYS try to solve problems rather than working around them, and if you don't completely implement something, take note of that
 - ALWAYS use clean UX principles, and pay attention to mobile responsiveness/UX, offline support, user friendliness, accessibility, and internationalization
-- ALWAYS track your progress, and track changes to requirements in PROMPT.md and PROGRESS.md, changes impacting any of the files below, and use git commit and git logs to track/review changes.
-- When installing shadcn ui components, just copy the code directly from the latest github files. there is an issue with the shadcn UI registry. Do not just invent your own shadcn ui components, they should ALWAYS be the latest canonical ones
+- ALWAYS track your progress, and track changes to requirements in NEXT_ROADMAP.md, changes impacting any of the files below, and use git commit and git logs to track/review changes
+- When installing shadcn ui components, just copy the code directly from the latest github files. There is an issue with the shadcn UI registry. Do not just invent your own shadcn ui components, they should ALWAYS be the latest canonical ones
 - Modules should be modular, all new features across modules should load to their respective interfaces dynamically from the module registry
 
+## 📚 Documentation Structure (For Claude Code)
 
-## 📚 Project Documentation
+### Active Development
+- **[NEXT_ROADMAP.md](./NEXT_ROADMAP.md)** - Active roadmap with prioritized epics, tasks, and acceptance criteria
+- **[.claude/subagents.yml](./.claude/subagents.yml)** - Subagent task delegation patterns
 
-**📋 [PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation index and navigation guide
+### Completed Work
+- **[COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md)** - Archive of finished epics (Epics 1-27) with git tags
 
-**Quick Navigation:**
-- **[PROMPT.md](./PROMPT.md)** - Complete execution plan for autonomous build (all epics and tasks)
-- **[PROGRESS.md](./PROGRESS.md)** - Detailed progress tracking with checkboxes (single source of truth for status)
+### Technical Reference (Stable)
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
 - **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
 
-**User Research & Strategy:**
-- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas across engagement spectrum (Neutral → Active Support)
-- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Feature gap analysis and coverage metrics
-- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Implementation roadmap for full spectrum support
-- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social layer strategy and community management
+### User Research & Strategy
+- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas across engagement spectrum
+- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Feature gap analysis
+- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Roadmap recommendations
+- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social layer strategy
+
+### Navigation & Discovery
+- **[PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation index (for humans)
+- **[README.md](./README.md)** - Project overview and setup (for humans)
+
+## 🔄 Using Git History Strategically
+
+Git history is a rich source of context. Use it strategically:
+
+```bash
+# View commits for a specific epic
+git log --grep="Epic 28"
+
+# View all commits for a file
+git log -- path/to/file.ts
+
+# View changes in a specific commit
+git show <commit-hash>
+
+# View changes for a git tag
+git show v0.27.0-security
+
+# Find when a bug was introduced
+git blame path/to/file.ts
+
+# View diff between tags
+git diff v0.26.0-privacy..v0.27.0-security
+```
+
+**When to use git history:**
+- Understanding why code was written a certain way
+- Finding when a feature was added
+- Reviewing epic implementation details
+- Debugging when a bug was introduced
+- Understanding architectural decisions
+
+## 🤖 Autonomous Task Execution
+
+### Using Subagents
+
+This project is designed for autonomous execution via Claude Code subagents. Common patterns:
+
+```bash
+# Execute next epic
+"Complete the next epic from NEXT_ROADMAP.md"
+
+# Execute specific epic
+"Complete Epic 28 from NEXT_ROADMAP.md"
+
+# Fix specific bug
+"Fix BUG-001 from Epic 28"
+
+# Write tests
+"Write E2E tests for authentication flow (Epic 29)"
+
+# Implement feature
+"Implement Documents module (Epic 32)"
+
+# Perform audit
+"Run security audit for Epic 30"
+
+# Optimize performance
+"Reduce bundle size (Epic 35)"
+```
+
+See [.claude/subagents.yml](./.claude/subagents.yml) for detailed subagent definitions and execution patterns.
+
+### Execution Principles
+
+1. **Read NEXT_ROADMAP.md first** - Understand what needs to be done
+2. **Use TodoWrite tool** - Track progress through epic tasks
+3. **Test frequently** - Run `bun test` after each significant change
+4. **Check types** - Run `bun run typecheck` before committing
+5. **Use Context7** - Fetch latest library docs when needed
+6. **Commit with proper format** - Follow epic's commit format specification
+7. **Update roadmap** - Move completed epics to COMPLETED_ROADMAP.md
 
 ## Project Overview
 A privacy-first organizing platform built on Nostr protocol and NIP-17 encryption layer for activist groups, co-ops, unions, and community organizers.
