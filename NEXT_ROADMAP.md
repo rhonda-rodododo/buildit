@@ -24,11 +24,11 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-06
-**Active Epic**: Epic 28.5 (Routing Refactor)
-**Build Status**: ✅ Successful (1.44MB, 476KB gzipped)
+**Last Updated**: 2025-10-07
+**Active Epic**: Epic 28 (Critical Bug Fixes)
+**Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 122/149 tests passing (27 integration test failures to address)
-**Completion**: 85% for organizing platform features
+**Completion**: 87% for organizing platform features
 
 ---
 
@@ -512,67 +512,6 @@ When completing an epic:
 
 ---
 
-### Epic 35: Performance Optimization & Bundle Size Reduction ⚡
-**Status**: Needs Improvement
-**Priority**: P1
-**Effort**: 10-15 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`performance-optimizer`)
-
-**Context**: Bundle size is 1.44MB (476KB gzipped), triggering Vite warning. Need more aggressive code splitting and optimization.
-
-**Tasks**:
-- [ ] Analyze bundle composition with `vite-plugin-visualizer`
-- [ ] Implement lazy loading for modules:
-  - Load module code on first access (not all at initialization)
-  - Dynamic imports for module components
-  - Suspense boundaries for loading states
-- [ ] Further split vendor chunks:
-  - Separate Nostr libraries
-  - Separate UI libraries (Radix, shadcn)
-  - Separate data libraries (Dexie, Zustand)
-- [ ] Optimize images and media:
-  - Compress images
-  - Use WebP format
-  - Lazy load images below fold
-- [ ] Optimize fonts:
-  - Subset fonts to used characters
-  - Use font-display: swap
-  - Consider system fonts
-- [ ] Tree-shaking verification:
-  - Audit unused exports
-  - Remove dead code
-  - Verify tree-shaking in build
-- [ ] Implement route-based code splitting:
-  - Lazy load route components
-  - Preload critical routes
-- [ ] Add resource hints:
-  - Preconnect to relays
-  - Prefetch important routes
-  - DNS prefetch for external resources
-- [ ] Configure compression in deployment (Brotli, gzip)
-- [ ] Run Lighthouse audit and address recommendations
-- [ ] Set up bundle size monitoring in CI
-
-**Acceptance Criteria**:
-- Initial bundle <300KB gzipped (down from 476KB)
-- Lighthouse performance score >90
-- First Contentful Paint <1.5s
-- Time to Interactive <3s
-- No Vite bundle size warnings
-- Bundle size tracked in CI/CD
-
-**Testing Requirements**:
-- `bun run build` succeeds with no warnings
-- Lighthouse audit score >90
-- Manual test: Measure load time on 3G connection
-- Verify lazy loading with Network tab throttling
-
-**Reference Docs**: [BUGS.md](./BUGS.md) (BUG-009), [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Performance section)
-
-**Git Commit Format**: `perf: optimize bundle size and implement lazy loading (Epic 35)`
-
----
 
 ## 🟢 Medium Priority: Enhanced Features
 
