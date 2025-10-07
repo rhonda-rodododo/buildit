@@ -1,14 +1,19 @@
 /**
  * Documents Module Database Schema
  * Contains all database table definitions for the documents module
- *
- * Note: This is a placeholder module for future implementation
  */
 
 import type { TableSchema } from '@/types/modules';
 
-/**
- * Documents module schema definition
- * TODO: Implement in Phase 2
- */
-export const documentsSchema: TableSchema[] = [];
+export const documentsSchema: TableSchema[] = [
+  {
+    name: 'documents',
+    schema: 'id, groupId, [groupId+updatedAt]',
+    indexes: ['id', 'groupId', '[groupId+updatedAt]'],
+  },
+  {
+    name: 'documentVersions',
+    schema: 'id, documentId, version',
+    indexes: ['id', 'documentId', 'version'],
+  },
+];

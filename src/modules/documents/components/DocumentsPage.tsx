@@ -1,0 +1,221 @@
+/**
+ * Documents Page - Main UI for document management
+ */
+
+import { FC, useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useDocumentsStore } from '../documentsStore'
+import { useAuthStore } from '@/stores/authStore'
+import { documentManager } from '../documentManager'
+import { TipTapEditor } from './TipTapEditor'
+import { documentTemplates } from '../templates'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { FileText, Plus, Save, Download, History, FileX } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+export const DocumentsPage: FC = () => {
+  const { groupId } = useParams<{ groupId: string }>()
+  const navigate = useNavigate()
+  const currentIdentity = useAuthStore(state => state.currentIdentity)
+
+  const { documents, getGroupDocuments, currentDocumentId, setCurrentDocument } = useDocumentsStore()
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [selectedTemplate, setSelectedTemplate] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const groupDocs = groupId ? getGroupDocuments(groupId) : []
+  const currentDoc = currentDocumentId ? documents.get(currentDocumentId) : null
+
+  useEffect(() => {
+    if (currentDoc) {
+      setTitle(currentDoc.title)
+      setContent(currentDoc.content)
+    }
+  }, [currentDoc])
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    if (!currentDoc || !currentIdentity?.privateKey) return
+
+    const interval = setInterval(async () => {
+      if (content !== currentDoc.content || title !== currentDoc.title) {
+        await handleSave()
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [currentDoc, content, title, currentIdentity])
+
+  const handleCreate = async () => {
+    if (!groupId || !currentIdentity?.privateKey || !title.trim()) return
+
+    setIsCreating(true)
+    try {
+      const doc = await documentManager.createDocument(
+        {
+          groupId,
+          title: title.trim(),
+          content: content,
+          template: selectedTemplate || undefined,
+        },
+        currentIdentity.privateKey
+      )
+      setCurrentDocument(doc.id)
+      setIsCreating(false)
+    } catch (error) {
+      console.error('Failed to create document:', error)
+      setIsCreating(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!currentDoc || !currentIdentity?.privateKey) return
+
+    setIsSaving(true)
+    try {
+      await documentManager.updateDocument(
+        currentDoc.id,
+        { title, content },
+        currentIdentity.privateKey,
+        'Auto-save'
+      )
+      setIsSaving(false)
+    } catch (error) {
+      console.error('Failed to save document:', error)
+      setIsSaving(false)
+    }
+  }
+
+  const handleExport = async (format: 'html' | 'markdown' | 'text') => {
+    if (!currentDoc) return
+
+    const exported = await documentManager.exportDocument(currentDoc.id, format)
+    const blob = new Blob([exported], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${currentDoc.title}.${format === 'markdown' ? 'md' : format}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
+    <div className="h-full flex">
+      {/* Sidebar */}
+      <div className="w-64 border-r p-4 space-y-4">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="w-full" onClick={() => { setTitle(''); setContent(''); setSelectedTemplate(''); }}>
+              <Plus className="mr-2 h-4 w-4" /> New Document
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Document</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Document title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a template (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {documentTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={handleCreate} disabled={!title.trim() || isCreating} className="w-full">
+                {isCreating ? 'Creating...' : 'Create Document'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <div className="space-y-2">
+          {groupDocs.map((doc) => (
+            <Card
+              key={doc.id}
+              className={`p-3 cursor-pointer hover:bg-muted ${currentDoc?.id === doc.id ? 'bg-muted' : ''}`}
+              onClick={() => setCurrentDocument(doc.id)}
+            >
+              <div className="flex items-start gap-2">
+                <FileText className="h-4 w-4 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate text-sm">{doc.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(doc.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          ))}
+          {groupDocs.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No documents yet
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Editor */}
+      <div className="flex-1 flex flex-col">
+        {currentDoc ? (
+          <>
+            <div className="border-b p-4 flex items-center justify-between">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0"
+                placeholder="Document title"
+              />
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Save className="h-4 w-4 mr-1" /> {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+                <Select onValueChange={(format) => handleExport(format as any)}>
+                  <SelectTrigger className="w-32">
+                    <Download className="h-4 w-4 mr-1" />
+                    <SelectValue placeholder="Export" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="html">HTML</SelectItem>
+                    <SelectItem value="markdown">Markdown</SelectItem>
+                    <SelectItem value="text">Text</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <TipTapEditor content={content} onChange={setContent} />
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <FileX className="h-16 w-16 mx-auto mb-4 opacity-20" />
+              <p>Select a document or create a new one to get started</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

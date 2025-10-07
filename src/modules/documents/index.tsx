@@ -2,9 +2,8 @@ import type { ModulePlugin } from '@/types/modules';
 import { documentsSchema } from './schema';
 import { documentsMigrations } from './migrations';
 import { documentsSeeds } from './seeds';
-
-// Placeholder component
-const DocumentsPlaceholder = () => <div>Documents Module (Coming Soon)</div>;
+import { DocumentsPage } from './components/DocumentsPage';
+import { initializeTemplates } from './templates';
 
 /**
  * Documents Module
@@ -72,6 +71,11 @@ export const DocumentsModule: ModulePlugin = {
   },
 
   lifecycle: {
+    onRegister: async () => {
+      // Initialize document templates
+      initializeTemplates();
+    },
+
     onEnable: async (groupId, config) => {
       console.log(`Documents module enabled for group ${groupId}`, config);
     },
@@ -84,7 +88,7 @@ export const DocumentsModule: ModulePlugin = {
   routes: [
     {
       path: '/groups/:groupId/documents',
-      component: DocumentsPlaceholder,
+      component: DocumentsPage,
       exact: true,
     },
   ],
