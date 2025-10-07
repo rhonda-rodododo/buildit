@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { NostrClient } from '@/core/nostr/client';
 import { getDB } from '@/core/storage/db';
 import { type UnsignedEvent } from 'nostr-tools';
-import { generateTestKeypair, createTestNostrClient, signEvent } from '@/test/test-utils';
+import { generateTestKeypair, createTestNostrClient, signEvent, setupTestDatabase } from '@/test/test-utils';
 
 describe('Nostr Client ↔ Storage Integration', () => {
   let client: NostrClient;
@@ -10,6 +10,9 @@ describe('Nostr Client ↔ Storage Integration', () => {
   let testPubkey: string;
 
   beforeEach(async () => {
+    // Ensure database is initialized
+    await setupTestDatabase();
+
     // Generate test keys
     const keypair = generateTestKeypair();
     testPrivkey = keypair.privateKey;

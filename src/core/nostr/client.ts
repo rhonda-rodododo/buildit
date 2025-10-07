@@ -225,6 +225,13 @@ export class NostrClient {
     this.subscriptions.clear()
     this.eventHandlers.clear()
   }
+
+  /**
+   * Alias for close() to match common disconnect naming
+   */
+  disconnect(): void {
+    this.close()
+  }
 }
 
 // Singleton instance (optional, can be created per-component if needed)

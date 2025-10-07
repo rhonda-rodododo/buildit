@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import { APP_CONFIG } from '@/config/app'
 
 export const LoginForm: FC = () => {
@@ -12,14 +14,18 @@ export const LoginForm: FC = () => {
   const [name, setName] = useState('')
   const [nsec, setNsec] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCreateIdentity = async () => {
     if (!name.trim()) return
+    setError(null)
     setLoading(true)
     try {
       await createNewIdentity(name)
-    } catch (error) {
-      console.error('Failed to create identity:', error)
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create identity'
+      setError(errorMsg)
+      console.error('Failed to create identity:', err)
     } finally {
       setLoading(false)
     }
@@ -27,11 +33,14 @@ export const LoginForm: FC = () => {
 
   const handleImportIdentity = async () => {
     if (!nsec.trim() || !name.trim()) return
+    setError(null)
     setLoading(true)
     try {
       await importIdentity(nsec, name)
-    } catch (error) {
-      console.error('Failed to import identity:', error)
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to import identity'
+      setError(errorMsg)
+      console.error('Failed to import identity:', err)
     } finally {
       setLoading(false)
     }
@@ -49,6 +58,13 @@ export const LoginForm: FC = () => {
             <TabsTrigger value="create">Create New</TabsTrigger>
             <TabsTrigger value="import">Import</TabsTrigger>
           </TabsList>
+
+          {error && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
           <TabsContent value="create" className="space-y-4">
             <div className="space-y-2">

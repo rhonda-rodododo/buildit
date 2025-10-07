@@ -4,7 +4,7 @@
  */
 
 import type { DeviceInfo } from '@/types/device';
-import { db } from '@/core/storage/db';
+import { useDeviceStore } from '@/stores/deviceStore';
 
 export interface LoginNotification {
   id: string;
@@ -67,17 +67,13 @@ export class DeviceLoginNotificationService {
   /**
    * Check if device is new (not seen before)
    */
-  public async isNewDevice(deviceFingerprint: string, publicKey: string): Promise<boolean> {
-    const devices = await db.devices
-      .where('fingerprint')
-      .equals(deviceFingerprint)
-      .toArray();
+  public async isNewDevice(deviceFingerprint: string, _publicKey: string): Promise<boolean> {
+    const store = useDeviceStore.getState();
+    const devices = Array.from(store.devices.values());
 
-    // Check if any existing device has been authorized for this identity
+    // Check if any existing device has this fingerprint and is trusted
     const authorizedDevice = devices.find((d: DeviceInfo) => {
-      // @ts-expect-error - Extended device info may have authorizedIdentities
-      const hasIdentity = d.authorizedIdentities?.includes(publicKey);
-      return hasIdentity && d.isTrusted;
+      return d.fingerprint === deviceFingerprint && d.isTrusted;
     });
 
     return !authorizedDevice;
@@ -95,16 +91,8 @@ export class DeviceLoginNotificationService {
    * Trust a device after verifying the login
    */
   public async trustDevice(deviceId: string): Promise<void> {
-    try {
-      // @ts-ignore - Extended device info may have trustedAt timestamp
-      await db.devices.update(deviceId, {
-        isTrusted: true,
-        trustedAt: Date.now(),
-      });
-    } catch (error) {
-      // Database not available (test environment or initialization issue)
-      console.warn('Failed to update device trust status:', error);
-    }
+    const store = useDeviceStore.getState();
+    store.trustDevice(deviceId);
   }
 
   /**
@@ -120,21 +108,21 @@ export class DeviceLoginNotificationService {
    * Revoke device access and mark as suspicious
    */
   public async revokeDevice(deviceId: string, reason?: string): Promise<void> {
-    try {
-      // @ts-ignore - Extended device info may have revocation fields
-      await db.devices.update(deviceId, {
-        isTrusted: false,
-        revoked: true,
-        revokedAt: Date.now(),
-        revokedReason: reason,
-      });
+    const store = useDeviceStore.getState();
 
-      // Invalidate all sessions from this device (future enhancement)
-      console.log(`Device ${deviceId} revoked: ${reason || 'No reason provided'}`);
-    } catch (error) {
-      // Database not available (test environment or initialization issue)
-      console.warn('Failed to revoke device:', error);
-    }
+    // Untrust the device
+    store.untrustDevice(deviceId);
+
+    // Revoke all sessions for this device
+    const sessions = Array.from(store.sessions.values()).filter(s => s.deviceId === deviceId);
+    sessions.forEach(session => store.revokeSession(session.id));
+
+    // Log activity
+    store.logActivity({
+      deviceId,
+      type: 'device_removed',
+      description: `Device revoked: ${reason || 'No reason provided'}`,
+    });
   }
 
   /**

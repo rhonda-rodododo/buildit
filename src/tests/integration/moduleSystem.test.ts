@@ -2,9 +2,13 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useModuleStore } from '@/stores/moduleStore';
 import type { ModulePlugin } from '@/types/modules';
 import { FileText } from 'lucide-react';
+import { setupTestDatabase } from '@/test/test-utils';
 
 describe('Module System Integration', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Ensure database is initialized for each test
+    await setupTestDatabase();
+
     // Reset module store by creating a new instance
     useModuleStore.setState({
       registry: new Map(),

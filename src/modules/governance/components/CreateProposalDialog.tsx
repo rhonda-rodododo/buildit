@@ -5,7 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import type { VotingMethod } from '../types'
+import { proposalManager } from '../proposalManager'
+import { useAuthStore } from '@/stores/authStore'
 
 interface CreateProposalDialogProps {
   open: boolean
@@ -27,32 +31,54 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   const [duration, setDuration] = useState('7')
   const [quorum, setQuorum] = useState('50')
   const [threshold, setThreshold] = useState('50')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const currentIdentity = useAuthStore(state => state.currentIdentity)
 
   const handleCreate = async () => {
-    // This would call proposalManager.createProposal
-    // For now, just close the dialog
-    console.log('Creating proposal:', {
-      groupId,
-      title,
-      description,
-      votingMethod,
-      options: options.split('\n').filter(o => o.trim()),
-      votingDuration: parseInt(duration) * 24 * 60 * 60, // days to seconds
-      quorum: parseInt(quorum),
-      threshold: parseInt(threshold),
-    })
+    if (!currentIdentity?.privateKey) {
+      setError('No active identity. Please log in.')
+      return
+    }
 
-    // Reset form
-    setTitle('')
-    setDescription('')
-    setVotingMethod('simple')
-    setOptions('')
-    setDuration('7')
-    setQuorum('50')
-    setThreshold('50')
+    setError(null)
+    setIsSubmitting(true)
 
-    onOpenChange(false)
-    onCreated?.()
+    try {
+      await proposalManager.createProposal(
+        {
+          groupId,
+          title,
+          description,
+          votingMethod,
+          options: (votingMethod === 'ranked-choice' || votingMethod === 'quadratic')
+            ? options.split('\n').filter(o => o.trim())
+            : undefined,
+          votingDuration: parseInt(duration) * 24 * 60 * 60, // days to seconds
+          quorum: parseInt(quorum),
+          threshold: parseInt(threshold),
+        },
+        currentIdentity.privateKey
+      )
+
+      // Reset form
+      setTitle('')
+      setDescription('')
+      setVotingMethod('simple')
+      setOptions('')
+      setDuration('7')
+      setQuorum('50')
+      setThreshold('50')
+
+      onOpenChange(false)
+      onCreated?.()
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create proposal'
+      setError(errorMsg)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -66,6 +92,13 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -73,6 +106,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Proposal title..."
+              disabled={isSubmitting}
             />
           </div>
 
@@ -154,11 +188,11 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={!title || !description}>
-            Create Proposal
+          <Button onClick={handleCreate} disabled={!title || !description || isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Create Proposal'}
           </Button>
         </DialogFooter>
       </DialogContent>

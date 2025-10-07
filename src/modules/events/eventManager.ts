@@ -308,8 +308,7 @@ export class EventManager {
    * Process an event received from Nostr
    * NOTE: Reserved for future relay sync implementation
    */
-  // @ts-expect-error - Reserved for future use when relay sync is implemented
-  private async processEventFromNostr(nostrEvent: NostrEvent): Promise<void> {
+  private async _processEventFromNostr(nostrEvent: NostrEvent): Promise<void> {
     try {
       const dTag = nostrEvent.tags.find((t) => t[0] === 'd')?.[1]
       if (!dTag) return
