@@ -9,28 +9,31 @@
 
 This project is designed for autonomous execution by Claude Code.
 
-### Quick Start
+### Quick Start for Claude Code
 
 ```bash
-# Execute the autonomous build plan
-Read PROMPT.md and execute all epics sequentially
+# Execute next epic from roadmap
+"Complete the next epic from NEXT_ROADMAP.md"
+
+# Or execute specific epic
+"Complete Epic 28 from NEXT_ROADMAP.md"
 ```
 
 ### Documentation Structure
 
-**Core Documentation:**
-- **[CLAUDE.md](./CLAUDE.md)** - Project overview and navigation guide (START HERE)
-- **[PROMPT.md](./PROMPT.md)** - Complete execution plan with all epics and tasks
-- **[PROGRESS.md](./PROGRESS.md)** - Current status and progress tracking with checkboxes
+**For Claude Code** (Autonomous Execution):
+- **[CLAUDE.md](./CLAUDE.md)** - Project overview and instructions (START HERE)
+- **[NEXT_ROADMAP.md](./NEXT_ROADMAP.md)** - Active roadmap with prioritized epics
+- **[COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md)** - Archive of finished epics (1-27)
+- **[.claude/subagents.yml](./.claude/subagents.yml)** - Subagent task delegation patterns
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
-- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
-- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
+- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption implementation
+- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security
 
-**User Research & Product Strategy:**
-- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas (Neutral → Active Support)
-- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Gap analysis (41% current coverage)
-- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Roadmap to 77% coverage
-- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social & community features
+**For Humans** (Reference):
+- **[PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation navigation
+- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas
+- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social strategy
 
 ## 🏗️ Tech Stack
 
@@ -116,20 +119,20 @@ The app can be deployed to any static hosting service:
 
 #### Vercel (One-Click Deploy)
 ```bash
-npm install -g vercel
+bun install -g vercel
 vercel --prod
 ```
 
 #### Netlify
 ```bash
-npm install -g netlify-cli
-npm run build
+bun install -g netlify-cli
+bun run build
 netlify deploy --prod --dir=dist
 ```
 
 #### GitHub Pages
 ```bash
-npm run build
+bun run build
 # Push dist/ to gh-pages branch
 ```
 

@@ -36,11 +36,12 @@ bun run build      # Production build
 - **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
 
-### User Research & Strategy
-- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas across engagement spectrum
-- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Feature gap analysis
-- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Roadmap recommendations
-- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social layer strategy
+### Implementation Guides
+- **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed implementation checklist for social features (Epics 21-25)
+- **[docs/GIT_WORKFLOW.md](./docs/GIT_WORKFLOW.md)** - Git worktrees for parallel Claude Code sessions
+
+### User Research (Archive)
+- **[docs/archive/](./docs/archive/)** - Historical strategy docs, user research (reference only)
 
 ### Navigation & Discovery
 - **[PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation index (for humans)
@@ -79,12 +80,30 @@ git diff v0.26.0-privacy..v0.27.0-security
 
 ## 🤖 Autonomous Task Execution
 
+### Epic Completion Protocol
+
+**IMPORTANT**: When you complete an epic, you MUST move it to COMPLETED_ROADMAP.md. Follow these steps:
+
+1. **Complete all tasks** - Check off all checkboxes in NEXT_ROADMAP.md
+2. **Meet acceptance criteria** - Verify all criteria from epic
+3. **Run tests** - `bun test && bun run typecheck` must pass
+4. **Create implementation commit** - Use format from epic (e.g., `feat: complete Epic 28 - Critical Bug Fixes`)
+5. **Create git tag** - Format specified in epic (e.g., `v0.28.0-bugfixes`)
+6. **Move epic to COMPLETED_ROADMAP.md**:
+   - Cut the entire epic section from NEXT_ROADMAP.md
+   - Add row to table in COMPLETED_ROADMAP.md with: Epic #, Version, Status ✅, Git Tag, 1-2 line summary
+   - Append full epic details below the table
+   - Update "Last Updated" dates in both files
+7. **Commit roadmap update** - `git commit -m "docs: complete Epic X - move to COMPLETED_ROADMAP"`
+
+**See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) header for detailed workflow.**
+
 ### Using Subagents
 
 This project is designed for autonomous execution via Claude Code subagents. Common patterns:
 
 ```bash
-# Execute next epic
+# Execute next epic (will auto-move to COMPLETED_ROADMAP when done)
 "Complete the next epic from NEXT_ROADMAP.md"
 
 # Execute specific epic

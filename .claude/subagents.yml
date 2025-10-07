@@ -30,9 +30,15 @@ subagents:
       5. Run tests after each significant change (bun test)
       6. Verify all acceptance criteria met
       7. Run final test suite (bun test, bun run typecheck)
-      8. Create git commit with proper format
-      9. Update NEXT_ROADMAP.md status if epic incomplete
-      10. Move epic to COMPLETED_ROADMAP.md if fully complete
+      8. Create git commit with proper format (include epic number)
+      9. Create git tag (e.g., v0.28.0-bugfixes)
+      10. Update NEXT_ROADMAP.md status if epic incomplete
+      11. If epic fully complete, move to COMPLETED_ROADMAP.md:
+          - Cut the entire epic section from NEXT_ROADMAP.md
+          - Add to COMPLETED_ROADMAP.md table with: Epic #, Version, Status (✅), Git Tag, Summary (1-2 lines)
+          - Add detailed epic content below the table in chronological order
+          - Update "Last Updated" date in both files
+          - Commit the roadmap updates: git commit -m "docs: complete Epic X - move to COMPLETED_ROADMAP"
 
     success_criteria:
       - All epic tasks completed (checkboxes ticked)

@@ -310,5 +310,8 @@ export async function initializeDatabase(): Promise<void> {
  * Close database connection
  */
 export async function closeDatabase(): Promise<void> {
-  db.close();
+  if (_dbInstance) {
+    _dbInstance.close();
+    _dbInstance = null;
+  }
 }

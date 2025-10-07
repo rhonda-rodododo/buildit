@@ -5,6 +5,21 @@ Active development roadmap for BuildIt Network. Epics are ordered by priority.
 **For completed work**: See [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md)
 **For git history**: Use `git log` or `git show <tag>`
 
+## 📋 Epic Completion Workflow (For Claude Code Subagents)
+
+When completing an epic:
+
+1. **Execute all tasks** - Check off all checkboxes, meet all acceptance criteria
+2. **Run tests** - `bun test && bun run typecheck` must pass
+3. **Create git commit** - Use exact format from epic (e.g., `feat: complete Epic 28 - Critical Bug Fixes`)
+4. **Create git tag** - Format: `v0.28.0-bugfixes` (see epic for tag name)
+5. **Move epic to COMPLETED_ROADMAP.md**:
+   - Cut entire epic section from this file
+   - Add row to table in COMPLETED_ROADMAP.md (Epic #, Version, Status ✅, Git Tag, 1-2 line summary)
+   - Append full epic details below table in COMPLETED_ROADMAP.md
+   - Update "Last Updated" dates in both files
+6. **Commit roadmap update** - `git commit -m "docs: complete Epic X - move to COMPLETED_ROADMAP"`
+
 ---
 
 ## 📊 Current Status
@@ -452,7 +467,9 @@ Active development roadmap for BuildIt Network. Epics are ordered by priority.
 - Manual test: Filter feed by content type
 - Manual test: Verify real-time updates
 
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Social Features section), SOCIAL_FEATURES_*.md files
+**Reference Docs**:
+- **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed checklist with exact schemas, components, and tests (Epic 21-25)
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Module system and data flow
 
 **Git Commit Format**: `feat: implement social features - microblogging, feed, and comments (Epic 34)`
 
@@ -734,7 +751,8 @@ Active development roadmap for BuildIt Network. Epics are ordered by priority.
 - Manual test: Bookmark post → View in bookmarks
 - Manual test: Mute thread → Verify no notifications
 
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Social Features section), SOCIAL_FEATURES_*.md files
+**Reference Docs**:
+- **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed implementation checklist (see Epic 21.3, 22, 23, 25)
 
 **Git Commit Format**: `feat: add reactions, reposts, and bookmarks (Epic 38)`
 
