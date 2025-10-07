@@ -120,7 +120,6 @@ export class BuildItDB extends Dexie {
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
-  private schemaInitialized: boolean = false;
 
   // Dynamic tables from modules
   // Modules access via: db['tableName'] or db.table('tableName')
@@ -146,7 +145,6 @@ export class BuildItDB extends Dexie {
     // Schema MUST be initialized in constructor before db.open()
     // Initialize with core + all module schemas
     this._initializeSchema(CORE_SCHEMA);
-    this.schemaInitialized = true;
   }
 
   /**
@@ -161,10 +159,10 @@ export class BuildItDB extends Dexie {
     }
 
     // Add all registered module schemas
-    for (const [moduleId, schemas] of this.moduleSchemas.entries()) {
+    for (const schemas of this.moduleSchemas.values()) {
       for (const table of schemas) {
         if (schemaMap[table.name]) {
-          console.warn(`Table ${table.name} from module $ conflicts with existing table`);
+          console.warn(`Table ${table.name} conflicts with existing table`);
         } else {
           schemaMap[table.name] = table.schema;
         }
@@ -180,7 +178,7 @@ export class BuildItDB extends Dexie {
 
   // This method is no longer needed - schemas are passed to constructor
   // Keeping for backward compatibility during transition
-  addModuleSchema(moduleId: string, schema: TableSchema[]): void {
+  addModuleSchema(_moduleId: string, _schema: TableSchema[]): void {
     throw new Error('addModuleSchema() is deprecated. Schemas must be passed to constructor.');
   }
 
@@ -268,7 +266,7 @@ export function getDB(): BuildItDB {
 
 // Legacy export for backward compatibility during transition
 export const db = new Proxy({} as BuildItDB, {
-  get(target, prop) {
+  get(_target, prop) {
     return getDB()[prop as keyof BuildItDB];
   }
 });
