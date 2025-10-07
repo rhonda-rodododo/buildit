@@ -91,9 +91,9 @@ test.describe('CRM Module', () => {
     await expect(page.locator('text=Mon')).toBeVisible();
 
     // Verify navigation controls
-    await expect(page.locator('button:has-text("Previous")")).toBeVisible();
-    await expect(page.locator('button:has-text("Next"))).toBeVisible();
-    await expect(page.locator('button:has-text("Today")').to BeVisible();
+    await expect(page.locator('button:has-text("Previous")')).toBeVisible();
+    await expect(page.locator('button:has-text("Next")')).toBeVisible();
+    await expect(page.locator('button:has-text("Today")')).toBeVisible();
   });
 
   test('should apply Volunteer Management template and filter by skills', async ({ page }) => {
