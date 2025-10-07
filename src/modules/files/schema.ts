@@ -1,14 +1,39 @@
 /**
  * Files Module Database Schema
  * Contains all database table definitions for the files module
- *
- * Note: This is a placeholder module for future implementation
  */
 
 import type { TableSchema } from '@/types/modules';
 
-/**
- * Files module schema definition
- * TODO: Implement in Phase 2
- */
-export const filesSchema: TableSchema[] = [];
+export const filesSchema: TableSchema[] = [
+  {
+    name: 'fileMetadata',
+    schema: 'id, groupId, folderId, [groupId+updatedAt], [groupId+folderId]',
+    indexes: ['id', 'groupId', 'folderId', '[groupId+updatedAt]', '[groupId+folderId]'],
+  },
+  {
+    name: 'folders',
+    schema: 'id, groupId, parentId, [groupId+parentId]',
+    indexes: ['id', 'groupId', 'parentId', '[groupId+parentId]'],
+  },
+  {
+    name: 'fileShares',
+    schema: 'id, fileId, groupId, shareLink',
+    indexes: ['id', 'fileId', 'groupId', 'shareLink'],
+  },
+  {
+    name: 'fileVersions',
+    schema: 'id, fileId, version',
+    indexes: ['id', 'fileId', 'version'],
+  },
+  {
+    name: 'encryptedFileBlobs',
+    schema: 'id, fileId',
+    indexes: ['id', 'fileId'],
+  },
+  {
+    name: 'storageQuotas',
+    schema: 'groupId',
+    indexes: ['groupId'],
+  },
+];
