@@ -26,7 +26,7 @@ bun run build      # Production build
 
 ### Active Development
 - **[NEXT_ROADMAP.md](./NEXT_ROADMAP.md)** - Active roadmap with prioritized epics, tasks, and acceptance criteria
-- **[.claude/subagents.yml](./.claude/subagents.yml)** - Subagent task delegation patterns
+- **[.claude/agents/](./.claude/agents/)** - Specialized subagent definitions for autonomous task execution
 
 ### Completed Work
 - **[COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md)** - Archive of finished epics (Epics 1-27) with git tags
@@ -125,7 +125,31 @@ This project is designed for autonomous execution via Claude Code subagents. Com
 "Reduce bundle size (Epic 35)"
 ```
 
-See [.claude/subagents.yml](./.claude/subagents.yml) for detailed subagent definitions and execution patterns.
+See [.claude/agents/](./.claude/agents/) for detailed subagent definitions and execution patterns.
+
+### Available Agents
+
+**Development & Implementation**:
+- `epic-executor` - Execute complete epics from NEXT_ROADMAP.md
+- `bug-fixer` - Fix specific bugs with root cause analysis
+- `test-writer` - Write comprehensive unit, integration, and E2E tests
+- `refactorer` - Improve code structure, types, and maintainability
+
+**Quality & Auditing**:
+- `security-auditor` - Security audits for encryption, auth, and privacy
+- `performance-auditor` - Bundle size, load time, and runtime performance audits
+- `accessibility-auditor` - WCAG 2.1 AA compliance and inclusive design audits
+- `test-coverage-auditor` - Test coverage analysis and gap identification
+
+**Optimization**:
+- `performance-optimizer` - Implement performance improvements and bundle size reduction
+
+**Product & Design**:
+- `product-manager` - Product strategy, feature prioritization, and roadmap planning
+- `ux-designer` - UX/UI design, accessibility, and mobile responsiveness
+
+**Localization**:
+- `translator` - Internationalization and translation into multiple languages
 
 ### Execution Principles
 
@@ -133,9 +157,38 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for detailed subagent defin
 2. **Use TodoWrite tool** - Track progress through epic tasks
 3. **Test frequently** - Run `bun test` after each significant change
 4. **Check types** - Run `bun run typecheck` before committing
-5. **Use Context7** - Fetch latest library docs when needed
+5. **Use Context7 MCP** - Fetch latest library docs when needed (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`)
 6. **Commit with proper format** - Follow epic's commit format specification
 7. **Update roadmap** - Move completed epics to COMPLETED_ROADMAP.md
+
+### Best Practices
+
+#### Always Do
+- Read NEXT_ROADMAP.md to understand current priorities
+- Check git status before starting work (`git status`)
+- Use TodoWrite to track epic/task progress
+- Run tests frequently (after each significant change)
+- Use Context7 MCP for latest library documentation
+- Follow existing code patterns and conventions
+- Write comprehensive commit messages
+- Update documentation when adding features
+- Fix root causes, not symptoms
+- Use comprehensive TypeScript types (avoid `any`)
+
+#### Never Do
+- Make workarounds or simplify instead of fixing root causes
+- Skip tests ("I'll add them later")
+- Use npm commands (always use `bun`)
+- Ignore TypeScript errors or add `@ts-ignore` without good reason
+- Create duplicate files instead of refactoring
+- Commit without running tests
+- Break existing functionality unless you're replacing it
+
+#### When Blocked
+- Document the blocker clearly
+- Update NEXT_ROADMAP.md with blocker status
+- Suggest next steps or alternatives
+- Ask user for clarification if needed
 
 ## Project Overview
 A privacy-first organizing platform built on Nostr protocol and NIP-17 encryption layer for activist groups, co-ops, unions, and community organizers.
