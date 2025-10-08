@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-08 (Epic 38 completed)
+**Last Updated**: 2025-10-08 (Epic 41 completed)
 
 ---
 
@@ -50,6 +50,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 34 | v0.34.0 | ✅ | `v0.34.0-social-core` | Social Features Core - microblogging, activity feed, comments with threading, reactions, bookmarks |
 | 40 | v0.40.0 | ✅ | `v0.40.0-usernames` | Username system with NIP-05 verification, user directory, and privacy controls |
 | 38 | v0.38.0 | ✅ | `v0.38.0-social` | Advanced Social Features - reactions (6 emoji types with "who reacted"), quote posts, bookmarks view, improved threading |
+| 41 | v0.41.0 | ✅ | `v0.41.0-friends` | Friend System with contacts management, QR code adds, trust tiers, privacy controls |
 
 ---
 
@@ -651,5 +652,74 @@ Completed advanced social engagement features including reactions with multiple 
 - NIP-07 and NIP-06 event types defined
 
 **Reference**: `/src/modules/microblogging/`, `/src/modules/microblogging/components/BookmarksView.tsx`, `/src/modules/microblogging/postsStore.test.ts`
+
+---
+
+### Epic 41: Friend System & Contacts Management ✅
+**Tag**: `v0.41.0-friends` | **Commits**: `git log v0.38.0-social..v0.41.0-friends`
+
+Implemented comprehensive friend and contact management system with explicit friend relationships, multiple add methods, trust tiers, and privacy controls per friend.
+
+**Core Features**:
+- **Friend Relationships**: Add, accept, decline, remove, block friends
+- **Add Methods**: Username search, QR code (in-person), email invite, shareable invite links
+- **Trust Tiers**: Stranger → Contact → Friend → Verified (in-person) → Trusted
+- **Privacy Settings**: Per-friend controls for online status, groups visibility, activity, post tagging
+- **Contact Organization**: Tags, notes, favorites, search and filtering
+- **QR Code Verification**: Generate and scan QR codes for secure in-person friend adds
+
+**Database Schema** (3 new core tables):
+- `friends`: Friend relationships with status, trust tiers, verification, tags, notes, privacy settings
+- `friendRequests`: Pending friend requests with method tracking and expiration
+- `friendInviteLinks`: Shareable invite links with usage limits and expiration
+
+**Store & Business Logic**:
+- FriendsStore (Zustand): Full CRUD operations for friends, requests, and invite links
+- Filtering & search capabilities (by trust tier, tags, favorites, status)
+- Statistics & analytics (total friends, verified, favorites, by trust tier)
+- Invite link generation with configurable expiration and max uses
+
+**UI Components**:
+- ContactsPage: Main page with tabs (All Friends, Requests) and statistics dashboard
+- ContactCard: Individual friend display with quick actions (message, favorite, remove, block)
+- FriendRequestCard: Pending request display with accept/decline actions
+- AddFriendDialog: Multi-tab dialog (Username Search, QR Code, Email Invite, Invite Link)
+- QR code generation (qrcode.react) and scanning (html5-qrcode) for in-person verification
+
+**Navigation & Routes**:
+- `/app/friends` route with lazy-loaded ContactsPage
+- Friends navigation link in AppSidebar (between Messages and Groups)
+- Route-based code splitting for optimal bundle size
+
+**Dependencies**:
+- `qrcode.react`: QR code generation
+- `html5-qrcode`: Camera-based QR code scanning
+
+**Seed Data**:
+- Example friend relationships with various trust levels (verified, friend, contact)
+- Sample friend requests with intro messages
+- Invite link examples with usage tracking
+
+**Testing & Build**:
+- ✅ Vite build successful (1900+ lines added, 13 files created)
+- ✅ All friends-related type errors resolved
+- ✅ Seed data with realistic examples for demo purposes
+
+**Architecture Highlights**:
+- **Core System**: Friends in core/ (not modules/) as foundational feature
+- **Database Integration**: Friends tables in CORE_SCHEMA alongside identities, groups, messages
+- **Type Safety**: Comprehensive TypeScript types with no `any` usage
+- **Privacy-First**: Granular privacy controls per friend, optional verification
+- **Offline Support**: Full IndexedDB persistence with Dexie
+
+**Epic 41 Acceptance Criteria**:
+- ✅ Can send/receive friend requests via multiple methods
+- ✅ QR code friend add works for in-person verification
+- ✅ Can organize contacts with tags, notes, favorites
+- ✅ In-person verification functional with QR exchange
+- ✅ Privacy tiers implemented (5 trust levels)
+- ✅ All components compile without errors
+
+**Reference**: `/src/core/friends/`, `/src/core/friends/components/`, [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md)
 
 ---

@@ -24,8 +24,8 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 38 completed, Epic 41 next priority)
-**Active Epic**: Epic 41 (Friend System) - Next priority
+**Last Updated**: 2025-10-08 (Epic 41 completed, Epic 42 next priority)
+**Active Epic**: Epic 42 (Messaging UX Overhaul) - Next priority
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
@@ -490,8 +490,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 38 completed)
-**Total Epics Pending**: 12 (Epic 31, 35-37, 39, 41-45)
+**Last Updated**: 2025-10-08 (Epic 41 completed)
+**Total Epics Pending**: 11 (Epic 31, 35-37, 39, 42-45)
 **Total Backlog Items**: 11+ (includes Epic 46+ content/marketplace)
 
 ---
@@ -508,30 +508,6 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - [x] ✅ Comment out non-functional toolbar buttons with TODOs
 
 **Git Commit**: `fix: add markdown rendering and fix post composer UI (Epic 34 follow-up)`
-
----
-
-### Epic 41: Friend System & Contacts Management 🤝
-**Status**: Not Started
-**Priority**: P1
-**Effort**: 10-15 hours
-**Dependencies**: Epic 40 (Username System)
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Explicit friend/contact relationships beyond group membership. Enables private messaging, verified networks, buddylist organization.
-
-**Key Features**:
-- Friend requests (send/accept/decline)
-- QR code friend add (in-person verification)
-- Email/username/link invites
-- Contacts management (tags, notes, favorites)
-- Trust tiers (stranger → contact → friend → verified → trusted)
-- Privacy settings per friend
-- In-person key verification (green badge)
-
-**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-41)
-
-**Git Tag**: `v0.41.0-friends`
 
 ---
 
@@ -745,12 +721,12 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 **Critical Path (P0)**: 5-10 hours (Epic 31 only - deferred to pre-launch)
 **Core Features (P1)**:
-- Epic 38: 10-20h (social features)
+- ✅ Epic 38: 10-20h (social features) - COMPLETED
+- ✅ Epic 41: 10-15h (friends) - COMPLETED
 - Epic 42: 25-35h (messaging UX)
-- Epic 41: 10-15h (friends)
 - Epic 44: 40-60h (BLE mesh) ⭐ NEW
 - Epic 37: 30-40h (forms/fundraising)
-- **P1 Total**: 115-170 hours
+- **P1 Total**: 105-160 hours (20h completed)
 
 **Enhanced Features (P2)**:
 - Epic 39: 20-30h (Tor)
@@ -762,8 +738,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
-**New Grand Total**: ~345-480+ hours (8-12 weeks full-time)
-**Completed**: Epic 40 (15-20 hours) ✅
+**New Grand Total**: ~325-460+ hours (8-11 weeks full-time)
+**Recently Completed**: Epic 40 (15-20h), Epic 38 (10-20h), Epic 41 (10-15h) ✅
 
 ---
 
@@ -772,23 +748,14 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 ### **Immediate Priority (Next 2-3 weeks)**
 1. ✅ Epic 40: Username System (15-20h) - COMPLETED
 2. ✅ Epic 38: Advanced Social Features (10-20h) - COMPLETED
-3. **Epic 41: Friend System** (10-15h) ⬅ **DO NEXT**
-   - Reactions, reposts, bookmarks, threading
-   - Quick win for social platform replacement
-   - Completes core social engagement features
+3. ✅ Epic 41: Friend System (10-15h) - COMPLETED
 
 ### **Phase 1: UX Foundation (P1)** - 4-6 weeks
-3. **Epic 42: Messaging UX Overhaul** (25-35h)
+4. **Epic 42: Messaging UX Overhaul** (25-35h) ⬅ **DO NEXT**
    - Conversation-centric redesign
    - Bottom-anchored chat windows
    - Buddylist with group-based contacts
    - Replaces Signal/Telegram/Discord
-
-4. **Epic 41: Friend System** (10-15h)
-   - After Epic 42 (enhances messaging UX)
-   - Explicit friend relationships
-   - QR code friend add
-   - Trust tiers
 
 ### **Phase 2: Core Infrastructure (P1)** - 8-10 weeks
 5. **Epic 44: BLE Mesh Networking** (40-60h) ⭐ **NEW - CORE INFRA**

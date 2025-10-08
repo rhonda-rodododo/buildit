@@ -19,7 +19,7 @@ const LoadingPage = () => (
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })));
-const MessagesPage = lazy(() => import('@/pages/MessagesPage').then(m => ({ default: m.MessagesPage })));
+const ConversationsPage = lazy(() => import('@/core/messaging/components').then(m => ({ default: m.ConversationsPage })));
 const ContactsPage = lazy(() => import('@/core/friends/components').then(m => ({ default: m.ContactsPage })));
 const GroupsPage = lazy(() => import('@/pages/GroupsPage').then(m => ({ default: m.GroupsPage })));
 const GroupLayout = lazy(() => import('@/layouts/GroupLayout').then(m => ({ default: m.GroupLayout })));
@@ -151,7 +151,7 @@ export const routes: RouteObject[] = [
           },
           {
             path: 'messages',
-            element: withSuspense(MessagesPage),
+            element: withSuspense(ConversationsPage),
           },
           {
             path: 'friends',

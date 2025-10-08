@@ -1,6 +1,13 @@
 import Dexie, { type Table } from 'dexie';
 import type { TableSchema } from '@/types/modules';
 import type { DBFriend, FriendRequest, FriendInviteLink } from '@/core/friends/schema';
+import type {
+  DBConversation,
+  ConversationMember,
+  ConversationMessage,
+  UserPresence,
+  ChatWindow,
+} from '@/core/messaging/conversationSchema';
 
 /**
  * CORE DATABASE SCHEMA INTERFACES
@@ -86,6 +93,15 @@ export interface DBUsernameSettings {
 // Re-export friends types for convenience
 export type { DBFriend, FriendRequest, FriendInviteLink };
 
+// Re-export conversation types for convenience
+export type {
+  DBConversation,
+  ConversationMember,
+  ConversationMessage,
+  UserPresence,
+  ChatWindow,
+};
+
 /**
  * Core database schema (always present)
  */
@@ -153,6 +169,51 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'id, code, creatorPubkey, createdAt, expiresAt, maxUses, currentUses',
     indexes: ['id', 'code', 'creatorPubkey', 'createdAt', 'expiresAt'],
   },
+  {
+    name: 'conversations',
+    schema:
+      'id, type, createdBy, createdAt, lastMessageAt, groupId, isPinned, isMuted, isArchived, *participants',
+    indexes: [
+      'id',
+      'type',
+      'createdBy',
+      'createdAt',
+      'lastMessageAt',
+      'groupId',
+      'isPinned',
+      'isMuted',
+      'isArchived',
+      '*participants',
+    ],
+  },
+  {
+    name: 'conversationMembers',
+    schema: 'id, conversationId, pubkey, [conversationId+pubkey], role, joinedAt, lastReadAt',
+    indexes: [
+      'id',
+      'conversationId',
+      'pubkey',
+      '[conversationId+pubkey]',
+      'role',
+      'joinedAt',
+      'lastReadAt',
+    ],
+  },
+  {
+    name: 'conversationMessages',
+    schema: 'id, conversationId, from, timestamp, replyTo, isEdited',
+    indexes: ['id', 'conversationId', 'from', 'timestamp', 'replyTo', 'isEdited'],
+  },
+  {
+    name: 'userPresence',
+    schema: 'pubkey, status, lastSeen',
+    indexes: ['pubkey', 'status', 'lastSeen'],
+  },
+  {
+    name: 'chatWindows',
+    schema: 'id, conversationId, isMinimized, zIndex',
+    indexes: ['id', 'conversationId', 'isMinimized', 'zIndex'],
+  },
 ];
 
 /**
@@ -171,6 +232,11 @@ export class BuildItDB extends Dexie {
   friends!: Table<DBFriend, string>;
   friendRequests!: Table<FriendRequest, string>;
   friendInviteLinks!: Table<FriendInviteLink, string>;
+  conversations!: Table<DBConversation, string>;
+  conversationMembers!: Table<ConversationMember, string>;
+  conversationMessages!: Table<ConversationMessage, string>;
+  userPresence!: Table<UserPresence, string>;
+  chatWindows!: Table<ChatWindow, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
