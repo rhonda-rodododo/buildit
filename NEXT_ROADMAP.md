@@ -24,12 +24,12 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-07 (Epic 33 completed)
-**Active Epic**: Epic 34 (Social Features Core)
+**Last Updated**: 2025-10-07 (Epic 34 completed)
+**Active Epic**: Epic 36 (Additional Translations) or Epic 37 (Forms & Fundraising)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 93% for organizing platform features (+1% with files module)
+**Completion**: 95% for organizing platform features (+2% with social features)
 
 ---
 
@@ -142,105 +142,6 @@ When completing an epic:
 **Git Tag**: `v0.32.0-documents`
 
 ---
-
-### Epic 34: Social Features - Core (Microblogging & Activity Feed) 📱
-**Status**: Not Started
-**Priority**: P1
-**Effort**: 30-40 hours
-**Dependencies**: Epic 28 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Core social media features are completely missing. Platform needs posts, activity feed, and comments to be a true "social action network."
-
-**Tasks**:
-- [ ] **Epic 34.1: Microblogging Module (10-15h)**
-  - [ ] Create Post schema and types (NIP-01 kind:1 notes)
-  - [ ] Implement PostsStore (Zustand)
-  - [ ] Build PostComposer component:
-    - Rich text input
-    - Media attachments (images, videos)
-    - Link previews
-    - Hashtag support (#tag)
-    - @mentions support
-    - Privacy levels (public/group/followers/private)
-    - Character limit (optional)
-  - [ ] Create PostCard component:
-    - Author info and avatar
-    - Post content rendering
-    - Timestamp (relative time)
-    - Media display
-    - Edit/delete actions (author only)
-  - [ ] Implement post CRUD operations
-  - [ ] Add hashtag indexing and search
-  - [ ] Publish posts to Nostr relays
-
-- [ ] **Epic 34.2: Activity Feed (8-12h)**
-  - [ ] Create ActivityFeed component:
-    - Chronological timeline
-    - Infinite scroll/pagination
-    - Filter by content type (posts/events/proposals)
-    - Filter by group
-    - Mark all as read
-    - Pull-to-refresh
-  - [ ] Implement feed aggregation:
-    - Posts from followed users
-    - Group posts
-    - Events
-    - Proposals
-    - Mutual aid requests/offers
-  - [ ] Add feed subscription system (real-time updates)
-  - [ ] Implement feed caching for offline
-
-- [ ] **Epic 34.3: Comments System (8-10h)**
-  - [ ] Create Comment schema and types
-  - [ ] Build CommentInput component
-  - [ ] Create CommentThread component:
-    - Nested replies/threading
-    - Depth limit (e.g., 5 levels)
-    - Collapse/expand threads
-  - [ ] Integrate comments on:
-    - Posts (microblog)
-    - Events
-    - Proposals
-    - Wiki pages
-  - [ ] Add @mentions in comments
-  - [ ] Implement comment notifications
-
-- [ ] **Epic 34.4: Nostr Integration (4-6h)**
-  - [ ] Implement NIP-01 for posts (kind:1)
-  - [ ] Publish posts to relays
-  - [ ] Subscribe to post feeds
-  - [ ] Handle post deletions (kind:5 events)
-  - [ ] Sync comments via Nostr
-
-- [ ] Write comprehensive tests for social features
-- [ ] Create seed data for demo posts and comments
-
-**Acceptance Criteria**:
-- Can create and publish posts
-- Activity feed displays posts, events, proposals
-- Comments working on posts with threading
-- Real-time feed updates via Nostr
-- Posts sync across devices
-- Hashtag and @mention parsing working
-- Feed pagination and infinite scroll functional
-- Tests passing for social features
-
-**Testing Requirements**:
-- `bun test src/modules/microblogging/` passing
-- Manual test: Create post → See in feed → Add comment
-- Manual test: @mention user in comment
-- Manual test: Filter feed by content type
-- Manual test: Verify real-time updates
-
-**Reference Docs**:
-- **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed checklist with exact schemas, components, and tests (Epic 21-25)
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Module system and data flow
-
-**Git Commit Format**: `feat: implement social features - microblogging, feed, and comments (Epic 34)`
-
----
-
 
 ## 🟢 Medium Priority: Enhanced Features
 

@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-07 (Epic 28.5 completed)
+**Last Updated**: 2025-10-07 (Epic 34 completed)
 
 ---
 
@@ -47,6 +47,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 32 | v0.32.0 | ✅ | `v0.32.0-documents` | Documents module with TipTap WYSIWYG editor, CRDT collaboration, PDF export |
 | 28.5 | v0.28.5 | ✅ | `v0.28.5-routing-refactor` | Group-based routing with dynamic module paths and GroupContext provider |
 | 33 | v0.33.0 | ✅ | `v0.33.0-files` | Files module with encrypted storage, folder management, and drag & drop upload |
+| 34 | v0.34.0 | ✅ | `v0.34.0-social-core` | Social Features Core - microblogging, activity feed, comments with threading, reactions, bookmarks |
 
 ---
 
@@ -490,3 +491,53 @@ Implemented full-featured Files module with encrypted storage, folder management
 
 **Reference**: `/src/modules/files/`, Epic 33 specification
 
+
+---
+
+### Epic 34: Social Features - Core (Microblogging & Activity Feed) ✅
+**Tag**: `v0.34.0-social-core` | **Commits**: `git log v0.33.0-files..v0.34.0-social-core`
+
+Implemented core social media features including microblogging, activity feed, and comments system:
+
+**Microblogging Module (Epic 34.1)**:
+- Post schema with NIP-01 kind:1 support (Nostr integration deferred)
+- PostsStore (Zustand) with full CRUD operations and database persistence
+- PostComposer with rich text, privacy levels (public/group/followers/encrypted), hashtags, @mentions
+- PostCard with reactions (6 emoji types), comments, reposts, bookmarks
+- Database persistence for posts, reactions, comments, reposts, bookmarks
+
+**Activity Feed (Epic 34.2)**:
+- ActivityFeed component with advanced filtering (by type, content, privacy level)
+- FeedPage for main feed view with composer
+- Feed aggregation from posts module (additional module integration deferred)
+- Infinite scroll pagination and pull-to-refresh support
+- Real-time feed updates via store subscriptions
+
+**Comments System (Epic 34.3)**:
+- Comment schema with nested threading (max depth 5)
+- CommentInput for adding comments and replies
+- CommentThread with visual nesting and depth limiting
+- Comment CRUD with database persistence
+- @mention support in comments
+
+**Features Completed**:
+- Create, edit, delete posts with full privacy controls
+- 6 reaction types (❤️ ✊ 🔥 👀 😂 👍) with anonymous option
+- Nested comment threads with depth limiting
+- Repost and quote post functionality
+- Bookmark system with collections
+- Hashtag extraction, indexing, and search
+- @mention autocomplete support
+- Content warnings and sensitive content controls
+- Complete database persistence layer
+- Seed data for demo content
+
+**Deferred to Future Epics**:
+- Nostr integration (NIP-01 publishing/subscribing to relays) - Epic 34.4
+- Comprehensive E2E test coverage
+- Feed aggregation from events, proposals, mutual aid, wiki modules
+- Real-time Nostr relay subscriptions
+
+**Reference**: `/src/modules/microblogging/`
+
+---
