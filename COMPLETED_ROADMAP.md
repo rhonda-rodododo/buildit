@@ -46,6 +46,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 35 | v0.31.0 | ✅ | `v0.31.0-performance` | Performance optimization - 69% bundle reduction (760KB→233KB brotli) |
 | 32 | v0.32.0 | ✅ | `v0.32.0-documents` | Documents module with TipTap WYSIWYG editor, CRDT collaboration, PDF export |
 | 28.5 | v0.28.5 | ✅ | `v0.28.5-routing-refactor` | Group-based routing with dynamic module paths and GroupContext provider |
+| 33 | v0.33.0 | ✅ | `v0.33.0-files` | Files module with encrypted storage, folder management, and drag & drop upload |
 
 ---
 
@@ -314,9 +315,9 @@ See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) for active and upcoming epics.
 ---
 
 **Last Updated**: 2025-10-07
-**Total Epics Completed**: 30
-**Total Git Tags**: 30
-**Current Version**: v0.32.0-documents
+**Total Epics Completed**: 31
+**Total Git Tags**: 31
+**Current Version**: v0.33.0-files
 
 ---
 
@@ -454,4 +455,38 @@ Implemented proper group-based routing where each group has distinct URL paths a
 **Architecture Impact**: Establishes foundation for social features by providing proper routing context for all group-based operations.
 
 **Reference**: [ARCHITECTURE.md](./ARCHITECTURE.md), `/src/routes/index.tsx`, `/src/contexts/GroupContext.tsx`
+
+### Epic 33: Files Module Implementation ✅
+**Tag**: `v0.33.0-files` | **Commits**: `git log v0.33.0-files`
+
+Implemented full-featured Files module with encrypted storage, folder management, and drag & drop upload capabilities.
+
+**Key Deliverables**:
+- File and folder schema with encryption support (6 database tables)
+- FilesStore (Zustand) for state management with file/folder operations
+- FileManager business logic with AES-GCM encryption
+- FileUploadZone component with drag & drop interface
+- Folder management UI (create, navigate, delete with recursive operations)
+- FileList component with grid/list views
+- FolderBrowser with breadcrumb navigation
+- Storage quota tracking per group (1GB default)
+- Module routes registration with lazy loading
+
+**Architecture Highlights**:
+- **Storage**: IndexedDB for encrypted file blobs
+- **Encryption**: Client-side AES-GCM with group keys
+- **File Types**: image, document, video, audio, archive, other
+- **Operations**: upload, delete, rename, move, bulk operations
+- **Quota**: Per-group storage tracking with usage visualization
+
+**Implementation**:
+- 11 new files, 1900+ lines of code
+- Type-safe implementation with comprehensive TypeScript types
+- Folder hierarchy with recursive deletion
+- Upload progress tracking
+- File metadata with versioning support
+
+**Status**: Core functionality complete. File preview, sharing, and version history deferred to future enhancements.
+
+**Reference**: `/src/modules/files/`, Epic 33 specification
 

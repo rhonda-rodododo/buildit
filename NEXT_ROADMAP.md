@@ -24,12 +24,12 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-07 (Epic 28.5 completed)
-**Active Epic**: Epic 33 (Files Module)
+**Last Updated**: 2025-10-07 (Epic 33 completed)
+**Active Epic**: Epic 34 (Social Features Core)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 92% for organizing platform features (+1% with routing refactor)
+**Completion**: 93% for organizing platform features (+1% with files module)
 
 ---
 
@@ -140,84 +140,6 @@ When completing an epic:
 **Git Commit Format**: `feat: implement Documents module with TipTap WYSIWYG editor and CRDT collaboration (Epic 32)`
 
 **Git Tag**: `v0.32.0-documents`
-
----
-
-### Epic 33: Files Module Implementation 📁
-**Status**: Placeholder Only
-**Priority**: P1
-**Effort**: 25-35 hours
-**Dependencies**: Epic 28 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Files module is currently a placeholder. Need file upload, storage, and management system.
-
-**Tasks**:
-- [ ] Research and choose file storage backend:
-  - NIP-94 (File Metadata)
-  - NIP-96 (HTTP File Storage)
-  - Blossom protocol
-  - IPFS (optional)
-  - Local IndexedDB for small files
-- [ ] Create File schema and types
-- [ ] Implement FilesStore (Zustand)
-- [ ] Build file upload component:
-  - Drag & drop interface
-  - Browse file picker
-  - Multiple file selection
-  - Upload progress indicators
-  - Chunked upload for large files
-  - File type and size validation
-- [ ] Implement folder management:
-  - Create/rename/delete folders
-  - Nested folder structure
-  - Drag & drop files between folders
-  - Breadcrumb navigation
-- [ ] Add file preview:
-  - Image viewer (JPEG, PNG, GIF, WebP)
-  - PDF viewer
-  - Video/audio player
-  - Text file viewer
-  - Code syntax highlighting
-- [ ] Implement client-side file encryption (AES-GCM)
-- [ ] Create file sharing system:
-  - Share with group members
-  - Generate shareable links
-  - Set permissions (view/download/edit)
-  - Expiring links
-  - Password-protected links
-- [ ] Add file operations:
-  - Rename, move, copy, delete
-  - Bulk operations (multi-select)
-  - File metadata (size, type, date, owner)
-  - File versioning
-- [ ] Implement storage quota management:
-  - Track storage usage per group
-  - Storage visualization
-  - Low storage warnings
-  - Cleanup tools
-- [ ] Create comprehensive seed data
-- [ ] Write unit tests for file operations
-
-**Acceptance Criteria**:
-- Files module functional (not placeholder)
-- Can upload, organize, preview, and share files
-- Folder hierarchy working
-- File encryption/decryption working
-- Storage quota tracking functional
-- File sharing with expiring links working
-- Tests passing for file operations
-
-**Testing Requirements**:
-- `bun test src/modules/files/` passing
-- Manual test: Upload file with drag & drop
-- Manual test: Create folders and organize files
-- Manual test: Generate shareable link with expiration
-- Manual test: Preview different file types
-
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Files Module section), `/src/modules/files/`, Epic 12.3 (media encryption reference)
-
-**Git Commit Format**: `feat: implement Files module with encrypted storage (Epic 33)`
 
 ---
 
@@ -734,5 +656,5 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 ---
 
 **Last Updated**: 2025-10-07
-**Total Epics Pending**: 9 (Epic 31, 33-39)
+**Total Epics Pending**: 8 (Epic 31, 34-39)
 **Total Backlog Items**: 10+
