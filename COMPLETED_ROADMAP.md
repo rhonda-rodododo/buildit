@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-07 (Epic 34 completed)
+**Last Updated**: 2025-10-08 (Epic 40 completed)
 
 ---
 
@@ -48,6 +48,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 28.5 | v0.28.5 | ✅ | `v0.28.5-routing-refactor` | Group-based routing with dynamic module paths and GroupContext provider |
 | 33 | v0.33.0 | ✅ | `v0.33.0-files` | Files module with encrypted storage, folder management, and drag & drop upload |
 | 34 | v0.34.0 | ✅ | `v0.34.0-social-core` | Social Features Core - microblogging, activity feed, comments with threading, reactions, bookmarks |
+| 40 | v0.40.0 | ✅ | `v0.40.0-usernames` | Username system with NIP-05 verification, user directory, and privacy controls |
 
 ---
 
@@ -539,5 +540,66 @@ Implemented core social media features including microblogging, activity feed, a
 - Real-time Nostr relay subscriptions
 
 **Reference**: `/src/modules/microblogging/`
+
+---
+
+### Epic 40: Username System & User Discovery ✅
+**Tag**: `v0.40.0-usernames` | **Commits**: `git log v0.34.0-social-core..v0.40.0-usernames`
+
+Implemented comprehensive username system to replace pubkey-only identification with human-readable usernames and verified identities:
+
+**Core Features**:
+- Human-readable usernames (@username format, 3-20 characters, alphanumeric + hyphens)
+- Display names for full name presentation (e.g., "Alice Martinez")
+- NIP-05 verification (username@domain.com) with verified badge display
+- Username search and autocomplete with fuzzy matching
+- User directory for browsing and discovering users
+- Privacy controls (search visibility, directory inclusion, profile visibility tiers)
+
+**Database Schema**:
+- Extended DBIdentity with username, displayName, nip05, nip05Verified fields
+- Created DBUsernameSettings table for granular privacy controls
+- Updated core schema with indexes for username and nip05 lookups
+- Updated Identity type to include username fields throughout the codebase
+
+**New Components**:
+- UserHandle: Consistent username display with 4 format options (@username, display-name, full, username-only)
+- UsernameSearch: Real-time search with autocomplete suggestions and debouncing
+- UserDirectory: Browse users with filtering (verified/unverified) and sorting (username, name, recent activity)
+- ProfileSettings: Complete UI for username registration, NIP-05 verification, and privacy management
+
+**Updated Components**:
+- PostCard: Displays usernames with NIP-05 verified badges instead of raw pubkeys
+- CommentThread: Shows usernames for comment authors with verification badges
+- authStore: Extended to load and persist username fields
+
+**Username Utilities**:
+- usernameUtils: Validation, availability checking, search, formatting, display name resolution
+- UsernameManager: Username claims, updates, NIP-05 verification, privacy settings management
+
+**Privacy & Security**:
+- Per-user privacy controls: allowUsernameSearch, showInDirectory, visibleTo (public/groups/friends/none)
+- Username enumeration protection with rate limiting awareness
+- Reserved username list (admin, moderator, system, support, etc.) to prevent impersonation
+- Offensive word filtering for inappropriate usernames
+- Username validation (3-20 chars, alphanumeric + hyphens, no consecutive hyphens)
+
+**NIP-05 Verification**:
+- DNS-based identity verification via .well-known/nostr.json
+- Automatic pubkey matching and verification status tracking
+- Verified badge display throughout the UI
+- 5-second timeout for verification requests
+
+**Testing**:
+- Unit tests for username validation (10 tests, all passing)
+- Validation tests for format, length, reserved words, character restrictions
+- Tests for normalization and formatting utilities
+
+**Build Status**:
+- ✅ Vite build successful (1368 lines added, 12 files changed)
+- ✅ PWA generated with service worker
+- ⚠️ Pre-existing TypeScript errors (not related to this epic)
+
+**Reference**: `/src/core/username/`, `/src/components/user/`, `/src/pages/UserDirectory.tsx`, `/src/pages/settings/ProfileSettings.tsx`
 
 ---

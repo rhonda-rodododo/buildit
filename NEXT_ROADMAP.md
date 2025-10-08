@@ -24,12 +24,12 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-07 (Epic 34 completed)
-**Active Epic**: Epic 36 (Additional Translations) or Epic 37 (Forms & Fundraising)
+**Last Updated**: 2025-10-08 (Epic 40 completed)
+**Active Epic**: Epic 41 (Friend System) or Epic 36 (Additional Translations)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 95% for organizing platform features (+2% with social features)
+**Completion**: 96% for organizing platform features (+1% with username system)
 
 ---
 
@@ -579,30 +579,6 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-### Epic 40: Username System & User Discovery 📛
-**Status**: Not Started
-**Priority**: P1 (Foundation for Epics 41-43)
-**Effort**: 15-20 hours
-**Dependencies**: Epic 34 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Enable human-readable usernames (@alice) instead of npub1xxx... Inspired by Signal, Telegram, Discord username systems.
-
-**Key Features**:
-- Human-readable usernames (@username format)
-- Username display in all contexts (posts, feed, messages, profiles)
-- Username search and autocomplete
-- NIP-05 verification (username@domain.com)
-- Privacy controls (who can find you by username)
-- Optional (high-security users can remain pubkey-only)
-
-**Reference**: [EPIC_40_USERNAME_SYSTEM.md](./docs/EPIC_40_USERNAME_SYSTEM.md)
-
-**Git Commit Format**: `feat: implement username system with NIP-05 verification (Epic 40)`
-**Git Tag**: `v0.40.0-usernames`
-
----
-
 ### Epic 41: Friend System & Contacts Management 🤝
 **Status**: Not Started
 **Priority**: P1
@@ -683,12 +659,13 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ## 📊 Updated Effort Summary
 
-**Critical Path (P0)**: 50-70 hours + audit  
-**Core Features (P1)**: 85-120 hours + **65-90 hours (Epics 40-42)** = 150-210 hours  
-**Enhanced Features (P2)**: 70-110 hours + **15-20 hours (Epic 43)** = 85-130 hours  
+**Critical Path (P0)**: 50-70 hours + audit
+**Core Features (P1)**: 85-120 hours + **50-70 hours (Epics 41-42)** = 135-190 hours
+**Enhanced Features (P2)**: 70-110 hours + **15-20 hours (Epic 43)** = 85-130 hours
 **Backlog Items**: 60-100+ hours
 
-**New Grand Total**: ~385-510+ hours (9-12 weeks full-time)
+**New Grand Total**: ~330-490+ hours (8-12 weeks full-time)
+**Completed**: Epic 40 (15-20 hours) ✅
 
 ---
 
@@ -701,8 +678,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 2. **Epic 34 Follow-up: UI Fixes** (4-6h) ✅ COMPLETED
 3. Epic 32: Documents Module (20-30h) ✅ COMPLETED
 4. Epic 33: Files Module (25-35h) ✅ COMPLETED
-5. **Epic 40: Username System** (15-20h) ⬅ **NEXT**
-6. **Epic 41: Friend System** (10-15h)
+5. **Epic 40: Username System** (15-20h) ✅ COMPLETED
+6. **Epic 41: Friend System** (10-15h) ⬅ **NEXT**
 7. **Epic 42: Messaging UX Overhaul** (25-35h)
 8. Epic 35: Performance Optimization (10-15h)
 
@@ -715,5 +692,5 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-07 (Epic 34 follow-up completed, new Epics 40-43 added)
-**Pending Epics**: 12 (Epic 31, 35-43)
+**Last Updated**: 2025-10-08 (Epic 40 completed, moved to COMPLETED_ROADMAP)
+**Pending Epics**: 11 (Epic 31, 35-39, 41-43)
