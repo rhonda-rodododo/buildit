@@ -19,11 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Image,
-  Video,
-  MapPin,
-  Calendar,
-  FileText,
   Lock,
   Globe,
   Users,
