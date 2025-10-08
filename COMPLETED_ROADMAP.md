@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-08 (Epic 42 completed)
+**Last Updated**: 2025-10-08 (Epic 44 Phase 1 completed)
 
 ---
 
@@ -52,6 +52,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 38 | v0.38.0 | ✅ | `v0.38.0-social` | Advanced Social Features - reactions (6 emoji types with "who reacted"), quote posts, bookmarks view, improved threading |
 | 41 | v0.41.0 | ✅ | `v0.41.0-friends` | Friend System with contacts management, QR code adds, trust tiers, privacy controls |
 | 42 | v0.42.0 | ✅ | `v0.42.0-messaging-ux` | Messaging UX Overhaul - conversation-centric model, desktop chat windows, buddylist, presence system |
+| 44 | v0.44.0 | ✅ | `v0.44.0-ble-mesh-phase1` | BLE Mesh Networking Phase 1 - Transport infrastructure, Web Bluetooth, multi-hop routing (Phase 2 deferred) |
 
 ---
 
@@ -319,10 +320,10 @@ See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) for active and upcoming epics.
 
 ---
 
-**Last Updated**: 2025-10-07
-**Total Epics Completed**: 31
-**Total Git Tags**: 31
-**Current Version**: v0.33.0-files
+**Last Updated**: 2025-10-08
+**Total Epics Completed**: 32
+**Total Git Tags**: 32
+**Current Version**: v0.44.0-ble-mesh-phase1
 
 ---
 
@@ -850,5 +851,103 @@ Complete redesign of messaging interface from group-centric to conversation-cent
 - Remove old group Messages tabs
 
 **Reference**: `/src/core/messaging/`, [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-42)
+
+---
+
+### Epic 44: BLE Mesh Networking Phase 1 (MVP Infrastructure) ✅
+**Tag**: `v0.44.0-ble-mesh-phase1` | **Commits**: `git log v0.42.0-messaging-ux..v0.44.0-ble-mesh-phase1`
+
+**Status**: Phase 1 Complete (MVP Infrastructure), Phase 2 Deferred to future iteration
+
+Implemented foundational BLE mesh networking infrastructure for offline-first resilience during internet shutdowns, protests, or censorship. Inspired by Samiz (Nostr-native BLE) and BitChat (Nepal/disaster scenarios). Enables device-to-device communication without internet or centralized servers.
+
+**Phase 1 Deliverables (Complete)**:
+
+**Core Transport Infrastructure**:
+- Transport abstraction layer with unified API (TransportRouter, TransportService)
+- BLE mesh adapter using Web Bluetooth API
+- Nostr relay adapter (secondary/fallback transport)
+- Auto-discovery of nearby BuildIt nodes (no manual pairing)
+- Message compression and chunking for BLE's 512-byte transmission limit
+- Multi-hop routing algorithm with TTL (time-to-live) and hop limits
+- Store-and-forward message queue for offline delivery
+- TransportStatusIndicator UI component showing connection status
+- Comprehensive implementation documentation
+
+**Technical Approach**:
+- **Samiz-based architecture**: Nostr-native BLE mesh (https://github.com/KoalaSat/samiz)
+- **BLE mesh topology**: 30m range per hop, multi-hop message propagation
+- **Web Bluetooth**: Browser-native BLE support (Chrome, Edge, Android)
+- **Message protocol**: Binary encoding with compression for 512-byte BLE limit
+- **Routing**: Multi-hop with TTL to prevent loops and ensure delivery
+- **Queue system**: Store messages when nodes offline, forward when reconnected
+
+**Files Created** (8 new files, ~1,200 lines):
+- `src/core/transport/types.ts`: Type definitions for transport layer
+- `src/core/transport/TransportRouter.ts`: Multi-hop routing and store-and-forward queue
+- `src/core/transport/adapters/BLEMeshAdapter.ts`: Web Bluetooth implementation
+- `src/core/transport/adapters/NostrRelayAdapter.ts`: Nostr relay transport
+- `src/core/transport/TransportService.ts`: Unified transport API (300+ lines)
+- `src/core/transport/components/TransportStatusIndicator.tsx`: UI status component
+- `src/core/transport/index.ts`: Public exports
+- `docs/BLE_MESH_IMPLEMENTATION.md`: Implementation documentation
+
+**Architecture Highlights**:
+- **BLE-First**: Prioritizes BLE mesh for local communication, falls back to Nostr relays
+- **Transport Agnostic**: Clean abstraction allows adding new transports (WiFi Direct, WebRTC, etc.)
+- **Offline Resilience**: Messages queued and forwarded when connectivity restored
+- **Zero-Config**: Auto-discovery means no manual device pairing required
+- **Type-Safe**: Full TypeScript coverage with comprehensive interfaces
+
+**Phase 1 Acceptance Criteria (Met)**:
+- ✅ Transport abstraction layer with BLE-first architecture
+- ✅ BLE mesh adapter with Web Bluetooth API
+- ✅ Auto-discovery of nearby BuildIt nodes
+- ✅ Message compression and chunking (512-byte BLE limit)
+- ✅ Multi-hop routing with TTL
+- ✅ Store-and-forward queue (TransportRouter)
+- ✅ Nostr relay adapter (secondary fallback)
+- ✅ TransportService unified API
+- ✅ Status indicator UI component
+- ✅ Implementation documentation
+
+**Phase 2 Deferred (Future Epic)**:
+- Negentropy sync protocol for battery-efficient synchronization
+- Full module integration (offline DM sync, events, proposals)
+- Advanced UI (BLE settings panel, offline mode banner, delivery status)
+- Security hardening (forward secrecy, anti-tracking, rotating identifiers)
+- Comprehensive testing (unit, integration, manual device tests)
+- User guide for high-risk scenarios (protests, disasters, censorship)
+
+**Known Limitations**:
+- BLE mesh not yet integrated with messaging/events/governance modules (infrastructure only)
+- Negentropy protocol deferred (basic store-and-forward implemented)
+- No advanced UI for BLE settings or offline mode
+- Security hardening incomplete (E2E encryption maintained but no forward secrecy yet)
+- Testing minimal (manual testing only, no automated tests)
+
+**Use Cases Enabled**:
+- Protest coordination when internet shut down by authorities
+- Disaster relief when cellular networks overwhelmed
+- Rural organizing without reliable internet connectivity
+- Cross-border organizing where internet monitored/censored
+- Mass gatherings where cell towers overloaded
+
+**Dependencies**:
+- Web Bluetooth API (Chrome 56+, Edge 79+, Android Chrome, macOS 12+)
+- HTTPS required for Web Bluetooth (localhost exempt)
+- BLE hardware in user devices (all modern smartphones, most laptops)
+
+**Build Status**:
+- ✅ Vite build successful (~1,200 lines added, 8 files created)
+- ✅ All transport-related type errors resolved
+- ✅ Zero type errors in new BLE mesh code
+
+**Reference**:
+- [BLE_MESH_IMPLEMENTATION.md](./docs/BLE_MESH_IMPLEMENTATION.md)
+- `/src/core/transport/`
+- Samiz: https://github.com/KoalaSat/samiz
+- BitChat store-and-forward architecture
+- [PRIVACY.md](./PRIVACY.md) (BLE mesh threat model section pending)
 
 ---
