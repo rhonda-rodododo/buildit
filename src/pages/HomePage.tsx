@@ -4,8 +4,7 @@
  */
 
 import { FC, useEffect } from 'react';
-import { PostComposer } from '@/modules/microblogging/components/PostComposer';
-import { ActivityFeed } from '@/components/feed/ActivityFeed';
+import { ActivityFeed } from '@/modules/microblogging/components/ActivityFeed';
 import { usePostsStore } from '@/modules/microblogging/postsStore';
 import { useEventsStore } from '@/modules/events/eventsStore';
 import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore';
@@ -25,7 +24,7 @@ export const HomePage: FC = () => {
   useEffect(() => {
     // Load seed data if collections are empty (demo data)
     const loadSeedData = async () => {
-      const userPubkey = currentIdentity?.id || 'demo-user';
+      const userPubkey = currentIdentity?.publicKey || 'demo-user';
       const now = Date.now();
 
       // Load seed posts
@@ -240,14 +239,9 @@ export const HomePage: FC = () => {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Post Composer (Sticky) */}
-      <div className="sticky top-16 z-40">
-        <PostComposer />
-      </div>
-
-      {/* Activity Feed */}
-      <ActivityFeed />
+    <div className="max-w-3xl mx-auto">
+      {/* Activity Feed (includes composer) */}
+      <ActivityFeed showComposer={true} />
     </div>
   );
 };

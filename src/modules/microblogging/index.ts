@@ -124,6 +124,10 @@ export default microbloggingModule;
 // Export components
 export { PostComposer } from './components/PostComposer';
 export { PostCard } from './components/PostCard';
+export { ActivityFeed } from './components/ActivityFeed';
+export { FeedPage } from './components/FeedPage';
+export { CommentInput } from './components/CommentInput';
+export { CommentThread } from './components/CommentThread';
 
 // Export types
 export type * from './types';

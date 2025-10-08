@@ -3,87 +3,44 @@
  * Dexie table definitions for posts and social features
  */
 
-import type { Table } from 'dexie';
+import type { TableSchema } from '@/types/modules';
 import type { Post, Reaction, Comment, Repost, Bookmark } from './types';
 
 /**
- * Database schema for microblogging module
+ * Database table interfaces for TypeScript
  */
-export interface MicrobloggingSchema {
-  posts: Table<Post, string>;
-  reactions: Table<Reaction, string>;
-  comments: Table<Comment, string>;
-  reposts: Table<Repost, string>;
-  bookmarks: Table<Bookmark, string>;
-}
+export type { Post, Reaction, Comment, Repost, Bookmark };
 
 /**
- * Dexie table definitions
+ * Dexie table definitions for microblogging module
  */
-export const microbloggingSchema = {
-  // Posts table
-  posts: `
-    id,
-    authorId,
-    content,
-    contentType,
-    [visibility.privacy],
-    createdAt,
-    updatedAt,
-    nostrEventId,
-    isRepost,
-    repostedPostId,
-    isQuote,
-    quotedPostId,
-    *hashtags,
-    *mentions
-  `,
-
-  // Reactions table
-  reactions: `
-    id,
-    postId,
-    userId,
-    type,
-    createdAt,
-    nostrEventId,
-    [postId+userId]
-  `,
-
-  // Comments table
-  comments: `
-    id,
-    postId,
-    authorId,
-    content,
-    parentCommentId,
-    depth,
-    createdAt,
-    updatedAt,
-    nostrEventId
-  `,
-
-  // Reposts table
-  reposts: `
-    id,
-    postId,
-    userId,
-    isQuote,
-    createdAt,
-    nostrEventId,
-    [postId+userId]
-  `,
-
-  // Bookmarks table
-  bookmarks: `
-    id,
-    postId,
-    userId,
-    createdAt,
-    collectionId,
-    [postId+userId]
-  `,
-};
+export const microbloggingSchema: TableSchema[] = [
+  {
+    name: 'posts',
+    schema: 'id, authorId, [visibility.privacy], createdAt, updatedAt, nostrEventId, *hashtags, *mentions',
+    indexes: ['id', 'authorId', '[visibility.privacy]', 'createdAt', 'updatedAt', 'nostrEventId', '*hashtags', '*mentions'],
+  },
+  {
+    name: 'reactions',
+    schema: 'id, postId, userId, type, createdAt, [postId+userId]',
+    indexes: ['id', 'postId', 'userId', 'type', 'createdAt', '[postId+userId]'],
+  },
+  {
+    name: 'comments',
+    schema: 'id, postId, authorId, parentCommentId, depth, createdAt',
+    indexes: ['id', 'postId', 'authorId', 'parentCommentId', 'depth', 'createdAt'],
+  },
+  {
+    name: 'reposts',
+    schema: 'id, postId, userId, createdAt, [postId+userId]',
+    indexes: ['id', 'postId', 'userId', 'createdAt', '[postId+userId]'],
+  },
+  {
+    name: 'bookmarks',
+    schema: 'id, postId, userId, createdAt, collectionId, [postId+userId]',
+    indexes: ['id', 'postId', 'userId', 'createdAt', 'collectionId', '[postId+userId]'],
+  },
+];
 
 /**
  * Indexes explanation:

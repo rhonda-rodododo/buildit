@@ -260,7 +260,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                       <X className="h-3 w-3" />
                     </Button>
                     <EmojiPicker
-                      onEmojiClick={handleEmojiSelect}
+                      onEmojiSelect={handleEmojiSelect}
                     />
                   </div>
                 </div>

@@ -32,7 +32,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
   const [isReplying, setIsReplying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isAuthor = currentIdentity?.id === comment.authorId;
+  const isAuthor = currentIdentity?.publicKey === comment.authorId;
   const canReply = depth < maxDepth;
 
   // Get replies to this comment

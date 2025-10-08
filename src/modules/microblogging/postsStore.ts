@@ -130,6 +130,13 @@ export const usePostsStore = create<PostsState>()(
           isSensitive: input.isSensitive,
         };
 
+        // Persist to database
+        try {
+          await db.posts.add(newPost);
+        } catch (error) {
+          console.error('Failed to save post to database:', error);
+        }
+
         set((state) => ({
           posts: [newPost, ...state.posts],
         }));
@@ -139,6 +146,20 @@ export const usePostsStore = create<PostsState>()(
 
       // Update post
       updatePost: async (input: UpdatePostInput): Promise<void> => {
+        const updatedAt = Date.now();
+
+        // Update in database
+        try {
+          await db.posts.update(input.postId, {
+            content: input.content,
+            contentWarning: input.contentWarning,
+            isSensitive: input.isSensitive,
+            updatedAt,
+          });
+        } catch (error) {
+          console.error('Failed to update post in database:', error);
+        }
+
         set((state) => ({
           posts: state.posts.map((post) =>
             post.id === input.postId
@@ -147,7 +168,7 @@ export const usePostsStore = create<PostsState>()(
                   content: input.content ?? post.content,
                   contentWarning: input.contentWarning ?? post.contentWarning,
                   isSensitive: input.isSensitive ?? post.isSensitive,
-                  updatedAt: Date.now(),
+                  updatedAt,
                 }
               : post
           ),
@@ -156,6 +177,17 @@ export const usePostsStore = create<PostsState>()(
 
       // Delete post
       deletePost: async (postId: string): Promise<void> => {
+        // Delete from database
+        try {
+          await db.posts.delete(postId);
+          await db.reactions.where('postId').equals(postId).delete();
+          await db.comments.where('postId').equals(postId).delete();
+          await db.reposts.where('postId').equals(postId).delete();
+          await db.bookmarks.where('postId').equals(postId).delete();
+        } catch (error) {
+          console.error('Failed to delete post from database:', error);
+        }
+
         set((state) => ({
           posts: state.posts.filter((post) => post.id !== postId),
           reactions: state.reactions.filter((r) => r.postId !== postId),
@@ -273,6 +305,19 @@ export const usePostsStore = create<PostsState>()(
           createdAt: Date.now(),
         };
 
+        // Persist to database
+        try {
+          await db.reactions.add(newReaction);
+          const post = await db.posts.get(postId);
+          if (post) {
+            await db.posts.update(postId, {
+              reactionCount: (post.reactionCount || 0) + 1,
+            });
+          }
+        } catch (error) {
+          console.error('Failed to save reaction to database:', error);
+        }
+
         set((state) => {
           const myReactions = new Map(state.myReactions);
           myReactions.set(postId, type);
@@ -343,6 +388,19 @@ export const usePostsStore = create<PostsState>()(
           createdAt: Date.now(),
         };
 
+        // Persist to database
+        try {
+          await db.comments.add(newComment);
+          const post = await db.posts.get(postId);
+          if (post) {
+            await db.posts.update(postId, {
+              commentCount: (post.commentCount || 0) + 1,
+            });
+          }
+        } catch (error) {
+          console.error('Failed to save comment to database:', error);
+        }
+
         set((state) => ({
           comments: [...state.comments, newComment],
           posts: state.posts.map((post) =>
@@ -385,6 +443,19 @@ export const usePostsStore = create<PostsState>()(
           isQuote: false,
           createdAt: Date.now(),
         };
+
+        // Persist to database
+        try {
+          await db.reposts.add(newRepost);
+          const post = await db.posts.get(postId);
+          if (post) {
+            await db.posts.update(postId, {
+              repostCount: (post.repostCount || 0) + 1,
+            });
+          }
+        } catch (error) {
+          console.error('Failed to save repost to database:', error);
+        }
 
         set((state) => {
           const myReposts = new Set(state.myReposts);
@@ -466,6 +537,19 @@ export const usePostsStore = create<PostsState>()(
           userId,
           createdAt: Date.now(),
         };
+
+        // Persist to database
+        try {
+          await db.bookmarks.add(newBookmark);
+          const post = await db.posts.get(postId);
+          if (post) {
+            await db.posts.update(postId, {
+              bookmarkCount: (post.bookmarkCount || 0) + 1,
+            });
+          }
+        } catch (error) {
+          console.error('Failed to save bookmark to database:', error);
+        }
 
         set((state) => {
           const myBookmarks = new Set(state.myBookmarks);
