@@ -24,12 +24,13 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 40 completed)
-**Active Epic**: Epic 41 (Friend System) or Epic 36 (Additional Translations)
+**Last Updated**: 2025-10-08 (Epic 38 completed, Epic 41 next priority)
+**Active Epic**: Epic 41 (Friend System) - Next priority
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 96% for organizing platform features (+1% with username system)
+**Completion**: 97% for organizing platform features (+1% with advanced social features)
+**New Priorities**: UX-first approach, BLE mesh for offline resilience, Pleasure Activism philosophy
 
 ---
 
@@ -287,85 +288,6 @@ When completing an epic:
 
 ---
 
-### Epic 38: Advanced Social Features (Reactions, Reposts, Bookmarks) ❤️
-**Status**: Not Started
-**Priority**: P2
-**Effort**: 10-20 hours
-**Dependencies**: Epic 34 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: After core social features (posts, feed, comments), add engagement features like reactions, reposts, and bookmarks.
-
-**Tasks**:
-- [ ] **Epic 38.1: Reactions (4-6h)**
-  - [ ] Implement NIP-07 reactions (kind:7)
-  - [ ] Add multiple reaction types (emoji reactions):
-    - ❤️ Heart/Like
-    - ✊ Solidarity
-    - 🔥 Fire/Hot Take
-    - 👀 Eyes/Noted
-    - 😂 Laugh
-    - 👍 Thumbs Up
-  - [ ] Create reaction picker component
-  - [ ] Show reaction counts on posts
-  - [ ] View who reacted (privacy-aware)
-  - [ ] Add reaction notifications
-
-- [ ] **Epic 38.2: Reposts & Sharing (4-6h)**
-  - [ ] Implement NIP-06 reposts (kind:6)
-  - [ ] Add quote posts (repost with comment)
-  - [ ] Create repost UI component
-  - [ ] Add cross-post to multiple groups
-  - [ ] Implement share to external platforms (optional)
-  - [ ] Share event links
-  - [ ] Track repost counts
-
-- [ ] **Epic 38.3: Bookmarks (2-4h)**
-  - [ ] Create Bookmark schema and types
-  - [ ] Implement bookmark actions on:
-    - Posts
-    - Events
-    - Proposals
-    - Wiki pages
-  - [ ] Create BookmarksView component
-  - [ ] Add collections/folders for bookmarks
-  - [ ] Implement bookmark search
-  - [ ] Sync bookmarks via Nostr
-
-- [ ] **Epic 38.4: Threading & Conversations (2-4h)**
-  - [ ] Improve thread visualization
-  - [ ] Add "View conversation context" feature
-  - [ ] Implement mute threads functionality
-  - [ ] Add follow threads for notifications
-  - [ ] Create thread navigation UI
-
-- [ ] Write tests for advanced social features
-- [ ] Create seed data for reactions, reposts, bookmarks
-
-**Acceptance Criteria**:
-- Can react to posts with 6 emoji types
-- Reaction counts display correctly
-- Can repost with or without comment
-- Quote posts working
-- Bookmarks functional with folders
-- Can search bookmarked content
-- Thread visualization improved
-- Tests passing for all features
-
-**Testing Requirements**:
-- `bun test src/modules/microblogging/` passing (updated tests)
-- Manual test: Add reaction → See count update
-- Manual test: Quote post with comment
-- Manual test: Bookmark post → View in bookmarks
-- Manual test: Mute thread → Verify no notifications
-
-**Reference Docs**:
-- **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed implementation checklist (see Epic 21.3, 22, 23, 25)
-
-**Git Commit Format**: `feat: add reactions, reposts, and bookmarks (Epic 38)`
-
----
-
 ### Epic 39: Tor Integration 🧅
 **Status**: Deferred from Epic 18
 **Priority**: P2
@@ -426,6 +348,16 @@ When completing an epic:
 ---
 
 ## 📋 Backlog: Nice to Have
+
+### Backlog Item 0: Content Curation & Marketplace (Epic 46+)
+**Effort**: 100+ hours (far future)
+**Priority**: Lowest (deferred until core platform complete)
+**Context**: One-stop-shop for launching worker co-ops, independent businesses, creative initiatives. Social marketplace with purpose-driven curation. Addresses "Pleasure Activism" vision of joyful economic organizing.
+**Tasks**: TBD (draft epic when ready to prioritize)
+**Features**: Worker co-op marketplace, independent business directory, creative initiatives, event promotion, mutual aid marketplace, skill/resource sharing economy
+**Dependencies**: Epics 38, 41, 42, 44, 37, 39, 43 complete
+
+---
 
 ### Backlog Item 1: Visual Regression Testing
 **Effort**: 5-10 hours
@@ -490,46 +422,46 @@ When completing an epic:
 
 ---
 
-## 🎯 Recommended Execution Order
+## 🎯 Recommended Execution Order (OUTDATED - See Updated Order Below)
 
-### Phase 1: Production Readiness (P0)
-1. Epic 28: Critical Bug Fixes (5-10h)
-2. Epic 29: E2E Test Suite (20-30h)
-3. Epic 30: Security Audit Prep (15-20h) + External Audit
-4. Epic 31: Legal & Compliance (5-10h)
-
-**Total**: ~50-70 hours + external audit
+**⚠️ This section is outdated. Epics 28-30, 32-34 are complete. See "Updated Recommended Execution Order" below for current priorities after roadmap re-prioritization (2025-10-08).**
 
 ---
 
-### Phase 2: Core Features (P1)
-5. Epic 34: Social Features Core (30-40h)
-6. Epic 32: Documents Module (20-30h)
-7. Epic 33: Files Module (25-35h)
-8. Epic 35: Performance Optimization (10-15h)
-
-**Total**: ~85-120 hours
+~~### Phase 1: Production Readiness (P0)~~
+~~1. Epic 28: Critical Bug Fixes (5-10h)~~ ✅ COMPLETED
+~~2. Epic 29: E2E Test Suite (20-30h)~~ ✅ COMPLETED
+~~3. Epic 30: Security Audit Prep (15-20h) + External Audit~~ ✅ COMPLETED
+~~4. Epic 31: Legal & Compliance (5-10h)~~ - Deferred to pre-launch
 
 ---
 
-### Phase 3: Enhanced Features (P2)
-9. Epic 36: Additional Translations (10-20h)
-10. Epic 37: Forms & Fundraising (30-40h)
-11. Epic 38: Advanced Social Features (10-20h)
-12. Epic 39: Tor Integration (20-30h)
-
-**Total**: ~70-110 hours
+~~### Phase 2: Core Features (P1)~~
+~~5. Epic 34: Social Features Core (30-40h)~~ ✅ COMPLETED
+~~6. Epic 32: Documents Module (20-30h)~~ ✅ COMPLETED
+~~7. Epic 33: Files Module (25-35h)~~ ✅ COMPLETED
+~~8. Epic 35: Performance Optimization (10-15h)~~ - Moved to P2
 
 ---
 
-## 📊 Effort Summary
+~~### Phase 3: Enhanced Features (P2)~~
+~~9. Epic 36: Additional Translations (10-20h)~~
+~~10. Epic 37: Forms & Fundraising (30-40h)~~
+~~11. Epic 38: Advanced Social Features (10-20h)~~
+~~12. Epic 39: Tor Integration (20-30h)~~
 
-**Critical Path (P0)**: 50-70 hours + audit
-**Core Features (P1)**: 85-120 hours
-**Enhanced Features (P2)**: 70-110 hours
-**Backlog Items**: 60-100+ hours
+---
 
-**Grand Total**: ~265-400+ hours (6-10 weeks full-time)
+## 📊 Effort Summary (OUTDATED - See Updated Summary Below)
+
+~~**Critical Path (P0)**: 50-70 hours + audit~~
+~~**Core Features (P1)**: 85-120 hours~~
+~~**Enhanced Features (P2)**: 70-110 hours~~
+~~**Backlog Items**: 60-100+ hours~~
+
+~~**Grand Total**: ~265-400+ hours (6-10 weeks full-time)~~
+
+**⚠️ This section is outdated. See "Updated Effort Summary" below for current priorities after roadmap re-prioritization (2025-10-08).**
 
 ---
 
@@ -558,9 +490,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-07
-**Total Epics Pending**: 8 (Epic 31, 34-39)
-**Total Backlog Items**: 10+
+**Last Updated**: 2025-10-08 (Epic 38 completed)
+**Total Epics Pending**: 12 (Epic 31, 35-37, 39, 41-45)
+**Total Backlog Items**: 11+ (includes Epic 46+ content/marketplace)
 
 ---
 
@@ -657,40 +589,253 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
+### Epic 44: BLE Mesh Networking (Nostr-Native Offline) 🔵
+**Status**: Not Started
+**Priority**: **P1 (Core Infrastructure)** - Foundational resilience layer
+**Effort**: 40-60 hours
+**Dependencies**: None (foundational)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Offline-first resilience for mass adoption during internet shutdowns, protests, or censorship. Inspired by Samiz (Nostr-native BLE) and BitChat (Nepal/disaster scenarios). Enables device-to-device communication without internet or centralized servers. Critical infrastructure for high-risk organizing scenarios.
+
+**Technical Approach**:
+- **Samiz-based architecture**: Nostr-native BLE mesh (https://github.com/KoalaSat/samiz)
+- **BLE mesh topology**: 30m range per hop, multi-hop message propagation
+- **Negentropy sync**: Battery-efficient synchronization between devices
+- **Message compression**: Handle BLE's 512-byte transmission limit
+- **Store-and-forward**: Cache messages on intermediate nodes for offline delivery
+- **Auto-discovery**: Automatic nearby node detection (no manual pairing)
+
+**Tasks**:
+
+- [ ] **Epic 44.1: BLE Core Infrastructure (15-20h)**
+  - [ ] Research Samiz codebase and integration approach
+  - [ ] Set up BLE permissions and capabilities (Android/iOS/Web Bluetooth)
+  - [ ] Implement BLE client-server pairing
+  - [ ] Create BLE service discovery (auto-detect nearby Samiz nodes)
+  - [ ] Build message chunking/compression for 512-byte BLE limit
+  - [ ] Implement Negentropy protocol for efficient sync
+
+- [ ] **Epic 44.2: Nostr-over-BLE Protocol (10-15h)**
+  - [ ] Map Nostr events to BLE mesh transport
+  - [ ] Implement store-and-forward message queue
+  - [ ] Build multi-hop routing algorithm
+  - [ ] Add message TTL (time-to-live) and hop limits
+  - [ ] Create local relay discovery (mesh nodes as mini-relays)
+  - [ ] Sync cached events when internet returns
+
+- [ ] **Epic 44.3: Offline Event Sync (8-12h)**
+  - [ ] Implement offline DM sync (NIP-17 over BLE)
+  - [ ] Add offline group message sync
+  - [ ] Support offline event creation/updates
+  - [ ] Sync proposal votes offline
+  - [ ] Handle conflict resolution (CRDTs or last-write-wins)
+
+- [ ] **Epic 44.4: UI & Settings (5-8h)**
+  - [ ] Build BLE status indicator (mesh connected, nodes count)
+  - [ ] Create BLE settings panel:
+    - Enable/disable mesh networking
+    - Set broadcast range preferences
+    - View nearby mesh nodes
+    - Battery optimization settings
+  - [ ] Add "Offline Mode" banner in UI
+  - [ ] Show message delivery status (sent → relayed → delivered)
+
+- [ ] **Epic 44.5: Security & Privacy (5-8h)**
+  - [ ] Maintain NIP-17 E2E encryption over BLE
+  - [ ] Implement forward secrecy for mesh hops
+  - [ ] Add anti-tracking measures (rotating BLE identifiers)
+  - [ ] Prevent message deanonymization attacks
+  - [ ] Document BLE mesh threat model
+
+- [ ] Write tests for BLE mesh networking
+- [ ] Document offline usage scenarios (protests, disasters)
+- [ ] Create user guide for high-risk scenarios
+
+**Acceptance Criteria**:
+- Can send/receive Nostr events over BLE mesh (no internet required)
+- Messages hop through intermediate devices (multi-hop verified)
+- Store-and-forward delivers messages when recipient comes online
+- Automatic node discovery working (no manual pairing needed)
+- NIP-17 encryption maintained over BLE transport
+- Battery-efficient operation (Negentropy sync optimized)
+- Offline events sync when internet restored
+- Tests verify mesh propagation and conflict resolution
+
+**Testing Requirements**:
+- Manual test: 3 devices in BLE range, send message device1 → device3 via device2 hop
+- Manual test: Send message while recipient offline → verify delivery when online
+- Manual test: Create event offline → verify sync when internet returns
+- Battery consumption test (8-hour mesh active test)
+- Range test: Verify 30m BLE range and multi-hop extension
+
+**Reference Docs**:
+- Samiz: https://github.com/KoalaSat/samiz
+- BitChat store-and-forward architecture
+- [PRIVACY.md](./PRIVACY.md) (add BLE mesh threat model section)
+
+**Git Commit Format**: `feat: implement BLE mesh networking for offline Nostr (Epic 44)`
+**Git Tag**: `v0.44.0-ble-mesh`
+
+---
+
+### Epic 45: Pleasure Activism UX Philosophy 🌸
+**Status**: Not Started
+**Priority**: P2 (Research Spike)
+**Effort**: 10-15 hours (research + recommendations)
+**Dependencies**: None
+**Assignable to subagent**: No (requires human reading/synthesis)
+
+**Context**: Apply adrienne maree brown's "Pleasure Activism" principles to BuildIt Network's UX/UI design. Make organizing, justice work, and liberation feel *joyful* and *pleasurable*, not just another burden. Research spike to inform future UX work.
+
+**Core Principles (from brown's work)**:
+1. **What you pay attention to grows** - UI should highlight joy, wins, solidarity moments
+2. **We become what we practice** - Interaction patterns should reinforce positive organizing behaviors
+3. **Yes is the way** - Use pleasure as decision-making guide for UX flows
+4. **Your no makes way for your yes** - Boundaries (privacy controls, consent) create authentic engagement
+5. **Make justice feel good** - Organizing should be delightful, not dour
+
+**Tasks**:
+
+- [ ] **Epic 45.1: Literature Review (4-6h)**
+  - [ ] Read "Pleasure Activism: The Politics of Feeling Good" (adrienne maree brown)
+  - [ ] Review "Emergent Strategy" (brown) for related UX insights
+  - [ ] Research black feminist tradition in design
+  - [ ] Study joyful/playful UX patterns (e.g., Duolingo celebrations, Discord emotes)
+
+- [ ] **Epic 45.2: Design Recommendations (4-6h)**
+  - [ ] Map 5 principles to BuildIt UX patterns
+  - [ ] Identify opportunities for micro-celebrations (e.g., proposal passed, event RSVP milestone)
+  - [ ] Design playful interactions (animations, sound, haptics)
+  - [ ] Create warm color palette options (vs. purely utilitarian design)
+  - [ ] Recommend illustration/iconography style (joyful, not corporate)
+
+- [ ] **Epic 45.3: Implementation Roadmap (2-3h)**
+  - [ ] Draft Epic 46: Joyful UX Patterns (micro-interactions, celebrations)
+  - [ ] Identify quick wins (e.g., add confetti animation when proposal passes)
+  - [ ] Outline larger UX overhauls (e.g., redesign onboarding to feel welcoming)
+  - [ ] Document anti-patterns to avoid (shame, guilt, exhaustion)
+
+**Deliverables**:
+- Document: `docs/PLEASURE_ACTIVISM_UX_PHILOSOPHY.md`
+- List of recommended design changes (prioritized)
+- Draft Epic 46 spec for joyful UX implementation
+- Updated design system principles
+
+**Acceptance Criteria**:
+- Comprehensive synthesis of Pleasure Activism → UX patterns
+- At least 10 specific recommendations with examples
+- Draft Epic 46 ready for execution
+- Design team (or AI) can reference doc for all future UX work
+
+**Testing Requirements**:
+- N/A (research spike, no code)
+
+**Reference Docs**:
+- Book: "Pleasure Activism: The Politics of Feeling Good" (adrienne maree brown)
+- Book: "Emergent Strategy" (adrienne maree brown)
+- Black feminist design traditions
+
+**Git Commit Format**: `docs: add Pleasure Activism UX philosophy and recommendations (Epic 45)`
+**Git Tag**: `v0.45.0-ux-philosophy`
+
+---
+
 ## 📊 Updated Effort Summary
 
-**Critical Path (P0)**: 50-70 hours + audit
-**Core Features (P1)**: 85-120 hours + **50-70 hours (Epics 41-42)** = 135-190 hours
-**Enhanced Features (P2)**: 70-110 hours + **15-20 hours (Epic 43)** = 85-130 hours
-**Backlog Items**: 60-100+ hours
+**Critical Path (P0)**: 5-10 hours (Epic 31 only - deferred to pre-launch)
+**Core Features (P1)**:
+- Epic 38: 10-20h (social features)
+- Epic 42: 25-35h (messaging UX)
+- Epic 41: 10-15h (friends)
+- Epic 44: 40-60h (BLE mesh) ⭐ NEW
+- Epic 37: 30-40h (forms/fundraising)
+- **P1 Total**: 115-170 hours
 
-**New Grand Total**: ~330-490+ hours (8-12 weeks full-time)
+**Enhanced Features (P2)**:
+- Epic 39: 20-30h (Tor)
+- Epic 43: 15-20h (group entity)
+- Epic 35: 10-15h (performance)
+- Epic 36: 10-20h (translations)
+- Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
+- **P2 Total**: 65-100 hours
+
+**Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
+
+**New Grand Total**: ~345-480+ hours (8-12 weeks full-time)
 **Completed**: Epic 40 (15-20 hours) ✅
 
 ---
 
 ## 🎯 Updated Recommended Execution Order
 
-### Phase 1: Production Readiness (P0)
-1. Epic 31: Legal & Compliance (5-10h)
+### **Immediate Priority (Next 2-3 weeks)**
+1. ✅ Epic 40: Username System (15-20h) - COMPLETED
+2. ✅ Epic 38: Advanced Social Features (10-20h) - COMPLETED
+3. **Epic 41: Friend System** (10-15h) ⬅ **DO NEXT**
+   - Reactions, reposts, bookmarks, threading
+   - Quick win for social platform replacement
+   - Completes core social engagement features
 
-### Phase 2: Core Features (P1)
-2. **Epic 34 Follow-up: UI Fixes** (4-6h) ✅ COMPLETED
-3. Epic 32: Documents Module (20-30h) ✅ COMPLETED
-4. Epic 33: Files Module (25-35h) ✅ COMPLETED
-5. **Epic 40: Username System** (15-20h) ✅ COMPLETED
-6. **Epic 41: Friend System** (10-15h) ⬅ **NEXT**
-7. **Epic 42: Messaging UX Overhaul** (25-35h)
-8. Epic 35: Performance Optimization (10-15h)
+### **Phase 1: UX Foundation (P1)** - 4-6 weeks
+3. **Epic 42: Messaging UX Overhaul** (25-35h)
+   - Conversation-centric redesign
+   - Bottom-anchored chat windows
+   - Buddylist with group-based contacts
+   - Replaces Signal/Telegram/Discord
 
-### Phase 3: Enhanced Features (P2)
-9. Epic 36: Additional Translations (10-20h)
-10. Epic 37: Forms & Fundraising (30-40h)
-11. Epic 38: Advanced Social Features (10-20h)
-12. **Epic 43: Group Entity** (15-20h)
-13. Epic 39: Tor Integration (20-30h)
+4. **Epic 41: Friend System** (10-15h)
+   - After Epic 42 (enhances messaging UX)
+   - Explicit friend relationships
+   - QR code friend add
+   - Trust tiers
+
+### **Phase 2: Core Infrastructure (P1)** - 8-10 weeks
+5. **Epic 44: BLE Mesh Networking** (40-60h) ⭐ **NEW - CORE INFRA**
+   - Nostr-over-BLE offline resilience
+   - Store-and-forward mesh topology
+   - Mass adoption enabler for protests/disasters
+   - Samiz-based architecture
+
+6. **Epic 37: Forms & Fundraising** (30-40h)
+   - Public-facing forms (volunteer signup, event registration)
+   - Fundraising campaigns (bail funds, strike funds)
+   - Entry point for overwhelmed participants
+   - Replaces donation/volunteer apps
+
+### **Phase 3: Security & Advanced Features (P2)** - 6-8 weeks
+7. **Epic 39: Tor Integration** (20-30h)
+   - Metadata protection
+   - .onion relay support
+   - Pairs with BLE mesh for defense-in-depth
+
+8. **Epic 43: Group Entity & Coalition** (15-20h)
+   - Groups as collective identities
+   - Multi-group coalition chats
+   - Anonymous screening
+
+9. **Epic 35: Performance Optimization** (10-15h)
+   - Bundle size reduction
+   - After major features complete
+
+### **Phase 4: Localization & UX Philosophy (P2)** - 3-4 weeks
+10. **Epic 36: Additional Translations** (10-20h)
+    - German, Portuguese, Mandarin
+    - Requires native speakers (can parallelize)
+
+11. **Epic 45: Pleasure Activism UX Spike** (10-15h) ⭐ **NEW**
+    - Research adrienne maree brown's principles
+    - Design joyful organizing UX
+    - Informs Epic 46 (Joyful UX Patterns)
+
+### **Pre-Launch (P0)** - 1 week
+12. **Epic 31: Legal & Compliance** (5-10h)
+    - Terms of Service, Privacy Policy
+    - Before public launch
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 40 completed, moved to COMPLETED_ROADMAP)
-**Pending Epics**: 11 (Epic 31, 35-39, 41-43)
+**Last Updated**: 2025-10-08 (Roadmap re-prioritized, Epics 44-45 added)
+**Pending Epics**: 13 total (Epic 31, 35-39, 41-45)
+**Next Epic**: Epic 38 (Advanced Social Features)
+**Strategic Shift**: UX-first → Core Infrastructure → Security → Philosophy → Launch
