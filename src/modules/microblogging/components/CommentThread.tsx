@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageCircle, Trash2 } from 'lucide-react';
 import { CommentInput } from './CommentInput';
+import { UserHandle } from '@/components/user/UserHandle';
 
 interface CommentThreadProps {
   postId: string;
@@ -69,7 +70,12 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
         <div className="flex-1 min-w-0">
           {/* Header */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm">{comment.authorId}</span>
+            <UserHandle
+              pubkey={comment.authorId}
+              format="display-name"
+              showBadge={true}
+              className="text-sm"
+            />
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
             </span>

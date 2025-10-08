@@ -3,6 +3,10 @@ export interface Identity {
   npub: string // bech32-encoded public key
   privateKey: Uint8Array
   name: string
+  username?: string // Human-readable username (e.g., "alice-organizer")
+  displayName?: string // Display name (e.g., "Alice Martinez")
+  nip05?: string // Verified identifier (alice@domain.com)
+  nip05Verified?: boolean // NIP-05 verification status
   created: number
   lastUsed: number
 }

@@ -127,6 +127,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             npub: nip19.npubEncode(dbId.publicKey),
             privateKey: hexToBytes(dbId.encryptedPrivateKey),
             name: dbId.name,
+            username: dbId.username,
+            displayName: dbId.displayName,
+            nip05: dbId.nip05,
+            nip05Verified: dbId.nip05Verified,
             created: dbId.created,
             lastUsed: dbId.lastUsed,
           }))
@@ -196,6 +200,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               publicKey: state.currentIdentity.publicKey,
               npub: state.currentIdentity.npub,
               name: state.currentIdentity.name,
+              username: state.currentIdentity.username,
+              displayName: state.currentIdentity.displayName,
+              nip05: state.currentIdentity.nip05,
+              nip05Verified: state.currentIdentity.nip05Verified,
               created: state.currentIdentity.created,
               lastUsed: state.currentIdentity.lastUsed,
             }

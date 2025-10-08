@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CommentThread } from './CommentThread';
 import { CommentInput } from './CommentInput';
+import { UserHandle } from '@/components/user/UserHandle';
 
 interface PostCardProps {
   post: Post;
@@ -146,9 +147,12 @@ export const PostCard: FC<PostCardProps> = ({
           {/* Author info and timestamp */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm truncate">
-                {post.authorId}
-              </span>
+              <UserHandle
+                pubkey={post.authorId}
+                format="display-name"
+                showBadge={true}
+                className="text-sm"
+              />
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 {getPrivacyIcon()}
                 {formatTimestamp(post.createdAt)}

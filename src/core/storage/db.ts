@@ -11,6 +11,10 @@ export interface DBIdentity {
   encryptedPrivateKey: string;
   name: string;
   npub?: string; // Added for WebAuthn user handles
+  username?: string; // Human-readable username (e.g., "alice-organizer")
+  displayName?: string; // Display name (e.g., "Alice Martinez")
+  nip05?: string; // Verified identifier (alice@domain.com)
+  nip05Verified?: boolean; // NIP-05 verification status
   created: number;
   lastUsed: number;
 }
@@ -69,14 +73,23 @@ export interface DBModuleInstance {
   updatedAt: number;
 }
 
+export interface DBUsernameSettings {
+  pubkey: string; // primary key
+  allowUsernameSearch: boolean; // Can be found by username
+  allowEmailDiscovery: boolean; // Can be found by email
+  visibleTo: 'public' | 'friends' | 'groups' | 'none'; // Who can see your profile
+  showInDirectory: boolean; // Appear in user directory
+  updatedAt: number;
+}
+
 /**
  * Core database schema (always present)
  */
 const CORE_SCHEMA: TableSchema[] = [
   {
     name: 'identities',
-    schema: 'publicKey, name, created, lastUsed',
-    indexes: ['publicKey', 'name', 'created', 'lastUsed'],
+    schema: 'publicKey, name, username, nip05, created, lastUsed',
+    indexes: ['publicKey', 'name', 'username', 'nip05', 'created', 'lastUsed'],
   },
   {
     name: 'groups',
@@ -103,6 +116,11 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'id, [groupId+moduleId], groupId, state, updatedAt',
     indexes: ['id', '[groupId+moduleId]', 'groupId', 'moduleId', 'state', 'updatedAt'],
   },
+  {
+    name: 'usernameSettings',
+    schema: 'pubkey, visibleTo, updatedAt',
+    indexes: ['pubkey', 'visibleTo', 'updatedAt'],
+  },
 ];
 
 /**
@@ -117,6 +135,7 @@ export class BuildItDB extends Dexie {
   messages!: Table<DBMessage, string>;
   nostrEvents!: Table<DBNostrEvent, string>;
   moduleInstances!: Table<DBModuleInstance, string>;
+  usernameSettings!: Table<DBUsernameSettings, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
