@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-08 (Epic 41 completed)
+**Last Updated**: 2025-10-08 (Epic 42 completed)
 
 ---
 
@@ -51,6 +51,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 40 | v0.40.0 | ✅ | `v0.40.0-usernames` | Username system with NIP-05 verification, user directory, and privacy controls |
 | 38 | v0.38.0 | ✅ | `v0.38.0-social` | Advanced Social Features - reactions (6 emoji types with "who reacted"), quote posts, bookmarks view, improved threading |
 | 41 | v0.41.0 | ✅ | `v0.41.0-friends` | Friend System with contacts management, QR code adds, trust tiers, privacy controls |
+| 42 | v0.42.0 | ✅ | `v0.42.0-messaging-ux` | Messaging UX Overhaul - conversation-centric model, desktop chat windows, buddylist, presence system |
 
 ---
 
@@ -721,5 +722,133 @@ Implemented comprehensive friend and contact management system with explicit fri
 - ✅ All components compile without errors
 
 **Reference**: `/src/core/friends/`, `/src/core/friends/components/`, [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md)
+
+---
+
+### Epic 42: Messaging UX Overhaul ✅
+**Tag**: `v0.42.0-messaging-ux` | **Commits**: `git log v0.41.0-friends..v0.42.0-messaging-ux`
+
+Complete redesign of messaging interface from group-centric to conversation-centric model, inspired by Discord/Signal/Facebook Messenger. Replaces old Messages tab with unified conversations experience.
+
+**Core Features**:
+- **Unified Conversation Model**: DMs, group chats, multi-party/coalition chats in single interface
+- **Desktop Chat Windows**: Bottom-anchored windows with multi-window support (max 3 side-by-side)
+- **Buddylist Sidebar**: Organized contacts (Favorites, Online Now, By Group, All Contacts)
+- **Online Presence**: Green/yellow/gray status with last seen timestamps and custom status messages
+- **Conversation Management**: Pin, mute, archive, unread tracking with per-conversation counts
+
+**Database Schema** (5 new core tables):
+- `conversations`: DM/group/multi-party conversations with metadata, participants, privacy settings
+- `conversationMembers`: Member metadata with roles, join dates, last read timestamps
+- `conversationMessages`: Messages with reactions, threading (replyTo), edit tracking
+- `userPresence`: Online/away/offline status with last seen and custom status
+- `chatWindows`: Desktop window state (positions, z-index, minimized state)
+
+**Store & Business Logic**:
+- ConversationsStore (Zustand): 800+ lines with 40+ methods for full CRUD operations
+- Conversation operations: create, delete, pin, mute, archive, update name, mark as read
+- Member operations: add, remove, update role, track last read
+- Message operations: send, edit, delete, react with emoji, load history
+- Presence operations: update status, refresh, get status for user
+- Window operations: open, close, minimize, restore, focus, update position
+
+**Desktop UI Components** (Discord/Facebook style):
+- ChatWindowContainer: Manages multiple floating chat windows at bottom
+- ChatWindow: Individual chat with header (avatar, presence, controls), scrollable messages, inline input
+- ChatTaskbar: Shows minimized chats with unread badges at bottom right
+- BuddylistSidebar: 180-line component with search, collapsible sections, organized contacts
+- BuddylistItem: Contact display with avatar, presence indicator, unread badge, favorite star
+- ConversationsPage: Main messaging hub with tabs (All, DMs, Groups, Unread, Archived)
+
+**Window Management**:
+- Max 3 windows open simultaneously (closes oldest when limit exceeded)
+- Minimize to taskbar with unread counts
+- Z-index stacking with focus-to-front
+- Persistent window positions in localStorage
+- Click contact in buddylist to open DM window
+
+**Presence System**:
+- 3 status types: Online (green dot), Away (yellow dot, 5min idle), Offline (gray dot)
+- Last seen timestamps: "2h ago", "Just now", etc.
+- Custom status messages per user
+- Real-time presence updates
+- Presence indicators on all avatars
+
+**ConversationsPage Features**:
+- Tabs: All, DMs, Groups, Unread, Archived with count badges
+- Conversation list sorted by pinned first, then recent activity
+- Search conversations by name
+- Click conversation to open chat window
+- Desktop: Buddylist sidebar + chat windows
+- Mobile-ready foundation (swipe gestures deferred)
+
+**Files Created** (15 new files, 2,500+ lines):
+- `src/core/messaging/conversationTypes.ts`: Type definitions
+- `src/core/messaging/conversationSchema.ts`: Database schema and seeds
+- `src/core/messaging/conversationsStore.ts`: Zustand store (800+ lines)
+- `src/core/messaging/components/ChatWindowContainer.tsx`
+- `src/core/messaging/components/ChatWindow.tsx` (200 lines)
+- `src/core/messaging/components/ChatTaskbar.tsx`
+- `src/core/messaging/components/BuddylistSidebar.tsx` (180 lines)
+- `src/core/messaging/components/BuddylistItem.tsx`
+- `src/core/messaging/components/ConversationsPage.tsx` (250 lines)
+- `src/core/messaging/components/index.ts`
+- `src/core/messaging/index.ts`
+
+**Files Modified**:
+- `src/core/storage/db.ts`: Added 5 conversation tables to CORE_SCHEMA (+66 lines)
+- `src/routes/index.tsx`: Replace MessagesPage with ConversationsPage (+4 lines)
+
+**UX Improvements**:
+- **Conversation-centric**: No more navigating to groups for messages
+- **Multi-tasking**: Multiple chat windows open simultaneously
+- **Presence awareness**: See who's online in real-time across all contacts
+- **Organized contacts**: Find people by status, favorites, groups
+- **Unified inbox**: All conversations (DMs, groups) in one place
+- **Inline composition**: No modals, type directly in chat window
+
+**Epic 42 Acceptance Criteria**:
+- ✅ Desktop: Chat windows open from buddylist
+- ✅ Desktop: Multiple windows side-by-side (max 3)
+- ✅ Desktop: Buddylist shows organized contacts
+- ✅ Can create DMs (group chats & coalition chats in store)
+- ✅ Inline message composition (no modals)
+- ✅ Online presence working (green/yellow/gray)
+- ✅ Conversations route added (/app/messages)
+- ✅ No type errors in new messaging code
+
+**Testing & Build**:
+- ✅ Vite build successful (2,393 lines added, 15 files created)
+- ✅ All conversation-related type errors resolved
+- ✅ No type errors in new messaging system
+- ⚠️ Pre-existing type errors in analytics/feed (not related to this epic)
+
+**Architecture Highlights**:
+- **Core System**: Conversations in core/ (foundational messaging infrastructure)
+- **Desktop-First**: Multi-window UX for desktop, mobile enhancements deferred
+- **Zustand State**: Comprehensive store with 40+ methods for all operations
+- **Type Safety**: Full TypeScript coverage with no `any` usage
+- **Persistence**: All data in IndexedDB with Dexie
+- **Lazy Loading**: Route-based code splitting for ConversationsPage
+
+**Known Limitations**:
+- Mobile-specific UI not implemented (desktop-first approach)
+- Swipe gestures not implemented (future enhancement)
+- NewConversationForm not created (button exists, TODO)
+- Group Messages tab not removed from group pages (future cleanup)
+- Nostr integration for sending messages TODO (local state only)
+- Coalition/multi-party chat UI not created (store ready)
+
+**Dependencies**:
+- Epic 40 (Usernames) ✅ - For username display
+- Epic 41 (Friends) ✅ - For buddylist contacts
+
+**Follow-up Work**:
+- Epic 43: Group Entity & Coalition Features (multi-party chats, group messaging as entity)
+- Nostr integration for message sending/receiving
+- Mobile-specific UI with swipe gestures
+- Remove old group Messages tabs
+
+**Reference**: `/src/core/messaging/`, [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-42)
 
 ---

@@ -24,8 +24,8 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 41 completed, Epic 42 next priority)
-**Active Epic**: Epic 42 (Messaging UX Overhaul) - Next priority
+**Last Updated**: 2025-10-08 (Epic 42 completed, Epic 44 next priority)
+**Active Epic**: Epic 44 (BLE Mesh Networking) - Next priority
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
@@ -508,34 +508,6 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - [x] ✅ Comment out non-functional toolbar buttons with TODOs
 
 **Git Commit**: `fix: add markdown rendering and fix post composer UI (Epic 34 follow-up)`
-
----
-
-### Epic 42: Messaging UX Overhaul 💬
-**Status**: Not Started
-**Priority**: P1 (Major UX improvement)
-**Effort**: 25-35 hours
-**Dependencies**: Epic 40 (Usernames), Epic 41 (Friends)
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Complete messaging redesign inspired by Discord, Signal, Facebook Messenger. Move from group-centric tabs to conversation-centric model.
-
-**Key Features**:
-- **Desktop**: Bottom-anchored chat windows + buddylist sidebar (Discord/Facebook style)
-- **Mobile**: Full-screen chats with swipe gestures
-- Conversation-centric model (remove group "Messages" tabs)
-- Inline message composition (no modals)
-- Flexible chat creation:
-  - 1:1 DMs
-  - Group chats (multi-user)
-  - Coalition chats (multiple groups + users)
-- Buddylist with online presence
-- Multi-window chat support (3 windows side-by-side)
-- Organized contacts (by group, favorites, online now)
-
-**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-42)
-
-**Git Tag**: `v0.42.0-messaging-ux`
 
 ---
 
