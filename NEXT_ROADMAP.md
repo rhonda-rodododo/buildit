@@ -155,6 +155,8 @@ When completing an epic:
 **Context**: i18n infrastructure exists with 4 complete languages (English, Spanish, French, Arabic). Need 3 more for wider reach.
 
 **Tasks**:
+- [ ] Dynamically load locales per module, in addition to core locales
+- [ ] 
 - [ ] Create German locale (de.json) - 123 keys
 - [ ] Create Portuguese locale (pt.json) - 123 keys
 - [ ] Create Mandarin Chinese locale (zh.json) - 123 keys
@@ -559,3 +561,159 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 **Last Updated**: 2025-10-07
 **Total Epics Pending**: 8 (Epic 31, 34-39)
 **Total Backlog Items**: 10+
+
+---
+
+### Epic 34 Follow-up: UI/UX Fixes ✅ COMPLETED
+**Status**: ✅ Complete
+**Priority**: P1
+**Effort**: 4-6 hours (Actual: 2 hours)
+**Dependencies**: Epic 34
+
+**Completed**:
+- [x] ✅ Add markdown rendering to PostCard (react-markdown + remark-gfm + rehype-sanitize)
+- [x] ✅ Fix emoji picker positioning and styling
+- [x] ✅ Comment out non-functional toolbar buttons with TODOs
+
+**Git Commit**: `fix: add markdown rendering and fix post composer UI (Epic 34 follow-up)`
+
+---
+
+### Epic 40: Username System & User Discovery 📛
+**Status**: Not Started
+**Priority**: P1 (Foundation for Epics 41-43)
+**Effort**: 15-20 hours
+**Dependencies**: Epic 34 complete
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Enable human-readable usernames (@alice) instead of npub1xxx... Inspired by Signal, Telegram, Discord username systems.
+
+**Key Features**:
+- Human-readable usernames (@username format)
+- Username display in all contexts (posts, feed, messages, profiles)
+- Username search and autocomplete
+- NIP-05 verification (username@domain.com)
+- Privacy controls (who can find you by username)
+- Optional (high-security users can remain pubkey-only)
+
+**Reference**: [EPIC_40_USERNAME_SYSTEM.md](./docs/EPIC_40_USERNAME_SYSTEM.md)
+
+**Git Commit Format**: `feat: implement username system with NIP-05 verification (Epic 40)`
+**Git Tag**: `v0.40.0-usernames`
+
+---
+
+### Epic 41: Friend System & Contacts Management 🤝
+**Status**: Not Started
+**Priority**: P1
+**Effort**: 10-15 hours
+**Dependencies**: Epic 40 (Username System)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Explicit friend/contact relationships beyond group membership. Enables private messaging, verified networks, buddylist organization.
+
+**Key Features**:
+- Friend requests (send/accept/decline)
+- QR code friend add (in-person verification)
+- Email/username/link invites
+- Contacts management (tags, notes, favorites)
+- Trust tiers (stranger → contact → friend → verified → trusted)
+- Privacy settings per friend
+- In-person key verification (green badge)
+
+**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-41)
+
+**Git Tag**: `v0.41.0-friends`
+
+---
+
+### Epic 42: Messaging UX Overhaul 💬
+**Status**: Not Started
+**Priority**: P1 (Major UX improvement)
+**Effort**: 25-35 hours
+**Dependencies**: Epic 40 (Usernames), Epic 41 (Friends)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Complete messaging redesign inspired by Discord, Signal, Facebook Messenger. Move from group-centric tabs to conversation-centric model.
+
+**Key Features**:
+- **Desktop**: Bottom-anchored chat windows + buddylist sidebar (Discord/Facebook style)
+- **Mobile**: Full-screen chats with swipe gestures
+- Conversation-centric model (remove group "Messages" tabs)
+- Inline message composition (no modals)
+- Flexible chat creation:
+  - 1:1 DMs
+  - Group chats (multi-user)
+  - Coalition chats (multiple groups + users)
+- Buddylist with online presence
+- Multi-window chat support (3 windows side-by-side)
+- Organized contacts (by group, favorites, online now)
+
+**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-42)
+
+**Git Tag**: `v0.42.0-messaging-ux`
+
+---
+
+### Epic 43: Group Entity & Coalition Features 🎭
+**Status**: Not Started
+**Priority**: P2 (Advanced organizing)
+**Effort**: 15-20 hours
+**Dependencies**: Epic 42 (Messaging UX)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Advanced organizing features enabling groups to message as collective identities and build cross-group coalitions.
+
+**Key Features**:
+- **Group as entity**: Groups can message as collective identity (not individual admins)
+- **Use cases**:
+  - Anonymous screening of new members
+  - Official group announcements
+  - Coalition building without revealing members
+- **"Speak as group" toggle**: Admins switch between personal/group identity
+- **Multi-group chats**: Coalition planning across multiple groups
+- **Role-based messaging**: Admin-only, member-only, public channels
+- **Group entity keypair**: Separate Nostr identity for groups
+
+**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-43)
+
+**Git Tag**: `v0.43.0-group-entity`
+
+---
+
+## 📊 Updated Effort Summary
+
+**Critical Path (P0)**: 50-70 hours + audit  
+**Core Features (P1)**: 85-120 hours + **65-90 hours (Epics 40-42)** = 150-210 hours  
+**Enhanced Features (P2)**: 70-110 hours + **15-20 hours (Epic 43)** = 85-130 hours  
+**Backlog Items**: 60-100+ hours
+
+**New Grand Total**: ~385-510+ hours (9-12 weeks full-time)
+
+---
+
+## 🎯 Updated Recommended Execution Order
+
+### Phase 1: Production Readiness (P0)
+1. Epic 31: Legal & Compliance (5-10h)
+
+### Phase 2: Core Features (P1)
+2. **Epic 34 Follow-up: UI Fixes** (4-6h) ✅ COMPLETED
+3. Epic 32: Documents Module (20-30h) ✅ COMPLETED
+4. Epic 33: Files Module (25-35h) ✅ COMPLETED
+5. **Epic 40: Username System** (15-20h) ⬅ **NEXT**
+6. **Epic 41: Friend System** (10-15h)
+7. **Epic 42: Messaging UX Overhaul** (25-35h)
+8. Epic 35: Performance Optimization (10-15h)
+
+### Phase 3: Enhanced Features (P2)
+9. Epic 36: Additional Translations (10-20h)
+10. Epic 37: Forms & Fundraising (30-40h)
+11. Epic 38: Advanced Social Features (10-20h)
+12. **Epic 43: Group Entity** (15-20h)
+13. Epic 39: Tor Integration (20-30h)
+
+---
+
+**Last Updated**: 2025-10-07 (Epic 34 follow-up completed, new Epics 40-43 added)
+**Pending Epics**: 12 (Epic 31, 35-43)
