@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { TableSchema } from '@/types/modules';
+import type { DBFriend, FriendRequest, FriendInviteLink } from '@/core/friends/schema';
 
 /**
  * CORE DATABASE SCHEMA INTERFACES
@@ -82,6 +83,9 @@ export interface DBUsernameSettings {
   updatedAt: number;
 }
 
+// Re-export friends types for convenience
+export type { DBFriend, FriendRequest, FriendInviteLink };
+
 /**
  * Core database schema (always present)
  */
@@ -121,6 +125,34 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'pubkey, visibleTo, updatedAt',
     indexes: ['pubkey', 'visibleTo', 'updatedAt'],
   },
+  {
+    name: 'friends',
+    schema:
+      'id, [userPubkey+friendPubkey], userPubkey, friendPubkey, status, trustTier, verifiedInPerson, isFavorite, addedAt, acceptedAt, *tags',
+    indexes: [
+      'id',
+      '[userPubkey+friendPubkey]',
+      'userPubkey',
+      'friendPubkey',
+      'status',
+      'trustTier',
+      'verifiedInPerson',
+      'isFavorite',
+      'addedAt',
+      'acceptedAt',
+      '*tags',
+    ],
+  },
+  {
+    name: 'friendRequests',
+    schema: 'id, fromPubkey, toPubkey, createdAt, expiresAt, [fromPubkey+toPubkey]',
+    indexes: ['id', 'fromPubkey', 'toPubkey', 'createdAt', 'expiresAt', '[fromPubkey+toPubkey]'],
+  },
+  {
+    name: 'friendInviteLinks',
+    schema: 'id, code, creatorPubkey, createdAt, expiresAt, maxUses, currentUses',
+    indexes: ['id', 'code', 'creatorPubkey', 'createdAt', 'expiresAt'],
+  },
 ];
 
 /**
@@ -136,6 +168,9 @@ export class BuildItDB extends Dexie {
   nostrEvents!: Table<DBNostrEvent, string>;
   moduleInstances!: Table<DBModuleInstance, string>;
   usernameSettings!: Table<DBUsernameSettings, string>;
+  friends!: Table<DBFriend, string>;
+  friendRequests!: Table<FriendRequest, string>;
+  friendInviteLinks!: Table<FriendInviteLink, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
