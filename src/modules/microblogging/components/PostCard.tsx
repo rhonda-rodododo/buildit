@@ -25,6 +25,7 @@ import {
   Users,
   Shield,
   AlertTriangle,
+  Quote,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -32,6 +33,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { CommentThread } from './CommentThread';
 import { CommentInput } from './CommentInput';
 import { UserHandle } from '@/components/user/UserHandle';
@@ -62,9 +75,11 @@ export const PostCard: FC<PostCardProps> = ({
     addReaction,
     removeReaction,
     getMyReaction,
+    getPostReactions,
     hasReposted,
     repost,
     unrepost,
+    quotePost,
     hasBookmarked,
     bookmarkPost,
     unbookmarkPost,
@@ -73,8 +88,11 @@ export const PostCard: FC<PostCardProps> = ({
 
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [showComments, setShowComments] = useState(showThread);
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false);
+  const [quoteContent, setQuoteContent] = useState('');
 
   const myReaction = getMyReaction(post.id);
+  const postReactions = getPostReactions(post.id);
   const isReposted = hasReposted(post.id);
   const isBookmarked = hasBookmarked(post.id);
 
@@ -105,6 +123,23 @@ export const PostCard: FC<PostCardProps> = ({
       await bookmarkPost(post.id);
     }
   };
+
+  const handleQuotePost = async () => {
+    if (quoteContent.trim()) {
+      await quotePost(post.id, quoteContent);
+      setQuoteContent('');
+      setShowQuoteDialog(false);
+    }
+  };
+
+  // Group reactions by type for "who reacted" display
+  const reactionsByType = postReactions.reduce((acc, reaction) => {
+    if (!acc[reaction.type]) {
+      acc[reaction.type] = [];
+    }
+    acc[reaction.type].push(reaction.userId);
+    return acc;
+  }, {} as Record<ReactionType, string[]>);
 
   const getPrivacyIcon = () => {
     switch (post.visibility.privacy) {
@@ -235,7 +270,37 @@ export const PostCard: FC<PostCardProps> = ({
       {/* Engagement stats */}
       <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
         {post.reactionCount > 0 && (
-          <span>{post.reactionCount} reaction{post.reactionCount !== 1 ? 's' : ''}</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="hover:underline cursor-pointer">
+                {post.reactionCount} reaction{post.reactionCount !== 1 ? 's' : ''}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Reactions</h4>
+                {Object.entries(reactionsByType).map(([type, userIds]) => (
+                  <div key={type} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{type}</span>
+                      <span className="text-sm text-muted-foreground">{userIds.length}</span>
+                    </div>
+                    <div className="pl-6 space-y-1">
+                      {userIds.map((userId) => (
+                        <div key={userId} className="flex items-center gap-2">
+                          <Avatar className="w-6 h-6">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`} />
+                            <AvatarFallback>{userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <UserHandle pubkey={userId} format="display-name" className="text-sm" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
         {post.commentCount > 0 && (
           <span>{post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}</span>
@@ -292,16 +357,29 @@ export const PostCard: FC<PostCardProps> = ({
           Comment
         </Button>
 
-        {/* Repost button */}
-        <Button
-          variant={isReposted ? 'default' : 'ghost'}
-          size="sm"
-          className="flex-1 justify-center"
-          onClick={handleRepost}
-        >
-          <Repeat2 className="w-4 h-4 mr-2" />
-          Repost
-        </Button>
+        {/* Repost button with dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant={isReposted ? 'default' : 'ghost'}
+              size="sm"
+              className="flex-1 justify-center"
+            >
+              <Repeat2 className="w-4 h-4 mr-2" />
+              Repost
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={handleRepost}>
+              <Repeat2 className="w-4 h-4 mr-2" />
+              {isReposted ? 'Undo Repost' : 'Repost'}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowQuoteDialog(true)}>
+              <Quote className="w-4 h-4 mr-2" />
+              Quote Post
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Bookmark button */}
         <Button
@@ -334,6 +412,59 @@ export const PostCard: FC<PostCardProps> = ({
           )}
         </div>
       )}
+
+      {/* Quote Post Dialog */}
+      <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Quote Post</DialogTitle>
+            <DialogDescription>
+              Add your thoughts to this post
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Quote content input */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Your comment
+              </label>
+              <textarea
+                value={quoteContent}
+                onChange={(e) => setQuoteContent(e.target.value)}
+                placeholder="What do you think about this?"
+                className="w-full min-h-[100px] p-3 border rounded-md resize-y"
+              />
+            </div>
+
+            {/* Original post preview */}
+            <div className="p-3 border rounded-md bg-muted/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`} />
+                  <AvatarFallback>{post.authorId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <UserHandle pubkey={post.authorId} format="display-name" className="text-sm" />
+              </div>
+              <div className="text-sm text-muted-foreground line-clamp-3">
+                {post.content}
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowQuoteDialog(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleQuotePost}
+                disabled={!quoteContent.trim()}
+              >
+                Quote Post
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
