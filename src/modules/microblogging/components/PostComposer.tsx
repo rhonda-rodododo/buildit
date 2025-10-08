@@ -188,53 +188,63 @@ export const PostComposer: FC<PostComposerProps> = ({
 
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t">
-          {/* Media and attachment buttons */}
+          {/* Media and attachment buttons - TODO: Implement functionality */}
           <div className="flex items-center gap-1">
+            {/* TODO: Implement image upload with Files module
             <Button
               variant="ghost"
               size="sm"
               className="h-9 px-3"
-              disabled={isPosting}
-              title="Add image"
+              disabled={true}
+              title="Add image (coming soon)"
             >
               <Image className="w-4 h-4" />
             </Button>
+            */}
+            {/* TODO: Implement video upload
             <Button
               variant="ghost"
               size="sm"
               className="h-9 px-3"
-              disabled={isPosting}
-              title="Add video"
+              disabled={true}
+              title="Add video (coming soon)"
             >
               <Video className="w-4 h-4" />
             </Button>
+            */}
+            {/* TODO: Implement location tagging
             <Button
               variant="ghost"
               size="sm"
               className="h-9 px-3"
-              disabled={isPosting}
-              title="Add location"
+              disabled={true}
+              title="Add location (coming soon)"
             >
               <MapPin className="w-4 h-4" />
             </Button>
+            */}
+            {/* TODO: Link to Events module
             <Button
               variant="ghost"
               size="sm"
               className="h-9 px-3"
-              disabled={isPosting}
-              title="Create event"
+              disabled={true}
+              title="Create event (coming soon)"
             >
               <Calendar className="w-4 h-4" />
             </Button>
+            */}
+            {/* TODO: Link to Documents module
             <Button
               variant="ghost"
               size="sm"
               className="h-9 px-3"
-              disabled={isPosting}
-              title="Attach document"
+              disabled={true}
+              title="Attach document (coming soon)"
             >
               <FileText className="w-4 h-4" />
             </Button>
+            */}
 
             <div className="relative">
               <Button
@@ -249,12 +259,12 @@ export const PostComposer: FC<PostComposerProps> = ({
               </Button>
 
               {showEmojiPicker && (
-                <div className="absolute left-0 top-full mt-2 z-50">
-                  <div className="relative">
+                <div className="absolute left-0 bottom-full mb-2 z-50">
+                  <Card className="relative shadow-lg">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-background shadow-md"
+                      className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-background shadow-md z-10"
                       onClick={() => setShowEmojiPicker(false)}
                     >
                       <X className="h-3 w-3" />
@@ -262,7 +272,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                     <EmojiPicker
                       onEmojiSelect={handleEmojiSelect}
                     />
-                  </div>
+                  </Card>
                 </div>
               )}
             </div>

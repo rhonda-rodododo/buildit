@@ -5,6 +5,9 @@
 
 import { FC, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import { usePostsStore } from '../postsStore';
 import type { Post, ReactionType } from '../types';
 import { Card } from '@/components/ui/card';
@@ -172,9 +175,30 @@ export const PostCard: FC<PostCardProps> = ({
 
       {/* Content */}
       <div className="mb-3">
-        <p className="text-sm whitespace-pre-wrap break-words">
-          {post.content}
-        </p>
+        <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeSanitize]}
+            components={{
+              // Open links in new tab with security
+              a: ({href, children, ...props}) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                  {...props}
+                >
+                  {children}
+                </a>
+              ),
+              // Prevent rendering images (use media field instead)
+              img: () => null,
+            }}
+          >
+            {post.content}
+          </ReactMarkdown>
+        </div>
 
         {/* Hashtags */}
         {post.hashtags.length > 0 && (
