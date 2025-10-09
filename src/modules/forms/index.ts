@@ -1,6 +1,7 @@
 /**
  * Forms Module Entry Point
- * Public-facing forms, fundraising campaigns, and public pages
+ * Public-facing forms for data collection
+ * Forms submit directly to Database module tables
  */
 
 import type { ModulePlugin } from '@/types/modules';
@@ -15,9 +16,6 @@ export * from './schema';
 // Store
 export { useFormsStore } from './formsStore';
 
-// Manager
-export { formsManager, FormsManager } from './formsManager';
-
 /**
  * Forms Module Plugin
  */
@@ -25,8 +23,8 @@ export const formsModule: ModulePlugin = {
   metadata: {
     id: 'forms',
     type: 'forms',
-    name: 'Forms & Fundraising',
-    description: 'Public-facing forms, fundraising campaigns, and public pages for outreach',
+    name: 'Forms',
+    description: 'Public-facing forms for data collection (volunteer signup, event registration, surveys)',
     version: '0.1.0',
     author: 'BuildIt Network',
     icon: FileText,
@@ -38,21 +36,15 @@ export const formsModule: ModulePlugin = {
         requiresPermission: ['admin', 'moderator'],
       },
       {
-        id: 'fundraising',
-        name: 'Fundraising Campaigns',
-        description: 'Create and manage fundraising campaigns with donation tiers',
-        requiresPermission: ['admin'],
-      },
-      {
-        id: 'public-pages',
-        name: 'Public Pages',
-        description: 'Create SEO-optimized public pages for group visibility',
+        id: 'form-submissions',
+        name: 'Form Submissions',
+        description: 'Manage form submissions and spam filtering',
         requiresPermission: ['admin', 'moderator'],
       },
       {
-        id: 'analytics',
-        name: 'Privacy-Preserving Analytics',
-        description: 'Track form submissions and campaign performance',
+        id: 'form-templates',
+        name: 'Form Templates',
+        description: 'Pre-built templates for common use cases',
         requiresPermission: ['admin', 'moderator'],
       },
     ],
@@ -65,25 +57,18 @@ export const formsModule: ModulePlugin = {
         description: 'Allow form submissions without login',
       },
       {
-        key: 'enableFundraising',
-        label: 'Enable Fundraising',
+        key: 'enableAntiSpam',
+        label: 'Enable Anti-Spam Protection',
         type: 'boolean',
         defaultValue: true,
-        description: 'Enable fundraising campaign features',
+        description: 'Enable honeypot, rate limiting, and CAPTCHA for spam prevention',
       },
       {
-        key: 'enablePublicPages',
-        label: 'Enable Public Pages',
+        key: 'enableWebhooks',
+        label: 'Enable Webhooks',
         type: 'boolean',
-        defaultValue: true,
-        description: 'Enable public page creation and management',
-      },
-      {
-        key: 'enableAnalytics',
-        label: 'Enable Analytics',
-        type: 'boolean',
-        defaultValue: true,
-        description: 'Track form and campaign analytics (privacy-preserving)',
+        defaultValue: false,
+        description: 'Allow forms to send data to external webhooks',
       },
     ],
     requiredPermission: 'all',
@@ -119,7 +104,7 @@ export const formsModule: ModulePlugin = {
       version: 1,
       description: 'Initial forms schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Forms migration v1: Initial schema (forms, campaigns, public pages, analytics)');
+        console.log('Forms migration v1: Initial schema (forms, submissions)');
       },
     },
   ],
@@ -128,16 +113,14 @@ export const formsModule: ModulePlugin = {
 
   getDefaultConfig: () => ({
     allowAnonymousSubmissions: true,
-    enableFundraising: true,
-    enablePublicPages: true,
-    enableAnalytics: true,
+    enableAntiSpam: true,
+    enableWebhooks: false,
   }),
 
   validateConfig: (config: Record<string, unknown>) => {
     if (typeof config.allowAnonymousSubmissions !== 'boolean') return false;
-    if (typeof config.enableFundraising !== 'boolean') return false;
-    if (typeof config.enablePublicPages !== 'boolean') return false;
-    if (typeof config.enableAnalytics !== 'boolean') return false;
+    if (typeof config.enableAntiSpam !== 'boolean') return false;
+    if (typeof config.enableWebhooks !== 'boolean') return false;
     return true;
   },
 };

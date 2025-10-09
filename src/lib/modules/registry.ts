@@ -22,6 +22,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
     load: () => import('@/modules/custom-fields'),
   },
   {
+    id: 'public',
+    load: () => import('@/modules/public'),
+  },
+  {
     id: 'messaging',
     load: () => import('@/modules/messaging'),
   },
@@ -64,6 +68,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
   {
     id: 'forms',
     load: () => import('@/modules/forms'),
+  },
+  {
+    id: 'fundraising',
+    load: () => import('@/modules/fundraising'),
   },
 ];
 

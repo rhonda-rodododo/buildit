@@ -24,7 +24,7 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 47 E2E Test Coverage added)
+**Last Updated**: 2025-10-08 (Epic 37 split into Forms/Public/Fundraising modules)
 **Active Epic**: Epic 47 (E2E Test Coverage) Phase 1 - Starting immediately
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
@@ -186,106 +186,184 @@ When completing an epic:
 
 ---
 
-### Epic 37: Forms & Fundraising Module 📝
-**Status**: Planned, Not Started
+### Epic 37: Forms Module 📝
+**Status**: ✅ Schema Complete, UI Pending
 **Priority**: P2
-**Effort**: 30-40 hours
+**Effort**: 15-20 hours (Schema: 3h complete, UI: 12-17h remaining)
 **Dependencies**: Epic 32 (Documents) recommended
 **Assignable to subagent**: Yes (`feature-implementer`)
 
-**Context**: Public-facing forms and fundraising capabilities allow groups to interact with external people without requiring accounts.
+**Context**: Public-facing forms for data collection (volunteer signup, event registration, surveys). Forms submit data to Database module tables. Module structure and schema completed during Epic 37 refactoring.
 
-**Tasks**:
-- [ ] **Epic 37.1: Form Builder (15-20h)**
-  - [ ] Create Form schema and types
-  - [ ] Implement FormsStore (Zustand)
-  - [ ] Build visual form builder:
-    - Drag & drop field placement
-    - 11 field types (text, number, email, phone, select, checkbox, radio, date, file upload, textarea, url)
-    - Field validation rules
-    - Conditional logic (show/hide fields based on answers)
-    - Multi-page forms
-  - [ ] Create form templates:
-    - Event registration
-    - Volunteer signup
-    - Contact form
-    - Survey/feedback
-    - Membership application
-  - [ ] Implement form submission handling:
-    - Store submissions in Database module
-    - Email notifications
-    - Auto-responder
-    - Webhook support
-  - [ ] Add anti-spam protection:
-    - Rate limiting
-    - Honeypot fields
-    - Optional CAPTCHA
-  - [ ] Create form analytics dashboard
+**Completed Tasks**:
+- [x] Create Form schema and types (`src/modules/forms/schema.ts`)
+- [x] Implement FormsStore (Zustand) (`src/modules/forms/formsStore.ts`)
+- [x] Create form seed data (event registration, volunteer signup)
+- [x] Register module in registry (`src/lib/modules/registry.ts`)
 
-- [ ] **Epic 37.2: Fundraising Pages (10-15h)**
-  - [ ] Create Campaign schema and types
-  - [ ] Build campaign page builder:
-    - Campaign description (rich text)
-    - Fundraising goal and progress bar
-    - Donation tiers/levels
-    - Campaign updates
-  - [ ] Implement donation flow:
-    - One-time donations
-    - Recurring donations
-    - Donation form
-    - Thank you page
-  - [ ] Create campaign templates:
-    - Bail fund
-    - Strike fund
-    - Mutual aid fund
-    - Legal defense fund
-  - [ ] Add donor management:
-    - Donor wall (optional display)
-    - Donor privacy controls
-    - Thank you messages
-    - Tax receipts (if applicable)
-  - [ ] Integrate payment processing:
-    - Stripe integration
-    - PayPal integration
-    - Cryptocurrency (Bitcoin, Lightning, Ethereum)
-
-- [ ] **Epic 37.3: Public Pages CMS (5-8h)**
-  - [ ] Extend Wiki module for public pages
-  - [ ] Create public page templates:
-    - Landing page
-    - About page
-    - Events calendar (public view)
-    - Contact page
-  - [ ] Implement SEO controls:
-    - Meta tags
-    - Open Graph tags
-    - Twitter cards
-    - sitemap.xml generation
-  - [ ] Add custom domain support (CNAME configuration guide)
-  - [ ] Create privacy-respecting analytics
-
-- [ ] Write tests for forms and fundraising
-- [ ] Create comprehensive seed data
+**Remaining Tasks**:
+- [ ] Build visual form builder UI:
+  - Drag & drop field placement
+  - 11 field types (text, number, email, phone, select, checkbox, radio, date, file upload, textarea, url)
+  - Field validation rules
+  - Conditional logic (show/hide fields based on answers)
+  - Multi-page forms
+- [ ] Create form templates UI:
+  - Event registration
+  - Volunteer signup
+  - Contact form
+  - Survey/feedback
+  - Membership application
+- [ ] Implement form submission handling UI:
+  - Store submissions in Database module (backend done)
+  - Email notifications
+  - Auto-responder
+  - Webhook support
+- [ ] Add anti-spam protection UI:
+  - Rate limiting
+  - Honeypot fields
+  - Optional CAPTCHA (hCaptcha configured in schema)
+- [ ] Create form analytics dashboard (uses Public module analytics)
+- [ ] Write E2E tests for form builder and submissions
+- [ ] Build public form rendering view
 
 **Acceptance Criteria**:
 - Form builder functional with drag & drop
 - Can create multi-page forms with conditional logic
-- Form submissions stored in database
-- Fundraising campaigns can be created
-- Donation flow works (with test payment integration)
-- Public pages can be published
-- SEO metadata working
-- Anti-spam measures active
+- Form submissions stored in database and viewable
+- Anti-spam measures active (honeypot, rate limiting, CAPTCHA)
+- Analytics dashboard shows submission stats
+- E2E tests passing
 
 **Testing Requirements**:
 - `bun test src/modules/forms/` passing
-- Manual test: Create form → Fill out → Submit → View responses
-- Manual test: Create fundraising campaign → Test donation flow
-- Manual test: Publish public page → Verify SEO tags
+- E2E test: Create form → Fill out → Submit → View responses
+- E2E test: Test anti-spam protection (rate limiting, honeypot)
 
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Forms & Fundraising section), PROMPT.md (Epic 15.5)
+**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Forms section), `/src/modules/forms/`
 
-**Git Commit Format**: `feat: implement Forms & Fundraising module with public pages (Epic 37)`
+**Git Commit Format**: `feat: implement Forms module UI and form builder (Epic 37)`
+
+**Git Tag**: `v0.37.0-forms`
+
+---
+
+### Epic 37.5: Public Module (Infrastructure) 🌐
+**Status**: ✅ Schema Complete, UI Pending
+**Priority**: P2
+**Effort**: 5-8 hours (Schema: 2h complete, UI: 3-6h remaining)
+**Dependencies**: None (infrastructure for Forms and Fundraising)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Public-facing pages and privacy-preserving analytics infrastructure. Shared by Forms and Fundraising modules for SEO-optimized public pages. Module structure and schema completed during Epic 37 refactoring.
+
+**Completed Tasks**:
+- [x] Create PublicPage and Analytics schema and types (`src/modules/public/schema.ts`)
+- [x] Implement PublicStore (Zustand) (`src/modules/public/publicStore.ts`)
+- [x] Create public page seed data (landing page, about page)
+- [x] Register module in registry (`src/lib/modules/registry.ts`)
+
+**Remaining Tasks**:
+- [ ] Build public page editor UI:
+  - Rich text editor for page content
+  - SEO controls (meta tags, Open Graph, Twitter cards)
+  - Page templates (landing, about, events calendar, contact)
+  - Publish/unpublish workflow
+- [ ] Implement SEO features:
+  - Meta tags rendering
+  - Open Graph tags
+  - Twitter cards
+  - sitemap.xml generation
+- [ ] Add custom domain support (CNAME configuration guide)
+- [ ] Create privacy-respecting analytics dashboard:
+  - Page views (no IP tracking)
+  - Referrer analytics
+  - Privacy-first implementation
+- [ ] Build public page rendering view
+- [ ] Write E2E tests for public pages and analytics
+- [ ] (Future) Page builder integration (craft.js, puck, builder.io)
+
+**Acceptance Criteria**:
+- Public pages can be created and published
+- SEO metadata working (meta tags, OG, Twitter cards)
+- Analytics tracking page views without compromising privacy
+- Analytics dashboard shows aggregated stats
+- E2E tests passing
+
+**Testing Requirements**:
+- `bun test src/modules/public/` passing
+- E2E test: Create public page → Publish → Verify SEO tags
+- E2E test: Track analytics event → View dashboard stats
+
+**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Public Pages section), `/src/modules/public/`
+
+**Git Commit Format**: `feat: implement Public module UI and page editor (Epic 37.5)`
+
+**Git Tag**: `v0.37.5-public`
+
+---
+
+### Epic 38: Fundraising Module 💰
+**Status**: ✅ Schema Complete, UI Pending
+**Priority**: P2
+**Effort**: 10-15 hours (Schema: 3h complete, UI: 7-12h remaining)
+**Dependencies**: Epic 37 (Forms), Epic 37.5 (Public)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Fundraising campaign management and donation processing. Leverages Forms module for donor data collection and Public module for SEO-optimized campaign pages. Module structure and schema completed during Epic 37 refactoring.
+
+**Completed Tasks**:
+- [x] Create Campaign and Donation schema and types (`src/modules/fundraising/schema.ts`)
+- [x] Implement FundraisingStore (Zustand) (`src/modules/fundraising/fundraisingStore.ts`)
+- [x] Create campaign seed data (strike fund, bail fund)
+- [x] Register module in registry (`src/lib/modules/registry.ts`)
+
+**Remaining Tasks**:
+- [ ] Build campaign page builder UI:
+  - Campaign description (rich text via Documents module)
+  - Fundraising goal and progress bar
+  - Donation tiers/levels
+  - Campaign updates timeline
+- [ ] Implement donation flow UI:
+  - One-time donations
+  - Recurring donations
+  - Donation form (uses Forms module)
+  - Thank you page
+- [ ] Create campaign templates UI:
+  - Bail fund
+  - Strike fund
+  - Mutual aid fund
+  - Legal defense fund
+- [ ] Add donor management UI:
+  - Donor wall (optional display)
+  - Donor privacy controls
+  - Thank you messages
+  - Tax receipts (if applicable)
+- [ ] Integrate payment processing:
+  - Stripe integration
+  - PayPal integration
+  - Cryptocurrency (Bitcoin, Lightning, Ethereum)
+- [ ] Build campaign analytics dashboard (uses Public module)
+- [ ] Write E2E tests for campaigns and donations
+
+**Acceptance Criteria**:
+- Fundraising campaigns can be created and published
+- Donation flow works (with test payment integration)
+- Campaign progress bar updates in real-time
+- Donor management functional with privacy controls
+- Analytics dashboard shows donation stats
+- E2E tests passing
+
+**Testing Requirements**:
+- `bun test src/modules/fundraising/` passing
+- E2E test: Create campaign → Publish → Make donation → View progress
+- E2E test: Test donation tiers and recurring donations
+
+**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Fundraising section), `/src/modules/fundraising/`
+
+**Git Commit Format**: `feat: implement Fundraising module UI and payment integration (Epic 38)`
+
+**Git Tag**: `v0.38.0-fundraising`
 
 ---
 
@@ -764,20 +842,22 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 **Critical Path (P0)**: 5-10 hours (Epic 31 only - deferred to pre-launch)
 **Core Features (P1)**:
-- ✅ Epic 38: 10-20h (social features) - COMPLETED
+- ✅ Epic 38: 10-20h (social features) - COMPLETED (moved to COMPLETED_ROADMAP)
 - ✅ Epic 41: 10-15h (friends) - COMPLETED
 - ✅ Epic 42: 25-35h (messaging UX) - COMPLETED
 - ✅ Epic 44: 12h (BLE mesh Phase 1) - COMPLETED
-- Epic 37: 30-40h (forms/fundraising)
-- **P1 Total**: 87-122 hours (57-82h completed, 30-40h remaining)
+- **P1 Total**: 57-82 hours (all completed)
 
 **Enhanced Features (P2)**:
+- Epic 37: 15-20h (Forms module) - ✅ Schema done (3h), UI remaining (12-17h)
+- Epic 37.5: 5-8h (Public module) - ✅ Schema done (2h), UI remaining (3-6h)
+- Epic 38: 10-15h (Fundraising module) - ✅ Schema done (3h), UI remaining (7-12h)
 - Epic 39: 20-30h (Tor)
 - Epic 43: 15-20h (group entity)
 - Epic 35: 10-15h (performance)
 - Epic 36: 10-20h (translations)
 - Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
-- **P2 Total**: 65-100 hours
+- **P2 Total**: 95-143 hours (8h completed, 87-135h remaining)
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
@@ -799,48 +879,61 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 6. **Epic 47: E2E Test Coverage** (60-80h) ⬅ **DO NEXT (Phase 1: 20-25h)**
    - Fill critical test gaps (Epic 42, 34/38, 41, 40, 7, 33)
    - Prevent regressions before production
-   - Can run in parallel with Epic 37
+   - Can run in parallel with Epic 37/37.5/38
    - **Phase 1 Priority**: 75-94 new tests for 6 critical epics
 
-7. **Epic 37: Forms & Fundraising** (30-40h) ⬅ **Parallel with Epic 47**
+7. **Epic 37: Forms Module** (15-20h) ⬅ **Parallel with Epic 47**
+   - ✅ Schema complete (3h)
    - Public-facing forms (volunteer signup, event registration)
+   - Form builder UI (drag & drop, 11 field types)
+   - Anti-spam protection (honeypot, CAPTCHA, rate limiting)
+
+8. **Epic 37.5: Public Module** (5-8h) ⬅ **Parallel with Epic 47**
+   - ✅ Schema complete (2h)
+   - Public page editor with SEO controls
+   - Privacy-preserving analytics dashboard
+   - Infrastructure for Forms and Fundraising
+
+9. **Epic 38: Fundraising Module** (10-15h) ⬅ **After Epic 37 & 37.5**
+   - ✅ Schema complete (3h)
    - Fundraising campaigns (bail funds, strike funds)
-   - Entry point for overwhelmed participants
-   - Replaces donation/volunteer apps
+   - Donation flow (one-time, recurring)
+   - Payment integration (Stripe, PayPal, crypto)
 
 ### **Phase 2: Security & Advanced Features (P2)** - 6-8 weeks
-8. **Epic 39: Tor Integration** (20-30h)
+10. **Epic 39: Tor Integration** (20-30h)
    - Metadata protection
    - .onion relay support
    - Pairs with BLE mesh for defense-in-depth
 
-9. **Epic 43: Group Entity & Coalition** (15-20h)
+11. **Epic 43: Group Entity & Coalition** (15-20h)
    - Groups as collective identities
    - Multi-group coalition chats
    - Anonymous screening
 
-10. **Epic 35: Performance Optimization** (10-15h)
+12. **Epic 35: Performance Optimization** (10-15h)
     - Bundle size reduction
     - After major features complete
 
 ### **Phase 3: Localization & UX Philosophy (P2)** - 3-4 weeks
-11. **Epic 36: Additional Translations** (10-20h)
+13. **Epic 36: Additional Translations** (10-20h)
     - German, Portuguese, Mandarin
     - Requires native speakers (can parallelize)
 
-12. **Epic 45: Pleasure Activism UX Spike** (10-15h) ⭐ **NEW**
+14. **Epic 45: Pleasure Activism UX Spike** (10-15h) ⭐ **NEW**
     - Research adrienne maree brown's principles
     - Design joyful organizing UX
     - Informs Epic 46 (Joyful UX Patterns)
 
 ### **Pre-Launch (P0)** - 1 week
-13. **Epic 31: Legal & Compliance** (5-10h)
+15. **Epic 31: Legal & Compliance** (5-10h)
     - Terms of Service, Privacy Policy
     - Before public launch
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 44 Phase 1 completed and moved to COMPLETED_ROADMAP)
-**Pending Epics**: 10 total (Epic 31, 35-37, 39, 43, 45)
-**Next Epic**: Epic 37 (Forms & Fundraising)
+**Last Updated**: 2025-10-08 (Epic 37 split into Forms/Public/Fundraising modules - schemas complete)
+**Pending Epics**: 12 total (Epic 31, 35, 36, 37, 37.5, 38, 39, 43, 45, 47)
+**Next Epic**: Epic 47 Phase 1 (E2E Test Coverage) or Epic 37 (Forms Module UI)
 **Strategic Shift**: UX-first (Complete) → Public Engagement → Security → Philosophy → Launch
+**Module Refactoring**: ✅ Forms, Public, and Fundraising modules separated with complete schemas/stores/seeds

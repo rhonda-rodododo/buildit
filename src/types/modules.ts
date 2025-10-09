@@ -8,6 +8,7 @@ import type { LucideIcon } from 'lucide-react';
  */
 export type ModuleType =
   | 'custom-fields' // Foundational module
+  | 'public' // Public pages and analytics infrastructure
   | 'messaging'
   | 'events'
   | 'mutual-aid'
@@ -18,7 +19,8 @@ export type ModuleType =
   | 'documents'
   | 'files'
   | 'microblogging'
-  | 'forms';
+  | 'forms'
+  | 'fundraising';
 
 /**
  * Module Capability - defines what a module can do

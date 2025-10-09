@@ -2,6 +2,9 @@
  * Forms Manager
  * Business logic for forms, campaigns, and public pages
  * Handles database persistence and integration with database module
+ *
+ * NOTE: This file contains legacy campaign and public page logic that should
+ * be moved to fundraisingManager and publicManager. Keeping for backwards compatibility.
  */
 
 import { db } from '@/core/storage/db';
@@ -9,12 +12,9 @@ import { generateEventId } from '@/core/nostr/nip01';
 import type {
   Form,
   FormSubmission,
-  Campaign,
-  CampaignUpdate,
-  Donation,
-  PublicPage,
-  Analytics,
 } from './types';
+import type { Campaign, CampaignUpdate, Donation } from '../fundraising/types';
+import type { PublicPage, Analytics } from '../public/types';
 import type { DatabaseRecord, CustomFieldValues } from '../database/types';
 import { databaseManager } from '../database/databaseManager';
 
