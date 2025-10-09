@@ -8,6 +8,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { fundraisingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { DollarSign } from 'lucide-react';
+import { FundraisingPage } from './components/FundraisingPage';
 
 // Types
 export * from './types';
@@ -15,6 +16,9 @@ export * from './schema';
 
 // Store
 export { useFundraisingStore } from './fundraisingStore';
+
+// Components
+export * from './components';
 
 /**
  * Fundraising Module Plugin
@@ -94,14 +98,13 @@ export const fundraisingModule: ModulePlugin = {
   },
 
   routes: [
-    // Routes will be added when UI components are built
-    // {
-    //   path: 'campaigns',
-    //   component: CampaignsView,
-    //   scope: 'group',
-    //   requiresEnabled: true,
-    //   label: 'Campaigns',
-    // },
+    {
+      path: 'fundraising',
+      component: FundraisingPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Fundraising',
+    },
   ],
 
   schema: fundraisingSchema,
