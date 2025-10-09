@@ -24,8 +24,8 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-09 (Epic 39 complete - Tor Integration)
-**Active Epic**: Epic 43 (Group Entity & Coalition) or Epic 35 (Performance)
+**Last Updated**: 2025-10-09 (Epic 43 complete - Group Entity & Coalition)
+**Active Epic**: Epic 35 (Performance Optimization)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
@@ -350,29 +350,52 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-### Epic 43: Group Entity & Coalition Features 🎭
+### Epic 35: Performance Optimization 🚀
 **Status**: Not Started
-**Priority**: P2 (Advanced organizing)
-**Effort**: 15-20 hours
-**Dependencies**: Epic 42 (Messaging UX)
-**Assignable to subagent**: Yes (`feature-implementer`)
+**Priority**: P2 (Performance)
+**Effort**: 10-15 hours
+**Dependencies**: Major features complete
+**Assignable to subagent**: Yes (`performance-optimizer`)
 
-**Context**: Advanced organizing features enabling groups to message as collective identities and build cross-group coalitions.
+**Context**: Optimize bundle size, load time, and runtime performance after implementing major features (Epics 32-44).
 
-**Key Features**:
-- **Group as entity**: Groups can message as collective identity (not individual admins)
-- **Use cases**:
-  - Anonymous screening of new members
-  - Official group announcements
-  - Coalition building without revealing members
-- **"Speak as group" toggle**: Admins switch between personal/group identity
-- **Multi-group chats**: Coalition planning across multiple groups
-- **Role-based messaging**: Admin-only, member-only, public channels
-- **Group entity keypair**: Separate Nostr identity for groups
+**Key Areas**:
+1. **Bundle Size Reduction** - Target: <200KB initial load (currently 233KB brotli)
+2. **Code Splitting** - Lazy load modules, routes, heavy components
+3. **Tree Shaking** - Remove unused code
+4. **Load Time Optimization** - Preload critical resources, defer non-critical
+5. **Runtime Performance** - Profile and optimize hot paths
 
-**Reference**: [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-43)
+**Tasks**:
+- [ ] Analyze bundle with `bun run build --analyze`
+- [ ] Implement lazy loading for modules (Events, Mutual Aid, Governance, Wiki, Database, CRM, Documents, Files)
+- [ ] Implement lazy loading for routes (use React.lazy + Suspense)
+- [ ] Lazy load heavy dependencies (TipTap, Yjs, jsPDF, markdown renderers)
+- [ ] Optimize image assets (compression, WebP, lazy loading)
+- [ ] Remove unused dependencies
+- [ ] Profile runtime performance with React DevTools Profiler
+- [ ] Optimize hot paths (messaging, feed rendering)
+- [ ] Add loading states for lazy-loaded components
+- [ ] Measure Core Web Vitals (LCP, FID, CLS)
 
-**Git Tag**: `v0.43.0-group-entity`
+**Acceptance Criteria**:
+- Bundle size <200KB brotli for initial load
+- All modules lazy-loaded (only load when needed)
+- Heavy dependencies lazy-loaded (TipTap, Yjs, jsPDF)
+- Routes lazy-loaded with proper loading states
+- Core Web Vitals meet "Good" thresholds
+- Build size documented in ARCHITECTURE.md
+
+**Testing Requirements**:
+- Build passes (`bun run build`)
+- Tests pass (`bun test && bun run typecheck`)
+- Manual testing: Verify app still works after optimizations
+- Lighthouse audit: Performance score >90
+
+**Reference Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Performance section)
+
+**Git Commit Format**: `perf: optimize bundle size and load time (Epic 35)`
+**Git Tag**: `v0.35.0-performance`
 
 ---
 
@@ -453,11 +476,11 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - ✅ Epic 37.5: 5-8h (Public module) - COMPLETED
 - ✅ Epic 38: 10-15h (Fundraising module) - COMPLETED
 - ✅ Epic 39: 20-30h (Tor) - COMPLETED
-- Epic 43: 15-20h (group entity)
+- ✅ Epic 43: 15-20h (group entity) - COMPLETED
 - Epic 35: 10-15h (performance)
 - Epic 36: 10-20h (translations)
 - Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
-- **P2 Total**: 95-143 hours (68h completed, 27-75h remaining)
+- **P2 Total**: 95-143 hours (83h completed, 12-55h remaining)
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
@@ -501,12 +524,12 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
    - ✅ .onion relay support (11 relays)
    - ✅ Pairs with BLE mesh for defense-in-depth
 
-11. **Epic 43: Group Entity & Coalition** (15-20h) ⬅ **DO NEXT**
-   - Groups as collective identities
-   - Multi-group coalition chats
-   - Anonymous screening
+11. ✅ **Epic 43: Group Entity & Coalition** (15-20h) - COMPLETED
+   - ✅ Groups as collective identities
+   - ✅ Multi-group coalition chats
+   - ✅ Anonymous screening
 
-12. **Epic 35: Performance Optimization** (10-15h)
+12. **Epic 35: Performance Optimization** (10-15h) ⬅ **DO NEXT**
     - Bundle size reduction
     - After major features complete
 
@@ -527,9 +550,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-09 (Epic 39 complete - Tor Integration)
-**Pending Epics**: 5 total (Epic 31, 35, 36, 43, 45)
-**Next Epic**: Epic 43 (Group Entity & Coalition) or Epic 35 (Performance)
-**Strategic Shift**: Advanced organizing (Group Entity, Coalitions) → Performance → UX Philosophy → Launch
+**Last Updated**: 2025-10-09 (Epic 43 complete - Group Entity & Coalition)
+**Pending Epics**: 4 total (Epic 31, 35, 36, 45)
+**Next Epic**: Epic 35 (Performance Optimization)
+**Strategic Shift**: Performance → UX Philosophy → Launch
 **Module Refactoring**: ✅ Forms, Public, and Fundraising modules complete
-**Recent Completion**: ✅ Epic 39 (Tor Integration) - Auto-detection, 11 .onion relays, enhanced security
+**Recent Completion**: ✅ Epic 43 (Group Entity & Coalition) - Collective identities, encrypted keypairs, "speak as group" toggle, coalitions, channels

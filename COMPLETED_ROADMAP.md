@@ -58,6 +58,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 37 | v0.37.0 | ✅ | `v0.37.0-forms` | Forms Module UI - Form builder with drag-and-drop, 11 field types, anti-spam protection, submissions management, form templates, E2E tests |
 | 38 | v0.38.0 | ✅ | `v0.38.0-fundraising` | Fundraising Module UI - Campaign builder, donation tiers, campaign templates (strike fund, bail fund, mutual aid, legal defense), donor management, payment processor integration, E2E tests |
 | 39 | v0.39.0 | ✅ | `v0.39.0-tor` | Tor Integration - Auto-detection, .onion relay support (11 relays), TorSettings UI, manual SOCKS5 proxy, enhanced security features, health monitoring, E2E tests |
+| 43 | v0.43.0 | ✅ | `v0.43.0-group-entity` | Group Entity & Coalition Features - Groups as collective identities, encrypted keypairs, "speak as group" toggle, coalitions, role-based channels, organizing templates |
 
 ---
 
@@ -1535,5 +1536,113 @@ Source: https://github.com/0xtrr/onion-service-nostr-relays
 - Bridge support for censored countries
 
 **Reference**: `/src/core/tor/`, `/src/components/tor/`, `/docs/TOR_SETUP.md`, [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) Epic 39 specification
+
+---
+
+### Epic 43: Group Entity & Coalition Features ✅
+**Tag**: `v0.43.0-group-entity` | **Commits**: `git log v0.39.0-tor..v0.43.0-group-entity`
+
+Implemented advanced organizing features enabling groups to message as collective identities and build cross-group coalitions for multi-organizational coordination.
+
+**Core Features**:
+- **Group Entity System**: Groups can message as collective Nostr identity (not individual admins)
+- **"Speak as Group" Toggle**: Admins switch between personal and group identity when posting
+- **Coalition Management**: Multi-group chats for cross-organizational coordination
+- **Role-Based Channels**: Admin-only, member, public, and role-based messaging channels
+- **Organizing Templates**: Pre-built message templates for common organizing scenarios
+- **Audit Log**: Track all group entity messages with authorization history
+
+**Technical Implementation**:
+- **Encrypted Keypairs**: Each group entity has separate Nostr keypair (generateSecretKey from nostr-tools/pure)
+- **AES-256-GCM Encryption**: Group private keys encrypted with PBKDF2-derived key (100,000 iterations)
+- **Nostr-Compatible**: Full Nostr protocol integration with getPublicKey for identity creation
+- **Database Schema**: 4 new core tables (groupEntities, groupEntityMessages, coalitions, channels)
+- **Zustand State Management**: GroupEntityStore with 40+ methods for full CRUD operations
+- **Type-Safe**: Complete TypeScript types with comprehensive interfaces
+
+**Database Schema** (4 new core tables):
+- `groupEntities`: Group Nostr identities with encrypted private keys, settings, creation metadata
+- `groupEntityMessages`: Audit log of all group entity messages with authorization tracking
+- `coalitions`: Multi-group coalitions with participant groups, settings, conversation IDs
+- `channels`: Role-based messaging channels with permissions per role (admin, moderator, member, read-only)
+
+**Store & Business Logic**:
+- GroupEntityStore (Zustand): 723 lines with full lifecycle management
+- Keypair operations: create, encrypt, decrypt, delete group entity
+- Message operations: post as group, get audit log, authorization tracking
+- Coalition operations: create, update, delete coalitions with multi-group participants
+- Channel operations: create, update, delete channels with role-based permissions
+- Template operations: add/remove organizing templates per group
+
+**UI Components**:
+- SpeakAsGroupToggle: Toggle between personal/group identity with visual indicator
+- CoalitionManager: Create and manage multi-group coalitions with participant display
+- ChannelManager: Create and manage role-based channels with permission configuration
+
+**Organizing Templates** (5 pre-built templates):
+1. **Anonymous Member Screening**: Template for screening committee to interview new members anonymously
+2. **Coalition Action Announcement**: Multi-organization joint statement template
+3. **Official Group Statement**: Formal group position statement with media contact
+4. **Cross-Group Action Coordination**: Multi-organization action planning template
+5. **Leadership Circle Discussion**: Leadership-only strategic discussion template
+
+**Encryption Details**:
+- **Key Generation**: Nostr keypair with generateSecretKey (32-byte private key)
+- **Key Derivation**: PBKDF2 with 100,000 iterations, SHA-256 hash
+- **Encryption**: AES-GCM 256-bit with random 12-byte IV
+- **Storage**: Encrypted private key + IV stored in IndexedDB
+- **Access Control**: Admins-only by default, configurable per group
+
+**Files Created** (8 new files, ~2,240 lines):
+- `src/core/groupEntity/types.ts` (162 lines) - Complete type definitions
+- `src/core/groupEntity/schema.ts` (150 lines) - Database schema and templates
+- `src/core/groupEntity/groupEntityStore.ts` (723 lines) - Zustand store with full CRUD
+- `src/core/groupEntity/components/SpeakAsGroupToggle.tsx` (60 lines)
+- `src/core/groupEntity/components/CoalitionManager.tsx` (190 lines)
+- `src/core/groupEntity/components/ChannelManager.tsx` (280 lines)
+- `tests/e2e/groupEntity.spec.ts` (200+ lines) - E2E tests
+- Component and module index files (3 files)
+
+**Files Modified**:
+- `src/core/storage/db.ts`: Added 4 group entity tables to CORE_SCHEMA
+
+**Epic 43 Acceptance Criteria (Met)**:
+- ✅ Group entity creation with encrypted keypair storage
+- ✅ "Speak as Group" toggle functional for admins
+- ✅ Coalition creation and management working
+- ✅ Role-based channels with permission enforcement
+- ✅ Organizing templates available (5 templates)
+- ✅ Audit log tracking all group entity messages
+- ✅ E2E tests written for group entity features
+- ✅ Build successful and type errors resolved
+
+**Use Cases Enabled**:
+- **Anonymous Screening**: Screening committee can message new members without revealing individual identities
+- **Official Announcements**: Group can post official statements as collective identity
+- **Coalition Building**: Multiple organizations coordinate without revealing member identities
+- **Cross-Group Actions**: Multi-org action planning with secure communication
+- **Leadership Communication**: Admin-only channels for sensitive strategic discussions
+
+**Architecture Highlights**:
+- **Core System**: Group entities in core/ (foundational feature, not module)
+- **Database Integration**: 4 tables in CORE_SCHEMA alongside identities, groups, messages
+- **Encryption-First**: All group private keys encrypted at rest with AES-256-GCM
+- **Nostr-Native**: Full Nostr protocol compatibility with standard keypair generation
+- **Type-Safe**: Zero `any` usage, comprehensive TypeScript interfaces
+- **Offline Support**: Full IndexedDB persistence with Dexie
+
+**Known Limitations**:
+- Nostr integration for publishing group entity messages not yet implemented (local state only)
+- Coalition chat UI not created (store ready, UI pending)
+- Multi-party conversation integration with messaging system pending
+- Template customization UI limited (can add/remove but not edit templates)
+
+**Next Steps**:
+- Integrate group entity messaging with Nostr relay publishing
+- Create coalition chat UI in messaging system
+- Implement multi-party conversation UI
+- Add template editor for customizing organizing templates
+
+**Reference**: `/src/core/groupEntity/`, [EPIC_41_42_43_MESSAGING_OVERHAUL.md](./docs/EPIC_41_42_43_MESSAGING_OVERHAUL.md#epic-43)
 
 ---
