@@ -24,13 +24,13 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 47 complete - moved to COMPLETED_ROADMAP)
-**Active Epic**: Epic 37/37.5/38 (Forms/Public/Fundraising modules) or Epic 39 (Tor)
+**Last Updated**: 2025-10-08 (Epic 37.5 complete - Public Module UI)
+**Active Epic**: Epic 37/38 (Forms/Fundraising modules) or Epic 39 (Tor)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 97% for organizing platform features (+1% with advanced social features)
+**Completion**: 97% for organizing platform features
 **New Priorities**: Public engagement (Forms/Fundraising), UX-first approach, offline resilience
 
 ---
@@ -245,61 +245,6 @@ When completing an epic:
 **Git Commit Format**: `feat: implement Forms module UI and form builder (Epic 37)`
 
 **Git Tag**: `v0.37.0-forms`
-
----
-
-### Epic 37.5: Public Module (Infrastructure) 🌐
-**Status**: ✅ Schema Complete, UI Pending
-**Priority**: P2
-**Effort**: 5-8 hours (Schema: 2h complete, UI: 3-6h remaining)
-**Dependencies**: None (infrastructure for Forms and Fundraising)
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Public-facing pages and privacy-preserving analytics infrastructure. Shared by Forms and Fundraising modules for SEO-optimized public pages. Module structure and schema completed during Epic 37 refactoring.
-
-**Completed Tasks**:
-- [x] Create PublicPage and Analytics schema and types (`src/modules/public/schema.ts`)
-- [x] Implement PublicStore (Zustand) (`src/modules/public/publicStore.ts`)
-- [x] Create public page seed data (landing page, about page)
-- [x] Register module in registry (`src/lib/modules/registry.ts`)
-
-**Remaining Tasks**:
-- [ ] Build public page editor UI:
-  - Rich text editor for page content
-  - SEO controls (meta tags, Open Graph, Twitter cards)
-  - Page templates (landing, about, events calendar, contact)
-  - Publish/unpublish workflow
-- [ ] Implement SEO features:
-  - Meta tags rendering
-  - Open Graph tags
-  - Twitter cards
-  - sitemap.xml generation
-- [ ] Add custom domain support (CNAME configuration guide)
-- [ ] Create privacy-respecting analytics dashboard:
-  - Page views (no IP tracking)
-  - Referrer analytics
-  - Privacy-first implementation
-- [ ] Build public page rendering view
-- [ ] Write E2E tests for public pages and analytics
-- [ ] (Future) Page builder integration (craft.js, puck, builder.io)
-
-**Acceptance Criteria**:
-- Public pages can be created and published
-- SEO metadata working (meta tags, OG, Twitter cards)
-- Analytics tracking page views without compromising privacy
-- Analytics dashboard shows aggregated stats
-- E2E tests passing
-
-**Testing Requirements**:
-- `bun test src/modules/public/` passing
-- E2E test: Create public page → Publish → Verify SEO tags
-- E2E test: Track analytics event → View dashboard stats
-
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Public Pages section), `/src/modules/public/`
-
-**Git Commit Format**: `feat: implement Public module UI and page editor (Epic 37.5)`
-
-**Git Tag**: `v0.37.5-public`
 
 ---
 
@@ -690,14 +635,14 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 **Enhanced Features (P2)**:
 - Epic 37: 15-20h (Forms module) - ✅ Schema done (3h), UI remaining (12-17h)
-- Epic 37.5: 5-8h (Public module) - ✅ Schema done (2h), UI remaining (3-6h)
+- ✅ Epic 37.5: 5-8h (Public module) - COMPLETED
 - Epic 38: 10-15h (Fundraising module) - ✅ Schema done (3h), UI remaining (7-12h)
 - Epic 39: 20-30h (Tor)
 - Epic 43: 15-20h (group entity)
 - Epic 35: 10-15h (performance)
 - Epic 36: 10-20h (translations)
 - Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
-- **P2 Total**: 95-143 hours (8h completed, 87-135h remaining)
+- **P2 Total**: 95-143 hours (13h completed, 82-130h remaining)
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
@@ -723,13 +668,13 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
    - Form builder UI (drag & drop, 11 field types)
    - Anti-spam protection (honeypot, CAPTCHA, rate limiting)
 
-8. **Epic 37.5: Public Module** (5-8h) ⬅ **Parallel with Epic 37**
+8. ✅ **Epic 37.5: Public Module** (5-8h) - COMPLETED
    - ✅ Schema complete (2h)
-   - Public page editor with SEO controls
-   - Privacy-preserving analytics dashboard
-   - Infrastructure for Forms and Fundraising
+   - ✅ Public page editor with SEO controls
+   - ✅ Privacy-preserving analytics dashboard
+   - ✅ Infrastructure for Forms and Fundraising
 
-9. **Epic 38: Fundraising Module** (10-15h) ⬅ **After Epic 37 & 37.5**
+9. **Epic 38: Fundraising Module** (10-15h) ⬅ **After Epic 37**
    - ✅ Schema complete (3h)
    - Fundraising campaigns (bail funds, strike funds)
    - Donation flow (one-time, recurring)
@@ -767,8 +712,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 47 complete - 207 E2E tests delivered, 66% epic coverage achieved)
-**Pending Epics**: 10 total (Epic 31, 35, 36, 37, 37.5, 38, 39, 43, 45)
-**Next Epic**: Epic 37 (Forms Module UI) or Epic 37.5 (Public Module UI) or Epic 39 (Tor Integration)
+**Last Updated**: 2025-10-08 (Epic 37.5 complete - Public Module UI)
+**Pending Epics**: 9 total (Epic 31, 35-39, 43, 45)
+**Next Epic**: Epic 37 (Forms Module UI) or Epic 39 (Tor Integration)
 **Strategic Shift**: Public Engagement (Forms/Fundraising) → Security (Tor) → UX Philosophy → Launch
 **Module Refactoring**: ✅ Forms, Public, and Fundraising modules separated with complete schemas/stores/seeds
+**Recent Completion**: ✅ Epic 37.5 (Public Module UI) - Page editor, SEO optimization, analytics

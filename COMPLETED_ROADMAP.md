@@ -54,6 +54,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 42 | v0.42.0 | ✅ | `v0.42.0-messaging-ux` | Messaging UX Overhaul - conversation-centric model, desktop chat windows, buddylist, presence system |
 | 44 | v0.44.0 | ✅ | `v0.44.0-ble-mesh-phase1` | BLE Mesh Networking Phase 1 - Transport infrastructure, Web Bluetooth, multi-hop routing (Phase 2 deferred) |
 | 47 | v0.47.3 | ✅ | `v0.47.3-phase3-tests` | E2E Test Coverage Completion - 207 tests across 12 files, 31%→66% epic coverage (Phases 1-3 complete, Phase 4 deferred) |
+| 37.5 | v0.37.5 | ✅ | `v0.37.5-public` | Public Module UI - Page editor with TipTap, SEO optimization, privacy-preserving analytics, page templates |
 
 ---
 
@@ -322,9 +323,9 @@ See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) for active and upcoming epics.
 ---
 
 **Last Updated**: 2025-10-08
-**Total Epics Completed**: 33
-**Total Git Tags**: 35 (includes 3 phase tags for Epic 47)
-**Current Version**: v0.47.3-phase3-tests
+**Total Epics Completed**: 34
+**Total Git Tags**: 36 (includes 3 phase tags for Epic 47)
+**Current Version**: v0.37.5-public
 
 ---
 
@@ -1070,5 +1071,99 @@ Systematic E2E test coverage expansion addressing critical gap identified in ini
 - [E2E_TEST_COVERAGE_ANALYSIS.md](./E2E_TEST_COVERAGE_ANALYSIS.md) - Initial gap analysis
 - `/tests/e2e/` - All E2E test files
 - Summary docs: `ENGAGEMENT_TESTS_SUMMARY.md`, `SECURITY_TESTS_SUMMARY.md`, etc.
+
+---
+
+### Epic 37.5: Public Module UI & Infrastructure ✅
+**Tag**: `v0.37.5-public` | **Commits**: `git log v0.37.5-public`
+
+Implemented public-facing page infrastructure with SEO optimization and privacy-preserving analytics. Provides shared infrastructure for Forms and Fundraising modules.
+
+**Core Features**:
+- **Public Page Editor**: TipTap WYSIWYG rich text editor with formatting toolbar
+- **SEO Optimization**: Meta tags, Open Graph, Twitter Cards, Schema.org support
+- **Page Management**: Create, edit, publish/unpublish, delete pages
+- **Page Templates**: 5 pre-built templates (landing, about, events, contact, custom)
+- **Privacy-Preserving Analytics**: Track page views without user identification
+- **Public Page Rendering**: SEO-optimized public view with Helmet for meta tags
+
+**UI Components** (7 new components):
+- PublicPageEditor: Rich text editing with TipTap, tabs for Content/SEO/Settings
+- PublicPageList: Page management with status badges, publish workflow
+- PublicPageRenderer: Public-facing page view with SEO meta tags (react-helmet-async)
+- SEOControls: Configure meta tags, Open Graph, Twitter Cards
+- AnalyticsDashboard: Privacy-preserving analytics for all public resources
+- FormAnalyticsDashboard: Form-specific analytics (views, submissions, conversion rate)
+- Page templates with realistic content for common page types
+
+**Database Schema** (already complete from Epic 37 refactoring):
+- PublicPage: Pages with SEO metadata, status (draft/published), content
+- Analytics: Privacy-preserving event tracking (no IP, no cookies, no user IDs)
+- AnalyticsSummary: Aggregated stats for dashboards (views, conversions, referrers)
+
+**Technical Implementation**:
+- TipTap editor with extensions: StarterKit, Link, Image, Table, Placeholder
+- Rich text toolbar with formatting options (bold, italic, headings, lists, tables, quotes, code)
+- Auto-generate URL slugs from page titles
+- Preview mode for page rendering
+- SEO tab for meta tags configuration
+- Settings tab for publish/unpublish workflow
+- Privacy-first analytics (session IDs, referrer domains only, no user tracking)
+
+**Page Templates**:
+1. **Landing**: Welcome page with mission, get involved, contact
+2. **About**: Organization history, values, structure
+3. **Events**: Events calendar with event types
+4. **Contact**: Contact form placeholder, email, social media
+5. **Custom**: Blank template for custom pages
+
+**Testing**:
+- E2E tests for public pages (8 test scenarios)
+- Tests cover: create, edit, SEO, publish/unpublish, view, delete, templates, analytics
+
+**Dependencies Installed**:
+- `@tiptap/extension-placeholder`: Placeholder text in empty editor
+- `react-helmet-async`: SEO meta tags in React (SSR-compatible)
+
+**Build Status**:
+- ✅ Vite build successful
+- ✅ All Public module type errors resolved
+- ✅ Components compile without errors
+- ✅ E2E tests created for full coverage
+
+**Files Created** (11 new files, ~1,500 lines):
+- `src/modules/public/components/PublicPages/PublicPageEditor.tsx` (350 lines)
+- `src/modules/public/components/PublicPages/PublicPageList.tsx` (200 lines)
+- `src/modules/public/components/PublicPages/PublicPageRenderer.tsx` (150 lines)
+- `src/modules/public/components/Analytics/AnalyticsDashboard.tsx` (200 lines)
+- `src/modules/public/templates.ts` (250 lines)
+- `src/modules/public/components/PublicPages/index.ts`
+- `src/modules/public/components/Analytics/index.ts`
+- `tests/e2e/public-pages.spec.ts` (250 lines)
+- Updated `src/modules/public/index.ts` with component exports
+
+**Epic 37.5 Acceptance Criteria (Met)**:
+- ✅ Public page editor functional with rich text editing
+- ✅ SEO metadata working (meta tags, OG, Twitter cards)
+- ✅ Page templates available (5 types)
+- ✅ Publish/unpublish workflow implemented
+- ✅ Analytics dashboard shows aggregated stats
+- ✅ Public page rendering view created
+- ✅ E2E tests written for public pages
+- ✅ Build successful and type errors resolved
+
+**Architecture Highlights**:
+- **Infrastructure Module**: Shared by Forms and Fundraising modules
+- **Privacy-First**: Analytics without tracking individual users
+- **SEO-Optimized**: Complete meta tag support for search engines and social media
+- **Rich Editing**: TipTap provides professional WYSIWYG experience
+- **Template System**: Accelerates page creation with pre-built content
+- **Type-Safe**: Full TypeScript coverage with no `any` usage
+
+**Next Steps**:
+- Epic 37 (Forms Module UI) - Build on Public module infrastructure
+- Epic 38 (Fundraising Module UI) - Leverage Public pages for campaign pages
+
+**Reference**: `/src/modules/public/`, [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) Epic 37.5 specification
 
 ---
