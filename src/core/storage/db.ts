@@ -8,6 +8,12 @@ import type {
   UserPresence,
   ChatWindow,
 } from '@/core/messaging/conversationSchema';
+import type {
+  DBGroupEntity,
+  DBGroupEntityMessage,
+  DBCoalition,
+  DBChannel,
+} from '@/core/groupEntity/types';
 
 /**
  * CORE DATABASE SCHEMA INTERFACES
@@ -100,6 +106,14 @@ export type {
   ConversationMessage,
   UserPresence,
   ChatWindow,
+};
+
+// Re-export group entity types for convenience
+export type {
+  DBGroupEntity,
+  DBGroupEntityMessage,
+  DBCoalition,
+  DBChannel,
 };
 
 /**
@@ -214,6 +228,26 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'id, conversationId, isMinimized, zIndex',
     indexes: ['id', 'conversationId', 'isMinimized', 'zIndex'],
   },
+  {
+    name: 'groupEntities',
+    schema: 'id, groupId, pubkey, createdBy, createdAt',
+    indexes: ['id', 'groupId', 'pubkey', 'createdBy', 'createdAt'],
+  },
+  {
+    name: 'groupEntityMessages',
+    schema: 'id, groupId, messageId, authorizedBy, authorizedAt, conversationId',
+    indexes: ['id', 'groupId', 'messageId', 'authorizedBy', 'authorizedAt', 'conversationId'],
+  },
+  {
+    name: 'coalitions',
+    schema: 'id, conversationId, createdBy, createdAt',
+    indexes: ['id', 'conversationId', 'createdBy', 'createdAt'],
+  },
+  {
+    name: 'channels',
+    schema: 'id, groupId, conversationId, type, createdBy, createdAt',
+    indexes: ['id', 'groupId', 'conversationId', 'type', 'createdBy', 'createdAt'],
+  },
 ];
 
 /**
@@ -237,6 +271,10 @@ export class BuildItDB extends Dexie {
   conversationMessages!: Table<ConversationMessage, string>;
   userPresence!: Table<UserPresence, string>;
   chatWindows!: Table<ChatWindow, string>;
+  groupEntities!: Table<DBGroupEntity, string>;
+  groupEntityMessages!: Table<DBGroupEntityMessage, string>;
+  coalitions!: Table<DBCoalition, string>;
+  channels!: Table<DBChannel, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
