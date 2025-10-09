@@ -112,6 +112,8 @@ export interface UpdateFileInput {
   name?: string
   folderId?: string | null
   tags?: string[]
+  size?: number
+  encryptedSize?: number
 }
 
 export interface UpdateFolderInput {

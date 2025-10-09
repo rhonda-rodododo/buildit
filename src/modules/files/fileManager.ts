@@ -18,6 +18,7 @@ import type {
   FilePreview,
   FileType,
   EncryptedFileBlob,
+  FileVersion,
 } from './types'
 import { useFilesStore } from './filesStore'
 import { db } from '@/core/storage/db'
@@ -229,6 +230,7 @@ class FileManager {
       ...file,
       ...updates,
       updatedAt: Date.now(),
+      version: file.version + 1,
     }
 
     // Update in store
@@ -238,6 +240,126 @@ class FileManager {
     await db.table('fileMetadata').update(fileId, updatedFile)
 
     return updatedFile
+  }
+
+  /**
+   * Create a new file version (when re-uploading same file)
+   */
+  async createFileVersion(
+    fileId: string,
+    file: File,
+    userPrivkey: Uint8Array,
+    groupKey?: Uint8Array,
+    changeDescription?: string
+  ): Promise<void> {
+    const existingFile = useFilesStore.getState().getFile(fileId)
+    if (!existingFile) {
+      throw new Error('File not found')
+    }
+
+    const userPubkey = getPublicKey(userPrivkey)
+    const versionNumber = existingFile.version + 1
+
+    // Encrypt new version if needed
+    let fileBlob: Blob = file
+    let iv: Uint8Array | undefined
+
+    if (existingFile.isEncrypted && groupKey) {
+      const encrypted = await this.encryptFile(file, groupKey)
+      fileBlob = encrypted.encryptedBlob
+      iv = encrypted.iv
+    }
+
+    // Store version metadata
+    const version: FileVersion = {
+      id: crypto.randomUUID(),
+      fileId,
+      version: versionNumber,
+      size: file.size,
+      uploadedBy: userPubkey,
+      createdAt: Date.now(),
+      changeDescription,
+    }
+
+    await db.table('fileVersions').add(version)
+
+    // Store new version blob
+    const encryptedFileBlob: EncryptedFileBlob = {
+      id: crypto.randomUUID(),
+      fileId: `${fileId}_v${versionNumber}`, // Use versioned fileId
+      data: fileBlob,
+      iv: iv || new Uint8Array(0),
+      createdAt: Date.now(),
+    }
+
+    await db.table('encryptedFileBlobs').add(encryptedFileBlob)
+
+    // Update file metadata
+    await this.updateFile(fileId, {
+      size: file.size,
+      encryptedSize: fileBlob.size,
+    })
+  }
+
+  /**
+   * Get file version history
+   */
+  async getFileVersions(fileId: string): Promise<FileVersion[]> {
+    const versions = await db.table('fileVersions')
+      .where('fileId')
+      .equals(fileId)
+      .reverse()
+      .sortBy('version') as FileVersion[]
+
+    return versions.reverse() // Most recent first
+  }
+
+  /**
+   * Restore a previous file version
+   */
+  async restoreFileVersion(
+    fileId: string,
+    versionNumber: number
+  ): Promise<void> {
+    // Get version metadata
+    const version = await db.table('fileVersions')
+      .where({ fileId, version: versionNumber })
+      .first() as FileVersion | undefined
+
+    if (!version) {
+      throw new Error('Version not found')
+    }
+
+    // Get version blob
+    const versionBlob = await db.table('encryptedFileBlobs')
+      .where('fileId')
+      .equals(`${fileId}_v${versionNumber}`)
+      .first() as EncryptedFileBlob | undefined
+
+    if (!versionBlob) {
+      throw new Error('Version blob not found')
+    }
+
+    // Replace current file blob with version blob
+    await db.table('encryptedFileBlobs')
+      .where('fileId')
+      .equals(fileId)
+      .delete()
+
+    const newBlob: EncryptedFileBlob = {
+      id: crypto.randomUUID(),
+      fileId,
+      data: versionBlob.data,
+      iv: versionBlob.iv,
+      createdAt: Date.now(),
+    }
+
+    await db.table('encryptedFileBlobs').add(newBlob)
+
+    // Update file metadata
+    await this.updateFile(fileId, {
+      size: version.size,
+    })
   }
 
   /**
@@ -406,21 +528,41 @@ class FileManager {
   }
 
   /**
+   * Hash password using SHA-256
+   */
+  private async hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(password)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  }
+
+  /**
    * Create a file share
    */
-  async createShare(input: CreateShareInput): Promise<FileShare> {
+  async createShare(
+    input: CreateShareInput,
+    userPrivkey: Uint8Array
+  ): Promise<FileShare> {
     const id = crypto.randomUUID()
     const now = Date.now()
+    const userPubkey = getPublicKey(userPrivkey)
+
+    // Hash password if provided
+    const hashedPassword = input.password
+      ? await this.hashPassword(input.password)
+      : undefined
 
     const share: FileShare = {
       id,
       fileId: input.fileId,
       groupId: input.groupId,
-      sharedBy: '', // TODO: Get current user pubkey
+      sharedBy: userPubkey,
       sharedWith: input.sharedWith || [],
       permissions: input.permissions,
       expiresAt: input.expiresAt || null,
-      password: input.password, // TODO: Hash password
+      password: hashedPassword,
       shareLink: input.generateLink ? crypto.randomUUID() : undefined,
       createdAt: now,
       accessCount: 0,
@@ -539,6 +681,65 @@ class FileManager {
   }
 
   /**
+   * Copy a file to a different folder
+   */
+  async copyFile(fileId: string, targetFolderId: string | null): Promise<FileMetadata> {
+    const originalFile = useFilesStore.getState().getFile(fileId)
+    if (!originalFile) {
+      throw new Error('File not found')
+    }
+
+    const newId = crypto.randomUUID()
+    const now = Date.now()
+
+    // Get original blob
+    const originalBlob = await db.table('encryptedFileBlobs')
+      .where('fileId')
+      .equals(fileId)
+      .first() as EncryptedFileBlob | undefined
+
+    if (!originalBlob) {
+      throw new Error('File blob not found')
+    }
+
+    // Create new file metadata (copy)
+    const copiedFile: FileMetadata = {
+      ...originalFile,
+      id: newId,
+      folderId: targetFolderId,
+      name: `${originalFile.name} (copy)`,
+      createdAt: now,
+      updatedAt: now,
+      version: 1,
+    }
+
+    // Copy blob
+    const copiedBlob: EncryptedFileBlob = {
+      id: crypto.randomUUID(),
+      fileId: newId,
+      data: originalBlob.data,
+      iv: originalBlob.iv,
+      createdAt: now,
+    }
+
+    // Store in DB
+    await db.table('fileMetadata').add(copiedFile)
+    await db.table('encryptedFileBlobs').add(copiedBlob)
+
+    // Update store
+    useFilesStore.getState().addFile(copiedFile)
+
+    // Update storage quota
+    useFilesStore.getState().updateQuotaUsage(
+      copiedFile.groupId,
+      copiedFile.encryptedSize,
+      1
+    )
+
+    return copiedFile
+  }
+
+  /**
    * Bulk file operations
    */
   async bulkOperation(operation: BulkFileOperation): Promise<void> {
@@ -561,8 +762,13 @@ class FileManager {
         break
 
       case 'copy':
-        // TODO: Implement copy operation
-        throw new Error('Copy operation not yet implemented')
+        if (operation.targetFolderId === undefined) {
+          throw new Error('Target folder required for copy operation')
+        }
+        for (const fileId of fileIds) {
+          await this.copyFile(fileId, operation.targetFolderId)
+        }
+        break
 
       case 'tag':
         if (!operation.tags) {
