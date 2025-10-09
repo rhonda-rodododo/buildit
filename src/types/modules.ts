@@ -17,7 +17,8 @@ export type ModuleType =
   | 'crm'
   | 'documents'
   | 'files'
-  | 'microblogging';
+  | 'microblogging'
+  | 'forms';
 
 /**
  * Module Capability - defines what a module can do

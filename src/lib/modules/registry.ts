@@ -61,6 +61,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
     id: 'microblogging',
     load: () => import('@/modules/microblogging'),
   },
+  {
+    id: 'forms',
+    load: () => import('@/modules/forms'),
+  },
 ];
 
 /**

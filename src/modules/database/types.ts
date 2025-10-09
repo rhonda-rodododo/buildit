@@ -6,6 +6,9 @@
 import { z } from 'zod';
 import type { CustomField, CustomFieldValues } from '../custom-fields/types';
 
+// Re-export for convenience
+export type { CustomFieldValues };
+
 /**
  * View Types
  */
