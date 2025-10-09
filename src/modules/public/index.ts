@@ -16,6 +16,13 @@ export * from './schema';
 // Store
 export { usePublicStore } from './publicStore';
 
+// Templates
+export * from './templates';
+
+// Components
+export * from './components/PublicPages';
+export * from './components/Analytics';
+
 /**
  * Public Module Plugin
  */
