@@ -24,14 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-09 (Feature Completeness Audit - 14 new epics added)
-**Active Epic**: Epic 48 (Files Module Completion) - Starting TIER 1
-**Build Status**: ✅ Successful (285.33KB brotli initial load - 52% reduction from ~600KB)
+**Last Updated**: 2025-10-09 (Epic 48 complete - Files Module Completion)
+**Active Epic**: Epic 49 (Payment Integration) - TIER 1
+**Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 98% core organizing features → Adding comprehensive publishing, docs/drive, social polish
-**New Epic Plan**: 14 epics (Epics 48-61) across 5 tiers - 225-340 hours total
+**Completion**: Epic 48 complete (files preview, sharing, versions) → 13 epics remaining
+**New Epic Plan**: 14 epics (Epics 48-61) across 5 tiers - 1 complete, 13 remaining
 **Priority Focus**: Complete deferred features → Publishing platform → Docs/Drive enhancement
 
 ---
@@ -188,64 +188,6 @@ When completing an epic:
 ---
 
 ## 🔵 Feature Completeness: Deferred Features
-
-### Epic 48: Files Module Completion 📂
-**Status**: Not Started
-**Priority**: P1 - Complete Deferred Features (TIER 1)
-**Effort**: 10-15 hours
-**Dependencies**: Epic 33 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Epic 33 (Files Module) marked several features as deferred: "File preview, sharing, and version history deferred to future enhancements." Need to complete these for comprehensive file management.
-
-**Tasks**:
-- [ ] **File Preview (4-5h)**
-  - [ ] Image preview (PNG, JPG, GIF, WebP)
-  - [ ] PDF preview (pdf.js or similar)
-  - [ ] Video preview (MP4, WebM with HTML5 video)
-  - [ ] Audio preview (MP3, WAV, OGG)
-  - [ ] Text file preview (TXT, MD, JSON, code files)
-  - [ ] Fallback for unsupported types
-- [ ] **File Sharing (3-4h)**
-  - [ ] Share with specific group members (granular permissions)
-  - [ ] Share with entire group
-  - [ ] Public share links (encrypted URL)
-  - [ ] Revoke sharing access
-  - [ ] View who has access to a file
-- [ ] **Version History (2-3h)**
-  - [ ] Track file uploads as versions
-  - [ ] View version history list
-  - [ ] Restore previous version
-  - [ ] Compare versions (metadata only)
-  - [ ] Version pruning (keep last N versions)
-- [ ] **File Operations Completion (1-2h)**
-  - [ ] Implement copy operation (TODO at line 564 in fileManager.ts)
-  - [ ] Fix encryption key management (TODO at line 64 in FileUploadZone.tsx)
-  - [ ] Get current user pubkey (TODO at line 419)
-  - [ ] Hash password for encryption (TODO at line 423)
-
-**Acceptance Criteria**:
-- All file types preview correctly (images, PDFs, videos, audio, text)
-- Files can be shared with specific members or groups
-- Public share links work with encryption
-- Version history displays and restore works
-- All TODO comments in files module resolved
-- E2E tests cover preview, sharing, and version history
-
-**Testing Requirements**:
-- E2E tests for file preview
-- E2E tests for file sharing permissions
-- E2E tests for version history
-- Build successful
-- `bun test && bun run typecheck` passes
-
-**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 33, `/src/modules/files/`
-
-**Git Commit Format**: `feat: complete Files module - add preview, sharing, and version history (Epic 48)`
-
-**Git Tag**: `v0.48.0-files-complete`
-
----
 
 ### Epic 49: Payment Integration 💳
 **Status**: Not Started

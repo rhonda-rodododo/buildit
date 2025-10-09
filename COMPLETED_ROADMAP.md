@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-09 (Epic 35 completed - Performance Optimization Phase 2)
+**Last Updated**: 2025-10-09 (Epic 48 completed - Files Module Completion)
 
 ---
 
@@ -59,6 +59,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 38 | v0.38.0 | ✅ | `v0.38.0-fundraising` | Fundraising Module UI - Campaign builder, donation tiers, campaign templates (strike fund, bail fund, mutual aid, legal defense), donor management, payment processor integration, E2E tests |
 | 39 | v0.39.0 | ✅ | `v0.39.0-tor` | Tor Integration - Auto-detection, .onion relay support (11 relays), TorSettings UI, manual SOCKS5 proxy, enhanced security features, health monitoring, E2E tests |
 | 43 | v0.43.0 | ✅ | `v0.43.0-group-entity` | Group Entity & Coalition Features - Groups as collective identities, encrypted keypairs, "speak as group" toggle, coalitions, role-based channels, organizing templates |
+| 48 | v0.48.0 | ✅ | `v0.48.0-files-complete` | Files Module Completion - File preview (images, PDFs, videos, audio, text), file sharing with permissions, version history, copy operations |
 
 ---
 
