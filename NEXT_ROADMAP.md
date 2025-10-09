@@ -189,62 +189,131 @@ When completing an epic:
 
 ## 🔵 Feature Completeness: Deferred Features
 
-### Epic 49: Payment Integration 💳
+### Epic 49A: Crypto Payment Integration 💰 (Client-Side Only)
 **Status**: Not Started
-**Priority**: P1 - Complete Deferred Features (TIER 1)
-**Effort**: 15-20 hours
+**Priority**: P1 - Complete Deferred Features (TIER 1, PHASE 1)
+**Effort**: 6-8 hours
 **Dependencies**: Epic 38 complete
-**Assignable to subagent**: No (requires API keys/accounts)
+**Assignable to subagent**: Yes (`feature-implementer`)
+**Backend Required**: ❌ No (100% client-side)
 
-**Context**: Epic 38 (Fundraising) noted "Payment integration is placeholder (Stripe/PayPal/crypto APIs not integrated)." Need real payment processing for production use.
+**Context**: Implement cryptocurrency payment processing fully client-side using HD wallets and blockchain explorers. No backend infrastructure required.
+
+**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for full details.
+
+**Tasks**:
+- [ ] **Bitcoin Integration (3-4h)**
+  - [ ] Install bitcoinjs-lib library
+  - [ ] Generate Bitcoin HD wallet addresses (BIP32/BIP44)
+  - [ ] Display Bitcoin QR code for donations
+  - [ ] Poll Blockstream.info API for transaction confirmations (client-side)
+  - [ ] Update donation totals when transactions detected
+- [ ] **Ethereum Integration (2-3h)**
+  - [ ] Install ethers.js library
+  - [ ] Generate Ethereum addresses from HD wallet
+  - [ ] Display Ethereum QR code for donations
+  - [ ] Poll Etherscan.io API for transaction confirmations
+  - [ ] Support ERC-20 tokens (USDC, DAI)
+- [ ] **Donation Tracking (1-2h)**
+  - [ ] Store crypto donation records in IndexedDB
+  - [ ] Publish donation confirmations to Nostr (encrypted)
+  - [ ] Display donation history in fundraising dashboard
+  - [ ] Export donation reports (CSV)
+
+**Acceptance Criteria**:
+- ✅ Bitcoin donations work end-to-end (address generation → QR → detection)
+- ✅ Ethereum donations work end-to-end
+- ✅ Transaction confirmations detected automatically
+- ✅ Donation records stored securely client-side
+- ✅ E2E tests cover crypto donation workflow
+- ✅ No backend infrastructure required
+
+**Privacy**: ✅ Fully P2P, no third-party involvement, no backend
+
+**Testing Requirements**:
+- E2E tests for Bitcoin donation flow
+- E2E tests for Ethereum donation flow
+- Manual testing with testnet transactions
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**:
+- [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 38
+- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
+- `/src/modules/fundraising/`
+
+**Git Commit Format**: `feat: add crypto payment integration (Bitcoin, Ethereum) - client-side only (Epic 49A)`
+
+**Git Tag**: `v0.49a.0-crypto-payments`
+
+---
+
+### Epic 49B: Stripe/PayPal Integration 💳 (Backend Required)
+**Status**: Not Started (Deferred to Phase 3)
+**Priority**: P2 - Backend-Dependent Features (TIER 1, PHASE 3)
+**Effort**: 10-15 hours
+**Dependencies**: Epic 49A complete, Epic 62 (Backend Service Setup) complete
+**Assignable to subagent**: No (requires backend infrastructure decision)
+**Backend Required**: ✅ Yes (API keys, webhooks)
+
+**⚠️ ARCHITECTURAL DECISION REQUIRED**: This epic requires server-side infrastructure. User must decide:
+1. Self-host backend service (full control)
+2. Use BuildIt-hosted backend (trust required)
+3. Skip credit card payments (crypto-only from Epic 49A)
+
+**Context**: Integrate Stripe and PayPal for credit card payment processing. Requires backend service for API key security and webhook handling.
+
+**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for flow diagram.
+
+**Flow**:
+```
+Client → NIP-17 encrypted payment intent → Nostr Relay → Backend
+Backend → Stripe/PayPal API → Creates checkout session
+Backend → Returns checkout URL via Nostr (encrypted)
+Client → Opens hosted checkout page
+User → Completes payment
+Stripe/PayPal → Webhook to backend
+Backend → Publishes receipt to Nostr (NIP-17 encrypted)
+Client → Receives receipt from Nostr
+```
 
 **Tasks**:
 - [ ] **Stripe Integration (6-8h)**
-  - [ ] Set up Stripe account and API keys
-  - [ ] Implement Stripe Checkout for one-time donations
-  - [ ] Implement Stripe Subscriptions for recurring donations
-  - [ ] Handle webhook events (payment success, failure, cancellation)
-  - [ ] Store payment records in IndexedDB
-  - [ ] Handle refunds and disputes
+  - [ ] Backend: Set up Stripe API key (environment variable)
+  - [ ] Backend: Implement checkout session creation endpoint
+  - [ ] Backend: Handle webhook events (payment.succeeded, payment.failed)
+  - [ ] Client: Send payment intent via NIP-17 to backend
+  - [ ] Client: Receive checkout URL, open Stripe hosted page
+  - [ ] Client: Receive receipt from Nostr, update UI
 - [ ] **PayPal Integration (4-6h)**
-  - [ ] Set up PayPal Business account
-  - [ ] Implement PayPal Checkout SDK
-  - [ ] Support one-time and recurring donations
-  - [ ] Handle PayPal webhooks
-  - [ ] Store payment records
-- [ ] **Cryptocurrency Integration (3-4h)**
-  - [ ] Bitcoin address generation (HD wallet)
-  - [ ] Ethereum/ERC-20 token support
-  - [ ] QR code display for crypto addresses
-  - [ ] Transaction verification (blockchain explorers)
-  - [ ] Manual donation confirmation workflow
-- [ ] **Donation Flow Completion (2-3h)**
-  - [ ] Replace placeholder donation flow (TODO at line 187 in FundraisingPage.tsx)
-  - [ ] Add toast notifications (TODO at line 162)
-  - [ ] Implement receipt email/export
-  - [ ] Add donor dashboard
+  - [ ] Backend: Set up PayPal Business API key
+  - [ ] Backend: Implement PayPal Checkout SDK
+  - [ ] Backend: Handle PayPal webhooks
+  - [ ] Client: PayPal payment flow similar to Stripe
 
 **Acceptance Criteria**:
 - Stripe one-time and recurring donations work end-to-end
 - PayPal donations work end-to-end
-- Crypto donations can be made and verified
 - All payment webhooks handled correctly
-- Donation records stored securely
+- Backend is stateless (no database for payment storage)
 - E2E tests cover all payment methods
+
+**Privacy**: ⚠️ Backend sees payment intent (amount, campaign), but not payment details (Stripe/PayPal handles)
 
 **Testing Requirements**:
 - E2E tests for Stripe payment flow (test mode)
 - E2E tests for PayPal payment flow (sandbox)
-- E2E tests for crypto donation workflow
-- Manual testing with real payment in test mode
+- Backend integration tests
 - Build successful
 - `bun test && bun run typecheck` passes
 
-**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 38, `/src/modules/fundraising/`
+**Reference Docs**:
+- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
+- [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 38
 
-**Git Commit Format**: `feat: integrate Stripe, PayPal, and crypto payment processing (Epic 49)`
+**Git Commit Format**: `feat: add Stripe and PayPal payment integration with backend relay (Epic 49B)`
 
-**Git Tag**: `v0.49.0-payments`
+**Git Tag**: `v0.49b.0-stripe-paypal`
 
 ---
 
@@ -425,75 +494,247 @@ When completing an epic:
 
 ---
 
-### Epic 53: Newsletter Module 📧
+### Epic 53A: Newsletter Module - Nostr DMs 📧 (Client-Side Only)
 **Status**: Not Started
-**Priority**: P2 - Publishing Platform (TIER 2)
-**Effort**: 25-35 hours
+**Priority**: P1 - Publishing Platform (TIER 2, PHASE 1)
+**Effort**: 12-15 hours
 **Dependencies**: Epic 52 complete (Publishing module)
-**Assignable to subagent**: Partial (requires email infrastructure decision)
+**Assignable to subagent**: Yes (`feature-implementer`)
+**Backend Required**: ❌ No (100% client-side)
 
-**Context**: User requested "newsletters module". Build comprehensive newsletter creation, subscriber management, and delivery system.
+**Context**: Build newsletter module with delivery via Nostr DMs (NIP-17). Fully P2P, privacy-preserving, no email service required. Reaches Nostr users only.
 
-**Critical Decision Required**: **Delivery mechanism - Nostr DMs only, SMTP email, or both?**
-- **Option A**: Nostr DMs only (privacy-preserving, fits current architecture, no external deps)
-- **Option B**: SMTP email (wider reach, requires email service, privacy trade-offs)
-- **Option C**: Hybrid (both Nostr + email, most flexible, most complex)
+**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for full details.
 
 **Tasks**:
-- [ ] **Schema & Types (3-4h)**
+- [ ] **Schema & Types (2-3h)**
   - [ ] Create `newsletters` table (name, description, schedule, etc.)
   - [ ] Create `newsletter_issues` table (subject, content, sentAt, stats)
-  - [ ] Create `newsletter_subscribers` table (pubkey/email, subscription date, preferences)
+  - [ ] Create `newsletter_subscribers` table (pubkey, subscription date, preferences)
   - [ ] Create `newsletter_sends` table (tracking individual sends)
   - [ ] Define TypeScript interfaces
-- [ ] **Newsletter Editor (6-8h)**
-  - [ ] Rich email/newsletter composer (TipTap or dedicated email builder)
+- [ ] **Newsletter Editor (4-5h)**
+  - [ ] Rich newsletter composer (reuse TipTap from Documents module)
   - [ ] Template system (header, footer, branding)
-  - [ ] Preview mode (desktop, mobile, email clients)
+  - [ ] Preview mode (markdown rendering)
   - [ ] Draft/schedule workflow
-  - [ ] A/B testing support (optional)
-  - [ ] Link tracking and analytics
-- [ ] **Subscriber Management (4-6h)**
-  - [ ] Import subscribers (CSV, Nostr list)
-  - [ ] Export subscribers
-  - [ ] Segmentation (tags, custom fields)
-  - [ ] Subscription preferences
-  - [ ] Unsubscribe flow (one-click)
-  - [ ] Subscriber analytics
-- [ ] **Delivery System (8-12h)** - **DECISION DEPENDENT**
-  - [ ] **If Nostr DMs**: Batch DM sending, NIP-17 encryption, rate limiting, retry logic
-  - [ ] **If SMTP Email**: Email service integration (SendGrid, Mailgun, AWS SES), DKIM/SPF setup, bounce handling, spam compliance
-  - [ ] **If Hybrid**: Both of the above + unified tracking
-  - [ ] Delivery queue and retry logic
-  - [ ] Delivery status tracking
+  - [ ] Link tracking (Nostr event IDs)
+- [ ] **Subscriber Management (3-4h)**
+  - [ ] Subscribe via Nostr pubkey
+  - [ ] Import subscribers (Nostr contact list)
+  - [ ] Export subscribers (encrypted CSV)
+  - [ ] Subscription preferences (frequency, topics)
+  - [ ] Unsubscribe flow (one-click Nostr event)
+  - [ ] Subscriber analytics (encrypted client-side)
+- [ ] **Delivery System - Nostr DMs (3-4h)**
+  - [ ] Batch NIP-17 DM sending (one per subscriber)
+  - [ ] Rate limiting (avoid relay throttling)
+  - [ ] Delivery queue with retry logic
+  - [ ] Delivery status tracking (relay confirmations)
   - [ ] Error handling and reporting
-- [ ] **Analytics Dashboard (4-6h)**
-  - [ ] Open rate tracking
-  - [ ] Click-through rate tracking
-  - [ ] Subscriber growth charts
-  - [ ] Issue performance comparison
-  - [ ] Engagement metrics
 
 **Acceptance Criteria**:
-- Can create and manage newsletters
-- Subscribers can sign up/unsubscribe
-- Newsletter issues can be composed and sent
-- Delivery system works reliably (Nostr, email, or both)
-- Analytics track opens, clicks, and growth
-- E2E tests cover newsletter flow
+- ✅ Can create and manage newsletters
+- ✅ Subscribers can sign up/unsubscribe via Nostr pubkey
+- ✅ Newsletter issues sent as NIP-17 DMs
+- ✅ Delivery tracking via relay confirmations
+- ✅ Analytics track subscriber growth and engagement
+- ✅ E2E tests cover newsletter flow
+- ✅ No backend infrastructure required
+
+**Privacy**: ✅ Fully E2EE (NIP-17), P2P via Nostr, no email service involvement
+
+**Limitations**:
+- Only reaches Nostr users (not general public)
+- Delivery depends on subscriber checking Nostr DMs
+- No HTML email rendering (markdown only)
 
 **Testing Requirements**:
 - E2E tests for newsletter creation and sending
 - E2E tests for subscriber management
-- Manual testing of delivery
+- Manual testing with multiple subscribers
 - Build successful
 - `bun test && bun run typecheck` passes
 
-**Reference Docs**: [Substack](https://substack.com), [Mailchimp](https://mailchimp.com), [Buttondown](https://buttondown.email)
+**Reference Docs**:
+- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
+- [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 32 (Documents)
+- [Buttondown](https://buttondown.email) (inspiration)
 
-**Git Commit Format**: `feat: add Newsletter module with subscriber management (Epic 53)`
+**Git Commit Format**: `feat: add Newsletter module with Nostr DM delivery (Epic 53A)`
 
-**Git Tag**: `v0.53.0-newsletters`
+**Git Tag**: `v0.53a.0-newsletters-nostr`
+
+---
+
+### Epic 53B: Newsletter Module - Email Delivery 📬 (Backend Required)
+**Status**: Not Started (Deferred to Phase 3)
+**Priority**: P2 - Backend-Dependent Features (TIER 2, PHASE 3)
+**Effort**: 10-15 hours
+**Dependencies**: Epic 53A complete, Epic 62 (Backend Service Setup) complete
+**Assignable to subagent**: No (requires email service decision)
+**Backend Required**: ✅ Yes (SMTP server or email API)
+
+**⚠️ ARCHITECTURAL DECISION REQUIRED**: This epic requires server-side email sending. User must decide:
+1. Self-host email service (SendGrid/Mailgun API key)
+2. Use BuildIt-hosted email relay (trust required)
+3. Skip email delivery (Nostr DMs only from Epic 53A)
+
+**Context**: Add email delivery option for newsletters to reach broader audience beyond Nostr users. Requires backend integration with email service provider.
+
+**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for flow diagram.
+
+**Flow**:
+```
+Client → Compose newsletter (TipTap editor)
+Client → Encrypt subscriber email list + content
+Client → Send to backend via NIP-17 (Nostr)
+Backend → Unseal NIP-17 envelope
+Backend → Convert markdown/HTML to email template
+Backend → Send emails via SendGrid/Mailgun API
+Backend → Handle bounces and unsubscribes
+Backend → Publish delivery stats to Nostr (encrypted)
+Client → Receive stats, update analytics dashboard
+```
+
+**Tasks**:
+- [ ] **Email Service Integration (4-6h)**
+  - [ ] Backend: Set up SendGrid or Mailgun API key
+  - [ ] Backend: Email template rendering (markdown → HTML)
+  - [ ] Backend: Batch email sending with rate limiting
+  - [ ] Backend: Bounce handling and error reporting
+  - [ ] Backend: Unsubscribe endpoint (required by CAN-SPAM)
+- [ ] **Client Integration (3-4h)**
+  - [ ] Add "Enable Email Delivery" toggle in newsletter settings
+  - [ ] Import subscriber emails (CSV)
+  - [ ] Send newsletter + emails to backend via NIP-17
+  - [ ] Receive delivery stats from Nostr
+- [ ] **Analytics (2-3h)**
+  - [ ] Open rate tracking (pixel tracking)
+  - [ ] Click-through rate tracking (link redirects)
+  - [ ] Email-specific analytics dashboard
+- [ ] **Legal Compliance (1-2h)**
+  - [ ] GDPR compliance (consent, right to erasure)
+  - [ ] CAN-SPAM compliance (unsubscribe link, physical address)
+  - [ ] Privacy policy updates
+
+**Acceptance Criteria**:
+- Emails sent successfully via SendGrid/Mailgun
+- Bounce handling works (update subscriber status)
+- Unsubscribe flow works (one-click, immediate)
+- Analytics track opens, clicks, bounces
+- GDPR/CAN-SPAM compliant
+- E2E tests cover email delivery
+
+**Privacy**: ⚠️ Backend sees newsletter content and email list (mitigation: self-hosting, newsletters typically public)
+
+**Testing Requirements**:
+- E2E tests for email delivery flow
+- Backend integration tests (SendGrid sandbox)
+- Manual testing with real emails
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**:
+- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
+- [SendGrid API](https://docs.sendgrid.com/)
+- [Mailchimp](https://mailchimp.com) (inspiration)
+
+**Git Commit Format**: `feat: add email delivery option for newsletters with SendGrid/Mailgun (Epic 53B)`
+
+**Git Tag**: `v0.53b.0-newsletters-email`
+
+---
+
+## 🔧 Backend Infrastructure (Phase 3)
+
+### Epic 62: Backend Service Setup 🛠️ (Required for Epics 49B, 53B, 54, SSR)
+**Status**: Not Started (Deferred to Phase 3)
+**Priority**: P2 - Backend Infrastructure (TIER 1, PHASE 3)
+**Effort**: 8-12 hours
+**Dependencies**: Epics 49A, 52, 53A complete (Phase 1)
+**Assignable to subagent**: Yes (`backend-engineer`, `devops`)
+**Backend Required**: ✅ This IS the backend setup epic
+
+**⚠️ CRITICAL ARCHITECTURAL MILESTONE**: This epic sets up the optional backend service infrastructure. Only proceed if user confirms need for:
+- Credit card payments (Stripe/PayPal) - Epic 49B
+- Email newsletter delivery - Epic 53B
+- Federation (Mastodon/Bluesky) - Epic 54
+- Server-side rendering for SEO - Future epic
+
+**Context**: Set up Bun backend service in monorepo structure. Backend will be stateless, optional, and self-hostable. Communicates with client via Nostr (NIP-17 encrypted messages).
+
+**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete design.
+
+**Monorepo Structure**:
+```
+buildit-network/
+├── client/           # React SPA (existing)
+├── server/           # Bun backend (new)
+│   ├── src/
+│   │   ├── index.ts
+│   │   ├── nostr/
+│   │   ├── payments/
+│   │   ├── email/
+│   │   ├── federation/
+│   │   └── ssr/
+│   ├── package.json
+│   └── Dockerfile
+├── shared/           # Shared types (new)
+└── package.json      # Root workspace
+```
+
+**Tasks**:
+- [ ] **Monorepo Setup (2-3h)**
+  - [ ] Restructure repo: `client/`, `server/`, `shared/`
+  - [ ] Update root `package.json` with workspace config
+  - [ ] Move existing files to `client/`
+  - [ ] Update build scripts and paths
+  - [ ] Update CI/CD for monorepo structure
+- [ ] **Backend Service Init (2-3h)**
+  - [ ] Initialize Bun server project (`server/`)
+  - [ ] Install dependencies (Hono, nostr-tools)
+  - [ ] Set up TypeScript config
+  - [ ] Create main server entry (`index.ts`)
+  - [ ] Set up environment variables (.env)
+  - [ ] Health check endpoint (`/health`)
+- [ ] **Nostr Integration (2-3h)**
+  - [ ] Nostr client setup (connect to relays)
+  - [ ] NIP-17 message unsealing (decrypt payment intents, etc.)
+  - [ ] Message publisher (publish responses to Nostr)
+  - [ ] Subscription filters for backend-relevant events
+- [ ] **Docker & Deployment (2-3h)**
+  - [ ] Create Dockerfile for backend
+  - [ ] Docker Compose for local development
+  - [ ] Environment variable documentation
+  - [ ] Deploy to Fly.io or Railway (optional hosted version)
+  - [ ] Self-hosting documentation
+
+**Acceptance Criteria**:
+- ✅ Monorepo structure functional (client + server)
+- ✅ Backend server runs locally (`bun run dev`)
+- ✅ Backend connects to Nostr relays
+- ✅ Backend can unseal NIP-17 messages
+- ✅ Backend can publish messages to Nostr
+- ✅ Docker setup works for self-hosting
+- ✅ Deployment documentation complete
+
+**Privacy**: ✅ Backend never sees private keys, only handles encrypted payloads via Nostr
+
+**Testing Requirements**:
+- Backend integration tests (Nostr message handling)
+- Docker build successful
+- Health check endpoint functional
+- `bun test` passes for backend tests
+
+**Reference Docs**:
+- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
+- [Bun Documentation](https://bun.sh/docs)
+- [Hono Web Framework](https://hono.dev/)
+
+**Git Commit Format**: `feat: add optional backend service infrastructure with Nostr integration (Epic 62)`
+
+**Git Tag**: `v0.62.0-backend-setup`
 
 ---
 
