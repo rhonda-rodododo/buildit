@@ -301,15 +301,15 @@ When completing an epic:
 **Current Coverage**: ~80 E2E tests across 10 epics
 **Target Coverage**: ~310 E2E tests across 30+ epics (95% coverage)
 
-**Phase 1: Critical Gaps (Priority 1) - 20-25 hours**
-- [ ] **Epic 42 - Conversations/Messaging UX** (15-20 tests)
+**Phase 1: Critical Gaps (Priority 1) - 20-25 hours** ✅ COMPLETE
+- [x] **Epic 42 - Conversations/Messaging UX** (15-20 tests) ✅ 20 tests delivered
   - Desktop chat windows (open, minimize, restore, taskbar)
   - Buddylist sidebar (organization, presence indicators)
   - Online presence system (green/yellow/gray, last seen)
   - Conversation management (pin/mute/archive, unread tracking)
   - File: `tests/e2e/conversations.spec.ts`
 
-- [ ] **Epic 34/38 - Social Features/Microblogging** (20-25 tests)
+- [x] **Epic 34/38 - Social Features/Microblogging** (20-25 tests) ✅ 31 tests delivered
   - Posts CRUD with privacy levels
   - Reactions (6 emoji types) and "who reacted" popover
   - Comments and nested threading (max depth 5)
@@ -317,7 +317,7 @@ When completing an epic:
   - Hashtags and @mentions
   - File: `tests/e2e/microblogging.spec.ts`, `tests/e2e/activity-feed.spec.ts`
 
-- [ ] **Epic 41 - Friend System** (12-15 tests)
+- [x] **Epic 41 - Friend System** (12-15 tests) ✅ 22 tests delivered
   - Friend requests (username, QR code, email, links)
   - QR code verification flow
   - Trust tiers (Stranger → Trusted)
@@ -325,7 +325,7 @@ When completing an epic:
   - Contact organization (tags, favorites, notes)
   - File: `tests/e2e/friends.spec.ts`
 
-- [ ] **Epic 40 - Username System** (10-12 tests)
+- [x] **Epic 40 - Username System** (10-12 tests) ✅ 12 tests delivered
   - Username registration and validation
   - NIP-05 verification flow
   - User directory browsing
@@ -333,7 +333,7 @@ When completing an epic:
   - Verified badge display
   - File: `tests/e2e/usernames.spec.ts`
 
-- [ ] **Epic 7 - Wiki Module** (8-10 tests)
+- [x] **Epic 7 - Wiki Module** (8-10 tests) ✅ 14 tests delivered
   - Page CRUD operations
   - Version control and history
   - Diff viewing between versions
@@ -341,7 +341,7 @@ When completing an epic:
   - Search functionality
   - File: `tests/e2e/wiki.spec.ts`
 
-- [ ] **Epic 33 - Files Module** (10-12 tests)
+- [x] **Epic 33 - Files Module** (10-12 tests) ✅ 19 tests delivered
   - File upload (drag & drop)
   - Folder management (create, navigate, delete)
   - Encryption verification
