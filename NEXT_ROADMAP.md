@@ -24,14 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 37.5 complete - Public Module UI)
-**Active Epic**: Epic 37/38 (Forms/Fundraising modules) or Epic 39 (Tor)
+**Last Updated**: 2025-10-09 (Epic 39 complete - Tor Integration)
+**Active Epic**: Epic 43 (Group Entity & Coalition) or Epic 35 (Performance)
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 97% for organizing platform features
-**New Priorities**: Public engagement (Forms/Fundraising), UX-first approach, offline resilience
+**Completion**: 98% for organizing platform features
+**New Priorities**: Advanced organizing features (Group Entity, Coalitions), Performance optimization
 
 ---
 
@@ -158,7 +158,7 @@ When completing an epic:
 
 **Tasks**:
 - [ ] Dynamically load locales per module, in addition to core locales
-- [ ] 
+- [ ]
 - [ ] Create German locale (de.json) - 123 keys
 - [ ] Create Portuguese locale (pt.json) - 123 keys
 - [ ] Create Mandarin Chinese locale (zh.json) - 123 keys
@@ -183,191 +183,6 @@ When completing an epic:
 **Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Translation section), `/src/i18n/locales/`
 
 **Git Commit Format**: `i18n: add German, Portuguese, and Mandarin translations (Epic 36)`
-
----
-
-### Epic 37: Forms Module 📝
-**Status**: ✅ Schema Complete, UI Pending
-**Priority**: P2
-**Effort**: 15-20 hours (Schema: 3h complete, UI: 12-17h remaining)
-**Dependencies**: Epic 32 (Documents) recommended
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Public-facing forms for data collection (volunteer signup, event registration, surveys). Forms submit data to Database module tables. Module structure and schema completed during Epic 37 refactoring.
-
-**Completed Tasks**:
-- [x] Create Form schema and types (`src/modules/forms/schema.ts`)
-- [x] Implement FormsStore (Zustand) (`src/modules/forms/formsStore.ts`)
-- [x] Create form seed data (event registration, volunteer signup)
-- [x] Register module in registry (`src/lib/modules/registry.ts`)
-
-**Remaining Tasks**:
-- [ ] Build visual form builder UI:
-  - Drag & drop field placement
-  - 11 field types (text, number, email, phone, select, checkbox, radio, date, file upload, textarea, url)
-  - Field validation rules
-  - Conditional logic (show/hide fields based on answers)
-  - Multi-page forms
-- [ ] Create form templates UI:
-  - Event registration
-  - Volunteer signup
-  - Contact form
-  - Survey/feedback
-  - Membership application
-- [ ] Implement form submission handling UI:
-  - Store submissions in Database module (backend done)
-  - Email notifications
-  - Auto-responder
-  - Webhook support
-- [ ] Add anti-spam protection UI:
-  - Rate limiting
-  - Honeypot fields
-  - Optional CAPTCHA (hCaptcha configured in schema)
-- [ ] Create form analytics dashboard (uses Public module analytics)
-- [ ] Write E2E tests for form builder and submissions
-- [ ] Build public form rendering view
-
-**Acceptance Criteria**:
-- Form builder functional with drag & drop
-- Can create multi-page forms with conditional logic
-- Form submissions stored in database and viewable
-- Anti-spam measures active (honeypot, rate limiting, CAPTCHA)
-- Analytics dashboard shows submission stats
-- E2E tests passing
-
-**Testing Requirements**:
-- `bun test src/modules/forms/` passing
-- E2E test: Create form → Fill out → Submit → View responses
-- E2E test: Test anti-spam protection (rate limiting, honeypot)
-
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Forms section), `/src/modules/forms/`
-
-**Git Commit Format**: `feat: implement Forms module UI and form builder (Epic 37)`
-
-**Git Tag**: `v0.37.0-forms`
-
----
-
-### Epic 38: Fundraising Module 💰
-**Status**: ✅ Schema Complete, UI Pending
-**Priority**: P2
-**Effort**: 10-15 hours (Schema: 3h complete, UI: 7-12h remaining)
-**Dependencies**: Epic 37 (Forms), Epic 37.5 (Public)
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Fundraising campaign management and donation processing. Leverages Forms module for donor data collection and Public module for SEO-optimized campaign pages. Module structure and schema completed during Epic 37 refactoring.
-
-**Completed Tasks**:
-- [x] Create Campaign and Donation schema and types (`src/modules/fundraising/schema.ts`)
-- [x] Implement FundraisingStore (Zustand) (`src/modules/fundraising/fundraisingStore.ts`)
-- [x] Create campaign seed data (strike fund, bail fund)
-- [x] Register module in registry (`src/lib/modules/registry.ts`)
-
-**Remaining Tasks**:
-- [ ] Build campaign page builder UI:
-  - Campaign description (rich text via Documents module)
-  - Fundraising goal and progress bar
-  - Donation tiers/levels
-  - Campaign updates timeline
-- [ ] Implement donation flow UI:
-  - One-time donations
-  - Recurring donations
-  - Donation form (uses Forms module)
-  - Thank you page
-- [ ] Create campaign templates UI:
-  - Bail fund
-  - Strike fund
-  - Mutual aid fund
-  - Legal defense fund
-- [ ] Add donor management UI:
-  - Donor wall (optional display)
-  - Donor privacy controls
-  - Thank you messages
-  - Tax receipts (if applicable)
-- [ ] Integrate payment processing:
-  - Stripe integration
-  - PayPal integration
-  - Cryptocurrency (Bitcoin, Lightning, Ethereum)
-- [ ] Build campaign analytics dashboard (uses Public module)
-- [ ] Write E2E tests for campaigns and donations
-
-**Acceptance Criteria**:
-- Fundraising campaigns can be created and published
-- Donation flow works (with test payment integration)
-- Campaign progress bar updates in real-time
-- Donor management functional with privacy controls
-- Analytics dashboard shows donation stats
-- E2E tests passing
-
-**Testing Requirements**:
-- `bun test src/modules/fundraising/` passing
-- E2E test: Create campaign → Publish → Make donation → View progress
-- E2E test: Test donation tiers and recurring donations
-
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Fundraising section), `/src/modules/fundraising/`
-
-**Git Commit Format**: `feat: implement Fundraising module UI and payment integration (Epic 38)`
-
-**Git Tag**: `v0.38.0-fundraising`
-
----
-
-### Epic 39: Tor Integration 🧅
-**Status**: Deferred from Epic 18
-**Priority**: P2
-**Effort**: 20-30 hours
-**Dependencies**: Epic 30 (Security Audit) recommended
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Tor integration provides metadata protection and censorship resistance for high-risk users. Deferred from Epic 18.
-
-**Tasks**:
-- [ ] Research Tor integration approaches:
-  - SOCKS5 proxy support
-  - Tor Browser detection
-  - .onion relay configuration
-- [ ] Implement Tor proxy configuration:
-  - Settings UI for Tor proxy
-  - SOCKS5 proxy connection
-  - Connection through local Tor daemon
-- [ ] Create .onion relay list:
-  - Curate list of .onion Nostr relays
-  - Fallback to clearnet relays
-  - Relay health monitoring
-- [ ] Build Tor status indicator:
-  - Show when connected via Tor
-  - Circuit status
-  - Connection quality
-- [ ] Create TorSettings component:
-  - Enable/disable Tor routing
-  - Proxy configuration
-  - .onion relay selection
-  - Circuit refresh
-- [ ] Add Tor-specific security features:
-  - Prevent WebRTC leaks
-  - Disable geolocation
-  - Enhanced fingerprinting protection
-- [ ] Test Tor connectivity (if Tor available)
-- [ ] Document Tor setup for users
-- [ ] Write tests for Tor integration
-
-**Acceptance Criteria**:
-- Can configure Tor proxy settings
-- Connects to .onion relays when Tor enabled
-- Tor status indicator shows connection state
-- No IP/metadata leaks when using Tor
-- Documentation complete for Tor setup
-- Tests verify Tor configuration
-
-**Testing Requirements**:
-- Manual test with Tor Browser running
-- Verify .onion relay connections
-- Check for WebRTC/IP leaks (ipleak.net)
-- Test fallback to clearnet when Tor unavailable
-
-**Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Security section), [PRIVACY.md](./PRIVACY.md)
-
-**Git Commit Format**: `feat: implement Tor integration for metadata protection (Epic 39)`
 
 ---
 
@@ -634,15 +449,15 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - **P1 Total**: 57-82 hours (all completed)
 
 **Enhanced Features (P2)**:
-- Epic 37: 15-20h (Forms module) - ✅ Schema done (3h), UI remaining (12-17h)
+- ✅ Epic 37: 15-20h (Forms module) - COMPLETED
 - ✅ Epic 37.5: 5-8h (Public module) - COMPLETED
-- Epic 38: 10-15h (Fundraising module) - ✅ Schema done (3h), UI remaining (7-12h)
-- Epic 39: 20-30h (Tor)
+- ✅ Epic 38: 10-15h (Fundraising module) - COMPLETED
+- ✅ Epic 39: 20-30h (Tor) - COMPLETED
 - Epic 43: 15-20h (group entity)
 - Epic 35: 10-15h (performance)
 - Epic 36: 10-20h (translations)
 - Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
-- **P2 Total**: 95-143 hours (13h completed, 82-130h remaining)
+- **P2 Total**: 95-143 hours (68h completed, 27-75h remaining)
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
@@ -661,12 +476,12 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 5. ✅ Epic 44: BLE Mesh Phase 1 (12h) - COMPLETED
 6. ✅ Epic 47: E2E Test Coverage (60-80h) - COMPLETED Phases 1-3 (Phase 4 deferred)
 
-### **Phase 1: Public Engagement (P1)** - 4-6 weeks
-7. **Epic 37: Forms Module** (15-20h) ⬅ **DO NEXT**
+### **Phase 1: Public Engagement (P1)** - COMPLETED ✅
+7. ✅ **Epic 37: Forms Module** (15-20h) - COMPLETED
    - ✅ Schema complete (3h)
-   - Public-facing forms (volunteer signup, event registration)
-   - Form builder UI (drag & drop, 11 field types)
-   - Anti-spam protection (honeypot, CAPTCHA, rate limiting)
+   - ✅ Public-facing forms (volunteer signup, event registration)
+   - ✅ Form builder UI (drag & drop, 11 field types)
+   - ✅ Anti-spam protection (honeypot, CAPTCHA, rate limiting)
 
 8. ✅ **Epic 37.5: Public Module** (5-8h) - COMPLETED
    - ✅ Schema complete (2h)
@@ -674,19 +489,19 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
    - ✅ Privacy-preserving analytics dashboard
    - ✅ Infrastructure for Forms and Fundraising
 
-9. **Epic 38: Fundraising Module** (10-15h) ⬅ **After Epic 37**
+9. ✅ **Epic 38: Fundraising Module** (10-15h) - COMPLETED
    - ✅ Schema complete (3h)
-   - Fundraising campaigns (bail funds, strike funds)
-   - Donation flow (one-time, recurring)
-   - Payment integration (Stripe, PayPal, crypto)
+   - ✅ Fundraising campaigns (bail funds, strike funds)
+   - ✅ Donation flow (one-time, recurring)
+   - ✅ Payment integration (Stripe, PayPal, crypto placeholders)
 
 ### **Phase 2: Security & Advanced Features (P2)** - 6-8 weeks
-10. **Epic 39: Tor Integration** (20-30h)
-   - Metadata protection
-   - .onion relay support
-   - Pairs with BLE mesh for defense-in-depth
+10. ✅ **Epic 39: Tor Integration** (20-30h) - COMPLETED
+   - ✅ Metadata protection
+   - ✅ .onion relay support (11 relays)
+   - ✅ Pairs with BLE mesh for defense-in-depth
 
-11. **Epic 43: Group Entity & Coalition** (15-20h)
+11. **Epic 43: Group Entity & Coalition** (15-20h) ⬅ **DO NEXT**
    - Groups as collective identities
    - Multi-group coalition chats
    - Anonymous screening
@@ -712,9 +527,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 37.5 complete - Public Module UI)
-**Pending Epics**: 9 total (Epic 31, 35-39, 43, 45)
-**Next Epic**: Epic 37 (Forms Module UI) or Epic 39 (Tor Integration)
-**Strategic Shift**: Public Engagement (Forms/Fundraising) → Security (Tor) → UX Philosophy → Launch
-**Module Refactoring**: ✅ Forms, Public, and Fundraising modules separated with complete schemas/stores/seeds
-**Recent Completion**: ✅ Epic 37.5 (Public Module UI) - Page editor, SEO optimization, analytics
+**Last Updated**: 2025-10-09 (Epic 39 complete - Tor Integration)
+**Pending Epics**: 5 total (Epic 31, 35, 36, 43, 45)
+**Next Epic**: Epic 43 (Group Entity & Coalition) or Epic 35 (Performance)
+**Strategic Shift**: Advanced organizing (Group Entity, Coalitions) → Performance → UX Philosophy → Launch
+**Module Refactoring**: ✅ Forms, Public, and Fundraising modules complete
+**Recent Completion**: ✅ Epic 39 (Tor Integration) - Auto-detection, 11 .onion relays, enhanced security
