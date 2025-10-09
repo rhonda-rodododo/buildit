@@ -265,8 +265,10 @@ export function useSessionTimeout() {
 }
 
 // Auto-initialize on module load (can be configured via environment)
-const autoLockEnabled = import.meta.env.VITE_AUTO_LOCK_ENABLED !== 'false' // Default: enabled
-const autoLockTimeout = parseInt(import.meta.env.VITE_AUTO_LOCK_TIMEOUT || '1800000') // Default: 30 minutes
+// @ts-ignore - import.meta.env is injected by Vite
+const autoLockEnabled = (import.meta.env?.VITE_AUTO_LOCK_ENABLED ?? 'true') !== 'false' // Default: enabled
+// @ts-ignore - import.meta.env is injected by Vite
+const autoLockTimeout = parseInt(import.meta.env?.VITE_AUTO_LOCK_TIMEOUT ?? '1800000') // Default: 30 minutes
 
 if (autoLockEnabled && typeof window !== 'undefined') {
   sessionManager.init({

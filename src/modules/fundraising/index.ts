@@ -8,7 +8,10 @@ import type { ModulePlugin } from '@/types/modules';
 import { fundraisingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { DollarSign } from 'lucide-react';
-import { FundraisingPage } from './components/FundraisingPage';
+import { lazy } from 'react';
+
+// Lazy load FundraisingPage to reduce initial bundle size
+const FundraisingPage = lazy(() => import('./components/FundraisingPage').then(m => ({ default: m.FundraisingPage })));
 
 // Types
 export * from './types';

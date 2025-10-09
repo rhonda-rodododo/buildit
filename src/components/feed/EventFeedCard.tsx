@@ -163,14 +163,14 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
           )}
 
           {/* Tags */}
-          {event.tags && event.tags.length > 0 && (
+          {event.tags && event.tags.trim().length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
-              {event.tags.map((tag) => (
+              {event.tags.split(',').filter(t => t.trim()).map((tag) => (
                 <span
                   key={tag}
                   className="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded"
                 >
-                  {tag}
+                  {tag.trim()}
                 </span>
               ))}
             </div>

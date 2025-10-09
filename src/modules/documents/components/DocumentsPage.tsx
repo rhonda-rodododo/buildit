@@ -3,7 +3,7 @@
  */
 
 import { FC, useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
@@ -29,7 +29,7 @@ import {
 export const DocumentsPage: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
   const currentIdentity = useAuthStore(state => state.currentIdentity)
-  const { groups, groupMembers, loadGroupMembers } = useGroupsStore()
+  const { groupMembers, loadGroupMembers } = useGroupsStore()
 
   const { documents, getGroupDocuments, currentDocumentId, setCurrentDocument } = useDocumentsStore()
   const [title, setTitle] = useState('')

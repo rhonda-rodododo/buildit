@@ -8,7 +8,10 @@ import { governanceSchema } from './schema';
 import { governanceSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Vote } from 'lucide-react';
-import { GovernanceView } from './components/GovernanceView';
+import { lazy } from 'react';
+
+// Lazy load GovernanceView to reduce initial bundle size
+const GovernanceView = lazy(() => import('./components/GovernanceView').then(m => ({ default: m.GovernanceView })));
 
 /**
  * Governance Module Plugin

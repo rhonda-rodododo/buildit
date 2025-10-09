@@ -71,9 +71,9 @@ export class DeviceLoginNotificationService {
     const store = useDeviceStore.getState();
     const devices = Array.from(store.devices.values());
 
-    // Check if any existing device has this fingerprint and is trusted
+    // Check if any existing device has this fingerprint (id) and is trusted
     const authorizedDevice = devices.find((d: DeviceInfo) => {
-      return d.fingerprint === deviceFingerprint && d.isTrusted;
+      return d.id === deviceFingerprint && d.isTrusted;
     });
 
     return !authorizedDevice;

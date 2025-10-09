@@ -8,7 +8,10 @@ import { databaseSchema } from './schema';
 import { databaseSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Database } from 'lucide-react';
-import { EditableTableView } from './components/EditableTableView';
+import { lazy } from 'react';
+
+// Lazy load DatabasePage to reduce initial bundle size (includes heavy @tanstack/react-table)
+const DatabasePage = lazy(() => import('./components/DatabasePage').then(m => ({ default: m.DatabasePage })));
 
 /**
  * Database Module Plugin
@@ -76,7 +79,7 @@ export const databaseModule: ModulePlugin = {
   routes: [
     {
       path: 'database',
-      component: EditableTableView,
+      component: DatabasePage,
       scope: 'group',
       requiresEnabled: true,
       label: 'Database',

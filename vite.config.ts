@@ -122,6 +122,12 @@ export default defineConfig({
     },
   },
   build: {
+    modulePreload: {
+      // Don't preload md-editor (heavy chunk, only load when wiki editor opened)
+      resolveDependencies: (filename, deps) => {
+        return deps.filter(dep => !dep.includes('vendor-md-editor'))
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {

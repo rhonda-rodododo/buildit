@@ -116,15 +116,19 @@ export async function loadModuleSeeds(
  */
 export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boolean> {
   // Check if any events exist with seed IDs
-  const events = await db.events.where('groupId').equals(groupId).limit(1).toArray();
-  if (events.length > 0 && events[0].id.includes('event-')) {
-    return true;
+  if (db.events) {
+    const events = await db.events.where('groupId').equals(groupId).limit(1).toArray();
+    if (events.length > 0 && events[0].id.includes('event-')) {
+      return true;
+    }
   }
 
   // Check wiki pages
-  const wikiPages = await db.wikiPages.where('groupId').equals(groupId).limit(1).toArray();
-  if (wikiPages.length > 0 && wikiPages[0].id.includes('wiki-')) {
-    return true;
+  if (db.wikiPages) {
+    const wikiPages = await db.wikiPages.where('groupId').equals(groupId).limit(1).toArray();
+    if (wikiPages.length > 0 && wikiPages[0].id.includes('wiki-')) {
+      return true;
+    }
   }
 
   return false;
@@ -140,50 +144,66 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
   console.log(`🧹 Clearing demo data for group ${groupId}...`);
 
   // Clear events with seed IDs
-  await db.events
-    .where('groupId')
-    .equals(groupId)
-    .filter((e: { id: string }) => e.id.includes('event-') || e.id.includes('example-'))
-    .delete();
+  if (db.events) {
+    await db.events
+      .where('groupId')
+      .equals(groupId)
+      .filter((e: { id: string }) => e.id.includes('event-') || e.id.includes('example-'))
+      .delete();
+  }
 
   // Clear mutual aid with seed IDs
-  await db.mutualAidRequests
-    .where('groupId')
-    .equals(groupId)
-    .filter((r: { id: string }) => r.id.includes('ma-') || r.id.includes('aid-') || r.id.includes('example-'))
-    .delete();
+  if (db.mutualAidRequests) {
+    await db.mutualAidRequests
+      .where('groupId')
+      .equals(groupId)
+      .filter((r: { id: string }) => r.id.includes('ma-') || r.id.includes('aid-') || r.id.includes('example-'))
+      .delete();
+  }
 
   // Clear proposals with seed IDs
-  await db.proposals
-    .where('groupId')
-    .equals(groupId)
-    .filter((p: { id: string }) => p.id.includes('proposal-'))
-    .delete();
+  if (db.proposals) {
+    await db.proposals
+      .where('groupId')
+      .equals(groupId)
+      .filter((p: { id: string }) => p.id.includes('proposal-'))
+      .delete();
+  }
 
   // Clear wiki pages with seed IDs
-  await db.wikiPages
-    .where('groupId')
-    .equals(groupId)
-    .filter((p: { id: string }) => p.id.includes('wiki-'))
-    .delete();
+  if (db.wikiPages) {
+    await db.wikiPages
+      .where('groupId')
+      .equals(groupId)
+      .filter((p: { id: string }) => p.id.includes('wiki-'))
+      .delete();
+  }
 
   // Clear database tables and records with seed IDs
-  await db.databaseTables
-    .where('groupId')
-    .equals(groupId)
-    .filter((t: { id: string }) => t.id.includes('table-'))
-    .delete();
+  if (db.databaseTables) {
+    await db.databaseTables
+      .where('groupId')
+      .equals(groupId)
+      .filter((t: { id: string }) => t.id.includes('table-'))
+      .delete();
+  }
 
-  await db.databaseRecords.where('groupId').equals(groupId).delete();
+  if (db.databaseRecords) {
+    await db.databaseRecords.where('groupId').equals(groupId).delete();
+  }
 
-  await db.databaseViews.where('groupId').equals(groupId).delete();
+  if (db.databaseViews) {
+    await db.databaseViews.where('groupId').equals(groupId).delete();
+  }
 
   // Clear custom fields with seed IDs
-  await db.customFields
-    .where('groupId')
-    .equals(groupId)
-    .filter((f: { id: string }) => f.id.includes('field-'))
-    .delete();
+  if (db.customFields) {
+    await db.customFields
+      .where('groupId')
+      .equals(groupId)
+      .filter((f: { id: string }) => f.id.includes('field-'))
+      .delete();
+  }
 
   console.log(`✅ Demo data cleared for group ${groupId}`);
 }

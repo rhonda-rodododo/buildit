@@ -89,11 +89,11 @@ export function encryptObject<T extends Record<string, any>>(
   for (const field of fieldsToEncrypt) {
     if (encrypted[field] !== undefined && encrypted[field] !== null) {
       const plaintext = typeof encrypted[field] === 'string'
-        ? encrypted[field]
+        ? (encrypted[field] as string)
         : JSON.stringify(encrypted[field]);
 
       try {
-        encrypted[field] = encryptNIP44(plaintext, encryptionKey);
+        (encrypted as Record<string, any>)[field] = encryptNIP44(plaintext, encryptionKey);
       } catch (error) {
         console.error(`Failed to encrypt field ${field}:`, error);
         // Leave unencrypted on error
@@ -133,7 +133,7 @@ export function decryptObject<T extends Record<string, any>>(
     if (decrypted[field]) {
       try {
         const ciphertext = decrypted[field] as string;
-        decrypted[field] = decryptNIP44(ciphertext, encryptionKey);
+        (decrypted as Record<string, any>)[field] = decryptNIP44(ciphertext, encryptionKey);
       } catch (error) {
         // Decryption failed - might be corrupted or wrong key
         console.warn(`Failed to decrypt field ${field}:`, error);

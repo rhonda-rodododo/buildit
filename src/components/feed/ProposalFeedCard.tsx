@@ -56,6 +56,13 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
             Decided
           </span>
         );
+      case 'cancelled':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-red-500/10 text-red-500 rounded">
+            <Clock className="w-3 h-3" />
+            Cancelled
+          </span>
+        );
     }
   };
 

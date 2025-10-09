@@ -1,10 +1,12 @@
-import { FC, useState } from 'react'
+import { FC, useState, Suspense, lazy } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Plus, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { CreatePageDialog } from './CreatePageDialog'
 import { useWikiStore } from '../wikiStore'
+
+// Lazy load CreatePageDialog to avoid loading heavy MDEditor until needed
+const CreatePageDialog = lazy(() => import('./CreatePageDialog').then(m => ({ default: m.CreatePageDialog })))
 
 interface WikiViewProps {
   groupId?: string
@@ -90,14 +92,16 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
         </div>
       )}
 
-      <CreatePageDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        groupId={groupId}
-        onCreated={() => {
-          // Refresh pages list
-        }}
-      />
+      <Suspense fallback={null}>
+        <CreatePageDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          groupId={groupId}
+          onCreated={() => {
+            // Refresh pages list
+          }}
+        />
+      </Suspense>
     </div>
   )
 }

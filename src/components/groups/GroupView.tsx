@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useState, Suspense, lazy } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -8,11 +8,23 @@ import { CreateThreadDialog } from '@/components/messaging/CreateThreadDialog'
 import { GroupSettingsDialog } from '@/components/groups/GroupSettingsDialog'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { hexToBytes } from '@noble/hashes/utils'
-import { EventsView } from '@/modules/events/components/EventsView'
-import { MutualAidView } from '@/modules/mutual-aid/components/MutualAidView'
-import { GovernanceView } from '@/modules/governance/components/GovernanceView'
-import { WikiView } from '@/modules/wiki/components/WikiView'
-import { CRMView } from '@/modules/crm/components/CRMView'
+
+// Lazy load module components to reduce initial bundle size
+const EventsView = lazy(() => import('@/modules/events/components/EventsView').then(m => ({ default: m.EventsView })))
+const MutualAidView = lazy(() => import('@/modules/mutual-aid/components/MutualAidView').then(m => ({ default: m.MutualAidView })))
+const GovernanceView = lazy(() => import('@/modules/governance/components/GovernanceView').then(m => ({ default: m.GovernanceView })))
+const WikiView = lazy(() => import('@/modules/wiki/components/WikiView').then(m => ({ default: m.WikiView })))
+const CRMView = lazy(() => import('@/modules/crm/components/CRMView').then(m => ({ default: m.CRMView })))
+
+// Loading component for lazy-loaded modules
+const ModuleLoading = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+      <p className="mt-4 text-muted-foreground">Loading module...</p>
+    </div>
+  </div>
+)
 
 export const GroupView: FC = () => {
   const { activeGroup } = useGroupsStore()
@@ -104,31 +116,41 @@ export const GroupView: FC = () => {
 
             {activeGroup.enabledModules.includes('events') && (
               <TabsContent value="events">
-                <EventsView groupId={activeGroup.id} />
+                <Suspense fallback={<ModuleLoading />}>
+                  <EventsView groupId={activeGroup.id} />
+                </Suspense>
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('mutual-aid') && (
               <TabsContent value="mutual-aid">
-                <MutualAidView />
+                <Suspense fallback={<ModuleLoading />}>
+                  <MutualAidView />
+                </Suspense>
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('governance') && (
               <TabsContent value="governance">
-                <GovernanceView groupId={activeGroup.id} />
+                <Suspense fallback={<ModuleLoading />}>
+                  <GovernanceView groupId={activeGroup.id} />
+                </Suspense>
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('wiki') && (
               <TabsContent value="wiki">
-                <WikiView groupId={activeGroup.id} />
+                <Suspense fallback={<ModuleLoading />}>
+                  <WikiView groupId={activeGroup.id} />
+                </Suspense>
               </TabsContent>
             )}
 
             {activeGroup.enabledModules.includes('crm') && (
               <TabsContent value="crm">
-                <CRMView />
+                <Suspense fallback={<ModuleLoading />}>
+                  <CRMView />
+                </Suspense>
               </TabsContent>
             )}
           </Tabs>

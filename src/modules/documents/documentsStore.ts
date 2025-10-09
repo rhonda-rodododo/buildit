@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand'
-import type { Document, DocumentVersion, DocumentTemplate, CreateDocumentInput, UpdateDocumentInput } from './types'
+import type { Document, DocumentVersion, DocumentTemplate } from './types'
 
 interface DocumentsState {
   documents: Map<string, Document>

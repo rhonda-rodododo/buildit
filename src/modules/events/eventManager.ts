@@ -85,7 +85,7 @@ export class EventManager {
     privateKey: string
   ): Promise<Event> {
     // Get existing event
-    const existingEvent = await db.events.get(eventId)
+    const existingEvent = await db.events!.get(eventId)
     if (!existingEvent) {
       throw new Error('Event not found')
     }
@@ -119,7 +119,7 @@ export class EventManager {
     await this.nostrClient.publish(nostrEvent)
 
     // Update in database
-    await db.events.update(eventId, {
+    await db.events!.update(eventId, {
       title: updatedEvent.title,
       description: updatedEvent.description,
       location: updatedEvent.location,
@@ -140,7 +140,7 @@ export class EventManager {
    * Delete an event
    */
   async deleteEvent(eventId: string, deleterPubkey: string): Promise<void> {
-    const event = await db.events.get(eventId)
+    const event = await db.events!.get(eventId)
     if (!event) {
       throw new Error('Event not found')
     }
@@ -150,8 +150,8 @@ export class EventManager {
     }
 
     // Delete from database
-    await db.events.delete(eventId)
-    await db.rsvps.where('eventId').equals(eventId).delete()
+    await db.events!.delete(eventId)
+    await db.rsvps!.where('eventId').equals(eventId).delete()
 
     // NOTE: NIP-09 event deletion (kind 5) publishing deferred
     // Deletion only affects local database for now
@@ -168,14 +168,14 @@ export class EventManager {
     privateKey: string,
     note?: string
   ): Promise<RSVP> {
-    const event = await db.events.get(eventId)
+    const event = await db.events!.get(eventId)
     if (!event) {
       throw new Error('Event not found')
     }
 
     // Check capacity
     if (status === 'going' && event.capacity) {
-      const goingCount = await db.rsvps
+      const goingCount = await db.rsvps!
         .where(['eventId', 'status'])
         .equals([eventId, 'going'])
         .count()
@@ -201,12 +201,12 @@ export class EventManager {
     await this.nostrClient.publish(nostrEvent)
 
     // Store in database (upsert)
-    const existing = await db.rsvps
+    const existing = await db.rsvps!
       .where({ eventId, userPubkey })
       .first()
 
     if (existing && existing.id) {
-      await db.rsvps.update(existing.id, {
+      await db.rsvps!.update(existing.id, {
         status,
         timestamp: rsvp.timestamp,
         note,
@@ -300,7 +300,7 @@ export class EventManager {
     // Local-first architecture: events are primarily stored in IndexedDB
     // Future enhancement: Query relays for group events using NIP-29 (Group Chat)
     // or NIP-72 (Moderated Communities) and sync to local database
-    const events = await db.events.toArray()
+    const events = await db.events!.toArray()
     console.log('Loaded events from local DB:', events.length)
   }
 
@@ -308,7 +308,8 @@ export class EventManager {
    * Process an event received from Nostr
    * NOTE: Reserved for future relay sync implementation
    */
-  private async _processEventFromNostr(nostrEvent: NostrEvent): Promise<void> {
+  // @ts-expect-error - Reserved for future use
+  private _processEventFromNostr = async (nostrEvent: NostrEvent): Promise<void> => {
     try {
       const dTag = nostrEvent.tags.find((t) => t[0] === 'd')?.[1]
       if (!dTag) return
@@ -335,10 +336,10 @@ export class EventManager {
       }
 
       // Upsert to database
-      const existing = await db.events.get(event.id)
+      const existing = await db.events!.get(event.id)
       if (existing) {
         if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-          await db.events.update(event.id, {
+          await db.events!.update(event.id, {
             title: event.title,
             description: event.description,
             location: event.location,

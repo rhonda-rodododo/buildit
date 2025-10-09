@@ -8,7 +8,10 @@ import type { ModulePlugin } from '@/types/modules';
 import { formsSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { FileText } from 'lucide-react';
-import { FormsPage } from './components/FormsPage';
+import { lazy } from 'react';
+
+// Lazy load FormsPage to reduce initial bundle size
+const FormsPage = lazy(() => import('./components/FormsPage').then(m => ({ default: m.FormsPage })));
 
 // Types
 export * from './types';

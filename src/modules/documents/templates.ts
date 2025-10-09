@@ -4,6 +4,7 @@
  */
 
 import type { DocumentTemplate } from './types'
+import { useDocumentsStore } from './documentsStore'
 
 export const documentTemplates: DocumentTemplate[] = [
   {

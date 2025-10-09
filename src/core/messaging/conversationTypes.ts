@@ -35,6 +35,7 @@ export interface DBConversation {
  * Conversation member metadata
  */
 export interface ConversationMember {
+  id: string; // Unique identifier for the member record
   conversationId: string;
   pubkey: string;
   role?: 'admin' | 'member'; // For multi-party chats

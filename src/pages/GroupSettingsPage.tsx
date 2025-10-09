@@ -147,8 +147,6 @@ export const GroupSettingsPage: FC = () => {
             <p className="text-sm text-muted-foreground">
               {group.privacy === 'public'
                 ? 'Anyone can see this group and join'
-                : group.privacy === 'unlisted'
-                ? 'Only people with the link can see this group'
                 : 'Invitation only - encrypted content'}
             </p>
           </div>

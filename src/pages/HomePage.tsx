@@ -139,12 +139,12 @@ export const HomePage: FC = () => {
         ];
 
         for (const item of seedAidItems) {
-          addAidItem(item);
+          addAidItem(item as any); // Seed data has slightly different shape, cast for compatibility
         }
       }
 
       // Load seed proposals
-      if (proposals.length === 0) {
+      if (proposals.size === 0) {
         const seedProposals = [
           {
             id: 'proposal-1',
@@ -188,7 +188,7 @@ export const HomePage: FC = () => {
       }
 
       // Load seed wiki pages
-      if (pages.length === 0) {
+      if (pages.size === 0) {
         const seedPages = [
           {
             id: 'wiki-1',

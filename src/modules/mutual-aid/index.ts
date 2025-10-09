@@ -8,7 +8,10 @@ import { mutualAidSchema } from './schema';
 import { mutualAidSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Heart } from 'lucide-react';
-import { MutualAidView } from './components/MutualAidView';
+import { lazy } from 'react';
+
+// Lazy load MutualAidView to reduce initial bundle size
+const MutualAidView = lazy(() => import('./components/MutualAidView').then(m => ({ default: m.MutualAidView })));
 
 /**
  * Mutual Aid Module Plugin

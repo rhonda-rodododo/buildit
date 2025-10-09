@@ -75,17 +75,17 @@ export const CRMAnalytics: FC<CRMAnalyticsProps> = ({ className }) => {
       ]),
       [''],
       ['Movement Type', 'Count'],
-      ...DEMO_DATA.pipelineMovement.map(item => [
-        item.label,
-        item.count.toString()
-      ]),
+      ['Neutral to Passive', DEMO_DATA.pipelineMovement.neutralToPassive.toString()],
+      ['Passive to Active', DEMO_DATA.pipelineMovement.passiveToActive.toString()],
+      ['Active to Core', DEMO_DATA.pipelineMovement.activeToCore.toString()],
+      ['Avg Days to Move', DEMO_DATA.pipelineMovement.avgDaysToMove.toString()],
       [''],
       ['Organizer', 'Contacts', 'Conversions', 'Conversion Rate'],
       ...DEMO_DATA.organizerPerformance.map(item => [
         item.name,
         item.contacts.toString(),
         item.conversions.toString(),
-        item.conversionRate
+        item.rate
       ])
     ];
 

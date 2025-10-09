@@ -8,7 +8,10 @@ import { crmSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { CRM_TEMPLATES } from './templates';
 import { Users } from 'lucide-react';
-import { CRMView } from './components/CRMView';
+import { lazy } from 'react';
+
+// Lazy load CRMView to reduce initial bundle size
+const CRMView = lazy(() => import('./components/CRMView').then(m => ({ default: m.CRMView })));
 
 /**
  * CRM Module Plugin

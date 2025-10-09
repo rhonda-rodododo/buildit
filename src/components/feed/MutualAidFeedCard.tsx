@@ -46,6 +46,13 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
             Matched
           </span>
         );
+      case 'in-progress':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-yellow-500/10 text-yellow-500 rounded">
+            <Clock className="w-3 h-3" />
+            In Progress
+          </span>
+        );
       case 'fulfilled':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-purple-500/10 text-purple-500 rounded">

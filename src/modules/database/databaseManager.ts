@@ -74,7 +74,7 @@ export class DatabaseManager {
   ): Promise<void> {
     const now = Date.now();
 
-    await db.databaseTables.update(id, {
+    await db.databaseTables!.update(id, {
       ...updates,
       updated: now,
     });
@@ -105,7 +105,7 @@ export class DatabaseManager {
     }
 
     // Delete the table
-    await db.databaseTables.delete(id);
+    await db.databaseTables!.delete(id);
     useDatabaseStore.getState().deleteTable(id);
   }
 
@@ -213,7 +213,7 @@ export class DatabaseManager {
       updated: now,
     };
 
-    await db.databaseViews.update(id, dbUpdates);
+    await db.databaseViews!.update(id, dbUpdates);
     useDatabaseStore.getState().updateView(id, { ...updates, updated: now });
   }
 
@@ -221,7 +221,7 @@ export class DatabaseManager {
    * Delete a view
    */
   async deleteView(id: string): Promise<void> {
-    await db.databaseViews.delete(id);
+    await db.databaseViews!.delete(id);
     useDatabaseStore.getState().deleteView(id);
   }
 
@@ -281,7 +281,7 @@ export class DatabaseManager {
       updated: now,
     };
 
-    await db.databaseRecords.update(id, dbUpdates);
+    await db.databaseRecords!.update(id, dbUpdates);
     useDatabaseStore.getState().updateRecord(id, tableId, { ...updates, updated: now });
   }
 
@@ -289,7 +289,7 @@ export class DatabaseManager {
    * Delete a record
    */
   async deleteRecord(id: string, tableId: string): Promise<void> {
-    await db.databaseRecords.delete(id);
+    await db.databaseRecords!.delete(id);
     useDatabaseStore.getState().deleteRecord(id, tableId);
   }
 
@@ -365,7 +365,7 @@ export class DatabaseManager {
    * Load tables for a group
    */
   async loadTablesForGroup(groupId: string): Promise<void> {
-    const dbTables = await db.databaseTables.where('groupId').equals(groupId).toArray();
+    const dbTables = await db.databaseTables!.where('groupId').equals(groupId).toArray();
 
     for (const dbTable of dbTables) {
       const table: DatabaseTable = {
@@ -388,7 +388,7 @@ export class DatabaseManager {
    * Load views for a table
    */
   async loadViewsForTable(tableId: string): Promise<void> {
-    const dbViews = await db.databaseViews.where('tableId').equals(tableId).toArray();
+    const dbViews = await db.databaseViews!.where('tableId').equals(tableId).toArray();
 
     for (const dbView of dbViews) {
       const view: DatabaseView = {
@@ -416,7 +416,7 @@ export class DatabaseManager {
    * Load records for a table
    */
   async loadRecordsForTable(tableId: string): Promise<void> {
-    const dbRecords = await db.databaseRecords.where('tableId').equals(tableId).toArray();
+    const dbRecords = await db.databaseRecords!.where('tableId').equals(tableId).toArray();
 
     for (const dbRecord of dbRecords) {
       const record: DatabaseRecord = {

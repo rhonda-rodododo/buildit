@@ -8,7 +8,10 @@ import { eventsSchema } from './schema';
 import { eventsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Calendar } from 'lucide-react';
-import { EventsView } from './components/EventsView';
+import { lazy } from 'react';
+
+// Lazy load EventsView to reduce initial bundle size
+const EventsView = lazy(() => import('./components/EventsView').then(m => ({ default: m.EventsView })));
 
 /**
  * Events Module Plugin

@@ -17,15 +17,8 @@ interface BuddylistSidebarProps {
   className?: string;
 }
 
-interface GroupSection {
-  groupId: string;
-  groupName: string;
-  members: string[];
-  isExpanded: boolean;
-}
-
 export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
-  const { getFriends, getFriend } = useFriendsStore();
+  const { getFriends } = useFriendsStore();
   const { getPresence, openChatWindow, getDirectConversation, createConversation } =
     useConversationsStore();
 
@@ -51,17 +44,8 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
     return presence?.status === 'online';
   });
 
-  // Group by primary group (simplified - in reality, users can be in multiple groups)
-  const groupSections: GroupSection[] = [];
-  const addedToGroup = new Set<string>();
-
-  filteredFriends.forEach((friend) => {
-    if (addedToGroup.has(friend.friendPubkey)) return;
-
-    // For now, we don't have group membership data in friends
-    // This would need integration with group store
-    // TODO: Integrate with group membership to show users by group
-  });
+  // TODO: Group by primary group (simplified - in reality, users can be in multiple groups)
+  // This would need integration with group store to show users by group
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedGroups);

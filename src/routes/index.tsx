@@ -65,6 +65,7 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<a
 
 /**
  * Get module routes by scope
+ * Wraps lazy-loaded module components in Suspense
  */
 function getModuleRoutes(scope: 'app' | 'group'): RouteObject[] {
   try {
@@ -76,7 +77,11 @@ function getModuleRoutes(scope: 'app' | 'group'): RouteObject[] {
           .filter((route) => (route.scope || 'group') === scope)
           .map((route) => ({
             path: route.path,
-            element: <route.component />,
+            element: (
+              <Suspense fallback={<LoadingPage />}>
+                <route.component />
+              </Suspense>
+            ),
           }))
       );
   } catch {

@@ -96,7 +96,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
           timestamp: event.createdAt,
           authorId: event.createdBy,
           groupId: event.groupId,
-          data: event,
+          data: {
+            ...event,
+            tags: event.tags.join(','), // Convert string[] to comma-separated string
+          },
         });
       });
     }
@@ -104,27 +107,30 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
     // Add mutual aid requests/offers (uses aidItems not requests)
     if (contentTypeFilters.has('mutual-aid') && mutualAidStore.aidItems) {
       mutualAidStore.aidItems.forEach((aidItem) => {
-        // Map AidItem to DBMutualAidRequest format for the feed
-        items.push({
-          id: `mutual-aid-${aidItem.id}`,
-          type: 'mutual-aid',
-          timestamp: aidItem.createdAt,
-          authorId: aidItem.createdBy,
-          groupId: aidItem.groupId,
-          data: {
-            id: aidItem.id,
+        // Only add items with groupId (DBMutualAidRequest requires it)
+        if (aidItem.groupId) {
+          // Map AidItem to DBMutualAidRequest format for the feed
+          items.push({
+            id: `mutual-aid-${aidItem.id}`,
+            type: 'mutual-aid',
+            timestamp: aidItem.createdAt,
+            authorId: aidItem.createdBy,
             groupId: aidItem.groupId,
-            type: aidItem.type,
-            category: aidItem.category,
-            title: aidItem.title,
-            description: aidItem.description,
-            status: aidItem.status,
-            location: aidItem.location,
-            createdBy: aidItem.createdBy,
-            created: aidItem.createdAt,
-            expiresAt: aidItem.expiresAt,
-          },
-        });
+            data: {
+              id: aidItem.id,
+              groupId: aidItem.groupId,
+              type: aidItem.type,
+              category: aidItem.category,
+              title: aidItem.title,
+              description: aidItem.description,
+              status: aidItem.status,
+              location: aidItem.location,
+              createdBy: aidItem.createdBy,
+              created: aidItem.createdAt,
+              expiresAt: aidItem.expiresAt,
+            },
+          });
+        }
       });
     }
 
