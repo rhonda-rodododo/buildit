@@ -95,10 +95,10 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
         {form.schema && (
           <Form
             schema={form.schema as RJSFSchema}
-            uiSchema={form.uiSchema}
-            validator={validator}
+            uiSchema={form.uiSchema as any}
+            validator={validator as any}
             formData={formData}
-            onChange={(e) => setFormData(e.formData)}
+            onChange={(e) => setFormData(e.formData || {})}
             onSubmit={handleSubmit}
             disabled={submitting}
           >

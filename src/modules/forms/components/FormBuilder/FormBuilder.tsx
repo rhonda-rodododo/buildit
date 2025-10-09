@@ -39,6 +39,7 @@ export interface FormFieldDefinition {
     fieldId: string;
     operator: 'equals' | 'notEquals' | 'contains';
     value: string | number | boolean;
+    action?: 'show' | 'hide' | 'require';
   };
   page?: number; // for multi-page forms
 }
@@ -89,7 +90,7 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
     if (active.data.current?.fromPalette) {
       const fieldType = active.data.current.type as string;
       const newField: FormFieldDefinition = {
-        id: `field-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `field-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
         type: fieldType,
         label: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
         required: false,

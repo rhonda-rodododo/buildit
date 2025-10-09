@@ -137,7 +137,7 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
           <div className="space-y-1">
             <Label>Then</Label>
             <Select
-              value={field.conditional.action}
+              value={field.conditional.action || 'show'}
               onValueChange={(value) => {
                 const updated = {
                   ...field,
