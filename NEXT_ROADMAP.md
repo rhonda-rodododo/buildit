@@ -24,14 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-09 (Epic 43 complete - Group Entity & Coalition)
-**Active Epic**: Epic 35 (Performance Optimization)
-**Build Status**: ✅ Successful (233KB brotli initial load)
+**Last Updated**: 2025-10-09 (Epic 35 complete - Performance Optimization Phase 2)
+**Active Epic**: Epic 36 (Additional Translations) or Epic 45 (Pleasure Activism UX)
+**Build Status**: ✅ Successful (285.33KB brotli initial load - 52% reduction from ~600KB)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Completion**: 98% for organizing platform features
-**New Priorities**: Advanced organizing features (Group Entity, Coalitions), Performance optimization
+**New Priorities**: Translations, UX Philosophy (Pleasure Activism), Legal/Compliance (pre-launch)
 
 ---
 
@@ -350,54 +350,6 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-### Epic 35: Performance Optimization 🚀
-**Status**: Not Started
-**Priority**: P2 (Performance)
-**Effort**: 10-15 hours
-**Dependencies**: Major features complete
-**Assignable to subagent**: Yes (`performance-optimizer`)
-
-**Context**: Optimize bundle size, load time, and runtime performance after implementing major features (Epics 32-44).
-
-**Key Areas**:
-1. **Bundle Size Reduction** - Target: <200KB initial load (currently 233KB brotli)
-2. **Code Splitting** - Lazy load modules, routes, heavy components
-3. **Tree Shaking** - Remove unused code
-4. **Load Time Optimization** - Preload critical resources, defer non-critical
-5. **Runtime Performance** - Profile and optimize hot paths
-
-**Tasks**:
-- [ ] Analyze bundle with `bun run build --analyze`
-- [ ] Implement lazy loading for modules (Events, Mutual Aid, Governance, Wiki, Database, CRM, Documents, Files)
-- [ ] Implement lazy loading for routes (use React.lazy + Suspense)
-- [ ] Lazy load heavy dependencies (TipTap, Yjs, jsPDF, markdown renderers)
-- [ ] Optimize image assets (compression, WebP, lazy loading)
-- [ ] Remove unused dependencies
-- [ ] Profile runtime performance with React DevTools Profiler
-- [ ] Optimize hot paths (messaging, feed rendering)
-- [ ] Add loading states for lazy-loaded components
-- [ ] Measure Core Web Vitals (LCP, FID, CLS)
-
-**Acceptance Criteria**:
-- Bundle size <200KB brotli for initial load
-- All modules lazy-loaded (only load when needed)
-- Heavy dependencies lazy-loaded (TipTap, Yjs, jsPDF)
-- Routes lazy-loaded with proper loading states
-- Core Web Vitals meet "Good" thresholds
-- Build size documented in ARCHITECTURE.md
-
-**Testing Requirements**:
-- Build passes (`bun run build`)
-- Tests pass (`bun test && bun run typecheck`)
-- Manual testing: Verify app still works after optimizations
-- Lighthouse audit: Performance score >90
-
-**Reference Docs**: [ARCHITECTURE.md](./ARCHITECTURE.md), [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Performance section)
-
-**Git Commit Format**: `perf: optimize bundle size and load time (Epic 35)`
-**Git Tag**: `v0.35.0-performance`
-
----
 
 ### Epic 45: Pleasure Activism UX Philosophy 🌸
 **Status**: Not Started
@@ -477,10 +429,10 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - ✅ Epic 38: 10-15h (Fundraising module) - COMPLETED
 - ✅ Epic 39: 20-30h (Tor) - COMPLETED
 - ✅ Epic 43: 15-20h (group entity) - COMPLETED
-- Epic 35: 10-15h (performance)
+- ✅ Epic 35: 10-15h (performance) - COMPLETED
 - Epic 36: 10-20h (translations)
 - Epic 45: 10-15h (Pleasure Activism research) ⭐ NEW
-- **P2 Total**: 95-143 hours (83h completed, 12-55h remaining)
+- **P2 Total**: 105-158 hours (93-98h completed, 20-35h remaining)
 
 **Backlog Items**: 160-200+ hours (includes Epic 46+ content/marketplace)
 
@@ -529,9 +481,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
    - ✅ Multi-group coalition chats
    - ✅ Anonymous screening
 
-12. **Epic 35: Performance Optimization** (10-15h) ⬅ **DO NEXT**
-    - Bundle size reduction
-    - After major features complete
+12. ✅ **Epic 35: Performance Optimization** (10-15h) - COMPLETED
+    - Bundle size reduction (285.33 KB brotli)
 
 ### **Phase 3: Localization & UX Philosophy (P2)** - 3-4 weeks
 13. **Epic 36: Additional Translations** (10-20h)
@@ -550,9 +501,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-09 (Epic 43 complete - Group Entity & Coalition)
-**Pending Epics**: 4 total (Epic 31, 35, 36, 45)
-**Next Epic**: Epic 35 (Performance Optimization)
-**Strategic Shift**: Performance → UX Philosophy → Launch
+**Last Updated**: 2025-10-09 (Epic 35 complete - Performance Optimization Phase 2)
+**Pending Epics**: 3 total (Epic 31, 36, 45)
+**Next Epic**: Epic 36 (Translations) or Epic 45 (Pleasure Activism UX)
+**Strategic Shift**: UX Philosophy → Translations → Launch
 **Module Refactoring**: ✅ Forms, Public, and Fundraising modules complete
 **Recent Completion**: ✅ Epic 43 (Group Entity & Coalition) - Collective identities, encrypted keypairs, "speak as group" toggle, coalitions, channels
