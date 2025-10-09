@@ -2,9 +2,12 @@
  * Forms Module Types
  * Forms are public-facing data collection interfaces for Database tables
  * Similar to Airtable forms - they submit directly to database records
+ *
+ * Uses JSON Schema for form definitions with conditional logic support
  */
 
 import type { CustomField } from '../custom-fields/types';
+import type { JSONSchema7 } from 'json-schema';
 
 // ============================================================================
 // Form Configuration Types (extends Database tables)
@@ -13,6 +16,8 @@ import type { CustomField } from '../custom-fields/types';
 /**
  * Form - Public interface for a database table
  * Allows external users to submit records without logging in
+ *
+ * Uses JSON Schema for form structure and validation
  */
 export interface Form {
   id: string;
@@ -23,7 +28,11 @@ export interface Form {
   title: string;
   description?: string;
 
-  // Fields configuration
+  // JSON Schema definition
+  schema?: JSONSchema7; // form structure and validation
+  uiSchema?: Record<string, unknown>; // UI hints for rendering (RJSF format)
+
+  // Fields configuration (legacy, will be derived from schema)
   fields: FormFieldConfig[]; // subset of table fields, with form-specific config
 
   // Settings

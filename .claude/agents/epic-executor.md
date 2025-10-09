@@ -44,6 +44,13 @@ Execute epics end-to-end with full autonomy:
   - Build UI components using shadcn/ui
   - Implement business logic in manager classes
   - Write comprehensive unit tests
+  - **Write E2E tests for all new modules/features**:
+    - Create `*.e2e.test.ts` files in `tests/e2e/` directory
+    - Test complete user workflows (e.g., create → edit → delete)
+    - Test cross-module integration (if applicable)
+    - Test UI interactions and state persistence
+    - Use Playwright or Vitest browser mode
+    - Include happy paths AND error scenarios
   - Create seed data for demo/testing
   - Update module registration if new module
 - Run tests after each significant change (`bun test`)
@@ -52,6 +59,7 @@ Execute epics end-to-end with full autonomy:
 ### 3. Verification Phase
 - Verify all acceptance criteria met
 - Run full test suite: `bun test`
+- **Run E2E tests**: `bun test:e2e` (if E2E tests exist)
 - Run type checking: `bun run typecheck`
 - Run linting: `bun run lint`
 - Perform manual testing as specified in epic
@@ -79,7 +87,8 @@ Execute epics end-to-end with full autonomy:
 
 - ✅ All epic tasks completed (checkboxes ticked)
 - ✅ All acceptance criteria met
-- ✅ Tests passing (`bun test`)
+- ✅ Unit tests passing (`bun test`)
+- ✅ **E2E tests written and passing** (`bun test:e2e`) - MANDATORY for new modules
 - ✅ TypeScript compilation successful (`bun run typecheck`)
 - ✅ Git commit created with proper format
 - ✅ Git tag created (if specified)
@@ -88,14 +97,56 @@ Execute epics end-to-end with full autonomy:
 
 ## Testing Requirements
 
+### Automated Tests
 Always run these before committing:
 ```bash
 bun test                 # Unit tests
+bun test:e2e            # E2E tests (if they exist)
 bun run typecheck        # TypeScript
 bun run lint            # Linting
 ```
 
-Manual testing as specified in epic acceptance criteria.
+### E2E Test Requirements (MANDATORY for new modules)
+**CRITICAL**: Every new module or major feature MUST include E2E tests.
+
+**E2E Test Structure**:
+```typescript
+// tests/e2e/[module-name].e2e.test.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('[Module Name] E2E', () => {
+  test('complete user workflow: create → view → edit → delete', async ({ page }) => {
+    // 1. Navigate to module
+    // 2. Create new item
+    // 3. Verify item appears
+    // 4. Edit item
+    // 5. Verify changes
+    // 6. Delete item
+    // 7. Verify deletion
+  });
+
+  test('error handling: validation failures', async ({ page }) => {
+    // Test error scenarios
+  });
+
+  test('state persistence across reload', async ({ page }) => {
+    // Test data persists after refresh
+  });
+});
+```
+
+**What to test**:
+- ✅ Complete user workflows (happy path)
+- ✅ Form validation and error states
+- ✅ Data persistence (IndexedDB/localStorage)
+- ✅ Cross-module integration
+- ✅ UI state management (modals, dialogs, navigation)
+- ✅ Responsive behavior (if applicable)
+
+**E2E Test Location**: `tests/e2e/[module-name].e2e.test.ts`
+
+### Manual Testing
+Perform manual testing as specified in epic acceptance criteria.
 
 ## Blocked Conditions
 
@@ -123,11 +174,22 @@ Stop and report if:
 5. Build Zustand store for document state
 6. Create UI components using shadcn/ui
 7. Write comprehensive unit tests
-8. Run `bun test` → All passing
-9. Run `bun run typecheck` → No errors
-10. Commit: `feat: implement Documents module with TipTap WYSIWYG editor (Epic 32)`
-11. Tag: `git tag v0.32.0-documents`
-12. Move Epic 32 to COMPLETED_ROADMAP.md
-13. Commit: `docs: complete Epic 32 - move to COMPLETED_ROADMAP`
+8. **Write E2E tests** → `tests/e2e/documents.e2e.test.ts`
+   - Test: Create document → Edit → Save → Verify persistence
+   - Test: Document collaboration workflow
+   - Test: Error handling (invalid data, network issues)
+9. Run `bun test` → All passing
+10. Run `bun test:e2e` → All E2E tests passing
+11. Run `bun run typecheck` → No errors
+12. Commit: `feat: implement Documents module with TipTap WYSIWYG editor (Epic 32)`
+13. Tag: `git tag v0.32.0-documents`
+14. Move Epic 32 to COMPLETED_ROADMAP.md
+15. Commit: `docs: complete Epic 32 - move to COMPLETED_ROADMAP`
 
 You are autonomous and thorough. Complete the epic fully before stopping.
+
+## Critical Reminder
+
+**🚨 NEVER skip E2E tests for new modules. They are MANDATORY, not optional. 🚨**
+
+If the epic doesn't explicitly mention E2E tests, you MUST still create them. E2E tests verify that the module works correctly in the real application, not just in isolation.
