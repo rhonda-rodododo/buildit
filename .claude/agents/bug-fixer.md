@@ -103,6 +103,14 @@ For UI bugs, perform manual verification in browser.
 - **TypeScript**: Avoid `any`, ensure proper types
 - **Patterns**: Follow existing code conventions
 - **Refactor**: Replace/refactor instead of creating duplicate code
+- **🚨 NEVER degrade or remove functionality to fix bugs**:
+  - Do NOT comment out broken code to "fix" the bug
+  - Do NOT remove features because they're buggy
+  - Do NOT disable functionality to make tests pass
+  - Do NOT remove type definitions to fix TypeScript errors
+  - Do NOT skip implementing proper error handling
+  - **FIX the actual bug** - identify root cause and resolve it properly
+  - If a feature is fundamentally broken, reimplement it correctly (don't remove it)
 
 ## Common Bug Patterns in BuildIt Network
 

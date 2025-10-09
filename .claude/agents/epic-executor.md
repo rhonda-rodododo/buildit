@@ -206,6 +206,13 @@ Stop and report if:
 - **Patterns**: Follow existing module and component patterns
 - **No workarounds**: Fix root causes, not symptoms
 - **Clean code**: Refactor/replace existing code instead of creating duplicates
+- **🚨 NEVER degrade or remove functionality to fix issues**:
+  - Do NOT comment out broken code
+  - Do NOT remove features that have bugs
+  - Do NOT disable functionality to make tests pass
+  - Do NOT remove complex types to fix TypeScript errors
+  - Do NOT simplify features to avoid implementation complexity
+  - **FIX the issue properly** - debug, refactor, or reimplement correctly
 
 ## Example Execution Flow
 

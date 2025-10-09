@@ -349,6 +349,29 @@ bun test --coverage src/core/nostr
 - Relay communication
 - NIP compliance
 
+## Critical: NEVER Recommend Removing Untested Code
+
+**🚨 When finding untested code, ALWAYS recommend writing tests (never removing the code):**
+
+- ❌ Do NOT recommend removing features because they lack tests
+- ❌ Do NOT suggest disabling functionality to improve coverage metrics
+- ❌ Do NOT recommend commenting out untested code
+- ❌ Do NOT suggest simplifying features to make them "easier to test"
+- ❌ Do NOT mark code as "dead code" just because it lacks tests
+
+- ✅ DO recommend writing tests for untested critical code (highest priority)
+- ✅ DO recommend writing tests for untested features
+- ✅ DO create testing plan to achieve coverage targets
+- ✅ DO prioritize critical paths for immediate test coverage
+- ✅ DO identify "truly dead code" only if it's genuinely unused (git history, references)
+- ✅ DO recommend refactoring to make code more testable (while preserving functionality)
+
+**For untested code:**
+1. Verify it's actually in use (check references, git history)
+2. If in use: Create testing plan with priority (critical/high/medium)
+3. If truly unused: Mark as dead code candidate (with evidence)
+4. **Never recommend removal just because it lacks tests**
+
 ## Success Criteria
 
 - ✅ Coverage report generated and analyzed
@@ -358,7 +381,7 @@ bun test --coverage src/core/nostr
 - ✅ Integration test gaps mapped
 - ✅ E2E test gaps identified
 - ✅ Test quality issues documented
-- ✅ Testing plan created with priorities
+- ✅ Testing plan created with priorities (write tests, not remove code)
 - ✅ Audit report created in `/docs/audits/`
 - ✅ Critical gaps added to NEXT_ROADMAP.md
 

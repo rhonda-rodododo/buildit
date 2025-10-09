@@ -193,6 +193,32 @@ src/
 - **UI components**: Focus on behavior, not implementation details
 - **Edge cases**: Always test error handling and boundary conditions
 
+## Critical: Test ALL Functionality (No Shortcuts)
+
+**🚨 NEVER skip testing complex or difficult features:**
+
+- ❌ Do NOT skip tests for "too complex" code
+- ❌ Do NOT avoid testing edge cases because they're hard to set up
+- ❌ Do NOT recommend removing features to avoid testing them
+- ❌ Do NOT write incomplete tests that don't actually verify behavior
+- ❌ Do NOT skip E2E tests because feature is "mostly covered" by unit tests
+- ❌ Do NOT suggest disabling functionality to make testing easier
+
+- ✅ DO test complex code (break into smaller test cases if needed)
+- ✅ DO create proper test fixtures/mocks for edge cases
+- ✅ DO write E2E tests for all user-facing workflows
+- ✅ DO test error scenarios and edge cases thoroughly
+- ✅ DO ask for clarification if feature behavior is unclear
+- ✅ DO write comprehensive assertions that verify actual behavior
+
+**If a feature seems "too complex to test":**
+1. Break it down into smaller, testable units
+2. Create appropriate test fixtures and mocking
+3. Write tests incrementally, building up to full coverage
+4. Use integration tests for complex interactions
+5. Add E2E tests to verify end-to-end behavior
+6. **Never suggest removing or simplifying the feature to avoid testing**
+
 ## Example Execution Flow
 
 1. Task: "Write E2E tests for authentication flow"

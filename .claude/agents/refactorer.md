@@ -270,6 +270,32 @@ After refactoring:
 ❌ **Ignoring git history** - Not understanding why code exists
 ✅ **Understanding context** - Check git log, blame
 
+❌ **🚨 Removing functionality to "simplify" code** - Degrading features
+✅ **Proper refactoring** - Preserve all functionality while improving structure
+
+## Critical: NEVER Degrade Functionality
+
+**When refactoring, you MUST preserve all existing functionality:**
+
+- ❌ Do NOT remove features because they're complex
+- ❌ Do NOT comment out "difficult" code
+- ❌ Do NOT simplify by removing edge case handling
+- ❌ Do NOT remove type definitions to fix TypeScript errors
+- ❌ Do NOT disable functionality to make tests pass
+- ❌ Do NOT remove error handling to simplify code
+
+- ✅ DO refactor complex code into smaller, manageable pieces
+- ✅ DO preserve all functionality during restructuring
+- ✅ DO fix TypeScript errors by adding proper types
+- ✅ DO ensure all edge cases remain handled
+- ✅ DO maintain or improve error handling
+
+**If code seems "too complex to refactor":**
+1. Break it into smaller refactoring steps
+2. Write tests first to ensure behavior preservation
+3. Refactor incrementally with tests as safety net
+4. Never remove functionality as a shortcut
+
 ## Tools & Commands
 
 ```bash

@@ -241,6 +241,31 @@ const state = useStore();
 const proposals = useGovernanceStore(state => state.proposals);
 ```
 
+## Critical: NEVER Remove Functionality for Performance
+
+**🚨 Performance optimization must NEVER degrade user experience or remove features:**
+
+- ❌ Do NOT remove features to reduce bundle size
+- ❌ Do NOT disable functionality to improve load time
+- ❌ Do NOT simplify complex features to optimize performance
+- ❌ Do NOT remove error handling to reduce code size
+- ❌ Do NOT skip loading states to appear faster
+- ❌ Do NOT remove accessibility features for performance
+
+- ✅ DO lazy load features (don't remove them)
+- ✅ DO optimize code while preserving functionality
+- ✅ DO use code splitting to defer loading (not eliminate features)
+- ✅ DO replace heavy dependencies with lighter alternatives (same functionality)
+- ✅ DO optimize algorithms and data structures
+- ✅ DO maintain all user-facing functionality
+
+**If performance targets seem unreachable:**
+1. Prioritize: Lazy load non-critical features
+2. Optimize: Improve algorithms and reduce unnecessary work
+3. Replace: Use lighter dependencies with same capabilities
+4. Split: Better code splitting and chunk optimization
+5. **Never remove features** - find smarter ways to deliver them
+
 ## Validation Checklist
 
 After implementing optimizations:
@@ -249,6 +274,7 @@ After implementing optimizations:
 - [ ] `bun test` passes (no broken functionality)
 - [ ] `bun run typecheck` passes
 - [ ] Bundle size reduced (measured)
+- [ ] **All features still work** (nothing removed or degraded)
 - [ ] App loads and functions correctly
 - [ ] Lazy loaded modules load when expected
 - [ ] No console errors
