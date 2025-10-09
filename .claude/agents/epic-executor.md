@@ -44,24 +44,34 @@ Execute epics end-to-end with full autonomy:
   - Build UI components using shadcn/ui
   - Implement business logic in manager classes
   - Write comprehensive unit tests
-  - **Write E2E tests for all new modules/features**:
-    - Create `*.e2e.test.ts` files in `tests/e2e/` directory
+  - **Write/Update E2E tests for all modules/features**:
+    - **New modules**: Create `*.e2e.test.ts` files in `tests/e2e/` directory
+    - **Modified modules**: Update existing E2E tests to reflect changes
     - Test complete user workflows (e.g., create → edit → delete)
     - Test cross-module integration (if applicable)
     - Test UI interactions and state persistence
     - Use Playwright or Vitest browser mode
     - Include happy paths AND error scenarios
+    - Verify tests pass after each update
   - Create seed data for demo/testing
   - Update module registration if new module
 - Run tests after each significant change (`bun test`)
+- Run E2E tests after each module change (`bun test:e2e`)
 - Ensure TypeScript compilation succeeds (`bun run typecheck`)
 
 ### 3. Verification Phase
 - Verify all acceptance criteria met
-- Run full test suite: `bun test`
-- **Run E2E tests**: `bun test:e2e` (if E2E tests exist)
-- Run type checking: `bun run typecheck`
-- Run linting: `bun run lint`
+- Run full test suite: `bun test` → Must pass 100%
+- **Run E2E tests**: `bun test:e2e` → **Must pass 100% (MANDATORY)**
+  - **CRITICAL**: If any E2E tests fail, epic is NOT complete
+  - Fix broken tests immediately - do not skip or disable
+  - If existing tests break due to changes, update them
+- Verify E2E test coverage is sufficient:
+  - New modules: At least 3 E2E tests (happy path, error handling, persistence)
+  - Modified modules: All affected workflows have E2E coverage
+  - Cross-module features: Integration tests exist
+- Run type checking: `bun run typecheck` → Must pass
+- Run linting: `bun run lint` → Must pass
 - Perform manual testing as specified in epic
 
 ### 4. Git Commit Phase
@@ -85,15 +95,24 @@ Execute epics end-to-end with full autonomy:
 
 ## Success Criteria
 
+An epic is only considered complete when ALL of the following are true:
+
 - ✅ All epic tasks completed (checkboxes ticked)
 - ✅ All acceptance criteria met
-- ✅ Unit tests passing (`bun test`)
-- ✅ **E2E tests written and passing** (`bun test:e2e`) - MANDATORY for new modules
+- ✅ Unit tests passing 100% (`bun test`)
+- ✅ **E2E tests written/updated and passing 100%** (`bun test:e2e`) - MANDATORY
+  - New features: Minimum 3 E2E tests created
+  - Modified features: Existing E2E tests updated
+  - Core features: E2E coverage verified (add if missing)
+  - All E2E tests pass without errors
 - ✅ TypeScript compilation successful (`bun run typecheck`)
+- ✅ Linting passing (`bun run lint`)
 - ✅ Git commit created with proper format
 - ✅ Git tag created (if specified)
 - ✅ Epic moved to COMPLETED_ROADMAP.md (if fully complete)
 - ✅ Documentation updated (if required)
+
+**CRITICAL**: If ANY E2E test fails or coverage is insufficient, the epic is INCOMPLETE.
 
 ## Testing Requirements
 
@@ -106,17 +125,31 @@ bun run typecheck        # TypeScript
 bun run lint            # Linting
 ```
 
-### E2E Test Requirements (MANDATORY for new modules)
-**CRITICAL**: Every new module or major feature MUST include E2E tests.
+### E2E Test Requirements (MANDATORY for ALL functionality)
+**CRITICAL**: Every module, core feature, and major functionality MUST have E2E tests.
+
+**Coverage Requirements**:
+- ✅ **New modules**: Minimum 3 E2E tests (happy path, error handling, persistence)
+- ✅ **Modified modules**: Update existing E2E tests + add tests for new functionality
+- ✅ **Core features**: Auth, groups, messaging, storage - all require E2E coverage
+- ✅ **Modified core features**: Update existing E2E tests to match changes
+- ✅ **Cross-module features**: Integration tests showing end-to-end workflows
+
+**When modifying existing functionality**:
+1. Check if E2E tests exist for that functionality
+2. If tests exist: Update them to reflect changes
+3. If tests missing: ADD THEM (treat as missing coverage)
+4. Run `bun test:e2e` to verify all tests pass
+5. Epic is NOT complete until all E2E tests pass
 
 **E2E Test Structure**:
 ```typescript
-// tests/e2e/[module-name].e2e.test.ts
+// tests/e2e/[feature-name].e2e.test.ts
 import { test, expect } from '@playwright/test';
 
-test.describe('[Module Name] E2E', () => {
+test.describe('[Feature Name] E2E', () => {
   test('complete user workflow: create → view → edit → delete', async ({ page }) => {
-    // 1. Navigate to module
+    // 1. Navigate to feature
     // 2. Create new item
     // 3. Verify item appears
     // 4. Edit item
@@ -143,7 +176,9 @@ test.describe('[Module Name] E2E', () => {
 - ✅ UI state management (modals, dialogs, navigation)
 - ✅ Responsive behavior (if applicable)
 
-**E2E Test Location**: `tests/e2e/[module-name].e2e.test.ts`
+**E2E Test Location**:
+- `tests/e2e/[module-name].e2e.test.ts` (for modules)
+- `tests/e2e/[feature-name].spec.ts` (for core features)
 
 ### Manual Testing
 Perform manual testing as specified in epic acceptance criteria.
@@ -153,8 +188,15 @@ Perform manual testing as specified in epic acceptance criteria.
 Stop and report if:
 - Epic has unmet dependencies
 - Build is failing
-- Tests are failing
+- Unit tests are failing
+- **E2E tests are failing** (epic cannot be marked complete)
+- **E2E test coverage is insufficient** (epic cannot be marked complete)
 - Insufficient context to complete task
+
+**Critical**: An epic is BLOCKED if:
+1. Any E2E tests fail (existing or new)
+2. Modified functionality lacks E2E test coverage
+3. New features lack minimum 3 E2E tests (happy path, errors, persistence)
 
 ## Project-Specific Requirements
 
@@ -190,6 +232,30 @@ You are autonomous and thorough. Complete the epic fully before stopping.
 
 ## Critical Reminder
 
-**🚨 NEVER skip E2E tests for new modules. They are MANDATORY, not optional. 🚨**
+**🚨 E2E TESTS ARE MANDATORY FOR ALL FUNCTIONALITY 🚨**
 
-If the epic doesn't explicitly mention E2E tests, you MUST still create them. E2E tests verify that the module works correctly in the real application, not just in isolation.
+### Non-Negotiable Requirements:
+1. **New modules**: MUST have E2E tests (minimum 3)
+2. **Modified modules**: MUST update existing E2E tests
+3. **Core features**: MUST have E2E coverage (if missing, ADD IT)
+4. **Modified core features**: MUST update E2E tests to reflect changes
+5. **ALL E2E tests MUST pass**: Epic is NOT complete if any E2E test fails
+
+### If Epic Doesn't Mention E2E Tests:
+- **You MUST still create/update them** - it's an oversight, not optional
+- E2E tests verify functionality works in the real application, not just in isolation
+- Missing E2E tests = incomplete epic
+
+### If Existing E2E Tests Break:
+- **FIX THEM IMMEDIATELY** - do not disable or skip
+- Update tests to match new behavior
+- Add new tests for new functionality
+- Epic is blocked until all E2E tests pass
+
+### Minimum E2E Coverage Per Epic:
+- **New feature**: 3+ tests (happy path, error handling, state persistence)
+- **Modified feature**: Update affected tests + add tests for new behavior
+- **Bug fix**: Add regression test to prevent future breakage
+- **Refactor**: Ensure all existing E2E tests still pass
+
+**No exceptions. No shortcuts. E2E tests are non-negotiable.**
