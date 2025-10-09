@@ -43,9 +43,14 @@ Fix bugs thoroughly and systematically:
 - Update related code if needed
 
 ### 3. Test Phase
-- Write regression test if none exists
+- Write regression test if none exists (unit test)
+- **Write/Update E2E regression test if bug affects user workflows**:
+  - UI bugs: Add E2E test to prevent regression
+  - Workflow bugs: Add E2E test for complete user flow
+  - Integration bugs: Add cross-module E2E test
 - Run affected tests: `bun test <file>`
 - Run full test suite: `bun test`
+- **Run E2E tests**: `bun test:e2e` (MANDATORY - ensure no regressions)
 - Run type checking: `bun run typecheck`
 - Perform manual verification for UI bugs
 
@@ -64,8 +69,10 @@ Fix bugs thoroughly and systematically:
 
 - ✅ Bug behavior no longer occurs
 - ✅ Root cause addressed (not worked around)
-- ✅ Regression test written (if didn't exist)
-- ✅ All tests passing
+- ✅ Regression test written (unit test if didn't exist)
+- ✅ **E2E regression test written** (if bug affects user workflows)
+- ✅ All unit tests passing (`bun test`)
+- ✅ **All E2E tests passing** (`bun test:e2e`) - MANDATORY
 - ✅ No new bugs introduced
 - ✅ TypeScript compilation successful
 - ✅ Proper git commit created
@@ -76,8 +83,15 @@ Always run:
 ```bash
 bun test <file>          # Affected tests first
 bun test                 # Full test suite
+bun test:e2e            # E2E tests (MANDATORY)
 bun run typecheck        # TypeScript validation
 ```
+
+**E2E Regression Tests**:
+- UI bugs → Add E2E test reproducing the bug scenario
+- Workflow bugs → Add E2E test for complete user flow
+- Integration bugs → Add E2E test showing cross-module interaction
+- Location: `tests/e2e/[feature-name].spec.ts`
 
 For UI bugs, perform manual verification in browser.
 

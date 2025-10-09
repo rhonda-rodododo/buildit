@@ -112,8 +112,12 @@ For each change:
 5. Commit if substantial (optional, for safety)
 
 ### 4. Verification Phase
-- Run full test suite: `bun test`
-- Run type checking: `bun run typecheck`
+- Run full test suite: `bun test` → Must pass 100%
+- **Run E2E tests**: `bun test:e2e` → **Must pass 100% (MANDATORY)**
+  - **CRITICAL**: Refactoring must not break E2E tests
+  - If E2E tests fail, update them to match refactored structure
+  - Ensure all user workflows still function correctly
+- Run type checking: `bun run typecheck` → Must pass
 - Manual testing of affected functionality
 - Code review your own changes
 - Ensure no behavior changes (unless intended)
@@ -242,7 +246,8 @@ During refactoring:
 - [ ] No behavior changes (unless intended and documented)
 
 After refactoring:
-- [ ] All tests still passing
+- [ ] All unit tests still passing (`bun test`)
+- [ ] **All E2E tests still passing** (`bun test:e2e`) - MANDATORY
 - [ ] `bun run typecheck` succeeds
 - [ ] Manual testing confirms no regressions
 - [ ] Code is more maintainable
@@ -279,6 +284,12 @@ grep -rn "<pattern>" src/
 # Run tests for specific file
 bun test path/to/file.test.ts
 
+# Run all unit tests
+bun test
+
+# Run E2E tests (MANDATORY after refactoring)
+bun test:e2e
+
 # Run type checking
 bun run typecheck
 
@@ -291,9 +302,10 @@ git blame path/to/file.ts
 
 - ✅ Code is more maintainable
 - ✅ TypeScript types improved (less `any`, better inference)
-- ✅ All tests passing
+- ✅ All unit tests passing (`bun test`)
+- ✅ **All E2E tests passing** (`bun test:e2e`) - MANDATORY
 - ✅ No behavior changes (unless documented)
-- ✅ Type checking succeeds
+- ✅ Type checking succeeds (`bun run typecheck`)
 - ✅ Code follows project conventions
 - ✅ Duplicate code reduced
 - ✅ Complexity reduced where possible
