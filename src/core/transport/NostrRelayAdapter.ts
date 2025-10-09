@@ -15,6 +15,7 @@
 import type { Event as NostrEvent, Filter } from 'nostr-tools';
 import { NostrClient } from '../nostr/client';
 import type { RelayConfig } from '@/types/nostr';
+import { useTorStore } from '../tor/torStore';
 import {
   type ITransportAdapter,
   TransportType,
@@ -92,7 +93,37 @@ export class NostrRelayAdapter implements ITransportAdapter {
 
   constructor(config: Partial<NostrRelayAdapterConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.client = new NostrClient(this.config.relays);
+
+    // Get relays based on Tor configuration
+    const relays = this.getRelaysWithTor();
+    this.client = new NostrClient(relays);
+  }
+
+  /**
+   * Get relay list with Tor integration
+   * If Tor is enabled, use .onion relays; otherwise use clearnet
+   */
+  private getRelaysWithTor(): RelayConfig[] {
+    const torStore = useTorStore.getState();
+
+    // If Tor enabled, use .onion relays
+    if (torStore.config.enabled) {
+      const onionRelays: RelayConfig[] = torStore.onionRelays.map((relay) => ({
+        url: relay.url,
+        read: relay.read,
+        write: relay.write,
+      }));
+
+      // If fallback enabled, also include clearnet relays
+      if (torStore.config.fallbackToClearnet && !torStore.config.onionOnly) {
+        return [...onionRelays, ...this.config.relays];
+      }
+
+      return onionRelays;
+    }
+
+    // Tor disabled - use clearnet relays
+    return this.config.relays;
   }
 
   /**
@@ -107,7 +138,16 @@ export class NostrRelayAdapter implements ITransportAdapter {
    * Connect to Nostr relays
    */
   async connect(): Promise<void> {
-    console.log('[Nostr Relay] Connecting to relays...');
+    // Update relays based on current Tor configuration
+    const relays = this.getRelaysWithTor();
+    this.client = new NostrClient(relays);
+
+    const torStore = useTorStore.getState();
+    const torEnabled = torStore.config.enabled;
+
+    console.log(
+      `[Nostr Relay] Connecting to relays... (Tor: ${torEnabled ? 'enabled' : 'disabled'})`
+    );
     this.setStatus(TransportStatus.CONNECTING);
 
     try {
@@ -138,7 +178,15 @@ export class NostrRelayAdapter implements ITransportAdapter {
       this.stats.connectedPeers = connectedCount;
 
       this.setStatus(TransportStatus.CONNECTED);
-      console.log(`[Nostr Relay] Connected to ${connectedCount} relays`);
+
+      if (torEnabled) {
+        const onionCount = statuses.filter(s => s.connected && s.url.includes('.onion')).length;
+        console.log(
+          `[Nostr Relay] Connected to ${connectedCount} relays (${onionCount} .onion)`
+        );
+      } else {
+        console.log(`[Nostr Relay] Connected to ${connectedCount} relays`);
+      }
     } catch (error) {
       this.setStatus(TransportStatus.ERROR);
       this.emitError(new Error(`Failed to connect: ${error}`));

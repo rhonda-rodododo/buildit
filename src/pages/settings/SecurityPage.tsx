@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DeviceManager } from '@/components/security/DeviceManager';
 import { DeviceActivityHistory } from '@/components/security/DeviceActivityHistory';
 import { PrivacySettings } from '@/components/security/PrivacySettings';
+import { TorSettings } from '@/components/tor/TorSettings';
 import { WebAuthnSetup } from '@/components/security/WebAuthnSetup';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -124,7 +125,7 @@ export function SecurityPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="devices" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="devices" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Devices
@@ -136,6 +137,10 @@ export function SecurityPage() {
           <TabsTrigger value="privacy" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Privacy
+          </TabsTrigger>
+          <TabsTrigger value="tor" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Tor
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
@@ -153,6 +158,10 @@ export function SecurityPage() {
 
         <TabsContent value="privacy">
           <PrivacySettings />
+        </TabsContent>
+
+        <TabsContent value="tor">
+          <TorSettings />
         </TabsContent>
 
         <TabsContent value="advanced">
