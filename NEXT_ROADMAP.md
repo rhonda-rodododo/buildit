@@ -24,13 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-08 (Epic 44 Phase 1 moved to COMPLETED)
-**Active Epic**: Epic 37 (Forms & Fundraising) - Next priority
+**Last Updated**: 2025-10-08 (Epic 47 E2E Test Coverage added)
+**Active Epic**: Epic 47 (E2E Test Coverage) Phase 1 - Starting immediately
 **Build Status**: ✅ Successful (233KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
+**E2E Coverage**: 31% of epics (10/32) - Target: 95% (30/32) with Epic 47
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Completion**: 97% for organizing platform features (+1% with advanced social features)
-**New Priorities**: UX-first approach, BLE mesh for offline resilience, Pleasure Activism philosophy
+**New Priorities**: E2E test coverage for production readiness, UX-first approach, offline resilience
 
 ---
 
@@ -288,6 +289,166 @@ When completing an epic:
 
 ---
 
+### Epic 47: E2E Test Coverage Completion 🧪
+**Status**: Not Started
+**Priority**: P1 - Critical for production readiness
+**Effort**: 60-80 hours (phased implementation)
+**Dependencies**: None (can run in parallel with other epics)
+**Assignable to subagent**: Yes (`test-writer`)
+
+**Context**: Comprehensive E2E test gap analysis (see [E2E_TEST_COVERAGE_ANALYSIS.md](./E2E_TEST_COVERAGE_ANALYSIS.md)) revealed 69% of completed epics have no E2E test coverage. This epic systematically fills those gaps to prevent regressions as we move toward production.
+
+**Current Coverage**: ~80 E2E tests across 10 epics
+**Target Coverage**: ~310 E2E tests across 30+ epics (95% coverage)
+
+**Phase 1: Critical Gaps (Priority 1) - 20-25 hours**
+- [ ] **Epic 42 - Conversations/Messaging UX** (15-20 tests)
+  - Desktop chat windows (open, minimize, restore, taskbar)
+  - Buddylist sidebar (organization, presence indicators)
+  - Online presence system (green/yellow/gray, last seen)
+  - Conversation management (pin/mute/archive, unread tracking)
+  - File: `tests/e2e/conversations.spec.ts`
+
+- [ ] **Epic 34/38 - Social Features/Microblogging** (20-25 tests)
+  - Posts CRUD with privacy levels
+  - Reactions (6 emoji types) and "who reacted" popover
+  - Comments and nested threading (max depth 5)
+  - Bookmarks and collections/folders
+  - Hashtags and @mentions
+  - File: `tests/e2e/microblogging.spec.ts`, `tests/e2e/activity-feed.spec.ts`
+
+- [ ] **Epic 41 - Friend System** (12-15 tests)
+  - Friend requests (username, QR code, email, links)
+  - QR code verification flow
+  - Trust tiers (Stranger → Trusted)
+  - Privacy settings per friend
+  - Contact organization (tags, favorites, notes)
+  - File: `tests/e2e/friends.spec.ts`
+
+- [ ] **Epic 40 - Username System** (10-12 tests)
+  - Username registration and validation
+  - NIP-05 verification flow
+  - User directory browsing
+  - Privacy controls (search visibility, directory inclusion)
+  - Verified badge display
+  - File: `tests/e2e/usernames.spec.ts`
+
+- [ ] **Epic 7 - Wiki Module** (8-10 tests)
+  - Page CRUD operations
+  - Version control and history
+  - Diff viewing between versions
+  - Category and tag organization
+  - Search functionality
+  - File: `tests/e2e/wiki.spec.ts`
+
+- [ ] **Epic 33 - Files Module** (10-12 tests)
+  - File upload (drag & drop)
+  - Folder management (create, navigate, delete)
+  - Encryption verification
+  - Storage quota tracking
+  - Breadcrumb navigation
+  - Grid/list view switching
+  - File: `tests/e2e/files.spec.ts`
+
+**Phase 2: Security & Analytics (Priority 2) - 15-20 hours**
+- [ ] **Epic 18/26/27 - Security Features** (15-20 tests)
+  - WebAuthn/Passkey registration
+  - Device management and revocation
+  - Anonymous voting (cryptographic privacy)
+  - Member verification UI
+  - Trust score system (0-100)
+  - Audit logs (search, filter, export)
+  - File: `tests/e2e/security.spec.ts`
+
+- [ ] **Epic 22 - Analytics** (8-10 tests)
+  - CRM analytics dashboard
+  - Campaign metrics (membership, events, voting)
+  - Support level distribution charts
+  - Engagement trends over time
+  - File: `tests/e2e/analytics.spec.ts`
+
+**Phase 3: Remaining Modules (Priority 2) - 15-20 hours**
+- [ ] **Epic 23 - Bulk Operations** (8-10 tests)
+  - Multi-select checkboxes
+  - Bulk send message/add tag/update field
+  - Export to CSV
+  - Task manager with filtering
+  - File: `tests/e2e/bulk-operations.spec.ts`
+
+- [ ] **Epic 24 - Activity Logs** (5-7 tests)
+  - ContactActivityLog timeline view
+  - ConversationHistory with chat bubbles
+  - Activity summary stats
+  - Search and filter by activity type
+  - File: `tests/e2e/activity-logs.spec.ts`
+
+- [ ] **Epic 25 - Engagement Ladder** (6-8 tests)
+  - Engagement level detection (Neutral → Core Organizer)
+  - OnboardingFlow (5 entry-point flows)
+  - SmartNotifications by engagement level
+  - Milestone tracking
+  - File: `tests/e2e/engagement-ladder.spec.ts`
+
+- [ ] **Improve Partial Coverage** (10-15 tests)
+  - Custom Fields: Add 10+ field type tests
+  - Database: Relationship fields, complex queries
+  - CRM: Support level tracking, analytics integration
+  - Messaging: Update existing tests for Epic 42 features
+
+**Phase 4: Low Priority (Backlog) - 10-15 hours**
+- [ ] **Theme System** (3-5 tests)
+  - Switch between 7 color themes
+  - Dark mode toggle
+  - Theme persistence
+  - File: `tests/e2e/themes.spec.ts`
+
+- [ ] **i18n** (3-5 tests)
+  - Language switcher
+  - RTL support
+  - Translation key loading
+  - File: `tests/e2e/i18n.spec.ts`
+
+- [ ] **Routing & Module System** (4-5 tests)
+  - Group-based routing
+  - Module route registration
+  - Breadcrumb navigation
+  - File: `tests/e2e/routing.spec.ts`
+
+**Deferred**:
+- **Epic 44 - BLE Mesh** - Manual testing only (Web Bluetooth E2E limitations)
+
+**Acceptance Criteria**:
+- Phase 1 complete: 75-94 new tests, 60% epic coverage
+- Phase 2 complete: 23-30 new tests, 70% epic coverage
+- Phase 3 complete: 29-40 new tests, 85% epic coverage
+- Phase 4 complete: 10-15 new tests, 95% epic coverage
+- All new tests follow best practices (see E2E_TEST_COVERAGE_ANALYSIS.md)
+- Tests use data-testid for critical selectors
+- Multi-user tests use multiple browser contexts
+- Real end-to-end workflows tested (not just isolated features)
+
+**Testing Requirements**:
+- `bun test` passes for all new E2E tests
+- No flaky tests (deterministic, proper waits)
+- CI/CD integration working
+- All tests documented with clear descriptions
+
+**Reference Docs**: [E2E_TEST_COVERAGE_ANALYSIS.md](./E2E_TEST_COVERAGE_ANALYSIS.md), [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md), `/tests/e2e/`
+
+**Git Commit Format** (per phase):
+- Phase 1: `test: add E2E tests for 6 critical epics (Epic 47 Phase 1)`
+- Phase 2: `test: add security and analytics E2E tests (Epic 47 Phase 2)`
+- Phase 3: `test: add E2E tests for remaining modules (Epic 47 Phase 3)`
+- Phase 4: `test: add E2E tests for themes, i18n, routing (Epic 47 Phase 4)`
+
+**Git Tags** (per phase):
+- `v0.47.1-phase1-tests`
+- `v0.47.2-phase2-tests`
+- `v0.47.3-phase3-tests`
+- `v0.47.4-complete`
+
+---
+
 ### Epic 39: Tor Integration 🧅
 **Status**: Deferred from Epic 18
 **Priority**: P2
@@ -490,8 +651,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 44 Phase 1 completed)
-**Total Epics Pending**: 10 (Epic 31, 35-37, 39, 43, 45)
+**Last Updated**: 2025-10-08 (Epic 47 added for E2E test coverage)
+**Total Epics Pending**: 11 (Epic 31, 35-37, 39, 43, 45, 47)
 **Total Backlog Items**: 11+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
 
 ---
@@ -634,40 +795,46 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 4. ✅ Epic 42: Messaging UX Overhaul (25-35h) - COMPLETED
 5. ✅ Epic 44: BLE Mesh Phase 1 (12h) - COMPLETED
 
-### **Phase 1: Public Engagement (P1)** - 4-6 weeks
-6. **Epic 37: Forms & Fundraising** (30-40h) ⬅ **DO NEXT**
+### **Phase 1: Test Coverage & Public Engagement (P1)** - 4-6 weeks
+6. **Epic 47: E2E Test Coverage** (60-80h) ⬅ **DO NEXT (Phase 1: 20-25h)**
+   - Fill critical test gaps (Epic 42, 34/38, 41, 40, 7, 33)
+   - Prevent regressions before production
+   - Can run in parallel with Epic 37
+   - **Phase 1 Priority**: 75-94 new tests for 6 critical epics
+
+7. **Epic 37: Forms & Fundraising** (30-40h) ⬅ **Parallel with Epic 47**
    - Public-facing forms (volunteer signup, event registration)
    - Fundraising campaigns (bail funds, strike funds)
    - Entry point for overwhelmed participants
    - Replaces donation/volunteer apps
 
 ### **Phase 2: Security & Advanced Features (P2)** - 6-8 weeks
-7. **Epic 39: Tor Integration** (20-30h)
+8. **Epic 39: Tor Integration** (20-30h)
    - Metadata protection
    - .onion relay support
    - Pairs with BLE mesh for defense-in-depth
 
-8. **Epic 43: Group Entity & Coalition** (15-20h)
+9. **Epic 43: Group Entity & Coalition** (15-20h)
    - Groups as collective identities
    - Multi-group coalition chats
    - Anonymous screening
 
-9. **Epic 35: Performance Optimization** (10-15h)
-   - Bundle size reduction
-   - After major features complete
+10. **Epic 35: Performance Optimization** (10-15h)
+    - Bundle size reduction
+    - After major features complete
 
 ### **Phase 3: Localization & UX Philosophy (P2)** - 3-4 weeks
-10. **Epic 36: Additional Translations** (10-20h)
+11. **Epic 36: Additional Translations** (10-20h)
     - German, Portuguese, Mandarin
     - Requires native speakers (can parallelize)
 
-11. **Epic 45: Pleasure Activism UX Spike** (10-15h) ⭐ **NEW**
+12. **Epic 45: Pleasure Activism UX Spike** (10-15h) ⭐ **NEW**
     - Research adrienne maree brown's principles
     - Design joyful organizing UX
     - Informs Epic 46 (Joyful UX Patterns)
 
 ### **Pre-Launch (P0)** - 1 week
-12. **Epic 31: Legal & Compliance** (5-10h)
+13. **Epic 31: Legal & Compliance** (5-10h)
     - Terms of Service, Privacy Policy
     - Before public launch
 
