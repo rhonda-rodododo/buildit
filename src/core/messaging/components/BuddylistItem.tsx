@@ -20,6 +20,7 @@ interface BuddylistItemProps {
   unreadCount?: number;
   onClick?: () => void;
   className?: string;
+  'data-testid'?: string;
 }
 
 export const BuddylistItem: FC<BuddylistItemProps> = ({
@@ -31,6 +32,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
   unreadCount,
   onClick,
   className,
+  'data-testid': dataTestId,
 }) => {
   const { getDirectConversation, getUnreadCount } = useConversationsStore();
 
@@ -78,6 +80,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
         'group',
         className
       )}
+      data-testid={dataTestId}
     >
       {/* Avatar with presence indicator */}
       <div className="relative shrink-0">
@@ -91,6 +94,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
             'absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card',
             getPresenceColor()
           )}
+          data-testid={`presence-indicator-${presence?.status || 'offline'}`}
         />
       </div>
 
@@ -100,14 +104,14 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
           <p className="text-sm font-medium truncate">{name}</p>
           {isFavorite && <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 shrink-0" />}
         </div>
-        <p className="text-xs text-muted-foreground truncate">
+        <p className="text-xs text-muted-foreground truncate" data-testid="last-seen">
           {presence?.customStatus || getPresenceText()}
         </p>
       </div>
 
       {/* Unread badge */}
       {actualUnreadCount > 0 && (
-        <Badge variant="destructive" className="h-5 px-1.5 text-xs shrink-0">
+        <Badge variant="destructive" className="h-5 px-1.5 text-xs shrink-0" data-testid="unread-badge">
           {actualUnreadCount > 99 ? '99+' : actualUnreadCount}
         </Badge>
       )}

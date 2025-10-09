@@ -86,15 +86,15 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
           {/* Avatar */}
           <Avatar className="w-10 h-10">
             <AvatarImage
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${proposal.createdBy}`}
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${proposal.authorPubkey}`}
             />
-            <AvatarFallback>{proposal.createdBy.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{proposal.authorPubkey.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
 
           {/* Creator info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm truncate">{proposal.createdBy}</span>
+              <span className="font-semibold text-sm truncate">{proposal.authorPubkey}</span>
               <span className="text-xs text-muted-foreground">created a proposal</span>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(proposal.created, { addSuffix: true })}

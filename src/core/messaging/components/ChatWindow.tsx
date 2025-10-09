@@ -112,6 +112,7 @@ export const ChatWindow: FC<ChatWindowProps> = ({
       )}
       style={style}
       onClick={() => focusChatWindow(windowId)}
+      data-testid="chat-window"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
@@ -145,6 +146,7 @@ export const ChatWindow: FC<ChatWindowProps> = ({
             size="icon"
             className="h-6 w-6"
             onClick={() => minimizeChatWindow(windowId)}
+            data-testid="chat-window-minimize"
           >
             <Minus className="h-3 w-3" />
           </Button>
@@ -153,6 +155,7 @@ export const ChatWindow: FC<ChatWindowProps> = ({
             size="icon"
             className="h-6 w-6"
             onClick={() => closeChatWindow(windowId)}
+            data-testid="chat-window-close"
           >
             <X className="h-3 w-3" />
           </Button>
@@ -170,6 +173,7 @@ export const ChatWindow: FC<ChatWindowProps> = ({
               <div
                 key={msg.id}
                 className={cn('flex gap-2', isOwn ? 'justify-end' : 'justify-start')}
+                data-testid="message-bubble"
               >
                 {!isOwn && (
                   <Avatar className="h-6 w-6">
@@ -224,12 +228,14 @@ export const ChatWindow: FC<ChatWindowProps> = ({
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             className="flex-1 h-8 text-sm"
+            data-testid="message-input"
           />
           <Button
             onClick={handleSendMessage}
             disabled={!messageInput.trim()}
             size="icon"
             className="h-8 w-8 shrink-0"
+            data-testid="send-message-button"
           >
             <Send className="h-4 w-4" />
           </Button>

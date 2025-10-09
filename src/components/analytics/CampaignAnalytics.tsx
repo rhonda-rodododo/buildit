@@ -107,22 +107,22 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       ['Total Reactions', '842'],
       [''],
       ['Event', 'RSVPs', 'Show-ups', 'Show-up Rate'],
-      ...DEMO_DATA.eventAttendance.map(event => [
+      ...DEMO_DATA.eventMetrics.recentEvents.map(event => [ // Fixed: use eventMetrics.recentEvents
         event.name,
-        event.rsvps.toString(),
-        event.showUps.toString(),
-        event.showUpRate
+        event.rsvp.toString(), // Fixed: use 'rsvp' not 'rsvps'
+        event.actual.toString(), // Fixed: use 'actual' not 'showUps'
+        event.rate // Fixed: use 'rate' not 'showUpRate'
       ]),
       [''],
       ['Vote', 'Turnout', 'Outcome'],
-      ...DEMO_DATA.votes.map(vote => [
+      ...DEMO_DATA.governanceMetrics.recentVotes.map(vote => [ // Fixed: use governanceMetrics.recentVotes
         vote.title,
         vote.turnout,
         vote.outcome
       ]),
       [''],
       ['Top Contributor', 'Posts', 'Reactions'],
-      ...DEMO_DATA.topContributors.map(contributor => [
+      ...DEMO_DATA.engagementMetrics.topContributors.map(contributor => [ // Fixed: use engagementMetrics.topContributors
         contributor.name,
         contributor.posts.toString(),
         contributor.reactions.toString()

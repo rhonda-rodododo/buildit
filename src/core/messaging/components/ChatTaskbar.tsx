@@ -52,6 +52,7 @@ export const ChatTaskbar: FC<ChatTaskbarProps> = ({ windows, className }) => {
                 'hover:bg-muted transition-colors shadow-md',
                 'max-w-[200px]'
               )}
+              data-testid="chat-taskbar-item"
             >
               <Avatar className="h-6 w-6 shrink-0">
                 <div className="w-full h-full bg-primary/10 flex items-center justify-center text-xs">
@@ -60,7 +61,7 @@ export const ChatTaskbar: FC<ChatTaskbarProps> = ({ windows, className }) => {
               </Avatar>
               <span className="text-sm font-medium truncate flex-1">{displayName}</span>
               {unreadCount > 0 && (
-                <Badge variant="destructive" className="h-5 px-1.5 text-xs shrink-0">
+                <Badge variant="destructive" className="h-5 px-1.5 text-xs shrink-0" data-testid="chat-taskbar-badge">
                   {unreadCount}
                 </Badge>
               )}

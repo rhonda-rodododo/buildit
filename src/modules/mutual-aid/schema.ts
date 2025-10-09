@@ -15,7 +15,7 @@ export interface DBMutualAidRequest {
   category: string; // food, housing, transport, skills, etc.
   title: string;
   description: string;
-  status: 'open' | 'matched' | 'fulfilled' | 'closed';
+  status: 'open' | 'matched' | 'in-progress' | 'fulfilled' | 'closed'; // Added 'in-progress'
   location?: string;
   createdBy: string;
   created: number;

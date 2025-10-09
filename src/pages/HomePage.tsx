@@ -154,9 +154,9 @@ export const HomePage: FC = () => {
             status: 'voting' as const,
             votingMethod: 'consensus' as const,
             votingDeadline: now + 5 * 24 * 60 * 60 * 1000, // 5 days from now
-            createdBy: userPubkey,
-            createdAt: now - 3 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 3 * 24 * 60 * 60 * 1000,
+            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
+            created: now - 3 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
+            updated: now - 3 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
           },
           {
             id: 'proposal-2',
@@ -165,9 +165,9 @@ export const HomePage: FC = () => {
             description: 'Amend our bylaws to increase profit sharing from 40% to 60% for worker-owners. Remaining 40% for growth fund and community reinvestment.',
             status: 'discussion' as const,
             votingMethod: 'simple' as const,
-            createdBy: userPubkey,
-            createdAt: now - 6 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 6 * 24 * 60 * 60 * 1000,
+            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
+            created: now - 6 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
+            updated: now - 6 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
           },
           {
             id: 'proposal-3',
@@ -176,9 +176,9 @@ export const HomePage: FC = () => {
             description: 'Proposal to purchase the vacant lot at 456 Elm St for a community garden. Total cost $15,000. Seeking approval and fundraising plan.',
             status: 'decided' as const,
             votingMethod: 'quadratic' as const,
-            createdBy: userPubkey,
-            createdAt: now - 15 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 8 * 24 * 60 * 60 * 1000,
+            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
+            created: now - 15 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
+            updated: now - 8 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
           },
         ];
 
@@ -198,8 +198,8 @@ export const HomePage: FC = () => {
             category: 'security',
             tags: ['security', 'opsec', 'digital-security', 'legal'],
             version: 3,
-            createdAt: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago
-            updatedAt: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday
+            created: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago - Fixed: use 'created' not 'createdAt'
+            updated: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday - Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
           },
           {
@@ -210,8 +210,8 @@ export const HomePage: FC = () => {
             category: 'strategy',
             tags: ['organizing', 'strategy', 'power-mapping'],
             version: 1,
-            createdAt: now - 7 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 7 * 24 * 60 * 60 * 1000,
+            created: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
+            updated: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
           },
           {
@@ -222,8 +222,8 @@ export const HomePage: FC = () => {
             category: 'governance',
             tags: ['consensus', 'governance', 'decision-making'],
             version: 2,
-            createdAt: now - 20 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 4 * 24 * 60 * 60 * 1000,
+            created: now - 20 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
+            updated: now - 4 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
           },
         ];

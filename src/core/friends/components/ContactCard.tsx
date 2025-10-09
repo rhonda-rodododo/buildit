@@ -152,6 +152,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
               onClick={onMessage}
               disabled={isLoading}
               title="Send message"
+              data-testid="contact-message-button"
             >
               <MessageCircle className="h-4 w-4" />
             </Button>

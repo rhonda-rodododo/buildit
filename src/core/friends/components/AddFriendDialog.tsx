@@ -245,7 +245,12 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
               />
             </div>
 
-            <Button onClick={handleAddByUsername} disabled={isSearching} className="w-full">
+            <Button
+              onClick={handleAddByUsername}
+              disabled={isSearching}
+              className="w-full"
+              data-testid="send-friend-request-button"
+            >
               {isSearching ? 'Sending...' : 'Send Friend Request'}
             </Button>
           </TabsContent>
@@ -256,7 +261,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
               {/* Show QR */}
               <div className="space-y-2">
                 <Label>Your QR Code</Label>
-                <div className="flex justify-center p-4 bg-white rounded-lg">
+                <div className="flex justify-center p-4 bg-white rounded-lg" data-testid="user-qr-code">
                   <QRCodeSVG value={qrData} size={200} />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
@@ -270,7 +275,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
                 <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
                   {!isScanning ? (
                     <div className="flex items-center justify-center h-full">
-                      <Button onClick={startScanning}>
+                      <Button onClick={startScanning} data-testid="start-qr-scan-button">
                         <Camera className="mr-2 h-4 w-4" />
                         Start Scanning
                       </Button>
@@ -333,7 +338,11 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
             </p>
 
             {!inviteLink ? (
-              <Button onClick={handleGenerateInviteLink} className="w-full">
+              <Button
+                onClick={handleGenerateInviteLink}
+                className="w-full"
+                data-testid="generate-invite-link-button"
+              >
                 Generate Invite Link
               </Button>
             ) : (

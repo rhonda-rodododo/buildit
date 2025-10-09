@@ -40,8 +40,9 @@ Create a standing committee to handle internal conflicts and facilitate restorat
 Still gathering input before moving to discussion phase.`,
           status: 'draft',
           votingMethod: 'consensus',
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 3 * day,
+          updated: now - 3 * day,
         },
 
         // DISCUSSION PHASE
@@ -64,8 +65,9 @@ Please review the full draft and provide feedback before we move to vote.`,
           status: 'discussion',
           votingMethod: 'simple',
           votingDeadline: now + 7 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 5 * day,
+          updated: now - 5 * day,
         },
         {
           id: `proposal-discussion-consensus-${groupId}`,
@@ -93,8 +95,9 @@ Can still use majority vote for routine/operational matters.`,
           status: 'discussion',
           votingMethod: 'consensus',
           votingDeadline: now + 10 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 8 * day,
+          updated: now - 8 * day,
         },
 
         // ACTIVE VOTING
@@ -117,8 +120,9 @@ Simple majority required. Voting ends in 5 days.`,
           status: 'voting',
           votingMethod: 'simple',
           votingDeadline: now + 5 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 7 * day,
+          updated: now - 7 * day,
         },
         {
           id: `proposal-voting-ranked-${groupId}`,
@@ -138,8 +142,9 @@ Rank all options in order of preference. We'll use ranked-choice voting to deter
           status: 'voting',
           votingMethod: 'ranked-choice',
           votingDeadline: now + 4 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 6 * day,
+          updated: now - 6 * day,
         },
         {
           id: `proposal-voting-quadratic-${groupId}`,
@@ -160,8 +165,9 @@ You have 100 vote credits. Cost per vote increases quadratically (1 vote = 1 cre
           status: 'voting',
           votingMethod: 'quadratic',
           votingDeadline: now + 6 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 4 * day,
+          updated: now - 4 * day,
         },
 
         // DECIDED/COMPLETED
@@ -184,8 +190,9 @@ Formally endorse and provide support to the Riverside Tenant Union in their ongo
           status: 'decided',
           votingMethod: 'consensus',
           votingDeadline: now - 2 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 15 * day,
+          updated: now - 15 * day,
         },
         {
           id: `proposal-decided-2-${groupId}`,
@@ -207,8 +214,9 @@ All amounts voluntary, no one turned away for lack of funds.
           status: 'decided',
           votingMethod: 'simple',
           votingDeadline: now - 10 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 25 * day,
+          updated: now - 25 * day,
         },
         {
           id: `proposal-decided-dhondt-${groupId}`,
@@ -235,8 +243,9 @@ Select 5 delegates to represent us in the Housing Justice Coalition using D'Hond
           status: 'decided',
           votingMethod: 'dhondt',
           votingDeadline: now - 20 * day,
-          createdBy: userPubkey,
+          authorPubkey: userPubkey,
           created: now - 35 * day,
+          updated: now - 35 * day,
         },
       ];
 

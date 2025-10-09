@@ -13,11 +13,12 @@ export interface DBProposal {
   groupId: string;
   title: string;
   description: string;
-  status: 'draft' | 'discussion' | 'voting' | 'decided';
+  authorPubkey: string; // Changed from createdBy to match types.ts
+  status: 'draft' | 'discussion' | 'voting' | 'decided' | 'cancelled'; // Added 'cancelled'
   votingMethod: 'simple' | 'ranked-choice' | 'quadratic' | 'dhondt' | 'consensus';
   votingDeadline?: number;
-  createdBy: string;
   created: number;
+  updated: number; // Added to match types.ts
 }
 
 /**
@@ -37,8 +38,8 @@ export interface DBVote {
 export const governanceSchema: TableSchema[] = [
   {
     name: 'proposals',
-    schema: 'id, groupId, status, created, createdBy',
-    indexes: ['id', 'groupId', 'status', 'created', 'createdBy'],
+    schema: 'id, groupId, status, created, updated, authorPubkey',
+    indexes: ['id', 'groupId', 'status', 'created', 'updated', 'authorPubkey'],
   },
   {
     name: 'votes',

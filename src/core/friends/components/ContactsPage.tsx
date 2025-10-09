@@ -66,27 +66,27 @@ export function ContactsPage() {
             Manage your connections and friend requests
           </p>
         </div>
-        <Button onClick={() => setAddDialogOpen(true)}>
+        <Button onClick={() => setAddDialogOpen(true)} data-testid="add-friend-button">
           <UserPlus className="mr-2 h-4 w-4" />
           Add Friend
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-lg border bg-card">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="friends-stats">
+        <div className="p-4 rounded-lg border bg-card" data-testid="stat-friends">
           <div className="text-2xl font-bold">{stats.accepted}</div>
           <div className="text-sm text-muted-foreground">Friends</div>
         </div>
-        <div className="p-4 rounded-lg border bg-card">
+        <div className="p-4 rounded-lg border bg-card" data-testid="stat-verified">
           <div className="text-2xl font-bold">{stats.verified}</div>
           <div className="text-sm text-muted-foreground">Verified</div>
         </div>
-        <div className="p-4 rounded-lg border bg-card">
+        <div className="p-4 rounded-lg border bg-card" data-testid="stat-favorites">
           <div className="text-2xl font-bold">{stats.favorites}</div>
           <div className="text-sm text-muted-foreground">Favorites</div>
         </div>
-        <div className="p-4 rounded-lg border bg-card">
+        <div className="p-4 rounded-lg border bg-card" data-testid="stat-pending">
           <div className="text-2xl font-bold">{incomingRequests.length}</div>
           <div className="text-sm text-muted-foreground">Pending Requests</div>
         </div>
@@ -101,6 +101,7 @@ export function ContactsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
+            data-testid="search-friends-input"
           />
         </div>
 
@@ -124,6 +125,7 @@ export function ContactsPage() {
         <Button
           variant={showFavorites ? 'default' : 'outline'}
           onClick={() => setShowFavorites(!showFavorites)}
+          data-testid="filter-favorites-button"
         >
           <Archive className="mr-2 h-4 w-4" />
           Favorites

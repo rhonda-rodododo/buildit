@@ -134,20 +134,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
         items.push({
           id: `proposal-${proposal.id}`,
           type: 'proposal',
-          timestamp: proposal.createdAt,
-          authorId: proposal.createdBy,
+          timestamp: proposal.created, // Fixed: use 'created' not 'createdAt'
+          authorId: proposal.authorPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
           groupId: proposal.groupId,
-          data: {
-            id: proposal.id,
-            groupId: proposal.groupId,
-            title: proposal.title,
-            description: proposal.description,
-            status: proposal.status,
-            votingMethod: proposal.votingMethod,
-            votingDeadline: proposal.votingDeadline,
-            createdBy: proposal.createdBy,
-            created: proposal.createdAt,
-          },
+          data: proposal, // Pass the full proposal object directly
         });
       });
     }
@@ -158,21 +148,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
         items.push({
           id: `wiki-${page.id}`,
           type: 'wiki-update',
-          timestamp: page.updatedAt,
+          timestamp: page.updated, // Fixed: use 'updated' not 'updatedAt'
           authorId: page.updatedBy,
           groupId: page.groupId,
-          data: {
-            id: page.id,
-            groupId: page.groupId,
-            title: page.title,
-            content: page.content,
-            category: page.category,
-            tags: page.tags,
-            version: page.version,
-            created: page.createdAt,
-            updated: page.updatedAt,
-            updatedBy: page.updatedBy,
-          },
+          data: page, // Pass the full page object directly
         });
       });
     }

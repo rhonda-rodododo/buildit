@@ -211,7 +211,7 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
                     <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
                       {task.title}
                       {task.automatedFollowUp && (
-                        <Bell className="w-3 h-3 inline-block ml-2 text-blue-500" title="Automated follow-up" />
+                        <Bell className="w-3 h-3 inline-block ml-2 text-blue-500" aria-label="Automated follow-up" />
                       )}
                     </h4>
 

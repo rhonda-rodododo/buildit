@@ -327,7 +327,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
                       <div className={`flex items-center gap-2 text-xs ${fromCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
                         <span className="font-medium">{message.sender.name}</span>
                         {message.encrypted && (
-                          <Lock className="w-3 h-3 text-green-500" title="End-to-end encrypted" />
+                          <Lock className="w-3 h-3 text-green-500" aria-label="End-to-end encrypted" />
                         )}
                         {message.type !== 'direct' && (
                           <Badge variant="outline" className="text-xs gap-1">

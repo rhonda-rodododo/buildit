@@ -99,6 +99,7 @@ export const ConversationsPage: FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations..."
               className="pl-9"
+              data-testid="search-conversations"
             />
           </div>
         </div>
@@ -164,6 +165,7 @@ export const ConversationsPage: FC = () => {
                           'w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left',
                           conversation.unreadCount > 0 && 'bg-muted/30'
                         )}
+                        data-testid={`conversation-item-${displayName.toLowerCase().replace(/\s+/g, '-')}`}
                       >
                         {/* Avatar */}
                         <div className="relative shrink-0">
@@ -181,7 +183,7 @@ export const ConversationsPage: FC = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             {conversation.isPinned && (
-                              <Pin className="h-3 w-3 text-primary shrink-0" />
+                              <Pin className="h-3 w-3 text-primary shrink-0" data-testid="pinned-indicator" />
                             )}
                             <p className="font-medium truncate flex-1">{displayName}</p>
                             <span className="text-xs text-muted-foreground shrink-0">
@@ -202,7 +204,7 @@ export const ConversationsPage: FC = () => {
 
                         {/* Unread badge */}
                         {conversation.unreadCount > 0 && (
-                          <Badge variant="destructive" className="shrink-0">
+                          <Badge variant="destructive" className="shrink-0" data-testid="unread-badge">
                             {conversation.unreadCount}
                           </Badge>
                         )}

@@ -47,7 +47,7 @@ export const PrivacyDemoPage: FC = () => {
         </TabsList>
 
         <TabsContent value="dashboard" className="mt-6">
-          <PrivacyDashboard currentMode="normal" riskLevel={riskLevel} />
+          <PrivacyDashboard currentMode="normal" riskLevel={_riskLevel} />
         </TabsContent>
 
         <TabsContent value="reactions" className="mt-6 space-y-6">

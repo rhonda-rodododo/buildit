@@ -117,6 +117,7 @@ export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
                 onClick={handleAccept}
                 disabled={isLoading}
                 title="Accept request"
+                data-testid="accept-friend-request-button"
               >
                 <Check className="h-4 w-4 mr-1" />
                 Accept
@@ -127,6 +128,7 @@ export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
                 onClick={handleDecline}
                 disabled={isLoading}
                 title="Decline request"
+                data-testid="decline-friend-request-button"
               >
                 <X className="h-4 w-4" />
               </Button>

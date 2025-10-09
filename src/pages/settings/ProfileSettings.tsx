@@ -162,6 +162,7 @@ export const ProfileSettings: FC = () => {
               <div className="relative flex-1">
                 <Input
                   id="username"
+                  data-testid="username-input"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   placeholder="alice-organizer"
@@ -197,6 +198,7 @@ export const ProfileSettings: FC = () => {
             <Label htmlFor="displayName">Display Name (Optional)</Label>
             <Input
               id="displayName"
+              data-testid="display-name-input"
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
               placeholder="Alice Martinez"
@@ -207,6 +209,7 @@ export const ProfileSettings: FC = () => {
           </div>
 
           <Button
+            data-testid="save-username-button"
             onClick={handleSaveUsername}
             disabled={saving || !username || usernameAvailable === false || !!usernameError}
           >
@@ -243,6 +246,7 @@ export const ProfileSettings: FC = () => {
             <Label htmlFor="nip05">NIP-05 Identifier</Label>
             <Input
               id="nip05"
+              data-testid="nip05-input"
               value={nip05}
               onChange={e => setNip05(e.target.value)}
               placeholder="alice@example.com"
@@ -253,7 +257,7 @@ export const ProfileSettings: FC = () => {
             </p>
           </div>
 
-          <Button onClick={handleVerifyNIP05} disabled={verifyingNIP05 || !nip05}>
+          <Button data-testid="verify-nip05-button" onClick={handleVerifyNIP05} disabled={verifyingNIP05 || !nip05}>
             {verifyingNIP05 ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

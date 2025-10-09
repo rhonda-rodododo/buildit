@@ -108,7 +108,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
   );
 
   return (
-    <div className={cn('flex flex-col h-full bg-card border-r border-border', className)}>
+    <div className={cn('flex flex-col h-full bg-card border-r border-border', className)} data-testid="buddylist-sidebar">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2 mb-3">
@@ -124,6 +124,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search contacts..."
             className="pl-9 h-9"
+            data-testid="buddylist-search"
           />
         </div>
       </div>
@@ -136,7 +137,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
             <div>
               <SectionHeader id="favorites" title="Favorites" count={favorites.length} />
               {expandedGroups.has('favorites') && (
-                <div className="space-y-0.5 mt-1">
+                <div className="space-y-0.5 mt-1" data-testid="section-favorites">
                   {favorites.map((friend) => (
                     <BuddylistItem
                       key={friend.id}
@@ -146,6 +147,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
                       presence={getPresence(friend.friendPubkey)}
                       isFavorite={friend.isFavorite}
                       onClick={() => handleOpenChat(friend.friendPubkey)}
+                      data-testid={`buddylist-item-${friend.username?.toLowerCase() || friend.friendPubkey.substring(0, 8)}`}
                     />
                   ))}
                 </div>
@@ -158,7 +160,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
             <div>
               <SectionHeader id="online" title="Online Now" count={onlineNow.length} />
               {expandedGroups.has('online') && (
-                <div className="space-y-0.5 mt-1">
+                <div className="space-y-0.5 mt-1" data-testid="section-online">
                   {onlineNow
                     .filter((f) => !favorites.some((fav) => fav.id === f.id)) // Exclude favorites
                     .map((friend) => (
@@ -169,6 +171,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
                         displayName={friend.displayName}
                         presence={getPresence(friend.friendPubkey)}
                         onClick={() => handleOpenChat(friend.friendPubkey)}
+                        data-testid={`buddylist-item-${friend.username?.toLowerCase() || friend.friendPubkey.substring(0, 8)}`}
                       />
                     ))}
                 </div>
@@ -180,7 +183,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
           <div>
             <SectionHeader id="all" title="All Contacts" count={filteredFriends.length} />
             {expandedGroups.has('all') && (
-              <div className="space-y-0.5 mt-1">
+              <div className="space-y-0.5 mt-1" data-testid="section-all-contacts">
                 {filteredFriends
                   .filter(
                     (f) =>
@@ -195,6 +198,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
                       displayName={friend.displayName}
                       presence={getPresence(friend.friendPubkey)}
                       onClick={() => handleOpenChat(friend.friendPubkey)}
+                      data-testid={`buddylist-item-${friend.username?.toLowerCase() || friend.friendPubkey.substring(0, 8)}`}
                     />
                   ))}
               </div>
@@ -205,7 +209,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
 
       {/* New Conversation Button */}
       <div className="p-4 border-t border-border">
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" variant="outline" data-testid="new-chat-button">
           <MessageSquare className="h-4 w-4 mr-2" />
           New Conversation
         </Button>
