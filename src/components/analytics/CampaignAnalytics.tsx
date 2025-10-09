@@ -389,7 +389,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       {/* Campaign Wins */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-yellow-500" />
+          <Trophy className="w-5 h-5 text-yellow-500" data-testid="trophy-icon" />
           Campaign Wins
         </h3>
 

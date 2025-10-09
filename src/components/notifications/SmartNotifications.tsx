@@ -292,14 +292,14 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} data-testid="smart-notifications">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Bell className="w-6 h-6" />
           <div>
             <h3 className="font-semibold">Smart Notifications</h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground" data-testid="notifications-personalization">
               Personalized for {currentEngagementLevel}
             </p>
           </div>
@@ -310,6 +310,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
             variant={filter === 'unread' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('unread')}
+            data-testid="notifications-filter-unread"
           >
             Unread ({unreadCount})
           </Button>
@@ -317,6 +318,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
+            data-testid="notifications-filter-all"
           >
             All
           </Button>
@@ -326,6 +328,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
               size="sm"
               onClick={handleMarkAllAsRead}
               className="text-xs"
+              data-testid="notifications-mark-all-read"
             >
               Mark all read
             </Button>

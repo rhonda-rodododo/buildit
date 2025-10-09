@@ -271,16 +271,16 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
   const nextLevel = currentIndex < levels.length - 1 ? ENGAGEMENT_LEVELS[levels[currentIndex + 1]] : null;
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-6 ${className}`} data-testid="engagement-ladder">
       {/* Current Level Card */}
-      <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+      <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20" data-testid="current-level-card">
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-5 h-5 text-primary" />
               <h3 className="text-lg font-semibold">Your Engagement Level</h3>
             </div>
-            <Badge className={`${currentLevelData.color} text-white text-sm px-3 py-1`}>
+            <Badge className={`${currentLevelData.color} text-white text-sm px-3 py-1`} data-testid="engagement-level-badge">
               {currentLevel} ({currentLevelData.percentage}%)
             </Badge>
           </div>
@@ -312,7 +312,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
       </Card>
 
       {/* Next Steps */}
-      <div>
+      <div data-testid="suggested-next-steps">
         <h4 className="font-semibold mb-3 flex items-center gap-2">
           <ArrowRight className="w-4 h-4" />
           Suggested Next Steps
@@ -344,7 +344,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
       </div>
 
       {/* Milestones */}
-      <div>
+      <div data-testid="milestones-section">
         <h4 className="font-semibold mb-3 flex items-center gap-2">
           <Target className="w-4 h-4" />
           Milestones for {currentLevel}
@@ -379,7 +379,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
       </div>
 
       {/* Level Ladder Overview */}
-      <Card className="p-4 bg-muted/30">
+      <Card className="p-4 bg-muted/30" data-testid="engagement-ladder-overview">
         <h4 className="font-semibold text-sm mb-3">Engagement Ladder</h4>
         <div className="space-y-2">
           {levels.map((level, index) => {

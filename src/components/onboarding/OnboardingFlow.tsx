@@ -498,11 +498,11 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
   };
 
   return (
-    <div className={`max-w-2xl mx-auto ${className}`}>
+    <div className={`max-w-2xl mx-auto ${className}`} data-testid="onboarding-flow">
       {/* Progress Bar */}
-      <div className="mb-6">
+      <div className="mb-6" data-testid="onboarding-progress">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium" data-testid="step-count">
             Step {currentStepIndex + 1} of {steps.length}
           </span>
           <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
@@ -511,7 +511,7 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
       </div>
 
       {/* Step Content */}
-      <Card className="p-6 mb-6">
+      <Card className="p-6 mb-6" data-testid="onboarding-step-content">
         {renderStepContent()}
       </Card>
 
@@ -522,12 +522,13 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
           onClick={handleBack}
           disabled={currentStepIndex === 0}
           className="gap-2"
+          data-testid="onboarding-back-button"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </Button>
 
-        <Button onClick={handleNext} className="gap-2">
+        <Button onClick={handleNext} className="gap-2" data-testid="onboarding-next-button">
           {currentStepIndex === steps.length - 1 ? 'Get Started' : 'Continue'}
           <ArrowRight className="w-4 h-4" />
         </Button>
