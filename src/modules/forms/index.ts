@@ -8,6 +8,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { formsSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { FileText } from 'lucide-react';
+import { FormsPage } from './components/FormsPage';
 
 // Types
 export * from './types';
@@ -15,6 +16,9 @@ export * from './schema';
 
 // Store
 export { useFormsStore } from './formsStore';
+
+// Components
+export * from './components';
 
 /**
  * Forms Module Plugin
@@ -87,14 +91,13 @@ export const formsModule: ModulePlugin = {
   },
 
   routes: [
-    // Routes will be added when UI components are built
-    // {
-    //   path: 'forms',
-    //   component: FormsView,
-    //   scope: 'group',
-    //   requiresEnabled: true,
-    //   label: 'Forms',
-    // },
+    {
+      path: 'forms',
+      component: FormsPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Forms',
+    },
   ],
 
   schema: formsSchema,
