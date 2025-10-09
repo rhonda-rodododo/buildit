@@ -24,15 +24,23 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-09 (Epic 48 complete - Files Module Completion)
-**Active Epic**: Epic 49 (Payment Integration) - TIER 1
+**Last Updated**: 2025-10-09 (ARCHITECTURE EVOLUTION - Hybrid Nostr + Optional Backend)
+**Active Phase**: Phase 1 - Client-Side First (Epics 49A, 52, 53A)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: Epic 48 complete (files preview, sharing, versions) → 13 epics remaining
-**New Epic Plan**: 14 epics (Epics 48-61) across 5 tiers - 1 complete, 13 remaining
-**Priority Focus**: Complete deferred features → Publishing platform → Docs/Drive enhancement
+**Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
+
+**🎯 Architectural Decision**: Hybrid Nostr + Optional Backend
+- **Phase 1** (33-43h): Client-side only features (crypto payments, publishing, Nostr newsletters)
+- **Phase 2**: Decision point - does user need backend? (credit cards, email, federation, SSR)
+- **Phase 3** (36-54h): Add backend if needed (Stripe/PayPal, email delivery, SSR)
+- **Phase 4** (40-60h): Federation (ActivityPub) - major decision required
+
+**Priority Focus**: Phase 1 client-side features → Evaluate backend need → Phase 3 backend services (optional)
+
+See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete architectural analysis.
 
 ---
 
@@ -1503,10 +1511,120 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-09 (Feature Completeness Audit - 14 new epics added)
-**Pending Epics**: 17 total (Epics 31, 36, 45, 48-61)
-**Next Epic**: Epic 48 (Files Module Completion) - TIER 1 Priority
-**Strategic Plan**: 5 tiers - Deferred features (43-62h) → Publishing (45-65h) → Federation (40-60h, decision req) → Docs/Drive (37-53h) → Mobile/Social (60-100h)
-**Critical Decisions**: Epic 54 (Federation - hybrid vs required vs skip), Epic 53 (Newsletter delivery - Nostr vs email vs both)
-**Module Refactoring**: ✅ Forms, Public, and Fundraising modules complete
-**Recent Completion**: ✅ Epic 35 (Performance Optimization Phase 2) - 285.33KB brotli, 52% reduction
+## 🎯 NEW ARCHITECTURE: Hybrid Nostr + Optional Backend
+
+**Last Updated**: 2025-10-09 (ARCHITECTURE EVOLUTION - Hybrid Approach Defined)
+
+**See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete architectural analysis**
+
+### Phase-Based Execution Plan
+
+#### **Phase 1: Client-Side First** (33-43 hours, NO BACKEND)
+**Goal**: Implement all features that can be done 100% client-side
+- ✅ Epic 49A: Crypto Payment Integration (6-8h) - Bitcoin, Ethereum, client-side only
+- Epic 52: Long-Form Publishing (15-20h) - Nostr storage, RSS, SEO
+- Epic 53A: Newsletter - Nostr DMs (12-15h) - NIP-17 delivery, fully P2P
+
+**Deliverable**: Fully functional payments, publishing, and newsletters without any backend infrastructure
+
+---
+
+#### **Phase 2: Decision Point** (User Input Required)
+**Questions to answer before proceeding to Phase 3**:
+
+1. **Payments**: Need credit cards (Stripe/PayPal) or crypto-only acceptable?
+   - Crypto-only → Phase 1 complete, no backend needed ✅
+   - Credit cards → Proceed to Phase 3 (Epic 49B)
+
+2. **Newsletters**: Nostr DMs only or email delivery too?
+   - Nostr DMs only → Phase 1 complete, no backend needed ✅
+   - Email delivery → Proceed to Phase 3 (Epic 53B)
+
+3. **Federation**: Is Mastodon/Bluesky interop important?
+   - No → Stay pure P2P Nostr ✅
+   - Yes → Proceed to Phase 4 (Epic 54)
+
+4. **SEO**: Server-side rendering needed for public pages?
+   - No → Static generation works ✅
+   - Yes → Proceed to Phase 3 (SSR)
+
+5. **Hosting**: If backend needed, self-host or use hosted service?
+   - Self-host → Full privacy control
+   - Hosted → Easier setup, trust BuildIt-hosted
+
+---
+
+#### **Phase 3: Backend Services** (36-54 hours, BACKEND REQUIRED)
+**Goal**: Add backend for features that need it (only if user confirms)
+
+**Prerequisites**: User decides backend is needed (from Phase 2)
+
+- Epic 62: Backend Service Setup (8-12h) - Monorepo, Bun, Nostr integration
+- Epic 49B: Stripe/PayPal Integration (10-15h) - Credit card payments
+- Epic 53B: Newsletter - Email Delivery (10-15h) - SendGrid/Mailgun
+- Epic SSR: Server-Side Rendering (8-12h) - SEO for public pages
+
+**Deliverable**: Optional backend service for credit cards, email, and SSR
+
+---
+
+#### **Phase 4: Federation** (40-60 hours, MAJOR DECISION)
+**Goal**: Enable Mastodon/Bluesky interoperability (only if confirmed)
+
+- Epic 54: ActivityPub Server (40-60h) - Fedify, hybrid opt-in mode
+- Epic 55: AT Protocol (40-60h) - Deferred until ActivityPub proven
+
+**Deliverable**: Optional federation for public content (private groups stay P2P)
+
+---
+
+### Architecture Summary
+
+| Feature | Phase | Backend? | Effort | Privacy |
+|---------|-------|----------|--------|---------|
+| **Crypto payments** | 1 | ❌ | 6-8h | ✅✅✅ |
+| **Long-form publishing** | 1 | ❌ | 15-20h | ✅✅✅ |
+| **Newsletters (Nostr)** | 1 | ❌ | 12-15h | ✅✅✅ |
+| **Backend setup** | 3 | ✅ | 8-12h | ✅ |
+| **Stripe/PayPal** | 3 | ✅ | 10-15h | ⚠️ |
+| **Newsletters (Email)** | 3 | ✅ | 10-15h | ⚠️ |
+| **SSR for SEO** | 3 | ✅ | 8-12h | ✅ |
+| **ActivityPub** | 4 | ✅ | 40-60h | ⚠️ |
+
+**Total Effort**:
+- Phase 1 only: 33-43 hours (2-3 weeks) ✅ No backend
+- Phase 1-3: 69-97 hours (5-7 weeks) ⚠️ Backend required
+- All phases: 109-157 hours (10-15 weeks) ⚠️ Backend + Federation
+
+---
+
+### Key Architectural Principles
+
+✅ **Core remains 100% client-side P2P**
+- Nostr protocol for all private communication
+- NIP-17 E2EE for all sensitive data
+- IndexedDB for local-first storage
+- Works offline (PWA)
+
+✅ **Backend is optional enhancement**
+- Users/groups enable backend features per-need
+- Self-hosting option for privacy
+- Backend never sees private keys
+- Stateless design (no user data stored)
+
+✅ **Privacy preserved**
+- Private groups: Always pure Nostr E2EE, never backend
+- DMs: Always NIP-17, never backend
+- Public content: Can use backend for payments/SSR/federation
+- User controls what uses backend (opt-in)
+
+---
+
+### Next Steps
+
+**Immediate**: Start Phase 1 (Epic 49A, 52, 53A)
+**Then**: Evaluate backend need (Phase 2 decision point)
+**If needed**: Implement Phase 3 (backend services)
+**If needed**: Implement Phase 4 (federation)
+
+**Priority**: Phase 1 first, then reassess
