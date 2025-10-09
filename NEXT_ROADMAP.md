@@ -24,14 +24,15 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2025-10-09 (Epic 35 complete - Performance Optimization Phase 2)
-**Active Epic**: Epic 36 (Additional Translations) or Epic 45 (Pleasure Activism UX)
+**Last Updated**: 2025-10-09 (Feature Completeness Audit - 14 new epics added)
+**Active Epic**: Epic 48 (Files Module Completion) - Starting TIER 1
 **Build Status**: ✅ Successful (285.33KB brotli initial load - 52% reduction from ~600KB)
 **Test Status**: 121/149 tests passing (integration test reliability improved)
 **E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
-**Completion**: 98% for organizing platform features
-**New Priorities**: Translations, UX Philosophy (Pleasure Activism), Legal/Compliance (pre-launch)
+**Completion**: 98% core organizing features → Adding comprehensive publishing, docs/drive, social polish
+**New Epic Plan**: 14 epics (Epics 48-61) across 5 tiers - 225-340 hours total
+**Priority Focus**: Complete deferred features → Publishing platform → Docs/Drive enhancement
 
 ---
 
@@ -183,6 +184,824 @@ When completing an epic:
 **Reference Docs**: [MISSING_FEATURES.md](./MISSING_FEATURES.md) (Translation section), `/src/i18n/locales/`
 
 **Git Commit Format**: `i18n: add German, Portuguese, and Mandarin translations (Epic 36)`
+
+---
+
+## 🔵 Feature Completeness: Deferred Features
+
+### Epic 48: Files Module Completion 📂
+**Status**: Not Started
+**Priority**: P1 - Complete Deferred Features (TIER 1)
+**Effort**: 10-15 hours
+**Dependencies**: Epic 33 complete
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Epic 33 (Files Module) marked several features as deferred: "File preview, sharing, and version history deferred to future enhancements." Need to complete these for comprehensive file management.
+
+**Tasks**:
+- [ ] **File Preview (4-5h)**
+  - [ ] Image preview (PNG, JPG, GIF, WebP)
+  - [ ] PDF preview (pdf.js or similar)
+  - [ ] Video preview (MP4, WebM with HTML5 video)
+  - [ ] Audio preview (MP3, WAV, OGG)
+  - [ ] Text file preview (TXT, MD, JSON, code files)
+  - [ ] Fallback for unsupported types
+- [ ] **File Sharing (3-4h)**
+  - [ ] Share with specific group members (granular permissions)
+  - [ ] Share with entire group
+  - [ ] Public share links (encrypted URL)
+  - [ ] Revoke sharing access
+  - [ ] View who has access to a file
+- [ ] **Version History (2-3h)**
+  - [ ] Track file uploads as versions
+  - [ ] View version history list
+  - [ ] Restore previous version
+  - [ ] Compare versions (metadata only)
+  - [ ] Version pruning (keep last N versions)
+- [ ] **File Operations Completion (1-2h)**
+  - [ ] Implement copy operation (TODO at line 564 in fileManager.ts)
+  - [ ] Fix encryption key management (TODO at line 64 in FileUploadZone.tsx)
+  - [ ] Get current user pubkey (TODO at line 419)
+  - [ ] Hash password for encryption (TODO at line 423)
+
+**Acceptance Criteria**:
+- All file types preview correctly (images, PDFs, videos, audio, text)
+- Files can be shared with specific members or groups
+- Public share links work with encryption
+- Version history displays and restore works
+- All TODO comments in files module resolved
+- E2E tests cover preview, sharing, and version history
+
+**Testing Requirements**:
+- E2E tests for file preview
+- E2E tests for file sharing permissions
+- E2E tests for version history
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 33, `/src/modules/files/`
+
+**Git Commit Format**: `feat: complete Files module - add preview, sharing, and version history (Epic 48)`
+
+**Git Tag**: `v0.48.0-files-complete`
+
+---
+
+### Epic 49: Payment Integration 💳
+**Status**: Not Started
+**Priority**: P1 - Complete Deferred Features (TIER 1)
+**Effort**: 15-20 hours
+**Dependencies**: Epic 38 complete
+**Assignable to subagent**: No (requires API keys/accounts)
+
+**Context**: Epic 38 (Fundraising) noted "Payment integration is placeholder (Stripe/PayPal/crypto APIs not integrated)." Need real payment processing for production use.
+
+**Tasks**:
+- [ ] **Stripe Integration (6-8h)**
+  - [ ] Set up Stripe account and API keys
+  - [ ] Implement Stripe Checkout for one-time donations
+  - [ ] Implement Stripe Subscriptions for recurring donations
+  - [ ] Handle webhook events (payment success, failure, cancellation)
+  - [ ] Store payment records in IndexedDB
+  - [ ] Handle refunds and disputes
+- [ ] **PayPal Integration (4-6h)**
+  - [ ] Set up PayPal Business account
+  - [ ] Implement PayPal Checkout SDK
+  - [ ] Support one-time and recurring donations
+  - [ ] Handle PayPal webhooks
+  - [ ] Store payment records
+- [ ] **Cryptocurrency Integration (3-4h)**
+  - [ ] Bitcoin address generation (HD wallet)
+  - [ ] Ethereum/ERC-20 token support
+  - [ ] QR code display for crypto addresses
+  - [ ] Transaction verification (blockchain explorers)
+  - [ ] Manual donation confirmation workflow
+- [ ] **Donation Flow Completion (2-3h)**
+  - [ ] Replace placeholder donation flow (TODO at line 187 in FundraisingPage.tsx)
+  - [ ] Add toast notifications (TODO at line 162)
+  - [ ] Implement receipt email/export
+  - [ ] Add donor dashboard
+
+**Acceptance Criteria**:
+- Stripe one-time and recurring donations work end-to-end
+- PayPal donations work end-to-end
+- Crypto donations can be made and verified
+- All payment webhooks handled correctly
+- Donation records stored securely
+- E2E tests cover all payment methods
+
+**Testing Requirements**:
+- E2E tests for Stripe payment flow (test mode)
+- E2E tests for PayPal payment flow (sandbox)
+- E2E tests for crypto donation workflow
+- Manual testing with real payment in test mode
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 38, `/src/modules/fundraising/`
+
+**Git Commit Format**: `feat: integrate Stripe, PayPal, and crypto payment processing (Epic 49)`
+
+**Git Tag**: `v0.49.0-payments`
+
+---
+
+### Epic 50: Microblogging Enhancement 🐦
+**Status**: Not Started
+**Priority**: P1 - Complete Deferred Features (TIER 1)
+**Effort**: 8-12 hours
+**Dependencies**: Epic 40 complete
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Microblogging is "80% complete" per COMPLETED_ROADMAP Epic 40. Need to finish deferred features: feed filtering by followed users, post scheduling, and improved search.
+
+**Tasks**:
+- [ ] **Feed Filtering (3-4h)**
+  - [ ] Implement "Following" feed (TODO at line 214 in postsStore.ts)
+  - [ ] Filter posts by followed users
+  - [ ] Add "All" vs "Following" toggle
+  - [ ] Optimize feed query performance
+- [ ] **Post Scheduling (3-4h)**
+  - [ ] Add "Schedule Post" option in composer
+  - [ ] Store scheduled posts in IndexedDB
+  - [ ] Background job to publish scheduled posts
+  - [ ] Edit/delete scheduled posts
+  - [ ] View scheduled posts list
+- [ ] **Enhanced Search (2-3h)**
+  - [ ] Full-text search across posts
+  - [ ] Filter by hashtags
+  - [ ] Filter by date range
+  - [ ] Search user posts
+- [ ] **Additional Features (1-2h)**
+  - [ ] Post pinning (pin to profile)
+  - [ ] Post analytics (views, engagement)
+  - [ ] Thread view improvements
+
+**Acceptance Criteria**:
+- "Following" feed shows only posts from followed users
+- Posts can be scheduled and publish automatically
+- Search finds posts by content, hashtags, and users
+- All TODO comments in microblogging module resolved
+- E2E tests cover new features
+
+**Testing Requirements**:
+- E2E tests for feed filtering
+- E2E tests for post scheduling
+- E2E tests for search
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 40, `/src/modules/microblogging/`
+
+**Git Commit Format**: `feat: enhance microblogging with feed filtering and scheduling (Epic 50)`
+
+**Git Tag**: `v0.50.0-microblogging-complete`
+
+---
+
+### Epic 51: Quality & Testing Completion 🧪
+**Status**: Not Started
+**Priority**: P1 - Complete Deferred Features (TIER 1)
+**Effort**: 10-15 hours
+**Dependencies**: Epic 47 complete
+**Assignable to subagent**: Yes (`test-writer`, `accessibility-auditor`)
+
+**Context**: Epic 47 deferred Phase 4 E2E tests (theme, i18n, routing) and Epic 30 deferred comprehensive Lighthouse audit. Complete these for production readiness.
+
+**Tasks**:
+- [ ] **E2E Phase 4 Tests (6-8h)**
+  - [ ] Theme switching tests (light/dark/system)
+  - [ ] i18n tests (all 7 languages)
+  - [ ] Routing tests (navigation, redirects, 404)
+  - [ ] PWA tests (offline mode, install)
+  - [ ] Accessibility tests (keyboard nav, screen reader)
+- [ ] **Lighthouse Audit (2-3h)**
+  - [ ] Run Lighthouse on all major pages
+  - [ ] Fix performance issues (score 90+)
+  - [ ] Fix accessibility issues (score 90+)
+  - [ ] Fix SEO issues (score 90+)
+  - [ ] Fix best practices issues (score 90+)
+- [ ] **Test Coverage Improvements (2-3h)**
+  - [ ] Increase unit test coverage to 80%+
+  - [ ] Add integration tests for critical flows
+  - [ ] Fix flaky tests
+  - [ ] Improve test performance
+- [ ] **Code Quality (1-2h)**
+  - [ ] Fix all TypeScript errors
+  - [ ] Remove all console.log statements
+  - [ ] Remove all TODO/FIXME comments or convert to issues
+  - [ ] Run ESLint and fix issues
+
+**Acceptance Criteria**:
+- E2E Phase 4 tests pass (theme, i18n, routing, PWA, a11y)
+- Lighthouse scores 90+ on all metrics
+- Test coverage 80%+ for core modules
+- Zero TypeScript errors
+- Zero console.log in production code
+- All tests pass consistently
+
+**Testing Requirements**:
+- All E2E tests pass
+- `bun test` reports 80%+ coverage
+- `bun run typecheck` passes
+- Lighthouse CI passes
+
+**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epics 30, 47
+
+**Git Commit Format**: `test: complete E2E Phase 4 and Lighthouse audit (Epic 51)`
+
+**Git Tag**: `v0.51.0-testing-complete`
+
+---
+
+## 🟣 Publishing Platform Features
+
+### Epic 52: Long-Form Publishing Module 📝
+**Status**: Not Started
+**Priority**: P2 - Publishing Platform (TIER 2)
+**Effort**: 20-30 hours
+**Dependencies**: Epic 32 complete (Documents module)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: User requested "full blogging as well, like substack or ghost". Build comprehensive publishing module for long-form content with public/subscriber access.
+
+**Tasks**:
+- [ ] **Schema & Types (3-4h)**
+  - [ ] Create `articles` table (title, slug, content, status, publishedAt, etc.)
+  - [ ] Create `publications` table (name, description, theme, domain)
+  - [ ] Create `subscriptions` table (subscriber pubkey, publication ID, tier)
+  - [ ] Create `article_views` table (analytics)
+  - [ ] Define TypeScript interfaces
+- [ ] **Article Editor (6-8h)**
+  - [ ] Reuse TipTap editor from Documents module
+  - [ ] Add article metadata editor (title, subtitle, cover image, tags)
+  - [ ] Add SEO controls (meta description, OG tags)
+  - [ ] Draft/publish/schedule workflow
+  - [ ] Preview mode
+  - [ ] Auto-save
+- [ ] **Publication Management (4-6h)**
+  - [ ] Create publication setup wizard
+  - [ ] Publication settings (name, description, logo, theme)
+  - [ ] Custom domain support (CNAME)
+  - [ ] Navigation menu editor
+  - [ ] Theme customization (colors, fonts, layout)
+- [ ] **Public Article Pages (4-6h)**
+  - [ ] Public article view page
+  - [ ] Publication homepage (article list)
+  - [ ] Archive/category pages
+  - [ ] Author profile pages
+  - [ ] RSS feed generation
+  - [ ] Social sharing (Open Graph, Twitter Cards)
+- [ ] **Subscriber Management (3-5h)**
+  - [ ] Free vs. paid tiers
+  - [ ] Subscriber-only content
+  - [ ] Subscription flow (via Nostr identity or email)
+  - [ ] Subscriber dashboard
+  - [ ] Email notifications (optional)
+
+**Acceptance Criteria**:
+- Can create and manage publications
+- Articles can be drafted, published, and scheduled
+- Public article pages render beautifully
+- Subscriber-only content works
+- RSS feed generated
+- SEO metadata working (OG tags, meta descriptions)
+- E2E tests cover publishing flow
+
+**Testing Requirements**:
+- E2E tests for article creation and publishing
+- E2E tests for subscription flow
+- Manual testing of public pages
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Substack](https://substack.com), [Ghost](https://ghost.org), `/src/modules/documents/`
+
+**Git Commit Format**: `feat: add Long-Form Publishing module for blogging (Epic 52)`
+
+**Git Tag**: `v0.52.0-publishing`
+
+---
+
+### Epic 53: Newsletter Module 📧
+**Status**: Not Started
+**Priority**: P2 - Publishing Platform (TIER 2)
+**Effort**: 25-35 hours
+**Dependencies**: Epic 52 complete (Publishing module)
+**Assignable to subagent**: Partial (requires email infrastructure decision)
+
+**Context**: User requested "newsletters module". Build comprehensive newsletter creation, subscriber management, and delivery system.
+
+**Critical Decision Required**: **Delivery mechanism - Nostr DMs only, SMTP email, or both?**
+- **Option A**: Nostr DMs only (privacy-preserving, fits current architecture, no external deps)
+- **Option B**: SMTP email (wider reach, requires email service, privacy trade-offs)
+- **Option C**: Hybrid (both Nostr + email, most flexible, most complex)
+
+**Tasks**:
+- [ ] **Schema & Types (3-4h)**
+  - [ ] Create `newsletters` table (name, description, schedule, etc.)
+  - [ ] Create `newsletter_issues` table (subject, content, sentAt, stats)
+  - [ ] Create `newsletter_subscribers` table (pubkey/email, subscription date, preferences)
+  - [ ] Create `newsletter_sends` table (tracking individual sends)
+  - [ ] Define TypeScript interfaces
+- [ ] **Newsletter Editor (6-8h)**
+  - [ ] Rich email/newsletter composer (TipTap or dedicated email builder)
+  - [ ] Template system (header, footer, branding)
+  - [ ] Preview mode (desktop, mobile, email clients)
+  - [ ] Draft/schedule workflow
+  - [ ] A/B testing support (optional)
+  - [ ] Link tracking and analytics
+- [ ] **Subscriber Management (4-6h)**
+  - [ ] Import subscribers (CSV, Nostr list)
+  - [ ] Export subscribers
+  - [ ] Segmentation (tags, custom fields)
+  - [ ] Subscription preferences
+  - [ ] Unsubscribe flow (one-click)
+  - [ ] Subscriber analytics
+- [ ] **Delivery System (8-12h)** - **DECISION DEPENDENT**
+  - [ ] **If Nostr DMs**: Batch DM sending, NIP-17 encryption, rate limiting, retry logic
+  - [ ] **If SMTP Email**: Email service integration (SendGrid, Mailgun, AWS SES), DKIM/SPF setup, bounce handling, spam compliance
+  - [ ] **If Hybrid**: Both of the above + unified tracking
+  - [ ] Delivery queue and retry logic
+  - [ ] Delivery status tracking
+  - [ ] Error handling and reporting
+- [ ] **Analytics Dashboard (4-6h)**
+  - [ ] Open rate tracking
+  - [ ] Click-through rate tracking
+  - [ ] Subscriber growth charts
+  - [ ] Issue performance comparison
+  - [ ] Engagement metrics
+
+**Acceptance Criteria**:
+- Can create and manage newsletters
+- Subscribers can sign up/unsubscribe
+- Newsletter issues can be composed and sent
+- Delivery system works reliably (Nostr, email, or both)
+- Analytics track opens, clicks, and growth
+- E2E tests cover newsletter flow
+
+**Testing Requirements**:
+- E2E tests for newsletter creation and sending
+- E2E tests for subscriber management
+- Manual testing of delivery
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Substack](https://substack.com), [Mailchimp](https://mailchimp.com), [Buttondown](https://buttondown.email)
+
+**Git Commit Format**: `feat: add Newsletter module with subscriber management (Epic 53)`
+
+**Git Tag**: `v0.53.0-newsletters`
+
+---
+
+## 🌐 Federation Support (ARCHITECTURAL DECISION REQUIRED)
+
+### Epic 54: ActivityPub Server with Fedify 🌐
+**Status**: Not Started
+**Priority**: P2 - Federation (TIER 3) - **DECISION REQUIRED**
+**Effort**: 40-60 hours
+**Dependencies**: None (parallel to client work)
+**Assignable to subagent**: No (requires architectural decision)
+
+**⚠️ CRITICAL ARCHITECTURAL DECISION**: This epic requires adding server-side infrastructure to BuildIt Network, which is currently 100% client-side P2P via Nostr. This is a major architectural shift.
+
+**Decision Options**:
+1. **Required Federation**: All public activity federates (Mastodon/Bluesky interop)
+2. **Optional Federation**: Hybrid mode - users opt-in per identity/group
+3. **Skip Federation**: Stay P2P-only, focus on Nostr ecosystem
+
+**Recommendation**: **Option 2 (Hybrid)** - Optional federation per identity/group maintains privacy for activist groups while enabling public reach.
+
+**Context**: User requested ActivityPub and/or ATProto support for public social activity/microblogging. Fedify is the leading TypeScript framework for ActivityPub servers (v1.6.0 in 2025).
+
+**Architecture Changes Required**:
+- Add Node.js/Bun server component
+- PostgreSQL or SQLite for federation data
+- Monorepo structure (`server/` + `client/`)
+- Deploy server infrastructure (VPS, Docker, etc.)
+
+**Tasks**:
+- [ ] **Server Setup (6-8h)**
+  - [ ] Initialize Bun server project
+  - [ ] Set up PostgreSQL/SQLite database
+  - [ ] Configure Fedify framework
+  - [ ] Set up HTTP signatures and WebFinger
+  - [ ] Configure CORS and security headers
+- [ ] **Actor Implementation (8-12h)**
+  - [ ] Map Nostr identities to ActivityPub actors
+  - [ ] Actor creation and profile sync
+  - [ ] Handle actor updates
+  - [ ] Implement inbox/outbox endpoints
+  - [ ] Handle follow/unfollow activities
+- [ ] **Federation Logic (12-16h)**
+  - [ ] Federate public posts to ActivityPub
+  - [ ] Receive activities from other servers
+  - [ ] Handle replies and mentions
+  - [ ] Implement activity validation
+  - [ ] Handle server blocks and moderation
+- [ ] **Client Integration (6-8h)**
+  - [ ] Add federation toggle to identity settings
+  - [ ] Add federation status indicators
+  - [ ] Handle federated replies in UI
+  - [ ] Show follower counts from federation
+  - [ ] Add federation analytics
+- [ ] **Deployment (4-6h)**
+  - [ ] Docker containerization
+  - [ ] Deploy to VPS or cloud provider
+  - [ ] Set up domain and HTTPS
+  - [ ] Configure reverse proxy (Caddy/nginx)
+  - [ ] Set up monitoring and logging
+- [ ] **Testing & Documentation (4-6h)**
+  - [ ] Test federation with Mastodon instance
+  - [ ] Test federation with other ActivityPub servers
+  - [ ] Write deployment documentation
+  - [ ] Write federation usage guide
+
+**Acceptance Criteria**:
+- Server runs Fedify and handles ActivityPub activities
+- Public posts from BuildIt federate to Mastodon/other servers
+- Users can follow BuildIt accounts from Mastodon
+- Replies from federated servers appear in BuildIt
+- Server is deployed and accessible
+- Documentation covers setup and deployment
+
+**Testing Requirements**:
+- Integration tests for ActivityPub activities
+- Manual testing with Mastodon instance
+- Federation interoperability tests
+- Build successful for both client and server
+- `bun test` passes
+
+**Reference Docs**: [Fedify Documentation](https://fedify.dev), [ActivityPub Spec](https://www.w3.org/TR/activitypub/), [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 40
+
+**Git Commit Format**: `feat: add ActivityPub federation server with Fedify (Epic 54)`
+
+**Git Tag**: `v0.54.0-federation`
+
+---
+
+### Epic 55: AT Protocol Integration 🦋
+**Status**: Not Started (Deferred)
+**Priority**: P3 - Federation Alternative (TIER 3)
+**Effort**: 40-60 hours
+**Dependencies**: Epic 54 complete (or instead of)
+**Assignable to subagent**: No (requires architectural decision)
+
+**Context**: ATProto (Bluesky) is an alternative federation protocol. However, it requires a Personal Data Server (PDS) and is more complex than ActivityPub. **Recommend deferring until ActivityPub is proven.**
+
+**Tasks**: TBD (defer until Epic 54 complete and user confirms need for ATProto)
+
+**Git Commit Format**: `feat: add AT Protocol integration for Bluesky federation (Epic 55)`
+
+**Git Tag**: `v0.55.0-atproto`
+
+---
+
+## 📚 Docs/Drive Enhancement
+
+### Epic 56: Advanced Document Features ✨
+**Status**: Not Started
+**Priority**: P2 - Comprehensive Docs (TIER 4)
+**Effort**: 15-20 hours
+**Dependencies**: Epic 32 complete (Documents module)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: User requested docs "as comprehensive and user friendly as google docs/drive, proton drive, etc". Add advanced features to match Google Docs capabilities.
+
+**Tasks**:
+- [ ] **Commenting & Suggestions (6-8h)**
+  - [ ] Add inline comments on text selections
+  - [ ] Add suggestion mode (track changes)
+  - [ ] Resolve/dismiss comments
+  - [ ] Reply to comments (threaded)
+  - [ ] Mention users in comments (@username)
+- [ ] **Advanced Editing (4-6h)**
+  - [ ] Add mathematical equations (KaTeX)
+  - [ ] Add diagrams (Mermaid or similar)
+  - [ ] Add table of contents (auto-generated)
+  - [ ] Add footnotes/endnotes
+  - [ ] Add page breaks
+  - [ ] Add headers/footers
+- [ ] **Document Organization (3-4h)**
+  - [ ] Folders/collections for documents
+  - [ ] Tags and labels
+  - [ ] Star/favorite documents
+  - [ ] Recent documents list
+  - [ ] Search across documents
+- [ ] **Permissions & Sharing (2-3h)**
+  - [ ] View-only access
+  - [ ] Comment-only access
+  - [ ] Edit access
+  - [ ] Share with link (public/private)
+  - [ ] Expiring share links
+
+**Acceptance Criteria**:
+- Comments and suggestions work in documents
+- Mathematical equations and diagrams render
+- Documents can be organized in folders with tags
+- Granular sharing permissions work
+- E2E tests cover new features
+
+**Testing Requirements**:
+- E2E tests for commenting and suggestions
+- E2E tests for equations and diagrams
+- E2E tests for document organization
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Google Docs](https://docs.google.com), [Notion](https://notion.so), `/src/modules/documents/`
+
+**Git Commit Format**: `feat: add advanced document features - comments, equations, organization (Epic 56)`
+
+**Git Tag**: `v0.56.0-docs-advanced`
+
+---
+
+### Epic 57: File Management Enhancement 🗂️
+**Status**: Not Started
+**Priority**: P2 - Comprehensive Drive (TIER 4)
+**Effort**: 12-18 hours
+**Dependencies**: Epic 48 complete (Files completion)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Enhance files module to match Google Drive/Proton Drive capabilities: better preview, search, and analytics.
+
+**Tasks**:
+- [ ] **Enhanced Preview (4-6h)**
+  - [ ] Office file preview (DOCX, XLSX, PPTX via OfficeViewer.js or similar)
+  - [ ] Archive preview (ZIP, TAR - list contents)
+  - [ ] 3D model preview (OBJ, STL via Three.js)
+  - [ ] Markdown preview with rendering
+  - [ ] Syntax highlighting for code files
+- [ ] **Advanced Search (4-6h)**
+  - [ ] Full-text search in file contents (PDFs, text files)
+  - [ ] Filter by file type, size, date
+  - [ ] Search within folders
+  - [ ] Save search filters
+  - [ ] Recent searches
+- [ ] **File Analytics (2-3h)**
+  - [ ] Storage usage breakdown by type
+  - [ ] Most accessed files
+  - [ ] Shared files dashboard
+  - [ ] File activity log
+  - [ ] Duplicate file detection
+- [ ] **Bulk Operations (2-3h)**
+  - [ ] Select multiple files
+  - [ ] Bulk download (ZIP)
+  - [ ] Bulk move/copy
+  - [ ] Bulk delete
+  - [ ] Bulk share
+
+**Acceptance Criteria**:
+- Office files and archives preview correctly
+- Search finds files by content and metadata
+- Analytics dashboard shows storage insights
+- Bulk operations work for multiple files
+- E2E tests cover new features
+
+**Testing Requirements**:
+- E2E tests for enhanced preview
+- E2E tests for search
+- E2E tests for bulk operations
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Google Drive](https://drive.google.com), [Proton Drive](https://proton.me/drive), `/src/modules/files/`
+
+**Git Commit Format**: `feat: enhance file management - preview, search, analytics, bulk ops (Epic 57)`
+
+**Git Tag**: `v0.57.0-files-enhanced`
+
+---
+
+### Epic 58: Advanced Sharing & Permissions 🔐
+**Status**: Not Started
+**Priority**: P2 - Comprehensive Access Control (TIER 4)
+**Effort**: 10-15 hours
+**Dependencies**: Epics 48, 56 complete
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Implement granular sharing and permissions for documents and files to match Google Drive/Proton Drive capabilities.
+
+**Tasks**:
+- [ ] **Public Link Sharing (4-5h)**
+  - [ ] Generate encrypted public links
+  - [ ] Password-protected links
+  - [ ] Expiring links (time-based)
+  - [ ] Link analytics (views, downloads)
+  - [ ] Revoke links
+- [ ] **Granular Permissions (3-4h)**
+  - [ ] Viewer (read-only)
+  - [ ] Commenter (read + comment)
+  - [ ] Editor (read + write)
+  - [ ] Owner (full control)
+  - [ ] Permission inheritance (folders)
+- [ ] **Access Requests (2-3h)**
+  - [ ] Request access flow
+  - [ ] Approve/deny requests
+  - [ ] Notification of access changes
+  - [ ] View pending requests
+- [ ] **Sharing Dashboard (1-2h)**
+  - [ ] View all shared items
+  - [ ] Filter by permission level
+  - [ ] Revoke sharing in bulk
+  - [ ] Export sharing report
+
+**Acceptance Criteria**:
+- Public links work with encryption and expiration
+- Granular permissions enforced correctly
+- Access request flow works
+- Sharing dashboard shows all shared items
+- E2E tests cover sharing flows
+
+**Testing Requirements**:
+- E2E tests for public link sharing
+- E2E tests for permissions
+- E2E tests for access requests
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Google Drive Sharing](https://support.google.com/drive/answer/2494822), `/src/modules/documents/`, `/src/modules/files/`
+
+**Git Commit Format**: `feat: add advanced sharing and permissions for docs and files (Epic 58)`
+
+**Git Tag**: `v0.58.0-sharing-advanced`
+
+---
+
+## 📱 Mobile & Social Polish
+
+### Epic 59: Mobile-First UX 📱
+**Status**: Not Started
+**Priority**: P2 - Mobile Polish (TIER 5)
+**Effort**: 20-30 hours
+**Dependencies**: All core features complete
+**Assignable to subagent**: Yes (`ux-designer`)
+
+**Context**: Epic 42 noted "Mobile-specific UI not implemented (desktop-first approach)." Optimize UX for mobile devices.
+
+**Tasks**:
+- [ ] **Responsive Layouts (8-10h)**
+  - [ ] Mobile navigation (bottom nav bar)
+  - [ ] Touch-optimized tap targets (44x44px min)
+  - [ ] Mobile-friendly forms
+  - [ ] Mobile tables (horizontal scroll or stacked)
+  - [ ] Mobile modals (full-screen on small devices)
+- [ ] **Mobile Interactions (6-8h)**
+  - [ ] Swipe gestures (swipe to delete, swipe to archive)
+  - [ ] Pull to refresh
+  - [ ] Infinite scroll optimization
+  - [ ] Touch-friendly drag and drop
+  - [ ] Haptic feedback (where supported)
+- [ ] **Mobile Performance (4-6h)**
+  - [ ] Reduce initial load time for mobile
+  - [ ] Optimize images for mobile (responsive images)
+  - [ ] Lazy load below-the-fold content
+  - [ ] Reduce mobile bundle size
+  - [ ] Service worker optimization
+- [ ] **Mobile Testing (2-4h)**
+  - [ ] Test on iOS (Safari, Chrome)
+  - [ ] Test on Android (Chrome, Firefox)
+  - [ ] Test on tablets
+  - [ ] Lighthouse mobile audit
+  - [ ] Real device testing
+
+**Acceptance Criteria**:
+- All pages responsive on mobile (320px-768px)
+- Touch gestures work smoothly
+- Mobile Lighthouse score 90+
+- No horizontal scroll on mobile
+- E2E tests pass on mobile viewports
+
+**Testing Requirements**:
+- E2E tests on mobile viewports
+- Lighthouse mobile audit
+- Manual testing on real devices
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Material Design Mobile](https://m3.material.io/), [iOS HIG](https://developer.apple.com/design/human-interface-guidelines/)
+
+**Git Commit Format**: `feat: optimize UX for mobile devices (Epic 59)`
+
+**Git Tag**: `v0.59.0-mobile-ux`
+
+---
+
+### Epic 60: Offline Mode Enhancement 📡
+**Status**: Not Started
+**Priority**: P2 - PWA Polish (TIER 5)
+**Effort**: 15-20 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Improve PWA offline support beyond current implementation. Enable full app functionality offline.
+
+**Tasks**:
+- [ ] **Offline Composition (6-8h)**
+  - [ ] Queue messages for sending when online
+  - [ ] Queue posts for publishing when online
+  - [ ] Queue file uploads for later
+  - [ ] Show pending queue in UI
+  - [ ] Retry logic with exponential backoff
+- [ ] **Background Sync (4-6h)**
+  - [ ] Implement Background Sync API
+  - [ ] Sync when network returns
+  - [ ] Handle sync failures
+  - [ ] Show sync status
+- [ ] **Offline Data Access (3-4h)**
+  - [ ] Verify all data accessible offline (IndexedDB)
+  - [ ] Optimize IndexedDB queries
+  - [ ] Add offline data pruning (keep last N days)
+  - [ ] Export offline data
+- [ ] **Cache Management (2-3h)**
+  - [ ] Implement cache-first strategy
+  - [ ] Add cache size limits
+  - [ ] Add cache eviction (LRU)
+  - [ ] Clear cache option
+  - [ ] Show cache usage
+
+**Acceptance Criteria**:
+- Can compose messages/posts offline and send when online
+- Background Sync API works reliably
+- All cached data accessible offline
+- Cache management prevents storage overflow
+- E2E tests cover offline scenarios
+
+**Testing Requirements**:
+- E2E tests for offline mode
+- E2E tests for background sync
+- Manual testing with network throttling
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [PWA Offline Cookbook](https://web.dev/offline-cookbook/), [Background Sync API](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API)
+
+**Git Commit Format**: `feat: enhance offline mode with queue and background sync (Epic 60)`
+
+**Git Tag**: `v0.60.0-offline-enhanced`
+
+---
+
+### Epic 61: Advanced Social Features 🎭
+**Status**: Not Started
+**Priority**: P2 - Social Polish (TIER 5)
+**Effort**: 25-35 hours
+**Dependencies**: Epics 40, 50 complete
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Add advanced social features to match modern social platforms: polls, stories, better moderation.
+
+**Tasks**:
+- [ ] **Polls (6-8h)**
+  - [ ] Create poll composer
+  - [ ] Multiple choice polls
+  - [ ] Single choice polls
+  - [ ] Poll duration settings
+  - [ ] Vote on polls
+  - [ ] View poll results (live)
+  - [ ] Poll analytics
+- [ ] **Stories (8-12h)**
+  - [ ] Stories composer (image/video/text)
+  - [ ] Stories viewer (carousel)
+  - [ ] Stories expiration (24h)
+  - [ ] Stories analytics (views)
+  - [ ] Reply to stories
+  - [ ] Stories privacy settings
+- [ ] **Enhanced Moderation (6-8h)**
+  - [ ] Mute users (hide posts)
+  - [ ] Block users (prevent interaction)
+  - [ ] Report content (abuse, spam)
+  - [ ] Moderation queue for admins
+  - [ ] Auto-moderation rules (keyword filters)
+  - [ ] Moderation logs
+- [ ] **Additional Features (5-7h)**
+  - [ ] Bookmarks (save posts for later)
+  - [ ] Lists (curated user lists)
+  - [ ] Trending topics
+  - [ ] Suggested follows
+  - [ ] User mentions notifications
+
+**Acceptance Criteria**:
+- Polls can be created and voted on
+- Stories work with 24h expiration
+- Moderation tools work (mute, block, report)
+- Bookmarks and lists functional
+- E2E tests cover new features
+
+**Testing Requirements**:
+- E2E tests for polls
+- E2E tests for stories
+- E2E tests for moderation
+- Build successful
+- `bun test && bun run typecheck` passes
+
+**Reference Docs**: [Twitter Polls](https://help.twitter.com/en/using-twitter/twitter-polls), [Instagram Stories](https://help.instagram.com/1660923094227526)
+
+**Git Commit Format**: `feat: add advanced social features - polls, stories, moderation (Epic 61)`
+
+**Git Tag**: `v0.61.0-social-advanced`
 
 ---
 
@@ -501,9 +1320,10 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-09 (Epic 35 complete - Performance Optimization Phase 2)
-**Pending Epics**: 3 total (Epic 31, 36, 45)
-**Next Epic**: Epic 36 (Translations) or Epic 45 (Pleasure Activism UX)
-**Strategic Shift**: UX Philosophy → Translations → Launch
+**Last Updated**: 2025-10-09 (Feature Completeness Audit - 14 new epics added)
+**Pending Epics**: 17 total (Epics 31, 36, 45, 48-61)
+**Next Epic**: Epic 48 (Files Module Completion) - TIER 1 Priority
+**Strategic Plan**: 5 tiers - Deferred features (43-62h) → Publishing (45-65h) → Federation (40-60h, decision req) → Docs/Drive (37-53h) → Mobile/Social (60-100h)
+**Critical Decisions**: Epic 54 (Federation - hybrid vs required vs skip), Epic 53 (Newsletter delivery - Nostr vs email vs both)
 **Module Refactoring**: ✅ Forms, Public, and Fundraising modules complete
-**Recent Completion**: ✅ Epic 43 (Group Entity & Coalition) - Collective identities, encrypted keypairs, "speak as group" toggle, coalitions, channels
+**Recent Completion**: ✅ Epic 35 (Performance Optimization Phase 2) - 285.33KB brotli, 52% reduction
