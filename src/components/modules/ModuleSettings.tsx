@@ -36,7 +36,6 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<ModulePlugin | null>(null);
   const [moduleConfig, setModuleConfig] = useState<Record<string, unknown>>({});
-
   const currentIdentity = useAuthStore((state: { currentIdentity: { publicKey: string } | null }) => state.currentIdentity);
   const { toggleModule: toggleGroupModule } = useGroupsStore();
 

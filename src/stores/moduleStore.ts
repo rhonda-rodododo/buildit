@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   ModulePlugin,
   ModuleRegistryEntry,
@@ -34,11 +33,9 @@ function getInstanceKey(groupId: string, moduleId: string): string {
   return `${groupId}:${moduleId}`;
 }
 
-export const useModuleStore = create<ModuleStore>()(
-  persist(
-    (set, get) => ({
-      registry: new Map(),
-      instances: new Map(),
+export const useModuleStore = create<ModuleStore>()((set, get) => ({
+  registry: new Map(),
+  instances: new Map(),
 
       registerModule: async (plugin: ModulePlugin) => {
         const { metadata, lifecycle } = plugin;
@@ -315,14 +312,5 @@ export const useModuleStore = create<ModuleStore>()(
         set({ instances: instanceMap });
         console.log(`✅ Loaded ${instances.length} module instances from database`);
       },
-    }),
-    {
-      name: 'buildn-modules',
-      partialize: (state) => ({
-        // Don't persist registry - modules register on app init
-        // Only persist instance keys for rehydration
-        instanceKeys: Array.from(state.instances.keys()),
-      }),
-    }
-  )
+    })
 );
