@@ -44,12 +44,20 @@ export interface Group {
 }
 
 export type GroupModule =
+  | 'custom-fields'
+  | 'public'
   | 'messaging'
   | 'events'
   | 'mutual-aid'
   | 'governance'
   | 'wiki'
+  | 'database'
   | 'crm'
+  | 'documents'
+  | 'files'
+  | 'microblogging'
+  | 'forms'
+  | 'fundraising'
 
 export interface GroupInvitation {
   id: string

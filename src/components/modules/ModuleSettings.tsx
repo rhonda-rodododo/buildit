@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useModuleStore } from '@/stores/moduleStore';
+import { useGroupsStore } from '@/stores/groupsStore';
 import { getAllModules } from '@/lib/modules/registry';
 import { canManageModules } from '@/lib/modules/permissions';
 import { useAuthStore } from '@/stores/authStore';
@@ -37,10 +38,9 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
   const [moduleConfig, setModuleConfig] = useState<Record<string, unknown>>({});
 
   const currentIdentity = useAuthStore((state: { currentIdentity: { publicKey: string } | null }) => state.currentIdentity);
+  const { toggleModule: toggleGroupModule } = useGroupsStore();
   const {
     isModuleEnabled,
-    enableModule,
-    disableModule,
     getModuleInstance,
     updateModuleConfig,
   } = useModuleStore();
@@ -57,18 +57,15 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
     checkPermissions();
   }, [currentIdentity, groupId]);
 
-  const handleToggleModule = async (module: ModulePlugin, enabled: boolean) => {
+  const handleToggleModule = async (module: ModulePlugin) => {
     if (!canManage) {
       alert('You do not have permission to manage modules');
       return;
     }
 
     try {
-      if (enabled) {
-        await enableModule(groupId, module.metadata.id);
-      } else {
-        await disableModule(groupId, module.metadata.id);
-      }
+      // Use groupsStore.toggleModule which syncs both stores
+      await toggleGroupModule(groupId, module.metadata.id);
     } catch (error) {
       console.error('Failed to toggle module:', error);
       alert('Failed to toggle module: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -266,7 +263,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                   </div>
                   <Switch
                     checked={enabled}
-                    onCheckedChange={(checked: boolean) => handleToggleModule(module, checked)}
+                    onCheckedChange={() => handleToggleModule(module)}
                   />
                 </div>
               </CardHeader>

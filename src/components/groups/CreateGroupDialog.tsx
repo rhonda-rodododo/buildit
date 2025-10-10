@@ -1,6 +1,7 @@
-import { FC, useState } from 'react'
+import { FC, useState, useEffect } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useModuleStore } from '@/stores/moduleStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,19 +12,11 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { loadAllSeeds } from '@/core/storage/seedLoader'
 import { db } from '@/core/storage/db'
 import type { GroupPrivacyLevel, GroupModule } from '@/types/group'
+import { getAllModules } from '@/lib/modules/registry'
 
 interface CreateGroupDialogProps {
   trigger?: React.ReactNode
 }
-
-const AVAILABLE_MODULES: { value: GroupModule; label: string; description: string }[] = [
-  { value: 'messaging', label: 'Messaging', description: 'Group chat and discussions' },
-  { value: 'events', label: 'Events', description: 'Create and manage events' },
-  { value: 'mutual-aid', label: 'Mutual Aid', description: 'Request and offer help' },
-  { value: 'governance', label: 'Governance', description: 'Proposals and voting' },
-  { value: 'wiki', label: 'Wiki', description: 'Shared knowledge base' },
-  { value: 'crm', label: 'CRM', description: 'Contact management' },
-]
 
 export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   const [open, setOpen] = useState(false)
@@ -33,9 +26,23 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   const [selectedModules, setSelectedModules] = useState<GroupModule[]>(['messaging'])
   const [loadDemoData, setLoadDemoData] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [availableModules, setAvailableModules] = useState<{ value: GroupModule; label: string; description: string }[]>([])
 
   const { createGroup } = useGroupsStore()
   const { currentIdentity } = useAuthStore()
+
+  // Load available modules from registry
+  useEffect(() => {
+    const modules = getAllModules()
+    const moduleOptions = modules
+      .filter(m => !['custom-fields', 'public'].includes(m.metadata.id)) // Exclude always-on modules
+      .map(m => ({
+        value: m.metadata.id as GroupModule,
+        label: m.metadata.name,
+        description: m.metadata.description,
+      }))
+    setAvailableModules(moduleOptions)
+  }, [])
 
   const toggleModule = (module: GroupModule) => {
     if (selectedModules.includes(module)) {
@@ -72,6 +79,18 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
         updatedIdentity.privateKey,
         updatedIdentity.publicKey
       )
+
+      // Enable selected modules in module store
+      if (group) {
+        const { enableModule } = useModuleStore.getState()
+        for (const moduleId of selectedModules) {
+          try {
+            await enableModule(group.id, moduleId)
+          } catch (error) {
+            console.error(`Failed to enable module ${moduleId}:`, error)
+          }
+        }
+      }
 
       // Load demo data if requested
       if (loadDemoData && group) {
@@ -147,7 +166,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
           <div className="space-y-2">
             <Label>Enable Modules</Label>
             <div className="grid grid-cols-2 gap-3">
-              {AVAILABLE_MODULES.map((module) => (
+              {availableModules.map((module) => (
                 <Card
                   key={module.value}
                   className={`p-3 cursor-pointer transition-colors ${

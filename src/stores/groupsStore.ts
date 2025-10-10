@@ -197,14 +197,25 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           const group = get().groups.find(g => g.id === groupId)
           if (!group) throw new Error('Group not found')
 
-          const enabledModules = group.enabledModules.includes(module)
+          const isEnabled = group.enabledModules.includes(module)
+          const enabledModules = isEnabled
             ? group.enabledModules.filter(m => m !== module)
             : [...group.enabledModules, module]
 
+          // Update group's enabledModules list
           await get().updateGroup(groupId, { enabledModules })
+
+          // Also sync with module store
+          const { enableModule, disableModule } = await import('./moduleStore').then(m => m.useModuleStore.getState())
+          if (isEnabled) {
+            await disableModule(groupId, module)
+          } else {
+            await enableModule(groupId, module)
+          }
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to toggle module'
           set({ error: errorMsg })
+          throw error
         }
       },
     }),

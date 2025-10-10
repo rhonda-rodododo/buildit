@@ -129,15 +129,15 @@ export function subscribeToGroupThread(
   onMessage: (message: GroupMessage) => void,
   since?: number
 ): string {
+  // Use 'a' tag for group addressing (more widely supported)
+  // Format: kind:pubkey:d-tag-value
   const filter: {
     kinds: number[]
-    '#h': string[]
-    '#thread': string[]
+    '#a'?: string[]
     since?: number
   } = {
     kinds: [GROUP_MESSAGE_KINDS.THREAD_MESSAGE],
-    '#h': [groupId],
-    '#thread': [threadId],
+    '#a': [`${GROUP_MESSAGE_KINDS.CREATE_THREAD}:*:${threadId}`],
   }
 
   if (since) {
@@ -145,9 +145,15 @@ export function subscribeToGroupThread(
   }
 
   return client.subscribe([filter], (event: NostrEvent) => {
-    const message = decryptGroupMessage(event, groupKey)
-    if (message) {
-      onMessage(message)
+    // Client-side filtering for group and thread
+    const threadTag = event.tags.find((t) => t[0] === 'thread')
+    const groupTag = event.tags.find((t) => t[0] === 'h')
+
+    if (threadTag?.[1] === threadId && groupTag?.[1] === groupId) {
+      const message = decryptGroupMessage(event, groupKey)
+      if (message) {
+        onMessage(message)
+      }
     }
   })
 }
@@ -162,25 +168,32 @@ export async function loadThreadMessages(
   groupKey: Uint8Array,
   limit = 50
 ): Promise<GroupMessage[]> {
+  // Query by kind only, then filter client-side
   const events = await client.query([
     {
       kinds: [GROUP_MESSAGE_KINDS.THREAD_MESSAGE],
-      '#h': [groupId],
-      '#thread': [threadId],
-      limit,
+      limit: limit * 5, // Get more events to account for filtering
     },
   ])
 
   const messages: GroupMessage[] = []
 
   for (const event of events) {
-    const message = decryptGroupMessage(event, groupKey)
-    if (message) {
-      messages.push(message)
+    // Client-side filtering
+    const threadTag = event.tags.find((t) => t[0] === 'thread')
+    const groupTag = event.tags.find((t) => t[0] === 'h')
+
+    if (threadTag?.[1] === threadId && groupTag?.[1] === groupId) {
+      const message = decryptGroupMessage(event, groupKey)
+      if (message) {
+        messages.push(message)
+      }
     }
   }
 
-  return messages.sort((a, b) => a.timestamp - b.timestamp)
+  return messages
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(0, limit)
 }
 
 /**
@@ -190,15 +203,21 @@ export async function getGroupThreads(
   client: NostrClient,
   groupId: string
 ): Promise<GroupThread[]> {
+  // Query by kind only, filter client-side
   const events = await client.query([
     {
       kinds: [GROUP_MESSAGE_KINDS.CREATE_THREAD],
-      '#h': [groupId],
-      limit: 100,
+      limit: 500, // Get more for filtering
     },
   ])
 
-  return events.map((event) => {
+  // Filter for this group
+  const groupEvents = events.filter(event => {
+    const groupTag = event.tags.find((t) => t[0] === 'h')
+    return groupTag?.[1] === groupId
+  })
+
+  return groupEvents.map((event) => {
     const data = JSON.parse(event.content)
     const titleTag = event.tags.find((t) => t[0] === 'title')
     const categoryTag = event.tags.find((t) => t[0] === 'category')
@@ -214,7 +233,7 @@ export async function getGroupThreads(
       category: categoryTag?.[1] || data.category,
       pinned: false,
     }
-  })
+  }).slice(0, 100)
 }
 
 /**
