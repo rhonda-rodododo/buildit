@@ -31,18 +31,22 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   const { createGroup } = useGroupsStore()
   const { currentIdentity } = useAuthStore()
 
-  // Load available modules from registry
+  // Load available modules from registry only once
   useEffect(() => {
-    const modules = getAllModules()
-    const moduleOptions = modules
-      .filter(m => !['custom-fields', 'public'].includes(m.metadata.id)) // Exclude always-on modules
-      .map(m => ({
-        value: m.metadata.id as GroupModule,
-        label: m.metadata.name,
-        description: m.metadata.description,
-      }))
-    setAvailableModules(moduleOptions)
-  }, [])
+    // Only load if we haven't loaded yet
+    if (availableModules.length === 0) {
+      const modules = getAllModules()
+      const moduleOptions = modules
+        .filter(m => !['custom-fields', 'public'].includes(m.metadata.id)) // Exclude always-on modules
+        .map(m => ({
+          value: m.metadata.id as GroupModule,
+          label: m.metadata.name,
+          description: m.metadata.description,
+        }))
+      setAvailableModules(moduleOptions)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run once on mount
 
   const toggleModule = (module: GroupModule) => {
     if (selectedModules.includes(module)) {
@@ -150,8 +154,8 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
             <div className="space-y-2">
               <Label htmlFor="privacy">Privacy Level</Label>
               <Select value={privacyLevel} onValueChange={(value) => setPrivacyLevel(value as GroupPrivacyLevel)}>
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="privacy">
+                  <SelectValue placeholder="Select privacy level" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="public">Public - Anyone can discover and join</SelectItem>
