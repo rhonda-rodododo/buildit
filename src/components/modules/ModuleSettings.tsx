@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useModuleStore } from '@/stores/moduleStore';
 import { useGroupsStore } from '@/stores/groupsStore';
 import { getAllModules } from '@/lib/modules/registry';
@@ -39,13 +39,14 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
 
   const currentIdentity = useAuthStore((state: { currentIdentity: { publicKey: string } | null }) => state.currentIdentity);
   const { toggleModule: toggleGroupModule } = useGroupsStore();
-  const {
-    isModuleEnabled,
-    getModuleInstance,
-    updateModuleConfig,
-  } = useModuleStore();
 
-  const allModules = getAllModules();
+  // Use selectors to avoid subscribing to all store changes
+  const isModuleEnabled = useModuleStore(state => state.isModuleEnabled);
+  const getModuleInstance = useModuleStore(state => state.getModuleInstance);
+  const updateModuleConfig = useModuleStore(state => state.updateModuleConfig);
+
+  // Memoize modules to prevent re-fetching on every render
+  const allModules = useMemo(() => getAllModules(), []);
 
   useEffect(() => {
     const checkPermissions = async () => {
