@@ -73,6 +73,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
     id: 'fundraising',
     load: () => import('@/modules/fundraising'),
   },
+  {
+    id: 'publishing',
+    load: () => import('@/modules/publishing'),
+  },
 ];
 
 /**

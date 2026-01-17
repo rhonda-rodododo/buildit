@@ -219,7 +219,7 @@ export const PostCard: FC<PostCardProps> = ({
         {/* More options */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label="More options">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -347,6 +347,7 @@ export const PostCard: FC<PostCardProps> = ({
                     size="sm"
                     className="h-8 w-8 p-0 text-lg"
                     onClick={() => handleReaction(type)}
+                    aria-label={`React with ${emoji}`}
                   >
                     {emoji}
                   </Button>
@@ -400,6 +401,7 @@ export const PostCard: FC<PostCardProps> = ({
           size="sm"
           className="flex-1 justify-center"
           onClick={handleBookmark}
+          aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
           <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>

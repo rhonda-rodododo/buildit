@@ -312,7 +312,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                 className="h-9 px-3"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 disabled={isPosting}
-                title="Add emoji"
+                aria-label="Add emoji"
               >
                 <Smile className="w-4 h-4" />
               </Button>
@@ -325,6 +325,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                       size="icon"
                       className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-background shadow-md z-10"
                       onClick={() => setShowEmojiPicker(false)}
+                      aria-label="Close emoji picker"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -422,6 +423,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                     size="sm"
                     className="h-9 px-2 rounded-l-none border-l border-primary-foreground/20"
                     disabled={!content.trim() || isPosting}
+                    aria-label="Schedule post options"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </Button>

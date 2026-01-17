@@ -192,7 +192,7 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
             {post.status === 'pending' && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label="More options">
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -237,8 +237,9 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Content</label>
+              <label htmlFor="edit-content" className="text-sm font-medium mb-2 block">Content</label>
               <Textarea
+                id="edit-content"
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 rows={4}
@@ -246,8 +247,9 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Scheduled for</label>
+              <label htmlFor="edit-scheduled-for" className="text-sm font-medium mb-2 block">Scheduled for</label>
               <Input
+                id="edit-scheduled-for"
                 type="datetime-local"
                 value={editScheduledFor}
                 onChange={(e) => setEditScheduledFor(e.target.value)}
