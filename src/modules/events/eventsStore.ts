@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { Event, RSVP, RSVPStatus, EventWithRSVPs } from './types'
 
 interface EventsState {
@@ -38,8 +37,7 @@ interface EventsState {
 }
 
 export const useEventsStore = create<EventsState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       events: [],
       rsvps: [],
       activeEventId: null,
@@ -154,9 +152,5 @@ export const useEventsStore = create<EventsState>()(
       setActiveEvent: (eventId) => set({ activeEventId: eventId }),
 
       clearEvents: () => set({ events: [], rsvps: [], activeEventId: null }),
-    }),
-    {
-      name: 'events-storage',
-    }
-  )
+    })
 )

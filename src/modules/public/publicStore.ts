@@ -6,7 +6,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   PublicPage,
   Analytics,
@@ -53,8 +52,7 @@ interface PublicStoreState extends PublicState {
 }
 
 export const usePublicStore = create<PublicStoreState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       // Initial state
       publicPages: new Map(),
       analytics: new Map(),
@@ -155,13 +153,5 @@ export const usePublicStore = create<PublicStoreState>()(
           ...state,
           ...data,
         })),
-    }),
-    {
-      name: 'public-storage',
-      // Only persist essential data, not analytics
-      partialize: (state) => ({
-        publicPages: state.publicPages,
-      }),
-    }
-  )
+    })
 );

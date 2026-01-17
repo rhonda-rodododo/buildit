@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 import { db, type DBGroup, type DBGroupMember } from '@/core/storage/db'
 import { generateSecretKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
@@ -30,8 +29,7 @@ interface GroupsActions {
 }
 
 export const useGroupsStore = create<GroupsState & GroupsActions>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       // State
       activeGroup: null,
       groups: [],
@@ -218,13 +216,5 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           throw error
         }
       },
-    }),
-    {
-      name: 'groups-storage',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        activeGroup: state.activeGroup,
-      }),
-    }
-  )
+    })
 )

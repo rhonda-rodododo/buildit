@@ -7,7 +7,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   Campaign,
   CampaignUpdate,
@@ -58,8 +57,7 @@ interface FundraisingStoreState extends FundraisingState {
 }
 
 export const useFundraisingStore = create<FundraisingStoreState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       // Initial state
       campaigns: new Map(),
       campaignUpdates: new Map(),
@@ -293,15 +291,5 @@ export const useFundraisingStore = create<FundraisingStoreState>()(
           ...state,
           ...data,
         })),
-    }),
-    {
-      name: 'fundraising-storage',
-      partialize: (state) => ({
-        campaigns: state.campaigns,
-        campaignUpdates: state.campaignUpdates,
-        donations: state.donations,
-        donationTiers: state.donationTiers,
-      }),
-    }
-  )
+    })
 );

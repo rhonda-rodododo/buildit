@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   DeviceInfo,
   DeviceSession,
@@ -71,8 +70,7 @@ const defaultPrivacySettings: DevicePrivacySettings = {
 };
 
 export const useDeviceStore = create<DeviceStore>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       devices: new Map(),
       sessions: new Map(),
       activities: [],
@@ -426,27 +424,5 @@ export const useDeviceStore = create<DeviceStore>()(
         await webAuthnService.init();
         set({ isWebAuthnSupported: webAuthnService.isWebAuthnSupported() });
       },
-    }),
-    {
-      name: 'buildn-device-storage',
-      partialize: (state) => ({
-        devices: Array.from(state.devices.entries()),
-        sessions: Array.from(state.sessions.entries()),
-        activities: state.activities,
-        credentials: Array.from(state.credentials.entries()),
-        authorizationRequests: Array.from(state.authorizationRequests.entries()),
-        currentDeviceId: state.currentDeviceId,
-        privacySettings: state.privacySettings,
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Convert arrays back to Maps
-          state.devices = new Map(state.devices as any);
-          state.sessions = new Map(state.sessions as any);
-          state.credentials = new Map(state.credentials as any);
-          state.authorizationRequests = new Map(state.authorizationRequests as any);
-        }
-      },
-    }
-  )
+    })
 );

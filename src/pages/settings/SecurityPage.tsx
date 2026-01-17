@@ -12,11 +12,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DeviceManager } from '@/components/security/DeviceManager';
 import { DeviceActivityHistory } from '@/components/security/DeviceActivityHistory';
 import { PrivacySettings } from '@/components/security/PrivacySettings';
+import { LockSettings } from '@/components/security/LockSettings';
 import { TorSettings } from '@/components/tor/TorSettings';
 import { WebAuthnSetup } from '@/components/security/WebAuthnSetup';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
-import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check } from 'lucide-react';
+import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock } from 'lucide-react';
 
 export function SecurityPage() {
   const [showWebAuthnSetup, setShowWebAuthnSetup] = useState(false);
@@ -125,10 +126,14 @@ export function SecurityPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="devices" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="devices" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Devices
+          </TabsTrigger>
+          <TabsTrigger value="lock" className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Session
           </TabsTrigger>
           <TabsTrigger value="activity" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
@@ -150,6 +155,10 @@ export function SecurityPage() {
 
         <TabsContent value="devices">
           <DeviceManager />
+        </TabsContent>
+
+        <TabsContent value="lock">
+          <LockSettings />
         </TabsContent>
 
         <TabsContent value="activity">

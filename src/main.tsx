@@ -42,13 +42,17 @@ async function initializeApp() {
     // Step 2: Initialize database (opens db with all module schemas)
     await initializeDatabase();
 
-    // Step 3: Now load module instances (requires db to be open)
+    // Step 3: Initialize store initializer (subscribes to unlock/lock events)
+    const { initializeStoreInitializer } = await import("@/core/storage/StoreInitializer");
+    initializeStoreInitializer();
+
+    // Step 4: Now load module instances (requires db to be open)
     const moduleStore = (
       await import("@/stores/moduleStore")
     ).useModuleStore.getState();
     await moduleStore.loadModuleInstances();
 
-    // Step 4: Load identities from DB (public info only - private keys stay encrypted)
+    // Step 5: Load identities from DB (public info only - private keys stay encrypted)
     const authStore = useAuthStore.getState();
     await authStore.loadIdentities();
 
@@ -56,11 +60,11 @@ async function initializeApp() {
     // The user will need to enter their password to unlock
     // This is handled by the UI layer now
 
-    // Step 5: Start syncing Nostr events for all groups (if unlocked)
+    // Step 6: Start syncing Nostr events for all groups + messages (if unlocked)
     // Note: Sync will only work if the app is unlocked
     if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
-      const { startAllGroupsSync } = await import("@/core/storage/sync");
-      await startAllGroupsSync();
+      const { startAllSyncs } = await import("@/core/storage/sync");
+      await startAllSyncs();
     }
 
     console.log("✅ App initialization complete");

@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { AidItem, RideShare, AidStatus, AidCategory, AidType } from './types'
 
 interface MutualAidState {
@@ -45,8 +44,7 @@ interface MutualAidState {
 }
 
 export const useMutualAidStore = create<MutualAidState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       aidItems: [],
       rideShares: [],
       activeAidItemId: null,
@@ -149,9 +147,5 @@ export const useMutualAidStore = create<MutualAidState>()(
         rideShares: [],
         activeAidItemId: null,
       }),
-    }),
-    {
-      name: 'mutual-aid-storage',
-    }
-  )
+    })
 )

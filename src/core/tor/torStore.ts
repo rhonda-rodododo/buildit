@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import {
   TorStatus,
   TorConnectionMethod,
@@ -72,8 +71,7 @@ interface TorStore {
 }
 
 export const useTorStore = create<TorStore>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       config: DEFAULT_TOR_CONFIG,
       status: TorStatus.DISABLED,
       onionRelays: KNOWN_ONION_RELAYS,
@@ -326,14 +324,5 @@ export const useTorStore = create<TorStore>()(
         const warnings = getTorSecurityWarnings();
         set({ warnings });
       },
-    }),
-    {
-      name: 'buildit-tor-config',
-      partialize: (state) => ({
-        // Persist config and custom relays, but not status or stats
-        config: state.config,
-        onionRelays: state.onionRelays,
-      }),
-    }
-  )
+    })
 );

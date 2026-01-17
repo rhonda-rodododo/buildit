@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { useAuthStore } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
 import type {
@@ -84,8 +83,7 @@ interface PostsState {
 }
 
 export const usePostsStore = create<PostsState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       // Initial state
       posts: [],
       currentPost: null,
@@ -646,13 +644,5 @@ export const usePostsStore = create<PostsState>()(
           myBookmarks: new Set(),
         });
       },
-    }),
-    {
-      name: 'buildn-posts-store',
-      partialize: (state) => ({
-        // Only persist user preferences, not all data
-        feedFilter: state.feedFilter,
-      }),
-    }
-  )
+    })
 );

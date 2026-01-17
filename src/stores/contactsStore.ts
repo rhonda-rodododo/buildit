@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Contact, ProfileMetadata } from '@/types/contacts';
 import { getNostrClient } from '@/core/nostr/client';
 import { finalizeEvent } from 'nostr-tools/pure';
@@ -42,8 +41,7 @@ interface ContactsState {
 }
 
 export const useContactsStore = create<ContactsState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       contacts: new Map(),
       profiles: new Map(),
       loading: false,
@@ -285,20 +283,5 @@ export const useContactsStore = create<ContactsState>()(
         profiles.set(pubkey, profile);
         set({ profiles });
       },
-    }),
-    {
-      name: 'contacts-storage',
-      partialize: (state) => ({
-        contacts: Array.from(state.contacts.entries()),
-        profiles: Array.from(state.profiles.entries()),
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Convert arrays back to Maps
-          state.contacts = new Map(state.contacts as any);
-          state.profiles = new Map(state.profiles as any);
-        }
-      },
-    }
-  )
+    })
 );

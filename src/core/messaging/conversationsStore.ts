@@ -1,12 +1,18 @@
 /**
  * Conversations Store
  * Zustand store for managing conversations, messages, and presence
+ *
+ * IMPORTANT: Messages are E2E encrypted using NIP-17 (gift-wrapped DMs)
+ * - DMs: Single gift wrap per recipient
+ * - Group chats: Multiple gift wraps (one per participant)
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
+import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
+import { getNostrClient } from '@/core/nostr/client';
+import type { GiftWrap } from '@/types/nostr';
 import type {
   DBConversation,
   ConversationMember,
@@ -112,9 +118,8 @@ interface ConversationsState {
 }
 
 export const useConversationsStore = create<ConversationsState>()(
-  persist(
-    (set, get) => ({
-      // Initial state
+  (set, get) => ({
+    // Initial state
       conversations: [],
       conversationMembers: [],
       messages: [],
@@ -473,6 +478,12 @@ export const useConversationsStore = create<ConversationsState>()(
         const currentIdentity = useAuthStore.getState().currentIdentity;
         if (!currentIdentity) throw new Error('Not authenticated');
 
+        const privateKey = getCurrentPrivateKey();
+        if (!privateKey) throw new Error('App is locked');
+
+        const conversation = get().getConversation(conversationId);
+        if (!conversation) throw new Error('Conversation not found');
+
         const now = Date.now();
 
         const message: ConversationMessage = {
@@ -486,6 +497,7 @@ export const useConversationsStore = create<ConversationsState>()(
           reactions: {},
         };
 
+        // Store locally first (encrypted by Dexie hooks)
         try {
           await db.conversationMessages.add(message);
           await db.conversations.update(conversationId, {
@@ -493,10 +505,11 @@ export const useConversationsStore = create<ConversationsState>()(
             lastMessagePreview: content.substring(0, 100),
           });
         } catch (error) {
-          console.error('Failed to send message:', error);
+          console.error('Failed to store message locally:', error);
           throw error;
         }
 
+        // Update Zustand state
         set((state) => ({
           messages: [...state.messages, message],
           conversations: state.conversations.map((c) =>
@@ -510,7 +523,65 @@ export const useConversationsStore = create<ConversationsState>()(
           ),
         }));
 
-        // TODO: Encrypt and send via Nostr (NIP-17 for DMs, NIP-44 for group)
+        // Create NIP-17 gift-wrapped events and publish to Nostr
+        try {
+          const client = getNostrClient();
+
+          // Build tags for the message
+          const tags: string[][] = [
+            ['conversation', conversationId], // Custom tag for conversation threading
+          ];
+          if (replyTo) {
+            tags.push(['e', replyTo, '', 'reply']); // Reply tag
+          }
+
+          // Get recipients (all participants except self)
+          const recipients = conversation.participants.filter(
+            (p) => p !== currentIdentity.publicKey
+          );
+
+          if (recipients.length === 0) {
+            // Self-conversation or no recipients, skip relay publish
+            return message;
+          }
+
+          let giftWraps: GiftWrap[];
+
+          if (conversation.type === 'dm' && recipients.length === 1) {
+            // DM: Single gift wrap for the recipient
+            const giftWrap = createPrivateDM(
+              content,
+              privateKey,
+              recipients[0],
+              tags
+            );
+            giftWraps = [giftWrap];
+          } else {
+            // Group chat: Multiple gift wraps (one per participant)
+            giftWraps = createGroupMessage(
+              content,
+              privateKey,
+              recipients,
+              tags
+            );
+          }
+
+          // Publish all gift wraps to relays
+          const publishResults = await Promise.all(
+            giftWraps.map((gw) => client.publish(gw))
+          );
+
+          // Log any publish failures
+          const failures = publishResults.flat().filter((r) => !r.success);
+          if (failures.length > 0) {
+            console.warn('Some relays failed to receive message:', failures);
+            // Message is still stored locally, will retry on next sync
+          }
+        } catch (error) {
+          console.error('Failed to publish message to Nostr:', error);
+          // Message is stored locally, will be queued for retry
+          // TODO: Add to offline queue for later retry
+        }
 
         return message;
       },
@@ -947,13 +1018,5 @@ export const useConversationsStore = create<ConversationsState>()(
           currentConversationId: undefined,
         });
       },
-    }),
-    {
-      name: 'buildit-conversations-store',
-      partialize: (state) => ({
-        // Persist chat window positions
-        chatWindows: state.chatWindows,
-      }),
-    }
-  )
+    })
 );

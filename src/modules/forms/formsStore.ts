@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type {
   Form,
   FormSubmission,
@@ -42,8 +41,7 @@ interface FormsStoreState extends FormsState {
 }
 
 export const useFormsStore = create<FormsStoreState>()(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       // Initial state
       forms: new Map(),
       submissions: new Map(),
@@ -163,13 +161,5 @@ export const useFormsStore = create<FormsStoreState>()(
           ...state,
           ...data,
         })),
-    }),
-    {
-      name: 'forms-storage',
-      partialize: (state) => ({
-        forms: state.forms,
-        submissions: state.submissions,
-      }),
-    }
-  )
+    })
 );

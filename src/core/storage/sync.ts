@@ -1,12 +1,17 @@
 /**
  * Nostr <-> IndexedDB Sync Service
  * Subscribes to Nostr events and syncs them to local database
+ *
+ * Includes:
+ * - Group data sync (events, proposals, wiki, etc.)
+ * - NIP-17 message receiving
  */
 
 import { getNostrClient } from '@/core/nostr/client';
 import { db } from './db';
 import type { Event as NostrEvent, Filter } from 'nostr-tools';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
+import { startMessageReceiver, stopMessageReceiver, fetchMessageHistory } from '@/core/messaging/messageReceiver';
 
 /**
  * Event kind definitions for BuildIt Network
@@ -381,10 +386,78 @@ export async function startAllGroupsSync(): Promise<void> {
 }
 
 /**
- * Stop all syncs
+ * Stop all syncs (including messages)
  */
 export function stopAllSyncs(): void {
+  // Stop group syncs
   for (const groupId of activeSubscriptions.keys()) {
     stopGroupSync(groupId);
   }
+
+  // Stop message receiver
+  stopMessageReceiver();
+
+  console.log('⏹️  All syncs stopped');
+}
+
+/**
+ * Start message sync for current user
+ * Subscribes to NIP-17 gift-wrapped DMs
+ */
+export function startMessageSync(): void {
+  const { currentIdentity } = useAuthStore.getState();
+
+  if (!currentIdentity) {
+    console.warn('Cannot start message sync: no identity');
+    return;
+  }
+
+  // Check if app is unlocked
+  if (!getCurrentPrivateKey()) {
+    console.warn('Cannot start message sync: app is locked');
+    return;
+  }
+
+  startMessageReceiver(currentIdentity.publicKey);
+}
+
+/**
+ * Stop message sync
+ */
+export function stopMessageSync(): void {
+  stopMessageReceiver();
+}
+
+/**
+ * Fetch historical messages (catch up after being offline)
+ */
+export async function fetchHistoricalMessages(since?: number): Promise<number> {
+  const { currentIdentity } = useAuthStore.getState();
+
+  if (!currentIdentity) {
+    console.warn('Cannot fetch messages: no identity');
+    return 0;
+  }
+
+  if (!getCurrentPrivateKey()) {
+    console.warn('Cannot fetch messages: app is locked');
+    return 0;
+  }
+
+  return fetchMessageHistory(currentIdentity.publicKey, since);
+}
+
+/**
+ * Start all syncs (groups + messages)
+ * Call this after unlock
+ */
+export async function startAllSyncs(): Promise<void> {
+  // Start group syncs
+  await startAllGroupsSync();
+
+  // Start message sync
+  startMessageSync();
+
+  // Fetch recent historical messages
+  await fetchHistoricalMessages();
 }
