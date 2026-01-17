@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { useAuthStore } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
 import type {
@@ -63,7 +62,7 @@ interface FriendsState {
 }
 
 export const useFriendsStore = create<FriendsState>()(
-  persist(
+  // persist(
     (set, get) => ({
       // Initial state
       friends: [],
@@ -600,11 +599,11 @@ export const useFriendsStore = create<FriendsState>()(
         });
       },
     }),
-    {
-      name: 'buildn-friends-store',
-      partialize: () => ({
-        // Only persist preferences, not all data
-      }),
-    }
-  )
+  //   {
+  //     name: 'buildn-friends-store',
+  //     partialize: () => ({
+  //       // Only persist preferences, not all data
+  //     }),
+  //   }
+  // )
 );

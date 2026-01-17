@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Contact, ProfileMetadata } from '@/types/contacts';
 import { getNostrClient } from '@/core/nostr/client';
 import { finalizeEvent } from 'nostr-tools/pure';
-import { useAuthStore } from './authStore';
+import { useAuthStore, getCurrentPrivateKey } from './authStore';
 
 interface ContactsState {
   contacts: Map<string, Contact>; // pubkey -> contact
@@ -236,6 +236,11 @@ export const useContactsStore = create<ContactsState>()(
             contact.petname || '',
           ]);
 
+          const privateKey = getCurrentPrivateKey();
+          if (!privateKey) {
+            throw new Error('App is locked');
+          }
+
           const event = finalizeEvent(
             {
               kind: 3,
@@ -243,7 +248,7 @@ export const useContactsStore = create<ContactsState>()(
               content: '',
               created_at: Math.floor(Date.now() / 1000),
             },
-            currentIdentity.privateKey
+            privateKey
           );
 
           const nostrClient = getNostrClient();

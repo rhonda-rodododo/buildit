@@ -1,20 +1,10 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import { RootLayout } from '@/layouts/RootLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { AppLayout } from '@/layouts/AppLayout';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getAllModules } from '@/lib/modules/registry';
-
-// Loading fallback component
-const LoadingPage = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-      <p className="mt-4 text-muted-foreground">Loading...</p>
-    </div>
-  </div>
-);
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -56,34 +46,25 @@ const SecurityDemoPage = lazy(() => import('@/pages/SecurityDemoPage').then(m =>
 
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
-// Wrapper to add Suspense to lazy-loaded components
-const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType<any>>) => (
-  <Suspense fallback={<LoadingPage />}>
-    <Component />
-  </Suspense>
-);
-
 /**
  * Get module routes by scope
  * Wraps lazy-loaded module components in Suspense
  */
-function getModuleRoutes(scope: 'app' | 'group'): RouteObject[] {
+export function getModuleRoutes(scope: 'app' | 'group', componentOrElement: 'Component' | 'element' = 'Component'): RouteObject[] {
   try {
     const modules = getAllModules();
-    return modules
+
+    const filteredModules = modules
       .filter((module) => module.routes && module.routes.length > 0)
       .flatMap((module) =>
         module.routes!
           .filter((route) => (route.scope || 'group') === scope)
           .map((route) => ({
             path: route.path,
-            element: (
-              <Suspense fallback={<LoadingPage />}>
-                <route.component />
-              </Suspense>
-            ),
+            [componentOrElement]: componentOrElement === 'Component' ? route.component: <route.component />,
           }))
       );
+    return filteredModules
   } catch {
     // Modules not initialized yet
     return [];
@@ -108,128 +89,133 @@ function getModuleRoutes(scope: 'app' | 'group'): RouteObject[] {
  *       - /notifications
  *       - /preferences
  */
-export const routes: RouteObject[] = [
+export const getRoutes: () => RouteObject[] = () => [
   {
     path: '/',
-    element: <RootLayout />,
+    Component: RootLayout,
     errorElement: <ErrorBoundary />,
+    action: true,
     children: [
       {
         // Public routes (no auth required)
         path: 'campaigns/:slug',
-        element: withSuspense(CampaignPage),
+        Component: CampaignPage,
       },
       {
         path: 'wiki',
         children: [
           {
             index: true,
-            element: withSuspense(PublicWikiPage),
+            Component: PublicWikiPage,
           },
           {
             path: ':slug',
-            element: withSuspense(PublicWikiPage),
+            Component: PublicWikiPage,
           },
         ],
       },
       {
         // Auth routes (unauthenticated)
-        element: <AuthLayout />,
+        Component: AuthLayout,
         children: [
           {
             path: 'login',
-            element: withSuspense(LoginPage),
+            Component: LoginPage,
           },
         ],
       },
       {
         // App routes (authenticated)
         path: 'app',
-        element: <AppLayout />,
+        Component: AppLayout,
         children: [
           {
             index: true,
-            element: withSuspense(HomePage),
+            Component: HomePage,
           },
           {
             path: 'feed',
-            element: withSuspense(HomePage),
+            Component: HomePage,
           },
           {
             path: 'messages',
-            element: withSuspense(ConversationsPage),
+            Component: ConversationsPage,
           },
           {
             path: 'friends',
-            element: withSuspense(ContactsPage),
+            Component: ContactsPage,
           },
           {
             path: 'directory',
-            element: withSuspense(UserDirectory),
+            Component: UserDirectory,
           },
           {
             path: 'analytics',
-            element: withSuspense(AnalyticsPage),
+            Component: AnalyticsPage,
           },
           {
             path: 'bulk-operations',
-            element: withSuspense(BulkOperationsPage),
+            Component: BulkOperationsPage,
           },
           {
             path: 'contacts/:contactId',
-            element: withSuspense(ContactDetailPage),
+            Component: ContactDetailPage,
           },
           {
             path: 'engagement',
-            element: withSuspense(EngagementPage),
+            Component: EngagementPage,
           },
           {
             path: 'onboarding',
-            element: withSuspense(OnboardingDemoPage),
+            Component: OnboardingDemoPage,
           },
           {
             path: 'notifications',
-            element: withSuspense(NotificationsDemoPage),
+            Component: NotificationsDemoPage,
           },
           {
             path: 'privacy',
-            element: withSuspense(PrivacyDemoPage),
+            Component: PrivacyDemoPage,
           },
           {
             path: 'security',
-            element: withSuspense(SecurityDemoPage),
+            Component: SecurityDemoPage,
           },
           {
             path: 'groups',
             children: [
               {
                 index: true,
-                element: withSuspense(GroupsPage),
+                Component: GroupsPage,
               },
               {
                 path: ':groupId',
-                element: withSuspense(GroupLayout),
+                Component: GroupLayout,
                 children: [
                   {
                     index: true,
-                    element: withSuspense(GroupDashboard),
+                    Component: GroupDashboard,
                   },
                   {
                     path: 'feed',
-                    element: withSuspense(GroupFeedPage),
+                    Component: GroupFeedPage,
                   },
                   {
                     path: 'members',
-                    element: withSuspense(GroupMembersPage),
+                    Component: GroupMembersPage,
                   },
                   {
                     path: 'settings',
-                    element: withSuspense(GroupSettingsPage),
+                    Component: GroupSettingsPage,
                   },
                   {
                     path: 'messages',
-                    element: withSuspense(GroupMessagesPage),
+                    Component: GroupMessagesPage,
                   },
+                  //   {
+                  //   path: 'events',
+                  //   Component: EventsView,
+                  // },
                   // Dynamically loaded module routes (group-scoped)
                   ...getModuleRoutes('group'),
                 ],
@@ -237,34 +223,34 @@ export const routes: RouteObject[] = [
             ],
           },
           // Dynamically loaded module routes (app-scoped)
-          ...getModuleRoutes('app'),
+          // ...getModuleRoutes('app'),
           {
             path: 'settings',
-            element: withSuspense(SettingsLayout),
+            Component: SettingsLayout,
             children: [
               {
                 index: true,
-                element: withSuspense(ProfileSettings),
+                Component: ProfileSettings,
               },
               {
                 path: 'profile',
-                element: withSuspense(ProfileSettings),
+                Component: ProfileSettings,
               },
               {
                 path: 'security',
-                element: withSuspense(SecuritySettings),
+                Component: SecuritySettings,
               },
               {
                 path: 'privacy',
-                element: withSuspense(PrivacySettings),
+                Component: PrivacySettings,
               },
               {
                 path: 'notifications',
-                element: withSuspense(NotificationSettings),
+                Component: NotificationSettings,
               },
               {
                 path: 'preferences',
-                element: withSuspense(PreferencesSettings),
+                Component: PreferencesSettings,
               },
             ],
           },
@@ -272,10 +258,11 @@ export const routes: RouteObject[] = [
       },
       {
         path: '*',
-        element: withSuspense(NotFoundPage),
+        Component: NotFoundPage,
       },
     ],
   },
 ];
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(getRoutes());
+

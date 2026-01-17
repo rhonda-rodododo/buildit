@@ -1,222 +1,690 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import type { Identity } from '@/types/identity'
-import { createIdentity, importFromNsec } from '@/core/crypto/keyManager'
-import { db } from '@/core/storage/db'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
-import * as nip19 from 'nostr-tools/nip19'
+/**
+ * Auth Store
+ * Manages identity authentication with secure key storage.
+ *
+ * Key Security Features:
+ * - Private keys encrypted at rest using AES-GCM with PBKDF2-derived key
+ * - Keys only decrypted in memory when unlocked
+ * - Automatic lock on inactivity
+ * - Optional WebAuthn for quick unlock
+ *
+ * This store does NOT use Zustand persist - all data comes from IndexedDB
+ * which is encrypted via the database encryption layer.
+ */
 
+import { create } from 'zustand';
+import type { Identity } from '@/types/identity';
+import { createIdentity, importFromNsec } from '@/core/crypto/keyManager';
+import { db, type DBIdentity } from '@/core/storage/db';
+import * as nip19 from 'nostr-tools/nip19';
+import {
+  secureKeyManager,
+  type EncryptedKeyData,
+  type SecuritySettings,
+  DEFAULT_SECURITY_SETTINGS,
+  type LockState,
+  type SecureKeyManagerEvent,
+} from '@/core/crypto/SecureKeyManager';
+
+/**
+ * Auth state interface
+ * Note: privateKey is NOT stored in state - it's managed by SecureKeyManager
+ */
 interface AuthState {
-  currentIdentity: Identity | null
-  identities: Identity[]
-  isLoading: boolean
-  error: string | null
+  // Current identity (without private key until unlocked)
+  currentIdentity: Omit<Identity, 'privateKey'> | null;
+
+  // All identities (public info only)
+  identities: Omit<Identity, 'privateKey'>[];
+
+  // Lock state
+  lockState: LockState;
+
+  // Loading states
+  isLoading: boolean;
+  isUnlocking: boolean;
+
+  // Error state
+  error: string | null;
+
+  // Lock timeout warning
+  lockTimeoutWarning: number | null; // seconds remaining
 }
 
 interface AuthActions {
-  setCurrentIdentity: (identity: Identity | null) => void
-  createNewIdentity: (name: string) => Promise<Identity>
-  importIdentity: (nsec: string, name: string) => Promise<Identity>
-  loadIdentities: () => Promise<void>
-  loadCurrentIdentityPrivateKey: () => Promise<void>
-  removeIdentity: (publicKey: string) => Promise<void>
-  logout: () => void
+  // Identity management
+  createNewIdentity: (name: string, password: string) => Promise<Identity>;
+  importIdentity: (nsec: string, name: string, password: string) => Promise<Identity>;
+  loadIdentities: () => Promise<void>;
+  removeIdentity: (publicKey: string) => Promise<void>;
+  setCurrentIdentity: (publicKey: string | null) => Promise<void>;
+
+  // Lock/Unlock
+  unlock: (password: string) => Promise<void>;
+  lock: () => void;
+
+  // Get private key (only when unlocked)
+  getPrivateKey: () => Uint8Array | null;
+
+  // Password management
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  verifyPassword: (password: string) => Promise<boolean>;
+
+  // WebAuthn
+  enableWebAuthn: (password: string) => Promise<void>;
+  disableWebAuthn: (password: string) => Promise<void>;
+
+  // Security settings
+  updateSecuritySettings: (settings: Partial<SecuritySettings>) => Promise<void>;
+  getSecuritySettings: () => SecuritySettings;
+
+  // Export (requires password)
+  exportPrivateKey: (password: string) => Promise<string>;
+
+  // Legacy logout (now just locks)
+  logout: () => void;
+
+  // Internal
+  _handleSecureKeyManagerEvent: (event: SecureKeyManagerEvent) => void;
 }
 
-export const useAuthStore = create<AuthState & AuthActions>()(
-  persist(
-    (set, get) => ({
-      // State
-      currentIdentity: null,
-      identities: [],
-      isLoading: false,
-      error: null,
+/**
+ * Convert DBIdentity to public Identity (no private key)
+ */
+function dbIdentityToPublic(dbId: DBIdentity): Omit<Identity, 'privateKey'> {
+  return {
+    publicKey: dbId.publicKey,
+    npub: dbId.npub || nip19.npubEncode(dbId.publicKey),
+    name: dbId.name,
+    username: dbId.username,
+    displayName: dbId.displayName,
+    nip05: dbId.nip05,
+    nip05Verified: dbId.nip05Verified,
+    created: dbId.created,
+    lastUsed: dbId.lastUsed,
+  };
+}
 
-      // Actions
-      setCurrentIdentity: async (identity) => {
-        set({ currentIdentity: identity, error: null })
+/**
+ * Convert DBIdentity to EncryptedKeyData format
+ */
+function dbIdentityToEncryptedData(dbId: DBIdentity): EncryptedKeyData {
+  return {
+    publicKey: dbId.publicKey,
+    encryptedPrivateKey: dbId.encryptedPrivateKey,
+    salt: dbId.salt,
+    iv: dbId.iv,
+    webAuthnProtected: dbId.webAuthnProtected,
+    credentialId: dbId.credentialId,
+    createdAt: dbId.created,
+    lastUnlockedAt: dbId.lastUsed,
+    keyVersion: dbId.keyVersion,
+  };
+}
 
-        // Update last used timestamp in DB
-        if (identity) {
-          db.identities.update(identity.publicKey, {
-            lastUsed: Date.now(),
-          }).catch(console.error)
+export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
+  // Subscribe to SecureKeyManager events
+  secureKeyManager.addEventListener((event) => {
+    get()._handleSecureKeyManagerEvent(event);
+  });
 
-          // Load private key from DB if not already loaded
-          if (!identity.privateKey) {
-            await get().loadCurrentIdentityPrivateKey()
+  return {
+    // Initial state
+    currentIdentity: null,
+    identities: [],
+    lockState: 'locked',
+    isLoading: false,
+    isUnlocking: false,
+    error: null,
+    lockTimeoutWarning: null,
+
+    /**
+     * Handle SecureKeyManager events
+     */
+    _handleSecureKeyManagerEvent: (event: SecureKeyManagerEvent) => {
+      switch (event.type) {
+        case 'locked':
+          set({ lockState: 'locked', lockTimeoutWarning: null });
+          break;
+        case 'unlocked':
+          set({ lockState: 'unlocked', lockTimeoutWarning: null });
+          break;
+        case 'lock-timeout-warning':
+          set({ lockTimeoutWarning: event.secondsRemaining });
+          break;
+      }
+    },
+
+    /**
+     * Create a new identity with password protection
+     */
+    createNewIdentity: async (name: string, password: string): Promise<Identity> => {
+      set({ isLoading: true, error: null });
+
+      try {
+        // Generate new identity with keys
+        const identity = createIdentity(name);
+
+        // Create encrypted key data
+        const encryptedData = await secureKeyManager.createEncryptedKeyData(
+          identity.publicKey,
+          identity.privateKey,
+          password
+        );
+
+        // Store in IndexedDB with proper encryption
+        const dbIdentity: DBIdentity = {
+          publicKey: identity.publicKey,
+          encryptedPrivateKey: encryptedData.encryptedPrivateKey,
+          salt: encryptedData.salt,
+          iv: encryptedData.iv,
+          webAuthnProtected: false,
+          keyVersion: 1,
+          name: identity.name,
+          npub: identity.npub,
+          created: identity.created,
+          lastUsed: identity.lastUsed,
+        };
+
+        await db.identities.add(dbIdentity);
+
+        // Unlock with the new identity
+        await secureKeyManager.unlockWithPassword(encryptedData, password);
+
+        const publicIdentity = dbIdentityToPublic(dbIdentity);
+
+        set((state) => ({
+          identities: [...state.identities, publicIdentity],
+          currentIdentity: publicIdentity,
+          lockState: 'unlocked',
+          isLoading: false,
+        }));
+
+        // Return full identity with private key
+        return identity;
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to create identity';
+        set({ error: errorMsg, isLoading: false });
+        throw error;
+      }
+    },
+
+    /**
+     * Import an identity from nsec with password protection
+     */
+    importIdentity: async (nsec: string, name: string, password: string): Promise<Identity> => {
+      set({ isLoading: true, error: null });
+
+      try {
+        // Import identity from nsec
+        const identity = importFromNsec(nsec, name);
+
+        // Check if identity already exists
+        const existing = await db.identities.get(identity.publicKey);
+        if (existing) {
+          throw new Error('Identity already exists');
+        }
+
+        // Create encrypted key data
+        const encryptedData = await secureKeyManager.createEncryptedKeyData(
+          identity.publicKey,
+          identity.privateKey,
+          password
+        );
+
+        // Store in IndexedDB
+        const dbIdentity: DBIdentity = {
+          publicKey: identity.publicKey,
+          encryptedPrivateKey: encryptedData.encryptedPrivateKey,
+          salt: encryptedData.salt,
+          iv: encryptedData.iv,
+          webAuthnProtected: false,
+          keyVersion: 1,
+          name: identity.name,
+          npub: identity.npub,
+          created: identity.created,
+          lastUsed: identity.lastUsed,
+        };
+
+        await db.identities.add(dbIdentity);
+
+        // Unlock with the new identity
+        await secureKeyManager.unlockWithPassword(encryptedData, password);
+
+        const publicIdentity = dbIdentityToPublic(dbIdentity);
+
+        set((state) => ({
+          identities: [...state.identities, publicIdentity],
+          currentIdentity: publicIdentity,
+          lockState: 'unlocked',
+          isLoading: false,
+        }));
+
+        return identity;
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to import identity';
+        set({ error: errorMsg, isLoading: false });
+        throw error;
+      }
+    },
+
+    /**
+     * Load all identities from database (public info only)
+     */
+    loadIdentities: async () => {
+      set({ isLoading: true, error: null });
+
+      try {
+        const dbIdentities = await db.identities.toArray();
+        const identities = dbIdentities.map(dbIdentityToPublic);
+
+        set({ identities, isLoading: false });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to load identities';
+        set({ error: errorMsg, isLoading: false });
+      }
+    },
+
+    /**
+     * Remove an identity
+     */
+    removeIdentity: async (publicKey: string) => {
+      set({ isLoading: true, error: null });
+
+      try {
+        await db.identities.delete(publicKey);
+
+        const current = get().currentIdentity;
+        const isCurrentIdentity = current?.publicKey === publicKey;
+
+        // If removing current identity, lock first
+        if (isCurrentIdentity) {
+          secureKeyManager.lock();
+        }
+
+        set((state) => ({
+          identities: state.identities.filter((id) => id.publicKey !== publicKey),
+          currentIdentity: isCurrentIdentity ? null : state.currentIdentity,
+          lockState: isCurrentIdentity ? 'locked' : state.lockState,
+          isLoading: false,
+        }));
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to remove identity';
+        set({ error: errorMsg, isLoading: false });
+      }
+    },
+
+    /**
+     * Set the current identity (must unlock separately)
+     */
+    setCurrentIdentity: async (publicKey: string | null) => {
+      if (!publicKey) {
+        // Clearing current identity - lock
+        secureKeyManager.lock();
+        set({ currentIdentity: null, lockState: 'locked' });
+        return;
+      }
+
+      // Find identity
+      const identity = get().identities.find((id) => id.publicKey === publicKey);
+      if (!identity) {
+        throw new Error('Identity not found');
+      }
+
+      // Lock the current session before switching
+      secureKeyManager.lock();
+
+      set({ currentIdentity: identity, lockState: 'locked' });
+    },
+
+    /**
+     * Unlock the current identity with password
+     */
+    unlock: async (password: string) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      set({ isUnlocking: true, error: null });
+
+      try {
+        // Get encrypted data from database
+        const dbIdentity = await db.identities.get(current.publicKey);
+        if (!dbIdentity) {
+          throw new Error('Identity not found in database');
+        }
+
+        // Check if this is an old-format identity (no salt field)
+        if (!dbIdentity.salt) {
+          throw new Error(
+            'This identity needs to be migrated. Please use the migration tool in Settings.'
+          );
+        }
+
+        const encryptedData = dbIdentityToEncryptedData(dbIdentity);
+
+        // Unlock with SecureKeyManager
+        await secureKeyManager.unlockWithPassword(encryptedData, password);
+
+        // Load security settings
+        if (dbIdentity.securitySettings) {
+          try {
+            const settings = JSON.parse(dbIdentity.securitySettings) as SecuritySettings;
+            secureKeyManager.setSecuritySettings(current.publicKey, settings);
+          } catch {
+            // Use defaults if parsing fails
           }
         }
-      },
 
-      createNewIdentity: async (name) => {
-        set({ isLoading: true, error: null })
+        // Update last used timestamp
+        await db.identities.update(current.publicKey, { lastUsed: Date.now() });
 
-        try {
-          const identity = createIdentity(name)
+        set({ isUnlocking: false, lockState: 'unlocked' });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to unlock';
+        set({ error: errorMsg, isUnlocking: false });
+        throw error;
+      }
+    },
 
-          // Store in IndexedDB
-          // NOTE: Keys are hex-encoded for local storage (IndexedDB is browser-sandboxed)
-          // For WebAuthn-protected keys, use ProtectedKeyStorage service
-          // For password-protected keys, use protectedKeyStorage.storeProtectedKey()
-          await db.identities.add({
-            publicKey: identity.publicKey,
-            encryptedPrivateKey: bytesToHex(identity.privateKey),
-            name: identity.name,
-            created: identity.created,
-            lastUsed: identity.lastUsed,
-          })
+    /**
+     * Lock the app (clear keys from memory)
+     */
+    lock: () => {
+      secureKeyManager.lock();
+      set({ lockState: 'locked', lockTimeoutWarning: null });
+    },
 
-          const updatedIdentities = [...get().identities, identity]
-          set({
-            identities: updatedIdentities,
-            currentIdentity: identity,
-            isLoading: false,
-          })
+    /**
+     * Get the current private key (only if unlocked)
+     */
+    getPrivateKey: (): Uint8Array | null => {
+      return secureKeyManager.getCurrentPrivateKey();
+    },
 
-          return identity
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Failed to create identity'
-          set({ error: errorMsg, isLoading: false })
-          throw error
+    /**
+     * Change password for current identity
+     */
+    changePassword: async (oldPassword: string, newPassword: string) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      set({ isLoading: true, error: null });
+
+      try {
+        const dbIdentity = await db.identities.get(current.publicKey);
+        if (!dbIdentity) {
+          throw new Error('Identity not found');
         }
-      },
 
-      importIdentity: async (nsec, name) => {
-        set({ isLoading: true, error: null })
+        const oldEncryptedData = dbIdentityToEncryptedData(dbIdentity);
+        const newEncryptedData = await secureKeyManager.changePassword(
+          oldEncryptedData,
+          oldPassword,
+          newPassword
+        );
 
-        try {
-          const identity = importFromNsec(nsec, name)
+        // Update in database
+        await db.identities.update(current.publicKey, {
+          encryptedPrivateKey: newEncryptedData.encryptedPrivateKey,
+          salt: newEncryptedData.salt,
+          iv: newEncryptedData.iv,
+          keyVersion: newEncryptedData.keyVersion,
+        });
 
-          // Store in IndexedDB
-          // NOTE: Keys are hex-encoded for local storage (IndexedDB is browser-sandboxed)
-          // For WebAuthn-protected keys, use ProtectedKeyStorage service
-          await db.identities.add({
-            publicKey: identity.publicKey,
-            encryptedPrivateKey: bytesToHex(identity.privateKey),
-            name: identity.name,
-            created: identity.created,
-            lastUsed: identity.lastUsed,
-          })
+        set({ isLoading: false });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to change password';
+        set({ error: errorMsg, isLoading: false });
+        throw error;
+      }
+    },
 
-          const updatedIdentities = [...get().identities, identity]
-          set({
-            identities: updatedIdentities,
-            currentIdentity: identity,
-            isLoading: false,
-          })
+    /**
+     * Verify password without unlocking
+     */
+    verifyPassword: async (password: string): Promise<boolean> => {
+      const current = get().currentIdentity;
+      if (!current) {
+        return false;
+      }
 
-          return identity
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Failed to import identity'
-          set({ error: errorMsg, isLoading: false })
-          throw error
+      try {
+        const dbIdentity = await db.identities.get(current.publicKey);
+        if (!dbIdentity || !dbIdentity.salt) {
+          return false;
         }
-      },
 
-      loadIdentities: async () => {
-        set({ isLoading: true, error: null })
+        const encryptedData = dbIdentityToEncryptedData(dbIdentity);
+        return await secureKeyManager.verifyPassword(encryptedData, password);
+      } catch {
+        return false;
+      }
+    },
 
-        try {
-          const dbIdentities = await db.identities.toArray()
+    /**
+     * Enable WebAuthn for quick unlock
+     */
+    enableWebAuthn: async (password: string) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
 
-          // Convert to Identity objects
-          // Keys are stored hex-encoded in IndexedDB (browser-sandboxed)
-          const identities: Identity[] = dbIdentities.map(dbId => ({
-            publicKey: dbId.publicKey,
-            npub: nip19.npubEncode(dbId.publicKey),
-            privateKey: hexToBytes(dbId.encryptedPrivateKey),
-            name: dbId.name,
-            username: dbId.username,
-            displayName: dbId.displayName,
-            nip05: dbId.nip05,
-            nip05Verified: dbId.nip05Verified,
-            created: dbId.created,
-            lastUsed: dbId.lastUsed,
-          }))
+      set({ isLoading: true, error: null });
 
-          set({ identities, isLoading: false })
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Failed to load identities'
-          set({ error: errorMsg, isLoading: false })
+      try {
+        // First verify password
+        const isValid = await get().verifyPassword(password);
+        if (!isValid) {
+          throw new Error('Invalid password');
         }
-      },
 
-      loadCurrentIdentityPrivateKey: async () => {
-        const current = get().currentIdentity
-        if (!current) return
+        // Import WebAuthn service dynamically
+        const { webAuthnService } = await import('@/lib/webauthn/WebAuthnService');
+        await webAuthnService.init();
 
-        try {
-          const dbIdentity = await db.identities.get(current.publicKey)
-          if (!dbIdentity) {
-            console.error('Identity not found in database')
-            return
-          }
-
-          // Restore private key from DB (hex-encoded in IndexedDB)
-          const privateKey = hexToBytes(dbIdentity.encryptedPrivateKey)
-
-          set({
-            currentIdentity: {
-              ...current,
-              privateKey,
-            },
-          })
-        } catch (error) {
-          console.error('Failed to load private key:', error)
+        if (!webAuthnService.isWebAuthnSupported()) {
+          throw new Error('WebAuthn is not supported on this device');
         }
-      },
 
-      removeIdentity: async (publicKey) => {
-        set({ isLoading: true, error: null })
+        // Register credential
+        const credential = await webAuthnService.registerCredential(
+          current.npub,
+          current.displayName || current.name
+        );
 
-        try {
-          await db.identities.delete(publicKey)
-
-          const updatedIdentities = get().identities.filter(id => id.publicKey !== publicKey)
-          const current = get().currentIdentity
-
-          set({
-            identities: updatedIdentities,
-            currentIdentity: current?.publicKey === publicKey ? null : current,
-            isLoading: false,
-          })
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Failed to remove identity'
-          set({ error: errorMsg, isLoading: false })
+        // Get encrypted data from database
+        const dbIdentity = await db.identities.get(current.publicKey);
+        if (!dbIdentity) {
+          throw new Error('Identity not found');
         }
-      },
 
-      logout: () => {
-        set({ currentIdentity: null, error: null })
-      },
-    }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        currentIdentity: state.currentIdentity
-          ? {
-              publicKey: state.currentIdentity.publicKey,
-              npub: state.currentIdentity.npub,
-              name: state.currentIdentity.name,
-              username: state.currentIdentity.username,
-              displayName: state.currentIdentity.displayName,
-              nip05: state.currentIdentity.nip05,
-              nip05Verified: state.currentIdentity.nip05Verified,
-              created: state.currentIdentity.created,
-              lastUsed: state.currentIdentity.lastUsed,
-            }
-          : null,
-      }),
-      onRehydrateStorage: () => async (state) => {
-        // After rehydrating from localStorage, restore the full Identity with private key from DB
-        // NOTE: We defer database access to avoid opening the DB before modules register schemas
-        if (state?.currentIdentity) {
-          // The private key will be loaded lazily via loadCurrentIdentityPrivateKey()
-          // when the app actually needs it (after database initialization)
+        const encryptedData = dbIdentityToEncryptedData(dbIdentity);
+        const updatedData = await secureKeyManager.enableWebAuthn(
+          encryptedData,
+          credential,
+          password
+        );
+
+        // Update in database
+        await db.identities.update(current.publicKey, {
+          webAuthnProtected: true,
+          credentialId: updatedData.credentialId,
+          keyVersion: updatedData.keyVersion,
+        });
+
+        set({ isLoading: false });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to enable WebAuthn';
+        set({ error: errorMsg, isLoading: false });
+        throw error;
+      }
+    },
+
+    /**
+     * Disable WebAuthn
+     */
+    disableWebAuthn: async (password: string) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      set({ isLoading: true, error: null });
+
+      try {
+        const dbIdentity = await db.identities.get(current.publicKey);
+        if (!dbIdentity) {
+          throw new Error('Identity not found');
         }
-      },
-    }
-  )
-)
+
+        const encryptedData = dbIdentityToEncryptedData(dbIdentity);
+        const updatedData = await secureKeyManager.disableWebAuthn(encryptedData, password);
+
+        // Update in database
+        await db.identities.update(current.publicKey, {
+          webAuthnProtected: false,
+          credentialId: undefined,
+          keyVersion: updatedData.keyVersion,
+        });
+
+        set({ isLoading: false });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to disable WebAuthn';
+        set({ error: errorMsg, isLoading: false });
+        throw error;
+      }
+    },
+
+    /**
+     * Update security settings
+     */
+    updateSecuritySettings: async (settings: Partial<SecuritySettings>) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      const currentSettings = get().getSecuritySettings();
+      const newSettings: SecuritySettings = {
+        ...currentSettings,
+        ...settings,
+      };
+
+      // Update in SecureKeyManager
+      secureKeyManager.setSecuritySettings(current.publicKey, newSettings);
+
+      // Persist to database
+      await db.identities.update(current.publicKey, {
+        securitySettings: JSON.stringify(newSettings),
+      });
+    },
+
+    /**
+     * Get security settings for current identity
+     */
+    getSecuritySettings: (): SecuritySettings => {
+      const current = get().currentIdentity;
+      if (!current) {
+        return DEFAULT_SECURITY_SETTINGS;
+      }
+      return secureKeyManager.getSecuritySettings(current.publicKey);
+    },
+
+    /**
+     * Export private key (requires password verification)
+     */
+    exportPrivateKey: async (password: string): Promise<string> => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      const dbIdentity = await db.identities.get(current.publicKey);
+      if (!dbIdentity) {
+        throw new Error('Identity not found');
+      }
+
+      const encryptedData = dbIdentityToEncryptedData(dbIdentity);
+      const privateKey = await secureKeyManager.exportPrivateKey(encryptedData, password);
+
+      // Return as nsec
+      return nip19.nsecEncode(privateKey);
+    },
+
+    /**
+     * Legacy logout - now just locks
+     */
+    logout: () => {
+      get().lock();
+    },
+  };
+});
+
+/**
+ * Hook to get the current identity with private key
+ * Returns null if locked
+ */
+export function useCurrentIdentityWithKey(): Identity | null {
+  const { currentIdentity, lockState } = useAuthStore();
+
+  if (!currentIdentity || lockState !== 'unlocked') {
+    return null;
+  }
+
+  const privateKey = secureKeyManager.getCurrentPrivateKey();
+  if (!privateKey) {
+    return null;
+  }
+
+  return {
+    ...currentIdentity,
+    privateKey,
+  };
+}
+
+/**
+ * Hook to check if app is locked
+ */
+export function useIsLocked(): boolean {
+  return useAuthStore((state) => state.lockState === 'locked');
+}
+
+/**
+ * Hook to get lock timeout warning
+ */
+export function useLockTimeoutWarning(): number | null {
+  return useAuthStore((state) => state.lockTimeoutWarning);
+}
+
+/**
+ * Hook to get the private key for the current identity
+ * Returns null if locked or no identity selected
+ *
+ * This is a simpler hook for components that just need the private key
+ */
+export function usePrivateKey(): Uint8Array | null {
+  const { currentIdentity, lockState } = useAuthStore();
+
+  if (!currentIdentity || lockState !== 'unlocked') {
+    return null;
+  }
+
+  return secureKeyManager.getCurrentPrivateKey();
+}
+
+/**
+ * Get the current identity's private key (non-hook version for use in stores/callbacks)
+ * Returns null if locked
+ */
+export function getCurrentPrivateKey(): Uint8Array | null {
+  const { currentIdentity, lockState } = useAuthStore.getState();
+  if (!currentIdentity || lockState !== 'unlocked') {
+    return null;
+  }
+  return secureKeyManager.getCurrentPrivateKey();
+}

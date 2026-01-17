@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useModuleStore } from '@/stores/moduleStore'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Lock } from 'lucide-react'
 import { loadAllSeeds } from '@/core/storage/seedLoader'
 import { db } from '@/core/storage/db'
 import type { GroupPrivacyLevel, GroupModule } from '@/types/group'
@@ -29,7 +31,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   const [availableModules, setAvailableModules] = useState<{ value: GroupModule; label: string; description: string }[]>([])
 
   const { createGroup } = useGroupsStore()
-  const { currentIdentity } = useAuthStore()
+  const { currentIdentity, lockState } = useAuthStore()
 
   // Load available modules from registry only once
   useEffect(() => {
@@ -56,23 +58,20 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
     }
   }
 
+  const isLocked = lockState !== 'unlocked'
+
   const handleCreate = async () => {
     if (!name.trim() || !currentIdentity || creating) return
 
+    // Check if app is unlocked
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) {
+      alert('Please unlock the app to create a group.')
+      return
+    }
+
     setCreating(true)
     try {
-      // Ensure private key is loaded from DB
-      const { loadCurrentIdentityPrivateKey } = useAuthStore.getState()
-      if (!currentIdentity.privateKey) {
-        await loadCurrentIdentityPrivateKey()
-      }
-
-      // Get the updated identity with private key
-      const updatedIdentity = useAuthStore.getState().currentIdentity
-      if (!updatedIdentity?.privateKey) {
-        throw new Error('Failed to load private key')
-      }
-
       const group = await createGroup(
         {
           name: name.trim(),
@@ -80,8 +79,8 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
           privacyLevel,
           enabledModules: selectedModules,
         },
-        updatedIdentity.privateKey,
-        updatedIdentity.publicKey
+        privateKey,
+        currentIdentity.publicKey
       )
 
       // Enable selected modules in module store
@@ -128,6 +127,16 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
         <DialogHeader>
           <DialogTitle>Create New Group</DialogTitle>
         </DialogHeader>
+
+        {isLocked && (
+          <Alert>
+            <Lock className="h-4 w-4" />
+            <AlertDescription>
+              Please unlock the app to create a group. Enter your password on the main screen.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-6 mt-4">
           {/* Basic Info */}
           <div className="space-y-4">
@@ -138,6 +147,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 placeholder="Enter group name..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                disabled={isLocked}
               />
             </div>
 
@@ -148,12 +158,17 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 placeholder="Brief description of the group..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={isLocked}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="privacy">Privacy Level</Label>
-              <Select value={privacyLevel} onValueChange={(value) => setPrivacyLevel(value as GroupPrivacyLevel)}>
+              <Select
+                value={privacyLevel}
+                onValueChange={(value) => setPrivacyLevel(value as GroupPrivacyLevel)}
+                disabled={isLocked}
+              >
                 <SelectTrigger id="privacy">
                   <SelectValue placeholder="Select privacy level" />
                 </SelectTrigger>
@@ -177,8 +192,8 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                     selectedModules.includes(module.value)
                       ? 'bg-primary text-primary-foreground'
                       : 'hover:bg-accent'
-                  }`}
-                  onClick={() => toggleModule(module.value)}
+                  } ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}
+                  onClick={() => !isLocked && toggleModule(module.value)}
                 >
                   <div className="flex items-start gap-2">
                     <input
@@ -188,6 +203,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                       onClick={(e) => e.stopPropagation()}
                       className="mt-1 pointer-events-none"
                       readOnly
+                      disabled={isLocked}
                     />
                     <div className="flex-1">
                       <p className="font-medium text-sm">{module.label}</p>
@@ -205,6 +221,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
               id="demo-data"
               checked={loadDemoData}
               onCheckedChange={(checked) => setLoadDemoData(checked as boolean)}
+              disabled={isLocked}
             />
             <div className="flex-1">
               <Label
@@ -224,7 +241,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
             <Button variant="outline" onClick={() => setOpen(false)} disabled={creating}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={!name.trim() || creating}>
+            <Button onClick={handleCreate} disabled={!name.trim() || creating || isLocked}>
               {creating ? 'Creating...' : 'Create Group'}
             </Button>
           </div>

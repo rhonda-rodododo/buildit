@@ -45,18 +45,19 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
           label: route.label || module.metadata.name,
           icon: module.metadata.icon,
           moduleId: module.metadata.id,
+          Component: route.component
         }))
     );
 
   return (
-    <aside className={cn('w-64 border-r bg-muted/10 p-4 space-y-6', className)}>
+    <aside className={cn('border-r flex flex-col p-4', className)}>
       {/* Group name */}
-      <div className="px-3">
+      <div className="px-3 w-auto flex flex-col mb-6">
         <h2 className="text-lg font-semibold truncate">{group.name}</h2>
         <p className="text-xs text-muted-foreground truncate">{group.description}</p>
-      </div>
+      </div>  
 
-      <nav className="space-y-1">
+      <nav className="w-full flex flex-col">
         {/* Dashboard link */}
         <NavLink
           to={`/app/groups/${groupId}`}
@@ -69,7 +70,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
                 : 'hover:bg-muted'
             )
           }
-        >
+        > 
           <LayoutDashboard className="h-4 w-4" />
           Dashboard
         </NavLink>

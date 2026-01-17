@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -12,15 +12,21 @@ interface GovernanceViewProps {
 
 export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const draftProposals = useGovernanceStore(state =>
-    state.getProposalsByStatus(groupId, 'draft')
+
+  // Memoize selectors to prevent creating new functions on every render
+  const draftSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
+    state.getProposalsByStatus(groupId, 'draft'), [groupId]
   )
-  const votingProposals = useGovernanceStore(state =>
-    state.getProposalsByStatus(groupId, 'voting')
+  const votingSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
+    state.getProposalsByStatus(groupId, 'voting'), [groupId]
   )
-  const decidedProposals = useGovernanceStore(state =>
-    state.getProposalsByStatus(groupId, 'decided')
+  const decidedSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
+    state.getProposalsByStatus(groupId, 'decided'), [groupId]
   )
+
+  const draftProposals = useGovernanceStore(draftSelector)
+  const votingProposals = useGovernanceStore(votingSelector)
+  const decidedProposals = useGovernanceStore(decidedSelector)
 
   return (
     <div className="space-y-6">

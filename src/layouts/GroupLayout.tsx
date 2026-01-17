@@ -1,7 +1,8 @@
 import { FC } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useRoutes } from 'react-router-dom';
 import { GroupSidebar } from '@/components/navigation/GroupSidebar';
 import { GroupContextProvider } from '@/contexts/GroupContext';
+import { getModuleRoutes } from '@/routes';
 
 /**
  * Group layout - wraps group-specific pages
@@ -9,6 +10,7 @@ import { GroupContextProvider } from '@/contexts/GroupContext';
  * Provides GroupContext to all nested routes
  */
 export const GroupLayout: FC = () => {
+  const router = useRoutes(getModuleRoutes('group', 'element'));
   return (
     <GroupContextProvider>
       <div className="flex gap-6">
@@ -17,7 +19,8 @@ export const GroupLayout: FC = () => {
 
         {/* Group content */}
         <div className="flex-1">
-          <Outlet />
+           {router}
+           <Outlet />
         </div>
       </div>
     </GroupContextProvider>

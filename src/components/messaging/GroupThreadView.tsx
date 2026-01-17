@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useMessagingStore } from '@/stores/messagingStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,6 +84,12 @@ export function GroupThreadView({ threadId, groupId, groupKey }: GroupThreadView
   const handleSend = async () => {
     if (!newMessage.trim() || !currentIdentity) return
 
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) {
+      console.error('App is locked, cannot send message')
+      return
+    }
+
     setIsLoading(true)
     try {
       const client = getNostrClient()
@@ -92,7 +98,7 @@ export function GroupThreadView({ threadId, groupId, groupKey }: GroupThreadView
         threadId,
         groupId,
         newMessage,
-        currentIdentity.privateKey,
+        privateKey,
         groupKey
       )
       setNewMessage('')

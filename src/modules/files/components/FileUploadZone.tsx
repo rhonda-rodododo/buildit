@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useAuthStore } from '@/stores/authStore'
+import { getCurrentPrivateKey } from '@/stores/authStore'
 import { useFilesStore } from '../filesStore'
 import { fileManager } from '../fileManager'
 
@@ -28,7 +28,6 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
-  const currentIdentity = useAuthStore((state) => state.currentIdentity)
   const uploadProgress = useFilesStore((state) => state.getAllUploadProgress())
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -56,7 +55,8 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
   }, [])
 
   const handleUpload = async () => {
-    if (!currentIdentity?.privateKey || selectedFiles.length === 0) return
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey || selectedFiles.length === 0) return
 
     setIsUploading(true)
 
@@ -73,7 +73,7 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
             file,
             encrypt: true,
           },
-          currentIdentity.privateKey,
+          privateKey,
           groupKey
         )
       }

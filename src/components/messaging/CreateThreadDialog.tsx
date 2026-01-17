@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { createGroupThread } from '@/core/messaging/groupThread'
 import { getNostrClient } from '@/core/nostr/client'
@@ -33,6 +33,12 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
   const handleCreate = async () => {
     if (!title.trim() || !currentIdentity) return
 
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) {
+      console.error('App is locked, cannot create thread')
+      return
+    }
+
     setIsCreating(true)
     try {
       const client = getNostrClient()
@@ -41,7 +47,7 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
         groupId,
         title,
         category || undefined,
-        currentIdentity.privateKey
+        privateKey
       )
 
       // Add to store

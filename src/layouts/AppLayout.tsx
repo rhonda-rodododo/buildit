@@ -16,6 +16,7 @@ export const AppLayout: FC = () => {
 
   // Keyboard shortcuts
   useEffect(() => {
+  
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only trigger if Ctrl/Cmd is pressed
       if (!e.ctrlKey && !e.metaKey) return;

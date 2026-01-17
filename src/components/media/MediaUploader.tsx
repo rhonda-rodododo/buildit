@@ -18,7 +18,7 @@ import { DEFAULT_MEDIA_CONFIG } from '@/types/media';
 import { stripExif, generateThumbnail, isExifCapable } from '@/lib/media/exifStripper';
 import { encryptMediaWithThumbnail } from '@/lib/media/mediaEncryption';
 import { uploadMedia } from '@/lib/media/mediaStorage';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 
 interface MediaUploaderProps {
   onUploadComplete: (metadata: MediaMetadata) => void;
@@ -166,7 +166,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
             caption: captions[file.name],
             alt: altTexts[file.name],
           },
-          privateKey: currentIdentity.privateKey,
+          privateKey: getCurrentPrivateKey()!,
           onProgress: (prog) => {
             setProgress(prev => prev.map(p =>
               p.id === progressId ? { ...p, progress: 40 + (prog * 0.6) } : p

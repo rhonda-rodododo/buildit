@@ -2,8 +2,9 @@ import { create } from 'zustand'
 import type { WikiPage, WikiCategory } from './types'
 
 interface WikiState {
-  pages: Map<string, WikiPage>
-  categories: Map<string, WikiCategory>
+  // Use objects/arrays instead of Maps for proper Zustand reactivity
+  pages: Record<string, WikiPage>
+  categories: Record<string, WikiCategory>
 
   // Actions
   addPage: (page: WikiPage) => void
@@ -21,64 +22,67 @@ interface WikiState {
 }
 
 export const useWikiStore = create<WikiState>((set, get) => ({
-  pages: new Map(),
-  categories: new Map(),
+  pages: {},
+  categories: {},
 
-  addPage: (page) => set((state) => {
-    const newPages = new Map(state.pages)
-    newPages.set(page.id, page)
-    return { pages: newPages }
-  }),
+  addPage: (page) => set((state) => ({
+    pages: {
+      ...state.pages,
+      [page.id]: page,
+    },
+  })),
 
   updatePage: (id, updates) => set((state) => {
-    const newPages = new Map(state.pages)
-    const existing = newPages.get(id)
-    if (existing) {
-      newPages.set(id, {
-        ...existing,
-        ...updates,
-        updated: Date.now(),
-        version: existing.version + 1,
-      })
+    const existing = state.pages[id]
+    if (!existing) return state
+
+    return {
+      pages: {
+        ...state.pages,
+        [id]: {
+          ...existing,
+          ...updates,
+          updated: Date.now(),
+          version: existing.version + 1,
+        },
+      },
     }
-    return { pages: newPages }
   }),
 
   removePage: (id) => set((state) => {
-    const newPages = new Map(state.pages)
-    newPages.delete(id)
-    return { pages: newPages }
+    const { [id]: removed, ...rest } = state.pages
+    return { pages: rest }
   }),
 
-  addCategory: (category) => set((state) => {
-    const newCategories = new Map(state.categories)
-    newCategories.set(category.id, category)
-    return { categories: newCategories }
-  }),
+  addCategory: (category) => set((state) => ({
+    categories: {
+      ...state.categories,
+      [category.id]: category,
+    },
+  })),
 
   removeCategory: (id) => set((state) => {
-    const newCategories = new Map(state.categories)
-    newCategories.delete(id)
-    return { categories: newCategories }
+    const { [id]: removed, ...rest } = state.categories
+    return { categories: rest }
   }),
 
-  getPage: (id) => get().pages.get(id),
+  getPage: (id) => get().pages[id],
 
   getPagesByGroup: (groupId) => {
-    return Array.from(get().pages.values())
+    return Object.values(get().pages)
       .filter(p => p.groupId === groupId)
       .sort((a, b) => b.updated - a.updated)
   },
 
   getPagesByCategory: (groupId, category) => {
-    return Array.from(get().pages.values())
+    return Object.values(get().pages)
       .filter(p => p.groupId === groupId && p.category === category)
       .sort((a, b) => b.updated - a.updated)
   },
 
   searchPages: (groupId, query) => {
     const lowercaseQuery = query.toLowerCase()
-    return Array.from(get().pages.values())
+    return Object.values(get().pages)
       .filter(p =>
         p.groupId === groupId &&
         (p.title.toLowerCase().includes(lowercaseQuery) ||
@@ -89,7 +93,7 @@ export const useWikiStore = create<WikiState>((set, get) => ({
   },
 
   getCategories: (groupId) => {
-    return Array.from(get().categories.values())
+    return Object.values(get().categories)
       .filter(c => c.groupId === groupId)
       .sort((a, b) => a.name.localeCompare(b.name))
   },

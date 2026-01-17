@@ -5,7 +5,7 @@
 import { FC, useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { getNostrClient } from '@/core/nostr/client'
 import { documentManager } from '../documentManager'
@@ -59,9 +59,11 @@ export const DocumentsPage: FC = () => {
 
   // Auto-save every 30 seconds
   useEffect(() => {
-    if (!currentDoc || !currentIdentity?.privateKey) return
+    if (!currentDoc || !currentIdentity) return
 
     const interval = setInterval(async () => {
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) return
       if (content !== currentDoc.content || title !== currentDoc.title) {
         await handleSave()
       }
@@ -71,7 +73,8 @@ export const DocumentsPage: FC = () => {
   }, [currentDoc, content, title, currentIdentity])
 
   const handleCreate = async () => {
-    if (!groupId || !currentIdentity?.privateKey || !title.trim()) return
+    const privateKey = getCurrentPrivateKey()
+    if (!groupId || !privateKey || !title.trim()) return
 
     setIsCreating(true)
     try {
@@ -82,7 +85,7 @@ export const DocumentsPage: FC = () => {
           content: content,
           template: selectedTemplate || undefined,
         },
-        currentIdentity.privateKey
+        privateKey
       )
       setCurrentDocument(doc.id)
       setIsCreating(false)
@@ -93,14 +96,15 @@ export const DocumentsPage: FC = () => {
   }
 
   const handleSave = async () => {
-    if (!currentDoc || !currentIdentity?.privateKey) return
+    const privateKey = getCurrentPrivateKey()
+    if (!currentDoc || !privateKey) return
 
     setIsSaving(true)
     try {
       await documentManager.updateDocument(
         currentDoc.id,
         { title, content },
-        currentIdentity.privateKey,
+        privateKey,
         'Auto-save'
       )
       setIsSaving(false)
@@ -234,12 +238,12 @@ export const DocumentsPage: FC = () => {
               <TipTapEditor
                 content={content}
                 onChange={setContent}
-                enableCollaboration={collaborationEnabled && !!currentDoc && !!groupId && !!nostrClient && !!currentIdentity?.privateKey}
+                enableCollaboration={collaborationEnabled && !!currentDoc && !!groupId && !!nostrClient && !!getCurrentPrivateKey()}
                 documentId={currentDoc.id}
                 groupId={groupId}
                 nostrClient={nostrClient}
-                userPrivateKey={currentIdentity?.privateKey}
-                userPublicKey={currentIdentity?.privateKey ? getPublicKey(currentIdentity.privateKey) : undefined}
+                userPrivateKey={getCurrentPrivateKey() ?? undefined}
+                userPublicKey={getCurrentPrivateKey() ? getPublicKey(getCurrentPrivateKey()!) : undefined}
                 userName={currentIdentity?.name || 'Anonymous'}
                 collaboratorPubkeys={groupId && groupMembers.get(groupId) ? groupMembers.get(groupId)!.map((m: DBGroupMember) => m.pubkey) : []}
               />

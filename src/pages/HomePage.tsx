@@ -144,7 +144,7 @@ export const HomePage: FC = () => {
       }
 
       // Load seed proposals
-      if (proposals.size === 0) {
+      if (Object.keys(proposals).length === 0) {
         const seedProposals = [
           {
             id: 'proposal-1',
@@ -188,7 +188,7 @@ export const HomePage: FC = () => {
       }
 
       // Load seed wiki pages
-      if (pages.size === 0) {
+      if (Object.keys(pages).length === 0) {
         const seedPages = [
           {
             id: 'wiki-1',

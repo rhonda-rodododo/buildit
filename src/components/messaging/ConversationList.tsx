@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react'
 import { useMessagingStore } from '@/stores/messagingStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { getConversations } from '@/core/messaging/dm'
 import { getNostrClient } from '@/core/nostr/client'
 import { Card } from '@/components/ui/card'
@@ -19,7 +19,9 @@ export const ConversationList: FC<ConversationListProps> = ({ onSelectConversati
 
     const loadConversations = async () => {
       const client = getNostrClient()
-      const convs = await getConversations(client, currentIdentity.publicKey, currentIdentity.privateKey)
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) return
+      const convs = await getConversations(client, currentIdentity.publicKey, privateKey)
       setConversations(convs)
     }
 

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuthStore } from '@/stores/authStore'
+import { getCurrentPrivateKey } from '@/stores/authStore'
 import { fileManager } from '../fileManager'
 
 interface CreateFolderDialogProps {
@@ -27,10 +27,9 @@ export function CreateFolderDialog({ groupId, parentId, onClose }: CreateFolderD
   const [name, setName] = useState('')
   const [isCreating, setIsCreating] = useState(false)
 
-  const currentIdentity = useAuthStore((state) => state.currentIdentity)
-
   const handleCreate = async () => {
-    if (!currentIdentity?.privateKey || !name.trim()) return
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey || !name.trim()) return
 
     setIsCreating(true)
 
@@ -41,7 +40,7 @@ export function CreateFolderDialog({ groupId, parentId, onClose }: CreateFolderD
           parentId,
           name: name.trim(),
         },
-        currentIdentity.privateKey
+        privateKey
       )
 
       onClose()

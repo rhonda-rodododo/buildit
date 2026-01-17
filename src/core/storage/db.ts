@@ -22,15 +22,22 @@ import type {
 
 export interface DBIdentity {
   publicKey: string; // primary key
-  encryptedPrivateKey: string;
+  encryptedPrivateKey: string; // AES-GCM encrypted private key (base64)
+  salt: string; // PBKDF2 salt (base64) - unique per identity
+  iv: string; // AES-GCM initialization vector (base64)
+  webAuthnProtected: boolean; // Whether WebAuthn quick-unlock is enabled
+  credentialId?: string; // WebAuthn credential ID (if webAuthnProtected)
+  keyVersion: number; // For key rotation tracking
   name: string;
-  npub?: string; // Added for WebAuthn user handles
+  npub?: string; // bech32-encoded public key
   username?: string; // Human-readable username (e.g., "alice-organizer")
   displayName?: string; // Display name (e.g., "Alice Martinez")
   nip05?: string; // Verified identifier (alice@domain.com)
   nip05Verified?: boolean; // NIP-05 verification status
   created: number;
   lastUsed: number;
+  // Security settings stored per-identity
+  securitySettings?: string; // JSON-encoded SecuritySettings
 }
 
 export interface DBGroup {
@@ -122,8 +129,8 @@ export type {
 const CORE_SCHEMA: TableSchema[] = [
   {
     name: 'identities',
-    schema: 'publicKey, name, username, nip05, created, lastUsed',
-    indexes: ['publicKey', 'name', 'username', 'nip05', 'created', 'lastUsed'],
+    schema: 'publicKey, name, username, nip05, webAuthnProtected, created, lastUsed',
+    indexes: ['publicKey', 'name', 'username', 'nip05', 'webAuthnProtected', 'created', 'lastUsed'],
   },
   {
     name: 'groups',
@@ -446,9 +453,10 @@ export async function initializeDatabase(): Promise<void> {
     // Create database instance with all collected module schemas
     _dbInstance = new BuildItDB(schemaRegistry);
 
-    // Setup encryption hooks before opening
-    const { setupEncryptionHooks } = await import('./encryption');
-    setupEncryptionHooks(_dbInstance);
+    // Setup local encryption hooks before opening
+    // Uses NIP-44 with a locally-derived encryption key for at-rest encryption
+    const { setupLocalEncryptionHooks } = await import('./EncryptedDB');
+    setupLocalEncryptionHooks(_dbInstance);
 
     // Open the database
     await _dbInstance.open();

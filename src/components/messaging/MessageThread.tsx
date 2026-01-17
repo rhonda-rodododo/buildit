@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from 'react'
 import { useMessagingStore } from '@/stores/messagingStore'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { loadConversationHistory, sendDirectMessage, subscribeToDirectMessages } from '@/core/messaging/dm'
 import { getNostrClient } from '@/core/nostr/client'
@@ -31,11 +31,13 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
 
     // Load conversation history
     const loadHistory = async () => {
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) return
       const history = await loadConversationHistory(
         client,
         currentIdentity.publicKey,
         otherPubkey,
-        currentIdentity.privateKey
+        privateKey
       )
       setMessages(conversationId, history)
     }
@@ -43,10 +45,12 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
     loadHistory()
 
     // Subscribe to new messages
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) return
     const subId = subscribeToDirectMessages(
       client,
       currentIdentity.publicKey,
-      currentIdentity.privateKey,
+      privateKey,
       (message) => {
         if (message.conversationId === conversationId) {
           addMessage(message)
@@ -83,6 +87,12 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
   const handleSend = async () => {
     if (!messageInput.trim() || !currentIdentity || !otherPubkey || sending) return
 
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) {
+      console.error('App is locked, cannot send message')
+      return
+    }
+
     setSending(true)
     try {
       const client = getNostrClient()
@@ -91,7 +101,7 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
         client,
         otherPubkey,
         messageInput.trim(),
-        currentIdentity.privateKey
+        privateKey
       )
 
       setMessageInput('')

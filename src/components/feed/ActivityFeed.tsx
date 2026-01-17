@@ -136,7 +136,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
 
     // Add proposals
     if (contentTypeFilters.has('proposal') && governanceStore.proposals) {
-      governanceStore.proposals.forEach((proposal) => {
+      Object.values(governanceStore.proposals).forEach((proposal) => {
         items.push({
           id: `proposal-${proposal.id}`,
           type: 'proposal',
@@ -150,7 +150,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
 
     // Add wiki pages
     if (contentTypeFilters.has('wiki-update') && wikiStore.pages) {
-      wikiStore.pages.forEach((page) => {
+      Object.values(wikiStore.pages).forEach((page) => {
         items.push({
           id: `wiki-${page.id}`,
           type: 'wiki-update',

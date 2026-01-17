@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
 import type { VotingMethod } from '../types'
 import { proposalManager } from '../proposalManager'
-import { useAuthStore } from '@/stores/authStore'
+import { getCurrentPrivateKey } from '@/stores/authStore'
 
 interface CreateProposalDialogProps {
   open: boolean
@@ -34,11 +34,10 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const currentIdentity = useAuthStore(state => state.currentIdentity)
-
   const handleCreate = async () => {
-    if (!currentIdentity?.privateKey) {
-      setError('No active identity. Please log in.')
+    const privateKey = getCurrentPrivateKey()
+    if (!privateKey) {
+      setError('No active identity or app is locked. Please log in.')
       return
     }
 
@@ -59,7 +58,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           quorum: parseInt(quorum),
           threshold: parseInt(threshold),
         },
-        currentIdentity.privateKey
+        privateKey
       )
 
       // Reset form

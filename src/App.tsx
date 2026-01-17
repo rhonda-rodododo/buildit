@@ -16,18 +16,34 @@ import { microbloggingSeeds } from '@/modules/microblogging/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { APP_CONFIG } from '@/config/app'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useModuleStore } from './stores/moduleStore'
 
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
   const { initializeCurrentDevice, checkWebAuthnSupport } = useDeviceStore()
+  const { registry} = useModuleStore()
   const { posts, createPost } = usePostsStore()
   const [activeTab, setActiveTab] = useState('feed')
+  // const [routes, setRoutes] = useState(getRoutes())
+  useEffect(() => {
+    // Update routes when module registry changes (e.g. modules added/removed)
+   
+  }, [registry.size])
+
+  const { pathname } = useParams()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (pathname) {
+        navigate(pathname)
+    }
+  }, [])
 
   useEffect(() => {
     // Load identities on mount (database is initialized in main.tsx)
     loadIdentities()
 
-    // Initialize device tracking and WebAuthn support
+    // Initialize device t  acking and WebAuthn support
     checkWebAuthnSupport()
     initializeCurrentDevice()
 

@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { fileManager } from '../fileManager'
 import { useFilesStore } from '../filesStore'
 import { useGroupsStore } from '@/stores/groupsStore'
-import { useAuthStore } from '@/stores/authStore'
+import { getCurrentPrivateKey } from '@/stores/authStore'
 import type { FilePermission } from '../types'
 
 interface FileShareDialogProps {
@@ -27,7 +27,6 @@ interface FileShareDialogProps {
 export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogProps) {
   const file = useFilesStore((state) => state.getFile(fileId))
   const groupMembers = useGroupsStore((state) => state.groupMembers.get(groupId) || [])
-  const currentIdentity = useAuthStore((state) => state.currentIdentity)
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [permission, setPermission] = useState<FilePermission>('view')
@@ -38,12 +37,15 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
   const [copied, setCopied] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
-  if (!file || !currentIdentity?.privateKey) {
+  const privateKey = getCurrentPrivateKey()
+
+  if (!file || !privateKey) {
     return null
   }
 
   const handleCreateShare = async () => {
-    if (!currentIdentity?.privateKey) return
+    const pk = getCurrentPrivateKey()
+    if (!pk) return
 
     setIsCreating(true)
     try {
@@ -61,7 +63,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
           password: linkPassword || undefined,
           expiresAt,
         },
-        currentIdentity.privateKey
+        pk
       )
 
       if (share.shareLink) {

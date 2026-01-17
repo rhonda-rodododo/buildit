@@ -2,9 +2,10 @@ import { create } from 'zustand'
 import type { Proposal, Vote, VotingResults } from './types'
 
 interface GovernanceState {
-  proposals: Map<string, Proposal>
-  votes: Map<string, Vote[]> // proposalId -> votes
-  results: Map<string, VotingResults> // proposalId -> results
+  // Use objects/arrays instead of Maps for proper Zustand reactivity
+  proposals: Record<string, Proposal>
+  votes: Record<string, Vote[]> // proposalId -> votes
+  results: Record<string, VotingResults> // proposalId -> results
 
   // Actions
   addProposal: (proposal: Proposal) => void
@@ -23,72 +24,79 @@ interface GovernanceState {
 }
 
 export const useGovernanceStore = create<GovernanceState>((set, get) => ({
-  proposals: new Map(),
-  votes: new Map(),
-  results: new Map(),
+  proposals: {},
+  votes: {},
+  results: {},
 
-  addProposal: (proposal) => set((state) => {
-    const newProposals = new Map(state.proposals)
-    newProposals.set(proposal.id, proposal)
-    return { proposals: newProposals }
-  }),
+  addProposal: (proposal) => set((state) => ({
+    proposals: {
+      ...state.proposals,
+      [proposal.id]: proposal,
+    },
+  })),
 
   updateProposal: (id, updates) => set((state) => {
-    const newProposals = new Map(state.proposals)
-    const existing = newProposals.get(id)
-    if (existing) {
-      newProposals.set(id, { ...existing, ...updates, updated: Date.now() })
+    const existing = state.proposals[id]
+    if (!existing) return state
+
+    return {
+      proposals: {
+        ...state.proposals,
+        [id]: { ...existing, ...updates, updated: Date.now() },
+      },
     }
-    return { proposals: newProposals }
   }),
 
   removeProposal: (id) => set((state) => {
-    const newProposals = new Map(state.proposals)
-    newProposals.delete(id)
-    return { proposals: newProposals }
+    const { [id]: removed, ...rest } = state.proposals
+    return { proposals: rest }
   }),
 
   addVote: (vote) => set((state) => {
-    const newVotes = new Map(state.votes)
-    const proposalVotes = newVotes.get(vote.proposalId) || []
+    const proposalVotes = state.votes[vote.proposalId] || []
 
     // Replace existing vote from same user or add new
     const filteredVotes = proposalVotes.filter(v => v.voterPubkey !== vote.voterPubkey)
-    newVotes.set(vote.proposalId, [...filteredVotes, vote])
 
-    return { votes: newVotes }
+    return {
+      votes: {
+        ...state.votes,
+        [vote.proposalId]: [...filteredVotes, vote],
+      },
+    }
   }),
 
-  setResults: (proposalId, results) => set((state) => {
-    const newResults = new Map(state.results)
-    newResults.set(proposalId, results)
-    return { results: newResults }
-  }),
+  setResults: (proposalId, results) => set((state) => ({
+    results: {
+      ...state.results,
+      [proposalId]: results,
+    },
+  })),
 
-  getProposal: (id) => get().proposals.get(id),
+  getProposal: (id) => get().proposals[id],
 
   getProposalsByGroup: (groupId) => {
-    return Array.from(get().proposals.values())
+    return Object.values(get().proposals)
       .filter(p => p.groupId === groupId)
       .sort((a, b) => b.created - a.created)
   },
 
   getProposalsByStatus: (groupId, status) => {
-    return Array.from(get().proposals.values())
+    return Object.values(get().proposals)
       .filter(p => p.groupId === groupId && p.status === status)
       .sort((a, b) => b.created - a.created)
   },
 
   getVotes: (proposalId) => {
-    return get().votes.get(proposalId) || []
+    return get().votes[proposalId] || []
   },
 
   getUserVote: (proposalId, userPubkey) => {
-    const votes = get().votes.get(proposalId) || []
+    const votes = get().votes[proposalId] || []
     return votes.find(v => v.voterPubkey === userPubkey)
   },
 
   getResults: (proposalId) => {
-    return get().results.get(proposalId)
+    return get().results[proposalId]
   },
 }))

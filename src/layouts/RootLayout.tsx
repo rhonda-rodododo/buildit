@@ -6,25 +6,38 @@ import { useDeviceStore } from '@/stores/deviceStore';
 /**
  * Root layout - handles app initialization
  */
-export const RootLayout: FC = () => {
+export const  RootLayout: FC = () => {
   const { currentIdentity, loadIdentities } = useAuthStore();
   const { initializeCurrentDevice, checkWebAuthnSupport } = useDeviceStore();
   const navigate = useNavigate();
+ 
 
   useEffect(() => {
     // Load identities on mount (database is initialized in main.tsx)
     (async () => {
       await loadIdentities();
+          console.log('load routes!!!\n\n\n\n\n\n!@!!!!!!')
+      
       // Initialize device tracking and WebAuthn support
       await checkWebAuthnSupport();
       await initializeCurrentDevice();
+    
     })();
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+    useEffect(() => {
+       const { pathname } = window.location;
+      if (pathname) {
+          navigate(pathname)
+      }
+    }, [loadIdentities])
 
   useEffect(() => {
     // Redirect based on auth state
     if (currentIdentity) {
+      
       // If logged in and at root, go to app
       if (window.location.pathname === '/') {
         navigate('/app', { replace: true });
@@ -35,7 +48,9 @@ export const RootLayout: FC = () => {
         navigate('/login', { replace: true });
       }
     }
+
   }, [currentIdentity, navigate]);
+
 
   return <Outlet />;
 };

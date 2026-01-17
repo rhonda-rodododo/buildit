@@ -2,6 +2,7 @@ import { FC, useEffect } from 'react'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useAuthStore } from '@/stores/authStore'
 import { Card } from '@/components/ui/card'
+import { useNavigate } from 'react-router-dom'
 
 interface GroupListProps {
   onSelectGroup?: (groupId: string) => void
@@ -10,6 +11,7 @@ interface GroupListProps {
 export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
   const { groups, activeGroup, setActiveGroup, loadGroups, isLoading } = useGroupsStore()
   const { currentIdentity } = useAuthStore()
+  const  navigate = useNavigate()
 
   useEffect(() => {
     if (!currentIdentity) return
@@ -22,6 +24,7 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
     const group = groups.find(g => g.id === groupId)
     if (group) {
       setActiveGroup(group)
+      navigate(`/app/groups/${group.id}`)
       onSelectGroup?.(groupId)
     }
   }

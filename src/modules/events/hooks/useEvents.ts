@@ -3,7 +3,7 @@ import { useEventsStore } from '../eventsStore'
 import { EventManager } from '../eventManager'
 import { NostrClient } from '@/core/nostr/client'
 import { CreateEventFormData, RSVPStatus } from '../types'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { bytesToHex } from '@noble/hashes/utils'
 
 // Initialize Nostr client (singleton pattern)
@@ -49,7 +49,12 @@ export function useEvents(groupId?: string) {
         throw new Error('No identity selected')
       }
 
-      const privateKeyHex = bytesToHex(currentIdentity.privateKey)
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) {
+        throw new Error('App is locked')
+      }
+
+      const privateKeyHex = bytesToHex(privateKey)
       const event = await eventManager.createEvent(
         formData,
         currentIdentity.publicKey,
@@ -71,7 +76,12 @@ export function useEvents(groupId?: string) {
         throw new Error('No identity selected')
       }
 
-      const privateKeyHex = bytesToHex(currentIdentity.privateKey)
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) {
+        throw new Error('App is locked')
+      }
+
+      const privateKeyHex = bytesToHex(privateKey)
 
       // Convert CreateEventFormData updates to Event updates
       const eventUpdates: any = { ...updates }
@@ -122,7 +132,12 @@ export function useEvents(groupId?: string) {
         throw new Error('No identity selected')
       }
 
-      const privateKeyHex = bytesToHex(currentIdentity.privateKey)
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) {
+        throw new Error('App is locked')
+      }
+
+      const privateKeyHex = bytesToHex(privateKey)
       const rsvp = await eventManager.rsvpToEvent(
         eventId,
         currentIdentity.publicKey,
