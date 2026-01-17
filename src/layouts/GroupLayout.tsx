@@ -1,26 +1,26 @@
 import { FC } from 'react';
-import { Outlet, useRoutes } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { GroupSidebar } from '@/components/navigation/GroupSidebar';
 import { GroupContextProvider } from '@/contexts/GroupContext';
-import { getModuleRoutes } from '@/routes';
 
 /**
  * Group layout - wraps group-specific pages
  * Includes group sidebar with enabled modules
  * Provides GroupContext to all nested routes
+ *
+ * Note: Module routes are dynamically loaded in routes/index.tsx
+ * via getModuleRoutes('group') and rendered via Outlet
  */
 export const GroupLayout: FC = () => {
-  const router = useRoutes(getModuleRoutes('group', 'element'));
   return (
     <GroupContextProvider>
       <div className="flex gap-6">
         {/* Desktop group sidebar */}
         <GroupSidebar className="hidden lg:flex" />
 
-        {/* Group content */}
+        {/* Group content - renders child routes including module routes */}
         <div className="flex-1">
-           {router}
-           <Outlet />
+          <Outlet />
         </div>
       </div>
     </GroupContextProvider>

@@ -1,12 +1,27 @@
-import { FC } from 'react';
+import { FC, createElement } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Newspaper, MessageSquare, Users, UserPlus, Settings } from 'lucide-react';
+import { Newspaper, MessageSquare, Users, UserPlus, Settings, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useModuleStore } from '@/stores/moduleStore';
 import { Separator } from '@/components/ui/separator';
+import type { ModulePlugin } from '@/types/modules';
 
 interface AppSidebarProps {
   className?: string;
+}
+
+/**
+ * Get app-scoped routes from a module
+ */
+function getAppRoutes(module: ModulePlugin) {
+  return (module.routes || []).filter((r) => r.scope === 'app');
+}
+
+/**
+ * Check if module has any group-scoped routes
+ */
+function hasGroupRoutes(module: ModulePlugin) {
+  return (module.routes || []).some((r) => r.scope === 'group' || !r.scope);
 }
 
 export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
@@ -21,6 +36,12 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
 
   // Get all installed modules
   const modules = Array.from(registry.values()).map((entry) => entry.plugin);
+
+  // Separate modules with app-scoped routes from group-only modules
+  const modulesWithAppRoutes = modules.filter((m) => getAppRoutes(m).length > 0);
+  const groupOnlyModules = modules.filter(
+    (m) => getAppRoutes(m).length === 0 && hasGroupRoutes(m)
+  );
 
   return (
     <aside
@@ -45,41 +66,91 @@ export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
               )
             }
           >
-            <link.icon className="h-4 w-4" />
+            {createElement(link.icon, { className: 'h-4 w-4' })}
             {link.label}
           </NavLink>
         ))}
       </nav>
 
-      {/* Installed Modules */}
-      {modules.length > 0 && (
+      {/* App-scoped Module Routes */}
+      {modulesWithAppRoutes.length > 0 && (
         <>
           <Separator />
           <div className="space-y-2">
             <h3 className="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
-              Modules
+              Tools
             </h3>
             <nav className="space-y-1">
-              {modules.map((module) => {
+              {modulesWithAppRoutes.flatMap((module) =>
+                getAppRoutes(module).map((route) => {
+                  const Icon = module.metadata.icon;
+                  return (
+                    <NavLink
+                      key={`${module.metadata.id}-${route.path}`}
+                      to={`/app/${route.path}`}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
+                          isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-foreground hover:bg-muted'
+                        )
+                      }
+                      title={module.metadata.description}
+                    >
+                      {createElement(Icon, { className: 'h-4 w-4' })}
+                      <span className="flex-1">{route.label || module.metadata.name}</span>
+                    </NavLink>
+                  );
+                })
+              )}
+            </nav>
+          </div>
+        </>
+      )}
+
+      {/* Group-only modules indicator */}
+      {groupOnlyModules.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
+              Group Features
+            </h3>
+            <p className="text-xs text-muted-foreground px-3 pb-1">
+              Available within groups
+            </p>
+            <nav className="space-y-1">
+              {groupOnlyModules.slice(0, 5).map((module) => {
                 const Icon = module.metadata.icon;
                 return (
-                  <div
+                  <NavLink
                     key={module.metadata.id}
-                    className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-not-allowed"
-                    title={module.metadata.description}
+                    to="/app/groups"
+                    className="flex items-center gap-3 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                    title={`${module.metadata.name}: ${module.metadata.description}`}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span className="flex-1">{module.metadata.name}</span>
-                  </div>
+                    {createElement(Icon, { className: 'h-4 w-4 flex-shrink-0' })}
+                    <span className="truncate">{module.metadata.name}</span>
+                  </NavLink>
                 );
               })}
+              {groupOnlyModules.length > 5 && (
+                <NavLink
+                  to="/app/groups"
+                  className="flex items-center gap-3 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                >
+                  <FolderOpen className="h-4 w-4 flex-shrink-0" />
+                  <span>+{groupOnlyModules.length - 5} more in groups</span>
+                </NavLink>
+              )}
             </nav>
           </div>
         </>
       )}
 
       {/* Settings at bottom */}
-      <div>
+      <div className="mt-auto">
         <Separator className="mb-4" />
         <NavLink
           to="/app/settings"

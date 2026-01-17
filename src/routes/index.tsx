@@ -223,7 +223,7 @@ export const getRoutes: () => RouteObject[] = () => [
             ],
           },
           // Dynamically loaded module routes (app-scoped)
-          // ...getModuleRoutes('app'),
+          ...getModuleRoutes('app'),
           {
             path: 'settings',
             Component: SettingsLayout,

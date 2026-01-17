@@ -222,12 +222,14 @@ export default defineConfig({
       ['**/integration/**/*.test.{ts,tsx}', 'happy-dom'], // Integration tests need happy-dom + IndexedDB
       ['**/__tests__/**', 'node'], // Crypto/core tests use node
     ],
+    // CRITICAL: Only run .test.ts files - E2E uses .spec.ts (Playwright convention)
+    include: ['**/*.test.{js,ts,tsx}'],
+    // Exclude E2E tests directory completely
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      '**/tests/e2e/**', // Exclude playwright e2e tests
-      '**/*.e2e.{ts,tsx}',
-      '**/*.spec.{ts,tsx}', // Exclude *.spec.ts files (playwright convention)
+      '**/e2e/**',
+      '**/*.spec.ts',
     ],
     setupFiles: './src/test/setup.ts',
     coverage: {
