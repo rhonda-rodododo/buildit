@@ -3,7 +3,7 @@
  * Main page for the publishing module
  */
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { usePublishingStore } from '../publishingStore';
 import { ArticleList } from './ArticleList';
 import { ArticleEditor } from './ArticleEditor';
@@ -71,19 +71,22 @@ export const PublishingPage: FC<PublishingPageProps> = ({
 
   // State
   const [viewState, setViewState] = useState<ViewState>({ type: 'dashboard' });
-  const [currentPublication, setCurrentPublication] = useState<Publication | null>(null);
+  const [selectedPublicationId, setSelectedPublicationId] = useState<string | null>(null);
   const [showCreatePublication, setShowCreatePublication] = useState(false);
   const [newPubName, setNewPubName] = useState('');
   const [newPubDescription, setNewPubDescription] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  // Load publications on mount
-  useEffect(() => {
-    const pubs = getGroupPublications(groupId);
-    if (pubs.length > 0 && !currentPublication) {
-      setCurrentPublication(pubs[0]);
-    }
-  }, [groupId, getGroupPublications, currentPublication]);
+  // Derive current publication - defaults to first one if none selected
+  const publications = getGroupPublications(groupId);
+  const currentPublication = selectedPublicationId
+    ? publications.find((p) => p.id === selectedPublicationId) ?? publications[0] ?? null
+    : publications[0] ?? null;
+
+  // Wrapper to update selection
+  const setCurrentPublication = (publication: Publication | null) => {
+    setSelectedPublicationId(publication?.id ?? null);
+  };
 
   // Create publication handler
   const handleCreatePublication = () => {

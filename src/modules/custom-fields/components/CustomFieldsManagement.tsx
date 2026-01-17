@@ -3,7 +3,7 @@
  * UI for managing custom fields in group settings
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -45,14 +45,15 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
 
   const templates = getTemplatesByEntityType(entityType);
 
-  useEffect(() => {
-    loadFields();
-  }, [groupId, entityType]);
-
-  const loadFields = async () => {
+  const loadFields = useCallback(async () => {
     const loaded = await CustomFieldsManager.loadFields(groupId, entityType);
     setFields(loaded);
-  };
+  }, [groupId, entityType]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data loading pattern
+    loadFields();
+  }, [loadFields]);
 
   const handleCreateField = () => {
     setEditingField(undefined);

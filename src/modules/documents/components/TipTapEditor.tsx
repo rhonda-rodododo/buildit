@@ -105,6 +105,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
 
     // Create Yjs document
     const doc = new Y.Doc()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: Yjs initialization
     setYdoc(doc)
 
     // Setup awareness for presence
@@ -114,6 +115,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       color: generateCursorColor(),
       pubkey: userPublicKey,
     })
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: Yjs initialization
     setAwareness(awarenessInstance)
 
     // Setup IndexedDB persistence for offline support

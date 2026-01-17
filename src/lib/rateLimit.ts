@@ -194,26 +194,21 @@ export function withRateLimit<T extends (...args: any[]) => any>(
     // Record attempt
     rateLimiter.recordAttempt(operation, identifier)
 
-    // Execute operation
-    try {
-      const result = fn(...args)
+    // Execute operation (attempt already recorded, will stay recorded on failure)
+    const result = fn(...args)
 
-      // If operation succeeds, reset on next tick (for async operations)
-      if (result instanceof Promise) {
-        result.then(() => {
-          setTimeout(() => rateLimiter.reset(operation, identifier), 0)
-        }).catch(() => {
-          // Keep attempt recorded on failure
-        })
-      } else {
+    // If operation succeeds, reset on next tick (for async operations)
+    if (result instanceof Promise) {
+      result.then(() => {
         setTimeout(() => rateLimiter.reset(operation, identifier), 0)
-      }
-
-      return result
-    } catch (error) {
-      // Keep attempt recorded on failure
-      throw error
+      }).catch(() => {
+        // Keep attempt recorded on failure
+      })
+    } else {
+      setTimeout(() => rateLimiter.reset(operation, identifier), 0)
     }
+
+    return result
   }) as T
 }
 

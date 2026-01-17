@@ -86,13 +86,14 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
     },
   });
 
-  // Auto-generate slug from title
+  // Auto-generate slug from title (for new pages only)
   useEffect(() => {
     if (!page && title) {
       const autoSlug = title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: auto-slug from title
       setSlug(autoSlug);
     }
   }, [title, page]);

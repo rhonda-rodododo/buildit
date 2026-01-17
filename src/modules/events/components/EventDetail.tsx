@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { EventWithRSVPs } from '../types'
@@ -6,6 +6,7 @@ import { Calendar, MapPin, Users, Clock, Globe, Lock } from 'lucide-react'
 import { format } from 'date-fns'
 import { RSVPButton } from './RSVPButton'
 import { Button } from '@/components/ui/button'
+import { getCurrentTime } from '@/lib/utils'
 
 interface EventDetailProps {
   event: EventWithRSVPs | null
@@ -20,6 +21,9 @@ export const EventDetail: FC<EventDetailProps> = ({
   onOpenChange,
   onRSVPChange,
 }) => {
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [mountTime] = useState(getCurrentTime);
+
   if (!event) return null
 
   const formatDate = (timestamp: number) => {
@@ -29,7 +33,7 @@ export const EventDetail: FC<EventDetailProps> = ({
 
   const shouldShowLocation = () => {
     if (event.privacy === 'direct-action') {
-      return event.locationRevealTime && Date.now() >= event.locationRevealTime
+      return event.locationRevealTime && mountTime >= event.locationRevealTime
     }
     return true
   }

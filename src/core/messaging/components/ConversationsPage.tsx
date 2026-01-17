@@ -3,7 +3,7 @@
  * Main messaging page showing all conversations
  */
 
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Plus, Search, Archive, Pin } from 'lucide-react';
 import { useConversationsStore } from '../conversationsStore';
 import { useFriendsStore } from '@/core/friends/friendsStore';
@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
+import { cn, getCurrentTime } from '@/lib/utils';
 
 export const ConversationsPage: FC = () => {
   const {
@@ -59,8 +59,8 @@ export const ConversationsPage: FC = () => {
     ? conversations.filter((c) => c.name?.toLowerCase().includes(searchQuery.toLowerCase()))
     : conversations;
 
-  // Memoize current time to avoid Date.now() during render
-  const now = useMemo(() => Date.now(), []);
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [now] = useState(getCurrentTime);
 
   const formatTimestamp = (timestamp: number) => {
     const diff = now - timestamp;

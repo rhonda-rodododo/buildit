@@ -3,7 +3,7 @@
  * Main page for the newsletters module
  */
 
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { useNewslettersStore } from '../newslettersStore';
 import { NewsletterEditor } from './NewsletterEditor';
 import { IssuesList } from './IssuesList';
@@ -67,19 +67,22 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
 
   // State
   const [viewState, setViewState] = useState<ViewState>({ type: 'dashboard' });
-  const [currentNewsletter, setCurrentNewsletter] = useState<Newsletter | null>(null);
+  const [selectedNewsletterId, setSelectedNewsletterId] = useState<string | null>(null);
   const [showCreateNewsletter, setShowCreateNewsletter] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
 
-  // Load newsletters on mount
-  useEffect(() => {
-    const newsletters = getGroupNewsletters(groupId);
-    if (newsletters.length > 0 && !currentNewsletter) {
-      setCurrentNewsletter(newsletters[0]);
-    }
-  }, [groupId, getGroupNewsletters, currentNewsletter]);
+  // Derive current newsletter - defaults to first one if none selected
+  const newsletters = getGroupNewsletters(groupId);
+  const currentNewsletter = selectedNewsletterId
+    ? newsletters.find((n) => n.id === selectedNewsletterId) ?? newsletters[0] ?? null
+    : newsletters[0] ?? null;
+
+  // Wrapper to update selection
+  const setCurrentNewsletter = (newsletter: Newsletter | null) => {
+    setSelectedNewsletterId(newsletter?.id ?? null);
+  };
 
   // Create newsletter handler
   const handleCreateNewsletter = () => {

@@ -92,9 +92,11 @@ const RootLayout: React.FC = () => {
 
   useEffect(() => {
     // Recreate router when app is initialized to load dynamic routes
+    // This intentionally triggers a re-render to update the router
     if (isAppInitialized) {
       console.info("Recreating router after app initialization");
       const routes = getRoutes();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: router must update after initialization
       setRouter(createBrowserRouter(routes));
     }
   }, [isAppInitialized]);

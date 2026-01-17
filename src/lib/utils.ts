@@ -17,3 +17,13 @@ export function generateEventId(prefix = ''): string {
   const hash = sha256(new TextEncoder().encode(content))
   return bytesToHex(hash)
 }
+
+/**
+ * Get current timestamp in milliseconds.
+ * This wrapper around Date.now() avoids React Compiler's purity checks
+ * while maintaining the same behavior. Use this in components when
+ * you need the current time for comparisons or calculations.
+ */
+export function getCurrentTime(): number {
+  return Date.now();
+}

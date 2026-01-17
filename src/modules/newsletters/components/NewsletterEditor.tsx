@@ -85,10 +85,12 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
     },
   });
 
-  // Track changes
+  // Sync form state when issue changes
   useEffect(() => {
     if (issue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setSubject(issue.subject);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setPreviewText(issue.previewText || '');
       editor?.commands.setContent(issue.content);
     }

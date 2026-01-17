@@ -3,13 +3,14 @@
  * Displays message thread view and conversation timeline with a contact
  */
 
-import { FC, useState, useMemo } from 'react';
+import { FC, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow, format } from 'date-fns';
+import { getCurrentTime } from '@/lib/utils';
 import {
   Mail,
   Send,
@@ -189,11 +190,11 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
     return true;
   });
 
-  // Calculate days since first contact (memoized to avoid Date.now() during render)
-  const daysSinceFirstContact = useMemo(() => {
-    if (!messages[0]?.timestamp) return 0;
-    return Math.floor((Date.now() - messages[0].timestamp) / (24 * 60 * 60 * 1000));
-  }, [messages]);
+  // Calculate days since first contact - use stable mount time to avoid impure Date.now()
+  const [mountTime] = useState(getCurrentTime);
+  const daysSinceFirstContact = messages[0]?.timestamp
+    ? Math.floor((mountTime - messages[0].timestamp) / (24 * 60 * 60 * 1000))
+    : 0;
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;

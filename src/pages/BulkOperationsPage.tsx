@@ -10,6 +10,7 @@ import { BulkActionsToolbar } from '@/components/bulk-operations/BulkActionsTool
 import { TaskManager } from '@/components/bulk-operations/TaskManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckSquare, ListTodo } from 'lucide-react';
+import { getCurrentTime } from '@/lib/utils';
 
 interface Contact {
   id: string;
@@ -68,6 +69,8 @@ export const BulkOperationsPage: FC = () => {
   const [contacts] = useState<Contact[]>(DEMO_CONTACTS);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('bulk-actions');
+  // Capture time once on mount for computing "days ago" without impure Date.now()
+  const [mountTime] = useState(getCurrentTime);
 
   const handleToggleSelect = (contactId: string) => {
     const newSelected = new Set(selectedIds);
@@ -228,7 +231,7 @@ export const BulkOperationsPage: FC = () => {
                         </div>
                       </td>
                       <td className="p-4 text-sm text-muted-foreground">
-                        {Math.floor((Date.now() - contact.lastContact) / (24 * 60 * 60 * 1000))} days ago
+                        {Math.floor((mountTime - contact.lastContact) / (24 * 60 * 60 * 1000))} days ago
                       </td>
                     </tr>
                   ))}

@@ -51,6 +51,7 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
   }, [getChannels, groupId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data loading pattern
     loadChannels();
   }, [loadChannels]);
 

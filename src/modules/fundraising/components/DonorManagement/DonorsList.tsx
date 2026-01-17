@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/table';
 import { Download, Search } from 'lucide-react';
 import { useFundraisingStore } from '../../fundraisingStore';
+import { getCurrentTime } from '@/lib/utils';
 import type { Campaign, Donation } from '../../types';
 
 interface DonorsListProps {
@@ -89,7 +90,7 @@ export function DonorsList({ campaign }: DonorsListProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${campaign.slug}-donors-${Date.now()}.csv`;
+    a.download = `${campaign.slug}-donors-${getCurrentTime()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

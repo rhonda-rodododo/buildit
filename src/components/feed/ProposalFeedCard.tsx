@@ -3,8 +3,9 @@
  * Displays a governance proposal in the activity feed
  */
 
-import { FC, useMemo } from 'react';
+import { FC, useState } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { getCurrentTime } from '@/lib/utils';
 import type { ProposalFeedItem } from './types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,10 +83,9 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
   };
 
   const isVotingActive = proposal.status === 'voting';
-  const votingDeadlinePassed = useMemo(
-    () => proposal.votingDeadline && proposal.votingDeadline < Date.now(),
-    [proposal.votingDeadline]
-  );
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [mountTime] = useState(getCurrentTime);
+  const votingDeadlinePassed = proposal.votingDeadline && proposal.votingDeadline < mountTime;
 
   return (
     <Card className={`p-4 ${className}`}>

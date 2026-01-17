@@ -26,6 +26,7 @@ import {
   Info
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { getCurrentTime } from '@/lib/utils';
 
 export interface AuditLog {
   id: string;
@@ -206,11 +207,14 @@ export const AuditLogs: FC<AuditLogsProps> = ({
     return matchesSearch && matchesFilter;
   });
 
-  // Pre-compute stats to avoid Date.now() calls during render
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [mountTime] = useState(getCurrentTime);
+
+  // Pre-compute stats using stable mount time
   const logsLast24h = useMemo(() => {
-    const threshold = Date.now() - 1000 * 60 * 60 * 24;
+    const threshold = mountTime - 1000 * 60 * 60 * 24;
     return logs.filter(l => new Date(l.timestamp).getTime() > threshold).length;
-  }, [logs]);
+  }, [logs, mountTime]);
 
   const handleExportLogs = () => {
     // In production, this would generate a CSV file

@@ -3,8 +3,9 @@
  * Displays a mutual aid request or offer in the activity feed
  */
 
-import { FC, useMemo } from 'react';
+import { FC, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { getCurrentTime } from '@/lib/utils';
 import type { MutualAidFeedItem } from './types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,10 +84,9 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
     return colors[category] || 'bg-muted text-muted-foreground';
   };
 
-  const isExpired = useMemo(
-    () => request.expiresAt && request.expiresAt < Date.now(),
-    [request.expiresAt]
-  );
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [mountTime] = useState(getCurrentTime);
+  const isExpired = request.expiresAt && request.expiresAt < mountTime;
 
   return (
     <Card className={`p-4 ${className}`}>

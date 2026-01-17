@@ -2,7 +2,7 @@
  * Documents Page - Main UI for document management
  */
 
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
@@ -51,11 +51,34 @@ export const DocumentsPage: FC = () => {
   }, [groupId, collaborationEnabled, loadGroupMembers])
 
   useEffect(() => {
+    // Sync form state when current document changes
     if (currentDoc) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setTitle(currentDoc.title)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setContent(currentDoc.content)
     }
   }, [currentDoc])
+
+  // Define handleSave with useCallback before the useEffect that uses it
+  const handleSave = useCallback(async () => {
+    const privateKey = getCurrentPrivateKey()
+    if (!currentDoc || !privateKey) return
+
+    setIsSaving(true)
+    try {
+      await documentManager.updateDocument(
+        currentDoc.id,
+        { title, content },
+        privateKey,
+        'Auto-save'
+      )
+      setIsSaving(false)
+    } catch (error) {
+      console.error('Failed to save document:', error)
+      setIsSaving(false)
+    }
+  }, [currentDoc, title, content])
 
   // Auto-save every 30 seconds
   useEffect(() => {
@@ -70,7 +93,7 @@ export const DocumentsPage: FC = () => {
     }, 30000)
 
     return () => clearInterval(interval)
-  }, [currentDoc, content, title, currentIdentity])
+  }, [currentDoc, content, title, currentIdentity, handleSave])
 
   const handleCreate = async () => {
     const privateKey = getCurrentPrivateKey()
@@ -92,25 +115,6 @@ export const DocumentsPage: FC = () => {
     } catch (error) {
       console.error('Failed to create document:', error)
       setIsCreating(false)
-    }
-  }
-
-  const handleSave = async () => {
-    const privateKey = getCurrentPrivateKey()
-    if (!currentDoc || !privateKey) return
-
-    setIsSaving(true)
-    try {
-      await documentManager.updateDocument(
-        currentDoc.id,
-        { title, content },
-        privateKey,
-        'Auto-save'
-      )
-      setIsSaving(false)
-    } catch (error) {
-      console.error('Failed to save document:', error)
-      setIsSaving(false)
     }
   }
 

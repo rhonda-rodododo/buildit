@@ -3,12 +3,12 @@
  * Individual contact item in the buddylist
  */
 
-import { FC, useMemo } from 'react';
+import { FC, useState } from 'react';
 import { Star } from 'lucide-react';
 import type { UserPresence } from '../conversationTypes';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, getCurrentTime } from '@/lib/utils';
 import { useConversationsStore } from '../conversationsStore';
 
 interface BuddylistItemProps {
@@ -53,12 +53,15 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
     }
   };
 
-  const presenceText = useMemo(() => {
+  // Capture time once on mount to avoid impure Date.now() during render
+  const [mountTime] = useState(getCurrentTime);
+
+  const getPresenceText = (): string => {
     if (!presence) return 'Offline';
     if (presence.status === 'online') return 'Online';
     if (presence.status === 'away') return 'Away';
     if (presence.lastSeen) {
-      const diff = Date.now() - presence.lastSeen;
+      const diff = mountTime - presence.lastSeen;
       const minutes = Math.floor(diff / 60000);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -69,7 +72,8 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
       return 'Just now';
     }
     return 'Offline';
-  }, [presence]);
+  };
+  const presenceText = getPresenceText();
 
   return (
     <button

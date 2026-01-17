@@ -10,6 +10,7 @@ import { databaseManager } from '@/modules/database/databaseManager';
 import { CRM_TEMPLATES, type CRMTemplate } from '../templates';
 import { useDatabaseStore } from '@/modules/database/databaseStore';
 import { DatabaseDashboard } from '@/modules/database/components/DatabaseDashboard';
+import { getCurrentTime } from '@/lib/utils';
 import {
   unionOrganizingSeedData,
   fundraisingSeedData,
@@ -43,6 +44,7 @@ export function CRMDashboard({ groupId, userPubkey }: CRMDashboardProps) {
     // Add fields from template
     for (const fieldTemplate of template.fields) {
       const fieldId = crypto.randomUUID();
+      const now = getCurrentTime();
       const field = {
         id: fieldId,
         groupId,
@@ -52,9 +54,9 @@ export function CRMDashboard({ groupId, userPubkey }: CRMDashboardProps) {
         schema: fieldTemplate.schema!,
         widget: fieldTemplate.widget!,
         order: fieldTemplate.order!,
-        created: Date.now(),
+        created: now,
         createdBy: userPubkey,
-        updated: Date.now(),
+        updated: now,
       };
       await databaseManager.addFieldToTable(table.id, field);
     }
