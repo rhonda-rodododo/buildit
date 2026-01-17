@@ -33,16 +33,18 @@ export function CustomFieldsViewer({ fields, values, className = '' }: CustomFie
         return <span>{String(value)}</span>;
 
       case 'select':
-      case 'radio':
+      case 'radio': {
         const option = field.widget.options?.find(opt => opt.value === value);
         return <span>{option?.label || String(value)}</span>;
+      }
 
-      case 'multi-select':
+      case 'multi-select': {
         const selectedValues = (value as string[]) || [];
         const labels = selectedValues
           .map(val => field.widget.options?.find(opt => opt.value === val)?.label || val)
           .join(', ');
         return <span>{labels || 'None selected'}</span>;
+      }
 
       case 'checkbox':
         return (

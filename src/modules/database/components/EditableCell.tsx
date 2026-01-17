@@ -178,7 +178,7 @@ export function EditableCell({
           </Select>
         );
 
-      case 'multi-select':
+      case 'multi-select': {
         const multiValues = Array.isArray(editValue) ? editValue : [];
         return (
           <div className="flex flex-col gap-1 p-2">
@@ -206,6 +206,7 @@ export function EditableCell({
             </div>
           </div>
         );
+      }
 
       case 'checkbox':
         return (

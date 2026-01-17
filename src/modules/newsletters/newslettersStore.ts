@@ -22,12 +22,13 @@ import type {
 } from './types';
 import { nanoid } from 'nanoid';
 
-// Re-export defaults
-export {
+// Import and re-export defaults
+import {
   DEFAULT_NEWSLETTER_THEME,
   DEFAULT_NEWSLETTER_SETTINGS,
   DEFAULT_NEWSLETTER_SCHEDULE,
 } from './types';
+export { DEFAULT_NEWSLETTER_THEME, DEFAULT_NEWSLETTER_SETTINGS, DEFAULT_NEWSLETTER_SCHEDULE };
 
 interface NewslettersState {
   // Data
@@ -98,7 +99,9 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
 
   // Create newsletter
   createNewsletter: (input) => {
-    const { DEFAULT_NEWSLETTER_THEME: defaultTheme, DEFAULT_NEWSLETTER_SETTINGS: defaultSettings, DEFAULT_NEWSLETTER_SCHEDULE: defaultSchedule } = require('./types');
+    const defaultTheme = DEFAULT_NEWSLETTER_THEME;
+    const defaultSettings = DEFAULT_NEWSLETTER_SETTINGS;
+    const defaultSchedule = DEFAULT_NEWSLETTER_SCHEDULE;
 
     const newsletter: Newsletter = {
       id: nanoid(),
