@@ -9,6 +9,9 @@ import type {
   CampaignUpdate,
   Donation,
   DonationTier,
+  CryptoWallet,
+  CryptoTransaction,
+  CryptoDonationRequest,
 } from './types';
 
 // ============================================================================
@@ -38,6 +41,24 @@ export interface DBDonation extends Donation {}
  * Tiered donation levels for campaigns
  */
 export interface DBDonationTier extends DonationTier {}
+
+/**
+ * Crypto Wallets table
+ * HD wallet addresses for crypto donations
+ */
+export interface DBCryptoWallet extends CryptoWallet {}
+
+/**
+ * Crypto Transactions table
+ * Blockchain transaction records
+ */
+export interface DBCryptoTransaction extends CryptoTransaction {}
+
+/**
+ * Crypto Donation Requests table
+ * Pending crypto payment requests
+ */
+export interface DBCryptoDonationRequest extends CryptoDonationRequest {}
 
 // ============================================================================
 // Module Schema Definition
@@ -69,6 +90,22 @@ export const fundraisingSchema: TableSchema[] = [
     schema: 'id, campaignId, order',
     indexes: ['id', 'campaignId', 'order'],
   },
+  // Crypto payment tables
+  {
+    name: 'cryptoWallets',
+    schema: 'id, campaignId, cryptoType, network, currentAddress, createdAt',
+    indexes: ['id', 'campaignId', 'cryptoType', 'network', 'currentAddress', 'createdAt'],
+  },
+  {
+    name: 'cryptoTransactions',
+    schema: 'id, donationId, campaignId, cryptoType, txHash, status, detectedAt, confirmedAt',
+    indexes: ['id', 'donationId', 'campaignId', 'cryptoType', 'txHash', 'status', 'detectedAt', 'confirmedAt'],
+  },
+  {
+    name: 'cryptoDonationRequests',
+    schema: 'id, campaignId, cryptoType, paymentAddress, status, createdAt, expiresAt',
+    indexes: ['id', 'campaignId', 'cryptoType', 'paymentAddress', 'status', 'createdAt', 'expiresAt'],
+  },
 ];
 
 // Export type-safe table names
@@ -77,4 +114,7 @@ export const FUNDRAISING_TABLES = {
   CAMPAIGN_UPDATES: 'campaignUpdates',
   DONATIONS: 'donations',
   DONATION_TIERS: 'donationTiers',
+  CRYPTO_WALLETS: 'cryptoWallets',
+  CRYPTO_TRANSACTIONS: 'cryptoTransactions',
+  CRYPTO_DONATION_REQUESTS: 'cryptoDonationRequests',
 } as const;

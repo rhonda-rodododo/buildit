@@ -185,6 +185,8 @@ export class SecureKeyManager {
     );
 
     // Derive key using PBKDF2 with 600,000 iterations
+    // Use ArrayBuffer from Uint8Array for BufferSource compatibility
+    // Note: extractable=true is required so we can derive the database key from the master key
     return crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
@@ -194,7 +196,7 @@ export class SecureKeyManager {
       },
       keyMaterial,
       { name: 'AES-GCM', length: 256 },
-      false, // Not extractable
+      true, // Extractable (needed for deriveDatabaseKey)
       ['encrypt', 'decrypt']
     );
   }
@@ -220,12 +222,12 @@ export class SecureKeyManager {
       ['deriveKey']
     );
 
-    // Derive database key - cast salt/info to BufferSource for TypeScript
+    // Derive database key - crypto.subtle accepts Uint8Array directly
     return crypto.subtle.deriveKey(
       {
         name: 'HKDF',
-        salt: salt.buffer as ArrayBuffer,
-        info: info.buffer as ArrayBuffer,
+        salt,
+        info,
         hash: 'SHA-256',
       },
       hkdfKey,
@@ -244,10 +246,11 @@ export class SecureKeyManager {
   ): Promise<{ encrypted: string; iv: string }> {
     const iv = crypto.getRandomValues(new Uint8Array(12));
 
+    // Cast to BufferSource for TypeScript compatibility
     const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: iv.buffer as ArrayBuffer },
+      { name: 'AES-GCM', iv: iv as BufferSource },
       masterKey,
-      privateKey.buffer as ArrayBuffer
+      privateKey as BufferSource
     );
 
     return {
@@ -267,10 +270,11 @@ export class SecureKeyManager {
     const encryptedBuffer = this.base64ToBuffer(encryptedData);
     const ivBuffer = this.base64ToBuffer(iv);
 
+    // Cast to BufferSource for TypeScript compatibility
     const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: ivBuffer.buffer as ArrayBuffer },
+      { name: 'AES-GCM', iv: ivBuffer as BufferSource },
       masterKey,
-      encryptedBuffer.buffer as ArrayBuffer
+      encryptedBuffer as BufferSource
     );
 
     return new Uint8Array(decrypted);

@@ -143,6 +143,105 @@ export interface CryptoAddresses {
 }
 
 /**
+ * Supported cryptocurrency types
+ */
+export type CryptoType = 'bitcoin' | 'ethereum' | 'usdc' | 'dai';
+
+/**
+ * Crypto network type
+ */
+export type CryptoNetwork = 'mainnet' | 'testnet';
+
+/**
+ * Crypto transaction status
+ */
+export type CryptoTxStatus = 'pending' | 'confirming' | 'confirmed' | 'failed';
+
+/**
+ * Crypto Wallet for HD derivation
+ */
+export interface CryptoWallet {
+  id: string;
+  campaignId: string;
+  cryptoType: CryptoType;
+  network: CryptoNetwork;
+
+  // HD wallet data (encrypted)
+  derivationPath: string;
+  addressIndex: number;
+
+  // Current receiving address
+  currentAddress: string;
+
+  // Metadata
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Crypto Transaction Record
+ */
+export interface CryptoTransaction {
+  id: string;
+  donationId: string; // links to Donation record
+  campaignId: string;
+
+  // Transaction details
+  cryptoType: CryptoType;
+  network: CryptoNetwork;
+  txHash: string;
+  fromAddress?: string;
+  toAddress: string;
+
+  // Amount
+  amount: string; // in smallest unit (satoshis for BTC, wei for ETH)
+  amountFormatted: string; // human readable
+  amountUSD?: number; // USD equivalent at time of tx
+
+  // Confirmations
+  confirmations: number;
+  requiredConfirmations: number;
+  status: CryptoTxStatus;
+
+  // Timestamps
+  detectedAt: number;
+  confirmedAt?: number;
+
+  // Block info
+  blockHeight?: number;
+  blockHash?: string;
+}
+
+/**
+ * Crypto Donation Request (pending payment)
+ */
+export interface CryptoDonationRequest {
+  id: string;
+  campaignId: string;
+
+  // Requested amount
+  cryptoType: CryptoType;
+  requestedAmountUSD: number;
+  estimatedCryptoAmount: string; // at time of request
+
+  // Payment address
+  paymentAddress: string;
+
+  // Expiry
+  expiresAt: number; // address valid until
+
+  // Status
+  status: 'pending' | 'paid' | 'expired' | 'cancelled';
+
+  // Linked transaction when paid
+  transactionId?: string;
+
+  // Timestamps
+  createdAt: number;
+  paidAt?: number;
+}
+
+/**
  * Campaign Update
  */
 export interface CampaignUpdate {
