@@ -28,7 +28,15 @@ import {
   AtSign,
   Send,
   X,
+  Clock,
+  ChevronDown,
 } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 import { EmojiPicker } from '@/components/media/EmojiPicker';
 
 interface PostComposerProps {
@@ -43,14 +51,23 @@ export const PostComposer: FC<PostComposerProps> = ({
   className,
 }) => {
   const { currentIdentity } = useAuthStore();
-  const { createPost } = usePostsStore();
+  const { createPost, schedulePost } = usePostsStore();
 
   const [content, setContent] = useState('');
   const [privacy, setPrivacy] = useState<PostPrivacy>('group');
   const [isPosting, setIsPosting] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showSchedulePicker, setShowSchedulePicker] = useState(false);
+  const [scheduledDateTime, setScheduledDateTime] = useState('');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Get min datetime for scheduling (now + 5 minutes)
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 5);
+    return now.toISOString().slice(0, 16);
+  };
 
   const handleSubmit = async () => {
     if (!content.trim() || !currentIdentity) return;
@@ -86,6 +103,53 @@ export const PostComposer: FC<PostComposerProps> = ({
     } catch (error) {
       console.error('Failed to create post:', error);
       toast.error('Failed to create post')
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const handleSchedule = async () => {
+    if (!content.trim() || !currentIdentity || !scheduledDateTime) return;
+
+    const scheduledFor = new Date(scheduledDateTime).getTime();
+    if (scheduledFor <= Date.now()) {
+      toast.error('Please select a future date and time');
+      return;
+    }
+
+    setIsPosting(true);
+
+    try {
+      // Extract hashtags
+      const hashtags = (content.match(/#[\w]+/g) || []).map(tag => tag.slice(1));
+
+      // Extract mentions
+      const mentions = (content.match(/@[\w]+/g) || []).map(mention => mention.slice(1));
+
+      const input: CreatePostInput = {
+        content: content.trim(),
+        contentType: 'text',
+        visibility: {
+          privacy,
+        },
+        hashtags,
+        mentions,
+      };
+
+      await schedulePost(input, scheduledFor);
+
+      // Clear form
+      setContent('');
+      setPrivacy('group');
+      setScheduledDateTime('');
+      setShowSchedulePicker(false);
+      onPostCreated?.();
+
+      // Show success toast
+      toast.success('Post scheduled successfully');
+    } catch (error) {
+      console.error('Failed to schedule post:', error);
+      toast.error('Failed to schedule post');
     } finally {
       setIsPosting(false);
     }
@@ -334,21 +398,63 @@ export const PostComposer: FC<PostComposerProps> = ({
               </SelectContent>
             </Select>
 
-            <Button
-              onClick={handleSubmit}
-              disabled={!content.trim() || isPosting}
-              size="sm"
-              className="h-9"
-            >
-              {isPosting ? (
-                'Posting...'
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Post
-                </>
-              )}
-            </Button>
+            {/* Post button with schedule option */}
+            <div className="flex items-center gap-0">
+              <Button
+                onClick={handleSubmit}
+                disabled={!content.trim() || isPosting}
+                size="sm"
+                className="h-9 rounded-r-none"
+              >
+                {isPosting ? (
+                  'Posting...'
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Post
+                  </>
+                )}
+              </Button>
+              <Popover open={showSchedulePicker} onOpenChange={setShowSchedulePicker}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="h-9 px-2 rounded-l-none border-l border-primary-foreground/20"
+                    disabled={!content.trim() || isPosting}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-medium">Schedule post</span>
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-2 block">
+                        Choose when to publish
+                      </label>
+                      <Input
+                        type="datetime-local"
+                        value={scheduledDateTime}
+                        onChange={(e) => setScheduledDateTime(e.target.value)}
+                        min={getMinDateTime()}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSchedule}
+                      disabled={!scheduledDateTime || isPosting}
+                      className="w-full"
+                    >
+                      <Clock className="w-4 h-4 mr-2" />
+                      Schedule Post
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
       </div>

@@ -4,12 +4,12 @@
  */
 
 import type { TableSchema } from '@/types/modules';
-import type { Post, Reaction, Comment, Repost, Bookmark } from './types';
+import type { Post, Reaction, Comment, Repost, Bookmark, ScheduledPost } from './types';
 
 /**
  * Database table interfaces for TypeScript
  */
-export type { Post, Reaction, Comment, Repost, Bookmark };
+export type { Post, Reaction, Comment, Repost, Bookmark, ScheduledPost };
 
 /**
  * Dexie table definitions for microblogging module
@@ -17,8 +17,8 @@ export type { Post, Reaction, Comment, Repost, Bookmark };
 export const microbloggingSchema: TableSchema[] = [
   {
     name: 'posts',
-    schema: 'id, authorId, [visibility.privacy], createdAt, updatedAt, nostrEventId, *hashtags, *mentions',
-    indexes: ['id', 'authorId', '[visibility.privacy]', 'createdAt', 'updatedAt', 'nostrEventId', '*hashtags', '*mentions'],
+    schema: 'id, authorId, [visibility.privacy], createdAt, updatedAt, nostrEventId, *hashtags, *mentions, isPinned, pinnedAt',
+    indexes: ['id', 'authorId', '[visibility.privacy]', 'createdAt', 'updatedAt', 'nostrEventId', '*hashtags', '*mentions', 'isPinned', 'pinnedAt'],
   },
   {
     name: 'reactions',
@@ -40,6 +40,11 @@ export const microbloggingSchema: TableSchema[] = [
     schema: 'id, postId, userId, createdAt, collectionId, [postId+userId]',
     indexes: ['id', 'postId', 'userId', 'createdAt', 'collectionId', '[postId+userId]'],
   },
+  {
+    name: 'scheduledPosts',
+    schema: 'id, authorId, scheduledFor, status, createdAt, updatedAt',
+    indexes: ['id', 'authorId', 'scheduledFor', 'status', 'createdAt', 'updatedAt'],
+  },
 ];
 
 /**
@@ -53,6 +58,8 @@ export const microbloggingSchema: TableSchema[] = [
  * - nostrEventId: Sync with Nostr
  * - *hashtags: Multi-entry index for hashtag searches
  * - *mentions: Multi-entry index for mention queries
+ * - isPinned: Query pinned posts
+ * - pinnedAt: Sort pinned posts by pin time
  *
  * reactions:
  * - [postId+userId]: Unique constraint (one reaction per user per post)
@@ -66,6 +73,12 @@ export const microbloggingSchema: TableSchema[] = [
  *
  * bookmarks:
  * - [postId+userId]: Unique constraint (one bookmark per user per post)
+ *
+ * scheduledPosts:
+ * - id: Primary key
+ * - authorId: Query by author
+ * - scheduledFor: Query posts due to be published
+ * - status: Filter by publish status
  */
 
 /**

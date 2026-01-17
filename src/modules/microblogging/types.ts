@@ -69,6 +69,10 @@ export interface Post {
   contentWarning?: string;
   isSensitive?: boolean;
   isReported?: boolean;
+
+  // Pinning
+  isPinned?: boolean;
+  pinnedAt?: number;
 }
 
 /**
@@ -156,7 +160,7 @@ export interface Bookmark {
  */
 export interface PostFeedFilter {
   // Feed type
-  type: 'all' | 'following' | 'group' | 'mentions' | 'bookmarks';
+  type: 'all' | 'following' | 'group' | 'mentions' | 'bookmarks' | 'scheduled' | 'pinned';
 
   // Group filtering
   groupIds?: string[];
@@ -171,6 +175,13 @@ export interface PostFeedFilter {
   // Search
   searchQuery?: string;
   hashtags?: string[];
+
+  // Author filter
+  authorId?: string;
+
+  // Date range filter
+  dateFrom?: number; // Unix timestamp
+  dateTo?: number; // Unix timestamp
 
   // Pagination
   limit?: number;
@@ -208,6 +219,38 @@ export interface UpdatePostInput {
   content?: string;
   contentWarning?: string;
   isSensitive?: boolean;
+}
+
+/**
+ * Scheduled post interface
+ */
+export interface ScheduledPost {
+  id: string;
+  authorId: string;
+  content: string;
+  contentType: PostContentType;
+  media?: MediaAttachment[];
+  visibility: PostVisibility;
+  mentions?: string[];
+  hashtags?: string[];
+  contentWarning?: string;
+  isSensitive?: boolean;
+
+  // Schedule info
+  scheduledFor: number; // Unix timestamp when to publish
+  timezone?: string; // User's timezone
+  status: 'pending' | 'published' | 'failed' | 'cancelled';
+
+  // Timestamps
+  createdAt: number;
+  updatedAt?: number;
+  publishedAt?: number;
+
+  // If published, reference to the actual post
+  publishedPostId?: string;
+
+  // Error info if failed
+  errorMessage?: string;
 }
 
 /**

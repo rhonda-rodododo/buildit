@@ -24,7 +24,11 @@ import {
   MessageSquare,
   Calendar,
   FileText,
+  CalendarClock,
+  Pin,
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ScheduledPostsView } from './ScheduledPostsView';
 import { Separator } from '@/components/ui/separator';
 
 interface ActivityFeedProps {
@@ -138,6 +142,18 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                     <span>Bookmarks</span>
                   </div>
                 </SelectItem>
+                <SelectItem value="scheduled">
+                  <div className="flex items-center gap-2">
+                    <CalendarClock className="w-4 h-4" />
+                    <span>Scheduled</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="pinned">
+                  <div className="flex items-center gap-2">
+                    <Pin className="w-4 h-4" />
+                    <span>Pinned</span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -232,12 +248,56 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                   })}
                 </div>
               </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Date Range</label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <label className="text-xs text-muted-foreground mb-1 block">From</label>
+                    <Input
+                      type="date"
+                      value={feedFilter.dateFrom ? new Date(feedFilter.dateFrom).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const dateFrom = e.target.value ? new Date(e.target.value).getTime() : undefined;
+                        setFeedFilter({ dateFrom });
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-muted-foreground mb-1 block">To</label>
+                    <Input
+                      type="date"
+                      value={feedFilter.dateTo ? new Date(feedFilter.dateTo).toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const dateTo = e.target.value ? new Date(e.target.value).setHours(23, 59, 59, 999) : undefined;
+                        setFeedFilter({ dateTo });
+                      }}
+                    />
+                  </div>
+                  {(feedFilter.dateFrom || feedFilter.dateTo) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-5"
+                      onClick={() => setFeedFilter({ dateFrom: undefined, dateTo: undefined })}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </>
         )}
       </Card>
 
+      {/* Scheduled Posts View */}
+      {feedFilter.type === 'scheduled' && (
+        <ScheduledPostsView />
+      )}
+
       {/* Feed Content */}
+      {feedFilter.type !== 'scheduled' && (
       <div className="space-y-4">
         {filteredPosts.length === 0 && !isLoadingFeed && (
           <Card className="p-8 text-center">
@@ -301,6 +361,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
           </Card>
         )}
       </div>
+      )}
     </div>
   );
 };

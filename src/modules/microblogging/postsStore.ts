@@ -12,11 +12,13 @@ import type {
   Comment,
   Repost,
   Bookmark,
+  ScheduledPost,
   CreatePostInput,
   UpdatePostInput,
   PostFeedFilter,
   ReactionType,
 } from './types';
+import { useFriendsStore } from '@/core/friends/friendsStore';
 
 interface PostsState {
   // Posts
@@ -37,6 +39,9 @@ interface PostsState {
   // Bookmarks
   bookmarks: Bookmark[];
   myBookmarks: Set<string>; // postIds I've bookmarked
+
+  // Scheduled Posts
+  scheduledPosts: ScheduledPost[];
 
   // Feed state
   feedFilter: PostFeedFilter;
@@ -74,6 +79,21 @@ interface PostsState {
   hasBookmarked: (postId: string) => boolean;
   getBookmarkedPosts: () => Post[];
 
+  // Actions - Scheduled Posts
+  schedulePost: (input: CreatePostInput, scheduledFor: number) => Promise<ScheduledPost>;
+  updateScheduledPost: (id: string, updates: Partial<Pick<ScheduledPost, 'content' | 'scheduledFor' | 'contentWarning' | 'isSensitive'>>) => Promise<void>;
+  cancelScheduledPost: (id: string) => Promise<void>;
+  publishScheduledPost: (id: string) => Promise<Post>;
+  getScheduledPosts: () => ScheduledPost[];
+  getDueScheduledPosts: () => ScheduledPost[];
+  loadScheduledPosts: () => Promise<void>;
+
+  // Actions - Pinning
+  pinPost: (postId: string) => Promise<void>;
+  unpinPost: (postId: string) => Promise<void>;
+  isPinned: (postId: string) => boolean;
+  getPinnedPosts: () => Post[];
+
   // Actions - Feed
   setFeedFilter: (filter: Partial<PostFeedFilter>) => void;
   refreshFeed: () => Promise<void>;
@@ -94,6 +114,7 @@ export const usePostsStore = create<PostsState>()(
       myReposts: new Set(),
       bookmarks: [],
       myBookmarks: new Set(),
+      scheduledPosts: [],
       feedFilter: {
         type: 'all',
         limit: 20,
@@ -202,14 +223,17 @@ export const usePostsStore = create<PostsState>()(
 
       // Get posts with filter
       getPosts: (filter?: PostFeedFilter): Post[] => {
-        const { posts } = get();
+        const { posts, myBookmarks } = get();
         const activeFilter = filter || get().feedFilter;
 
         let filteredPosts = [...posts];
 
         // Filter by type
         if (activeFilter.type === 'following') {
-          // TODO: Filter by followed users
+          // Get followed users from friends store
+          const friends = useFriendsStore.getState().getFriends({ status: ['accepted'] });
+          const followedPubkeys = new Set(friends.map((f) => f.friendPubkey));
+          filteredPosts = filteredPosts.filter((p) => followedPubkeys.has(p.authorId));
         } else if (activeFilter.type === 'group' && activeFilter.groupIds) {
           filteredPosts = filteredPosts.filter(
             (p) =>
@@ -223,8 +247,27 @@ export const usePostsStore = create<PostsState>()(
             );
           }
         } else if (activeFilter.type === 'bookmarks') {
-          const { myBookmarks } = get();
           filteredPosts = filteredPosts.filter((p) => myBookmarks.has(p.id));
+        } else if (activeFilter.type === 'pinned') {
+          const currentIdentity = useAuthStore.getState().currentIdentity;
+          if (currentIdentity) {
+            filteredPosts = filteredPosts.filter(
+              (p) => p.isPinned && p.authorId === currentIdentity.publicKey
+            );
+          }
+        }
+
+        // Filter by author
+        if (activeFilter.authorId) {
+          filteredPosts = filteredPosts.filter((p) => p.authorId === activeFilter.authorId);
+        }
+
+        // Filter by date range
+        if (activeFilter.dateFrom) {
+          filteredPosts = filteredPosts.filter((p) => p.createdAt >= activeFilter.dateFrom!);
+        }
+        if (activeFilter.dateTo) {
+          filteredPosts = filteredPosts.filter((p) => p.createdAt <= activeFilter.dateTo!);
         }
 
         // Filter by content type
@@ -241,18 +284,24 @@ export const usePostsStore = create<PostsState>()(
           );
         }
 
-        // Filter by search query
+        // Filter by search query (full-text search)
         if (activeFilter.searchQuery) {
           const query = activeFilter.searchQuery.toLowerCase();
           filteredPosts = filteredPosts.filter(
             (p) =>
               p.content.toLowerCase().includes(query) ||
-              p.hashtags.some((tag) => tag.toLowerCase().includes(query))
+              p.hashtags.some((tag) => tag.toLowerCase().includes(query)) ||
+              p.authorId.toLowerCase().includes(query)
           );
         }
 
-        // Sort by creation time (newest first)
-        filteredPosts.sort((a, b) => b.createdAt - a.createdAt);
+        // Sort: pinned posts first, then by creation time (newest first)
+        filteredPosts.sort((a, b) => {
+          // Pinned posts from the same author come first
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return b.createdAt - a.createdAt;
+        });
 
         // Apply pagination
         const limit = activeFilter.limit || 20;
@@ -666,10 +715,211 @@ export const usePostsStore = create<PostsState>()(
           comments: [],
           reposts: [],
           bookmarks: [],
+          scheduledPosts: [],
           myReactions: new Map(),
           myReposts: new Set(),
           myBookmarks: new Set(),
         });
+      },
+
+      // === Scheduled Posts Actions ===
+
+      // Schedule a post for future publishing
+      schedulePost: async (input: CreatePostInput, scheduledFor: number): Promise<ScheduledPost> => {
+        const currentIdentity = useAuthStore.getState().currentIdentity;
+        const scheduledPost: ScheduledPost = {
+          id: `scheduled-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          authorId: currentIdentity?.publicKey || '',
+          content: input.content,
+          contentType: input.contentType || 'text',
+          media: input.media,
+          visibility: input.visibility,
+          mentions: input.mentions,
+          hashtags: input.hashtags,
+          contentWarning: input.contentWarning,
+          isSensitive: input.isSensitive,
+          scheduledFor,
+          status: 'pending',
+          createdAt: Date.now(),
+        };
+
+        // Persist to database
+        try {
+          await db.scheduledPosts.add(scheduledPost);
+        } catch (error) {
+          console.error('Failed to save scheduled post:', error);
+        }
+
+        set((state) => ({
+          scheduledPosts: [...state.scheduledPosts, scheduledPost],
+        }));
+
+        return scheduledPost;
+      },
+
+      // Update a scheduled post
+      updateScheduledPost: async (
+        id: string,
+        updates: Partial<Pick<ScheduledPost, 'content' | 'scheduledFor' | 'contentWarning' | 'isSensitive'>>
+      ): Promise<void> => {
+        const updatedAt = Date.now();
+
+        try {
+          await db.scheduledPosts.update(id, { ...updates, updatedAt });
+        } catch (error) {
+          console.error('Failed to update scheduled post:', error);
+        }
+
+        set((state) => ({
+          scheduledPosts: state.scheduledPosts.map((sp) =>
+            sp.id === id ? { ...sp, ...updates, updatedAt } : sp
+          ),
+        }));
+      },
+
+      // Cancel a scheduled post
+      cancelScheduledPost: async (id: string): Promise<void> => {
+        try {
+          await db.scheduledPosts.update(id, { status: 'cancelled', updatedAt: Date.now() });
+        } catch (error) {
+          console.error('Failed to cancel scheduled post:', error);
+        }
+
+        set((state) => ({
+          scheduledPosts: state.scheduledPosts.map((sp) =>
+            sp.id === id ? { ...sp, status: 'cancelled', updatedAt: Date.now() } : sp
+          ),
+        }));
+      },
+
+      // Publish a scheduled post immediately
+      publishScheduledPost: async (id: string): Promise<Post> => {
+        const scheduledPost = get().scheduledPosts.find((sp) => sp.id === id);
+        if (!scheduledPost) {
+          throw new Error('Scheduled post not found');
+        }
+
+        // Create the actual post
+        const post = await get().createPost({
+          content: scheduledPost.content,
+          contentType: scheduledPost.contentType,
+          media: scheduledPost.media,
+          visibility: scheduledPost.visibility,
+          mentions: scheduledPost.mentions,
+          hashtags: scheduledPost.hashtags,
+          contentWarning: scheduledPost.contentWarning,
+          isSensitive: scheduledPost.isSensitive,
+        });
+
+        // Update the scheduled post status
+        const updatedAt = Date.now();
+        try {
+          await db.scheduledPosts.update(id, {
+            status: 'published',
+            publishedAt: updatedAt,
+            publishedPostId: post.id,
+            updatedAt,
+          });
+        } catch (error) {
+          console.error('Failed to update scheduled post status:', error);
+        }
+
+        set((state) => ({
+          scheduledPosts: state.scheduledPosts.map((sp) =>
+            sp.id === id
+              ? { ...sp, status: 'published', publishedAt: updatedAt, publishedPostId: post.id, updatedAt }
+              : sp
+          ),
+        }));
+
+        return post;
+      },
+
+      // Get all scheduled posts for current user
+      getScheduledPosts: (): ScheduledPost[] => {
+        const currentIdentity = useAuthStore.getState().currentIdentity;
+        if (!currentIdentity) return [];
+
+        return get()
+          .scheduledPosts.filter(
+            (sp) => sp.authorId === currentIdentity.publicKey && sp.status === 'pending'
+          )
+          .sort((a, b) => a.scheduledFor - b.scheduledFor);
+      },
+
+      // Get scheduled posts that are due to be published
+      getDueScheduledPosts: (): ScheduledPost[] => {
+        const now = Date.now();
+        return get().scheduledPosts.filter(
+          (sp) => sp.status === 'pending' && sp.scheduledFor <= now
+        );
+      },
+
+      // Load scheduled posts from database
+      loadScheduledPosts: async (): Promise<void> => {
+        const currentIdentity = useAuthStore.getState().currentIdentity;
+        if (!currentIdentity) return;
+
+        try {
+          const scheduledPosts = await db.scheduledPosts
+            .where('authorId')
+            .equals(currentIdentity.publicKey)
+            .toArray();
+
+          set({ scheduledPosts });
+        } catch (error) {
+          console.error('Failed to load scheduled posts:', error);
+        }
+      },
+
+      // === Post Pinning Actions ===
+
+      // Pin a post to your profile
+      pinPost: async (postId: string): Promise<void> => {
+        const pinnedAt = Date.now();
+
+        try {
+          await db.posts.update(postId, { isPinned: true, pinnedAt });
+        } catch (error) {
+          console.error('Failed to pin post:', error);
+        }
+
+        set((state) => ({
+          posts: state.posts.map((p) =>
+            p.id === postId ? { ...p, isPinned: true, pinnedAt } : p
+          ),
+        }));
+      },
+
+      // Unpin a post
+      unpinPost: async (postId: string): Promise<void> => {
+        try {
+          await db.posts.update(postId, { isPinned: false, pinnedAt: undefined });
+        } catch (error) {
+          console.error('Failed to unpin post:', error);
+        }
+
+        set((state) => ({
+          posts: state.posts.map((p) =>
+            p.id === postId ? { ...p, isPinned: false, pinnedAt: undefined } : p
+          ),
+        }));
+      },
+
+      // Check if a post is pinned
+      isPinned: (postId: string): boolean => {
+        const post = get().posts.find((p) => p.id === postId);
+        return post?.isPinned || false;
+      },
+
+      // Get all pinned posts for current user
+      getPinnedPosts: (): Post[] => {
+        const currentIdentity = useAuthStore.getState().currentIdentity;
+        if (!currentIdentity) return [];
+
+        return get()
+          .posts.filter((p) => p.isPinned && p.authorId === currentIdentity.publicKey)
+          .sort((a, b) => (b.pinnedAt || 0) - (a.pinnedAt || 0));
       },
     })
 );

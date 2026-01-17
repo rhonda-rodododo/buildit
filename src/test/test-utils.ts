@@ -1,3 +1,6 @@
+// Import fake-indexeddb FIRST, before any code that uses Dexie/IndexedDB
+import 'fake-indexeddb/auto';
+
 import { initializeDatabase, closeDatabase, getDB, registerModuleSchema } from '@/core/storage/db';
 import { enableTestMode, disableTestMode } from '@/core/storage/EncryptedDB';
 import { NostrClient } from '@/core/nostr/client';

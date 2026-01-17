@@ -24,6 +24,8 @@ import {
   Shield,
   AlertTriangle,
   Quote,
+  Pin,
+  PinOff,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -82,6 +84,9 @@ export const PostCard: FC<PostCardProps> = ({
     bookmarkPost,
     unbookmarkPost,
     getPostComments,
+    pinPost,
+    unpinPost,
+    isPinned: checkIsPinned,
   } = usePostsStore();
 
   const [showReactionPicker, setShowReactionPicker] = useState(false);
@@ -93,6 +98,15 @@ export const PostCard: FC<PostCardProps> = ({
   const postReactions = getPostReactions(post.id);
   const isReposted = hasReposted(post.id);
   const isBookmarked = hasBookmarked(post.id);
+  const isPinned = post.isPinned || checkIsPinned(post.id);
+
+  const handlePinToggle = async () => {
+    if (isPinned) {
+      await unpinPost(post.id);
+    } else {
+      await pinPost(post.id);
+    }
+  };
 
   const handleReaction = async (type: ReactionType) => {
     if (myReaction === type) {
@@ -158,6 +172,14 @@ export const PostCard: FC<PostCardProps> = ({
 
   return (
     <Card className={`p-4 ${className}`}>
+      {/* Pinned Badge */}
+      {isPinned && (
+        <div className="mb-2 flex items-center gap-1 text-xs text-muted-foreground">
+          <Pin className="w-3 h-3" />
+          <span>Pinned post</span>
+        </div>
+      )}
+
       {/* Content Warning */}
       {post.contentWarning && (
         <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-md flex items-start gap-2">
@@ -202,6 +224,19 @@ export const PostCard: FC<PostCardProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handlePinToggle}>
+              {isPinned ? (
+                <>
+                  <PinOff className="w-4 h-4 mr-2" />
+                  Unpin from profile
+                </>
+              ) : (
+                <>
+                  <Pin className="w-4 h-4 mr-2" />
+                  Pin to profile
+                </>
+              )}
+            </DropdownMenuItem>
             <DropdownMenuItem>Copy link</DropdownMenuItem>
             <DropdownMenuItem>Edit post</DropdownMenuItem>
             <DropdownMenuItem className="text-destructive">Delete post</DropdownMenuItem>
