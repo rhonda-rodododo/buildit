@@ -301,7 +301,7 @@ export class EventManager {
     // Future enhancement: Query relays for group events using NIP-29 (Group Chat)
     // or NIP-72 (Moderated Communities) and sync to local database
     const events = await db.events!.toArray()
-    console.log('Loaded events from local DB:', events.length)
+    console.info('Loaded events from local DB:', events.length)
   }
 
   /**

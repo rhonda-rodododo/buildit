@@ -146,7 +146,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
       await db.donationTiers?.add(tier);
     }
 
-    console.log('✅ Created strike fund campaign seed with 3 donation tiers');
+    console.info('✅ Created strike fund campaign seed with 3 donation tiers');
   },
 };
 
@@ -200,7 +200,7 @@ export const bailFundCampaignSeed: ModuleSeed = {
     };
     await db.campaigns?.add(campaign);
 
-    console.log('✅ Created bail fund campaign seed (privacy-focused)');
+    console.info('✅ Created bail fund campaign seed (privacy-focused)');
   },
 };
 

@@ -66,13 +66,13 @@ export const databaseModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Database module registered');
+      console.info('Database module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Database module enabled for group ${groupId}`, config);
+      console.info(`Database module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Database module disabled for group ${groupId}`);
+      console.info(`Database module disabled for group ${groupId}`);
     },
   },
 
@@ -93,7 +93,7 @@ export const databaseModule: ModulePlugin = {
       version: 1,
       description: 'Initial database schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Database migration v1: Initial schema');
+        console.info('Database migration v1: Initial schema');
       },
     },
   ],

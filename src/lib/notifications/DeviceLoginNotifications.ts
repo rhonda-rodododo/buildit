@@ -84,7 +84,7 @@ export class DeviceLoginNotificationService {
    */
   public async markAsRead(notificationId: string): Promise<void> {
     // In a real implementation, update database
-    console.log(`Marking notification ${notificationId} as read`);
+    console.info(`Marking notification ${notificationId} as read`);
   }
 
   /**
@@ -168,7 +168,7 @@ export class DeviceLoginNotificationService {
    */
   private async storeNotification(notification: LoginNotification): Promise<void> {
     // In real implementation, store in IndexedDB notifications table
-    console.log('Login notification created:', {
+    console.info('Login notification created:', {
       deviceName: notification.deviceName,
       platform: notification.platform,
       timestamp: new Date(notification.timestamp).toISOString(),

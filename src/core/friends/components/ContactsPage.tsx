@@ -169,11 +169,11 @@ export function ContactsPage() {
                   friend={friend}
                   onMessage={() => {
                     // TODO: Open message dialog
-                    console.log('Message friend:', friend.friendPubkey);
+                    console.info('Message friend:', friend.friendPubkey);
                   }}
                   onViewProfile={() => {
                     // TODO: Open profile view
-                    console.log('View profile:', friend.friendPubkey);
+                    console.info('View profile:', friend.friendPubkey);
                   }}
                 />
               ))}

@@ -83,7 +83,7 @@ let testModeEnabled = false;
 export function enableTestMode(): void {
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     testModeEnabled = true;
-    console.log('⚠️  Test mode enabled - encryption bypassed');
+    console.info('⚠️  Test mode enabled - encryption bypassed');
   } else {
     console.warn('⚠️  Test mode requested but not in test environment');
   }
@@ -435,7 +435,7 @@ export function setupLocalEncryptionHooks(db: any): void {
     });
   }
 
-  console.log(`🔐 Local encryption hooks enabled for ${tablesToEncrypt.length} tables`);
+  console.info(`🔐 Local encryption hooks enabled for ${tablesToEncrypt.length} tables`);
 }
 
 /**
@@ -499,7 +499,7 @@ export async function migrateToLocalEncryption(db: any): Promise<{ migrated: num
     }
   }
 
-  console.log(`🔄 Migration complete: ${migrated} records migrated, ${failed} failed`);
+  console.info(`🔄 Migration complete: ${migrated} records migrated, ${failed} failed`);
   return { migrated, failed };
 }
 

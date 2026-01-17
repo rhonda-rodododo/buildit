@@ -97,7 +97,7 @@ const App: FC = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-screen-2xl">
         <Tabs value={activeTab} onValueChange={(value) => {
-          console.log('Tab changing to:', value)
+          console.info('Tab changing to:', value)
           setActiveTab(value)
         }}>
           <TabsList className="mb-4 sm:mb-6 w-full max-w-3xl bg-muted/50 p-1">

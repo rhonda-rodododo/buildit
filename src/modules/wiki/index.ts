@@ -73,13 +73,13 @@ export const wikiModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Wiki module registered');
+      console.info('Wiki module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Wiki module enabled for group ${groupId}`, config);
+      console.info(`Wiki module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Wiki module disabled for group ${groupId}`);
+      console.info(`Wiki module disabled for group ${groupId}`);
     },
   },
 
@@ -100,7 +100,7 @@ export const wikiModule: ModulePlugin = {
       version: 1,
       description: 'Initial wiki schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Wiki migration v1: Initial schema');
+        console.info('Wiki migration v1: Initial schema');
       },
     },
   ],

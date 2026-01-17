@@ -58,7 +58,7 @@ class StoreInitializerService {
       return;
     }
 
-    console.log('🔧 Initializing StoreInitializer...');
+    console.info('🔧 Initializing StoreInitializer...');
 
     // Subscribe to SecureKeyManager events
     this.unsubscribe = secureKeyManager.addEventListener(
@@ -66,7 +66,7 @@ class StoreInitializerService {
     );
 
     this.isInitialized = true;
-    console.log('✅ StoreInitializer ready');
+    console.info('✅ StoreInitializer ready');
   }
 
   /**
@@ -75,19 +75,19 @@ class StoreInitializerService {
   private handleSecurityEvent(event: SecureKeyManagerEvent): void {
     switch (event.type) {
       case 'unlocked':
-        console.log('🔓 App unlocked - loading stores from Dexie...');
+        console.info('🔓 App unlocked - loading stores from Dexie...');
         this.loadAllStores(event.publicKey).catch((error) => {
           console.error('Failed to load stores:', error);
         });
         break;
 
       case 'locked':
-        console.log('🔒 App locked - clearing all stores...');
+        console.info('🔒 App locked - clearing all stores...');
         this.clearAllStores();
         break;
 
       case 'lock-timeout-warning':
-        console.log(`⏰ Lock timeout warning: ${event.secondsRemaining}s remaining`);
+        console.info(`⏰ Lock timeout warning: ${event.secondsRemaining}s remaining`);
         break;
     }
   }
@@ -117,7 +117,7 @@ class StoreInitializerService {
         this.loadPostsStore(db, userPubkey),
       ]);
 
-      console.log('✅ All stores loaded from Dexie');
+      console.info('✅ All stores loaded from Dexie');
     } catch (error) {
       console.error('Error loading stores:', error);
       throw error;
@@ -158,7 +158,7 @@ class StoreInitializerService {
         error: null,
       });
 
-      console.log(`📦 Loaded ${groups.length} groups`);
+      console.info(`📦 Loaded ${groups.length} groups`);
     } catch (error) {
       console.error('Failed to load groups:', error);
     }
@@ -194,7 +194,7 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      console.log(`📦 Loaded ${friends.length} friends`);
+      console.info(`📦 Loaded ${friends.length} friends`);
     } catch (error) {
       console.error('Failed to load friends:', error);
     }
@@ -227,7 +227,7 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      console.log(`📦 Loaded ${conversations.length} conversations`);
+      console.info(`📦 Loaded ${conversations.length} conversations`);
     } catch (error) {
       console.error('Failed to load conversations:', error);
     }
@@ -280,7 +280,7 @@ class StoreInitializerService {
         activeEventId: null,
       });
 
-      console.log(`📦 Loaded ${events.length} events`);
+      console.info(`📦 Loaded ${events.length} events`);
     } catch (error) {
       console.error('Failed to load events:', error);
     }
@@ -299,7 +299,7 @@ class StoreInitializerService {
         activeAidItemId: null,
       });
 
-      console.log(`📦 Loaded ${aidItems.length} mutual aid items`);
+      console.info(`📦 Loaded ${aidItems.length} mutual aid items`);
     } catch (error) {
       console.error('Failed to load mutual aid:', error);
     }
@@ -392,7 +392,7 @@ class StoreInitializerService {
         hasMorePosts: posts.length === 50,
       });
 
-      console.log(`📦 Loaded ${posts.length} posts`);
+      console.info(`📦 Loaded ${posts.length} posts`);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
@@ -476,7 +476,7 @@ class StoreInitializerService {
     // Clear posts store
     usePostsStore.getState().clearCache();
 
-    console.log('✅ All stores cleared');
+    console.info('✅ All stores cleared');
   }
 
   /**

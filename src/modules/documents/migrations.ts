@@ -13,7 +13,7 @@ export const documentsMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Documents module placeholder',
     migrate: async (_db) => {
-      console.log('Documents module v1: Placeholder (implementation pending)');
+      console.info('Documents module v1: Placeholder (implementation pending)');
     },
   },
 ];

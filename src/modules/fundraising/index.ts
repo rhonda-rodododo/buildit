@@ -90,13 +90,13 @@ export const fundraisingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Fundraising module registered');
+      console.info('Fundraising module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Fundraising module enabled for group ${groupId}`, config);
+      console.info(`Fundraising module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Fundraising module disabled for group ${groupId}`);
+      console.info(`Fundraising module disabled for group ${groupId}`);
     },
   },
 
@@ -117,7 +117,7 @@ export const fundraisingModule: ModulePlugin = {
       version: 1,
       description: 'Initial fundraising schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Fundraising migration v1: Initial schema (campaigns, donations, tiers)');
+        console.info('Fundraising migration v1: Initial schema (campaigns, donations, tiers)');
       },
     },
   ],

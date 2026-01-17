@@ -77,13 +77,13 @@ export const NewslettersModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: () => {
-      console.log('📧 Newsletters module registered');
+      console.info('📧 Newsletters module registered');
     },
     onEnable: async (groupId) => {
-      console.log(`📧 Newsletters enabled for group ${groupId}`);
+      console.info(`📧 Newsletters enabled for group ${groupId}`);
     },
     onDisable: async (groupId) => {
-      console.log(`📧 Newsletters disabled for group ${groupId}`);
+      console.info(`📧 Newsletters disabled for group ${groupId}`);
     },
   },
 

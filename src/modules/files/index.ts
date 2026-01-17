@@ -79,10 +79,10 @@ export const filesModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Files module registered')
+      console.info('Files module registered')
     },
     onEnable: async (groupId: string) => {
-      console.log(`Files module enabled for group ${groupId}`)
+      console.info(`Files module enabled for group ${groupId}`)
       // Initialize storage quota when enabled
       const { fileManager } = await import('./fileManager')
       const quotaGB = 1 // Default 1GB

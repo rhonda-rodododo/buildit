@@ -185,7 +185,7 @@ export function FundraisingPage() {
 
     const handleDonate = (_tierId?: string) => {
       // TODO: Implement donation flow
-      console.log('Donate to campaign:', selectedCampaign.id, 'tier:', _tierId);
+      console.info('Donate to campaign:', selectedCampaign.id, 'tier:', _tierId);
     };
 
     return (

@@ -113,7 +113,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
     };
 
     await db.forms?.add(form);
-    console.log('✅ Created event registration form seed');
+    console.info('✅ Created event registration form seed');
   },
 };
 
@@ -231,7 +231,7 @@ export const volunteerSignupFormSeed: ModuleSeed = {
     };
 
     await db.forms?.add(form);
-    console.log('✅ Created volunteer signup form seed');
+    console.info('✅ Created volunteer signup form seed');
   },
 };
 

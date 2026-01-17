@@ -15,7 +15,7 @@ export const eventsMigrations: ModuleMigration[] = [
     description: 'Initial events and RSVPs tables',
     migrate: async (_db) => {
       // No migration needed for v1 (initial schema)
-      console.log('Events module v1: Initial schema created');
+      console.info('Events module v1: Initial schema created');
     },
   },
   // Future migrations go here

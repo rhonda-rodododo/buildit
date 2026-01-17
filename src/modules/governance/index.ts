@@ -79,13 +79,13 @@ export const governanceModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Governance module registered');
+      console.info('Governance module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Governance module enabled for group ${groupId}`, config);
+      console.info(`Governance module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Governance module disabled for group ${groupId}`);
+      console.info(`Governance module disabled for group ${groupId}`);
     },
   },
 
@@ -106,7 +106,7 @@ export const governanceModule: ModulePlugin = {
       version: 1,
       description: 'Initial governance schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Governance migration v1: Initial schema');
+        console.info('Governance migration v1: Initial schema');
       },
     },
   ],

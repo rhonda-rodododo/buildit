@@ -129,7 +129,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Initialize the BLE adapter
    */
   async initialize(): Promise<void> {
-    console.log('[BLE Mesh] Initializing adapter...');
+    console.info('[BLE Mesh] Initializing adapter...');
 
     // Check if Web Bluetooth API is available
     const available = await this.isAvailable();
@@ -144,7 +144,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Connect to BLE mesh network
    */
   async connect(): Promise<void> {
-    console.log('[BLE Mesh] Connecting to mesh network...');
+    console.info('[BLE Mesh] Connecting to mesh network...');
     this.setStatus(TransportStatus.CONNECTING);
 
     try {
@@ -162,7 +162,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
       this.startPeriodicSync();
 
       this.setStatus(TransportStatus.CONNECTED);
-      console.log('[BLE Mesh] Connected to mesh network');
+      console.info('[BLE Mesh] Connected to mesh network');
     } catch (error) {
       this.setStatus(TransportStatus.ERROR);
       this.emitError(new Error(`Failed to connect: ${error}`));
@@ -174,7 +174,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Disconnect from BLE mesh network
    */
   async disconnect(): Promise<void> {
-    console.log('[BLE Mesh] Disconnecting from mesh network...');
+    console.info('[BLE Mesh] Disconnecting from mesh network...');
 
     // Stop scanning
     this.stopScanning();
@@ -195,7 +195,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
     this.stats.connectedPeers = 0;
 
     this.setStatus(TransportStatus.DISCONNECTED);
-    console.log('[BLE Mesh] Disconnected from mesh network');
+    console.info('[BLE Mesh] Disconnected from mesh network');
   }
 
   /**
@@ -226,7 +226,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
       this.stats.messagesSent++;
       this.stats.bytesTransmitted += compressed.length;
 
-      console.log(`[BLE Mesh] Message sent: ${message.id} (${chunks.length} chunks)`);
+      console.info(`[BLE Mesh] Message sent: ${message.id} (${chunks.length} chunks)`);
     } catch (error) {
       this.stats.failedDeliveries++;
       this.emitError(new Error(`Failed to send message: ${error}`));
@@ -293,7 +293,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Start scanning for nearby BLE mesh nodes
    */
   private async startScanning(): Promise<void> {
-    console.log('[BLE Mesh] Starting scan for nearby nodes...');
+    console.info('[BLE Mesh] Starting scan for nearby nodes...');
 
     // Initial scan
     await this.scanForDevices();
@@ -351,7 +351,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
       return;
     }
 
-    console.log(`[BLE Mesh] Connecting to peer: ${peerId}`);
+    console.info(`[BLE Mesh] Connecting to peer: ${peerId}`);
 
     try {
       const server = await device.gatt?.connect();
@@ -393,7 +393,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
       this.peers.set(peerId, peer);
       this.stats.connectedPeers = this.peers.size;
 
-      console.log(`[BLE Mesh] Connected to peer: ${peerId}`);
+      console.info(`[BLE Mesh] Connected to peer: ${peerId}`);
 
       // Handle disconnect
       device.addEventListener('gattserverdisconnected', () => {
@@ -503,14 +503,14 @@ export class BLEMeshAdapter implements ITransportAdapter {
     await this.sendMessage(message);
 
     this.stats.messagesRelayed++;
-    console.log(`[BLE Mesh] Relayed message ${message.id} (hop ${message.hopCount})`);
+    console.info(`[BLE Mesh] Relayed message ${message.id} (hop ${message.hopCount})`);
   }
 
   /**
    * Handle peer disconnect
    */
   private handlePeerDisconnect(peerId: string): void {
-    console.log(`[BLE Mesh] Peer disconnected: ${peerId}`);
+    console.info(`[BLE Mesh] Peer disconnected: ${peerId}`);
 
     this.peers.delete(peerId);
     this.stats.connectedPeers = this.peers.size;
@@ -548,7 +548,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    */
   private async performSync(): Promise<void> {
     // TODO: Implement Negentropy sync protocol
-    console.log('[BLE Mesh] Periodic sync (Negentropy not yet implemented)');
+    console.info('[BLE Mesh] Periodic sync (Negentropy not yet implemented)');
   }
 
   /**

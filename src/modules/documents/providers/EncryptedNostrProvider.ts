@@ -316,7 +316,7 @@ export class EncryptedNostrProvider extends Observable<string> {
    * Handle EOSE (End of Stored Events)
    */
   private _handleEOSE(): void {
-    console.log('Initial sync complete (EOSE)')
+    console.info('Initial sync complete (EOSE)')
 
     // If we haven't synced yet, mark as synced
     if (!this._synced) {

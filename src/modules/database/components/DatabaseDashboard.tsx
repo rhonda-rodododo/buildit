@@ -65,7 +65,7 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
   };
 
   const handleRecordClick = (record: DatabaseRecord) => {
-    console.log('Record clicked:', record);
+    console.info('Record clicked:', record);
     // This would open a record detail dialog
   };
 

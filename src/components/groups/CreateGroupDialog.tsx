@@ -97,7 +97,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
       // Load demo data if requested
       if (loadDemoData && group) {
-        console.log('📦 Loading demo data for new group...')
+        console.info('📦 Loading demo data for new group...')
         await loadAllSeeds(db, group.id, currentIdentity.publicKey, {
           moduleIds: selectedModules,
         })

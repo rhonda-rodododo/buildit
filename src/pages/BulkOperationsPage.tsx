@@ -88,33 +88,33 @@ export const BulkOperationsPage: FC = () => {
   };
 
   const handleBulkMessage = () => {
-    console.log('Sending message to:', Array.from(selectedIds));
+    console.info('Sending message to:', Array.from(selectedIds));
     alert(`Sending message to ${selectedIds.size} contacts`);
   };
 
   const handleBulkAddTag = () => {
-    console.log('Adding tag to:', Array.from(selectedIds));
+    console.info('Adding tag to:', Array.from(selectedIds));
     alert(`Adding tag to ${selectedIds.size} contacts`);
   };
 
   const handleBulkUpdateField = () => {
-    console.log('Updating field for:', Array.from(selectedIds));
+    console.info('Updating field for:', Array.from(selectedIds));
     alert(`Updating field for ${selectedIds.size} contacts`);
   };
 
   const handleBulkAssignTask = () => {
-    console.log('Assigning task for:', Array.from(selectedIds));
+    console.info('Assigning task for:', Array.from(selectedIds));
     alert(`Creating task for ${selectedIds.size} contacts`);
   };
 
   const handleBulkExport = () => {
-    console.log('Exporting:', Array.from(selectedIds));
+    console.info('Exporting:', Array.from(selectedIds));
     alert(`Exporting ${selectedIds.size} contacts to CSV`);
   };
 
   const handleBulkDelete = () => {
     if (confirm(`Delete ${selectedIds.size} contacts? This cannot be undone.`)) {
-      console.log('Deleting:', Array.from(selectedIds));
+      console.info('Deleting:', Array.from(selectedIds));
       setSelectedIds(new Set());
     }
   };

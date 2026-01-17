@@ -47,10 +47,10 @@ export const documentsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Documents module registered (placeholder)');
+      console.info('Documents module registered (placeholder)');
     },
     onEnable: async (groupId: string) => {
-      console.log(`Documents module enabled for group ${groupId} (placeholder)`);
+      console.info(`Documents module enabled for group ${groupId} (placeholder)`);
     },
   },
 

@@ -53,13 +53,13 @@ export const crmModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('CRM module registered');
+      console.info('CRM module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`CRM module enabled for group ${groupId}`, config);
+      console.info(`CRM module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`CRM module disabled for group ${groupId}`);
+      console.info(`CRM module disabled for group ${groupId}`);
     },
   },
 
@@ -80,7 +80,7 @@ export const crmModule: ModulePlugin = {
       version: 1,
       description: 'Initial CRM schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('CRM migration v1: Initial schema');
+        console.info('CRM migration v1: Initial schema');
       },
     },
   ],

@@ -119,7 +119,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
     // Setup IndexedDB persistence for offline support
     const indexeddbProvider = new IndexeddbPersistence(`doc-${documentId}`, doc)
     indexeddbProvider.whenSynced.then(() => {
-      console.log('Loaded document from IndexedDB')
+      console.info('Loaded document from IndexedDB')
     })
 
     // Setup Nostr provider for real-time sync

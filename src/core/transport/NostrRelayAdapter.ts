@@ -130,7 +130,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    * Initialize the adapter
    */
   async initialize(): Promise<void> {
-    console.log('[Nostr Relay] Initializing adapter...');
+    console.info('[Nostr Relay] Initializing adapter...');
     this.setStatus(TransportStatus.DISCONNECTED);
   }
 
@@ -145,7 +145,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
     const torStore = useTorStore.getState();
     const torEnabled = torStore.config.enabled;
 
-    console.log(
+    console.info(
       `[Nostr Relay] Connecting to relays... (Tor: ${torEnabled ? 'enabled' : 'disabled'})`
     );
     this.setStatus(TransportStatus.CONNECTING);
@@ -165,7 +165,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
           this.handleIncomingEvent(event);
         },
         () => {
-          console.log('[Nostr Relay] Subscription EOSE');
+          console.info('[Nostr Relay] Subscription EOSE');
         }
       );
 
@@ -181,11 +181,11 @@ export class NostrRelayAdapter implements ITransportAdapter {
 
       if (torEnabled) {
         const onionCount = statuses.filter(s => s.connected && s.url.includes('.onion')).length;
-        console.log(
+        console.info(
           `[Nostr Relay] Connected to ${connectedCount} relays (${onionCount} .onion)`
         );
       } else {
-        console.log(`[Nostr Relay] Connected to ${connectedCount} relays`);
+        console.info(`[Nostr Relay] Connected to ${connectedCount} relays`);
       }
     } catch (error) {
       this.setStatus(TransportStatus.ERROR);
@@ -198,7 +198,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    * Disconnect from Nostr relays
    */
   async disconnect(): Promise<void> {
-    console.log('[Nostr Relay] Disconnecting from relays...');
+    console.info('[Nostr Relay] Disconnecting from relays...');
 
     // Unsubscribe from all subscriptions
     for (const subId of this.subscriptionIds) {
@@ -211,7 +211,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
 
     this.stats.connectedPeers = 0;
     this.setStatus(TransportStatus.DISCONNECTED);
-    console.log('[Nostr Relay] Disconnected from relays');
+    console.info('[Nostr Relay] Disconnected from relays');
   }
 
   /**
@@ -246,7 +246,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
       const eventSize = JSON.stringify(message.event).length;
       this.stats.bytesTransmitted += eventSize;
 
-      console.log(`[Nostr Relay] Message sent: ${message.id} (${successCount}/${results.length} relays)`);
+      console.info(`[Nostr Relay] Message sent: ${message.id} (${successCount}/${results.length} relays)`);
     } catch (error) {
       this.stats.failedDeliveries++;
       this.emitError(new Error(`Failed to send message: ${error}`));
@@ -303,7 +303,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    */
   addRelay(config: RelayConfig): void {
     this.client.addRelay(config);
-    console.log(`[Nostr Relay] Added relay: ${config.url}`);
+    console.info(`[Nostr Relay] Added relay: ${config.url}`);
   }
 
   /**
@@ -311,7 +311,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    */
   removeRelay(url: string): void {
     this.client.removeRelay(url);
-    console.log(`[Nostr Relay] Removed relay: ${url}`);
+    console.info(`[Nostr Relay] Removed relay: ${url}`);
   }
 
   /**

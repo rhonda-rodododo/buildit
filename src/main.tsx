@@ -19,7 +19,7 @@ async function initializeApp() {
   const { getDB } = await import("@/core/storage/db");
   try {
     getDB();
-    console.log(
+    console.info(
       "⚠️  Database already initialized from previous session, skipping initialization"
     );
   } catch {
@@ -28,13 +28,13 @@ async function initializeApp() {
 
   // Prevent multiple initializations (React StrictMode, HMR, etc.)
   if (initializationStarted) {
-    console.log("⚠️  Initialization already in progress, skipping...");
+    console.info("⚠️  Initialization already in progress, skipping...");
     return;
   }
   initializationStarted = true;
 
   try {
-    console.log("🚀 Starting app initialization...");
+    console.info("🚀 Starting app initialization...");
 
     // Step 1: Initialize modules (registers schemas with db, but does NOT load instances yet)
     await initializeModules();
@@ -67,7 +67,7 @@ async function initializeApp() {
       await startAllSyncs();
     }
 
-    console.log("✅ App initialization complete");
+    console.info("✅ App initialization complete");
     return true;
   } catch (error) {
     console.error("❌ Failed to initialize app:", error);
@@ -84,7 +84,7 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     initializeApp()
       .then((result) => {
-        console.log("App initialization result:", result);
+        console.info("App initialization result:", result);
         setIsAppInitialized(true);
       })
       .catch(console.error);
@@ -93,7 +93,7 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     // Recreate router when app is initialized to load dynamic routes
     if (isAppInitialized) {
-      console.log("Recreating router after app initialization");
+      console.info("Recreating router after app initialization");
       const routes = getRoutes();
       setRouter(createBrowserRouter(routes));
     }

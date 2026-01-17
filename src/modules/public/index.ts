@@ -70,13 +70,13 @@ export const publicModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Public module registered');
+      console.info('Public module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Public module enabled for group ${groupId}`, config);
+      console.info(`Public module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Public module disabled for group ${groupId}`);
+      console.info(`Public module disabled for group ${groupId}`);
     },
   },
 
@@ -91,7 +91,7 @@ export const publicModule: ModulePlugin = {
       version: 1,
       description: 'Initial public schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Public migration v1: Initial schema (public pages, analytics)');
+        console.info('Public migration v1: Initial schema (public pages, analytics)');
       },
     },
   ],

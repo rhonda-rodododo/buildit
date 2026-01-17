@@ -73,7 +73,7 @@ We are a grassroots union organizing workers across industries. Join us in the f
     };
 
     await db.publicPages?.add(page);
-    console.log('✅ Created public landing page seed');
+    console.info('✅ Created public landing page seed');
   },
 };
 
@@ -126,7 +126,7 @@ Want to join the movement? [Contact us](/contact) or [sign up to volunteer](/vol
     };
 
     await db.publicPages?.add(page);
-    console.log('✅ Created about page seed');
+    console.info('✅ Created about page seed');
   },
 };
 

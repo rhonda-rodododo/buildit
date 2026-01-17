@@ -13,7 +13,7 @@ export const customFieldsMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Initial custom fields and values tables',
     migrate: async (_db) => {
-      console.log('Custom Fields module v1: Initial schema created');
+      console.info('Custom Fields module v1: Initial schema created');
     },
   },
 ];

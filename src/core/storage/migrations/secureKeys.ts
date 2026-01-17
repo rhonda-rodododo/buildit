@@ -99,7 +99,7 @@ export async function migrateIdentity(publicKey: string, password: string): Prom
   // Zero-fill the private key in memory
   privateKey.fill(0);
 
-  console.log(`✅ Migrated identity ${publicKey.slice(0, 8)}... to secure storage`);
+  console.info(`✅ Migrated identity ${publicKey.slice(0, 8)}... to secure storage`);
 }
 
 /**

@@ -63,7 +63,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           return { registry: newRegistry };
         });
 
-        console.log(`Module ${metadata.id} registered successfully`);
+        console.info(`Module ${metadata.id} registered successfully`);
       },
 
       unregisterModule: async (moduleId: string) => {
@@ -94,7 +94,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           await get().disableModule(instance.groupId, moduleId);
         }
 
-        console.log(`Module ${moduleId} unregistered successfully`);
+        console.info(`Module ${moduleId} unregistered successfully`);
       },
 
       enableModule: async (groupId: string, moduleId: string, config?: Record<string, unknown>) => {
@@ -168,7 +168,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
             updatedAt: Date.now(),
           });
 
-          console.log(`Module ${moduleId} enabled for group ${groupId}`);
+          console.info(`Module ${moduleId} enabled for group ${groupId}`);
         } catch (error) {
           // Update state to error
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -217,7 +217,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         // Remove from database
         await db.moduleInstances.delete(key);
 
-        console.log(`Module ${moduleId} disabled for group ${groupId}`);
+        console.info(`Module ${moduleId} disabled for group ${groupId}`);
       },
 
       updateModuleConfig: async (
@@ -264,7 +264,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           updatedAt: Date.now(),
         });
 
-        console.log(`Module ${moduleId} config updated for group ${groupId}`);
+        console.info(`Module ${moduleId} config updated for group ${groupId}`);
       },
 
       getModuleInstance: (groupId: string, moduleId: string) => {
@@ -292,7 +292,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
       },
 
       loadModuleInstances: async () => {
-        console.log('📥 Loading module instances from database...');
+        console.info('📥 Loading module instances from database...');
         const instances = await db.moduleInstances.toArray();
         const instanceMap = new Map<string, ModuleInstance>();
 
@@ -310,7 +310,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         }
 
         set({ instances: instanceMap });
-        console.log(`✅ Loaded ${instances.length} module instances from database`);
+        console.info(`✅ Loaded ${instances.length} module instances from database`);
       },
     })
 );

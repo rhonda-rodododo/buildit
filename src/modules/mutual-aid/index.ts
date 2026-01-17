@@ -82,13 +82,13 @@ export const mutualAidModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Mutual Aid module registered');
+      console.info('Mutual Aid module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Mutual Aid module enabled for group ${groupId}`, config);
+      console.info(`Mutual Aid module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Mutual Aid module disabled for group ${groupId}`);
+      console.info(`Mutual Aid module disabled for group ${groupId}`);
     },
   },
 
@@ -109,7 +109,7 @@ export const mutualAidModule: ModulePlugin = {
       version: 1,
       description: 'Initial mutual aid schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Mutual Aid migration v1: Initial schema');
+        console.info('Mutual Aid migration v1: Initial schema');
       },
     },
   ],

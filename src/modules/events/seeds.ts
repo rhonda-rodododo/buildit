@@ -191,7 +191,7 @@ export const eventsSeeds: ModuleSeed[] = [
       // Insert seed data
       await db.events?.bulkAdd(exampleEvents);
       await db.rsvps?.bulkAdd(exampleRSVPs);
-      console.log(`Seeded ${exampleEvents.length} events and ${exampleRSVPs.length} RSVPs for group ${groupId}`);
+      console.info(`Seeded ${exampleEvents.length} events and ${exampleRSVPs.length} RSVPs for group ${groupId}`);
     },
   },
 ];

@@ -98,13 +98,13 @@ export const publishingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Publishing module registered');
+      console.info('Publishing module registered');
     },
     onEnable: async (groupId: string) => {
-      console.log(`Publishing module enabled for group ${groupId}`);
+      console.info(`Publishing module enabled for group ${groupId}`);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Publishing module disabled for group ${groupId}`);
+      console.info(`Publishing module disabled for group ${groupId}`);
     },
   },
 

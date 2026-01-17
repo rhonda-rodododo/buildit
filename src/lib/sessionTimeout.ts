@@ -51,7 +51,7 @@ class SessionManager {
     // Listen for visibility change (tab switching)
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
 
-    console.log('🔒 Session timeout monitoring initialized', {
+    console.info('🔒 Session timeout monitoring initialized', {
       timeout: `${this.config.inactivityTimeoutMs / 60000} minutes`,
       warning: `${this.config.warningTimeMs / 60000} minutes`,
     })
@@ -71,7 +71,7 @@ class SessionManager {
     // Stop monitoring
     this.stopMonitoring()
 
-    console.log('🔒 Session timeout monitoring destroyed')
+    console.info('🔒 Session timeout monitoring destroyed')
   }
 
   /**
@@ -159,7 +159,7 @@ class SessionManager {
 
     if (!currentIdentity) return
 
-    console.log('🔒 Session locked due to inactivity')
+    console.info('🔒 Session locked due to inactivity')
 
     // Clear sensitive data from memory
     logout()

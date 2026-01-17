@@ -13,7 +13,7 @@ export const crmMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Initial contacts table',
     migrate: async (_db) => {
-      console.log('CRM module v1: Initial schema created');
+      console.info('CRM module v1: Initial schema created');
     },
   },
 ];

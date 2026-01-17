@@ -73,13 +73,13 @@ export const eventsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Events module registered');
+      console.info('Events module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Events module enabled for group ${groupId}`, config);
+      console.info(`Events module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Events module disabled for group ${groupId}`);
+      console.info(`Events module disabled for group ${groupId}`);
     },
   },
 
@@ -100,7 +100,7 @@ export const eventsModule: ModulePlugin = {
       version: 1,
       description: 'Initial events schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Events migration v1: Initial schema');
+        console.info('Events migration v1: Initial schema');
       },
     },
   ],

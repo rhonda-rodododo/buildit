@@ -102,7 +102,7 @@ export const customFieldsSeeds: ModuleSeed[] = [
 
       const customFieldsTable = db.getTable<any>('customFields');
       await customFieldsTable.bulkAdd(exampleFields);
-      console.log(`Seeded ${exampleFields.length} example custom fields for group ${groupId}`);
+      console.info(`Seeded ${exampleFields.length} example custom fields for group ${groupId}`);
     },
   },
 ];

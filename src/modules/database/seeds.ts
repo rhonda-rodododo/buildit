@@ -290,7 +290,7 @@ export const databaseSeeds: ModuleSeed[] = [
 
       await db.databaseRecords?.bulkAdd(sampleRecords);
 
-      console.log(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
+      console.info(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
     },
   },
 
@@ -503,7 +503,7 @@ export const databaseSeeds: ModuleSeed[] = [
 
       await db.databaseRecords?.bulkAdd(resources);
 
-      console.log(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
+      console.info(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
     },
   },
 ];

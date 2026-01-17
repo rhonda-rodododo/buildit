@@ -302,7 +302,7 @@ export class BuildItDB extends Dexie {
   constructor(moduleSchemas: Map<string, TableSchema[]>) {
     super('BuildItNetworkDB');
 
-    console.log('🏗️  BuildItDB constructor called with', moduleSchemas.size, 'module schemas');
+    console.info('🏗️  BuildItDB constructor called with', moduleSchemas.size, 'module schemas');
 
     // Store module schemas BEFORE initializing
     this.moduleSchemas = moduleSchemas;
@@ -337,7 +337,7 @@ export class BuildItDB extends Dexie {
     // Use version based on number of module schemas + 1 for core
     // This ensures schema updates when modules are added
     const version = this.moduleSchemas.size + 1;
-    console.log(`Initializing database version ${version} with ${Object.keys(schemaMap).length} tables`);
+    console.info(`Initializing database version ${version} with ${Object.keys(schemaMap).length} tables`);
     this.version(version).stores(schemaMap);
   }
 
@@ -356,7 +356,7 @@ export class BuildItDB extends Dexie {
 
   // No longer needed - schema is initialized in constructor
   reinitializeWithModules(): void {
-    console.log('⚠️  reinitializeWithModules() is deprecated - schema initialized in constructor');
+    console.info('⚠️  reinitializeWithModules() is deprecated - schema initialized in constructor');
   }
 
   /**
@@ -405,7 +405,7 @@ export function registerModuleSchema(moduleId: string, schema: TableSchema[]): v
   }
 
   schemaRegistry.set(moduleId, schema);
-  console.log(`📋 Registered schema for module: $ (${schema.length} tables)`);
+  console.info(`📋 Registered schema for module: $ (${schema.length} tables)`);
 }
 
 /**
@@ -447,8 +447,8 @@ export async function initializeDatabase(): Promise<void> {
   }
 
   try {
-    console.log('🔧 Initializing database...');
-    console.log(`📦 Module schemas collected: ${schemaRegistry.size}`);
+    console.info('🔧 Initializing database...');
+    console.info(`📦 Module schemas collected: ${schemaRegistry.size}`);
 
     // Create database instance with all collected module schemas
     _dbInstance = new BuildItDB(schemaRegistry);
@@ -462,8 +462,8 @@ export async function initializeDatabase(): Promise<void> {
     await _dbInstance.open();
 
     const tables = _dbInstance.tables.map(t => t.name);
-    console.log(`✅ Database initialized successfully`);
-    console.log(`📊 Total tables: ${tables.length}`, tables);
+    console.info(`✅ Database initialized successfully`);
+    console.info(`📊 Total tables: ${tables.length}`, tables);
   } catch (error) {
     console.error('❌ Failed to initialize database:', error);
     throw error;

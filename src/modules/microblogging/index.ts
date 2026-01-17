@@ -80,19 +80,19 @@ export const microbloggingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Microblogging module registered');
+      console.info('Microblogging module registered');
     },
     onEnable: async (groupId: string) => {
-      console.log(`Microblogging module enabled for group ${groupId}`);
+      console.info(`Microblogging module enabled for group ${groupId}`);
       // Load seed posts for demo
       // TODO: Load microbloggingSeeds.posts into database
     },
     onDisable: async (groupId: string) => {
-      console.log(`Microblogging module disabled for group ${groupId}`);
+      console.info(`Microblogging module disabled for group ${groupId}`);
       // Note: Data persists even when disabled (UI-level only)
     },
     onConfigUpdate: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Microblogging config updated for group ${groupId}:`, config);
+      console.info(`Microblogging config updated for group ${groupId}:`, config);
     },
   },
 

@@ -56,13 +56,13 @@ export const customFieldsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Custom Fields module registered');
+      console.info('Custom Fields module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Custom Fields module enabled for group ${groupId}`, config);
+      console.info(`Custom Fields module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Custom Fields module disabled for group ${groupId}`);
+      console.info(`Custom Fields module disabled for group ${groupId}`);
     },
   },
 
@@ -73,7 +73,7 @@ export const customFieldsModule: ModulePlugin = {
       version: 1,
       description: 'Initial custom fields schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Custom fields migration v1: Initial schema');
+        console.info('Custom fields migration v1: Initial schema');
         // Initial schema is already defined in customFieldsSchema
       },
     },

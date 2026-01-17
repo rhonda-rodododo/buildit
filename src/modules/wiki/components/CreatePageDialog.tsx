@@ -24,7 +24,7 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   const [tags, setTags] = useState('')
 
   const handleCreate = async () => {
-    console.log('Creating wiki page:', {
+    console.info('Creating wiki page:', {
       groupId,
       title,
       content,

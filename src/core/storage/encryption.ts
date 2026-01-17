@@ -296,5 +296,5 @@ export function setupEncryptionHooks(db: any): void {
     });
   }
 
-  console.log(`🔐 Encryption hooks enabled for ${tablesToEncrypt.length} tables`);
+  console.info(`🔐 Encryption hooks enabled for ${tablesToEncrypt.length} tables`);
 }

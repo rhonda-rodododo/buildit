@@ -39,7 +39,7 @@ export function FormPreview({ schema, uiSchema }: FormPreviewProps) {
           formData={formData}
           onChange={(e) => setFormData(e.formData)}
           onSubmit={(e) => {
-            console.log('Form submitted:', e.formData);
+            console.info('Form submitted:', e.formData);
           }}
         >
           <div className="flex gap-2 mt-6">

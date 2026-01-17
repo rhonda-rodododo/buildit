@@ -22,7 +22,7 @@ export async function loadAllSeeds(
     seedNames?: string[]; // Optional: only load specific seed sets
   } = {}
 ): Promise<void> {
-  console.log('📦 Loading seed data...');
+  console.info('📦 Loading seed data...');
 
   const modules = getAllModules();
   const modulesToSeed = options.moduleIds
@@ -33,11 +33,11 @@ export async function loadAllSeeds(
 
   for (const module of modulesToSeed) {
     if (!module.seeds || module.seeds.length === 0) {
-      console.log(`  ⏭️  Skipping ${module.metadata.name} (no seeds defined)`);
+      console.info(`  ⏭️  Skipping ${module.metadata.name} (no seeds defined)`);
       continue;
     }
 
-    console.log(`  🌱 Seeding ${module.metadata.name}...`);
+    console.info(`  🌱 Seeding ${module.metadata.name}...`);
 
     const seedsToLoad = options.seedNames
       ? module.seeds.filter((s) => options.seedNames?.includes(s.name))
@@ -47,7 +47,7 @@ export async function loadAllSeeds(
       try {
         await seed.data(db, groupId, userPubkey);
         totalSeeded++;
-        console.log(`    ✓ Loaded: ${seed.description}`);
+        console.info(`    ✓ Loaded: ${seed.description}`);
       } catch (error) {
         console.error(`    ✗ Failed to load ${seed.name}:`, error);
         // Continue with other seeds even if one fails
@@ -55,7 +55,7 @@ export async function loadAllSeeds(
     }
   }
 
-  console.log(`✅ Seed loading complete! Loaded ${totalSeeded} seed sets.`);
+  console.info(`✅ Seed loading complete! Loaded ${totalSeeded} seed sets.`);
 }
 
 /**
@@ -81,7 +81,7 @@ export async function loadModuleSeeds(
   }
 
   if (!module.seeds || module.seeds.length === 0) {
-    console.log(`No seeds defined for ${module.metadata.name}`);
+    console.info(`No seeds defined for ${module.metadata.name}`);
     return;
   }
 
@@ -90,16 +90,16 @@ export async function loadModuleSeeds(
     : module.seeds;
 
   if (seedsToLoad.length === 0) {
-    console.log(`No matching seeds found for ${module.metadata.name}`);
+    console.info(`No matching seeds found for ${module.metadata.name}`);
     return;
   }
 
-  console.log(`🌱 Seeding ${module.metadata.name}...`);
+  console.info(`🌱 Seeding ${module.metadata.name}...`);
 
   for (const seed of seedsToLoad) {
     try {
       await seed.data(db, groupId, userPubkey);
-      console.log(`  ✓ Loaded: ${seed.description}`);
+      console.info(`  ✓ Loaded: ${seed.description}`);
     } catch (error) {
       console.error(`  ✗ Failed to load ${seed.name}:`, error);
       throw error;
@@ -141,7 +141,7 @@ export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boole
  * @param groupId Group ID
  */
 export async function clearDemoData(db: BuildItDB, groupId: string): Promise<void> {
-  console.log(`🧹 Clearing demo data for group ${groupId}...`);
+  console.info(`🧹 Clearing demo data for group ${groupId}...`);
 
   // Clear events with seed IDs
   if (db.events) {
@@ -205,5 +205,5 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
       .delete();
   }
 
-  console.log(`✅ Demo data cleared for group ${groupId}`);
+  console.info(`✅ Demo data cleared for group ${groupId}`);
 }

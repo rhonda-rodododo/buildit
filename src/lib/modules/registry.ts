@@ -111,7 +111,7 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
     if (plugin.schema && plugin.schema.length > 0) {
       registerModuleSchema(plugin.metadata.id, plugin.schema);
     } else {
-      console.log(`⏭️  Module ${plugin.metadata.id} has no schema`);
+      console.info(`⏭️  Module ${plugin.metadata.id} has no schema`);
     }
 
     return plugin;
@@ -128,7 +128,7 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
 export async function initializeModules(): Promise<void> {
   const moduleStore = useModuleStore.getState();
 
-  console.log('📦 Initializing modules...');
+  console.info('📦 Initializing modules...');
 
   // Load modules sequentially to ensure schemas are registered before db creation
   for (const loader of MODULE_LOADERS) {
@@ -138,12 +138,12 @@ export async function initializeModules(): Promise<void> {
     }
   }
 
-  console.log(`✅ ${MODULE_LOADERS.length} modules registered successfully`);
+  console.info(`✅ ${MODULE_LOADERS.length} modules registered successfully`);
 
   // Verify schemas were registered
   const { getRegisteredSchemaCount } = await import('@/core/storage/db');
   const schemaCount = getRegisteredSchemaCount();
-  console.log(`📋 Schema registry has ${schemaCount} module schemas`);
+  console.info(`📋 Schema registry has ${schemaCount} module schemas`);
 
   if (schemaCount === 0) {
     console.error('❌ No schemas registered! Modules may have failed to load.');

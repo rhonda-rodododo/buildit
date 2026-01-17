@@ -234,7 +234,7 @@ export const mutualAidSeeds: ModuleSeed[] = [
       ];
 
       await db.mutualAidRequests?.bulkAdd(exampleRequests);
-      console.log(`Seeded ${exampleRequests.length} mutual aid items for group ${groupId}`);
+      console.info(`Seeded ${exampleRequests.length} mutual aid items for group ${groupId}`);
     },
   },
 ];

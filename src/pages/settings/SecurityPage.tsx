@@ -204,7 +204,7 @@ export function SecurityPage() {
           npub={currentIdentity.npub}
           onComplete={() => {
             // Credential added successfully
-            console.log('WebAuthn credential registered');
+            console.info('WebAuthn credential registered');
           }}
         />
       )}

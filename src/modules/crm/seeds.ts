@@ -49,7 +49,7 @@ export const crmSeeds: ModuleSeed[] = [
       ];
 
       await db.contacts.bulkAdd(exampleContacts);
-      console.log(`Seeded ${exampleContacts.length} example contacts for group ${groupId}`);
+      console.info(`Seeded ${exampleContacts.length} example contacts for group ${groupId}`);
     },
   },
 ];

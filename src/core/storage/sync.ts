@@ -35,7 +35,7 @@ const activeSubscriptions = new Map<string, string>();
  */
 export function startGroupSync(groupId: string): void {
   if (activeSubscriptions.has(groupId)) {
-    console.log(`Already syncing group ${groupId}`);
+    console.info(`Already syncing group ${groupId}`);
     return;
   }
 
@@ -66,12 +66,12 @@ export function startGroupSync(groupId: string): void {
       }
     },
     () => {
-      console.log(`📡 Sync established for group ${groupId}`);
+      console.info(`📡 Sync established for group ${groupId}`);
     }
   );
 
   activeSubscriptions.set(groupId, subId);
-  console.log(`🔄 Started syncing group ${groupId}`);
+  console.info(`🔄 Started syncing group ${groupId}`);
 }
 
 /**
@@ -83,7 +83,7 @@ export function stopGroupSync(groupId: string): void {
     const client = getNostrClient();
     client.unsubscribe(subId);
     activeSubscriptions.delete(groupId);
-    console.log(`⏹️  Stopped syncing group ${groupId}`);
+    console.info(`⏹️  Stopped syncing group ${groupId}`);
   }
 }
 
@@ -150,12 +150,12 @@ async function syncEvent(nostrEvent: NostrEvent, groupId: string): Promise<void>
       // Only update if Nostr event is newer
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
         await db.events?.update(dTag, eventData);
-        console.log(`📥 Updated event: ${content.title}`);
+        console.info(`📥 Updated event: ${content.title}`);
       }
     } else {
       // Create new event
       await db.events?.add(eventData);
-      console.log(`📥 New event: ${content.title}`);
+      console.info(`📥 New event: ${content.title}`);
     }
   } catch (error) {
     console.error('Failed to sync event:', error);
@@ -187,11 +187,11 @@ async function syncRSVP(nostrEvent: NostrEvent): Promise<void> {
     if (existing && existing.id) {
       if (nostrEvent.created_at * 1000 > existing.timestamp) {
         await db.rsvps?.update(existing.id, rsvpData);
-        console.log(`📥 Updated RSVP for event ${eventIdTag}`);
+        console.info(`📥 Updated RSVP for event ${eventIdTag}`);
       }
     } else {
       await db.rsvps?.add(rsvpData);
-      console.log(`📥 New RSVP for event ${eventIdTag}`);
+      console.info(`📥 New RSVP for event ${eventIdTag}`);
     }
   } catch (error) {
     console.error('Failed to sync RSVP:', error);
@@ -228,11 +228,11 @@ async function syncProposal(nostrEvent: NostrEvent, groupId: string): Promise<vo
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
         await db.proposals?.update(dTag, proposalData);
-        console.log(`📥 Updated proposal: ${content.title}`);
+        console.info(`📥 Updated proposal: ${content.title}`);
       }
     } else {
       await db.proposals?.add(proposalData);
-      console.log(`📥 New proposal: ${content.title}`);
+      console.info(`📥 New proposal: ${content.title}`);
     }
   } catch (error) {
     console.error('Failed to sync proposal:', error);
@@ -267,11 +267,11 @@ async function syncWikiPage(nostrEvent: NostrEvent, groupId: string): Promise<vo
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
         await db.wikiPages?.update(dTag, wikiPageData);
-        console.log(`📥 Updated wiki page: ${content.title}`);
+        console.info(`📥 Updated wiki page: ${content.title}`);
       }
     } else {
       await db.wikiPages?.add(wikiPageData);
-      console.log(`📥 New wiki page: ${content.title}`);
+      console.info(`📥 New wiki page: ${content.title}`);
     }
   } catch (error) {
     console.error('Failed to sync wiki page:', error);
@@ -308,11 +308,11 @@ async function syncMutualAid(nostrEvent: NostrEvent, groupId: string): Promise<v
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
         await db.mutualAidRequests?.update(dTag, mutualAidData);
-        console.log(`📥 Updated mutual aid: ${content.title}`);
+        console.info(`📥 Updated mutual aid: ${content.title}`);
       }
     } else {
       await db.mutualAidRequests?.add(mutualAidData);
-      console.log(`📥 New mutual aid: ${content.title}`);
+      console.info(`📥 New mutual aid: ${content.title}`);
     }
   } catch (error) {
     console.error('Failed to sync mutual aid:', error);
@@ -346,11 +346,11 @@ async function syncDatabaseRecord(nostrEvent: NostrEvent, groupId: string): Prom
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
         await db.databaseRecords?.update(dTag, recordData);
-        console.log(`📥 Updated database record in table ${tableIdTag}`);
+        console.info(`📥 Updated database record in table ${tableIdTag}`);
       }
     } else {
       await db.databaseRecords?.add(recordData);
-      console.log(`📥 New database record in table ${tableIdTag}`);
+      console.info(`📥 New database record in table ${tableIdTag}`);
     }
   } catch (error) {
     console.error('Failed to sync database record:', error);
@@ -372,7 +372,7 @@ export async function startAllGroupsSync(): Promise<void> {
   const memberships = await db.groupMembers?.where('pubkey').equals(currentIdentity.publicKey).toArray();
 
   if (!memberships || memberships.length === 0) {
-    console.log('No groups to sync');
+    console.info('No groups to sync');
     return;
   }
 
@@ -382,7 +382,7 @@ export async function startAllGroupsSync(): Promise<void> {
     startGroupSync(groupId);
   }
 
-  console.log(`🔄 Started syncing ${groupIds.length} groups`);
+  console.info(`🔄 Started syncing ${groupIds.length} groups`);
 }
 
 /**
@@ -397,7 +397,7 @@ export function stopAllSyncs(): void {
   // Stop message receiver
   stopMessageReceiver();
 
-  console.log('⏹️  All syncs stopped');
+  console.info('⏹️  All syncs stopped');
 }
 
 /**

@@ -68,13 +68,13 @@ export const messagingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.log('Messaging module registered');
+      console.info('Messaging module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.log(`Messaging module enabled for group ${groupId}`, config);
+      console.info(`Messaging module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.log(`Messaging module disabled for group ${groupId}`);
+      console.info(`Messaging module disabled for group ${groupId}`);
     },
   },
 
@@ -85,7 +85,7 @@ export const messagingModule: ModulePlugin = {
       version: 1,
       description: 'Initial messaging schema',
       migrate: async (_db: BuildItDB) => {
-        console.log('Messaging migration v1: Initial schema (messages in core DB)');
+        console.info('Messaging migration v1: Initial schema (messages in core DB)');
       },
     },
   ],

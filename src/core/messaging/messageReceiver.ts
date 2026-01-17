@@ -38,7 +38,7 @@ class MessageReceiverService {
    */
   start(userPubkey: string): void {
     if (this.isRunning && this.userPubkey === userPubkey) {
-      console.log('Message receiver already running for user');
+      console.info('Message receiver already running for user');
       return;
     }
 
@@ -46,7 +46,7 @@ class MessageReceiverService {
     this.userPubkey = userPubkey;
     this.isRunning = true;
 
-    console.log(`🔔 Starting message receiver for ${userPubkey.slice(0, 8)}...`);
+    console.info(`🔔 Starting message receiver for ${userPubkey.slice(0, 8)}...`);
 
     const client = getNostrClient();
 
@@ -61,7 +61,7 @@ class MessageReceiverService {
       ],
       (event) => this.handleGiftWrap(event),
       () => {
-        console.log('✅ Initial message sync complete');
+        console.info('✅ Initial message sync complete');
       }
     );
   }
@@ -77,7 +77,7 @@ class MessageReceiverService {
     }
     this.isRunning = false;
     this.userPubkey = null;
-    console.log('🔕 Message receiver stopped');
+    console.info('🔕 Message receiver stopped');
   }
 
   /**
@@ -127,7 +127,7 @@ class MessageReceiverService {
         // NIP-17 DM
         await this.processPrivateMessage(rumor, giftWrap);
       } else {
-        console.log(`Received unknown rumor kind: ${rumor.kind}`);
+        console.info(`Received unknown rumor kind: ${rumor.kind}`);
       }
     } catch (error) {
       console.error('Failed to process gift wrap:', error);
@@ -180,7 +180,7 @@ class MessageReceiverService {
     if (!conversation) {
       // Conversation doesn't exist locally, try to create it
       // This can happen when receiving a message in a new conversation
-      console.log(`Creating new conversation: ${conversationId}`);
+      console.info(`Creating new conversation: ${conversationId}`);
 
       // For now, we'll skip creating conversations from incoming messages
       // The sender should have created the conversation first
@@ -203,7 +203,7 @@ class MessageReceiverService {
     // Check if message already exists
     const existingMessage = await db.conversationMessages.get(message.id);
     if (existingMessage) {
-      console.log('Message already exists, skipping');
+      console.info('Message already exists, skipping');
       return;
     }
 
@@ -233,7 +233,7 @@ class MessageReceiverService {
         ),
       }));
 
-      console.log(`📨 Received message in conversation ${conversationId.slice(0, 8)}...`);
+      console.info(`📨 Received message in conversation ${conversationId.slice(0, 8)}...`);
     } catch (error) {
       console.error('Failed to store incoming message:', error);
     }
@@ -252,7 +252,7 @@ class MessageReceiverService {
     const client = getNostrClient();
     const sinceTime = since || Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60; // Default: 30 days
 
-    console.log(`📥 Fetching message history since ${new Date(sinceTime * 1000).toISOString()}`);
+    console.info(`📥 Fetching message history since ${new Date(sinceTime * 1000).toISOString()}`);
 
     const events = await client.query(
       [
@@ -275,7 +275,7 @@ class MessageReceiverService {
       }
     }
 
-    console.log(`✅ Processed ${processed} historical messages`);
+    console.info(`✅ Processed ${processed} historical messages`);
     return processed;
   }
 
