@@ -3,11 +3,22 @@
  * Tests for reactions, reposts, bookmarks, and social interactions
  */
 
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
+import { setupTestDatabase, teardownTestDatabase } from '@/test/test-utils';
 import { usePostsStore } from './postsStore';
 import type { ReactionType } from './types';
 
 describe('PostsStore - Advanced Social Features', () => {
+  beforeAll(async () => {
+    // Initialize database with all module schemas
+    await setupTestDatabase();
+  });
+
+  afterAll(async () => {
+    // Clean up database
+    await teardownTestDatabase();
+  });
+
   beforeEach(() => {
     // Clear the store before each test
     usePostsStore.getState().clearCache();

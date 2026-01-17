@@ -73,6 +73,36 @@ export const ENCRYPTED_FIELDS: Record<string, string[]> = {
 // Cached local encryption key (cleared on lock)
 let localEncryptionKey: Uint8Array | null = null;
 
+// Test mode - bypasses encryption for tests
+let testModeEnabled = false;
+
+/**
+ * Enable test mode (bypasses encryption)
+ * Only use this in test environments!
+ */
+export function enableTestMode(): void {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    testModeEnabled = true;
+    console.log('⚠️  Test mode enabled - encryption bypassed');
+  } else {
+    console.warn('⚠️  Test mode requested but not in test environment');
+  }
+}
+
+/**
+ * Disable test mode
+ */
+export function disableTestMode(): void {
+  testModeEnabled = false;
+}
+
+/**
+ * Check if test mode is enabled
+ */
+export function isTestMode(): boolean {
+  return testModeEnabled;
+}
+
 /**
  * Get or derive the local encryption key
  * This is distinct from relay communication keys
@@ -227,6 +257,11 @@ export function encryptObject<T extends Record<string, unknown>>(
   tableName: string,
   groupId?: string
 ): T {
+  // Skip encryption in test mode
+  if (testModeEnabled) {
+    return obj;
+  }
+
   const fieldsToEncrypt = ENCRYPTED_FIELDS[tableName];
   if (!fieldsToEncrypt || fieldsToEncrypt.length === 0) {
     return obj;
@@ -274,6 +309,11 @@ export function decryptObject<T extends Record<string, unknown>>(
   tableName: string,
   groupId?: string
 ): T {
+  // Skip decryption in test mode
+  if (testModeEnabled) {
+    return obj;
+  }
+
   const fieldsToDecrypt = ENCRYPTED_FIELDS[tableName];
   if (!fieldsToDecrypt || fieldsToDecrypt.length === 0) {
     return obj;
@@ -343,6 +383,11 @@ export function setupLocalEncryptionHooks(db: any): void {
       obj: Record<string, unknown> | null,
       _trans: unknown
     ) => {
+      // Skip encryption in test mode
+      if (testModeEnabled) {
+        return modifications;
+      }
+
       const groupId = obj?.groupId as string | undefined;
       const fieldsToEncrypt = ENCRYPTED_FIELDS[tableName];
 

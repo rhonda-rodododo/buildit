@@ -295,6 +295,11 @@ export const usePostsStore = create<PostsState>()(
       // Add reaction
       addReaction: async (postId: string, type: ReactionType): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
+
+        // Check if user already has a reaction on this post
+        const existingReaction = get().myReactions.get(postId);
+        const hasExistingReaction = existingReaction !== undefined;
+
         const newReaction: Reaction = {
           id: `reaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           postId,
@@ -305,12 +310,23 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
+          if (hasExistingReaction) {
+            // Remove old reaction first
+            await db.reactions
+              .where('[postId+userId]')
+              .equals([postId, userId])
+              .delete();
+          }
           await db.reactions.add(newReaction);
-          const post = await db.posts.get(postId);
-          if (post) {
-            await db.posts.update(postId, {
-              reactionCount: (post.reactionCount || 0) + 1,
-            });
+
+          // Only increment count if this is a new reaction (not a change)
+          if (!hasExistingReaction) {
+            const post = await db.posts.get(postId);
+            if (post) {
+              await db.posts.update(postId, {
+                reactionCount: (post.reactionCount || 0) + 1,
+              });
+            }
           }
         } catch (error) {
           console.error('Failed to save reaction to database:', error);
@@ -320,12 +336,23 @@ export const usePostsStore = create<PostsState>()(
           const myReactions = new Map(state.myReactions);
           myReactions.set(postId, type);
 
+          // Remove old reaction from array if it exists
+          const filteredReactions = hasExistingReaction
+            ? state.reactions.filter((r) => !(r.postId === postId && r.userId === userId))
+            : state.reactions;
+
           return {
-            reactions: [...state.reactions, newReaction],
+            reactions: [...filteredReactions, newReaction],
             myReactions,
             posts: state.posts.map((post) =>
               post.id === postId
-                ? { ...post, reactionCount: post.reactionCount + 1 }
+                ? {
+                    ...post,
+                    // Only increment if this is a new reaction (not a change)
+                    reactionCount: hasExistingReaction
+                      ? post.reactionCount
+                      : post.reactionCount + 1,
+                  }
                 : post
             ),
           };
