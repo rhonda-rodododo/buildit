@@ -21,7 +21,8 @@ export type ModuleType =
   | 'microblogging'
   | 'forms'
   | 'fundraising'
-  | 'publishing';
+  | 'publishing'
+  | 'newsletters';
 
 /**
  * Module Capability - defines what a module can do
