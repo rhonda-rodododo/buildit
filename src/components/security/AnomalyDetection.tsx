@@ -4,7 +4,7 @@
  * Critical for high-security campaigns
  */
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,11 +43,10 @@ interface AnomalyDetectionProps {
   className?: string;
 }
 
-export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
-  isAdmin = false,
-  className
-}) => {
-  const [anomalies, setAnomalies] = useState<Anomaly[]>([
+// Create mock data outside component to avoid Date.now() during render
+const createMockAnomalies = (): Anomaly[] => {
+  const now = Date.now();
+  return [
     {
       id: 'anomaly-1',
       type: 'mass-access',
@@ -57,7 +56,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'NA',
       description: 'Accessed 127 member profiles in 15 minutes',
       details: 'Rapid profile viewing pattern typical of data harvesting. User joined 2 days ago.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 30).toISOString(),
       status: 'active',
       affectedResources: 127
     },
@@ -70,7 +69,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'RM',
       description: 'Exported contact list and event data',
       details: 'Bulk data export detected. User has low trust score (25) and no verification.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 2).toISOString(),
       status: 'investigating',
       affectedResources: 342
     },
@@ -83,7 +82,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'JS',
       description: 'Followed 45 members in 10 minutes',
       details: 'Rapid social graphing behavior. Account created 1 day ago with minimal activity.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 5).toISOString(),
       status: 'active',
       affectedResources: 45
     },
@@ -96,7 +95,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'AT',
       description: 'Accessed honeypot document',
       details: 'Viewed hidden "sensitive plans" document that only infiltrators would access.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 8).toISOString(),
       status: 'active',
       affectedResources: 1
     },
@@ -109,7 +108,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'TD',
       description: 'Posted 23 messages in various groups in 20 minutes',
       details: 'Spam-like posting behavior across multiple channels. Messages contain divisive content.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 12).toISOString(),
       status: 'investigating',
       affectedResources: 23
     },
@@ -122,11 +121,20 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       userInitials: 'KJ',
       description: 'Viewed 30 profiles during member directory review',
       details: 'Normal organizer behavior. User is verified admin reviewing new members.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 24).toISOString(),
       status: 'false-positive',
       affectedResources: 30
     }
-  ]);
+  ];
+};
+
+export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
+  isAdmin = false,
+  className
+}) => {
+  // useMemo ensures mock data is only created once per component instance
+  const initialAnomalies = useMemo(() => createMockAnomalies(), []);
+  const [anomalies, setAnomalies] = useState<Anomaly[]>(initialAnomalies);
 
   const handleUpdateStatus = (anomalyId: string, newStatus: Anomaly['status']) => {
     setAnomalies(prev => prev.map(a =>

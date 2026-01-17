@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useEffect, KeyboardEvent } from 'react';
+import { FC, useState, useRef, useMemo, KeyboardEvent } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { MentionService, type MentionableUser } from '@/lib/autocomplete/mentionService';
 import { UserAutocompleteDropdown } from './UserAutocompleteDropdown';
@@ -24,15 +24,14 @@ export const UserMentionInput: FC<UserMentionInputProps> = ({
   const [autocompleteQuery, setAutocompleteQuery] = useState('');
   const [autocompletePosition, setAutocompletePosition] = useState({ top: 0, left: 0 });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [suggestions, setSuggestions] = useState<MentionableUser[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionStartRef = useRef<number>(-1);
 
-  useEffect(() => {
-    const results = MentionService.searchUsers(autocompleteQuery, groupId);
-    setSuggestions(results);
-    setSelectedIndex(0);
-  }, [autocompleteQuery, groupId]);
+  // Derive suggestions from query - no state needed since it's computed
+  const suggestions = useMemo(
+    () => MentionService.searchUsers(autocompleteQuery, groupId),
+    [autocompleteQuery, groupId]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -47,6 +46,7 @@ export const UserMentionInput: FC<UserMentionInputProps> = ({
     if (mentionMatch) {
       const query = mentionMatch[1];
       setAutocompleteQuery(query);
+      setSelectedIndex(0); // Reset selection when query changes
       mentionStartRef.current = cursorPosition - query.length - 1;
 
       // Calculate position for dropdown

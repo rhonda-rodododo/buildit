@@ -157,7 +157,7 @@ class MessageReceiverService {
 
     // Find conversation ID from tags
     const conversationTag = rumor.tags?.find((t) => t[0] === 'conversation');
-    let conversationId = conversationTag?.[1];
+    const conversationId = conversationTag?.[1];
 
     // Extract reply reference if present
     const replyTag = rumor.tags?.find((t) => t[0] === 'e' && t[3] === 'reply');
@@ -175,7 +175,7 @@ class MessageReceiverService {
       return;
     }
 
-    let conversation = store.getConversation(conversationId);
+    const conversation = store.getConversation(conversationId);
 
     if (!conversation) {
       // Conversation doesn't exist locally, try to create it

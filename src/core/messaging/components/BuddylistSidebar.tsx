@@ -13,6 +13,32 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+// SectionHeader extracted outside component to avoid recreating on each render
+interface SectionHeaderProps {
+  id: string;
+  title: string;
+  count: number;
+  isExpanded: boolean;
+  onToggle: (id: string) => void;
+}
+
+const SectionHeader: FC<SectionHeaderProps> = ({ id, title, count, isExpanded, onToggle }) => (
+  <button
+    onClick={() => onToggle(id)}
+    className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/50 transition-colors rounded-md"
+  >
+    {isExpanded ? (
+      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+    ) : (
+      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+    )}
+    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1 text-left">
+      {title}
+    </span>
+    <span className="text-xs text-muted-foreground">{count}</span>
+  </button>
+);
+
 interface BuddylistSidebarProps {
   className?: string;
 }
@@ -70,27 +96,6 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
     openChatWindow(conversation.id);
   };
 
-  const SectionHeader: FC<{
-    id: string;
-    title: string;
-    count: number;
-  }> = ({ id, title, count }) => (
-    <button
-      onClick={() => toggleSection(id)}
-      className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/50 transition-colors rounded-md"
-    >
-      {expandedGroups.has(id) ? (
-        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-      ) : (
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-      )}
-      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex-1 text-left">
-        {title}
-      </span>
-      <span className="text-xs text-muted-foreground">{count}</span>
-    </button>
-  );
-
   return (
     <div className={cn('flex flex-col h-full bg-card border-r border-border', className)} data-testid="buddylist-sidebar">
       {/* Header */}
@@ -119,7 +124,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
           {/* Favorites Section */}
           {favorites.length > 0 && (
             <div>
-              <SectionHeader id="favorites" title="Favorites" count={favorites.length} />
+              <SectionHeader id="favorites" title="Favorites" count={favorites.length} isExpanded={expandedGroups.has('favorites')} onToggle={toggleSection} />
               {expandedGroups.has('favorites') && (
                 <div className="space-y-0.5 mt-1" data-testid="section-favorites">
                   {favorites.map((friend) => (
@@ -142,7 +147,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
           {/* Online Now Section */}
           {onlineNow.length > 0 && (
             <div>
-              <SectionHeader id="online" title="Online Now" count={onlineNow.length} />
+              <SectionHeader id="online" title="Online Now" count={onlineNow.length} isExpanded={expandedGroups.has('online')} onToggle={toggleSection} />
               {expandedGroups.has('online') && (
                 <div className="space-y-0.5 mt-1" data-testid="section-online">
                   {onlineNow
@@ -165,7 +170,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
 
           {/* All Contacts Section */}
           <div>
-            <SectionHeader id="all" title="All Contacts" count={filteredFriends.length} />
+            <SectionHeader id="all" title="All Contacts" count={filteredFriends.length} isExpanded={expandedGroups.has('all')} onToggle={toggleSection} />
             {expandedGroups.has('all') && (
               <div className="space-y-0.5 mt-1" data-testid="section-all-contacts">
                 {filteredFriends

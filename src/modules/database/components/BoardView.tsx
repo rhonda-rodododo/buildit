@@ -21,12 +21,11 @@ export function BoardView({ table, view, records, onRecordClick }: BoardViewProp
 
   // Find the field definition
   const groupField = table.fields.find((f) => f.name === groupByField);
-  if (!groupField) {
-    return <div className="p-4 text-muted-foreground">No grouping field configured</div>;
-  }
 
-  // Group records by the grouping field
+  // Group records by the grouping field (hook must be called unconditionally)
   const groups = React.useMemo(() => {
+    if (!groupField) return new Map<string, DatabaseRecord[]>();
+
     const groupMap = new Map<string, DatabaseRecord[]>();
 
     // Get all possible values for the grouping field
@@ -63,6 +62,11 @@ export function BoardView({ table, view, records, onRecordClick }: BoardViewProp
 
     return groupMap;
   }, [records, groupByField, groupField]);
+
+  // Handle missing group field after hooks
+  if (!groupField) {
+    return <div className="p-4 text-muted-foreground">No grouping field configured</div>;
+  }
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">

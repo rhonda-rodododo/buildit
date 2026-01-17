@@ -3,7 +3,7 @@
  * Displays a mutual aid request or offer in the activity feed
  */
 
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import type { MutualAidFeedItem } from './types';
 import { Card } from '@/components/ui/card';
@@ -83,7 +83,10 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
     return colors[category] || 'bg-muted text-muted-foreground';
   };
 
-  const isExpired = request.expiresAt && request.expiresAt < Date.now();
+  const isExpired = useMemo(
+    () => request.expiresAt && request.expiresAt < Date.now(),
+    [request.expiresAt]
+  );
 
   return (
     <Card className={`p-4 ${className}`}>

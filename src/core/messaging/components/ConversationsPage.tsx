@@ -3,7 +3,7 @@
  * Main messaging page showing all conversations
  */
 
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 import { Plus, Search, Archive, Pin } from 'lucide-react';
 import { useConversationsStore } from '../conversationsStore';
 import { useFriendsStore } from '@/core/friends/friendsStore';
@@ -59,8 +59,10 @@ export const ConversationsPage: FC = () => {
     ? conversations.filter((c) => c.name?.toLowerCase().includes(searchQuery.toLowerCase()))
     : conversations;
 
+  // Memoize current time to avoid Date.now() during render
+  const now = useMemo(() => Date.now(), []);
+
   const formatTimestamp = (timestamp: number) => {
-    const now = Date.now();
     const diff = now - timestamp;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(minutes / 60);

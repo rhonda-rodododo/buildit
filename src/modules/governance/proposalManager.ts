@@ -252,7 +252,7 @@ class ProposalManager {
 
     const rounds: RankedChoiceResults['rounds'] = []
     let remainingOptions = [...options]
-    let currentVotes = votes.map(v => Array.isArray(v.vote) ? v.vote : [])
+    const currentVotes = votes.map(v => Array.isArray(v.vote) ? v.vote : [])
 
     while (remainingOptions.length > 1) {
       const counts: Record<string, number> = {}

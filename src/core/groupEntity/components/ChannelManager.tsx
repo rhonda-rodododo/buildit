@@ -3,7 +3,7 @@
  * Create and manage role-based messaging channels
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Hash, Plus, Trash2, Lock, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,18 +41,18 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
   const [type, setType] = useState<Channel['type']>('member');
   const [groupChannels, setGroupChannels] = useState<Channel[]>([]);
 
-  useEffect(() => {
-    loadChannels();
-  }, [groupId]);
-
-  const loadChannels = async () => {
+  const loadChannels = useCallback(async () => {
     try {
       const loaded = await getChannels(groupId);
       setGroupChannels(loaded);
-    } catch (error) {
-      console.error('[Channel] Failed to load:', error);
+    } catch (err) {
+      console.error('[Channel] Failed to load:', err);
     }
-  };
+  }, [getChannels, groupId]);
+
+  useEffect(() => {
+    loadChannels();
+  }, [loadChannels]);
 
   const handleCreate = async () => {
     if (!name.trim()) return;

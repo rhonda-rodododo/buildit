@@ -4,7 +4,7 @@
  * Admin-only view with filtering and export
  */
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,11 +49,10 @@ interface AuditLogsProps {
   className?: string;
 }
 
-export const AuditLogs: FC<AuditLogsProps> = ({
-  isAdmin = false,
-  className
-}) => {
-  const [logs, _setLogs] = useState<AuditLog[]>([
+// Create mock data outside component to avoid Date.now() during render
+const createMockLogs = (): AuditLog[] => {
+  const now = Date.now();
+  return [
     {
       id: 'log-1',
       action: 'Suspended member account',
@@ -66,7 +65,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Suspended due to mass data access anomaly',
       ipAddress: '192.168.1.100',
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 15).toISOString(),
       severity: 'high',
       success: true
     },
@@ -82,7 +81,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Downloaded CSV with 342 contacts',
       ipAddress: '203.0.113.45',
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 2).toISOString(),
       severity: 'critical',
       success: true
     },
@@ -98,7 +97,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Rapid sequential access pattern detected',
       ipAddress: '198.51.100.23',
       userAgent: 'Mozilla/5.0 (Linux; Android 10)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 3).toISOString(),
       severity: 'critical',
       success: true
     },
@@ -114,7 +113,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Restricted access to verified members only',
       ipAddress: '192.168.1.100',
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 5).toISOString(),
       severity: 'medium',
       success: true
     },
@@ -130,7 +129,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Removed outdated tactical document',
       ipAddress: '192.168.1.101',
       userAgent: 'Mozilla/5.0 (X11; Linux x86_64)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 8).toISOString(),
       severity: 'high',
       success: true
     },
@@ -146,7 +145,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Unauthorized access attempt blocked',
       ipAddress: '203.0.113.89',
       userAgent: 'curl/7.68.0',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 12).toISOString(),
       severity: 'critical',
       success: false
     },
@@ -162,7 +161,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'QR code verification completed',
       ipAddress: '192.168.1.100',
       userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 24).toISOString(),
       severity: 'low',
       success: true
     },
@@ -178,11 +177,20 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       details: 'Generated new Nostr keypair for secure messaging',
       ipAddress: '192.168.1.105',
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+      timestamp: new Date(now - 1000 * 60 * 60 * 48).toISOString(),
       severity: 'low',
       success: true
     }
-  ]);
+  ];
+};
+
+export const AuditLogs: FC<AuditLogsProps> = ({
+  isAdmin = false,
+  className
+}) => {
+  // useMemo ensures mock data is only created once per component instance
+  const initialLogs = useMemo(() => createMockLogs(), []);
+  const [logs, _setLogs] = useState<AuditLog[]>(initialLogs);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<AuditLog['actionType'] | 'all'>('all');
@@ -198,9 +206,15 @@ export const AuditLogs: FC<AuditLogsProps> = ({
     return matchesSearch && matchesFilter;
   });
 
+  // Pre-compute stats to avoid Date.now() calls during render
+  const logsLast24h = useMemo(() => {
+    const threshold = Date.now() - 1000 * 60 * 60 * 24;
+    return logs.filter(l => new Date(l.timestamp).getTime() > threshold).length;
+  }, [logs]);
+
   const handleExportLogs = () => {
     // In production, this would generate a CSV file
-    console.log('Exporting audit logs...');
+    console.info('Exporting audit logs...');
   };
 
   const getActionIcon = (actionType: AuditLog['actionType']) => {
@@ -331,7 +345,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
         <Card className="p-3">
           <div className="text-xs text-muted-foreground mb-1">Last 24h</div>
           <div className="text-2xl font-bold">
-            {logs.filter(l => new Date(l.timestamp) > new Date(Date.now() - 1000 * 60 * 60 * 24)).length}
+            {logsLast24h}
           </div>
         </Card>
       </div>

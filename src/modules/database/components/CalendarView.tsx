@@ -20,11 +20,7 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
   // Get the date field from view config
   const dateField = view.config.calendarDateField || table.fields.find((f) => f.widget.widget === 'date')?.name;
 
-  if (!dateField) {
-    return <div className="p-4 text-muted-foreground">No date field configured</div>;
-  }
-
-  // Generate calendar days
+  // Generate calendar days (hook must be called unconditionally)
   const { days, monthName, year } = React.useMemo(() => {
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -47,8 +43,10 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
     };
   }, [currentDate]);
 
-  // Group records by date
+  // Group records by date (hook must be called unconditionally)
   const recordsByDate = React.useMemo(() => {
+    if (!dateField) return new Map<string, DatabaseRecord[]>();
+
     const map = new Map<string, DatabaseRecord[]>();
     records.forEach((record) => {
       const dateValue = record.customFields[dateField];
@@ -62,6 +60,11 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
     });
     return map;
   }, [records, dateField]);
+
+  // Handle missing date field after hooks
+  if (!dateField) {
+    return <div className="p-4 text-muted-foreground">No date field configured</div>;
+  }
 
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));

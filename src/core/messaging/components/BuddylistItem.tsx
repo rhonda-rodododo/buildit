@@ -3,7 +3,7 @@
  * Individual contact item in the buddylist
  */
 
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Star } from 'lucide-react';
 import type { UserPresence } from '../conversationTypes';
 import { Avatar } from '@/components/ui/avatar';
@@ -53,7 +53,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
     }
   };
 
-  const getPresenceText = () => {
+  const presenceText = useMemo(() => {
     if (!presence) return 'Offline';
     if (presence.status === 'online') return 'Online';
     if (presence.status === 'away') return 'Away';
@@ -69,7 +69,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
       return 'Just now';
     }
     return 'Offline';
-  };
+  }, [presence]);
 
   return (
     <button
@@ -105,7 +105,7 @@ export const BuddylistItem: FC<BuddylistItemProps> = ({
           {isFavorite && <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 shrink-0" />}
         </div>
         <p className="text-xs text-muted-foreground truncate" data-testid="last-seen">
-          {presence?.customStatus || getPresenceText()}
+          {presence?.customStatus || presenceText}
         </p>
       </div>
 
