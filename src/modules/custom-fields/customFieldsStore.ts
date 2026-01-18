@@ -27,14 +27,14 @@ interface CustomFieldsState {
   reset: () => void;
 }
 
-const initialState = {
+const getInitialState = () => ({
   fields: new Map<string, CustomField[]>(),
   loading: false,
   error: null,
-};
+});
 
 export const useCustomFieldsStore = create<CustomFieldsState>((set, get) => ({
-  ...initialState,
+  ...getInitialState(),
 
   setFields: (groupId, entityType, fields) => {
     const key = `${groupId}:${entityType}`;
@@ -86,5 +86,5 @@ export const useCustomFieldsStore = create<CustomFieldsState>((set, get) => ({
 
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
-  reset: () => set(initialState),
+  reset: () => set(getInitialState()),
 }));

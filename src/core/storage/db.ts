@@ -59,6 +59,20 @@ export interface DBGroupMember {
   joined: number;
 }
 
+export interface DBGroupInvitation {
+  id: string;
+  groupId: string;
+  inviterPubkey: string;
+  inviteePubkey?: string; // For direct invites; undefined for link invites
+  code?: string; // For link invites
+  role: 'admin' | 'moderator' | 'member' | 'read-only';
+  status: 'pending' | 'accepted' | 'declined' | 'expired' | 'revoked';
+  message?: string;
+  createdAt: number;
+  expiresAt?: number;
+  acceptedAt?: number;
+}
+
 export interface DBMessage {
   id: string; // event id
   groupId: string | null;
@@ -141,6 +155,11 @@ const CORE_SCHEMA: TableSchema[] = [
     name: 'groupMembers',
     schema: '++id, [groupId+pubkey], groupId, pubkey, role',
     indexes: ['++id', '[groupId+pubkey]', 'groupId', 'pubkey', 'role'],
+  },
+  {
+    name: 'groupInvitations',
+    schema: 'id, groupId, inviterPubkey, inviteePubkey, code, status, createdAt, expiresAt',
+    indexes: ['id', 'groupId', 'inviterPubkey', 'inviteePubkey', 'code', 'status', 'createdAt', 'expiresAt'],
   },
   {
     name: 'messages',
@@ -266,6 +285,7 @@ export class BuildItDB extends Dexie {
   identities!: Table<DBIdentity, string>;
   groups!: Table<DBGroup, string>;
   groupMembers!: Table<DBGroupMember, number>;
+  groupInvitations!: Table<DBGroupInvitation, string>;
   messages!: Table<DBMessage, string>;
   nostrEvents!: Table<DBNostrEvent, string>;
   moduleInstances!: Table<DBModuleInstance, string>;

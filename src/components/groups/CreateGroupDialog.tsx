@@ -183,35 +183,49 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
           {/* Module Selection */}
           <div className="space-y-2">
-            <Label>Enable Modules</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {availableModules.map((module) => (
-                <Card
-                  key={module.value}
-                  className={`p-3 cursor-pointer transition-colors ${
-                    selectedModules.includes(module.value)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-accent'
-                  } ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}
-                  onClick={() => !isLocked && toggleModule(module.value)}
-                >
-                  <div className="flex items-start gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedModules.includes(module.value)}
-                      onChange={(e) => e.stopPropagation()}
-                      onClick={(e) => e.stopPropagation()}
-                      className="mt-1 pointer-events-none"
-                      readOnly
-                      disabled={isLocked}
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{module.label}</p>
-                      <p className="text-xs opacity-90">{module.description}</p>
+            <Label id="module-selection-label">Enable Modules</Label>
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+              role="group"
+              aria-labelledby="module-selection-label"
+            >
+              {availableModules.map((module) => {
+                const isSelected = selectedModules.includes(module.value)
+                return (
+                  <Card
+                    key={module.value}
+                    className={`p-3 cursor-pointer transition-colors min-h-[64px] ${
+                      isSelected
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary'
+                        : 'hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring'
+                    } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => !isLocked && toggleModule(module.value)}
+                    onKeyDown={(e) => {
+                      if (!isLocked && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault()
+                        toggleModule(module.value)
+                      }
+                    }}
+                    tabIndex={isLocked ? -1 : 0}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    aria-disabled={isLocked}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={isSelected}
+                        className={`mt-0.5 pointer-events-none ${isSelected ? 'border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary' : ''}`}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{module.label}</p>
+                        <p className="text-xs opacity-90">{module.description}</p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                )
+              })}
             </div>
           </div>
 

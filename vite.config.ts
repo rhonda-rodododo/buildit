@@ -237,14 +237,38 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      // Include specific source directories for coverage
+      include: [
+        'src/core/**/*.{ts,tsx}',
+        'src/stores/**/*.{ts,tsx}',
+        'src/lib/**/*.{ts,tsx}',
+        'src/modules/**/*.{ts,tsx}',
+        'src/components/**/*.{ts,tsx}',
+        'src/hooks/**/*.{ts,tsx}',
+      ],
       exclude: [
         'node_modules/',
         'src/test/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/mockData',
+        '**/*.test.{ts,tsx}',
+        '**/__tests__/**',
+        '**/tests/**',
       ],
+      // Set to false to append coverage from multiple runs
+      // Run: bun test --coverage (first run cleans)
+      // Then: bun test --coverage --coverage.clean=false (append mode)
+      clean: true,
+      // Thresholds for coverage (optional, can enable when ready)
+      // thresholds: {
+      //   lines: 60,
+      //   functions: 60,
+      //   branches: 60,
+      //   statements: 60,
+      // },
     },
   },
 })

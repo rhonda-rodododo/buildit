@@ -160,6 +160,7 @@ export class EventManager {
 
   /**
    * RSVP to an event
+   * Uses a transaction to prevent race conditions with capacity limits
    */
   async rsvpToEvent(
     eventId: string,
@@ -173,18 +174,6 @@ export class EventManager {
       throw new Error('Event not found')
     }
 
-    // Check capacity
-    if (status === 'going' && event.capacity) {
-      const goingCount = await db.rsvps!
-        .where(['eventId', 'status'])
-        .equals([eventId, 'going'])
-        .count()
-
-      if (goingCount >= event.capacity) {
-        throw new Error('Event is at capacity')
-      }
-    }
-
     const rsvp: RSVP = {
       eventId,
       userPubkey,
@@ -196,30 +185,50 @@ export class EventManager {
     // Validate RSVP
     RSVPSchema.parse(rsvp)
 
-    // Create Nostr RSVP event
+    // Use a transaction to atomically check capacity and create/update RSVP
+    // This prevents race conditions where multiple RSVPs could exceed capacity
+    await db.transaction('rw', [db.rsvps!], async () => {
+      // Check if user already has an RSVP
+      const existing = await db.rsvps!
+        .where({ eventId, userPubkey })
+        .first()
+
+      const wasAlreadyGoing = existing?.status === 'going'
+      const isNewlyGoing = status === 'going' && !wasAlreadyGoing
+
+      // Check capacity only if user is newly RSVPing "going"
+      if (isNewlyGoing && event.capacity) {
+        const goingCount = await db.rsvps!
+          .where({ eventId })
+          .filter(r => r.status === 'going')
+          .count()
+
+        if (goingCount >= event.capacity) {
+          throw new Error('Event is at capacity')
+        }
+      }
+
+      // Upsert RSVP within the transaction
+      if (existing && existing.id) {
+        await db.rsvps!.update(existing.id, {
+          status,
+          timestamp: rsvp.timestamp,
+          note,
+        })
+      } else {
+        await db.rsvps!.add({
+          eventId,
+          userPubkey,
+          status,
+          timestamp: rsvp.timestamp,
+          note,
+        })
+      }
+    })
+
+    // Create Nostr RSVP event only after local transaction succeeds
     const nostrEvent = await this.createRSVPNostrEvent(rsvp, privateKey)
     await this.nostrClient.publish(nostrEvent)
-
-    // Store in database (upsert)
-    const existing = await db.rsvps!
-      .where({ eventId, userPubkey })
-      .first()
-
-    if (existing && existing.id) {
-      await db.rsvps!.update(existing.id, {
-        status,
-        timestamp: rsvp.timestamp,
-        note,
-      })
-    } else {
-      await db.rsvps?.add({
-        eventId,
-        userPubkey,
-        status,
-        timestamp: rsvp.timestamp,
-        note,
-      })
-    }
 
     return rsvp
   }
@@ -294,22 +303,52 @@ export class EventManager {
 
   /**
    * Sync events from Nostr relays
-   * NOTE: Full relay synchronization deferred - using local-first approach
+   * Queries relays for events and merges with local database
    */
-  async syncEvents(): Promise<void> {
-    // Local-first architecture: events are primarily stored in IndexedDB
-    // Future enhancement: Query relays for group events using NIP-29 (Group Chat)
-    // or NIP-72 (Moderated Communities) and sync to local database
-    const events = await db.events!.toArray()
-    console.info('Loaded events from local DB:', events.length)
+  async syncEvents(groupId?: string): Promise<void> {
+    return new Promise((resolve) => {
+      const oneWeekAgo = Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60
+
+      // Build filter for event kinds
+      const filter: { kinds: number[]; since: number; '#group'?: string[] } = {
+        kinds: [EVENT_KINDS.EVENT],
+        since: oneWeekAgo,
+      }
+
+      // Optionally filter by group
+      if (groupId) {
+        filter['#group'] = [groupId]
+      }
+
+      let receivedCount = 0
+
+      const subId = this.nostrClient.subscribe(
+        [filter],
+        async (nostrEvent: NostrEvent) => {
+          await this.processEventFromNostr(nostrEvent)
+          receivedCount++
+        },
+        () => {
+          // EOSE (End of Stored Events) - all historical events received
+          console.info(`Synced ${receivedCount} events from relays`)
+          this.nostrClient.unsubscribe(subId)
+          resolve()
+        }
+      )
+
+      // Timeout after 10 seconds in case EOSE never arrives
+      setTimeout(() => {
+        this.nostrClient.unsubscribe(subId)
+        console.info(`Sync timeout after ${receivedCount} events`)
+        resolve()
+      }, 10000)
+    })
   }
 
   /**
    * Process an event received from Nostr
-   * NOTE: Reserved for future relay sync implementation
    */
-  // @ts-expect-error - Reserved for future use
-  private _processEventFromNostr = async (nostrEvent: NostrEvent): Promise<void> => {
+  private processEventFromNostr = async (nostrEvent: NostrEvent): Promise<void> => {
     try {
       const dTag = nostrEvent.tags.find((t) => t[0] === 'd')?.[1]
       if (!dTag) return

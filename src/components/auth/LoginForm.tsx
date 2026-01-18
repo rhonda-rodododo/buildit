@@ -96,7 +96,7 @@ export const LoginForm: FC = () => {
           </TabsList>
 
           {error && (
-            <Alert variant="destructive" className="mt-4">
+            <Alert variant="destructive" className="mt-4" role="alert" id="form-error">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -122,16 +122,20 @@ export const LoginForm: FC = () => {
                   placeholder="Create a strong password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="pr-12"
+                  aria-describedby={error ? 'form-error password-hint' : 'password-hint'}
+                  aria-invalid={error ? 'true' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p id="password-hint" className="text-xs text-muted-foreground">
                 Minimum 8 characters. This password encrypts your private keys.
               </p>
             </div>
@@ -193,16 +197,20 @@ export const LoginForm: FC = () => {
                   placeholder="Create a strong password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="pr-12"
+                  aria-describedby={error ? 'form-error import-password-hint' : 'import-password-hint'}
+                  aria-invalid={error ? 'true' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p id="import-password-hint" className="text-xs text-muted-foreground">
                 This password will encrypt your imported key locally.
               </p>
             </div>

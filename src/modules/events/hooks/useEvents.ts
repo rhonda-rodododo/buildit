@@ -1,9 +1,10 @@
-import { useCallback} from 'react'
+import { useCallback, useMemo, useEffect, useRef } from 'react'
 import { useEventsStore } from '../eventsStore'
 import { EventManager } from '../eventManager'
 import { NostrClient } from '@/core/nostr/client'
-import { CreateEventFormData, RSVPStatus } from '../types'
+import { CreateEventFormData, RSVPStatus, Event } from '../types'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
+import { useGroupsStore } from '@/stores/groupsStore'
 import { bytesToHex } from '@noble/hashes/utils'
 
 // Initialize Nostr client (singleton pattern)
@@ -24,6 +25,7 @@ const eventManager = new EventManager(getNostrClient())
 
 export function useEvents(groupId?: string) {
   const { currentIdentity } = useAuthStore()
+  const { groups, groupMembers } = useGroupsStore()
   const {
     events,
     addEvent,
@@ -37,8 +39,71 @@ export function useEvents(groupId?: string) {
     getEventWithRSVPs,
   } = useEventsStore()
 
-  // Filter events based on groupId if provided
-  const filteredEvents = groupId ? getEventsByGroup(groupId) : events
+  // Get the groups the current user is a member of
+  const userGroupIds = useMemo(() => {
+    if (!currentIdentity) return new Set<string>()
+    const memberGroups = new Set<string>()
+
+    // Check groupMembers map for user's memberships
+    groupMembers.forEach((members, gId) => {
+      if (members.some(m => m.pubkey === currentIdentity.publicKey)) {
+        memberGroups.add(gId)
+      }
+    })
+
+    // Also check groups where user is admin
+    groups.forEach(g => {
+      if (g.adminPubkeys.includes(currentIdentity.publicKey)) {
+        memberGroups.add(g.id)
+      }
+    })
+
+    return memberGroups
+  }, [currentIdentity, groups, groupMembers])
+
+  /**
+   * Check if the current user can view an event based on privacy settings
+   */
+  const canViewEvent = useCallback((event: Event): boolean => {
+    if (!currentIdentity) {
+      // Only public events visible to non-authenticated users
+      return event.privacy === 'public'
+    }
+
+    const userPubkey = currentIdentity.publicKey
+
+    switch (event.privacy) {
+      case 'public':
+        // Public events are visible to everyone
+        return true
+
+      case 'group':
+        // Group events visible only to group members
+        if (!event.groupId) return true // No group = treat as public
+        return userGroupIds.has(event.groupId)
+
+      case 'private':
+      case 'direct-action':
+        // Private/direct-action events visible to:
+        // - Creator
+        // - Co-hosts
+        // - Group members (if event has groupId)
+        // - Explicitly invited users (TODO: implement invitation list)
+        if (event.createdBy === userPubkey) return true
+        if (event.coHosts?.includes(userPubkey)) return true
+        if (event.groupId && userGroupIds.has(event.groupId)) return true
+        return false
+
+      default:
+        return false
+    }
+  }, [currentIdentity, userGroupIds])
+
+  // Filter events based on groupId and privacy
+  const filteredEvents = useMemo(() => {
+    const baseEvents = groupId ? getEventsByGroup(groupId) : events
+    return baseEvents.filter(canViewEvent)
+  }, [groupId, events, getEventsByGroup, canViewEvent])
 
   /**
    * Create a new event
@@ -175,24 +240,46 @@ export function useEvents(groupId?: string) {
     [currentIdentity, getEventWithRSVPs]
   )
 
-  // Auto-sync events on mount only
-  // Disabled auto-sync to prevent infinite loops
-  // Users can manually sync using the syncEvents function
-  // useEffect(() => {
-  //   syncEvents()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
+  // Track if initial sync has been done to prevent re-syncing on every render
+  const hasSynced = useRef(false)
+
+  // Auto-sync events on mount (once per component lifecycle)
+  useEffect(() => {
+    if (!currentIdentity || hasSynced.current) return
+
+    hasSynced.current = true
+    syncEvents().catch(error => {
+      console.error('Failed to sync events:', error)
+    })
+  }, [currentIdentity, syncEvents])
+
+  // Get filtered versions of helper functions
+  const filteredPublicEvents = useMemo(() => {
+    return getPublicEvents().filter(canViewEvent)
+  }, [getPublicEvents, canViewEvent])
+
+  const filteredUpcomingEvents = useMemo(() => {
+    return getUpcomingEvents().filter(canViewEvent)
+  }, [getUpcomingEvents, canViewEvent])
+
+  // Wrap getEventById to respect privacy
+  const getEventByIdFiltered = useCallback((eventId: string) => {
+    const event = getEventById(eventId)
+    if (!event) return undefined
+    return canViewEvent(event) ? event : undefined
+  }, [getEventById, canViewEvent])
 
   return {
     events: filteredEvents,
-    publicEvents: getPublicEvents(),
-    upcomingEvents: getUpcomingEvents(),
+    publicEvents: filteredPublicEvents,
+    upcomingEvents: filteredUpcomingEvents,
     createEvent,
     updateEvent,
     deleteEvent,
     rsvpToEvent,
     syncEvents,
-    getEventById,
+    getEventById: getEventByIdFiltered,
     getEventWithRSVPs: getEventWithRSVPData,
+    canViewEvent, // Export for external use if needed
   }
 }

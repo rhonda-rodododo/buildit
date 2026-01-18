@@ -323,52 +323,53 @@ export const PostCard: FC<PostCardProps> = ({
         )}
       </div>
 
-      {/* Action buttons */}
+      {/* Action buttons - icons only on mobile, icons + text on sm and up */}
       <div className="flex items-center gap-1 pt-2 border-t">
         {/* Reaction button with picker */}
-        <div className="relative flex-1">
-          <Button
-            variant={myReaction ? 'default' : 'ghost'}
-            size="sm"
-            className="w-full justify-center"
-            onClick={() => setShowReactionPicker(!showReactionPicker)}
-          >
-            {myReaction ? myReaction : <Heart className="w-4 h-4 mr-2" />}
-            <span>React</span>
-          </Button>
-
-          {showReactionPicker && (
-            <div className="absolute left-0 bottom-full mb-2 p-2 bg-popover border rounded-lg shadow-lg z-10">
-              <div className="flex items-center gap-1">
-                {REACTION_EMOJIS.map(({ type, emoji }) => (
-                  <Button
-                    key={type}
-                    variant={myReaction === type ? 'default' : 'ghost'}
-                    size="sm"
-                    className="h-8 w-8 p-0 text-lg"
-                    onClick={() => handleReaction(type)}
-                    aria-label={`React with ${emoji}`}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
-              </div>
+        <Popover open={showReactionPicker} onOpenChange={setShowReactionPicker}>
+          <PopoverTrigger asChild>
+            <Button
+              variant={myReaction ? 'default' : 'ghost'}
+              size="sm"
+              className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
+              aria-label={myReaction ? `Current reaction: ${myReaction}. Click to change` : 'Add reaction'}
+            >
+              {myReaction ? myReaction : <Heart className="w-4 h-4 sm:mr-2 shrink-0" />}
+              <span className="hidden sm:inline">React</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2" side="top" align="start">
+            <div className="flex items-center gap-1" role="group" aria-label="Reaction options">
+              {REACTION_EMOJIS.map(({ type, emoji }) => (
+                <Button
+                  key={type}
+                  variant={myReaction === type ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-11 w-11 p-0 text-lg"
+                  onClick={() => handleReaction(type)}
+                  aria-label={`React with ${emoji}`}
+                  aria-pressed={myReaction === type}
+                >
+                  {emoji}
+                </Button>
+              ))}
             </div>
-          )}
-        </div>
+          </PopoverContent>
+        </Popover>
 
         {/* Comment button */}
         <Button
           variant="ghost"
           size="sm"
-          className="flex-1 justify-center"
+          className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
           onClick={() => {
             setShowComments(!showComments);
             onCommentClick?.();
           }}
+          aria-label="Comment"
         >
-          <MessageCircle className="w-4 h-4 mr-2" />
-          Comment
+          <MessageCircle className="w-4 h-4 sm:mr-2 shrink-0" />
+          <span className="hidden sm:inline">Comment</span>
         </Button>
 
         {/* Repost button with dropdown */}
@@ -377,10 +378,11 @@ export const PostCard: FC<PostCardProps> = ({
             <Button
               variant={isReposted ? 'default' : 'ghost'}
               size="sm"
-              className="flex-1 justify-center"
+              className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
+              aria-label="Repost options"
             >
-              <Repeat2 className="w-4 h-4 mr-2" />
-              Repost
+              <Repeat2 className="w-4 h-4 sm:mr-2 shrink-0" />
+              <span className="hidden sm:inline">Repost</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -399,17 +401,17 @@ export const PostCard: FC<PostCardProps> = ({
         <Button
           variant={isBookmarked ? 'default' : 'ghost'}
           size="sm"
-          className="flex-1 justify-center"
+          className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
           onClick={handleBookmark}
           aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
         >
-          <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+          <Bookmark className={`w-4 h-4 shrink-0 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>
 
         {/* Share button */}
-        <Button variant="ghost" size="sm" className="flex-1 justify-center">
-          <Share2 className="w-4 h-4 mr-2" />
-          Share
+        <Button variant="ghost" size="sm" className="flex-1 justify-center min-h-[44px] px-2 sm:px-3" aria-label="Share">
+          <Share2 className="w-4 h-4 sm:mr-2 shrink-0" />
+          <span className="hidden sm:inline">Share</span>
         </Button>
       </div>
 

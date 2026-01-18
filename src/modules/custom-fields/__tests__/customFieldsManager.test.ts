@@ -20,18 +20,8 @@ vi.mock('@/core/storage/db', () => ({
   },
 }));
 
-// Mock the store
-vi.mock('../customFieldsStore', () => ({
-  useCustomFieldsStore: {
-    getState: vi.fn(() => ({
-      setFields: vi.fn(),
-      addField: vi.fn(),
-      updateField: vi.fn(),
-      deleteField: vi.fn(),
-      setError: vi.fn(),
-    })),
-  },
-}));
+// Note: This test uses static methods from CustomFieldsManager which don't need store access.
+// No need to mock the store for these tests.
 
 describe('CustomFieldsManager', () => {
   describe('generateZodSchema', () => {

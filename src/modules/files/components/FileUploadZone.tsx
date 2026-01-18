@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { hexToBytes } from '@noble/hashes/utils'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -14,8 +15,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { getCurrentPrivateKey } from '@/stores/authStore'
+import { useGroupsStore } from '@/stores/groupsStore'
 import { useFilesStore } from '../filesStore'
 import { fileManager } from '../fileManager'
+import { toast } from 'sonner'
 
 interface FileUploadZoneProps {
   groupId: string
@@ -61,8 +64,26 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
     setIsUploading(true)
 
     try {
-      // TODO: Get group key for encryption
-      const groupKey = new Uint8Array(32) // Placeholder
+      // Get group encryption key for file encryption
+      const group = useGroupsStore.getState().groups.find(g => g.id === groupId)
+      if (!group) {
+        toast.error('Group not found')
+        return
+      }
+
+      // Get the group key - only private groups have encryption keys
+      let groupKey: Uint8Array
+      if (group.encryptedGroupKey) {
+        // Convert hex string back to bytes
+        groupKey = hexToBytes(group.encryptedGroupKey)
+      } else {
+        // For public groups without a key, generate a deterministic key from groupId
+        // This is less secure but maintains compatibility for public groups
+        const encoder = new TextEncoder()
+        const groupIdBytes = encoder.encode(groupId)
+        groupKey = new Uint8Array(32)
+        groupKey.set(groupIdBytes.slice(0, 32))
+      }
 
       for (const file of selectedFiles) {
         await fileManager.createFile(
@@ -80,8 +101,10 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
 
       setSelectedFiles([])
       onClose()
+      toast.success(`${selectedFiles.length} file(s) uploaded successfully`)
     } catch (error) {
       console.error('Upload failed:', error)
+      toast.error('Failed to upload files')
     } finally {
       setIsUploading(false)
     }

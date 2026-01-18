@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { Table } from 'dexie'
 import { db, type DBGroup, type DBGroupMember } from '@/core/storage/db'
 import { generateSecretKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
@@ -170,11 +171,61 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         set({ isLoading: true, error: null })
 
         try {
-          // Delete group and all related data
-          await db.transaction('rw', [db.groups, db.groupMembers], async () => {
+          // Build list of tables to delete from
+          // Core tables that always exist
+          const coreTables = [
+            db.groups,
+            db.groupMembers,
+            db.messages,
+            db.moduleInstances,
+            db.conversations,
+            db.conversationMembers,
+            db.conversationMessages,
+            db.groupEntities,
+            db.groupEntityMessages,
+            db.channels,
+          ]
+
+          // Module tables (may or may not exist depending on module registration)
+          const moduleTables: Array<{ name: string; table: Table | undefined }> = [
+            { name: 'events', table: db.table('events') },
+            { name: 'rsvps', table: db.table('rsvps') },
+            { name: 'mutualAidRequests', table: db.table('mutualAidRequests') },
+            { name: 'proposals', table: db.table('proposals') },
+            { name: 'wikiPages', table: db.table('wikiPages') },
+            { name: 'databaseTables', table: db.table('databaseTables') },
+            { name: 'databaseRecords', table: db.table('databaseRecords') },
+            { name: 'databaseViews', table: db.table('databaseViews') },
+            { name: 'customFieldDefinitions', table: db.table('customFieldDefinitions') },
+            { name: 'customFieldValues', table: db.table('customFieldValues') },
+          ]
+
+          // Delete group and all related data in a transaction
+          await db.transaction('rw', coreTables, async () => {
+            // Core data deletion
             await db.groups.delete(groupId)
             await db.groupMembers.where('groupId').equals(groupId).delete()
+            await db.messages.where('groupId').equals(groupId).delete()
+            await db.moduleInstances.where('groupId').equals(groupId).delete()
+            await db.conversations.where('groupId').equals(groupId).delete()
+            // Note: conversationMembers and conversationMessages should be cleaned up
+            // when their parent conversation is deleted (would need to query conversation IDs first)
+            await db.groupEntities.where('groupId').equals(groupId).delete()
+            await db.groupEntityMessages.where('groupId').equals(groupId).delete()
+            await db.channels.where('groupId').equals(groupId).delete()
           })
+
+          // Delete from module tables (outside main transaction to handle missing tables gracefully)
+          for (const { name, table } of moduleTables) {
+            try {
+              if (table) {
+                await table.where('groupId').equals(groupId).delete()
+              }
+            } catch (error) {
+              // Table might not exist or not have groupId index - skip silently
+              console.info(`Skipping cleanup of ${name} table (may not exist or have groupId index)`)
+            }
+          }
 
           const updatedGroups = get().groups.filter(g => g.id !== groupId)
           const active = get().activeGroup
@@ -184,9 +235,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
             activeGroup: active?.id === groupId ? null : active,
             isLoading: false,
           })
+
+          console.info(`Group ${groupId} and all related data deleted`)
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to delete group'
           set({ error: errorMsg, isLoading: false })
+          throw error
         }
       },
 

@@ -1,6 +1,7 @@
 /**
  * Key Rotation Tests
  * Tests for key rotation and re-encryption functionality
+ * @vitest-environment happy-dom
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

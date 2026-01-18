@@ -9,6 +9,7 @@ import { usePostsStore } from '../postsStore';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CommentInputProps {
   postId: string;
@@ -42,6 +43,7 @@ export const CommentInput: FC<CommentInputProps> = ({
       onCommentAdded?.();
     } catch (error) {
       console.error('Failed to add comment:', error);
+      toast.error('Failed to add comment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -72,6 +74,7 @@ export const CommentInput: FC<CommentInputProps> = ({
         className="resize-none min-h-[60px]"
         autoFocus={autoFocus}
         disabled={isSubmitting}
+        aria-label={parentCommentId ? 'Write a reply' : 'Write a comment'}
       />
       <div className="flex flex-col gap-2">
         <Button
@@ -79,6 +82,7 @@ export const CommentInput: FC<CommentInputProps> = ({
           disabled={!content.trim() || isSubmitting}
           size="sm"
           className="h-[60px]"
+          aria-label={parentCommentId ? 'Send reply' : 'Send comment'}
         >
           <Send className="w-4 h-4" />
         </Button>

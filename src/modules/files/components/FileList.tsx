@@ -3,7 +3,8 @@
  * Display files and folders in grid or list view
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { hexToBytes } from '@noble/hashes/utils'
 import { Folder, File, Image, Video, Music, FileText, Archive, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { FileMetadata, Folder as FolderType } from '../types'
 import { useFilesStore } from '../filesStore'
+import { useGroupsStore } from '@/stores/groupsStore'
 import { fileManager } from '../fileManager'
 import { FilePreviewModal } from './FilePreviewModal'
 import { FileShareDialog } from './FileShareDialog'
@@ -38,8 +40,26 @@ const FILE_ICONS = {
 export function FileList({ files, folders, viewMode }: FileListProps) {
   const { groupId } = useGroupContext()
   const setCurrentFolder = useFilesStore((state) => state.setCurrentFolder)
+  const groups = useGroupsStore((state) => state.groups)
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   const [shareFileId, setShareFileId] = useState<string | null>(null)
+
+  // Get the encryption key for the current group
+  const groupKey = useMemo(() => {
+    const group = groups.find(g => g.id === groupId)
+    if (!group) return undefined
+
+    if (group.encryptedGroupKey) {
+      return hexToBytes(group.encryptedGroupKey)
+    }
+
+    // For public groups, generate a deterministic key from groupId
+    const encoder = new TextEncoder()
+    const groupIdBytes = encoder.encode(groupId)
+    const key = new Uint8Array(32)
+    key.set(groupIdBytes.slice(0, 32))
+    return key
+  }, [groups, groupId])
 
   const handleDeleteFile = async (fileId: string) => {
     if (confirm('Delete this file?')) {
@@ -232,6 +252,7 @@ export function FileList({ files, folders, viewMode }: FileListProps) {
       {previewFileId && (
         <FilePreviewModal
           fileId={previewFileId}
+          groupKey={groupKey}
           onClose={() => setPreviewFileId(null)}
           onShare={() => {
             setShareFileId(previewFileId)

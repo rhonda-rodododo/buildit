@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ModuleSettings from '@/components/modules/ModuleSettings';
+import { GroupMembersTab } from './GroupMembersTab';
 import type { DBGroup } from '@/core/storage/db';
 
 interface GroupSettingsDialogProps {
@@ -67,14 +68,11 @@ export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigg
             </TabsContent>
 
             <TabsContent value="members" className="mt-0">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium">Member Management</h3>
-                  <p className="text-sm text-muted-foreground">Manage group members and roles</p>
-                </div>
-                {/* TODO: Implement member management */}
-                <p className="text-muted-foreground">Member management coming soon...</p>
-              </div>
+              <GroupMembersTab
+                groupId={group.id}
+                groupName={group.name}
+                adminPubkeys={group.adminPubkeys}
+              />
             </TabsContent>
           </div>
         </Tabs>

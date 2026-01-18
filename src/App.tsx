@@ -16,9 +16,11 @@ import { SecurityPage } from '@/pages/settings/SecurityPage'
 import { microbloggingSeeds } from '@/modules/microblogging/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { APP_CONFIG } from '@/config/app'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useModuleStore } from './stores/moduleStore'
+import { Home, MessageSquare, Users, Calendar, Heart, Shield } from 'lucide-react'
 
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
@@ -88,6 +90,13 @@ const App: FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Skip link for keyboard navigation */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-background focus:px-4 focus:py-2 focus:rounded-md focus:ring-2 focus:ring-ring focus:text-foreground"
+      >
+        Skip to main content
+      </a>
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
           <div>
@@ -110,19 +119,69 @@ const App: FC = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-screen-2xl">
+      <main id="main-content" className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-screen-2xl">
         <Tabs value={activeTab} onValueChange={(value) => {
           console.info('Tab changing to:', value)
           setActiveTab(value)
         }}>
-          <TabsList className="mb-4 sm:mb-6 w-full max-w-3xl bg-muted/50 p-1">
-            <TabsTrigger value="feed" className="flex-1">Feed</TabsTrigger>
-            <TabsTrigger value="messages" className="flex-1">Messages</TabsTrigger>
-            <TabsTrigger value="groups" className="flex-1">Groups</TabsTrigger>
-            <TabsTrigger value="events" className="flex-1">Events</TabsTrigger>
-            <TabsTrigger value="mutual-aid" className="flex-1">Mutual Aid</TabsTrigger>
-            <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-          </TabsList>
+          <TooltipProvider delayDuration={300}>
+            <TabsList className="mb-4 sm:mb-6 w-full max-w-3xl bg-muted/50 p-1 grid grid-cols-6 gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="feed" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <Home className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm">Feed</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Feed</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="messages" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <MessageSquare className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm">Messages</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Messages</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="groups" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <Users className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm">Groups</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Groups</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="events" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <Calendar className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm">Events</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Events</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="mutual-aid" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <Heart className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm whitespace-nowrap">Mutual Aid</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Mutual Aid</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="security" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                    <Shield className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline text-sm">Security</span>
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="sm:hidden">Security</TooltipContent>
+              </Tooltip>
+            </TabsList>
+          </TooltipProvider>
 
           <TabsContent value="feed">
             <HomePage />
@@ -148,7 +207,7 @@ const App: FC = () => {
             <SecurityPage />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   )
 }

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DeviceManager } from '@/components/security/DeviceManager';
 import { DeviceActivityHistory } from '@/components/security/DeviceActivityHistory';
 import { PrivacySettings } from '@/components/security/PrivacySettings';
@@ -17,7 +18,7 @@ import { TorSettings } from '@/components/tor/TorSettings';
 import { WebAuthnSetup } from '@/components/security/WebAuthnSetup';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
-import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock } from 'lucide-react';
+import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock, Smartphone } from 'lucide-react';
 
 export function SecurityPage() {
   const [showWebAuthnSetup, setShowWebAuthnSetup] = useState(false);
@@ -127,32 +128,64 @@ export function SecurityPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="devices" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="devices" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Devices
-          </TabsTrigger>
-          <TabsTrigger value="lock" className="flex items-center gap-2">
-            <Lock className="h-4 w-4" />
-            Session
-          </TabsTrigger>
-          <TabsTrigger value="activity" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Activity
-          </TabsTrigger>
-          <TabsTrigger value="privacy" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Privacy
-          </TabsTrigger>
-          <TabsTrigger value="tor" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Tor
-          </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Advanced
-          </TabsTrigger>
-        </TabsList>
+        <TooltipProvider delayDuration={300}>
+          <TabsList className="grid w-full grid-cols-6 gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="devices" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <Smartphone className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Devices</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Devices</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="lock" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <Lock className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Session</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Session</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="activity" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <Activity className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Activity</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Activity</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="privacy" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <Settings className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Privacy</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Privacy</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="tor" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <Shield className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Tor</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Tor</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="advanced" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Advanced</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent className="sm:hidden">Advanced</TooltipContent>
+            </Tooltip>
+          </TabsList>
+        </TooltipProvider>
 
         <TabsContent value="devices">
           <DeviceManager />
