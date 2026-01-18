@@ -21,7 +21,9 @@ import type {
   DeliveryProgressEvent,
 } from './types';
 import { nanoid } from 'nanoid';
-import { secureRandomInt } from '@/lib/utils';
+import { sendDirectMessage } from '@/core/messaging/dm';
+import { getCurrentPrivateKey } from '@/stores/authStore';
+import { getNostrClient } from '@/core/nostr/client';
 
 // Import and re-export defaults
 import {
@@ -358,17 +360,19 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
       });
 
       try {
-        // Send via NIP-17 DM
-        // This would integrate with the actual Nostr sending logic
-        // For now, we'll simulate success
-        await simulateNIP17Send(subscriber.subscriberPubkey, issue, newsletter);
+        // Send via NIP-17 gift-wrapped DM
+        const { eventId, relayConfirmations } = await sendNewsletterNIP17(
+          subscriber.subscriberPubkey,
+          issue,
+          newsletter
+        );
 
         // Update send as delivered
         const updatedSend: NewsletterSend = {
           ...send,
           status: 'delivered',
-          nostrEventId: `simulated_${nanoid()}`,
-          relayConfirmations: ['wss://relay1.example', 'wss://relay2.example'],
+          nostrEventId: eventId,
+          relayConfirmations,
           sentAt: Date.now(),
           deliveredAt: Date.now(),
         };
@@ -498,15 +502,19 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
     });
 
     try {
-      await simulateNIP17Send(send.subscriberPubkey, issue, newsletter);
+      const { eventId, relayConfirmations } = await sendNewsletterNIP17(
+        send.subscriberPubkey,
+        issue,
+        newsletter
+      );
 
       set((state) => {
         const sends = new Map(state.sends);
         const updatedSend: NewsletterSend = {
           ...send,
           status: 'delivered',
-          nostrEventId: `simulated_${nanoid()}`,
-          relayConfirmations: ['wss://relay1.example'],
+          nostrEventId: eventId,
+          relayConfirmations,
           sentAt: Date.now(),
           deliveredAt: Date.now(),
           retryCount: send.retryCount + 1,
@@ -843,30 +851,107 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
 }));
 
 /**
- * Simulate NIP-17 DM send
- * In production, this would use the actual Nostr infrastructure
+ * Format newsletter content for NIP-17 DM delivery
  *
- * NOTE: This is SIMULATION code for development. In production,
- * this should use actual NIP-17 gift-wrapped messages.
+ * Converts HTML content to a readable plain text format suitable for Nostr DMs.
+ * Includes subject line and newsletter attribution.
  */
-async function simulateNIP17Send(
-  _recipientPubkey: string,
-  _issue: NewsletterIssue,
-  _newsletter: Newsletter
-): Promise<void> {
-  // Simulate network delay using secure random
-  // SECURITY: Using secureRandomInt instead of Math.random()
-  await new Promise((resolve) => setTimeout(resolve, 100 + secureRandomInt(200)));
+function formatNewsletterForDM(issue: NewsletterIssue, newsletter: Newsletter): string {
+  // Start with subject line
+  const subject = issue.subject || newsletter.name;
+  let formatted = `📰 ${subject}\n\n`;
 
-  // Simulate occasional failures (5% failure rate)
-  // SECURITY: Using secureRandomInt instead of Math.random()
-  if (secureRandomInt(100) < 5) {
-    throw new Error('Relay connection failed');
+  // Preview text if available
+  if (issue.previewText) {
+    formatted += `${issue.previewText}\n\n`;
   }
 
-  // In production, this would:
-  // 1. Create NIP-17 gift-wrapped message
-  // 2. Sign with sender's key
-  // 3. Publish to multiple relays
-  // 4. Collect confirmations
+  // Convert HTML content to plain text
+  // Simple HTML stripping - preserves newlines for readability
+  let content = issue.content;
+
+  if (issue.contentFormat === 'html') {
+    // Convert common HTML elements to plain text equivalents
+    content = content
+      // Headers to bold-like formatting with newlines
+      .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, '\n**$1**\n')
+      // Paragraphs to double newlines
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<p[^>]*>/gi, '')
+      // Line breaks
+      .replace(/<br\s*\/?>/gi, '\n')
+      // Lists
+      .replace(/<li[^>]*>/gi, '• ')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<\/?[ou]l[^>]*>/gi, '\n')
+      // Bold/strong
+      .replace(/<(b|strong)[^>]*>(.*?)<\/(b|strong)>/gi, '**$2**')
+      // Italic/em
+      .replace(/<(i|em)[^>]*>(.*?)<\/(i|em)>/gi, '_$2_')
+      // Links - keep URL in parentheses
+      .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+      // Remove all other HTML tags
+      .replace(/<[^>]+>/g, '')
+      // Clean up HTML entities
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      // Clean up excessive whitespace
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  formatted += content;
+
+  // Add footer with newsletter attribution
+  formatted += `\n\n---\nSent via ${newsletter.name}`;
+
+  // Add unsubscribe note
+  formatted += '\nReply with "UNSUBSCRIBE" to stop receiving this newsletter.';
+
+  return formatted;
+}
+
+/**
+ * Send a newsletter issue to a recipient via NIP-17 DM
+ *
+ * Uses the Nostr NIP-17 gift-wrapped private message protocol for
+ * end-to-end encrypted delivery that works with any NIP-17 compatible
+ * Nostr client (Damus, Amethyst, Primal, etc.).
+ *
+ * @returns Object with eventId and relay confirmations
+ */
+async function sendNewsletterNIP17(
+  recipientPubkey: string,
+  issue: NewsletterIssue,
+  newsletter: Newsletter
+): Promise<{ eventId: string; relayConfirmations: string[] }> {
+  // Get the current user's private key
+  const privateKey = getCurrentPrivateKey();
+  if (!privateKey) {
+    throw new Error('Not authenticated - please unlock your identity first');
+  }
+
+  // Get the NostrClient instance
+  const client = getNostrClient();
+
+  // Format the newsletter content for DM delivery
+  const content = formatNewsletterForDM(issue, newsletter);
+
+  // Send via NIP-17 gift-wrapped DM
+  const event = await sendDirectMessage(client, recipientPubkey, content, privateKey);
+
+  // Get relay confirmations from the client's relay statuses
+  const relayStatuses = client.getRelayStatuses();
+  const confirmedRelays = relayStatuses
+    .filter((status) => status.connected && status.messagesSent > 0)
+    .map((status) => status.url);
+
+  return {
+    eventId: event.id,
+    relayConfirmations: confirmedRelays,
+  };
 }
