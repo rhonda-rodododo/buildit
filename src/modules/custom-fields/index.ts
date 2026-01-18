@@ -8,6 +8,7 @@ import { customFieldsSchema } from './schema';
 import { customFieldsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Settings } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 /**
  * Custom Fields Module Plugin
@@ -60,13 +61,13 @@ export const customFieldsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Custom Fields module registered');
+      logger.info('⚙️ Custom Fields module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Custom Fields module enabled for group ${groupId}`, config);
+      logger.info(`⚙️ Custom Fields module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Custom Fields module disabled for group ${groupId}`);
+      logger.info(`⚙️ Custom Fields module disabled for group ${groupId}`);
     },
   },
 
@@ -77,7 +78,7 @@ export const customFieldsModule: ModulePlugin = {
       version: 1,
       description: 'Initial custom fields schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Custom fields migration v1: Initial schema');
+        logger.info('Custom fields migration v1: Initial schema');
         // Initial schema is already defined in customFieldsSchema
       },
     },

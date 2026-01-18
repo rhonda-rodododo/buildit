@@ -7,6 +7,7 @@ import { lazy } from 'react'
 import type { ModulePlugin } from '@/types/modules'
 import { filesSchema } from './schema'
 import { FolderOpen } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 // Lazy load components
 const FilesPage = lazy(() =>
@@ -79,10 +80,10 @@ export const filesModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Files module registered')
+      logger.info('📁 Files module registered')
     },
     onEnable: async (groupId: string) => {
-      console.info(`Files module enabled for group ${groupId}`)
+      logger.info(`📁 Files module enabled for group ${groupId}`)
       // Initialize storage quota when enabled
       const { fileManager } = await import('./fileManager')
       const quotaGB = 1 // Default 1GB

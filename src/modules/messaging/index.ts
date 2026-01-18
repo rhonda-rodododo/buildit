@@ -7,6 +7,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { messagingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { MessageSquare } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 /**
  * Messaging Module Plugin
@@ -68,13 +69,13 @@ export const messagingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Messaging module registered');
+      logger.info('💬 Messaging module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Messaging module enabled for group ${groupId}`, config);
+      logger.info(`💬 Messaging module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Messaging module disabled for group ${groupId}`);
+      logger.info(`💬 Messaging module disabled for group ${groupId}`);
     },
   },
 
@@ -85,7 +86,7 @@ export const messagingModule: ModulePlugin = {
       version: 1,
       description: 'Initial messaging schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Messaging migration v1: Initial schema (messages in core DB)');
+        logger.info('Messaging migration v1: Initial schema (messages in core DB)');
       },
     },
   ],

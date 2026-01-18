@@ -8,6 +8,7 @@ import type { ModulePlugin } from '@/types/modules';
 import { publicSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { Globe } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 // Types
 export * from './types';
@@ -70,13 +71,13 @@ export const publicModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Public module registered');
+      logger.info('🌐 Public module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Public module enabled for group ${groupId}`, config);
+      logger.info(`🌐 Public module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Public module disabled for group ${groupId}`);
+      logger.info(`🌐 Public module disabled for group ${groupId}`);
     },
   },
 
@@ -91,7 +92,7 @@ export const publicModule: ModulePlugin = {
       version: 1,
       description: 'Initial public schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Public migration v1: Initial schema (public pages, analytics)');
+        logger.info('Public migration v1: Initial schema (public pages, analytics)');
       },
     },
   ],

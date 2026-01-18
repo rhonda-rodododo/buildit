@@ -9,6 +9,7 @@ import { formsSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { FileText } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load FormsPage to reduce initial bundle size
 const FormsPage = lazy(() => import('./components/FormsPage').then(m => ({ default: m.FormsPage })));
@@ -83,13 +84,13 @@ export const formsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Forms module registered');
+      logger.info('📝 Forms module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Forms module enabled for group ${groupId}`, config);
+      logger.info(`📝 Forms module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Forms module disabled for group ${groupId}`);
+      logger.info(`📝 Forms module disabled for group ${groupId}`);
     },
   },
 
@@ -110,7 +111,7 @@ export const formsModule: ModulePlugin = {
       version: 1,
       description: 'Initial forms schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Forms migration v1: Initial schema (forms, submissions)');
+        logger.info('Forms migration v1: Initial schema (forms, submissions)');
       },
     },
   ],

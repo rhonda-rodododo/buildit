@@ -9,6 +9,7 @@ import { fundraisingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { DollarSign } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load FundraisingPage to reduce initial bundle size
 const FundraisingPage = lazy(() => import('./components/FundraisingPage').then(m => ({ default: m.FundraisingPage })));
@@ -90,13 +91,13 @@ export const fundraisingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Fundraising module registered');
+      logger.info('💰 Fundraising module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Fundraising module enabled for group ${groupId}`, config);
+      logger.info(`💰 Fundraising module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Fundraising module disabled for group ${groupId}`);
+      logger.info(`💰 Fundraising module disabled for group ${groupId}`);
     },
   },
 
@@ -117,7 +118,7 @@ export const fundraisingModule: ModulePlugin = {
       version: 1,
       description: 'Initial fundraising schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Fundraising migration v1: Initial schema (campaigns, donations, tiers)');
+        logger.info('Fundraising migration v1: Initial schema (campaigns, donations, tiers)');
       },
     },
   ],
