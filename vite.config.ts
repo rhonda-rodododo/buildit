@@ -227,25 +227,74 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'happy-dom', // Use happy-dom for better test compatibility
-    environmentMatchGlobs: [
-      ['**/*.ui.test.{ts,tsx}', 'happy-dom'], // UI tests use happy-dom
-      ['**/integration/**/*.test.{ts,tsx}', 'happy-dom'], // Integration tests need happy-dom + IndexedDB
-      ['**/__tests__/**', 'node'], // Crypto/core tests use node
-      ['**/tests/unit/**', 'node'], // Unit tests (key-rotation, etc.) use node for WebCrypto
+    // Use projects to define different test environments (replaces deprecated environmentMatchGlobs)
+    projects: [
+      {
+        // happy-dom project: UI tests and integration tests that need DOM/browser APIs
+        extends: true, // Inherit resolve.alias and plugins from root config
+        test: {
+          name: 'happy-dom',
+          environment: 'happy-dom',
+          include: [
+            '**/*.ui.test.{ts,tsx}',
+            '**/integration/**/*.test.{ts,tsx}',
+          ],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/e2e/**',
+            '**/tests/e2e/**',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+          ],
+          setupFiles: './src/test/setup.ts',
+        },
+      },
+      {
+        // node project: Crypto/core tests and unit tests that use WebCrypto
+        extends: true, // Inherit resolve.alias and plugins from root config
+        test: {
+          name: 'node',
+          environment: 'node',
+          include: [
+            '**/__tests__/**/*.test.{ts,tsx}',
+            '**/tests/unit/**/*.test.{ts,tsx}',
+          ],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/e2e/**',
+            '**/tests/e2e/**',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+          ],
+          setupFiles: './src/test/setup.ts',
+        },
+      },
+      {
+        // Default project: All other .test.ts files use happy-dom
+        extends: true, // Inherit resolve.alias and plugins from root config
+        test: {
+          name: 'default',
+          environment: 'happy-dom',
+          include: ['**/*.test.{js,ts,tsx}'],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/e2e/**',
+            '**/tests/e2e/**',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+            // Exclude tests handled by other projects
+            '**/*.ui.test.{ts,tsx}',
+            '**/integration/**/*.test.{ts,tsx}',
+            '**/__tests__/**/*.test.{ts,tsx}',
+            '**/tests/unit/**/*.test.{ts,tsx}',
+          ],
+          setupFiles: './src/test/setup.ts',
+        },
+      },
     ],
-    // CRITICAL: Only run .test.ts files - E2E uses .spec.ts (Playwright convention)
-    include: ['**/*.test.{js,ts,tsx}'],
-    // Exclude E2E tests directory completely
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/e2e/**',
-      '**/tests/e2e/**',
-      '**/*.spec.ts',
-      '**/*.spec.tsx',
-    ],
-    setupFiles: './src/test/setup.ts',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
