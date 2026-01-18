@@ -7,6 +7,10 @@
  *
  * Note: This runs on the sender's device. The image data
  * is encrypted with the post content using NIP-17.
+ *
+ * Uses Cloudflare Pages Functions as API endpoints:
+ * - /api/link-preview - Fetches Open Graph metadata
+ * - /api/image-proxy - Proxies image fetches for CORS
  */
 
 import type {
@@ -32,10 +36,16 @@ const previewCache = new Map<string, LinkPreviewCacheEntry>()
 const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
 
 /**
- * CORS proxy for development
- * In production, this should be a server-side function
+ * Get base URL for API calls
+ * In development, use relative URLs (Vite proxy or local wrangler)
+ * In production, use same origin (Cloudflare Pages Functions)
  */
-const CORS_PROXY = 'https://corsproxy.io/?'
+function getApiBaseUrl(): string {
+  // Always use relative URLs - works with both:
+  // - Vite dev server (with proxy config)
+  // - Cloudflare Pages (functions at /api/*)
+  return ''
+}
 
 /**
  * Check if URL is HTTPS (we only fetch secure URLs)
@@ -110,7 +120,7 @@ function storeInCache(url: string, preview: LinkPreview): void {
 }
 
 /**
- * Fetch HTML and parse Open Graph metadata
+ * Fetch Open Graph metadata via our API
  */
 async function fetchOpenGraphData(
   url: string,
@@ -120,14 +130,13 @@ async function fetchOpenGraphData(
   const timeoutId = setTimeout(() => controller.abort(), timeout)
 
   try {
-    // Use CORS proxy for cross-origin requests
-    const fetchUrl = `${CORS_PROXY}${encodeURIComponent(url)}`
+    // Use our Cloudflare Pages Function
+    const apiUrl = `${getApiBaseUrl()}/api/link-preview?url=${encodeURIComponent(url)}`
 
-    const response = await fetch(fetchUrl, {
+    const response = await fetch(apiUrl, {
       signal: controller.signal,
       headers: {
-        Accept: 'text/html,application/xhtml+xml',
-        'User-Agent': 'BuildIt-LinkPreview/1.0',
+        Accept: 'application/json',
       },
     })
 
@@ -135,111 +144,36 @@ async function fetchOpenGraphData(
       throw new Error(`HTTP ${response.status}`)
     }
 
-    const html = await response.text()
-    return parseOpenGraphFromHtml(html, url)
+    const result = await response.json() as {
+      success: boolean
+      data?: {
+        url: string
+        title?: string
+        description?: string
+        imageUrl?: string
+        siteName?: string
+        faviconUrl?: string
+      }
+      error?: string
+    }
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Failed to fetch preview')
+    }
+
+    return {
+      title: result.data.title,
+      description: result.data.description,
+      imageUrl: result.data.imageUrl,
+      siteName: result.data.siteName,
+      faviconUrl: result.data.faviconUrl,
+      canonicalUrl: result.data.url,
+    }
   } finally {
     clearTimeout(timeoutId)
   }
 }
 
-/**
- * Parse Open Graph metadata from HTML
- */
-function parseOpenGraphFromHtml(html: string, baseUrl: string): OpenGraphData {
-  const data: OpenGraphData = {}
-
-  // Create a DOM parser
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(html, 'text/html')
-
-  // Extract Open Graph meta tags
-  const metaTags = doc.querySelectorAll('meta')
-
-  for (const meta of metaTags) {
-    const property = meta.getAttribute('property') || meta.getAttribute('name')
-    const content = meta.getAttribute('content')
-
-    if (!property || !content) continue
-
-    switch (property.toLowerCase()) {
-      case 'og:title':
-        data.title = content
-        break
-      case 'og:description':
-        data.description = content
-        break
-      case 'og:image':
-        data.imageUrl = resolveUrl(content, baseUrl)
-        break
-      case 'og:site_name':
-        data.siteName = content
-        break
-      case 'og:type':
-        data.type = content
-        break
-      case 'og:url':
-        data.canonicalUrl = content
-        break
-      case 'description':
-        // Fallback to meta description if no OG description
-        if (!data.description) {
-          data.description = content
-        }
-        break
-    }
-  }
-
-  // Fallback to title tag if no OG title
-  if (!data.title) {
-    const titleTag = doc.querySelector('title')
-    if (titleTag) {
-      data.title = titleTag.textContent || undefined
-    }
-  }
-
-  // Try to find favicon
-  const faviconLinks = doc.querySelectorAll('link[rel*="icon"]')
-  for (const link of faviconLinks) {
-    const href = link.getAttribute('href')
-    if (href) {
-      data.faviconUrl = resolveUrl(href, baseUrl)
-      break
-    }
-  }
-
-  // Default favicon path
-  if (!data.faviconUrl) {
-    try {
-      const parsed = new URL(baseUrl)
-      data.faviconUrl = `${parsed.origin}/favicon.ico`
-    } catch {
-      // Ignore
-    }
-  }
-
-  return data
-}
-
-/**
- * Resolve relative URL to absolute
- */
-function resolveUrl(url: string, baseUrl: string): string {
-  try {
-    // Handle protocol-relative URLs
-    if (url.startsWith('//')) {
-      return `https:${url}`
-    }
-    // Handle absolute URLs
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url
-    }
-    // Handle relative URLs
-    const base = new URL(baseUrl)
-    return new URL(url, base).toString()
-  } catch {
-    return url
-  }
-}
 
 /**
  * Fetch and compress an image to base64
@@ -258,10 +192,10 @@ async function fetchAndCompressImage(
     const timeoutId = setTimeout(() => controller.abort(), options.timeout)
 
     try {
-      // Use CORS proxy
-      const fetchUrl = `${CORS_PROXY}${encodeURIComponent(imageUrl)}`
+      // Use our image proxy API
+      const apiUrl = `${getApiBaseUrl()}/api/image-proxy?url=${encodeURIComponent(imageUrl)}`
 
-      const response = await fetch(fetchUrl, {
+      const response = await fetch(apiUrl, {
         signal: controller.signal,
       })
 
@@ -348,9 +282,10 @@ async function fetchFavicon(
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
-      const fetchUrl = `${CORS_PROXY}${encodeURIComponent(faviconUrl)}`
+      // Use our image proxy API
+      const apiUrl = `${getApiBaseUrl()}/api/image-proxy?url=${encodeURIComponent(faviconUrl)}`
 
-      const response = await fetch(fetchUrl, {
+      const response = await fetch(apiUrl, {
         signal: controller.signal,
       })
 

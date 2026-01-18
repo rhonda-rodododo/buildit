@@ -126,6 +126,17 @@ export default defineConfig({
       '@/types': path.resolve(__dirname, './src/types'),
     },
   },
+  server: {
+    proxy: {
+      // Proxy API requests to local Wrangler Pages dev server
+      // Run `bun run pages:dev` in a separate terminal to start the Pages dev server
+      '/api': {
+        target: 'http://localhost:8788',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   build: {
     modulePreload: {
       // Don't preload md-editor (heavy chunk, only load when wiki editor opened)
