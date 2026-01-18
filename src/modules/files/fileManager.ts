@@ -215,6 +215,14 @@ class FileManager {
   }
 
   /**
+   * Move a file to a different folder
+   * Epic 57: Added for bulk move operations
+   */
+  async moveFile(fileId: string, targetFolderId: string | null): Promise<void> {
+    await this.updateFile(fileId, { folderId: targetFolderId })
+  }
+
+  /**
    * Update file metadata
    */
   async updateFile(

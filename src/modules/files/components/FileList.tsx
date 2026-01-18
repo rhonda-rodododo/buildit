@@ -1,6 +1,7 @@
 /**
  * File List
  * Display files and folders in grid or list view
+ * Epic 57: Added multi-select support for bulk operations
  */
 
 import { useState, useMemo } from 'react'
@@ -8,12 +9,14 @@ import { hexToBytes } from '@noble/hashes/utils'
 import { Folder, File, Image, Video, Music, FileText, Archive, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 import type { FileMetadata, Folder as FolderType } from '../types'
 import { useFilesStore } from '../filesStore'
 import { useGroupsStore } from '@/stores/groupsStore'
@@ -26,6 +29,9 @@ interface FileListProps {
   files: FileMetadata[]
   folders: FolderType[]
   viewMode: 'grid' | 'list'
+  selectionMode?: boolean
+  selectedFiles?: Set<string>
+  onSelectionChange?: (selectedFiles: Set<string>) => void
 }
 
 const FILE_ICONS = {
@@ -37,12 +43,41 @@ const FILE_ICONS = {
   other: File,
 }
 
-export function FileList({ files, folders, viewMode }: FileListProps) {
+export function FileList({
+  files,
+  folders,
+  viewMode,
+  selectionMode = false,
+  selectedFiles = new Set(),
+  onSelectionChange,
+}: FileListProps) {
   const { groupId } = useGroupContext()
   const setCurrentFolder = useFilesStore((state) => state.setCurrentFolder)
   const groups = useGroupsStore((state) => state.groups)
   const [previewFileId, setPreviewFileId] = useState<string | null>(null)
   const [shareFileId, setShareFileId] = useState<string | null>(null)
+
+  // Handle file selection toggle
+  const toggleFileSelection = (fileId: string) => {
+    if (!onSelectionChange) return
+    const newSelection = new Set(selectedFiles)
+    if (newSelection.has(fileId)) {
+      newSelection.delete(fileId)
+    } else {
+      newSelection.add(fileId)
+    }
+    onSelectionChange(newSelection)
+  }
+
+  // Handle click on file (preview or select based on mode)
+  const handleFileInteraction = (fileId: string, e: React.MouseEvent) => {
+    if (selectionMode) {
+      e.preventDefault()
+      toggleFileSelection(fileId)
+    } else {
+      handleFileClick(fileId)
+    }
+  }
 
   // Get the encryption key for the current group
   const groupKey = useMemo(() => {
@@ -123,41 +158,59 @@ export function FileList({ files, folders, viewMode }: FileListProps) {
         {/* Files */}
         {files.map((file) => {
           const Icon = FILE_ICONS[file.type]
+          const isSelected = selectedFiles.has(file.id)
           return (
             <Card
               key={file.id}
-              className="group cursor-pointer p-4 hover:bg-accent"
-              onClick={() => handleFileClick(file.id)}
+              className={cn(
+                'group cursor-pointer p-4 hover:bg-accent relative',
+                isSelected && 'ring-2 ring-primary bg-primary/5'
+              )}
+              onClick={(e) => handleFileInteraction(file.id, e)}
             >
+              {/* Selection checkbox (visible in selection mode or on hover) */}
+              {(selectionMode || isSelected) && (
+                <div
+                  className="absolute top-2 left-2 z-10"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleFileSelection(file.id)
+                  }}
+                >
+                  <Checkbox checked={isSelected} />
+                </div>
+              )}
               <div className="flex items-start justify-between">
                 <Icon className="h-12 w-12 text-muted-foreground" />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation()
-                      handleDownload(file.id, file.name)
-                    }}>
-                      Download
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation()
-                      setShareFileId(file.id)
-                    }}>
-                      Share
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteFile(file.id)
-                    }}>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {!selectionMode && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation()
+                        handleDownload(file.id, file.name)
+                      }}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation()
+                        setShareFileId(file.id)
+                      }}>
+                        Share
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteFile(file.id)
+                      }}>
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
               <p className="mt-2 truncate font-medium">{file.name}</p>
               <p className="text-xs text-muted-foreground">
@@ -202,13 +255,28 @@ export function FileList({ files, folders, viewMode }: FileListProps) {
       {/* Files */}
       {files.map((file) => {
         const Icon = FILE_ICONS[file.type]
+        const isSelected = selectedFiles.has(file.id)
         return (
           <div
             key={file.id}
-            className="flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-accent"
-            onClick={() => handleFileClick(file.id)}
+            className={cn(
+              'flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-accent',
+              isSelected && 'bg-primary/5 ring-1 ring-primary'
+            )}
+            onClick={(e) => handleFileInteraction(file.id, e)}
           >
             <div className="flex items-center gap-3">
+              {/* Selection checkbox (visible in selection mode or when selected) */}
+              {(selectionMode || isSelected) && (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleFileSelection(file.id)
+                  }}
+                >
+                  <Checkbox checked={isSelected} />
+                </div>
+              )}
               <Icon className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium">{file.name}</p>
@@ -217,33 +285,35 @@ export function FileList({ files, folders, viewMode }: FileListProps) {
                 </p>
               </div>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation()
-                  handleDownload(file.id, file.name)
-                }}>
-                  Download
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation()
-                  setShareFileId(file.id)
-                }}>
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation()
-                  handleDeleteFile(file.id)
-                }}>
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!selectionMode && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownload(file.id, file.name)
+                  }}>
+                    Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation()
+                    setShareFileId(file.id)
+                  }}>
+                    Share
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation()
+                    handleDeleteFile(file.id)
+                  }}>
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         )
       })}

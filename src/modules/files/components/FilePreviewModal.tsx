@@ -1,13 +1,23 @@
 /**
  * File Preview Modal
- * Preview files with support for images, PDFs, videos, audio, and text files
+ * Preview files with support for images, PDFs, videos, audio, text, and code files
+ * Epic 57: Enhanced preview with syntax highlighting and markdown rendering
  */
 
-import { useState, useEffect, useCallback } from 'react'
-import { X, Download, Share2, Clock, RotateCcw } from 'lucide-react'
+import { useState, useEffect, useCallback, FC } from 'react'
+import { X, Download, Share2, Clock, RotateCcw, Code2 } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { Prism as SyntaxHighlighterBase } from 'react-syntax-highlighter'
+import type { SyntaxHighlighterProps } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+// Type fix for react-syntax-highlighter (strict mode compatibility)
+const SyntaxHighlighter = SyntaxHighlighterBase as unknown as FC<SyntaxHighlighterProps>
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { fileManager } from '../fileManager'
 import { useFilesStore } from '../filesStore'
 import type { FilePreview, FileVersion } from '../types'
@@ -188,12 +198,44 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                 </div>
               )}
 
-              {/* Text/Code Preview */}
+              {/* Text/Code Preview with Syntax Highlighting */}
               {preview.type === 'text' && preview.content && (
-                <div className="h-full">
-                  <pre className="p-4 text-sm overflow-auto h-full whitespace-pre-wrap font-mono bg-muted/10 rounded-lg">
-                    {preview.content}
-                  </pre>
+                <div className="h-full overflow-auto">
+                  {preview.language === 'markdown' ? (
+                    // Markdown preview with GFM support
+                    <div className="prose prose-sm dark:prose-invert max-w-none p-4">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {preview.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : preview.language ? (
+                    // Code with syntax highlighting
+                    <div className="relative">
+                      <Badge variant="secondary" className="absolute top-2 right-2 z-10 text-xs">
+                        <Code2 className="h-3 w-3 mr-1" />
+                        {preview.language}
+                      </Badge>
+                      <SyntaxHighlighter
+                        language={preview.language}
+                        style={oneDark}
+                        customStyle={{
+                          margin: 0,
+                          borderRadius: '0.5rem',
+                          minHeight: '100%',
+                          fontSize: '0.875rem',
+                        }}
+                        showLineNumbers
+                        wrapLines
+                      >
+                        {preview.content}
+                      </SyntaxHighlighter>
+                    </div>
+                  ) : (
+                    // Plain text
+                    <pre className="p-4 text-sm overflow-auto h-full whitespace-pre-wrap font-mono bg-muted/10 rounded-lg">
+                      {preview.content}
+                    </pre>
+                  )}
                 </div>
               )}
 
