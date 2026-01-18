@@ -39,7 +39,8 @@ export function FormPreview({ schema, uiSchema }: FormPreviewProps) {
           formData={formData}
           onChange={(e) => setFormData(e.formData)}
           onSubmit={(e) => {
-            console.info('Form submitted:', e.formData);
+            // Preview mode - show submitted data in the debug section below
+            setFormData(e.formData);
           }}
         >
           <div className="flex gap-2 mt-6">

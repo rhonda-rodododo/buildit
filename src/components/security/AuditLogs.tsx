@@ -217,8 +217,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
   }, [logs, mountTime]);
 
   const handleExportLogs = () => {
-    // In production, this would generate a CSV file
-    console.info('Exporting audit logs...');
+    // TODO: Implement CSV export for audit logs
   };
 
   const getActionIcon = (actionType: AuditLog['actionType']) => {

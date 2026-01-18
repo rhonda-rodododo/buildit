@@ -16,8 +16,7 @@ export const  RootLayout: FC = () => {
     // Load identities on mount (database is initialized in main.tsx)
     (async () => {
       await loadIdentities();
-          console.info('load routes!!!\n\n\n\n\n\n!@!!!!!!')
-      
+
       // Initialize device tracking and WebAuthn support
       await checkWebAuthnSupport();
       await initializeCurrentDevice();

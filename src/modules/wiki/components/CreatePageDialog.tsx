@@ -15,7 +15,7 @@ interface CreatePageDialogProps {
 export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   open,
   onOpenChange,
-  groupId,
+  groupId: _groupId, // Will be used when wiki store is implemented
   onCreated,
 }) => {
   const [title, setTitle] = useState('')
@@ -24,13 +24,8 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   const [tags, setTags] = useState('')
 
   const handleCreate = async () => {
-    console.info('Creating wiki page:', {
-      groupId,
-      title,
-      content,
-      category: category || undefined,
-      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-    })
+    // TODO: Implement wiki page creation via wikiStore
+    // Should save: groupId, title, content, category, tags
 
     // Reset form
     setTitle('')

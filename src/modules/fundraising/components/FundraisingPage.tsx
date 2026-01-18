@@ -184,8 +184,7 @@ export function FundraisingPage() {
     const campaignTiers = getDonationTiers(selectedCampaign.id);
 
     const handleDonate = (_tierId?: string) => {
-      // TODO: Implement donation flow
-      console.info('Donate to campaign:', selectedCampaign.id, 'tier:', _tierId);
+      // TODO: Implement donation flow with Bitcoin/Lightning
     };
 
     return (

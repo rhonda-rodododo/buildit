@@ -168,12 +168,10 @@ export function ContactsPage() {
                   key={friend.id}
                   friend={friend}
                   onMessage={() => {
-                    // TODO: Open message dialog
-                    console.info('Message friend:', friend.friendPubkey);
+                    // TODO: Open message dialog with this friend
                   }}
                   onViewProfile={() => {
-                    // TODO: Open profile view
-                    console.info('View profile:', friend.friendPubkey);
+                    // TODO: Open profile view for this friend
                   }}
                 />
               ))}

@@ -252,8 +252,7 @@ export function FormsPage() {
     const submissions = getSubmissionsByForm(selectedForm.id);
 
     const handleExportSubmissions = () => {
-      // TODO: Implement CSV export
-      console.info('Export submissions', submissions);
+      // TODO: Implement CSV export for form submissions
     };
 
     return (
@@ -265,7 +264,7 @@ export function FormsPage() {
         </div>
         <SubmissionsList
           submissions={submissions}
-          onViewDetails={(submission) => console.info('View submission', submission)}
+          onViewDetails={() => { /* TODO: Implement submission detail view */ }}
           onFlagSpam={flagSubmissionAsSpam}
           onMarkProcessed={markSubmissionProcessed}
           onExport={handleExportSubmissions}

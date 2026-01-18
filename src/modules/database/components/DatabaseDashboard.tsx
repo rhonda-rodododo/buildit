@@ -64,9 +64,8 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
     await databaseManager.createRecord(currentTable.id, groupId, userPubkey, {});
   };
 
-  const handleRecordClick = (record: DatabaseRecord) => {
-    console.info('Record clicked:', record);
-    // This would open a record detail dialog
+  const handleRecordClick = (_record: DatabaseRecord) => {
+    // TODO: Open a record detail dialog
   };
 
   if (groupTables.length === 0) {

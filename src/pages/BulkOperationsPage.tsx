@@ -91,33 +91,27 @@ export const BulkOperationsPage: FC = () => {
   };
 
   const handleBulkMessage = () => {
-    console.info('Sending message to:', Array.from(selectedIds));
     alert(`Sending message to ${selectedIds.size} contacts`);
   };
 
   const handleBulkAddTag = () => {
-    console.info('Adding tag to:', Array.from(selectedIds));
     alert(`Adding tag to ${selectedIds.size} contacts`);
   };
 
   const handleBulkUpdateField = () => {
-    console.info('Updating field for:', Array.from(selectedIds));
     alert(`Updating field for ${selectedIds.size} contacts`);
   };
 
   const handleBulkAssignTask = () => {
-    console.info('Assigning task for:', Array.from(selectedIds));
     alert(`Creating task for ${selectedIds.size} contacts`);
   };
 
   const handleBulkExport = () => {
-    console.info('Exporting:', Array.from(selectedIds));
     alert(`Exporting ${selectedIds.size} contacts to CSV`);
   };
 
   const handleBulkDelete = () => {
     if (confirm(`Delete ${selectedIds.size} contacts? This cannot be undone.`)) {
-      console.info('Deleting:', Array.from(selectedIds));
       setSelectedIds(new Set());
     }
   };

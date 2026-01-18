@@ -30,12 +30,9 @@ async function processDueScheduledPosts(): Promise<void> {
       return;
     }
 
-    console.log(`[ScheduledPostsScheduler] Found ${duePosts.length} due post(s) to publish`);
-
     for (const scheduledPost of duePosts) {
       try {
         await store.publishScheduledPost(scheduledPost.id);
-        console.log(`[ScheduledPostsScheduler] Published scheduled post: ${scheduledPost.id}`);
       } catch (error) {
         console.error(`[ScheduledPostsScheduler] Failed to publish scheduled post ${scheduledPost.id}:`, error);
         // Mark as failed in the database
@@ -68,8 +65,6 @@ export function startScheduledPostsScheduler(): void {
     return;
   }
 
-  console.log('[ScheduledPostsScheduler] Starting scheduler...');
-
   // Run immediately on start
   processDueScheduledPosts();
 
@@ -83,7 +78,6 @@ export function startScheduledPostsScheduler(): void {
  */
 export function stopScheduledPostsScheduler(): void {
   if (schedulerInterval) {
-    console.log('[ScheduledPostsScheduler] Stopping scheduler...');
     clearInterval(schedulerInterval);
     schedulerInterval = null;
   }

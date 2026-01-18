@@ -37,6 +37,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import {
   Bold,
   Italic,
   Strikethrough,
@@ -58,11 +65,20 @@ import {
   MessageSquarePlus,
   Sigma,
   Highlighter,
+  GitBranch,
+  ListTree,
+  Superscript,
+  ChevronDown,
+  PenLine,
 } from 'lucide-react'
 import { EncryptedNostrProvider } from '../providers/EncryptedNostrProvider'
 import { CommentMark } from '../extensions/CommentMark'
 import { SuggestionMark } from '../extensions/SuggestionMark'
 import { MathBlock } from '../extensions/MathBlock'
+import { MermaidBlock } from '../extensions/MermaidBlock'
+import { TableOfContents } from '../extensions/TableOfContents'
+import { Footnote } from '../extensions/Footnote'
+import { SuggestionModeExtension } from '../extensions/SuggestionModePlugin'
 import { useDocumentsStore } from '../documentsStore'
 import { secureRandomInt } from '@/lib/utils'
 import type { NostrClient } from '@/core/nostr/client'
@@ -147,9 +163,6 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
 
     // Setup IndexedDB persistence for offline support
     const indexeddbProvider = new IndexeddbPersistence(`doc-${documentId}`, doc)
-    indexeddbProvider.whenSynced.then(() => {
-      console.info('Loaded document from IndexedDB')
-    })
 
     // Setup Nostr provider for real-time sync
     const nostrProvider = new EncryptedNostrProvider({
@@ -232,6 +245,14 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       CommentMark,
       SuggestionMark,
       MathBlock,
+      // Epic 56: Advanced editing extensions
+      MermaidBlock,
+      TableOfContents,
+      Footnote,
+      // Suggestion mode plugin
+      SuggestionModeExtension.configure({
+        enabled: suggestionMode,
+      }),
     ]
 
     // Add collaboration extensions if enabled
@@ -251,7 +272,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
     }
 
     return baseExtensions
-  }, [enableCollaboration, ydoc, awareness, userName, placeholder])
+  }, [enableCollaboration, ydoc, awareness, userName, placeholder, suggestionMode])
 
   const editor = useEditor({
     extensions,
@@ -305,8 +326,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
     setShowCommentPopover(false)
   }, [editor, commentText, documentId, userPublicKey, addComment])
 
-  // TODO: Implement suggestion mode interceptor for track changes
-  // This will hook into editor transactions to convert edits to suggestions
+  // Epic 56: Suggestion mode is now implemented via SuggestionModeExtension plugin
 
   if (!editor) {
     return null
@@ -333,7 +353,28 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
   const insertMath = () => {
     editor.chain().focus().insertContent({
       type: 'mathBlock',
-      attrs: { latex: 'E = mc^2' },
+      attrs: { equation: 'E = mc^2' },
+    }).run()
+  }
+
+  // Epic 56: Advanced insert functions
+  const insertMermaid = () => {
+    editor.chain().focus().insertContent({
+      type: 'mermaidBlock',
+      attrs: { diagram: '' },
+    }).run()
+  }
+
+  const insertTableOfContents = () => {
+    editor.chain().focus().insertContent({
+      type: 'tableOfContents',
+    }).run()
+  }
+
+  const insertFootnote = () => {
+    editor.chain().focus().insertContent({
+      type: 'footnote',
+      attrs: { content: '' },
     }).run()
   }
 
@@ -580,14 +621,38 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
             <TooltipContent>Insert Table</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" onClick={insertMath}>
-                <Sigma className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Insert Math Equation</TooltipContent>
-          </Tooltip>
+          {/* Advanced Insert Dropdown - Epic 56 */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Insert Block</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={insertMath}>
+                <Sigma className="h-4 w-4 mr-2" />
+                Math Equation
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={insertMermaid}>
+                <GitBranch className="h-4 w-4 mr-2" />
+                Diagram (Mermaid)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={insertTableOfContents}>
+                <ListTree className="h-4 w-4 mr-2" />
+                Table of Contents
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={insertFootnote}>
+                <Superscript className="h-4 w-4 mr-2" />
+                Footnote
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Separator orientation="vertical" className="h-8" />
 
@@ -641,20 +706,28 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
             </PopoverContent>
           </Popover>
 
-          {/* Highlight for suggestions */}
+          {/* Suggestion Mode Toggle - Epic 56 */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={suggestionMode ? 'bg-orange-100 text-orange-700' : ''}
+              >
+                <PenLine className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {suggestionMode ? 'Suggestion Mode Active' : 'Suggestion Mode (Track Changes)'}
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Highlight indicator for suggestions */}
           {suggestionMode && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-orange-600"
-                >
-                  <Highlighter className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Suggestion Mode Active</TooltipContent>
-            </Tooltip>
+            <Badge variant="outline" className="ml-1 text-xs bg-orange-50 text-orange-700 border-orange-200">
+              <Highlighter className="h-3 w-3 mr-1" />
+              Suggesting
+            </Badge>
           )}
 
           <Separator orientation="vertical" className="h-8" />
@@ -726,6 +799,15 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
               onClick={() => setShowCommentPopover(true)}
             >
               <MessageSquarePlus className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={insertFootnote}
+              title="Add footnote"
+            >
+              <Superscript className="h-3 w-3" />
             </Button>
           </div>
         </BubbleMenu>

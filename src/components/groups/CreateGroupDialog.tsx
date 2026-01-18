@@ -189,7 +189,6 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
       // Load demo data if requested
       if (loadDemoData && group) {
-        console.info('📦 Loading demo data for new group...')
         if (!useManualMode && selection) {
           // Use template-specific seeds with includeDemoData flag
           await loadTemplateSeeds(db, group.id, currentIdentity.publicKey, {
