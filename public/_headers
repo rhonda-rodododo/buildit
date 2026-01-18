@@ -1,0 +1,40 @@
+# Cloudflare Pages Security Headers
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  # Content Security Policy - Defense against XSS and data exfiltration
+  # This is CRITICAL for an E2EE app - prevents supply chain attacks from exfiltrating keys
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' wss: https: blob:; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://open.spotify.com https://w.soundcloud.com https://www.tiktok.com https://platform.twitter.com https://www.instagram.com https://player.twitch.tv https://www.reddit.com https://giphy.com https://www.loom.com https://www.dailymotion.com https://bsky.app; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+
+  # Prevent clickjacking attacks
+  X-Frame-Options: SAMEORIGIN
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # Referrer Policy - Minimize information leakage
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Permissions Policy - Restrict browser features
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
+
+  # Cross-Origin policies for additional isolation
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+
+# Cache immutable assets (hashed filenames)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Service worker and manifest should be revalidated
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate
+
+# API routes (if any) - prevent caching of dynamic content
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Content-Type-Options: nosniff

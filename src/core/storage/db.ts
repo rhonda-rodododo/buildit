@@ -475,7 +475,12 @@ export async function initializeDatabase(): Promise<void> {
 
     // Setup local encryption hooks before opening
     // Uses NIP-44 with a locally-derived encryption key for at-rest encryption
-    const { setupLocalEncryptionHooks } = await import('./EncryptedDB');
+    const { setupLocalEncryptionHooks, initializeHashCache } = await import('./EncryptedDB');
+
+    // SECURITY: Initialize cryptographic hash cache before using encryption
+    // This pre-computes SHA-256 hashes needed for key derivation
+    await initializeHashCache();
+
     setupLocalEncryptionHooks(_dbInstance);
 
     // Open the database

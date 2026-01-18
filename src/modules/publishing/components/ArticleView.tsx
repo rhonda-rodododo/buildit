@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type { Article, Publication } from '../types';
 import { format } from 'date-fns';
+import { secureRandomString } from '@/lib/utils';
 import { toast } from 'sonner';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 
@@ -39,8 +40,8 @@ export const ArticleView: FC<ArticleViewProps> = ({
   // Record view on mount
   useEffect(() => {
     if (onRecordView) {
-      // Generate a simple session ID for analytics
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate a secure session ID for analytics
+      const sessionId = `session_${Date.now()}_${secureRandomString(9)}`;
       onRecordView(sessionId);
     }
   }, [article.id, onRecordView]);

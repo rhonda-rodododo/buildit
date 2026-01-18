@@ -5,6 +5,7 @@
 
 import type { ProtectedKeyStorage, KeyBackup, WebAuthnCredential } from '@/types/device';
 import { webAuthnService } from './WebAuthnService';
+import { timingSafeEqual } from '@/lib/utils';
 
 /**
  * Protected Key Storage Service
@@ -35,16 +36,16 @@ export class ProtectedKeyStorageService {
     credential?: WebAuthnCredential,
     password?: string
   ): Promise<ProtectedKeyStorage> {
-    // Generate encryption key
-    const encryptionKey = await this.deriveEncryptionKey(password || '');
+    // Generate encryption key with random salt
+    const { key: encryptionKey, salt } = await this.deriveEncryptionKey(password || '');
 
     // Encrypt the private key
-    const { encryptedData, salt, iv } = await this.encryptKey(privateKey, encryptionKey);
+    const { encryptedData, iv } = await this.encryptKey(privateKey, encryptionKey);
 
     const storage: ProtectedKeyStorage = {
       id: crypto.randomUUID(),
       encryptedKey: encryptedData,
-      salt,
+      salt: this.bufferToBase64(salt),
       iv,
       webAuthnProtected: !!credential,
       credentialId: credential?.id,
@@ -73,14 +74,14 @@ export class ProtectedKeyStorageService {
       }
     }
 
-    // Derive decryption key
-    const decryptionKey = await this.deriveEncryptionKey(password || '');
+    // Derive decryption key using stored salt
+    const storedSalt = this.base64ToBuffer(storage.salt);
+    const { key: decryptionKey } = await this.deriveEncryptionKey(password || '', storedSalt);
 
     // Decrypt the private key
     const privateKey = await this.decryptKey(
       storage.encryptedKey,
       decryptionKey,
-      storage.salt,
       storage.iv
     );
 
@@ -106,18 +107,18 @@ export class ProtectedKeyStorageService {
       deviceId,
     });
 
-    // Generate encryption key for backup
-    const encryptionKey = await this.deriveEncryptionKey(password || crypto.randomUUID());
+    // Generate encryption key for backup with random salt
+    const { key: encryptionKey, salt } = await this.deriveEncryptionKey(password || crypto.randomUUID());
 
     // Encrypt backup
-    const { encryptedData, salt, iv } = await this.encryptKey(backupData, encryptionKey);
+    const { encryptedData, iv } = await this.encryptKey(backupData, encryptionKey);
 
     // Create checksum
     const checksum = await this.createChecksum(encryptedData);
 
     const backup: KeyBackup = {
       id: crypto.randomUUID(),
-      encryptedBackup: JSON.stringify({ data: encryptedData, salt, iv }),
+      encryptedBackup: JSON.stringify({ data: encryptedData, salt: this.bufferToBase64(salt), iv }),
       backupType: 'recovery',
       createdAt: Date.now(),
       createdBy: deviceId,
@@ -152,19 +153,20 @@ export class ProtectedKeyStorageService {
     // Parse backup data
     const { data, salt, iv } = JSON.parse(backup.encryptedBackup);
 
-    // Verify checksum
+    // Verify checksum using timing-safe comparison to prevent timing attacks
     if (backup.metadata?.checksum) {
       const checksum = await this.createChecksum(data);
-      if (checksum !== backup.metadata.checksum) {
+      if (!timingSafeEqual(checksum, backup.metadata.checksum)) {
         throw new Error('Backup integrity check failed');
       }
     }
 
-    // Derive decryption key
-    const decryptionKey = await this.deriveEncryptionKey(password || '');
+    // Derive decryption key using stored salt
+    const storedSalt = this.base64ToBuffer(salt);
+    const { key: decryptionKey } = await this.deriveEncryptionKey(password || '', storedSalt);
 
     // Decrypt backup
-    const decrypted = await this.decryptKey(data, decryptionKey, salt, iv);
+    const decrypted = await this.decryptKey(data, decryptionKey, iv);
     const backupData = JSON.parse(decrypted);
 
     return backupData.keys;
@@ -172,10 +174,34 @@ export class ProtectedKeyStorageService {
 
   /**
    * Derive an encryption key from password using PBKDF2
+   * SECURITY: Uses unique random salt per operation and 600K iterations (OWASP 2023)
+   *
+   * @param password - User's password
+   * @param existingSalt - Optional salt (for decryption). If not provided, generates new random salt.
+   * @returns Object with derived CryptoKey and the salt used
    */
-  private async deriveEncryptionKey(password: string): Promise<CryptoKey> {
+  private async deriveEncryptionKey(
+    password: string,
+    existingSalt?: Uint8Array
+  ): Promise<{ key: CryptoKey; salt: Uint8Array }> {
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
+
+    // Generate unique random salt or use existing
+    // SECURITY: Using 16 bytes (128 bits) of random salt
+    // Note: Explicitly typed as Uint8Array<ArrayBuffer> for Web Crypto API compatibility
+    let salt: Uint8Array<ArrayBuffer>;
+    if (existingSalt) {
+      // Create a fresh ArrayBuffer copy (ensures not SharedArrayBuffer)
+      const buffer = new ArrayBuffer(existingSalt.length);
+      const saltArray = new Uint8Array(buffer);
+      saltArray.set(existingSalt);
+      salt = saltArray;
+    } else {
+      const buffer = new ArrayBuffer(16);
+      salt = new Uint8Array(buffer);
+      crypto.getRandomValues(salt);
+    }
 
     // Import password as key material
     const keyMaterial = await crypto.subtle.importKey(
@@ -187,11 +213,12 @@ export class ProtectedKeyStorageService {
     );
 
     // Derive key using PBKDF2
+    // SECURITY: 600,000 iterations per OWASP 2023 recommendation for SHA-256
     const key = await crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
-        salt: encoder.encode('BuildItNetwork'), // In production, use unique salt per user
-        iterations: 100000,
+        salt: salt,
+        iterations: 600000,
         hash: 'SHA-256',
       },
       keyMaterial,
@@ -200,20 +227,21 @@ export class ProtectedKeyStorageService {
       ['encrypt', 'decrypt']
     );
 
-    return key;
+    return { key, salt };
   }
 
   /**
    * Encrypt data using AES-GCM
+   * SECURITY: Uses random 96-bit IV per encryption
    */
   private async encryptKey(
     data: string,
     key: CryptoKey
-  ): Promise<{ encryptedData: string; salt: string; iv: string }> {
+  ): Promise<{ encryptedData: string; iv: string }> {
     const encoder = new TextEncoder();
     const dataBuffer = encoder.encode(data);
 
-    // Generate IV
+    // Generate random IV (96 bits per NIST recommendation for AES-GCM)
     const iv = crypto.getRandomValues(new Uint8Array(12));
 
     // Encrypt
@@ -228,7 +256,6 @@ export class ProtectedKeyStorageService {
 
     return {
       encryptedData: this.bufferToBase64(new Uint8Array(encrypted)),
-      salt: 'BuildItNetwork', // In production, use unique salt
       iv: this.bufferToBase64(iv),
     };
   }
@@ -239,7 +266,6 @@ export class ProtectedKeyStorageService {
   private async decryptKey(
     encryptedData: string,
     key: CryptoKey,
-    _salt: string,
     ivString: string
   ): Promise<string> {
     const encrypted = this.base64ToBuffer(encryptedData);
@@ -310,9 +336,9 @@ export class ProtectedKeyStorageService {
           oldPassword
         );
 
-        // 2. Re-encrypt with new key
-        const newEncryptionKey = await this.deriveEncryptionKey(newPassword);
-        const { encryptedData, salt, iv } = await this.encryptKey(
+        // 2. Re-encrypt with new key and new random salt
+        const { key: newEncryptionKey, salt } = await this.deriveEncryptionKey(newPassword);
+        const { encryptedData, iv } = await this.encryptKey(
           privateKey,
           newEncryptionKey
         );
@@ -321,7 +347,7 @@ export class ProtectedKeyStorageService {
         const rotatedStorage: ProtectedKeyStorage = {
           ...storage,
           encryptedKey: encryptedData,
-          salt,
+          salt: this.bufferToBase64(salt),
           iv,
           rotatedAt: Date.now(),
           rotatedFrom: storage.id,
@@ -377,6 +403,7 @@ export class ProtectedKeyStorageService {
   /**
    * Batch re-encryption for all keys in database
    * Useful for password changes or security upgrades
+   * SECURITY: Each key gets a new unique random salt
    */
   public async batchReencrypt(
     keys: Array<{ id: string; encryptedKey: string; salt: string; iv: string }>,
@@ -385,33 +412,33 @@ export class ProtectedKeyStorageService {
   ): Promise<Array<{ id: string; encryptedKey: string; salt: string; iv: string }>> {
     const reencryptedKeys = [];
 
-    for (const key of keys) {
+    for (const keyData of keys) {
       try {
-        // Decrypt with old password
-        const oldEncryptionKey = await this.deriveEncryptionKey(oldPassword);
+        // Decrypt with old password using stored salt
+        const oldSalt = this.base64ToBuffer(keyData.salt);
+        const { key: oldDecryptionKey } = await this.deriveEncryptionKey(oldPassword, oldSalt);
         const decryptedKey = await this.decryptKey(
-          key.encryptedKey,
-          oldEncryptionKey,
-          key.salt,
-          key.iv
+          keyData.encryptedKey,
+          oldDecryptionKey,
+          keyData.iv
         );
 
-        // Re-encrypt with new password
-        const newEncryptionKey = await this.deriveEncryptionKey(newPassword);
-        const { encryptedData, salt, iv } = await this.encryptKey(
+        // Re-encrypt with new password and new random salt
+        const { key: newEncryptionKey, salt: newSalt } = await this.deriveEncryptionKey(newPassword);
+        const { encryptedData, iv } = await this.encryptKey(
           decryptedKey,
           newEncryptionKey
         );
 
         reencryptedKeys.push({
-          id: key.id,
+          id: keyData.id,
           encryptedKey: encryptedData,
-          salt,
+          salt: this.bufferToBase64(newSalt),
           iv,
         });
       } catch (error) {
-        console.error(`Failed to re-encrypt key ${key.id}:`, error);
-        throw new Error(`Re-encryption failed for key ${key.id}`);
+        console.error(`Failed to re-encrypt key ${keyData.id}:`, error);
+        throw new Error(`Re-encryption failed for key ${keyData.id}`);
       }
     }
 

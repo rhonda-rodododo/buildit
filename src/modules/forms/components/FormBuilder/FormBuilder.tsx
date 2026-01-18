@@ -18,6 +18,7 @@ import { FieldEditor } from './FieldEditor';
 import { FormPreview } from './FormPreview';
 // import { ConditionalLogicEditor } from './ConditionalLogicEditor';
 import type { Form } from '../../types';
+import { secureRandomString } from '@/lib/utils';
 
 export interface FormFieldDefinition {
   id: string;
@@ -90,7 +91,7 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
     if (active.data.current?.fromPalette) {
       const fieldType = active.data.current.type as string;
       const newField: FormFieldDefinition = {
-        id: `field-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+        id: `field-${Date.now()}-${secureRandomString(9)}`,
         type: fieldType,
         label: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
         required: false,
