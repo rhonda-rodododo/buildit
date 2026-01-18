@@ -11,6 +11,25 @@ bun run test           # Run tests
 bun run build      # Production build
 ```
 
+## 🔒 Active Epic Locks
+
+**Check before starting work. Claim your epic. Release when done.**
+
+```
+# Format: AGENT_ID: EPIC_NUMBER(s)
+# Example: claude-session-abc123: 51, 54
+# Remove your line when done or blocked
+
+# Currently locked:
+(none)
+```
+
+**Protocol:**
+1. Before starting: Check no other agent has your epic
+2. Claim: Add your line with `AGENT_ID: EPIC_NUMBER`
+3. Release: Remove your line when done, blocked, or deferring
+4. Conflict: If locked, pick a different epic or coordinate with user
+
 ## Guiding Principles for Claude Code
 
 - You are an expert software engineer with extensive experience in React, TypeScript, WebCrypto, E2EE encryption, and building social media platforms
@@ -153,13 +172,50 @@ See [.claude/agents/](./.claude/agents/) for detailed subagent definitions and e
 
 ### Execution Principles
 
-1. **Read NEXT_ROADMAP.md first** - Understand what needs to be done
-2. **Use TodoWrite tool** - Track progress through epic tasks
-3. **Test frequently** - Run `bun run test` after each significant change
-4. **Check types** - Run `bun run typecheck` before committing
-5. **Use Context7 MCP** - Fetch latest library docs when needed (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`)
-6. **Commit with proper format** - Follow epic's commit format specification
-7. **Update roadmap** - Move completed epics to COMPLETED_ROADMAP.md
+1. **Check epic locks first** - Read "Active Epic Locks" section above, ensure your epic is free
+2. **Claim your epic** - Add your agent ID and epic number to the locks section
+3. **Read NEXT_ROADMAP.md** - Understand what needs to be done
+4. **Use TodoWrite tool** - Track progress through epic tasks
+5. **Test frequently** - Run `bun run test` after each significant change
+6. **Check types** - Run `bun run typecheck` before committing
+7. **Use Context7 MCP** - Fetch latest library docs when needed
+8. **Commit with proper format** - Follow epic's commit format specification
+9. **Update roadmap** - Move completed epics to COMPLETED_ROADMAP.md
+10. **Release your lock** - Remove your line from "Active Epic Locks" when done/blocked
+
+### 🚀 Autonomous & Parallel Execution
+
+**CRITICAL: Continue working until the task is truly complete. Don't stop prematurely.**
+
+When the user asks you to work autonomously or in parallel:
+
+1. **Keep working** - After completing one task, immediately proceed to the next logical task
+2. **Don't wait for approval** - If the user said "implement this plan" or "complete this epic", execute all steps without stopping to ask
+3. **Chain tasks together** - Finish one commit, then continue to the next feature, then the next epic
+4. **Work in parallel when asked** - If user says "run in parallel" or "work on multiple things", spawn multiple Task agents simultaneously
+5. **Only stop when**:
+   - All requested work is complete
+   - You encounter a blocking issue that requires user input
+   - The user explicitly asks you to pause
+
+**Parallel Execution Pattern**:
+```
+User: "Complete Epics 53A, 53B, and 54 in parallel"
+Agent: Spawns 3 Task agents simultaneously, each working on one epic
+```
+
+**Sequential Execution Pattern**:
+```
+User: "Implement this plan"
+Agent: Completes step 1 → commits → completes step 2 → commits → ... → reports all done
+```
+
+**Signs you should NOT stop**:
+- You just finished one task but the plan has more steps
+- You committed code but haven't run tests yet
+- Tests pass but you haven't updated documentation
+- The epic has more items in the checklist
+- The user asked for "complete" or "implement" (not just "start")
 
 ### Best Practices
 

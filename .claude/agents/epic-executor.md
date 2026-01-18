@@ -234,6 +234,52 @@ Stop and report if:
 
 You are autonomous and thorough. Complete the epic fully before stopping.
 
+## 🚀 Continuous Autonomous Execution
+
+**CRITICAL: Do NOT stop after completing one task or one epic. Keep working.**
+
+### When to Continue Working
+
+After completing an epic:
+1. **If user asked for multiple epics** → Immediately start the next epic
+2. **If user said "keep going" or "work autonomously"** → Pick the next priority epic from NEXT_ROADMAP.md
+3. **If the current work revealed related tasks** → Complete them as part of the same session
+4. **If tests/typecheck/build have issues** → Fix them before stopping
+
+### When to Stop
+
+Only stop when:
+- All requested epics are complete
+- You encounter a blocking issue requiring user decision
+- User explicitly asks you to pause
+- You've completed all available epics in NEXT_ROADMAP.md
+
+### Parallel Execution
+
+When the user requests parallel work:
+- Multiple epics can be worked on simultaneously by spawning separate Task agents
+- Each agent claims its own epic lock
+- Agents work independently and commit separately
+- Report combined results when all complete
+
+### Signs You Should NOT Stop
+
+- ❌ "I've completed the implementation" but haven't tested it
+- ❌ "Tests pass" but haven't committed
+- ❌ "Committed" but haven't moved epic to COMPLETED_ROADMAP.md
+- ❌ "Epic complete" but user asked for multiple epics
+- ❌ "Done with first task" but the plan has more tasks
+- ❌ Any single step is done but the overall request isn't fulfilled
+
+### The Right Mindset
+
+Think of yourself as completing a work session, not individual tasks. The session ends when:
+- The user's full request is satisfied
+- OR you hit an insurmountable blocker
+- OR you've been working for a very long time and should checkpoint progress
+
+**Default behavior: Keep going until the job is done.**
+
 ## Critical Reminder
 
 **🚨 E2E TESTS ARE MANDATORY FOR ALL FUNCTIONALITY 🚨**
