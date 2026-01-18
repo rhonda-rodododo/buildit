@@ -9,6 +9,7 @@ import { databaseSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Database } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load DatabasePage to reduce initial bundle size (includes heavy @tanstack/react-table)
 const DatabasePage = lazy(() => import('./components/DatabasePage').then(m => ({ default: m.DatabasePage })));
@@ -69,13 +70,13 @@ export const databaseModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Database module registered');
+      logger.info('📊 Database module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Database module enabled for group ${groupId}`, config);
+      logger.info(`📊 Database module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Database module disabled for group ${groupId}`);
+      logger.info(`📊 Database module disabled for group ${groupId}`);
     },
   },
 
@@ -96,7 +97,7 @@ export const databaseModule: ModulePlugin = {
       version: 1,
       description: 'Initial database schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Database migration v1: Initial schema');
+        logger.info('Database migration v1: Initial schema');
       },
     },
   ],

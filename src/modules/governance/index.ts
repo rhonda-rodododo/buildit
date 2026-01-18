@@ -9,6 +9,7 @@ import { governanceSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Vote } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load GovernanceView to reduce initial bundle size
 const GovernanceView = lazy(() => import('./components/GovernanceView').then(m => ({ default: m.GovernanceView })));
@@ -79,17 +80,23 @@ export const governanceModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Governance module registered');
+      logger.info('🗳️ Governance module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Governance module enabled for group ${groupId}`, config);
+      logger.info(`🗳️ Governance module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Governance module disabled for group ${groupId}`);
+      logger.info(`🗳️ Governance module disabled for group ${groupId}`);
     },
   },
 
   routes: [
+    {
+      path: 'governance',
+      component: GovernanceView,
+      scope: 'app',
+      label: 'Governance',
+    },
     {
       path: 'governance',
       component: GovernanceView,
@@ -106,7 +113,7 @@ export const governanceModule: ModulePlugin = {
       version: 1,
       description: 'Initial governance schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Governance migration v1: Initial schema');
+        logger.info('Governance migration v1: Initial schema');
       },
     },
   ],

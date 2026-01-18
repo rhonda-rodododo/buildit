@@ -9,6 +9,7 @@ import { wikiSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Book } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load WikiView to reduce initial bundle size (includes heavy md-editor)
 const WikiView = lazy(() => import('./components/WikiView').then(m => ({ default: m.WikiView })));
@@ -73,17 +74,23 @@ export const wikiModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Wiki module registered');
+      logger.info('📚 Wiki module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Wiki module enabled for group ${groupId}`, config);
+      logger.info(`📚 Wiki module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Wiki module disabled for group ${groupId}`);
+      logger.info(`📚 Wiki module disabled for group ${groupId}`);
     },
   },
 
   routes: [
+    {
+      path: 'wiki',
+      component: WikiView,
+      scope: 'app',
+      label: 'Wiki',
+    },
     {
       path: 'wiki',
       component: WikiView,
@@ -100,7 +107,7 @@ export const wikiModule: ModulePlugin = {
       version: 1,
       description: 'Initial wiki schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Wiki migration v1: Initial schema');
+        logger.info('Wiki migration v1: Initial schema');
       },
     },
   ],

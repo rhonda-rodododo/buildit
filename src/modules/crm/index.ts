@@ -9,6 +9,7 @@ import type { BuildItDB } from '@/core/storage/db';
 import { CRM_TEMPLATES } from './templates';
 import { Users } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load CRMView to reduce initial bundle size
 const CRMView = lazy(() => import('./components/CRMView').then(m => ({ default: m.CRMView })));
@@ -57,13 +58,13 @@ export const crmModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('CRM module registered');
+      logger.info('👥 CRM module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`CRM module enabled for group ${groupId}`, config);
+      logger.info(`👥 CRM module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`CRM module disabled for group ${groupId}`);
+      logger.info(`👥 CRM module disabled for group ${groupId}`);
     },
   },
 
@@ -84,7 +85,7 @@ export const crmModule: ModulePlugin = {
       version: 1,
       description: 'Initial CRM schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('CRM migration v1: Initial schema');
+        logger.info('CRM migration v1: Initial schema');
       },
     },
   ],
