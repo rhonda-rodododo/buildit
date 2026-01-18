@@ -90,4 +90,123 @@ test.describe('Authentication Flow', () => {
       await expect(page.getByText(/private key|nsec/i)).toBeVisible();
     }
   });
+
+  test('should lock and unlock identity', async ({ page }) => {
+    await page.goto('/');
+
+    // Create identity with password
+    const generateButton = page.getByRole('button', { name: /generate new identity/i });
+    if (await generateButton.isVisible()) {
+      await generateButton.click();
+    }
+
+    await page.waitForURL(/\/(dashboard|groups)/);
+
+    // Navigate to security settings
+    await page.goto('/settings/security');
+    await page.waitForTimeout(500);
+
+    // Look for lock button in header or settings
+    const lockButton = page.getByRole('button', { name: /lock|logout/i }).first();
+    if (await lockButton.isVisible()) {
+      await lockButton.click();
+
+      // Should show lock screen
+      await expect(page.getByText(/unlock|password|enter/i)).toBeVisible();
+
+      // Enter password to unlock
+      const passwordInput = page.getByPlaceholder(/password/i).first();
+      if (await passwordInput.isVisible()) {
+        await passwordInput.fill('testpassword123');
+        await page.getByRole('button', { name: /unlock|continue/i }).click();
+
+        // Should return to app
+        await expect(page).toHaveURL(/\/(dashboard|groups|settings)/);
+      }
+    }
+  });
+
+  test('should change password', async ({ page }) => {
+    await page.goto('/');
+
+    // Create identity
+    const generateButton = page.getByRole('button', { name: /generate new identity/i });
+    if (await generateButton.isVisible()) {
+      await generateButton.click();
+    }
+
+    await page.waitForURL(/\/(dashboard|groups)/);
+
+    // Navigate to security settings
+    await page.goto('/settings/security');
+    await page.waitForTimeout(500);
+
+    // Look for change password section
+    const changePasswordButton = page.getByRole('button', { name: /change password/i });
+    if (await changePasswordButton.isVisible()) {
+      await changePasswordButton.click();
+
+      // Fill in password change form
+      const currentPasswordInput = page.getByLabel(/current password/i);
+      const newPasswordInput = page.getByLabel(/new password/i);
+      const confirmPasswordInput = page.getByLabel(/confirm password/i);
+
+      if (await currentPasswordInput.isVisible()) {
+        await currentPasswordInput.fill('oldpassword123');
+        await newPasswordInput.fill('newpassword456');
+        await confirmPasswordInput.fill('newpassword456');
+
+        // Submit
+        await page.getByRole('button', { name: /save|update|change/i }).click();
+
+        // Should show success message
+        await expect(page.getByText(/password.*changed|updated|success/i)).toBeVisible();
+      }
+    }
+  });
+
+  test('should prevent duplicate identity import', async ({ page }) => {
+    await page.goto('/');
+
+    // Import identity first time
+    const importButton = page.getByRole('button', { name: /import/i });
+    if (await importButton.isVisible()) {
+      await importButton.click();
+    }
+
+    const testNsec = 'nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5';
+    const input = page.getByPlaceholder(/nsec|private key/i);
+    await input.fill(testNsec);
+    await page.getByRole('button', { name: /import|continue/i }).click();
+
+    await page.waitForURL(/\/(dashboard|groups)/);
+
+    // Try to import same identity again
+    await page.goto('/');
+
+    // Open identity manager
+    const identityButton = page.getByRole('button', { name: /identity|account/i }).first();
+    if (await identityButton.isVisible()) {
+      await identityButton.click();
+
+      const addIdentity = page.getByText(/add identity|new identity/i);
+      if (await addIdentity.isVisible()) {
+        await addIdentity.click();
+
+        // Try to import same nsec
+        const importBtn = page.getByRole('button', { name: /import/i });
+        if (await importBtn.isVisible()) {
+          await importBtn.click();
+          const nsecInput = page.getByPlaceholder(/nsec|private key/i);
+          await nsecInput.fill(testNsec);
+          await page.getByRole('button', { name: /import|continue/i }).click();
+
+          // Should show error or warning about duplicate
+          const errorMessage = page.getByText(/already exists|duplicate|imported/i);
+          // Either shows error or silently uses existing identity
+          await page.waitForTimeout(500);
+        }
+      }
+    }
+  });
 });

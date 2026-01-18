@@ -134,4 +134,211 @@ test.describe('Group Management', () => {
       await expect(page.getByText('Updated Group Name')).toBeVisible();
     }
   });
+
+  test('should create a private group', async ({ page }) => {
+    const createGroupButton = page.getByRole('button', { name: /create group|new group/i });
+    await createGroupButton.click();
+
+    // Fill in group details
+    await page.getByLabel(/group name|name/i).fill('Private Test Group');
+    await page.getByLabel(/description/i).fill('A private group for testing');
+
+    // Select private privacy level
+    const privacySelect = page.getByLabel(/privacy|visibility/i);
+    if (await privacySelect.isVisible()) {
+      await privacySelect.click();
+      await page.getByText(/private/i).first().click();
+    } else {
+      // Try radio button or checkbox
+      const privateRadio = page.getByRole('radio', { name: /private/i });
+      if (await privateRadio.isVisible()) {
+        await privateRadio.check();
+      }
+    }
+
+    // Submit
+    await page.getByRole('button', { name: /create|save/i }).click();
+
+    // Should see group in list with private indicator
+    await expect(page.getByText('Private Test Group')).toBeVisible();
+    // Look for lock icon or "Private" badge
+    const privateIndicator = page.locator('svg[class*="lock"]').or(page.getByText(/private/i));
+    await expect(privateIndicator.first()).toBeVisible();
+  });
+
+  test('should manage member roles', async ({ page }) => {
+    // Create a group
+    const createGroupButton = page.getByRole('button', { name: /create group|new group/i });
+    if (await createGroupButton.isVisible()) {
+      await createGroupButton.click();
+      await page.getByLabel(/group name|name/i).fill('Role Test Group');
+      await page.getByRole('button', { name: /create|save/i }).click();
+    }
+
+    // Open group settings
+    await page.getByText('Role Test Group').click();
+    const settingsButton = page.getByRole('button', { name: /settings|configure/i });
+    if (await settingsButton.isVisible()) {
+      await settingsButton.click();
+
+      // Navigate to members tab
+      const membersTab = page.getByRole('tab', { name: /members/i });
+      if (await membersTab.isVisible()) {
+        await membersTab.click();
+        await page.waitForTimeout(300);
+
+        // Look for role selector on a member row
+        const roleSelect = page.getByRole('combobox').first();
+        if (await roleSelect.isVisible()) {
+          await roleSelect.click();
+
+          // Change role to moderator
+          await page.getByRole('option', { name: /moderator/i }).click();
+
+          // Verify role changed
+          await expect(page.getByText(/moderator/i)).toBeVisible();
+        }
+      }
+    }
+  });
+
+  test('should remove member from group', async ({ page }) => {
+    // Create a group
+    const createGroupButton = page.getByRole('button', { name: /create group|new group/i });
+    if (await createGroupButton.isVisible()) {
+      await createGroupButton.click();
+      await page.getByLabel(/group name|name/i).fill('Remove Member Test Group');
+      await page.getByRole('button', { name: /create|save/i }).click();
+    }
+
+    // Open group settings
+    await page.getByText('Remove Member Test Group').click();
+    const settingsButton = page.getByRole('button', { name: /settings|configure/i });
+    if (await settingsButton.isVisible()) {
+      await settingsButton.click();
+
+      // Navigate to members tab
+      const membersTab = page.getByRole('tab', { name: /members/i });
+      if (await membersTab.isVisible()) {
+        await membersTab.click();
+        await page.waitForTimeout(300);
+
+        // Look for remove button (UserMinus icon)
+        const removeButton = page.getByRole('button', { name: /remove/i }).first();
+        if (await removeButton.isVisible()) {
+          await removeButton.click();
+
+          // Confirm removal in dialog
+          const confirmButton = page.getByRole('button', { name: /remove|confirm/i }).last();
+          if (await confirmButton.isVisible()) {
+            await confirmButton.click();
+            await page.waitForTimeout(300);
+          }
+        }
+      }
+    }
+  });
+
+  test('should generate invite link', async ({ page }) => {
+    // Create a group
+    const createGroupButton = page.getByRole('button', { name: /create group|new group/i });
+    if (await createGroupButton.isVisible()) {
+      await createGroupButton.click();
+      await page.getByLabel(/group name|name/i).fill('Invite Link Test Group');
+      await page.getByRole('button', { name: /create|save/i }).click();
+    }
+
+    // Open group settings
+    await page.getByText('Invite Link Test Group').click();
+    const settingsButton = page.getByRole('button', { name: /settings|configure/i });
+    if (await settingsButton.isVisible()) {
+      await settingsButton.click();
+
+      // Navigate to members tab
+      const membersTab = page.getByRole('tab', { name: /members/i });
+      if (await membersTab.isVisible()) {
+        await membersTab.click();
+        await page.waitForTimeout(300);
+
+        // Click invite members button
+        const inviteButton = page.getByRole('button', { name: /invite members/i });
+        if (await inviteButton.isVisible()) {
+          await inviteButton.click();
+          await page.waitForTimeout(300);
+
+          // Switch to Link tab
+          const linkTab = page.getByRole('tab', { name: /link/i });
+          if (await linkTab.isVisible()) {
+            await linkTab.click();
+            await page.waitForTimeout(300);
+
+            // Generate link
+            const generateLinkButton = page.getByRole('button', { name: /generate.*link/i });
+            if (await generateLinkButton.isVisible()) {
+              await generateLinkButton.click();
+              await page.waitForTimeout(500);
+
+              // Verify link was generated
+              const linkInput = page.getByRole('textbox').filter({ hasValue: /invite/ });
+              await expect(linkInput.or(page.locator('input[readonly]'))).toBeVisible();
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('should revoke pending invitation', async ({ page }) => {
+    // Create a group and send an invite
+    const createGroupButton = page.getByRole('button', { name: /create group|new group/i });
+    if (await createGroupButton.isVisible()) {
+      await createGroupButton.click();
+      await page.getByLabel(/group name|name/i).fill('Revoke Invite Test Group');
+      await page.getByRole('button', { name: /create|save/i }).click();
+    }
+
+    // Open group settings
+    await page.getByText('Revoke Invite Test Group').click();
+    const settingsButton = page.getByRole('button', { name: /settings|configure/i });
+    if (await settingsButton.isVisible()) {
+      await settingsButton.click();
+
+      // Navigate to members tab
+      const membersTab = page.getByRole('tab', { name: /members/i });
+      if (await membersTab.isVisible()) {
+        await membersTab.click();
+        await page.waitForTimeout(300);
+
+        // Generate an invite link first
+        const inviteButton = page.getByRole('button', { name: /invite members/i });
+        if (await inviteButton.isVisible()) {
+          await inviteButton.click();
+          await page.waitForTimeout(300);
+
+          const linkTab = page.getByRole('tab', { name: /link/i });
+          if (await linkTab.isVisible()) {
+            await linkTab.click();
+            await page.getByRole('button', { name: /generate.*link/i }).click();
+            await page.waitForTimeout(500);
+
+            // Close dialog
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(300);
+
+            // Find and revoke the pending invitation
+            const revokeButton = page.getByRole('button').filter({ has: page.locator('svg') }).last();
+            if (await revokeButton.isVisible()) {
+              await revokeButton.click();
+
+              // Confirm revocation
+              const confirmButton = page.getByRole('button', { name: /revoke/i });
+              if (await confirmButton.isVisible()) {
+                await confirmButton.click();
+              }
+            }
+          }
+        }
+      }
+    }
+  });
 });

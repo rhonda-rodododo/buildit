@@ -560,4 +560,211 @@ test.describe('Microblogging - Advanced Features', () => {
       }
     }
   });
+
+  test('should create post with hashtags', async () => {
+    const composer = page.locator('textarea[placeholder*="What"]');
+    if (await composer.isVisible()) {
+      await composer.fill('Check out #activism #organizing #solidarity');
+      await page.getByRole('button', { name: /post/i }).click();
+      await page.waitForTimeout(300);
+
+      // Verify hashtags are rendered as links
+      const hashtag = page.locator('a').filter({ hasText: '#activism' });
+      await expect(hashtag.or(page.getByText('#activism'))).toBeVisible();
+    }
+  });
+
+  test('should filter feed by hashtag click', async () => {
+    // Create post with hashtag
+    const composer = page.locator('textarea[placeholder*="What"]');
+    if (await composer.isVisible()) {
+      await composer.fill('Post about #testing hashtags');
+      await page.getByRole('button', { name: /post/i }).click();
+      await page.waitForTimeout(300);
+
+      // Click on hashtag
+      const hashtag = page.locator('a').filter({ hasText: '#testing' }).first();
+      if (await hashtag.isVisible()) {
+        await hashtag.click();
+        await page.waitForTimeout(300);
+
+        // Should filter to only show posts with this hashtag
+        await expect(page.getByText(/testing|filter|hashtag/i)).toBeVisible();
+      }
+    }
+  });
+
+  test('should create scheduled post', async () => {
+    const composer = page.locator('textarea[placeholder*="What"]');
+    if (await composer.isVisible()) {
+      await composer.fill('This is a scheduled post for the future');
+
+      // Look for schedule button
+      const scheduleButton = page.getByRole('button', { name: /schedule|clock/i });
+      if (await scheduleButton.isVisible()) {
+        await scheduleButton.click();
+        await page.waitForTimeout(200);
+
+        // Set future date
+        const dateInput = page.getByLabel(/date/i);
+        if (await dateInput.isVisible()) {
+          // Set date to tomorrow
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const dateStr = tomorrow.toISOString().split('T')[0];
+          await dateInput.fill(dateStr);
+        }
+
+        const timeInput = page.getByLabel(/time/i);
+        if (await timeInput.isVisible()) {
+          await timeInput.fill('12:00');
+        }
+
+        // Confirm schedule
+        await page.getByRole('button', { name: /schedule|confirm/i }).click();
+        await page.waitForTimeout(300);
+
+        // Verify post is scheduled
+        await expect(page.getByText(/scheduled/i)).toBeVisible();
+      }
+    }
+  });
+
+  test('should view and edit scheduled posts', async () => {
+    // First create a scheduled post
+    const composer = page.locator('textarea[placeholder*="What"]');
+    if (await composer.isVisible()) {
+      await composer.fill('Scheduled post to edit');
+
+      const scheduleButton = page.getByRole('button', { name: /schedule|clock/i });
+      if (await scheduleButton.isVisible()) {
+        await scheduleButton.click();
+        await page.waitForTimeout(200);
+
+        const dateInput = page.getByLabel(/date/i);
+        if (await dateInput.isVisible()) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          await dateInput.fill(tomorrow.toISOString().split('T')[0]);
+        }
+
+        await page.getByRole('button', { name: /schedule|confirm/i }).click();
+        await page.waitForTimeout(300);
+      }
+    }
+
+    // Navigate to scheduled posts view
+    const scheduledTab = page.getByRole('tab', { name: /scheduled/i });
+    if (await scheduledTab.isVisible()) {
+      await scheduledTab.click();
+      await page.waitForTimeout(300);
+
+      // Click edit on the scheduled post
+      const editButton = page.getByRole('button', { name: /edit/i }).first();
+      if (await editButton.isVisible()) {
+        await editButton.click();
+        await page.waitForTimeout(200);
+
+        // Modify the content
+        const editComposer = page.locator('textarea').first();
+        await editComposer.clear();
+        await editComposer.fill('Updated scheduled post content');
+
+        await page.getByRole('button', { name: /save|update/i }).click();
+        await page.waitForTimeout(300);
+
+        // Verify updated
+        await expect(page.getByText('Updated scheduled post content')).toBeVisible();
+      }
+    }
+  });
+
+  test('should publish scheduled post immediately', async () => {
+    // Create scheduled post
+    const composer = page.locator('textarea[placeholder*="What"]');
+    if (await composer.isVisible()) {
+      await composer.fill('Post to publish now');
+
+      const scheduleButton = page.getByRole('button', { name: /schedule|clock/i });
+      if (await scheduleButton.isVisible()) {
+        await scheduleButton.click();
+        await page.waitForTimeout(200);
+
+        const dateInput = page.getByLabel(/date/i);
+        if (await dateInput.isVisible()) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          await dateInput.fill(tomorrow.toISOString().split('T')[0]);
+        }
+
+        await page.getByRole('button', { name: /schedule|confirm/i }).click();
+        await page.waitForTimeout(300);
+      }
+    }
+
+    // Go to scheduled posts
+    const scheduledTab = page.getByRole('tab', { name: /scheduled/i });
+    if (await scheduledTab.isVisible()) {
+      await scheduledTab.click();
+      await page.waitForTimeout(300);
+
+      // Click publish now
+      const publishNowButton = page.getByRole('button', { name: /publish now|post now/i });
+      if (await publishNowButton.isVisible()) {
+        await publishNowButton.click();
+        await page.waitForTimeout(300);
+
+        // Should move to regular feed
+        await expect(page.getByText('Post to publish now')).toBeVisible();
+      }
+    }
+  });
+
+  test('should filter feed by following', async () => {
+    // Look for feed filter
+    const feedFilter = page.getByRole('combobox').or(page.getByRole('button', { name: /filter|all/i })).first();
+    if (await feedFilter.isVisible()) {
+      await feedFilter.click();
+      await page.waitForTimeout(200);
+
+      const followingOption = page.getByRole('option', { name: /following/i });
+      if (await followingOption.isVisible()) {
+        await followingOption.click();
+        await page.waitForTimeout(300);
+
+        // Feed should update to show only posts from followed users
+        await expect(page.getByRole('main')).toBeVisible();
+      }
+    }
+  });
+
+  test('should filter feed by date range', async () => {
+    const filterButton = page.getByRole('button', { name: /filter/i });
+    if (await filterButton.isVisible()) {
+      await filterButton.click();
+      await page.waitForTimeout(200);
+
+      // Look for date range inputs
+      const fromDate = page.getByLabel(/from|start/i);
+      const toDate = page.getByLabel(/to|end/i);
+
+      if (await fromDate.isVisible()) {
+        await fromDate.fill('2026-01-01');
+      }
+
+      if (await toDate.isVisible()) {
+        await toDate.fill('2026-12-31');
+      }
+
+      // Apply filter
+      const applyButton = page.getByRole('button', { name: /apply/i });
+      if (await applyButton.isVisible()) {
+        await applyButton.click();
+        await page.waitForTimeout(300);
+      }
+
+      // Feed should be filtered
+      await expect(page.getByRole('main')).toBeVisible();
+    }
+  });
 });

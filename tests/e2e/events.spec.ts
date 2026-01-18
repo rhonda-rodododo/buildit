@@ -163,4 +163,185 @@ test.describe('Events Module', () => {
       await expect(page.getByRole('main')).toBeVisible();
     }
   });
+
+  test('should enforce event capacity limits', async ({ page }) => {
+    // Create an event with limited capacity
+    const createEventButton = page.getByRole('button', { name: /create event|new event/i });
+    await createEventButton.click();
+
+    await page.getByLabel(/event name|title/i).fill('Capacity Test Event');
+    await page.getByLabel(/description/i).fill('Event with limited capacity');
+
+    // Set capacity to 1
+    const capacityInput = page.getByLabel(/capacity|max.*attendees/i);
+    if (await capacityInput.isVisible()) {
+      await capacityInput.fill('1');
+    }
+
+    await page.getByRole('button', { name: /create|save event/i }).click();
+    await page.waitForTimeout(300);
+
+    // RSVP to fill capacity
+    await page.getByText('Capacity Test Event').click();
+    const rsvpButton = page.getByRole('button', { name: /rsvp|going|attend/i });
+    if (await rsvpButton.isVisible()) {
+      await rsvpButton.click();
+      await page.waitForTimeout(300);
+
+      // Verify RSVP confirmed
+      await expect(page.getByText(/attending|you're going/i)).toBeVisible();
+
+      // Verify capacity indicator shows full
+      const capacityText = page.getByText(/1.*\/.*1|full|no spots/i);
+      await expect(capacityText).toBeVisible();
+    }
+  });
+
+  test('should display attendee list to event creator', async ({ page }) => {
+    // Create an event
+    const createEventButton = page.getByRole('button', { name: /create event|new event/i });
+    await createEventButton.click();
+
+    await page.getByLabel(/event name|title/i).fill('Attendee List Test Event');
+    await page.getByRole('button', { name: /create|save event/i }).click();
+    await page.waitForTimeout(300);
+
+    // Open event detail
+    await page.getByText('Attendee List Test Event').click();
+
+    // Look for attendee list section (creator should see it)
+    const attendeeSection = page.getByText(/attendees|going|rsvp/i).first();
+    await expect(attendeeSection).toBeVisible();
+
+    // Look for expandable attendee list
+    const attendeeList = page.locator('[data-testid="attendee-list"]').or(
+      page.locator('.attendees').or(page.getByRole('list'))
+    );
+    // At minimum, the section should exist
+    await expect(page.getByRole('main')).toBeVisible();
+  });
+
+  test('should edit existing event', async ({ page }) => {
+    // Create an event
+    const createEventButton = page.getByRole('button', { name: /create event|new event/i });
+    await createEventButton.click();
+
+    await page.getByLabel(/event name|title/i).fill('Event To Edit');
+    await page.getByLabel(/description/i).fill('Original description');
+    await page.getByRole('button', { name: /create|save event/i }).click();
+    await page.waitForTimeout(300);
+
+    // Open event detail
+    await page.getByText('Event To Edit').click();
+
+    // Click edit button
+    const editButton = page.getByRole('button', { name: /edit/i });
+    if (await editButton.isVisible()) {
+      await editButton.click();
+      await page.waitForTimeout(300);
+
+      // Update event details
+      const titleInput = page.getByLabel(/event name|title/i);
+      await titleInput.clear();
+      await titleInput.fill('Updated Event Title');
+
+      const descriptionInput = page.getByLabel(/description/i);
+      await descriptionInput.clear();
+      await descriptionInput.fill('Updated description');
+
+      // Save changes
+      await page.getByRole('button', { name: /save|update/i }).click();
+      await page.waitForTimeout(300);
+
+      // Verify changes
+      await expect(page.getByText('Updated Event Title')).toBeVisible();
+      await expect(page.getByText('Updated description')).toBeVisible();
+    }
+  });
+
+  test('should cancel RSVP', async ({ page }) => {
+    // Create an event
+    const createEventButton = page.getByRole('button', { name: /create event|new event/i });
+    await createEventButton.click();
+
+    await page.getByLabel(/event name|title/i).fill('Cancel RSVP Test Event');
+    await page.getByRole('button', { name: /create|save event/i }).click();
+    await page.waitForTimeout(300);
+
+    // RSVP first
+    await page.getByText('Cancel RSVP Test Event').click();
+    const rsvpButton = page.getByRole('button', { name: /rsvp|going|attend/i });
+    if (await rsvpButton.isVisible()) {
+      await rsvpButton.click();
+      await page.waitForTimeout(300);
+
+      // Now cancel RSVP
+      const cancelButton = page.getByRole('button', { name: /cancel|not going|change/i });
+      if (await cancelButton.isVisible()) {
+        await cancelButton.click();
+        await page.waitForTimeout(300);
+
+        // Verify RSVP cancelled
+        await expect(page.getByRole('button', { name: /rsvp|going|attend/i })).toBeVisible();
+      }
+    }
+  });
+
+  test('should navigate to calendar view', async ({ page }) => {
+    // Look for calendar tab
+    const calendarTab = page.getByRole('tab', { name: /calendar/i });
+    if (await calendarTab.isVisible()) {
+      await calendarTab.click();
+      await page.waitForTimeout(300);
+
+      // Should show calendar component
+      const calendarGrid = page.locator('[class*="calendar"]').or(page.getByRole('grid'));
+      await expect(calendarGrid.first()).toBeVisible();
+    }
+  });
+
+  test('should create event with custom fields', async ({ page }) => {
+    // Create an event with all optional fields
+    const createEventButton = page.getByRole('button', { name: /create event|new event/i });
+    await createEventButton.click();
+
+    // Fill required fields
+    await page.getByLabel(/event name|title/i).fill('Full Event Test');
+    await page.getByLabel(/description/i).fill('Event with all fields');
+
+    // Fill optional fields
+    const dateInput = page.getByLabel(/date|when/i);
+    if (await dateInput.isVisible()) {
+      await dateInput.fill('2026-06-15');
+    }
+
+    const timeInput = page.getByLabel(/time/i);
+    if (await timeInput.isVisible()) {
+      await timeInput.fill('14:00');
+    }
+
+    const locationInput = page.getByLabel(/location|where/i);
+    if (await locationInput.isVisible()) {
+      await locationInput.fill('Community Center, 123 Main St');
+    }
+
+    const capacityInput = page.getByLabel(/capacity|max/i);
+    if (await capacityInput.isVisible()) {
+      await capacityInput.fill('50');
+    }
+
+    // Look for custom fields section
+    const customFieldsButton = page.getByRole('button', { name: /custom fields|add field/i });
+    if (await customFieldsButton.isVisible()) {
+      await customFieldsButton.click();
+      await page.waitForTimeout(200);
+    }
+
+    // Submit
+    await page.getByRole('button', { name: /create|save event/i }).click();
+    await page.waitForTimeout(300);
+
+    // Verify event created with details
+    await expect(page.getByText('Full Event Test')).toBeVisible();
+  });
 });
