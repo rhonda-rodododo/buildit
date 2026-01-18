@@ -30,6 +30,8 @@ import {
   X,
   Clock,
   ChevronDown,
+  Link2,
+  Link2Off,
 } from 'lucide-react';
 import {
   Popover,
@@ -38,6 +40,11 @@ import {
 } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { EmojiPicker } from '@/components/media/EmojiPicker';
+import {
+  useLinkPreviewFromText,
+  LinkPreviewCard,
+  LinkPreviewSkeleton,
+} from '@/lib/linkPreview';
 
 interface PostComposerProps {
   placeholder?: string;
@@ -59,8 +66,22 @@ export const PostComposer: FC<PostComposerProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSchedulePicker, setShowSchedulePicker] = useState(false);
   const [scheduledDateTime, setScheduledDateTime] = useState('');
+  const [linkPreviewsEnabled, setLinkPreviewsEnabled] = useState(true);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Signal-style link preview generation
+  // Previews are fetched by sender and encrypted with the post
+  const {
+    loading: previewLoading,
+    previews,
+    removePreview,
+    clearPreviews,
+  } = useLinkPreviewFromText(content, {
+    autoGenerate: linkPreviewsEnabled,
+    debounceMs: 800,
+    maxPreviews: 3,
+  });
 
   // Get min datetime for scheduling (now + 5 minutes)
   const getMinDateTime = () => {
@@ -89,6 +110,8 @@ export const PostComposer: FC<PostComposerProps> = ({
         },
         hashtags,
         mentions,
+        // Include Signal-style link previews (encrypted with post)
+        linkPreviews: previews.length > 0 ? previews : undefined,
       };
 
       await createPost(input);
@@ -96,6 +119,7 @@ export const PostComposer: FC<PostComposerProps> = ({
       // Clear form
       setContent('');
       setPrivacy('group');
+      clearPreviews();
       onPostCreated?.();
 
       // Show success toast
@@ -134,6 +158,8 @@ export const PostComposer: FC<PostComposerProps> = ({
         },
         hashtags,
         mentions,
+        // Include Signal-style link previews (encrypted with post)
+        linkPreviews: previews.length > 0 ? previews : undefined,
       };
 
       await schedulePost(input, scheduledFor);
@@ -143,6 +169,7 @@ export const PostComposer: FC<PostComposerProps> = ({
       setPrivacy('group');
       setScheduledDateTime('');
       setShowSchedulePicker(false);
+      clearPreviews();
       onPostCreated?.();
 
       // Show success toast
@@ -246,6 +273,30 @@ export const PostComposer: FC<PostComposerProps> = ({
           </div>
         )}
 
+        {/* Link Previews (Signal-style encrypted) */}
+        {linkPreviewsEnabled && (previews.length > 0 || previewLoading) && (
+          <div className="space-y-2">
+            {previewLoading && previews.length === 0 && (
+              <LinkPreviewSkeleton compact />
+            )}
+            {previews.map((preview) => (
+              <LinkPreviewCard
+                key={preview.url}
+                preview={preview}
+                compact
+                showRemove
+                onRemove={() => removePreview(preview.url)}
+              />
+            ))}
+            {previews.length > 0 && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Shield className="w-3 h-3" />
+                Preview will be encrypted with your post
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t">
           {/* Media and attachment buttons - TODO: Implement functionality */}
@@ -337,6 +388,31 @@ export const PostComposer: FC<PostComposerProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Link Preview Toggle */}
+            <Button
+              variant={linkPreviewsEnabled ? 'ghost' : 'outline'}
+              size="sm"
+              className="h-9 px-3"
+              onClick={() => {
+                setLinkPreviewsEnabled(!linkPreviewsEnabled);
+                if (!linkPreviewsEnabled) {
+                  // Re-enable - previews will regenerate automatically
+                } else {
+                  // Disable - clear existing previews
+                  clearPreviews();
+                }
+              }}
+              disabled={isPosting}
+              aria-label={linkPreviewsEnabled ? 'Disable link previews' : 'Enable link previews'}
+              title={linkPreviewsEnabled ? 'Link previews enabled (encrypted)' : 'Link previews disabled'}
+            >
+              {linkPreviewsEnabled ? (
+                <Link2 className="w-4 h-4" />
+              ) : (
+                <Link2Off className="w-4 h-4" />
+              )}
+            </Button>
           </div>
 
           {/* Privacy selector and post button */}

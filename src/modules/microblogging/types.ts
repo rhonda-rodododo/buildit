@@ -4,6 +4,7 @@
  */
 
 import type { MediaAttachment } from '@/types/media';
+import type { LinkPreview } from '@/lib/linkPreview';
 
 /**
  * Privacy levels for posts
@@ -49,6 +50,11 @@ export interface Post {
   mentions: string[]; // npubs mentioned
   hashtags: string[];
   links: string[];
+
+  // Encrypted link previews (Signal-style)
+  // Sender fetches Open Graph metadata and thumbnails
+  // Preview data is encrypted with the post using NIP-17
+  linkPreviews?: LinkPreview[];
 
   // Timestamps
   createdAt: number; // Unix timestamp
@@ -204,6 +210,10 @@ export interface CreatePostInput {
   hashtags?: string[];
   contentWarning?: string;
   isSensitive?: boolean;
+
+  // Encrypted link previews (Signal-style)
+  // These are fetched by the sender and encrypted with the post
+  linkPreviews?: LinkPreview[];
 
   // For reposts/quotes
   repostedPostId?: string;

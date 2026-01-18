@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EmbedCard, isEmbeddableUrl } from '@/lib/embed';
+import { LinkPreviewCard } from '@/lib/linkPreview';
 import {
   Heart,
   MessageCircle,
@@ -289,11 +290,26 @@ export const PostCard: FC<PostCardProps> = ({
         </div>
       )}
 
-      {/* Embedded content (YouTube, Vimeo, Spotify, etc.) */}
-      {firstEmbeddableUrl && (
-        <div className="mb-3">
-          <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
+      {/* Link Previews (Signal-style encrypted) or Embedded Content */}
+      {/* For private posts: Use encrypted link previews (no third-party requests) */}
+      {/* For public posts: Can use EmbedCard iframes as fallback */}
+      {post.linkPreviews && post.linkPreviews.length > 0 ? (
+        <div className="mb-3 space-y-2">
+          {post.linkPreviews.map((preview) => (
+            <LinkPreviewCard
+              key={preview.url}
+              preview={preview}
+              compact={post.linkPreviews!.length > 1}
+            />
+          ))}
         </div>
+      ) : (
+        /* Fallback to EmbedCard for public posts or old posts without linkPreviews */
+        firstEmbeddableUrl && post.visibility.privacy === 'public' && (
+          <div className="mb-3">
+            <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
+          </div>
+        )
       )}
 
       {/* Engagement stats */}

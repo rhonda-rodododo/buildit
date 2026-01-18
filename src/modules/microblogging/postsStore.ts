@@ -145,6 +145,10 @@ export const usePostsStore = create<PostsState>()(
           mentions: input.mentions || [],
           hashtags: input.hashtags || [],
           links,
+          // Signal-style encrypted link previews
+          // Sender has already fetched Open Graph metadata and thumbnails
+          // These are stored encrypted with the post using NIP-17
+          linkPreviews: input.linkPreviews,
           createdAt: Date.now(),
           isRepost: !!input.repostedPostId,
           repostedPostId: input.repostedPostId,
