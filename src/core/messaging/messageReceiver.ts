@@ -20,6 +20,7 @@ import { useConversationsStore } from './conversationsStore';
 import type { GiftWrap } from '@/types/nostr';
 import type { ConversationMessage } from './conversationTypes';
 
+import { logger } from '@/lib/logger';
 // Track processed event IDs to avoid duplicates
 const processedEvents = new Set<string>();
 
@@ -39,7 +40,7 @@ class MessageReceiverService {
    */
   start(userPubkey: string): void {
     if (this.isRunning && this.userPubkey === userPubkey) {
-      console.info('Message receiver already running for user');
+      logger.info('Message receiver already running for user');
       return;
     }
 
@@ -47,7 +48,7 @@ class MessageReceiverService {
     this.userPubkey = userPubkey;
     this.isRunning = true;
 
-    console.info(`🔔 Starting message receiver for ${userPubkey.slice(0, 8)}...`);
+    logger.info(`🔔 Starting message receiver for ${userPubkey.slice(0, 8)}...`);
 
     const client = getNostrClient();
 
@@ -62,7 +63,7 @@ class MessageReceiverService {
       ],
       (event) => this.handleGiftWrap(event),
       () => {
-        console.info('✅ Initial message sync complete');
+        logger.info('✅ Initial message sync complete');
       }
     );
   }
@@ -78,7 +79,7 @@ class MessageReceiverService {
     }
     this.isRunning = false;
     this.userPubkey = null;
-    console.info('🔕 Message receiver stopped');
+    logger.info('🔕 Message receiver stopped');
   }
 
   /**
@@ -145,7 +146,7 @@ class MessageReceiverService {
         // NIP-17 DM
         await this.processPrivateMessage(unwrapped, giftWrap);
       } else {
-        console.info(`Received unknown rumor kind: ${unwrapped.rumor.kind}`);
+        logger.info(`Received unknown rumor kind: ${unwrapped.rumor.kind}`);
       }
     } catch (error) {
       console.error('Failed to process gift wrap:', error);
@@ -198,7 +199,7 @@ class MessageReceiverService {
     if (!conversation) {
       // Conversation doesn't exist locally, try to create it
       // This can happen when receiving a message in a new conversation
-      console.info(`Creating new conversation: ${conversationId}`);
+      logger.info(`Creating new conversation: ${conversationId}`);
 
       // For now, we'll skip creating conversations from incoming messages
       // The sender should have created the conversation first
@@ -221,7 +222,7 @@ class MessageReceiverService {
     // Check if message already exists
     const existingMessage = await db.conversationMessages.get(message.id);
     if (existingMessage) {
-      console.info('Message already exists, skipping');
+      logger.info('Message already exists, skipping');
       return;
     }
 
@@ -251,7 +252,7 @@ class MessageReceiverService {
         ),
       }));
 
-      console.info(`📨 Received message in conversation ${conversationId.slice(0, 8)}...`);
+      logger.info(`📨 Received message in conversation ${conversationId.slice(0, 8)}...`);
     } catch (error) {
       console.error('Failed to store incoming message:', error);
     }
@@ -270,7 +271,7 @@ class MessageReceiverService {
     const client = getNostrClient();
     const sinceTime = since || Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60; // Default: 30 days
 
-    console.info(`📥 Fetching message history since ${new Date(sinceTime * 1000).toISOString()}`);
+    logger.info(`📥 Fetching message history since ${new Date(sinceTime * 1000).toISOString()}`);
 
     const events = await client.query(
       [
@@ -293,7 +294,7 @@ class MessageReceiverService {
       }
     }
 
-    console.info(`✅ Processed ${processed} historical messages`);
+    logger.info(`✅ Processed ${processed} historical messages`);
     return processed;
   }
 

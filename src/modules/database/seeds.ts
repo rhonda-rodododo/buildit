@@ -7,6 +7,7 @@ import type { ModuleSeed } from '@/types/modules';
 import type { DBTable, DBView, DBRecord } from './schema';
 import { v4 as uuid } from 'uuid';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for database module
  */
@@ -290,7 +291,7 @@ export const databaseSeeds: ModuleSeed[] = [
 
       await db.databaseRecords?.bulkAdd(sampleRecords);
 
-      console.info(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
+      logger.info(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
     },
   },
 
@@ -503,7 +504,7 @@ export const databaseSeeds: ModuleSeed[] = [
 
       await db.databaseRecords?.bulkAdd(resources);
 
-      console.info(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
+      logger.info(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
     },
   },
 ];

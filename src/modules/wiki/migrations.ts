@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the wiki module
  */
@@ -13,7 +14,7 @@ export const wikiMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Initial wiki pages table',
     migrate: async (_db) => {
-      console.info('Wiki module v1: Initial schema created');
+      logger.info('Wiki module v1: Initial schema created');
     },
   },
 ];

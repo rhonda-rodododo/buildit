@@ -12,6 +12,7 @@ import { normalizeDependency } from '@/types/modules';
 import { db } from '@/core/storage/db';
 import { useAuthStore } from './authStore';
 
+import { logger } from '@/lib/logger';
 interface ModuleStore {
   // Registry
   registry: Map<string, ModuleRegistryEntry>;
@@ -107,7 +108,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           return { registry: newRegistry };
         });
 
-        console.info(`Module ${metadata.id} registered successfully`);
+        logger.info(`Module ${metadata.id} registered successfully`);
       },
 
       unregisterModule: async (moduleId: string) => {
@@ -138,7 +139,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           await get().disableModule(instance.groupId, moduleId);
         }
 
-        console.info(`Module ${moduleId} unregistered successfully`);
+        logger.info(`Module ${moduleId} unregistered successfully`);
       },
 
       enableModule: async (groupId: string, moduleId: string, config?: Record<string, unknown>) => {
@@ -263,7 +264,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
             updatedAt: Date.now(),
           });
 
-          console.info(`Module ${moduleId} enabled for group ${groupId}`);
+          logger.info(`Module ${moduleId} enabled for group ${groupId}`);
 
           // Call onDependencyEnabled for modules that have this as an optional dependency
           for (const [, regEntry] of get().registry) {
@@ -396,7 +397,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         // Remove from database
         await db.moduleInstances.delete(key);
 
-        console.info(`Module ${moduleId} disabled for group ${groupId}`);
+        logger.info(`Module ${moduleId} disabled for group ${groupId}`);
       },
 
       updateModuleConfig: async (
@@ -443,7 +444,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           updatedAt: Date.now(),
         });
 
-        console.info(`Module ${moduleId} config updated for group ${groupId}`);
+        logger.info(`Module ${moduleId} config updated for group ${groupId}`);
       },
 
       getModuleInstance: (groupId: string, moduleId: string) => {
@@ -471,7 +472,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
       },
 
       loadModuleInstances: async () => {
-        console.info('📥 Loading module instances from database...');
+        logger.info('📥 Loading module instances from database...');
         const instances = await db.moduleInstances.toArray();
         const instanceMap = new Map<string, ModuleInstance>();
 
@@ -489,7 +490,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         }
 
         set({ instances: instanceMap });
-        console.info(`✅ Loaded ${instances.length} module instances from database`);
+        logger.info(`✅ Loaded ${instances.length} module instances from database`);
       },
 
       // Dependency Discovery API Implementation

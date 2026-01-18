@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the mutual aid module
  */
@@ -13,7 +14,7 @@ export const mutualAidMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Initial mutual aid requests table',
     migrate: async (_db) => {
-      console.info('Mutual Aid module v1: Initial schema created');
+      logger.info('Mutual Aid module v1: Initial schema created');
     },
   },
 ];

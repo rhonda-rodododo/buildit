@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the events module
  * Each migration upgrades from one version to the next
@@ -15,7 +16,7 @@ export const eventsMigrations: ModuleMigration[] = [
     description: 'Initial events and RSVPs tables',
     migrate: async (_db) => {
       // No migration needed for v1 (initial schema)
-      console.info('Events module v1: Initial schema created');
+      logger.info('Events module v1: Initial schema created');
     },
   },
   // Future migrations go here

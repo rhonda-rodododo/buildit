@@ -4,6 +4,7 @@ import { db } from '@/core/storage/db'
 import { Event, RSVP, EVENT_KINDS, EventSchema, RSVPSchema, CreateEventFormData, RSVPStatus } from './types'
 import type { Event as NostrEvent } from 'nostr-tools'
 
+import { logger } from '@/lib/logger';
 /**
  * Event Manager - Handles event creation, updates, and RSVP management
  */
@@ -330,7 +331,7 @@ export class EventManager {
         },
         () => {
           // EOSE (End of Stored Events) - all historical events received
-          console.info(`Synced ${receivedCount} events from relays`)
+          logger.info(`Synced ${receivedCount} events from relays`)
           this.nostrClient.unsubscribe(subId)
           resolve()
         }
@@ -339,7 +340,7 @@ export class EventManager {
       // Timeout after 10 seconds in case EOSE never arrives
       setTimeout(() => {
         this.nostrClient.unsubscribe(subId)
-        console.info(`Sync timeout after ${receivedCount} events`)
+        logger.info(`Sync timeout after ${receivedCount} events`)
         resolve()
       }, 10000)
     })

@@ -30,6 +30,7 @@ import { usePublicStore } from '@/modules/public/publicStore';
 import { useFundraisingStore } from '@/modules/fundraising/fundraisingStore';
 import { usePostsStore } from '@/modules/microblogging/postsStore';
 
+import { logger } from '@/lib/logger';
 /**
  * Store Initializer Service
  * Manages the lifecycle of Zustand stores based on app lock/unlock state
@@ -58,7 +59,7 @@ class StoreInitializerService {
       return;
     }
 
-    console.info('🔧 Initializing StoreInitializer...');
+    logger.info('🔧 Initializing StoreInitializer...');
 
     // Subscribe to SecureKeyManager events
     this.unsubscribe = secureKeyManager.addEventListener(
@@ -66,7 +67,7 @@ class StoreInitializerService {
     );
 
     this.isInitialized = true;
-    console.info('✅ StoreInitializer ready');
+    logger.info('✅ StoreInitializer ready');
   }
 
   /**
@@ -75,19 +76,19 @@ class StoreInitializerService {
   private handleSecurityEvent(event: SecureKeyManagerEvent): void {
     switch (event.type) {
       case 'unlocked':
-        console.info('🔓 App unlocked - loading stores from Dexie...');
+        logger.info('🔓 App unlocked - loading stores from Dexie...');
         this.loadAllStores(event.publicKey).catch((error) => {
           console.error('Failed to load stores:', error);
         });
         break;
 
       case 'locked':
-        console.info('🔒 App locked - clearing all stores...');
+        logger.info('🔒 App locked - clearing all stores...');
         this.clearAllStores();
         break;
 
       case 'lock-timeout-warning':
-        console.info(`⏰ Lock timeout warning: ${event.secondsRemaining}s remaining`);
+        logger.info(`⏰ Lock timeout warning: ${event.secondsRemaining}s remaining`);
         break;
     }
   }
@@ -117,7 +118,7 @@ class StoreInitializerService {
         this.loadPostsStore(db, userPubkey),
       ]);
 
-      console.info('✅ All stores loaded from Dexie');
+      logger.info('✅ All stores loaded from Dexie');
     } catch (error) {
       console.error('Error loading stores:', error);
       throw error;
@@ -158,7 +159,7 @@ class StoreInitializerService {
         error: null,
       });
 
-      console.info(`📦 Loaded ${groups.length} groups`);
+      logger.info(`📦 Loaded ${groups.length} groups`);
     } catch (error) {
       console.error('Failed to load groups:', error);
     }
@@ -194,7 +195,7 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      console.info(`📦 Loaded ${friends.length} friends`);
+      logger.info(`📦 Loaded ${friends.length} friends`);
     } catch (error) {
       console.error('Failed to load friends:', error);
     }
@@ -227,7 +228,7 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      console.info(`📦 Loaded ${conversations.length} conversations`);
+      logger.info(`📦 Loaded ${conversations.length} conversations`);
     } catch (error) {
       console.error('Failed to load conversations:', error);
     }
@@ -280,7 +281,7 @@ class StoreInitializerService {
         activeEventId: null,
       });
 
-      console.info(`📦 Loaded ${events.length} events`);
+      logger.info(`📦 Loaded ${events.length} events`);
     } catch (error) {
       console.error('Failed to load events:', error);
     }
@@ -299,7 +300,7 @@ class StoreInitializerService {
         activeAidItemId: null,
       });
 
-      console.info(`📦 Loaded ${aidItems.length} mutual aid items`);
+      logger.info(`📦 Loaded ${aidItems.length} mutual aid items`);
     } catch (error) {
       console.error('Failed to load mutual aid:', error);
     }
@@ -392,7 +393,7 @@ class StoreInitializerService {
         hasMorePosts: posts.length === 50,
       });
 
-      console.info(`📦 Loaded ${posts.length} posts`);
+      logger.info(`📦 Loaded ${posts.length} posts`);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
@@ -476,7 +477,7 @@ class StoreInitializerService {
     // Clear posts store
     usePostsStore.getState().clearCache();
 
-    console.info('✅ All stores cleared');
+    logger.info('✅ All stores cleared');
   }
 
   /**

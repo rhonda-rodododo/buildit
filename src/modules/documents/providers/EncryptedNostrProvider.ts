@@ -26,6 +26,7 @@ import type { NostrClient } from '@/core/nostr/client'
 import type { GiftWrap } from '@/types/nostr'
 import type { Event as NostrEvent } from 'nostr-tools'
 
+import { logger } from '@/lib/logger';
 // Custom event kind for CRDT sync (following nostr-crdt pattern)
 const CRDT_SYNC_KIND = 9001
 const CRDT_ROOM_KIND = 9000
@@ -316,7 +317,7 @@ export class EncryptedNostrProvider extends Observable<string> {
    * Handle EOSE (End of Stored Events)
    */
   private _handleEOSE(): void {
-    console.info('Initial sync complete (EOSE)')
+    logger.info('Initial sync complete (EOSE)')
 
     // If we haven't synced yet, mark as synced
     if (!this._synced) {

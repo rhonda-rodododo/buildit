@@ -3,10 +3,62 @@ import type { Table } from 'dexie'
 import { db, type DBGroup, type DBGroupMember, type DBGroupInvitation } from '@/core/storage/db'
 import { generateSecretKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
+import { secureRandomString } from '@/lib/utils'
 import { createGroup as createNostrGroup } from '@/core/groups/groupManager'
 import { getNostrClient } from '@/core/nostr/client'
 import type { GroupCreationParams } from '@/types/group'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { useAuthStore } from '@/stores/authStore'
+
+import { logger } from '@/lib/logger';
+/**
+ * SECURITY: Authorization helper to check if user has required role
+ */
+async function checkGroupAuthorization(
+  groupId: string,
+  requiredRole: 'admin' | 'moderator' | 'member'
+): Promise<{ authorized: boolean; currentRole: DBGroupMember['role'] | null }> {
+  const currentIdentity = useAuthStore.getState().currentIdentity
+  if (!currentIdentity) {
+    return { authorized: false, currentRole: null }
+  }
+
+  const membership = await db.groupMembers
+    .where(['groupId', 'pubkey'])
+    .equals([groupId, currentIdentity.publicKey])
+    .first()
+
+  if (!membership) {
+    return { authorized: false, currentRole: null }
+  }
+
+  // Role hierarchy: admin > moderator > member > read-only
+  const roleHierarchy: Record<DBGroupMember['role'], number> = {
+    admin: 3,
+    moderator: 2,
+    member: 1,
+    'read-only': 0,
+  }
+
+  const userLevel = roleHierarchy[membership.role] || 0
+  const requiredLevel = roleHierarchy[requiredRole] || 0
+
+  return {
+    authorized: userLevel >= requiredLevel,
+    currentRole: membership.role,
+  }
+}
+
+/**
+ * SECURITY: Get current user's pubkey (throws if not authenticated)
+ */
+function getCurrentUserPubkey(): string {
+  const currentIdentity = useAuthStore.getState().currentIdentity
+  if (!currentIdentity) {
+    throw new Error('Not authenticated')
+  }
+  return currentIdentity.publicKey
+}
 
 interface GroupsState {
   activeGroup: DBGroup | null
@@ -169,6 +221,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         set({ isLoading: true, error: null })
 
         try {
+          // SECURITY: Check if user has admin permission
+          const { authorized, currentRole } = await checkGroupAuthorization(groupId, 'admin')
+          if (!authorized) {
+            throw new Error(`Unauthorized: only admins can update group settings (your role: ${currentRole || 'not a member'})`)
+          }
+
           await db.groups.update(groupId, updates)
 
           const updatedGroups = get().groups.map(g =>
@@ -188,6 +246,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to update group'
           set({ error: errorMsg, isLoading: false })
+          throw error
         }
       },
 
@@ -195,6 +254,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         set({ isLoading: true, error: null })
 
         try {
+          // SECURITY: Check if user has admin permission
+          const { authorized, currentRole } = await checkGroupAuthorization(groupId, 'admin')
+          if (!authorized) {
+            throw new Error(`Unauthorized: only admins can delete groups (your role: ${currentRole || 'not a member'})`)
+          }
+
           // Build list of tables to delete from
           // Core tables that always exist
           const coreTables = [
@@ -247,7 +312,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
               }
             } catch (error) {
               // Table might not exist or not have groupId index - skip silently
-              console.info(`Skipping cleanup of ${name} table (may not exist or have groupId index)`)
+              logger.info(`Skipping cleanup of ${name} table (may not exist or have groupId index)`)
             }
           }
 
@@ -260,7 +325,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
             isLoading: false,
           })
 
-          console.info(`Group ${groupId} and all related data deleted`)
+          logger.info(`Group ${groupId} and all related data deleted`)
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to delete group'
           set({ error: errorMsg, isLoading: false })
@@ -270,6 +335,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
 
       toggleModule: async (groupId, module) => {
         try {
+          // SECURITY: Check if user has admin permission
+          const { authorized, currentRole } = await checkGroupAuthorization(groupId, 'admin')
+          if (!authorized) {
+            throw new Error(`Unauthorized: only admins can toggle modules (your role: ${currentRole || 'not a member'})`)
+          }
+
           const group = get().groups.find(g => g.id === groupId)
           if (!group) throw new Error('Group not found')
 
@@ -299,13 +370,29 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       createInvitation: async (groupId, inviterPubkey, options) => {
         const { inviteePubkey, role = 'member', message, expiresInHours = 168 } = options // Default 7 days
 
+        // SECURITY: Check if inviter has appropriate permission
+        // Admins can invite with any role, moderators can only invite members
+        const requiredRole = (role === 'admin' || role === 'moderator') ? 'admin' : 'moderator'
+        const { authorized, currentRole } = await checkGroupAuthorization(groupId, requiredRole)
+        if (!authorized) {
+          throw new Error(
+            `Unauthorized: ${requiredRole}s or higher can create ${role} invitations (your role: ${currentRole || 'not a member'})`
+          )
+        }
+
+        // SECURITY: Verify inviterPubkey matches current user
+        const currentPubkey = getCurrentUserPubkey()
+        if (inviterPubkey !== currentPubkey) {
+          throw new Error('Unauthorized: cannot create invitations on behalf of another user')
+        }
+
         // Generate unique invite code for link invites
         const code = !inviteePubkey
           ? bytesToHex(generateSecretKey()).slice(0, 16)
           : undefined
 
         const invitation: DBGroupInvitation = {
-          id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
+          id: `inv_${Date.now()}_${secureRandomString(9)}`,
           groupId,
           inviterPubkey,
           inviteePubkey,
@@ -414,6 +501,19 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
 
       // Member management
       updateMemberRole: async (groupId, memberPubkey, newRole) => {
+        // SECURITY: Check if user has admin permission
+        const { authorized, currentRole } = await checkGroupAuthorization(groupId, 'admin')
+        if (!authorized) {
+          throw new Error(`Unauthorized: only admins can change member roles (your role: ${currentRole || 'not a member'})`)
+        }
+
+        // SECURITY: Prevent admins from demoting themselves if they're the last admin
+        const currentGroup = get().groups.find(g => g.id === groupId)
+        const currentPubkey = getCurrentUserPubkey()
+        if (currentGroup && memberPubkey === currentPubkey && newRole !== 'admin' && currentGroup.adminPubkeys.length === 1) {
+          throw new Error('Cannot demote yourself: you are the last admin. Promote another admin first.')
+        }
+
         const members = get().groupMembers.get(groupId) || []
         const member = members.find(m => m.pubkey === memberPubkey)
         if (!member || !member.id) throw new Error('Member not found')
@@ -421,15 +521,15 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         await db.groupMembers.update(member.id, { role: newRole })
 
         // Update adminPubkeys in group if role changed to/from admin
-        const group = get().groups.find(g => g.id === groupId)
-        if (group) {
-          let adminPubkeys = [...group.adminPubkeys]
+        const groupToUpdate = get().groups.find(g => g.id === groupId)
+        if (groupToUpdate) {
+          let adminPubkeys = [...groupToUpdate.adminPubkeys]
           if (newRole === 'admin' && !adminPubkeys.includes(memberPubkey)) {
             adminPubkeys.push(memberPubkey)
           } else if (newRole !== 'admin' && adminPubkeys.includes(memberPubkey)) {
             adminPubkeys = adminPubkeys.filter(pk => pk !== memberPubkey)
           }
-          if (adminPubkeys.length !== group.adminPubkeys.length) {
+          if (adminPubkeys.length !== groupToUpdate.adminPubkeys.length) {
             await get().updateGroup(groupId, { adminPubkeys })
           }
         }
@@ -439,6 +539,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       },
 
       removeMember: async (groupId, memberPubkey) => {
+        // SECURITY: Check if user has admin permission
+        const { authorized, currentRole } = await checkGroupAuthorization(groupId, 'admin')
+        if (!authorized) {
+          throw new Error(`Unauthorized: only admins can remove members (your role: ${currentRole || 'not a member'})`)
+        }
+
         const members = get().groupMembers.get(groupId) || []
         const member = members.find(m => m.pubkey === memberPubkey)
         if (!member || !member.id) throw new Error('Member not found')
@@ -447,6 +553,12 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         const group = get().groups.find(g => g.id === groupId)
         if (group && group.adminPubkeys.includes(memberPubkey) && group.adminPubkeys.length === 1) {
           throw new Error('Cannot remove the last admin. Transfer admin role first.')
+        }
+
+        // SECURITY: Prevent admins from removing themselves (they should leave the group instead)
+        const currentPubkey = getCurrentUserPubkey()
+        if (memberPubkey === currentPubkey) {
+          throw new Error('Cannot remove yourself. Use "Leave Group" instead.')
         }
 
         await db.groupMembers.delete(member.id)

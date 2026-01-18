@@ -134,7 +134,7 @@ export const eventsModule: ModulePlugin = {
       version: 1,
       description: 'Initial events schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Events migration v1: Initial schema');
+        logger.info('Events migration v1: Initial schema');
       },
     },
   ],

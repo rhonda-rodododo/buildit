@@ -8,6 +8,7 @@ import type { BuildItDB } from '@/core/storage/db';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { PublicPage } from './types';
 
+import { logger } from '@/lib/logger';
 /**
  * Public Landing Page Seed
  */
@@ -73,7 +74,7 @@ We are a grassroots union organizing workers across industries. Join us in the f
     };
 
     await db.publicPages?.add(page);
-    console.info('✅ Created public landing page seed');
+    logger.info('✅ Created public landing page seed');
   },
 };
 
@@ -126,7 +127,7 @@ Want to join the movement? [Contact us](/contact) or [sign up to volunteer](/vol
     };
 
     await db.publicPages?.add(page);
-    console.info('✅ Created about page seed');
+    logger.info('✅ Created about page seed');
   },
 };
 

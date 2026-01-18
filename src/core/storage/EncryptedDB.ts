@@ -18,6 +18,7 @@ import { encryptNIP44, decryptNIP44 } from '@/core/crypto/nip44';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
 import * as nip44 from 'nostr-tools/nip44';
 
+import { logger } from '@/lib/logger';
 // Version marker for local encrypted data
 const LOCAL_ENCRYPTION_VERSION = 'local:1:';
 // Legacy NIP-44 marker (direct private key encryption)
@@ -82,19 +83,39 @@ export const ENCRYPTED_FIELDS: Record<string, string[]> = {
 // Cached local encryption key (cleared on lock)
 let localEncryptionKey: Uint8Array | null = null;
 
-// Test mode - bypasses encryption for tests
+/**
+ * Test mode - ONLY available during actual test runs
+ *
+ * SECURITY: This uses Vite's build-time define feature (import.meta.env.MODE)
+ * which is replaced at build time. In production builds, the test mode code
+ * is completely eliminated by the bundler's dead code elimination.
+ *
+ * - Production: import.meta.env.MODE === 'production' -> test mode code removed
+ * - Test: import.meta.env.MODE === 'test' -> test mode available
+ *
+ * This prevents any runtime manipulation of test mode in production.
+ */
+
+// Build-time constant - Vite replaces this at compile time
+const IS_TEST_BUILD = import.meta.env.MODE === 'test';
+
+// Runtime flag - can only be set if build allows it
 let testModeEnabled = false;
 
 /**
  * Enable test mode (bypasses encryption)
- * Only use this in test environments!
+ * SECURITY: Only available in test builds (checked at build time)
  */
 export function enableTestMode(): void {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+  // Build-time check - this entire branch is removed in production builds
+  if (IS_TEST_BUILD) {
     testModeEnabled = true;
-    console.info('⚠️  Test mode enabled - encryption bypassed');
+    logger.info('⚠️  Test mode enabled - encryption bypassed');
   } else {
-    console.warn('⚠️  Test mode requested but not in test environment');
+    // This warning should never appear in production since the function
+    // should not be called (and the check above is false)
+    console.error('🚨 SECURITY: Test mode requested in production build - REJECTED');
+    throw new Error('Test mode is not available in production builds');
   }
 }
 
@@ -107,9 +128,12 @@ export function disableTestMode(): void {
 
 /**
  * Check if test mode is enabled
+ * SECURITY: Always returns false in production builds (dead code elimination)
  */
 export function isTestMode(): boolean {
-  return testModeEnabled;
+  // In production builds, IS_TEST_BUILD is false, so this always returns false
+  // The bundler's dead code elimination will optimize this
+  return IS_TEST_BUILD && testModeEnabled;
 }
 
 /**
@@ -366,8 +390,9 @@ export function encryptObject<T extends Record<string, unknown>>(
   tableName: string,
   groupId?: string
 ): T {
-  // Skip encryption in test mode
-  if (testModeEnabled) {
+  // SECURITY: isTestMode() uses build-time check + runtime flag
+  // In production, this condition is always false (dead code eliminated)
+  if (isTestMode()) {
     return obj;
   }
 
@@ -418,8 +443,9 @@ export function decryptObject<T extends Record<string, unknown>>(
   tableName: string,
   groupId?: string
 ): T {
-  // Skip decryption in test mode
-  if (testModeEnabled) {
+  // SECURITY: isTestMode() uses build-time check + runtime flag
+  // In production, this condition is always false (dead code eliminated)
+  if (isTestMode()) {
     return obj;
   }
 
@@ -492,8 +518,9 @@ export function setupLocalEncryptionHooks(db: any): void {
       obj: Record<string, unknown> | null,
       _trans: unknown
     ) => {
-      // Skip encryption in test mode
-      if (testModeEnabled) {
+      // SECURITY: isTestMode() uses build-time check + runtime flag
+      // In production, this condition is always false (dead code eliminated)
+      if (isTestMode()) {
         return modifications;
       }
 
@@ -544,7 +571,7 @@ export function setupLocalEncryptionHooks(db: any): void {
     });
   }
 
-  console.info(`🔐 Local encryption hooks enabled for ${tablesToEncrypt.length} tables`);
+  logger.info(`🔐 Local encryption hooks enabled for ${tablesToEncrypt.length} tables`);
 }
 
 /**
@@ -608,7 +635,7 @@ export async function migrateToLocalEncryption(db: any): Promise<{ migrated: num
     }
   }
 
-  console.info(`🔄 Migration complete: ${migrated} records migrated, ${failed} failed`);
+  logger.info(`🔄 Migration complete: ${migrated} records migrated, ${failed} failed`);
   return { migrated, failed };
 }
 

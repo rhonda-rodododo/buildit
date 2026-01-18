@@ -7,6 +7,7 @@
 
 import { useAuthStore } from '@/stores/authStore'
 
+import { logger } from '@/lib/logger';
 interface SessionConfig {
   inactivityTimeoutMs: number // Time before auto-lock
   warningTimeMs: number // Show warning before lock
@@ -51,7 +52,7 @@ class SessionManager {
     // Listen for visibility change (tab switching)
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
 
-    console.info('🔒 Session timeout monitoring initialized', {
+    logger.info('🔒 Session timeout monitoring initialized', {
       timeout: `${this.config.inactivityTimeoutMs / 60000} minutes`,
       warning: `${this.config.warningTimeMs / 60000} minutes`,
     })
@@ -71,7 +72,7 @@ class SessionManager {
     // Stop monitoring
     this.stopMonitoring()
 
-    console.info('🔒 Session timeout monitoring destroyed')
+    logger.info('🔒 Session timeout monitoring destroyed')
   }
 
   /**
@@ -159,7 +160,7 @@ class SessionManager {
 
     if (!currentIdentity) return
 
-    console.info('🔒 Session locked due to inactivity')
+    logger.info('🔒 Session locked due to inactivity')
 
     // Clear sensitive data from memory
     logout()

@@ -5,11 +5,14 @@
 
 import type { ModuleSeed } from '@/types/modules';
 import type { DBProposal } from './schema';
+import { mediaCollectiveGovernanceSeeds } from './templates/mediaCollectiveSeeds';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for governance module
  */
 export const governanceSeeds: ModuleSeed[] = [
+  ...mediaCollectiveGovernanceSeeds,
   {
     name: 'comprehensive-proposals',
     description: 'Example proposals demonstrating all voting methods and statuses',
@@ -250,7 +253,7 @@ Select 5 delegates to represent us in the Housing Justice Coalition using D'Hond
       ];
 
       await db.proposals?.bulkAdd(exampleProposals);
-      console.info(`Seeded ${exampleProposals.length} proposals demonstrating all voting methods for group ${groupId}`);
+      logger.info(`Seeded ${exampleProposals.length} proposals demonstrating all voting methods for group ${groupId}`);
     },
   },
 ];

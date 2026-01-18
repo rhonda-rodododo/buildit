@@ -6,6 +6,7 @@
 import type { ModuleSeed } from '@/types/modules';
 import type { DBMutualAidRequest } from './schema';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for mutual aid module
  */
@@ -234,7 +235,7 @@ export const mutualAidSeeds: ModuleSeed[] = [
       ];
 
       await db.mutualAidRequests?.bulkAdd(exampleRequests);
-      console.info(`Seeded ${exampleRequests.length} mutual aid items for group ${groupId}`);
+      logger.info(`Seeded ${exampleRequests.length} mutual aid items for group ${groupId}`);
     },
   },
 ];

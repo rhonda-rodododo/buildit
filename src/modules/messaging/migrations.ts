@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the messaging module
  */
@@ -13,7 +14,7 @@ export const messagingMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Messaging module initial setup (no tables yet)',
     migrate: async (_db) => {
-      console.info('Messaging module v1: Module initialized (uses core messages table)');
+      logger.info('Messaging module v1: Module initialized (uses core messages table)');
     },
   },
 ];

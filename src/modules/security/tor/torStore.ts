@@ -4,6 +4,7 @@
  */
 
 import { create } from 'zustand';
+import { logger } from '@/lib/logger';
 import {
   TorStatus,
   TorConnectionMethod,
@@ -88,7 +89,7 @@ export const useTorStore = create<TorStore>()(
       lastDetection: null,
 
       initialize: async () => {
-        console.info('[Tor] Initializing Tor detection...');
+        logger.info('[Tor] Initializing Tor detection...');
         set({ status: TorStatus.DETECTING });
 
         try {
@@ -96,7 +97,7 @@ export const useTorStore = create<TorStore>()(
           const isTorBrowser = detectTorBrowser();
           const canAccessOnion = await canAccessOnionServices();
 
-          console.info('[Tor] Detection:', { isTorBrowser, canAccessOnion });
+          logger.info('[Tor] Detection:', { isTorBrowser, canAccessOnion });
 
           if (isTorBrowser && canAccessOnion) {
             // Auto-enable Tor if Tor Browser detected
@@ -109,7 +110,7 @@ export const useTorStore = create<TorStore>()(
               status: TorStatus.ENABLED,
               lastDetection: Date.now(),
             }));
-            console.info('[Tor] Tor Browser detected - auto-enabled');
+            logger.info('[Tor] Tor Browser detected - auto-enabled');
           } else {
             // Not in Tor Browser - remain disabled
             set({
@@ -144,7 +145,7 @@ export const useTorStore = create<TorStore>()(
       enable: async () => {
         const state = get();
 
-        console.info('[Tor] Enabling Tor routing...');
+        logger.info('[Tor] Enabling Tor routing...');
         set({ status: TorStatus.CONNECTING });
 
         try {
@@ -167,7 +168,7 @@ export const useTorStore = create<TorStore>()(
             status: TorStatus.CONNECTED,
           }));
 
-          console.info('[Tor] Tor routing enabled');
+          logger.info('[Tor] Tor routing enabled');
 
           // Start health checks
           get().healthCheckRelays();
@@ -185,7 +186,7 @@ export const useTorStore = create<TorStore>()(
       },
 
       disable: () => {
-        console.info('[Tor] Disabling Tor routing...');
+        logger.info('[Tor] Disabling Tor routing...');
         set((state) => ({
           config: {
             ...state.config,
@@ -224,7 +225,7 @@ export const useTorStore = create<TorStore>()(
       },
 
       healthCheckRelays: async () => {
-        console.info('[Tor] Starting relay health checks...');
+        logger.info('[Tor] Starting relay health checks...');
 
         const relays = get().onionRelays;
         const healthChecks = relays.map(async (relay) => {
@@ -285,7 +286,7 @@ export const useTorStore = create<TorStore>()(
           },
         }));
 
-        console.info('[Tor] Health checks complete:', { healthyCount, avgLatency });
+        logger.info('[Tor] Health checks complete:', { healthyCount, avgLatency });
       },
 
       getActiveRelays: () => {

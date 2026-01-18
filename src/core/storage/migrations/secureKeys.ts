@@ -13,6 +13,7 @@ import { db, type DBIdentity } from '@/core/storage/db';
 import { hexToBytes } from '@noble/hashes/utils';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
 
+import { logger } from '@/lib/logger';
 /**
  * Check if an identity needs migration
  * Old format: no salt field, encryptedPrivateKey is hex (64 chars)
@@ -99,7 +100,7 @@ export async function migrateIdentity(publicKey: string, password: string): Prom
   // Zero-fill the private key in memory
   privateKey.fill(0);
 
-  console.info(`✅ Migrated identity ${publicKey.slice(0, 8)}... to secure storage`);
+  logger.info(`✅ Migrated identity ${publicKey.slice(0, 8)}... to secure storage`);
 }
 
 /**

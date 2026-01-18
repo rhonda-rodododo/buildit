@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the files module
  */
@@ -13,7 +14,7 @@ export const filesMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Files module placeholder',
     migrate: async (_db) => {
-      console.info('Files module v1: Placeholder (implementation pending)');
+      logger.info('Files module v1: Placeholder (implementation pending)');
     },
   },
 ];

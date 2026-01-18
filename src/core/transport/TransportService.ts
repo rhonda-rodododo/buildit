@@ -18,7 +18,7 @@
  *
  * // Subscribe to incoming messages from any transport
  * transport.onMessage((message) => {
- *   console.info('Received:', message);
+ *   logger.info('Received:', message);
  * });
  * ```
  */
@@ -37,6 +37,7 @@ import {
 } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
+import { logger } from '@/lib/logger';
 /**
  * Transport service configuration
  */
@@ -114,13 +115,13 @@ export class TransportService {
       return;
     }
 
-    console.info('[TransportService] Initializing transports...');
-    console.info('[TransportService] Priority: BLE Mesh (PRIMARY) → Nostr Relays (SECONDARY)');
+    logger.info('[TransportService] Initializing transports...');
+    logger.info('[TransportService] Priority: BLE Mesh (PRIMARY) → Nostr Relays (SECONDARY)');
 
     await this.router.initialize();
     this.initialized = true;
 
-    console.info('[TransportService] Transports initialized');
+    logger.info('[TransportService] Transports initialized');
   }
 
   /**
@@ -131,19 +132,19 @@ export class TransportService {
       throw new Error('TransportService not initialized');
     }
 
-    console.info('[TransportService] Connecting to mesh network and relays...');
+    logger.info('[TransportService] Connecting to mesh network and relays...');
     await this.router.connect();
-    console.info('[TransportService] Connected');
+    logger.info('[TransportService] Connected');
   }
 
   /**
    * Disconnect all transports
    */
   async disconnect(): Promise<void> {
-    console.info('[TransportService] Disconnecting...');
+    logger.info('[TransportService] Disconnecting...');
     await this.router.disconnect();
     this.initialized = false;
-    console.info('[TransportService] Disconnected');
+    logger.info('[TransportService] Disconnected');
   }
 
   /**

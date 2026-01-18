@@ -6,6 +6,7 @@
 import type { ModuleSeed } from '@/types/modules';
 import type { DBContact } from './schema';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for CRM module
  */
@@ -49,7 +50,7 @@ export const crmSeeds: ModuleSeed[] = [
       ];
 
       await db.contacts.bulkAdd(exampleContacts);
-      console.info(`Seeded ${exampleContacts.length} example contacts for group ${groupId}`);
+      logger.info(`Seeded ${exampleContacts.length} example contacts for group ${groupId}`);
     },
   },
 ];

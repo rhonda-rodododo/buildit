@@ -8,6 +8,7 @@ import type { BuildItDB } from '@/core/storage/db';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Form } from './types';
 
+import { logger } from '@/lib/logger';
 /**
  * Event Registration Form Seed
  * Creates a sample form for event registration using an events table
@@ -113,7 +114,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
     };
 
     await db.forms?.add(form);
-    console.info('✅ Created event registration form seed');
+    logger.info('✅ Created event registration form seed');
   },
 };
 
@@ -231,7 +232,7 @@ export const volunteerSignupFormSeed: ModuleSeed = {
     };
 
     await db.forms?.add(form);
-    console.info('✅ Created volunteer signup form seed');
+    logger.info('✅ Created volunteer signup form seed');
   },
 };
 

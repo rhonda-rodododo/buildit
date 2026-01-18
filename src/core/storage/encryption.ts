@@ -11,6 +11,7 @@
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from '@/core/crypto/nip44';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
 
+import { logger } from '@/lib/logger';
 // Marker prefix for encrypted data (helps identify unencrypted legacy data)
 const ENCRYPTED_MARKER = 'enc:1:';
 
@@ -296,5 +297,5 @@ export function setupEncryptionHooks(db: any): void {
     });
   }
 
-  console.info(`🔐 Encryption hooks enabled for ${tablesToEncrypt.length} tables`);
+  logger.info(`🔐 Encryption hooks enabled for ${tablesToEncrypt.length} tables`);
 }

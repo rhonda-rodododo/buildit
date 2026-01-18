@@ -6,6 +6,7 @@
 import type { ModuleSeed } from '@/types/modules';
 import type { DBEvent, DBRSVP } from './schema';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for events module
  * Can be used for demos, testing, or providing templates
@@ -191,7 +192,7 @@ export const eventsSeeds: ModuleSeed[] = [
       // Insert seed data
       await db.events?.bulkAdd(exampleEvents);
       await db.rsvps?.bulkAdd(exampleRSVPs);
-      console.info(`Seeded ${exampleEvents.length} events and ${exampleRSVPs.length} RSVPs for group ${groupId}`);
+      logger.info(`Seeded ${exampleEvents.length} events and ${exampleRSVPs.length} RSVPs for group ${groupId}`);
     },
   },
 ];

@@ -6,6 +6,7 @@
 import type { ModuleSeed } from '@/types/modules';
 import type { DBWikiPage } from './schema';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for wiki module
  */
@@ -534,7 +535,7 @@ You have the right to remain silent and you should use it! 🤐`,
       ];
 
       await db.wikiPages?.bulkAdd(examplePages);
-      console.info(`Seeded ${examplePages.length} comprehensive wiki pages for group ${groupId}`);
+      logger.info(`Seeded ${examplePages.length} comprehensive wiki pages for group ${groupId}`);
     },
   },
 ];

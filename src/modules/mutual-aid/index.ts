@@ -148,7 +148,7 @@ export const mutualAidModule: ModulePlugin = {
       version: 1,
       description: 'Initial mutual aid schema',
       migrate: async (_db: BuildItDB) => {
-        console.info('Mutual Aid migration v1: Initial schema');
+        logger.info('Mutual Aid migration v1: Initial schema');
       },
     },
   ],

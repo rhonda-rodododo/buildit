@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 /**
  * Transport Router
  *
@@ -136,7 +138,7 @@ export class TransportRouter {
         message.status = DeliveryStatus.SENT;
         await adapter.sendMessage(message);
 
-        console.info(`[TransportRouter] Message sent via ${transportType}`);
+        logger.info(`[TransportRouter] Message sent via ${transportType}`);
         return;
       } catch (error) {
         console.error(`[TransportRouter] Failed to send via ${transportType}:`, error);
@@ -152,7 +154,7 @@ export class TransportRouter {
     if (this.config.storeAndForward) {
       message.status = DeliveryStatus.PENDING;
       this.messageQueue.push(message);
-      console.info('[TransportRouter] Message queued for later delivery');
+      logger.info('[TransportRouter] Message queued for later delivery');
 
       // Clean up old queued messages
       this.cleanMessageQueue();
@@ -243,7 +245,7 @@ export class TransportRouter {
    * Handle transport status change
    */
   private handleStatusChange(transportType: TransportType, status: TransportStatus): void {
-    console.info(`[TransportRouter] ${transportType} status changed to ${status}`);
+    logger.info(`[TransportRouter] ${transportType} status changed to ${status}`);
 
     // Notify subscribers
     const callbacks = this.statusCallbacks.get(transportType);
@@ -269,7 +271,7 @@ export class TransportRouter {
       return;
     }
 
-    console.info(`[TransportRouter] Processing ${this.messageQueue.length} queued messages`);
+    logger.info(`[TransportRouter] Processing ${this.messageQueue.length} queued messages`);
 
     const messagesToSend = [...this.messageQueue];
     this.messageQueue = [];

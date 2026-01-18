@@ -5,6 +5,7 @@
 
 import type { ModuleMigration } from '@/types/modules';
 
+import { logger } from '@/lib/logger';
 /**
  * All migrations for the governance module
  */
@@ -13,7 +14,7 @@ export const governanceMigrations: ModuleMigration[] = [
     version: 1,
     description: 'Initial proposals and votes tables',
     migrate: async (_db) => {
-      console.info('Governance module v1: Initial schema created');
+      logger.info('Governance module v1: Initial schema created');
     },
   },
 ];

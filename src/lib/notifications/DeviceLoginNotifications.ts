@@ -6,6 +6,7 @@
 import type { DeviceInfo } from '@/types/device';
 import { useDeviceStore } from '@/stores/deviceStore';
 
+import { logger } from '@/lib/logger';
 export interface LoginNotification {
   id: string;
   deviceId: string;
@@ -84,7 +85,7 @@ export class DeviceLoginNotificationService {
    */
   public async markAsRead(notificationId: string): Promise<void> {
     // In a real implementation, update database
-    console.info(`Marking notification ${notificationId} as read`);
+    logger.info(`Marking notification ${notificationId} as read`);
   }
 
   /**
@@ -168,7 +169,7 @@ export class DeviceLoginNotificationService {
    */
   private async storeNotification(notification: LoginNotification): Promise<void> {
     // In real implementation, store in IndexedDB notifications table
-    console.info('Login notification created:', {
+    logger.info('Login notification created:', {
       deviceName: notification.deviceName,
       platform: notification.platform,
       timestamp: new Date(notification.timestamp).toISOString(),

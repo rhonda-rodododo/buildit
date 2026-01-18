@@ -17,6 +17,7 @@ import type { Identity } from '@/types/identity';
 import { createIdentity, importFromNsec } from '@/core/crypto/keyManager';
 import { db, type DBIdentity } from '@/core/storage/db';
 import * as nip19 from 'nostr-tools/nip19';
+import { logger } from '@/lib/logger';
 import {
   secureKeyManager,
   type EncryptedKeyData,
@@ -38,7 +39,7 @@ import {
  * This prevents data leakage between accounts.
  */
 async function clearAllSessionData(): Promise<void> {
-  console.info('🔒 Clearing session data for identity switch');
+  logger.info('🔒 Clearing session data for identity switch');
 
   // Import stores dynamically to avoid circular dependencies
   const { useGroupsStore } = await import('@/stores/groupsStore');
@@ -93,7 +94,7 @@ async function clearAllSessionData(): Promise<void> {
   clearLocalEncryptionKey();
   clearGroupKeyCache();
 
-  console.info('✅ Session data cleared');
+  logger.info('✅ Session data cleared');
 }
 
 /**

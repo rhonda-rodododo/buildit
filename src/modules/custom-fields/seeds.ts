@@ -6,6 +6,7 @@
 import type { ModuleSeed } from '@/types/modules';
 import type { DBCustomField } from './schema';
 
+import { logger } from '@/lib/logger';
 /**
  * Seed data for custom fields module
  */
@@ -102,7 +103,7 @@ export const customFieldsSeeds: ModuleSeed[] = [
 
       const customFieldsTable = db.getTable<any>('customFields');
       await customFieldsTable.bulkAdd(exampleFields);
-      console.info(`Seeded ${exampleFields.length} example custom fields for group ${groupId}`);
+      logger.info(`Seeded ${exampleFields.length} example custom fields for group ${groupId}`);
     },
   },
 ];

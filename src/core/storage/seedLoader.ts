@@ -8,6 +8,7 @@ import { getAllModules } from '@/lib/modules/registry';
 import type { TemplateSelection, ResolvedTemplate } from '@/core/groupTemplates/types';
 import { templateRegistry } from '@/core/groupTemplates';
 
+import { logger } from '@/lib/logger';
 /**
  * Load seed data for all modules
  * @param db Database instance
@@ -24,7 +25,7 @@ export async function loadAllSeeds(
     seedNames?: string[]; // Optional: only load specific seed sets
   } = {}
 ): Promise<void> {
-  console.info('📦 Loading seed data...');
+  logger.info('📦 Loading seed data...');
 
   const modules = getAllModules();
   const modulesToSeed = options.moduleIds
@@ -35,11 +36,11 @@ export async function loadAllSeeds(
 
   for (const module of modulesToSeed) {
     if (!module.seeds || module.seeds.length === 0) {
-      console.info(`  ⏭️  Skipping ${module.metadata.name} (no seeds defined)`);
+      logger.info(`  ⏭️  Skipping ${module.metadata.name} (no seeds defined)`);
       continue;
     }
 
-    console.info(`  🌱 Seeding ${module.metadata.name}...`);
+    logger.info(`  🌱 Seeding ${module.metadata.name}...`);
 
     const seedsToLoad = options.seedNames
       ? module.seeds.filter((s) => options.seedNames?.includes(s.name))
@@ -49,7 +50,7 @@ export async function loadAllSeeds(
       try {
         await seed.data(db, groupId, userPubkey);
         totalSeeded++;
-        console.info(`    ✓ Loaded: ${seed.description}`);
+        logger.info(`    ✓ Loaded: ${seed.description}`);
       } catch (error) {
         console.error(`    ✗ Failed to load ${seed.name}:`, error);
         // Continue with other seeds even if one fails
@@ -57,7 +58,7 @@ export async function loadAllSeeds(
     }
   }
 
-  console.info(`✅ Seed loading complete! Loaded ${totalSeeded} seed sets.`);
+  logger.info(`✅ Seed loading complete! Loaded ${totalSeeded} seed sets.`);
 }
 
 /**
@@ -83,7 +84,7 @@ export async function loadModuleSeeds(
   }
 
   if (!module.seeds || module.seeds.length === 0) {
-    console.info(`No seeds defined for ${module.metadata.name}`);
+    logger.info(`No seeds defined for ${module.metadata.name}`);
     return;
   }
 
@@ -92,16 +93,16 @@ export async function loadModuleSeeds(
     : module.seeds;
 
   if (seedsToLoad.length === 0) {
-    console.info(`No matching seeds found for ${module.metadata.name}`);
+    logger.info(`No matching seeds found for ${module.metadata.name}`);
     return;
   }
 
-  console.info(`🌱 Seeding ${module.metadata.name}...`);
+  logger.info(`🌱 Seeding ${module.metadata.name}...`);
 
   for (const seed of seedsToLoad) {
     try {
       await seed.data(db, groupId, userPubkey);
-      console.info(`  ✓ Loaded: ${seed.description}`);
+      logger.info(`  ✓ Loaded: ${seed.description}`);
     } catch (error) {
       console.error(`  ✗ Failed to load ${seed.name}:`, error);
       throw error;
@@ -143,7 +144,7 @@ export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boole
  * @param groupId Group ID
  */
 export async function clearDemoData(db: BuildItDB, groupId: string): Promise<void> {
-  console.info(`🧹 Clearing demo data for group ${groupId}...`);
+  logger.info(`🧹 Clearing demo data for group ${groupId}...`);
 
   // Clear events with seed IDs
   if (db.events) {
@@ -207,7 +208,7 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
       .delete();
   }
 
-  console.info(`✅ Demo data cleared for group ${groupId}`);
+  logger.info(`✅ Demo data cleared for group ${groupId}`);
 }
 
 /**
@@ -224,17 +225,17 @@ export async function loadTemplateSeeds(
   userPubkey: string,
   templateSelection: TemplateSelection
 ): Promise<void> {
-  console.info('📦 Loading template seed data...');
+  logger.info('📦 Loading template seed data...');
 
   // Resolve the template to get the seed list
   const resolved = templateRegistry.resolveTemplate(templateSelection);
 
   if (resolved.seeds.length === 0) {
-    console.info('  ⏭️  No seeds defined for this template');
+    logger.info('  ⏭️  No seeds defined for this template');
     return;
   }
 
-  console.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
+  logger.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
 
   // Load seeds that match the template's seed names
   await loadAllSeeds(db, groupId, userPubkey, {
@@ -257,14 +258,14 @@ export async function loadResolvedTemplateSeeds(
   userPubkey: string,
   resolved: ResolvedTemplate
 ): Promise<void> {
-  console.info('📦 Loading resolved template seed data...');
+  logger.info('📦 Loading resolved template seed data...');
 
   if (resolved.seeds.length === 0) {
-    console.info('  ⏭️  No seeds defined for this template');
+    logger.info('  ⏭️  No seeds defined for this template');
     return;
   }
 
-  console.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
+  logger.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
 
   // Load seeds that match the template's seed names
   await loadAllSeeds(db, groupId, userPubkey, {

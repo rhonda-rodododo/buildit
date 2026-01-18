@@ -8,6 +8,7 @@ import type { BuildItDB } from '@/core/storage/db';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Campaign, DonationTier } from './types';
 
+import { logger } from '@/lib/logger';
 /**
  * Strike Fund Campaign Seed
  */
@@ -146,7 +147,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
       await db.donationTiers?.add(tier);
     }
 
-    console.info('✅ Created strike fund campaign seed with 3 donation tiers');
+    logger.info('✅ Created strike fund campaign seed with 3 donation tiers');
   },
 };
 
@@ -200,7 +201,7 @@ export const bailFundCampaignSeed: ModuleSeed = {
     };
     await db.campaigns?.add(campaign);
 
-    console.info('✅ Created bail fund campaign seed (privacy-focused)');
+    logger.info('✅ Created bail fund campaign seed (privacy-focused)');
   },
 };
 
