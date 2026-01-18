@@ -1,4 +1,5 @@
 import { FC, useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useModuleStore } from '@/stores/moduleStore'
@@ -52,6 +53,8 @@ const CATEGORY_ICONS: Record<TemplateCategory, string> = {
 }
 
 export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
+  const { t } = useTranslation()
+
   // Dialog state
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<CreationStep>('template')
@@ -147,7 +150,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
     const privateKey = getCurrentPrivateKey()
     if (!privateKey) {
-      alert('Please unlock the app to create a group.')
+      alert(t('groups.pleaseUnlockToCreate', 'Please unlock the app to create a group.'))
       return
     }
 
@@ -204,7 +207,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       setOpen(false)
     } catch (error) {
       console.error('Failed to create group:', error)
-      alert('Failed to create group. Please try again.')
+      alert(t('groups.createGroupFailed', 'Failed to create group. Please try again.'))
     } finally {
       setCreating(false)
     }
@@ -221,10 +224,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Create New Group
+            {t('groups.createNewGroup', 'Create New Group')}
             {step !== 'template' && (
               <Badge variant="outline" className="ml-2">
-                {step === 'customize' ? 'Customize' : 'Details'}
+                {step === 'customize' ? t('templates.customize', 'Customize') : t('groups.details', 'Details')}
               </Badge>
             )}
           </DialogTitle>
@@ -234,7 +237,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
           <Alert>
             <Lock className="h-4 w-4" />
             <AlertDescription>
-              Please unlock the app to create a group. Enter your password on the main screen.
+              {t('groups.unlockToCreate', 'Please unlock the app to create a group. Enter your password on the main screen.')}
             </AlertDescription>
           </Alert>
         )}
@@ -247,12 +250,12 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Choose a template to get started quickly with pre-configured modules.
+                      {t('templates.subtitle', 'Choose a template to get started quickly with pre-configured modules.')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Label htmlFor="manual-mode" className="text-sm text-muted-foreground">
-                      Manual setup
+                      {t('templates.manualMode', 'Manual setup')}
                     </Label>
                     <Switch
                       id="manual-mode"
@@ -295,14 +298,14 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                             </CardDescription>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Package className="h-3 w-3" />
-                              <span>{moduleCount} modules</span>
+                              <span>{moduleCount} {t('templates.modules', 'modules')}</span>
                               <span className="mx-1">•</span>
-                              <span>{CATEGORY_ICONS[template.category]} {getCategoryLabel(template.category)}</span>
+                              <span>{CATEGORY_ICONS[template.category]} {t(`templates.categories.${template.category}`, getCategoryLabel(template.category))}</span>
                             </div>
                             {template.enhancements && template.enhancements.length > 0 && (
                               <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                                 <Sparkles className="h-3 w-3" />
-                                <span>+{template.enhancements.length} optional enhancements</span>
+                                <span>+{template.enhancements.length} {t('templates.optionalEnhancements', 'optional enhancements')}</span>
                               </div>
                             )}
                           </CardContent>
@@ -314,20 +317,20 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   <Alert>
                     <Settings2 className="h-4 w-4" />
                     <AlertDescription>
-                      Manual mode: You'll select individual modules in the next step.
+                      {t('templates.manualModeDescription', "Manual mode: You'll select individual modules in the next step.")}
                     </AlertDescription>
                   </Alert>
                 )}
 
                 <div className="flex justify-end gap-2 pt-4 border-t">
                   <Button variant="outline" onClick={() => setOpen(false)}>
-                    Cancel
+                    {t('common.cancel', 'Cancel')}
                   </Button>
                   <Button
                     onClick={() => setStep(useManualMode ? 'details' : 'customize')}
                     disabled={!canProceedFromTemplate}
                   >
-                    {useManualMode ? 'Continue' : 'Customize'}
+                    {useManualMode ? t('templates.continue', 'Continue') : t('templates.customize', 'Customize')}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
@@ -342,7 +345,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   <div>
                     <h3 className="font-semibold">{selectedTemplate.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {resolvedModules.length} modules will be enabled
+                      {resolvedModules.length} {t('templates.modulesEnabled', 'modules will be enabled')}
                     </p>
                   </div>
                 </div>
@@ -352,7 +355,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   <div className="space-y-3">
                     <Label className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4" />
-                      Optional Enhancements
+                      {t('templates.optionalEnhancements', 'Optional Enhancements')}
                     </Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {selectedTemplate.enhancements.map((enhancement) => {
@@ -395,7 +398,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 <div className="space-y-3">
                   <Label className="flex items-center gap-2">
                     <Package className="h-4 w-4" />
-                    Modules to Enable
+                    {t('templates.modulesToEnable', 'Modules to Enable')}
                   </Label>
                   <div className="flex flex-wrap gap-2">
                     {resolvedModules.map((moduleId) => {
@@ -426,11 +429,11 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                     />
                     <div className="flex-1">
                       <Label htmlFor="demo-data-template" className="text-sm font-medium">
-                        Include sample data
+                        {t('templates.includeSampleData', 'Include sample data')}
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
                         {selectedTemplate.demoData.description ||
-                          'Populate the group with example content to help you get started'}
+                          t('templates.sampleDataDescription', 'Populate the group with example content to help you get started')}
                       </p>
                     </div>
                   </div>
@@ -439,10 +442,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 <div className="flex justify-between gap-2 pt-4 border-t">
                   <Button variant="outline" onClick={() => setStep('template')}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    Back
+                    {t('common.back', 'Back')}
                   </Button>
                   <Button onClick={() => setStep('details')}>
-                    Continue
+                    {t('templates.continue', 'Continue')}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
@@ -455,10 +458,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 {/* Basic Info */}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Group Name *</Label>
+                    <Label htmlFor="name">{t('groups.groupName', 'Group Name')} *</Label>
                     <Input
                       id="name"
-                      placeholder="Enter group name..."
+                      placeholder={t('groups.enterGroupName', 'Enter group name...')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       disabled={isLocked}
@@ -466,10 +469,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t('groups.description', 'Description')}</Label>
                     <Input
                       id="description"
-                      placeholder="Brief description of the group..."
+                      placeholder={t('groups.briefDescription', 'Brief description of the group...')}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       disabled={isLocked}
@@ -477,19 +480,19 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="privacy">Privacy Level</Label>
+                    <Label htmlFor="privacy">{t('groups.privacyLevel', 'Privacy Level')}</Label>
                     <Select
                       value={privacyLevel}
                       onValueChange={(value) => setPrivacyLevel(value as GroupPrivacyLevel)}
                       disabled={isLocked}
                     >
                       <SelectTrigger id="privacy">
-                        <SelectValue placeholder="Select privacy level" />
+                        <SelectValue placeholder={t('groups.selectPrivacyLevel', 'Select privacy level')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="public">Public - Anyone can discover and join</SelectItem>
-                        <SelectItem value="private">Private - Invite only, discoverable</SelectItem>
-                        <SelectItem value="secret">Secret - Invite only, hidden</SelectItem>
+                        <SelectItem value="public">{t('groups.privacy.public', 'Public - Anyone can discover and join')}</SelectItem>
+                        <SelectItem value="private">{t('groups.privacy.private', 'Private - Invite only, discoverable')}</SelectItem>
+                        <SelectItem value="secret">{t('groups.privacy.secret', 'Secret - Invite only, hidden')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -498,7 +501,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 {/* Manual Module Selection (only in manual mode) */}
                 {useManualMode && (
                   <div className="space-y-2">
-                    <Label id="module-selection-label">Enable Modules</Label>
+                    <Label id="module-selection-label">{t('groups.enableModules', 'Enable Modules')}</Label>
                     <div
                       className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                       role="group"
@@ -548,10 +551,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                       />
                       <div className="flex-1">
                         <Label htmlFor="demo-data-manual" className="text-sm font-medium">
-                          Load demo data
+                          {t('templates.includeSampleData', 'Include sample data')}
                         </Label>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Populate the group with example content to help you get started
+                          {t('templates.sampleDataDescription', 'Populate the group with example content to help you get started')}
                         </p>
                       </div>
                     </div>
@@ -563,22 +566,22 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   <div className="p-4 bg-muted rounded-lg space-y-2">
                     <div className="flex items-center gap-2">
                       <Info className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Summary</span>
+                      <span className="text-sm font-medium">{t('common.summary', 'Summary')}</span>
                     </div>
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>
-                        Template: <span className="font-medium text-foreground">{selectedTemplate.icon} {selectedTemplate.name}</span>
+                        {t('templates.template', 'Template')}: <span className="font-medium text-foreground">{selectedTemplate.icon} {selectedTemplate.name}</span>
                       </p>
                       <p>
-                        Modules: <span className="font-medium text-foreground">{resolvedModules.length} enabled</span>
+                        {t('templates.modules', 'Modules')}: <span className="font-medium text-foreground">{resolvedModules.length} {t('templates.enabled', 'enabled')}</span>
                       </p>
                       {selection && selection.enabledEnhancements.length > 0 && (
                         <p>
-                          Enhancements: <span className="font-medium text-foreground">{selection.enabledEnhancements.length} added</span>
+                          {t('templates.enhancements', 'Enhancements')}: <span className="font-medium text-foreground">{selection.enabledEnhancements.length} {t('templates.added', 'added')}</span>
                         </p>
                       )}
                       {loadDemoData && (
-                        <p className="text-green-600">Demo data will be loaded</p>
+                        <p className="text-green-600">{t('templates.demoDataWillBeLoaded', 'Demo data will be loaded')}</p>
                       )}
                     </div>
                   </div>
@@ -590,10 +593,10 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                     onClick={() => setStep(useManualMode ? 'template' : 'customize')}
                   >
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    Back
+                    {t('common.back', 'Back')}
                   </Button>
                   <Button onClick={handleCreate} disabled={!canCreate || creating}>
-                    {creating ? 'Creating...' : 'Create Group'}
+                    {creating ? t('groups.creating', 'Creating...') : t('groups.createGroup', 'Create Group')}
                   </Button>
                 </div>
               </div>
