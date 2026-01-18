@@ -6,6 +6,79 @@
 import type { ProtectedKeyStorage, KeyBackup, WebAuthnCredential } from '@/types/device';
 import { webAuthnService } from './WebAuthnService';
 import { timingSafeEqual } from '@/lib/utils';
+import { z } from 'zod';
+
+/**
+ * SECURITY: Zod schema for validating decrypted backup data
+ *
+ * Provides defense-in-depth against:
+ * 1. Corrupted backup files that cause processing errors
+ * 2. Injection attacks via unexpected field types
+ * 3. Object prototype pollution via __proto__ or constructor
+ */
+const BackupDataSchema = z.object({
+  keys: z.array(z.string()), // Array of private key strings
+  timestamp: z.number().int().nonnegative(),
+  deviceId: z.string(),
+}).strict();
+
+/**
+ * SECURITY: Check for prototype pollution attempts
+ */
+function checkPrototypePollution(obj: unknown, path: string = ''): void {
+  if (typeof obj !== 'object' || obj === null) {
+    return;
+  }
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => checkPrototypePollution(item, `${path}[${index}]`));
+    return;
+  }
+
+  const record = obj as Record<string, unknown>;
+
+  // __proto__ should never be in JSON
+  if (Object.prototype.hasOwnProperty.call(record, '__proto__')) {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via __proto__ at ${path}`);
+  }
+
+  // prototype property with object value is suspicious
+  if (Object.prototype.hasOwnProperty.call(record, 'prototype') && typeof record['prototype'] === 'object') {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via prototype at ${path}`);
+  }
+
+  // Recursively check nested objects
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'object' && value !== null) {
+      checkPrototypePollution(value, path ? `${path}.${key}` : key);
+    }
+  }
+}
+
+/**
+ * SECURITY: Safe JSON parse with validation for backup data
+ */
+function parseBackupData(json: string): { keys: string[]; timestamp: number; deviceId: string } {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(json);
+  } catch (error) {
+    throw new Error(`SECURITY: Failed to parse backup JSON: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
+  }
+
+  // Check for prototype pollution attempts
+  checkPrototypePollution(parsed, 'backup');
+
+  // Validate against schema
+  const result = BackupDataSchema.safeParse(parsed);
+  if (!result.success) {
+    const errors = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ');
+    throw new Error(`SECURITY: Backup data validation failed: ${errors}`);
+  }
+
+  return result.data;
+}
 
 /**
  * Protected Key Storage Service
@@ -167,7 +240,8 @@ export class ProtectedKeyStorageService {
 
     // Decrypt backup
     const decrypted = await this.decryptKey(data, decryptionKey, iv);
-    const backupData = JSON.parse(decrypted);
+    // SECURITY: Validate decrypted backup data against schema
+    const backupData = parseBackupData(decrypted);
 
     return backupData.keys;
   }

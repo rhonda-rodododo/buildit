@@ -20,6 +20,7 @@ import type {
   WebAuthnRegistrationOptions,
   WebAuthnAuthenticationOptions,
 } from '@/types/device';
+import { timingSafeEqual } from '@/lib/utils';
 
 /**
  * WebAuthn Service class for managing passkey authentication
@@ -297,12 +298,16 @@ export class WebAuthnService {
   /**
    * Verify if a credential is still valid
    * This should be called periodically to ensure credential hasn't been revoked
+   *
+   * SECURITY: Uses timing-safe comparison to prevent timing attacks that could
+   * reveal information about valid credential IDs through response time differences.
    */
   public async verifyCredential(credential: WebAuthnCredential): Promise<boolean> {
     try {
       // Try to authenticate with this specific credential
       const result = await this.authenticateCredential([credential]);
-      return result === credential.id;
+      // SECURITY: Use timing-safe comparison to prevent timing attacks
+      return result !== null && timingSafeEqual(result, credential.id);
     } catch {
       return false;
     }

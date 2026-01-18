@@ -39,13 +39,15 @@ describe('NIP-17 Encryption', () => {
       );
 
       // Bob unwraps the gift wrap
-      const rumor = unwrapGiftWrap(giftWrap, hexToBytes(bob.privateKey));
+      const result = unwrapGiftWrap(giftWrap, hexToBytes(bob.privateKey));
 
-      expect(rumor).toBeDefined();
-      expect(rumor.content).toBe(message);
-      expect(rumor.kind).toBe(14); // Private DM kind
+      expect(result).toBeDefined();
+      expect(result.rumor.content).toBe(message);
+      expect(result.rumor.kind).toBe(14); // Private DM kind
+      expect(result.senderPubkey).toBe(alice.publicKey); // Verify sender identity
+      expect(result.sealVerified).toBe(true); // Verify seal signature
       // Check that the rumor has the recipient tag
-      expect(rumor.tags.some(t => t[0] === 'p' && t[1] === bob.publicKey)).toBe(true);
+      expect(result.rumor.tags.some(t => t[0] === 'p' && t[1] === bob.publicKey)).toBe(true);
     });
 
     it('should handle multiple recipients independently', () => {
@@ -68,12 +70,14 @@ describe('NIP-17 Encryption', () => {
       );
 
       // Bob can decrypt his message
-      const bobRumor = unwrapGiftWrap(msg1, hexToBytes(bob.privateKey));
-      expect(bobRumor.content).toBe('Message for Bob');
+      const bobResult = unwrapGiftWrap(msg1, hexToBytes(bob.privateKey));
+      expect(bobResult.rumor.content).toBe('Message for Bob');
+      expect(bobResult.senderPubkey).toBe(alice.publicKey);
 
       // Charlie can decrypt his message
-      const charlieRumor = unwrapGiftWrap(msg2, hexToBytes(charlie.privateKey));
-      expect(charlieRumor.content).toBe('Message for Charlie');
+      const charlieResult = unwrapGiftWrap(msg2, hexToBytes(charlie.privateKey));
+      expect(charlieResult.rumor.content).toBe('Message for Charlie');
+      expect(charlieResult.senderPubkey).toBe(alice.publicKey);
 
       // Bob cannot decrypt Charlie's message (should throw)
       expect(() => unwrapGiftWrap(msg2, hexToBytes(bob.privateKey))).toThrow();

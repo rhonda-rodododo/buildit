@@ -39,11 +39,13 @@ describe('NIP-17 Gift Wrap', () => {
       const message = 'Secret message'
 
       const giftWrap = createPrivateDM(message, alice.privateKey, bob.publicKey)
-      const rumor = unwrapGiftWrap(giftWrap, bob.privateKey)
+      const result = unwrapGiftWrap(giftWrap, bob.privateKey)
 
-      expect(rumor.kind).toBe(14) // Private DM kind
-      expect(rumor.content).toBe(message)
-      expect(rumor.tags).toContainEqual(['p', bob.publicKey])
+      expect(result.rumor.kind).toBe(14) // Private DM kind
+      expect(result.rumor.content).toBe(message)
+      expect(result.rumor.tags).toContainEqual(['p', bob.publicKey])
+      expect(result.senderPubkey).toBe(alice.publicKey) // Verify sender identity
+      expect(result.sealVerified).toBe(true) // Verify seal signature
     })
 
     it('should preserve message content through encryption layers', () => {
@@ -52,9 +54,9 @@ describe('NIP-17 Gift Wrap', () => {
       const message = 'Test with unicode: 你好 🌍'
 
       const giftWrap = createPrivateDM(message, alice.privateKey, bob.publicKey)
-      const rumor = unwrapGiftWrap(giftWrap, bob.privateKey)
+      const result = unwrapGiftWrap(giftWrap, bob.privateKey)
 
-      expect(rumor.content).toBe(message)
+      expect(result.rumor.content).toBe(message)
     })
   })
 

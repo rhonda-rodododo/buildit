@@ -6,6 +6,7 @@
 
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import type { DeviceFingerprint, DeviceFingerprintParams, DeviceInfo, DeviceType } from '@/types/device';
+import { timingSafeEqual } from '@/lib/utils';
 
 /**
  * Device Fingerprint Service class
@@ -201,13 +202,19 @@ export class DeviceFingerprintService {
 
   /**
    * Compare two fingerprints to determine if they're from the same device
+   *
+   * SECURITY: Uses timing-safe comparison to prevent timing attacks that could
+   * reveal information about device fingerprints through response time differences.
    */
   public compareFingerprints(fp1: DeviceFingerprint, fp2: DeviceFingerprint): number {
-    if (fp1.hash === fp2.hash) {
+    // SECURITY: Use timing-safe comparison to prevent timing attacks
+    if (timingSafeEqual(fp1.hash, fp2.hash)) {
       return 1.0; // Exact match
     }
 
     // Compare components for partial match
+    // Note: Component comparison doesn't need timing-safety as it's for
+    // similarity scoring, not authentication
     let matchCount = 0;
     let totalCount = 0;
 

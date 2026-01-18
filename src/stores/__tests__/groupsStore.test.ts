@@ -52,24 +52,54 @@ vi.mock('@/core/storage/db', () => ({
         mockGroupMembers.push(member);
         return Promise.resolve();
       }),
-      where: vi.fn((field: string) => ({
-        equals: vi.fn((value: string) => ({
-          toArray: vi.fn(() =>
-            Promise.resolve(
-              mockGroupMembers.filter((m) => m[field as keyof DBGroupMember] === value)
-            )
-          ),
-          delete: vi.fn(() => {
-            const toRemove = mockGroupMembers.filter(
-              (m) => m[field as keyof DBGroupMember] === value
-            );
-            toRemove.forEach((m) => {
-              const idx = mockGroupMembers.indexOf(m);
-              if (idx >= 0) mockGroupMembers.splice(idx, 1);
-            });
-            return Promise.resolve(toRemove.length);
-          }),
-        })),
+      update: vi.fn((_id: number, _updates: Partial<DBGroupMember>) => Promise.resolve()),
+      where: vi.fn((field: string | string[]) => ({
+        equals: vi.fn((value: string | string[]) => {
+          // Support compound index query: where(['groupId', 'pubkey']).equals([groupId, pubkey])
+          if (Array.isArray(field) && Array.isArray(value)) {
+            return {
+              first: vi.fn(() => {
+                const [groupIdField, pubkeyField] = field;
+                const [groupIdValue, pubkeyValue] = value;
+                return Promise.resolve(
+                  mockGroupMembers.find(
+                    (m) => m[groupIdField as keyof DBGroupMember] === groupIdValue &&
+                           m[pubkeyField as keyof DBGroupMember] === pubkeyValue
+                  )
+                );
+              }),
+              toArray: vi.fn(() => {
+                const [groupIdField, pubkeyField] = field;
+                const [groupIdValue, pubkeyValue] = value;
+                return Promise.resolve(
+                  mockGroupMembers.filter(
+                    (m) => m[groupIdField as keyof DBGroupMember] === groupIdValue &&
+                           m[pubkeyField as keyof DBGroupMember] === pubkeyValue
+                  )
+                );
+              }),
+              delete: vi.fn(() => Promise.resolve(0)),
+            };
+          }
+          // Simple single field query
+          return {
+            toArray: vi.fn(() =>
+              Promise.resolve(
+                mockGroupMembers.filter((m) => m[field as keyof DBGroupMember] === value)
+              )
+            ),
+            delete: vi.fn(() => {
+              const toRemove = mockGroupMembers.filter(
+                (m) => m[field as keyof DBGroupMember] === value
+              );
+              toRemove.forEach((m) => {
+                const idx = mockGroupMembers.indexOf(m);
+                if (idx >= 0) mockGroupMembers.splice(idx, 1);
+              });
+              return Promise.resolve(toRemove.length);
+            }),
+          };
+        }),
       })),
     },
     // Core tables used by deleteGroup
@@ -86,6 +116,19 @@ vi.mock('@/core/storage/db', () => ({
         await callback();
       }
     ),
+  },
+}));
+
+// Mock authStore for authorization checks
+const mockCurrentIdentity = {
+  publicKey: 'test-user-pubkey-0123456789abcdef0123456789abcdef',
+};
+
+vi.mock('@/stores/authStore', () => ({
+  useAuthStore: {
+    getState: vi.fn(() => ({
+      currentIdentity: mockCurrentIdentity,
+    })),
   },
 }));
 
@@ -280,15 +323,24 @@ describe('groupsStore', () => {
 
   describe('updateGroup', () => {
     it('should update group in state and database', async () => {
+      const testUserPubkey = 'test-user-pubkey-0123456789abcdef0123456789abcdef';
       const group: DBGroup = {
         id: 'group-1',
         name: 'Original Name',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey], // Make test user an admin
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
       };
       mockGroups.set('group-1', group);
+      // Add admin membership for authorization check
+      mockGroupMembers.push({
+        id: 1,
+        groupId: 'group-1',
+        pubkey: testUserPubkey,
+        role: 'admin',
+        joined: Date.now(),
+      });
       useGroupsStore.setState({
         groups: [group],
         activeGroup: group,
@@ -302,13 +354,17 @@ describe('groupsStore', () => {
       expect(groups[0].name).toBe('Updated Name');
       expect(activeGroup?.name).toBe('Updated Name');
       expect(isLoading).toBe(false);
+
+      // Clean up
+      mockGroupMembers.length = 0;
     });
 
     it('should not update activeGroup if different', async () => {
+      const testUserPubkey = 'test-user-pubkey-0123456789abcdef0123456789abcdef';
       const group1: DBGroup = {
         id: 'group-1',
         name: 'Group 1',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey],
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
@@ -316,13 +372,21 @@ describe('groupsStore', () => {
       const group2: DBGroup = {
         id: 'group-2',
         name: 'Group 2',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey],
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
       };
       mockGroups.set('group-1', group1);
       mockGroups.set('group-2', group2);
+      // Add admin membership for authorization check
+      mockGroupMembers.push({
+        id: 1,
+        groupId: 'group-1',
+        pubkey: testUserPubkey,
+        role: 'admin',
+        joined: Date.now(),
+      });
       useGroupsStore.setState({
         groups: [group1, group2],
         activeGroup: group2,
@@ -335,24 +399,30 @@ describe('groupsStore', () => {
       const { activeGroup } = useGroupsStore.getState();
       expect(activeGroup?.id).toBe('group-2');
       expect(activeGroup?.name).toBe('Group 2');
+
+      // Clean up
+      mockGroupMembers.length = 0;
     });
   });
 
   describe('deleteGroup', () => {
     it('should delete group and related data', async () => {
+      const testUserPubkey = 'test-user-pubkey-0123456789abcdef0123456789abcdef';
       const group: DBGroup = {
         id: 'group-1',
         name: 'Test',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey], // Make test user an admin
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
       };
       mockGroups.set('group-1', group);
+      // Add admin membership for authorization check
       mockGroupMembers.push({
+        id: 1,
         groupId: 'group-1',
-        pubkey: 'member1',
-        role: 'member',
+        pubkey: testUserPubkey,
+        role: 'admin',
         joined: Date.now(),
       });
       useGroupsStore.setState({
@@ -368,13 +438,17 @@ describe('groupsStore', () => {
       expect(groups).toHaveLength(0);
       expect(activeGroup).toBeNull();
       expect(isLoading).toBe(false);
+
+      // Clean up
+      mockGroupMembers.length = 0;
     });
 
     it('should not clear activeGroup if deleting different group', async () => {
+      const testUserPubkey = 'test-user-pubkey-0123456789abcdef0123456789abcdef';
       const group1: DBGroup = {
         id: 'group-1',
         name: 'Group 1',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey], // Make test user an admin
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
@@ -382,13 +456,30 @@ describe('groupsStore', () => {
       const group2: DBGroup = {
         id: 'group-2',
         name: 'Group 2',
-        adminPubkeys: [],
+        adminPubkeys: [testUserPubkey],
         created: Date.now(),
         privacy: 'public',
         enabledModules: [],
       };
       mockGroups.set('group-1', group1);
       mockGroups.set('group-2', group2);
+
+      // Add admin membership for authorization check
+      mockGroupMembers.push({
+        id: 1,
+        groupId: 'group-1',
+        pubkey: testUserPubkey,
+        role: 'admin',
+        joined: Date.now(),
+      });
+      mockGroupMembers.push({
+        id: 2,
+        groupId: 'group-2',
+        pubkey: testUserPubkey,
+        role: 'admin',
+        joined: Date.now(),
+      });
+
       useGroupsStore.setState({
         groups: [group1, group2],
         activeGroup: group2,
@@ -400,15 +491,20 @@ describe('groupsStore', () => {
 
       const { activeGroup } = useGroupsStore.getState();
       expect(activeGroup?.id).toBe('group-2');
+
+      // Clean up
+      mockGroupMembers.length = 0;
     });
   });
 
   describe('toggleModule', () => {
-    it('should throw error if group not found', async () => {
+    it('should throw error if user is not authorized', async () => {
+      // SECURITY: Authorization check runs before checking group existence
+      // This prevents enumeration attacks (revealing which groups exist)
       const { toggleModule } = useGroupsStore.getState();
 
       await expect(toggleModule('non-existent', 'events')).rejects.toThrow(
-        'Group not found'
+        'Unauthorized'
       );
     });
   });

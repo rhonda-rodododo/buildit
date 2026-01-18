@@ -166,12 +166,15 @@ export class SecureKeyManager {
   }
 
   /**
-   * Derive a Master Encryption Key from password using PBKDF2
+   * Derive Master Key Bits from password using PBKDF2
+   *
+   * SECURITY: We derive raw bits first, then create non-extractable CryptoKeys.
+   * This prevents the master key material from ever being extractable.
    */
-  private async deriveKeyFromPassword(
+  private async deriveMasterKeyBits(
     password: string,
     salt: Uint8Array
-  ): Promise<CryptoKey> {
+  ): Promise<ArrayBuffer> {
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
 
@@ -181,13 +184,13 @@ export class SecureKeyManager {
       passwordBuffer,
       { name: 'PBKDF2' },
       false,
-      ['deriveBits', 'deriveKey']
+      ['deriveBits']
     );
 
-    // Derive key using PBKDF2 with 600,000 iterations
-    // Use ArrayBuffer from Uint8Array for BufferSource compatibility
-    // Note: extractable=true is required so we can derive the database key from the master key
-    return crypto.subtle.deriveKey(
+    // Derive raw bits using PBKDF2 with 600,000 iterations
+    // SECURITY: By deriving bits instead of a key, we control when/how
+    // the final non-extractable keys are created
+    return crypto.subtle.deriveBits(
       {
         name: 'PBKDF2',
         salt: salt.buffer as ArrayBuffer,
@@ -195,34 +198,63 @@ export class SecureKeyManager {
         hash: 'SHA-256',
       },
       keyMaterial,
-      { name: 'AES-GCM', length: 256 },
-      true, // Extractable (needed for deriveDatabaseKey)
-      ['encrypt', 'decrypt']
+      256 // 256 bits = 32 bytes
     );
   }
 
   /**
-   * Derive Database Encryption Key from Master Key
+   * Create a non-extractable AES-GCM key from raw key material
+   *
+   * SECURITY: All final encryption keys are non-extractable, meaning
+   * they cannot be exported and are protected by the browser's security boundary.
    */
-  private async deriveDatabaseKey(masterKey: CryptoKey): Promise<CryptoKey> {
-    // Export master key bits (we can do this because we just derived it)
+  private async createNonExtractableKey(
+    keyBits: ArrayBuffer,
+    keyUsages: KeyUsage[]
+  ): Promise<CryptoKey> {
+    return crypto.subtle.importKey(
+      'raw',
+      keyBits,
+      { name: 'AES-GCM', length: 256 },
+      false, // SECURITY: Non-extractable - key cannot be exported
+      keyUsages
+    );
+  }
+
+  /**
+   * Derive a Master Encryption Key from password using PBKDF2
+   *
+   * SECURITY: Returns a non-extractable CryptoKey for encryption operations.
+   */
+  private async deriveKeyFromPassword(
+    password: string,
+    salt: Uint8Array
+  ): Promise<CryptoKey> {
+    const keyBits = await this.deriveMasterKeyBits(password, salt);
+    return this.createNonExtractableKey(keyBits, ['encrypt', 'decrypt']);
+  }
+
+  /**
+   * Derive Database Encryption Key from Master Key Bits
+   *
+   * SECURITY: Uses HKDF to derive a separate non-extractable key for database encryption.
+   * The derivation happens from raw bits, never from an extractable CryptoKey.
+   */
+  private async deriveDatabaseKeyFromBits(masterKeyBits: ArrayBuffer): Promise<CryptoKey> {
     // Use HKDF to derive a separate key for database encryption
     const salt = new TextEncoder().encode('BuildItNetwork-DEK-v1');
     const info = new TextEncoder().encode('database-encryption');
 
-    // Get raw key bits for re-derivation
-    const masterKeyBits = await crypto.subtle.exportKey('raw', masterKey);
-
-    // Import for HKDF
+    // Import raw bits for HKDF derivation (non-extractable)
     const hkdfKey = await crypto.subtle.importKey(
       'raw',
       masterKeyBits,
       { name: 'HKDF' },
-      false,
+      false, // Non-extractable
       ['deriveKey']
     );
 
-    // Derive database key - crypto.subtle accepts Uint8Array directly
+    // Derive database key - SECURITY: Non-extractable
     return crypto.subtle.deriveKey(
       {
         name: 'HKDF',
@@ -232,7 +264,7 @@ export class SecureKeyManager {
       },
       hkdfKey,
       { name: 'AES-GCM', length: 256 },
-      true, // Extractable so we can use it with encryption.ts
+      false, // SECURITY: Non-extractable - cannot be exported
       ['encrypt', 'decrypt']
     );
   }
@@ -316,13 +348,21 @@ export class SecureKeyManager {
   /**
    * Unlock an identity with password
    * Decrypts the private key and stores it in memory
+   *
+   * SECURITY: Uses non-extractable keys throughout. The master key bits
+   * are derived once and used to create both the encryption key and
+   * the database key, ensuring key material cannot be extracted.
    */
   public async unlockWithPassword(
     encryptedData: EncryptedKeyData,
     password: string
   ): Promise<Uint8Array> {
     const salt = this.base64ToBuffer(encryptedData.salt);
-    const masterKey = await this.deriveKeyFromPassword(password, salt);
+
+    // SECURITY: Derive raw bits first, then create non-extractable keys
+    // This ensures key material is never stored in an extractable form
+    const masterKeyBits = await this.deriveMasterKeyBits(password, salt);
+    const masterKey = await this.createNonExtractableKey(masterKeyBits, ['encrypt', 'decrypt']);
 
     try {
       const privateKey = await this.decryptPrivateKey(
@@ -331,9 +371,9 @@ export class SecureKeyManager {
         masterKey
       );
 
-      // Store in memory
+      // Store in memory - both keys are non-extractable
       this.masterKey = masterKey;
-      this.databaseKey = await this.deriveDatabaseKey(masterKey);
+      this.databaseKey = await this.deriveDatabaseKeyFromBits(masterKeyBits);
       this.decryptedKeys.set(encryptedData.publicKey, privateKey);
       this.currentPublicKey = encryptedData.publicKey;
       this._lockState = 'unlocked';
@@ -442,6 +482,8 @@ export class SecureKeyManager {
   /**
    * Change password for an identity
    * Re-encrypts the private key with a new password
+   *
+   * SECURITY: Uses non-extractable keys for both old and new password operations.
    */
   public async changePassword(
     encryptedData: EncryptedKeyData,
@@ -453,12 +495,15 @@ export class SecureKeyManager {
 
     // Generate new salt for new password
     const newSalt = this.generateSalt();
-    const newMasterKey = await this.deriveKeyFromPassword(newPassword, newSalt);
+
+    // SECURITY: Derive raw bits first, then create non-extractable keys
+    const newMasterKeyBits = await this.deriveMasterKeyBits(newPassword, newSalt);
+    const newMasterKey = await this.createNonExtractableKey(newMasterKeyBits, ['encrypt', 'decrypt']);
     const { encrypted, iv } = await this.encryptPrivateKey(privateKey, newMasterKey);
 
-    // Update in-memory keys
+    // Update in-memory keys - both non-extractable
     this.masterKey = newMasterKey;
-    this.databaseKey = await this.deriveDatabaseKey(newMasterKey);
+    this.databaseKey = await this.deriveDatabaseKeyFromBits(newMasterKeyBits);
 
     return {
       ...encryptedData,

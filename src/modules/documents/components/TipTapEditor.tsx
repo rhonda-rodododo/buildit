@@ -64,18 +64,20 @@ import { CommentMark } from '../extensions/CommentMark'
 import { SuggestionMark } from '../extensions/SuggestionMark'
 import { MathBlock } from '../extensions/MathBlock'
 import { useDocumentsStore } from '../documentsStore'
+import { secureRandomInt } from '@/lib/utils'
 import type { NostrClient } from '@/core/nostr/client'
 import type { ParticipantPresence, DocumentComment } from '../types'
 
 const lowlight = createLowlight(common)
 
 // Generate random color for cursor
+// SECURITY: Uses secureRandomInt to avoid Math.random() which is predictable
 const generateCursorColor = () => {
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
     '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
   ]
-  return colors[Math.floor(Math.random() * colors.length)]
+  return colors[secureRandomInt(colors.length)]
 }
 
 interface TipTapEditorProps {

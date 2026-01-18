@@ -1,5 +1,6 @@
 import { type Event as NostrEvent } from 'nostr-tools'
 import { createPrivateDM, unwrapGiftWrap } from '@/core/crypto/nip17'
+import { verifyEventSignature } from '@/core/nostr/nip01'
 import { NostrClient } from '@/core/nostr/client'
 import type { GiftWrap } from '@/types/nostr'
 
@@ -40,13 +41,30 @@ export async function sendDirectMessage(
 
 /**
  * Receive and decrypt a direct message
+ *
+ * SECURITY: Now properly extracts sender identity from the seal (not the ephemeral gift wrap key)
+ * and verifies both gift wrap and seal signatures.
  */
 export async function receiveDirectMessage(
   giftWrap: GiftWrap,
   recipientPrivateKey: Uint8Array
 ): Promise<DirectMessage | null> {
   try {
-    const rumor = unwrapGiftWrap(giftWrap, recipientPrivateKey)
+    // SECURITY: Verify gift wrap signature before processing
+    if (!verifyEventSignature(giftWrap as unknown as NostrEvent)) {
+      console.warn('Gift wrap signature verification failed')
+      return null
+    }
+
+    // Unwrap to get rumor and VERIFIED sender identity
+    const unwrapped = unwrapGiftWrap(giftWrap, recipientPrivateKey)
+    const { rumor, senderPubkey, sealVerified } = unwrapped
+
+    // SECURITY: Reject messages with invalid seal signatures
+    if (!sealVerified) {
+      console.warn('Seal signature verification failed, cannot trust sender identity')
+      return null
+    }
 
     if (!rumor || rumor.kind !== 14) {
       return null
@@ -57,15 +75,13 @@ export async function receiveDirectMessage(
       return null
     }
 
-    // Get sender pubkey from the seal (stored in gift wrap tags during unwrapping)
-    // For now, we'll extract it from the rumor after decryption
-    const senderPubkey = giftWrap.pubkey // This is the ephemeral key
-    // We need to track the actual sender from the seal - fix this properly
+    // SECURITY: senderPubkey is now correctly extracted from seal.pubkey
+    // (NOT giftWrap.pubkey which is an ephemeral key)
     const conversationId = getConversationId(senderPubkey, recipientTag[1])
 
     return {
       id: giftWrap.id,
-      from: senderPubkey,
+      from: senderPubkey, // SECURITY: Now using verified sender from seal
       to: recipientTag[1],
       content: rumor.content,
       timestamp: rumor.created_at,

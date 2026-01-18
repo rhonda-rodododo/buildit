@@ -251,10 +251,10 @@ export class EncryptedNostrProvider extends Observable<string> {
   private async _handleNostrEvent(event: NostrEvent): Promise<void> {
     try {
       // Unwrap gift wrap to get message
-      const rumor = unwrapGiftWrap(event as GiftWrap, this.senderPrivateKey)
+      const unwrapped = unwrapGiftWrap(event as GiftWrap, this.senderPrivateKey)
 
       // Decode message from base64
-      const messageBase64 = rumor.content
+      const messageBase64 = unwrapped.rumor.content
       const message = new Uint8Array(Buffer.from(messageBase64, 'base64'))
 
       // Process sync message

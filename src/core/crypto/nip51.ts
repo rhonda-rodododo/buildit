@@ -23,6 +23,63 @@ import { encryptNIP44, decryptNIP44 } from './nip44';
 import * as nip44 from 'nostr-tools/nip44';
 import { randomizeTimestamp } from './nip17';
 
+/**
+ * SECURITY: Check for prototype pollution attempts
+ */
+function checkPrototypePollution(obj: unknown, path: string = ''): void {
+  if (typeof obj !== 'object' || obj === null) {
+    return;
+  }
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => checkPrototypePollution(item, `${path}[${index}]`));
+    return;
+  }
+
+  const record = obj as Record<string, unknown>;
+
+  // __proto__ should never be in JSON
+  if (Object.prototype.hasOwnProperty.call(record, '__proto__')) {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via __proto__ at ${path}`);
+  }
+
+  // prototype property with object value is suspicious
+  if (Object.prototype.hasOwnProperty.call(record, 'prototype') && typeof record['prototype'] === 'object') {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via prototype at ${path}`);
+  }
+
+  // Recursively check nested objects
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'object' && value !== null) {
+      checkPrototypePollution(value, path ? `${path}.${key}` : key);
+    }
+  }
+}
+
+/**
+ * SECURITY: Safe JSON parse with prototype pollution protection
+ * Returns parsed data or throws with descriptive error
+ */
+function safeParseArray<T>(json: string): T[] {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(json);
+  } catch (error) {
+    throw new Error(`SECURITY: Failed to parse encrypted list JSON: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
+  }
+
+  // Must be an array
+  if (!Array.isArray(parsed)) {
+    throw new Error('SECURITY: Encrypted list content must be an array');
+  }
+
+  // Check for prototype pollution
+  checkPrototypePollution(parsed, 'list');
+
+  return parsed as T[];
+}
+
 // BuildIt-specific encrypted list kinds
 export const ENCRYPTED_LIST_KINDS = {
   CONTACT_LIST: 39500,      // Encrypted contact/friend list
@@ -127,8 +184,8 @@ export function decryptListEvent<T>(
     // Decrypt content
     const plaintext = decryptNIP44(event.content, encryptionKey);
 
-    // Parse JSON
-    return JSON.parse(plaintext) as T[];
+    // SECURITY: Safe parse with prototype pollution protection
+    return safeParseArray<T>(plaintext);
   } catch (error) {
     console.error('Failed to decrypt list event:', error);
     return null;

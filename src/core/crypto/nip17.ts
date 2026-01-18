@@ -1,6 +1,113 @@
-import { finalizeEvent, generateSecretKey } from 'nostr-tools'
+import { finalizeEvent, generateSecretKey, verifyEvent } from 'nostr-tools'
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from './nip44'
+import { z } from 'zod'
 import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
+
+/**
+ * SECURITY: Zod schemas for validating decrypted NIP-17 content
+ *
+ * These schemas provide defense-in-depth against:
+ * 1. Malformed JSON that passes decryption but causes processing errors
+ * 2. Injection attacks via unexpected field types
+ * 3. Object prototype pollution via __proto__ or constructor
+ */
+
+// Schema for validating Rumor (decrypted inner message)
+const RumorSchema = z.object({
+  kind: z.number().int().nonnegative(),
+  content: z.string(),
+  created_at: z.number().int().nonnegative(),
+  tags: z.array(z.array(z.string())),
+}).strict() // Disallow extra fields
+
+// Schema for validating Seal (signed wrapper)
+const SealSchema = z.object({
+  kind: z.literal(13), // Seal kind
+  content: z.string(),
+  created_at: z.number().int().nonnegative(),
+  tags: z.array(z.array(z.string())),
+  id: z.string().regex(/^[0-9a-f]{64}$/, 'Invalid event ID format'),
+  pubkey: z.string().regex(/^[0-9a-f]{64}$/, 'Invalid pubkey format'),
+  sig: z.string().regex(/^[0-9a-f]{128}$/, 'Invalid signature format'),
+}).strict()
+
+/**
+ * SECURITY: Check for prototype pollution attempts in parsed JSON
+ *
+ * Prototype pollution occurs when attacker-controlled JSON contains
+ * __proto__, constructor.prototype, or similar properties that could
+ * modify Object.prototype when assigned.
+ *
+ * We check if these dangerous keys have non-function values, as
+ * legitimate JSON shouldn't set these to objects.
+ */
+function checkPrototypePollution(obj: unknown, path: string = ''): void {
+  if (typeof obj !== 'object' || obj === null) {
+    return
+  }
+
+  // Check if this is an array
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => checkPrototypePollution(item, `${path}[${index}]`))
+    return
+  }
+
+  // Check for dangerous keys at this level
+  const record = obj as Record<string, unknown>
+
+  // __proto__ should never be in JSON
+  if (Object.prototype.hasOwnProperty.call(record, '__proto__')) {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via __proto__ at ${path}`)
+  }
+
+  // prototype property with object value is suspicious
+  if (Object.prototype.hasOwnProperty.call(record, 'prototype') && typeof record['prototype'] === 'object') {
+    throw new Error(`SECURITY: Prototype pollution attempt detected via prototype at ${path}`)
+  }
+
+  // Recursively check nested objects
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'object' && value !== null) {
+      checkPrototypePollution(value, path ? `${path}.${key}` : key)
+    }
+  }
+}
+
+/**
+ * SECURITY: Safe JSON parse with schema validation
+ * Prevents prototype pollution and validates structure
+ */
+function safeJsonParse<T>(json: string, schema: z.ZodSchema<T>, name: string): T {
+  let parsed: unknown
+
+  try {
+    // First, parse JSON
+    parsed = JSON.parse(json)
+  } catch (error) {
+    throw new Error(`SECURITY: Failed to parse ${name} JSON: ${error instanceof Error ? error.message : 'Invalid JSON'}`)
+  }
+
+  // Check for prototype pollution attempts
+  checkPrototypePollution(parsed, name)
+
+  // Validate against schema
+  const result = schema.safeParse(parsed)
+  if (!result.success) {
+    const errors = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')
+    throw new Error(`SECURITY: ${name} validation failed: ${errors}`)
+  }
+
+  return result.data
+}
+
+/**
+ * Result of unwrapping a gift wrap, including sender identity
+ */
+export interface UnwrappedMessage {
+  rumor: Rumor;
+  senderPubkey: string; // The actual sender (from seal.pubkey)
+  sealVerified: boolean; // Whether the seal signature verified
+}
 
 /**
  * Generate a cryptographically secure random integer in range [0, max)
@@ -119,22 +226,61 @@ export function createPrivateDM(
 
 /**
  * Unwrap and decrypt a NIP-17 gift wrap
+ *
+ * SECURITY: This function now returns the full UnwrappedMessage including:
+ * - The actual sender's pubkey (from seal.pubkey, NOT giftWrap.pubkey)
+ * - Verification status of the seal signature
+ *
+ * The giftWrap.pubkey is an ephemeral key and MUST NOT be trusted as sender identity.
+ *
+ * SECURITY: Uses schema validation on decrypted content to prevent:
+ * - Malformed JSON injection
+ * - Prototype pollution attacks
+ * - Type confusion attacks
  */
 export function unwrapGiftWrap(
   giftWrap: GiftWrap,
   recipientPrivateKey: Uint8Array
-): Rumor {
+): UnwrappedMessage {
   // Decrypt the seal using the ephemeral key in the gift wrap
   const conversationKey = deriveConversationKey(recipientPrivateKey, giftWrap.pubkey)
   const sealJson = decryptNIP44(giftWrap.content, conversationKey)
-  const seal: Seal = JSON.parse(sealJson)
+  // SECURITY: Validate decrypted seal against schema
+  const seal = safeJsonParse<Seal>(sealJson, SealSchema, 'Seal')
+
+  // SECURITY: Verify the seal's signature to ensure sender authenticity
+  // The seal.pubkey is the ACTUAL sender, and we must verify they signed it
+  let sealVerified = false
+  try {
+    sealVerified = verifyEvent(seal)
+  } catch (error) {
+    console.warn('Seal signature verification failed:', error)
+    sealVerified = false
+  }
 
   // Decrypt the rumor from the seal
   const rumorConversationKey = deriveConversationKey(recipientPrivateKey, seal.pubkey)
   const rumorJson = decryptNIP44(seal.content, rumorConversationKey)
-  const rumor: Rumor = JSON.parse(rumorJson)
+  // SECURITY: Validate decrypted rumor against schema
+  const rumor = safeJsonParse<Rumor>(rumorJson, RumorSchema, 'Rumor')
 
-  return rumor
+  return {
+    rumor,
+    senderPubkey: seal.pubkey, // The ACTUAL sender identity
+    sealVerified,
+  }
+}
+
+/**
+ * Legacy function for backward compatibility
+ * @deprecated Use unwrapGiftWrap which returns full UnwrappedMessage
+ */
+export function unwrapGiftWrapLegacy(
+  giftWrap: GiftWrap,
+  recipientPrivateKey: Uint8Array
+): Rumor {
+  const result = unwrapGiftWrap(giftWrap, recipientPrivateKey)
+  return result.rumor
 }
 
 /**

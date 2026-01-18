@@ -25,6 +25,76 @@ import {
   type LockState,
   type SecureKeyManagerEvent,
 } from '@/core/crypto/SecureKeyManager';
+import {
+  checkRateLimit,
+  getRateLimitMessage,
+  recordFailure,
+  recordSuccess,
+  clearRateLimitState,
+} from '@/lib/security/rateLimiter';
+
+/**
+ * SECURITY: Clear all session data from stores when switching identities
+ * This prevents data leakage between accounts.
+ */
+async function clearAllSessionData(): Promise<void> {
+  console.info('🔒 Clearing session data for identity switch');
+
+  // Import stores dynamically to avoid circular dependencies
+  const { useGroupsStore } = await import('@/stores/groupsStore');
+  const { useMessagingStore } = await import('@/stores/messagingStore');
+  const { useContactsStore } = await import('@/stores/contactsStore');
+  const { useNotificationStore } = await import('@/stores/notificationStore');
+
+  // Clear groups store
+  useGroupsStore.setState({
+    activeGroup: null,
+    groups: [],
+    groupMembers: new Map(),
+    pendingInvitations: [],
+    sentInvitations: [],
+    isLoading: false,
+    error: null,
+  });
+
+  // Clear messaging store
+  useMessagingStore.setState({
+    conversations: [],
+    messages: new Map(),
+    activeConversationId: null,
+    groupThreads: new Map(),
+    activeThreadId: null,
+    threadMessages: new Map(),
+  });
+
+  // Clear contacts store
+  useContactsStore.setState({
+    contacts: new Map(),
+    profiles: new Map(),
+    loading: false,
+    error: null,
+  });
+
+  // Clear notifications (keep structure but clear items)
+  useNotificationStore.setState({
+    notifications: [],
+  });
+
+  // Stop the message receiver
+  try {
+    const { stopMessageReceiver } = await import('@/core/messaging/messageReceiver');
+    stopMessageReceiver();
+  } catch {
+    // Message receiver may not be initialized
+  }
+
+  // Clear any cached encryption keys
+  const { clearLocalEncryptionKey, clearGroupKeyCache } = await import('@/core/storage/EncryptedDB');
+  clearLocalEncryptionKey();
+  clearGroupKeyCache();
+
+  console.info('✅ Session data cleared');
+}
 
 /**
  * Auth state interface
@@ -294,6 +364,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       try {
         await db.identities.delete(publicKey);
 
+        // SECURITY: Clear rate limit state for the removed identity
+        clearRateLimitState(publicKey);
+
         const current = get().currentIdentity;
         const isCurrentIdentity = current?.publicKey === publicKey;
 
@@ -316,8 +389,19 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
     /**
      * Set the current identity (must unlock separately)
+     *
+     * SECURITY: Clears all session data from other stores when switching identities
+     * to prevent data leakage between accounts.
      */
     setCurrentIdentity: async (publicKey: string | null) => {
+      const previousIdentity = get().currentIdentity;
+
+      // SECURITY: Clear all session data before switching identities
+      // This prevents data from one identity leaking to another
+      if (previousIdentity && previousIdentity.publicKey !== publicKey) {
+        await clearAllSessionData();
+      }
+
       if (!publicKey) {
         // Clearing current identity - lock
         secureKeyManager.lock();
@@ -339,11 +423,22 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
     /**
      * Unlock the current identity with password
+     *
+     * SECURITY: Rate limited with exponential backoff to prevent brute-force attacks.
+     * After 3 failed attempts, wait time doubles each failure (max 1 hour).
      */
     unlock: async (password: string) => {
       const current = get().currentIdentity;
       if (!current) {
         throw new Error('No identity selected');
+      }
+
+      // SECURITY: Check rate limit before attempting unlock
+      const waitTime = checkRateLimit(current.publicKey);
+      if (waitTime > 0) {
+        const message = getRateLimitMessage(current.publicKey);
+        set({ error: message, isUnlocking: false });
+        throw new Error(message || 'Rate limited. Please try again later.');
       }
 
       set({ isUnlocking: true, error: null });
@@ -367,6 +462,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         // Unlock with SecureKeyManager
         await secureKeyManager.unlockWithPassword(encryptedData, password);
 
+        // SECURITY: Record successful auth to clear rate limit state
+        recordSuccess(current.publicKey);
+
         // Load security settings
         if (dbIdentity.securitySettings) {
           try {
@@ -382,6 +480,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         set({ isUnlocking: false, lockState: 'unlocked' });
       } catch (error) {
+        // SECURITY: Record failed auth attempt
+        recordFailure(current.publicKey);
+
         const errorMsg = error instanceof Error ? error.message : 'Failed to unlock';
         set({ error: errorMsg, isUnlocking: false });
         throw error;
@@ -445,10 +546,20 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
     /**
      * Verify password without unlocking
+     *
+     * SECURITY: Rate limited with exponential backoff to prevent brute-force attacks.
+     * Shares rate limit state with unlock() function.
      */
     verifyPassword: async (password: string): Promise<boolean> => {
       const current = get().currentIdentity;
       if (!current) {
+        return false;
+      }
+
+      // SECURITY: Check rate limit before attempting verification
+      const waitTime = checkRateLimit(current.publicKey);
+      if (waitTime > 0) {
+        console.warn('Password verification rate limited');
         return false;
       }
 
@@ -459,8 +570,20 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         }
 
         const encryptedData = dbIdentityToEncryptedData(dbIdentity);
-        return await secureKeyManager.verifyPassword(encryptedData, password);
+        const isValid = await secureKeyManager.verifyPassword(encryptedData, password);
+
+        if (isValid) {
+          // SECURITY: Record success to clear rate limit state
+          recordSuccess(current.publicKey);
+        } else {
+          // SECURITY: Record failed verification attempt
+          recordFailure(current.publicKey);
+        }
+
+        return isValid;
       } catch {
+        // SECURITY: Record failed attempt
+        recordFailure(current.publicKey);
         return false;
       }
     },

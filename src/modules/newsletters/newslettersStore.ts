@@ -21,6 +21,7 @@ import type {
   DeliveryProgressEvent,
 } from './types';
 import { nanoid } from 'nanoid';
+import { secureRandomInt } from '@/lib/utils';
 
 // Import and re-export defaults
 import {
@@ -844,17 +845,22 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
 /**
  * Simulate NIP-17 DM send
  * In production, this would use the actual Nostr infrastructure
+ *
+ * NOTE: This is SIMULATION code for development. In production,
+ * this should use actual NIP-17 gift-wrapped messages.
  */
 async function simulateNIP17Send(
   _recipientPubkey: string,
   _issue: NewsletterIssue,
   _newsletter: Newsletter
 ): Promise<void> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 200));
+  // Simulate network delay using secure random
+  // SECURITY: Using secureRandomInt instead of Math.random()
+  await new Promise((resolve) => setTimeout(resolve, 100 + secureRandomInt(200)));
 
   // Simulate occasional failures (5% failure rate)
-  if (Math.random() < 0.05) {
+  // SECURITY: Using secureRandomInt instead of Math.random()
+  if (secureRandomInt(100) < 5) {
     throw new Error('Relay connection failed');
   }
 

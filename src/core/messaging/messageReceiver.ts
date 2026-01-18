@@ -11,12 +11,13 @@
  */
 
 import type { Event as NostrEvent } from 'nostr-tools';
-import { unwrapGiftWrap, isGiftWrapForRecipient } from '@/core/crypto/nip17';
+import { unwrapGiftWrap, isGiftWrapForRecipient, type UnwrappedMessage } from '@/core/crypto/nip17';
+import { verifyEventSignature } from '@/core/nostr/nip01';
 import { getCurrentPrivateKey } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
 import { getNostrClient } from '@/core/nostr/client';
 import { useConversationsStore } from './conversationsStore';
-import type { GiftWrap, Rumor } from '@/types/nostr';
+import type { GiftWrap } from '@/types/nostr';
 import type { ConversationMessage } from './conversationTypes';
 
 // Track processed event IDs to avoid duplicates
@@ -82,6 +83,9 @@ class MessageReceiverService {
 
   /**
    * Handle an incoming gift wrap event
+   *
+   * SECURITY: Now verifies both gift wrap signature and seal signature
+   * before processing the message. Invalid signatures are rejected.
    */
   private async handleGiftWrap(event: NostrEvent): Promise<void> {
     // Skip if already processed
@@ -96,6 +100,13 @@ class MessageReceiverService {
     }
 
     processedEvents.add(event.id);
+
+    // SECURITY: Verify the gift wrap event signature first
+    // This ensures the event wasn't tampered with in transit
+    if (!verifyEventSignature(event)) {
+      console.warn('Gift wrap signature verification failed, rejecting event:', event.id);
+      return;
+    }
 
     // Verify this is addressed to us
     if (!this.userPubkey) {
@@ -119,15 +130,22 @@ class MessageReceiverService {
     }
 
     try {
-      // Unwrap the gift wrap to get the rumor
-      const rumor = unwrapGiftWrap(giftWrap, privateKey);
+      // Unwrap the gift wrap to get the rumor and VERIFIED sender identity
+      const unwrapped = unwrapGiftWrap(giftWrap, privateKey);
+
+      // SECURITY: Reject messages with invalid seal signatures
+      // The seal signature proves the sender's identity
+      if (!unwrapped.sealVerified) {
+        console.warn('Seal signature verification failed, rejecting message:', event.id);
+        return;
+      }
 
       // Process based on rumor kind
-      if (rumor.kind === 14) {
+      if (unwrapped.rumor.kind === 14) {
         // NIP-17 DM
-        await this.processPrivateMessage(rumor, giftWrap);
+        await this.processPrivateMessage(unwrapped, giftWrap);
       } else {
-        console.info(`Received unknown rumor kind: ${rumor.kind}`);
+        console.info(`Received unknown rumor kind: ${unwrapped.rumor.kind}`);
       }
     } catch (error) {
       console.error('Failed to process gift wrap:', error);
@@ -136,16 +154,18 @@ class MessageReceiverService {
 
   /**
    * Process a decrypted private message (kind 14 rumor)
+   *
+   * SECURITY: Now uses the verified sender pubkey from the seal,
+   * NOT the ephemeral gift wrap pubkey.
    */
-  private async processPrivateMessage(rumor: Rumor, giftWrap: GiftWrap): Promise<void> {
+  private async processPrivateMessage(unwrapped: UnwrappedMessage, giftWrap: GiftWrap): Promise<void> {
     if (!this.userPubkey) return;
 
-    // Extract sender from the seal's pubkey (wrapped in gift wrap)
-    // The sender is the one who signed the seal
-    const senderPubkey = giftWrap.pubkey; // Ephemeral key, not sender
+    const { rumor, senderPubkey } = unwrapped;
 
-    // For NIP-17, the actual sender is found in the seal
-    // But after unwrapping, we need to trust the rumor's implicit sender
+    // SECURITY: senderPubkey is from seal.pubkey which was signature-verified
+    // This is the ACTUAL sender identity (not giftWrap.pubkey which is ephemeral)
+
     // The p tag in the rumor indicates the recipient
     const recipientTag = rumor.tags?.find((t) => t[0] === 'p');
     const recipientPubkey = recipientTag?.[1];
@@ -168,10 +188,8 @@ class MessageReceiverService {
 
     if (!conversationId) {
       // No conversation ID in tags, try to find existing DM or create new one
-      // Note: We need to determine the sender somehow
-      // In NIP-17, the seal is signed by the actual sender
-      // TODO: Extract sender from seal before unwrapping
-      console.warn('No conversation ID in message tags');
+      // We now have the verified sender pubkey from the seal
+      console.warn('No conversation ID in message tags, sender:', senderPubkey.slice(0, 8));
       return;
     }
 
@@ -188,11 +206,11 @@ class MessageReceiverService {
       return;
     }
 
-    // Create message record
+    // Create message record with VERIFIED sender identity
     const message: ConversationMessage = {
       id: giftWrap.id, // Use gift wrap ID as message ID (unique)
       conversationId,
-      from: senderPubkey, // Note: This is ephemeral key, not actual sender
+      from: senderPubkey, // SECURITY: Now correctly using verified sender from seal
       content: rumor.content,
       timestamp: rumor.created_at * 1000, // Convert to ms
       replyTo,
