@@ -9,6 +9,8 @@ import type {
   DBGroupEntityMessage,
   DBCoalition,
   DBChannel,
+  DBSharedProject,
+  DBSharedProjectInvitation,
 } from './types';
 
 /**
@@ -27,6 +29,12 @@ export const GROUP_ENTITY_SCHEMA = {
 
   // Role-based channels
   channels: '++id, groupId, conversationId, type, createdBy, createdAt',
+
+  // Shared projects (cross-group collaboration)
+  sharedProjects: '++id, type, itemId, ownerGroupId, status, createdBy, createdAt, updatedAt',
+
+  // Shared project invitations (inviting groups to collaborate)
+  sharedProjectInvitations: '++id, sharedProjectId, toGroupId, fromGroupId, status, sentAt, expiresAt',
 };
 
 /**
@@ -37,6 +45,8 @@ export interface GroupEntityTables {
   groupEntityMessages: Table<DBGroupEntityMessage, string>;
   coalitions: Table<DBCoalition, string>;
   channels: Table<DBChannel, string>;
+  sharedProjects: Table<DBSharedProject, string>;
+  sharedProjectInvitations: Table<DBSharedProjectInvitation, string>;
 }
 
 /**
@@ -47,6 +57,8 @@ export const GROUP_ENTITY_SEEDS = {
   groupEntityMessages: [],
   coalitions: [],
   channels: [],
+  sharedProjects: [],
+  sharedProjectInvitations: [],
 };
 
 /**

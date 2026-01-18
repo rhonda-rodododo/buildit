@@ -17,10 +17,18 @@ import type {
   Channel,
   ChannelPermissions,
   MessageTemplate,
+  SharedProject,
+  SharedProjectType,
+  SharedPermissions,
+  GroupParticipant,
+  GroupInvitation,
+  GroupParticipantRole,
   DBGroupEntity,
   DBGroupEntityMessage,
   DBCoalition,
   DBChannel,
+  DBSharedProject,
+  DBSharedProjectInvitation,
 } from './types';
 
 interface GroupEntityStore {
@@ -38,6 +46,12 @@ interface GroupEntityStore {
 
   /** Recent group entity messages (audit log) */
   auditLog: GroupEntityMessage[];
+
+  /** Shared projects for cross-group collaboration */
+  sharedProjects: SharedProject[];
+
+  /** Pending group invitations */
+  pendingInvitations: GroupInvitation[];
 
   // Actions
   /** Initialize store and load data */
@@ -113,6 +127,58 @@ interface GroupEntityStore {
 
   /** Remove message template */
   removeTemplate: (groupId: string, templateId: string) => Promise<void>;
+
+  // Shared Projects
+  /** Create a shared project for cross-group collaboration */
+  createSharedProject: (params: {
+    type: SharedProjectType;
+    itemId: string;
+    ownerGroupId: string;
+    name: string;
+    description?: string;
+    defaultPermissions?: Partial<SharedPermissions>;
+  }) => Promise<SharedProject>;
+
+  /** Get shared project by ID */
+  getSharedProject: (id: string) => Promise<SharedProject | null>;
+
+  /** Get shared projects for an item */
+  getSharedProjectsForItem: (itemId: string) => Promise<SharedProject[]>;
+
+  /** Get shared projects where a group is participating */
+  getSharedProjectsForGroup: (groupId: string) => Promise<SharedProject[]>;
+
+  /** Update shared project */
+  updateSharedProject: (id: string, updates: Partial<SharedProject>) => Promise<void>;
+
+  /** Close/archive a shared project */
+  closeSharedProject: (id: string, status: 'completed' | 'cancelled') => Promise<void>;
+
+  // Group Invitations
+  /** Invite a group to participate in a shared project */
+  inviteGroupToProject: (params: {
+    sharedProjectId: string;
+    toGroupId: string;
+    role: GroupParticipantRole;
+    permissions?: Partial<SharedPermissions>;
+    message?: string;
+    expiresInDays?: number;
+  }) => Promise<GroupInvitation>;
+
+  /** Accept an invitation to join a shared project */
+  acceptInvitation: (invitationId: string) => Promise<void>;
+
+  /** Decline an invitation */
+  declineInvitation: (invitationId: string) => Promise<void>;
+
+  /** Get pending invitations for a group */
+  getPendingInvitations: (groupId: string) => Promise<GroupInvitation[]>;
+
+  /** Get sent invitations from a group */
+  getSentInvitations: (groupId: string) => Promise<GroupInvitation[]>;
+
+  /** Remove a group from a shared project */
+  removeGroupFromProject: (sharedProjectId: string, groupId: string) => Promise<void>;
 }
 
 export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
@@ -121,6 +187,8 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   coalitions: [],
   channels: new Map(),
   auditLog: [],
+  sharedProjects: [],
+  pendingInvitations: [],
 
   initialize: async () => {
     try {
@@ -173,7 +241,52 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
         channelMap.set(dbChan.groupId, [...existing, channel]);
       }
 
-      set({ entities: entityMap, coalitions, channels: channelMap });
+      // Load shared projects
+      const dbSharedProjects = await db.sharedProjects.toArray();
+      const sharedProjects: SharedProject[] = dbSharedProjects.map((dbProj: DBSharedProject) => ({
+        id: dbProj.id,
+        type: dbProj.type,
+        itemId: dbProj.itemId,
+        ownerGroupId: dbProj.ownerGroupId,
+        name: dbProj.name,
+        description: dbProj.description || undefined,
+        participantGroups: JSON.parse(dbProj.participantGroups) as GroupParticipant[],
+        defaultPermissions: JSON.parse(dbProj.defaultPermissions) as SharedPermissions,
+        conversationId: dbProj.conversationId || undefined,
+        status: dbProj.status,
+        createdBy: dbProj.createdBy,
+        createdAt: dbProj.createdAt,
+        updatedAt: dbProj.updatedAt,
+      }));
+
+      // Load pending invitations
+      const dbInvitations = await db.sharedProjectInvitations
+        .where('status')
+        .equals('pending')
+        .toArray();
+      const pendingInvitations: GroupInvitation[] = dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
+        id: dbInv.id,
+        sharedProjectId: dbInv.sharedProjectId,
+        toGroupId: dbInv.toGroupId,
+        fromGroupId: dbInv.fromGroupId,
+        sentBy: dbInv.sentBy,
+        sentAt: dbInv.sentAt,
+        role: dbInv.role,
+        permissions: dbInv.permissions ? JSON.parse(dbInv.permissions) : undefined,
+        message: dbInv.message || undefined,
+        status: dbInv.status,
+        respondedAt: dbInv.respondedAt || undefined,
+        respondedBy: dbInv.respondedBy || undefined,
+        expiresAt: dbInv.expiresAt || undefined,
+      }));
+
+      set({
+        entities: entityMap,
+        coalitions,
+        channels: channelMap,
+        sharedProjects,
+        pendingInvitations,
+      });
     } catch (error) {
       console.error('[GroupEntity] Failed to initialize:', error);
     }
@@ -624,6 +737,398 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     };
 
     await get().updateSettings(groupId, updatedSettings);
+  },
+
+  // === Shared Projects ===
+
+  createSharedProject: async ({
+    type,
+    itemId,
+    ownerGroupId,
+    name,
+    description,
+    defaultPermissions = {},
+  }) => {
+    const { useAuthStore } = await import('@/stores/authStore');
+    const currentUser = useAuthStore.getState().currentIdentity;
+
+    if (!currentUser) {
+      throw new Error('No authenticated user');
+    }
+
+    const now = Date.now();
+    const fullPermissions: SharedPermissions = {
+      canEdit: true,
+      canComment: true,
+      canInvite: false,
+      canRemove: false,
+      canArchive: false,
+      ...defaultPermissions,
+    };
+
+    const project: SharedProject = {
+      id: uuidv4(),
+      type,
+      itemId,
+      ownerGroupId,
+      name,
+      description,
+      participantGroups: [
+        {
+          groupId: ownerGroupId,
+          invitedBy: currentUser.publicKey,
+          invitedAt: now,
+          joinedAt: now,
+          role: 'contributor',
+          status: 'accepted',
+        },
+      ],
+      defaultPermissions: fullPermissions,
+      status: 'active',
+      createdBy: currentUser.publicKey,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const dbProject: DBSharedProject = {
+      id: project.id,
+      type: project.type,
+      itemId: project.itemId,
+      ownerGroupId: project.ownerGroupId,
+      name: project.name,
+      description: project.description || null,
+      participantGroups: JSON.stringify(project.participantGroups),
+      defaultPermissions: JSON.stringify(project.defaultPermissions),
+      conversationId: project.conversationId || null,
+      status: project.status,
+      createdBy: project.createdBy,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+    };
+
+    await db.sharedProjects.add(dbProject);
+
+    set((state) => ({
+      sharedProjects: [...state.sharedProjects, project],
+    }));
+
+    return project;
+  },
+
+  getSharedProject: async (id) => {
+    const cached = get().sharedProjects.find((p) => p.id === id);
+    if (cached) return cached;
+
+    const dbProject = await db.sharedProjects.get(id);
+    if (!dbProject) return null;
+
+    const project: SharedProject = {
+      id: dbProject.id,
+      type: dbProject.type,
+      itemId: dbProject.itemId,
+      ownerGroupId: dbProject.ownerGroupId,
+      name: dbProject.name,
+      description: dbProject.description || undefined,
+      participantGroups: JSON.parse(dbProject.participantGroups),
+      defaultPermissions: JSON.parse(dbProject.defaultPermissions),
+      conversationId: dbProject.conversationId || undefined,
+      status: dbProject.status,
+      createdBy: dbProject.createdBy,
+      createdAt: dbProject.createdAt,
+      updatedAt: dbProject.updatedAt,
+    };
+
+    set((state) => ({
+      sharedProjects: [...state.sharedProjects, project],
+    }));
+
+    return project;
+  },
+
+  getSharedProjectsForItem: async (itemId) => {
+    const dbProjects = await db.sharedProjects.where({ itemId }).toArray();
+
+    return dbProjects.map((dbProject: DBSharedProject) => ({
+      id: dbProject.id,
+      type: dbProject.type,
+      itemId: dbProject.itemId,
+      ownerGroupId: dbProject.ownerGroupId,
+      name: dbProject.name,
+      description: dbProject.description || undefined,
+      participantGroups: JSON.parse(dbProject.participantGroups) as GroupParticipant[],
+      defaultPermissions: JSON.parse(dbProject.defaultPermissions) as SharedPermissions,
+      conversationId: dbProject.conversationId || undefined,
+      status: dbProject.status,
+      createdBy: dbProject.createdBy,
+      createdAt: dbProject.createdAt,
+      updatedAt: dbProject.updatedAt,
+    }));
+  },
+
+  getSharedProjectsForGroup: async (groupId) => {
+    // Get projects where group is owner or participant
+    const allProjects = await db.sharedProjects.toArray();
+
+    const projects: SharedProject[] = [];
+    for (const dbProject of allProjects) {
+      const participants = JSON.parse(dbProject.participantGroups) as GroupParticipant[];
+      const isParticipant =
+        dbProject.ownerGroupId === groupId ||
+        participants.some((p) => p.groupId === groupId && p.status === 'accepted');
+
+      if (isParticipant) {
+        projects.push({
+          id: dbProject.id,
+          type: dbProject.type,
+          itemId: dbProject.itemId,
+          ownerGroupId: dbProject.ownerGroupId,
+          name: dbProject.name,
+          description: dbProject.description || undefined,
+          participantGroups: participants,
+          defaultPermissions: JSON.parse(dbProject.defaultPermissions) as SharedPermissions,
+          conversationId: dbProject.conversationId || undefined,
+          status: dbProject.status,
+          createdBy: dbProject.createdBy,
+          createdAt: dbProject.createdAt,
+          updatedAt: dbProject.updatedAt,
+        });
+      }
+    }
+
+    return projects;
+  },
+
+  updateSharedProject: async (id, updates) => {
+    const existing = await get().getSharedProject(id);
+    if (!existing) throw new Error('Shared project not found');
+
+    const updated = { ...existing, ...updates, updatedAt: Date.now() };
+
+    await db.sharedProjects.update(id, {
+      ...(updates.name !== undefined && { name: updates.name }),
+      ...(updates.description !== undefined && { description: updates.description || null }),
+      ...(updates.participantGroups && {
+        participantGroups: JSON.stringify(updates.participantGroups),
+      }),
+      ...(updates.defaultPermissions && {
+        defaultPermissions: JSON.stringify(updates.defaultPermissions),
+      }),
+      ...(updates.status && { status: updates.status }),
+      updatedAt: updated.updatedAt,
+    });
+
+    set((state) => ({
+      sharedProjects: state.sharedProjects.map((p) => (p.id === id ? updated : p)),
+    }));
+  },
+
+  closeSharedProject: async (id, status) => {
+    await get().updateSharedProject(id, { status });
+  },
+
+  // === Group Invitations ===
+
+  inviteGroupToProject: async ({
+    sharedProjectId,
+    toGroupId,
+    role,
+    permissions,
+    message,
+    expiresInDays,
+  }) => {
+    const { useAuthStore } = await import('@/stores/authStore');
+    const currentUser = useAuthStore.getState().currentIdentity;
+
+    if (!currentUser) {
+      throw new Error('No authenticated user');
+    }
+
+    const project = await get().getSharedProject(sharedProjectId);
+    if (!project) throw new Error('Shared project not found');
+
+    // Check if group is already invited or participating
+    const existingParticipant = project.participantGroups.find(
+      (p) => p.groupId === toGroupId
+    );
+    if (existingParticipant) {
+      throw new Error('Group is already participating or has a pending invitation');
+    }
+
+    const now = Date.now();
+    const invitation: GroupInvitation = {
+      id: uuidv4(),
+      sharedProjectId,
+      toGroupId,
+      fromGroupId: project.ownerGroupId,
+      sentBy: currentUser.publicKey,
+      sentAt: now,
+      role,
+      permissions,
+      message,
+      status: 'pending',
+      expiresAt: expiresInDays ? now + expiresInDays * 24 * 60 * 60 * 1000 : undefined,
+    };
+
+    const dbInvitation: DBSharedProjectInvitation = {
+      id: invitation.id,
+      sharedProjectId: invitation.sharedProjectId,
+      toGroupId: invitation.toGroupId,
+      fromGroupId: invitation.fromGroupId,
+      sentBy: invitation.sentBy,
+      sentAt: invitation.sentAt,
+      role: invitation.role,
+      permissions: invitation.permissions ? JSON.stringify(invitation.permissions) : null,
+      message: invitation.message || null,
+      status: invitation.status,
+      respondedAt: null,
+      respondedBy: null,
+      expiresAt: invitation.expiresAt || null,
+    };
+
+    await db.sharedProjectInvitations.add(dbInvitation);
+
+    set((state) => ({
+      pendingInvitations: [...state.pendingInvitations, invitation],
+    }));
+
+    return invitation;
+  },
+
+  acceptInvitation: async (invitationId) => {
+    const { useAuthStore } = await import('@/stores/authStore');
+    const currentUser = useAuthStore.getState().currentIdentity;
+
+    if (!currentUser) {
+      throw new Error('No authenticated user');
+    }
+
+    const dbInvitation = await db.sharedProjectInvitations.get(invitationId);
+    if (!dbInvitation) throw new Error('Invitation not found');
+    if (dbInvitation.status !== 'pending') throw new Error('Invitation is no longer pending');
+
+    // Check expiration
+    if (dbInvitation.expiresAt && dbInvitation.expiresAt < Date.now()) {
+      await db.sharedProjectInvitations.update(invitationId, { status: 'expired' });
+      throw new Error('Invitation has expired');
+    }
+
+    const now = Date.now();
+
+    // Update invitation status
+    await db.sharedProjectInvitations.update(invitationId, {
+      status: 'accepted',
+      respondedAt: now,
+      respondedBy: currentUser.publicKey,
+    });
+
+    // Add group to shared project participants
+    const project = await get().getSharedProject(dbInvitation.sharedProjectId);
+    if (!project) throw new Error('Shared project not found');
+
+    const newParticipant: GroupParticipant = {
+      groupId: dbInvitation.toGroupId,
+      invitedBy: dbInvitation.sentBy,
+      invitedAt: dbInvitation.sentAt,
+      joinedAt: now,
+      role: dbInvitation.role,
+      status: 'accepted',
+    };
+
+    const updatedParticipants = [...project.participantGroups, newParticipant];
+
+    await get().updateSharedProject(dbInvitation.sharedProjectId, {
+      participantGroups: updatedParticipants,
+    });
+
+    // Update local state
+    set((state) => ({
+      pendingInvitations: state.pendingInvitations.filter((i) => i.id !== invitationId),
+    }));
+  },
+
+  declineInvitation: async (invitationId) => {
+    const { useAuthStore } = await import('@/stores/authStore');
+    const currentUser = useAuthStore.getState().currentIdentity;
+
+    if (!currentUser) {
+      throw new Error('No authenticated user');
+    }
+
+    const dbInvitation = await db.sharedProjectInvitations.get(invitationId);
+    if (!dbInvitation) throw new Error('Invitation not found');
+    if (dbInvitation.status !== 'pending') throw new Error('Invitation is no longer pending');
+
+    await db.sharedProjectInvitations.update(invitationId, {
+      status: 'declined',
+      respondedAt: Date.now(),
+      respondedBy: currentUser.publicKey,
+    });
+
+    set((state) => ({
+      pendingInvitations: state.pendingInvitations.filter((i) => i.id !== invitationId),
+    }));
+  },
+
+  getPendingInvitations: async (groupId) => {
+    const dbInvitations = await db.sharedProjectInvitations
+      .where({ toGroupId: groupId, status: 'pending' })
+      .toArray();
+
+    return dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
+      id: dbInv.id,
+      sharedProjectId: dbInv.sharedProjectId,
+      toGroupId: dbInv.toGroupId,
+      fromGroupId: dbInv.fromGroupId,
+      sentBy: dbInv.sentBy,
+      sentAt: dbInv.sentAt,
+      role: dbInv.role,
+      permissions: dbInv.permissions ? JSON.parse(dbInv.permissions) : undefined,
+      message: dbInv.message || undefined,
+      status: dbInv.status,
+      respondedAt: dbInv.respondedAt || undefined,
+      respondedBy: dbInv.respondedBy || undefined,
+      expiresAt: dbInv.expiresAt || undefined,
+    }));
+  },
+
+  getSentInvitations: async (groupId) => {
+    const dbInvitations = await db.sharedProjectInvitations
+      .where({ fromGroupId: groupId })
+      .toArray();
+
+    return dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
+      id: dbInv.id,
+      sharedProjectId: dbInv.sharedProjectId,
+      toGroupId: dbInv.toGroupId,
+      fromGroupId: dbInv.fromGroupId,
+      sentBy: dbInv.sentBy,
+      sentAt: dbInv.sentAt,
+      role: dbInv.role,
+      permissions: dbInv.permissions ? JSON.parse(dbInv.permissions) : undefined,
+      message: dbInv.message || undefined,
+      status: dbInv.status,
+      respondedAt: dbInv.respondedAt || undefined,
+      respondedBy: dbInv.respondedBy || undefined,
+      expiresAt: dbInv.expiresAt || undefined,
+    }));
+  },
+
+  removeGroupFromProject: async (sharedProjectId, groupId) => {
+    const project = await get().getSharedProject(sharedProjectId);
+    if (!project) throw new Error('Shared project not found');
+
+    // Cannot remove owner
+    if (project.ownerGroupId === groupId) {
+      throw new Error('Cannot remove the owner group from the project');
+    }
+
+    const updatedParticipants = project.participantGroups.filter(
+      (p) => p.groupId !== groupId
+    );
+
+    await get().updateSharedProject(sharedProjectId, {
+      participantGroups: updatedParticipants,
+    });
   },
 }));
 
