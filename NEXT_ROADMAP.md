@@ -228,7 +228,9 @@ Client → Receives receipt from Nostr
   - [x] Create test coverage audit documentation
 - [ ] **Code Quality (1-2h)**
   - [x] Fix all TypeScript errors
-  - [ ] Remove all console.log statements
+  - [x] Create dev-only logger utility (src/lib/logger.ts)
+  - [x] Migrate main.tsx to use logger (19 console statements → dev-only)
+  - [ ] Migrate remaining modules to use logger (~220 remaining)
   - [ ] Remove all TODO/FIXME comments or convert to issues
 
 **Acceptance Criteria**:
