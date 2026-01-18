@@ -787,7 +787,7 @@ buildit-network/
 ---
 
 ### Epic 58: Advanced Sharing & Permissions 🔐
-**Status**: Not Started
+**Status**: In Progress (75% complete)
 **Priority**: P2 - Comprehensive Access Control (TIER 4)
 **Effort**: 10-15 hours
 **Dependencies**: Epics 48, 56 complete
@@ -796,27 +796,27 @@ buildit-network/
 **Context**: Implement granular sharing and permissions for documents and files to match Google Drive/Proton Drive capabilities.
 
 **Tasks**:
-- [ ] **Public Link Sharing (4-5h)**
-  - [ ] Generate encrypted public links
-  - [ ] Password-protected links
-  - [ ] Expiring links (time-based)
-  - [ ] Link analytics (views, downloads)
-  - [ ] Revoke links
-- [ ] **Granular Permissions (3-4h)**
-  - [ ] Viewer (read-only)
-  - [ ] Commenter (read + comment)
-  - [ ] Editor (read + write)
-  - [ ] Owner (full control)
+- [x] **Public Link Sharing (4-5h)** - Complete (already implemented)
+  - [x] Generate encrypted public links
+  - [x] Password-protected links
+  - [x] Expiring links (time-based)
+  - [x] Link analytics (views, downloads) - accessCount tracking
+  - [x] Revoke links
+- [x] **Granular Permissions (3-4h)** - Complete (already implemented)
+  - [x] Viewer (read-only)
+  - [x] Commenter (read + comment)
+  - [x] Editor (read + write)
+  - [x] Owner (full control)
   - [ ] Permission inheritance (folders)
 - [ ] **Access Requests (2-3h)**
   - [ ] Request access flow
   - [ ] Approve/deny requests
   - [ ] Notification of access changes
   - [ ] View pending requests
-- [ ] **Sharing Dashboard (1-2h)**
-  - [ ] View all shared items
-  - [ ] Filter by permission level
-  - [ ] Revoke sharing in bulk
+- [x] **Sharing Dashboard (1-2h)**
+  - [x] View all shared items
+  - [x] Filter by permission level
+  - [x] Revoke sharing in bulk
   - [ ] Export sharing report
 
 **Acceptance Criteria**:
