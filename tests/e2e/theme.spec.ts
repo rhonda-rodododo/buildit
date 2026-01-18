@@ -35,7 +35,7 @@ test.describe('Theme Switching Tests', () => {
 
     // Clear IndexedDB and localStorage
     await page.evaluate(async () => {
-      localStorage.removeItem('vite-ui-theme')
+      localStorage.removeItem('buildn-ui-theme')
       const databases = await indexedDB.databases()
       for (const db of databases) {
         if (db.name) {
@@ -130,7 +130,7 @@ test.describe('Theme Switching Tests', () => {
     await page.waitForTimeout(500)
 
     // Verify system theme was selected
-    const savedTheme = await page.evaluate(() => localStorage.getItem('vite-ui-theme'))
+    const savedTheme = await page.evaluate(() => localStorage.getItem('buildn-ui-theme'))
     expect(savedTheme).toBe('system')
   })
 
@@ -146,7 +146,7 @@ test.describe('Theme Switching Tests', () => {
     await page.waitForTimeout(300)
 
     // Verify localStorage has correct value
-    let savedTheme = await page.evaluate(() => localStorage.getItem('vite-ui-theme'))
+    let savedTheme = await page.evaluate(() => localStorage.getItem('buildn-ui-theme'))
     expect(savedTheme).toBe('dark')
 
     // Verify dark theme is applied
@@ -160,7 +160,7 @@ test.describe('Theme Switching Tests', () => {
     await page.waitForTimeout(300)
 
     // Verify localStorage updated
-    savedTheme = await page.evaluate(() => localStorage.getItem('vite-ui-theme'))
+    savedTheme = await page.evaluate(() => localStorage.getItem('buildn-ui-theme'))
     expect(savedTheme).toBe('light')
 
     // Verify light theme is applied
@@ -196,7 +196,7 @@ test.describe('Theme Switching Tests', () => {
     await expect(htmlElement).toHaveClass(/dark/)
 
     // Final state
-    const savedTheme = await page.evaluate(() => localStorage.getItem('vite-ui-theme'))
+    const savedTheme = await page.evaluate(() => localStorage.getItem('buildn-ui-theme'))
     expect(savedTheme).toBe('dark')
   })
 
@@ -223,7 +223,7 @@ test.describe('Theme Switching Tests', () => {
     await page.waitForTimeout(300)
 
     // Verify a theme was selected
-    const savedTheme = await page.evaluate(() => localStorage.getItem('vite-ui-theme'))
+    const savedTheme = await page.evaluate(() => localStorage.getItem('buildn-ui-theme'))
     expect(savedTheme).toBeTruthy()
   })
 
@@ -279,7 +279,7 @@ test.describe('Theme Mobile Responsiveness', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await page.evaluate(async () => {
-      localStorage.removeItem('vite-ui-theme')
+      localStorage.removeItem('buildn-ui-theme')
       const databases = await indexedDB.databases()
       for (const db of databases) {
         if (db.name) {
