@@ -8,8 +8,8 @@ import type { TableSchema } from '@/types/modules';
 export const documentsSchema: TableSchema[] = [
   {
     name: 'documents',
-    schema: 'id, groupId, [groupId+updatedAt]',
-    indexes: ['id', 'groupId', '[groupId+updatedAt]'],
+    schema: 'id, groupId, folderId, [groupId+updatedAt]',
+    indexes: ['id', 'groupId', 'folderId', '[groupId+updatedAt]'],
   },
   {
     name: 'documentVersions',
@@ -20,5 +20,36 @@ export const documentsSchema: TableSchema[] = [
     name: 'documentCollaboration',
     schema: 'documentId, groupId, isActive',
     indexes: ['documentId', 'groupId', 'isActive'],
+  },
+  // Epic 56: Advanced Document Features
+  {
+    name: 'documentComments',
+    schema: 'id, documentId, parentCommentId, resolved, createdAt',
+    indexes: ['id', 'documentId', 'parentCommentId', 'resolved', 'createdAt'],
+  },
+  {
+    name: 'documentSuggestions',
+    schema: 'id, documentId, status, createdAt',
+    indexes: ['id', 'documentId', 'status', 'createdAt'],
+  },
+  {
+    name: 'documentFolders',
+    schema: 'id, groupId, parentFolderId, name',
+    indexes: ['id', 'groupId', 'parentFolderId', 'name'],
+  },
+  {
+    name: 'documentShareLinks',
+    schema: 'id, documentId, createdByPubkey, expiresAt',
+    indexes: ['id', 'documentId', 'createdByPubkey', 'expiresAt'],
+  },
+  {
+    name: 'documentCollaborators',
+    schema: '[documentId+userPubkey], documentId, userPubkey, permission',
+    indexes: ['[documentId+userPubkey]', 'documentId', 'userPubkey', 'permission'],
+  },
+  {
+    name: 'documentStars',
+    schema: '[documentId+userPubkey], documentId, userPubkey, createdAt',
+    indexes: ['[documentId+userPubkey]', 'documentId', 'userPubkey', 'createdAt'],
   },
 ];

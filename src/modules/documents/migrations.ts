@@ -16,4 +16,13 @@ export const documentsMigrations: ModuleMigration[] = [
       console.info('Documents module v1: Placeholder (implementation pending)');
     },
   },
+  {
+    version: 2,
+    description: 'Epic 56: Advanced document features - comments, suggestions, folders, permissions',
+    migrate: async (_db) => {
+      console.info('Documents module v2: Adding comments, suggestions, folders, and sharing features');
+      // Schema changes are handled automatically by Dexie via documentsSchema
+      // This migration ensures proper upgrade path
+    },
+  },
 ];

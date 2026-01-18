@@ -1502,6 +1502,164 @@ buildit-network/
 
 ---
 
+## 🔴 Product Audit Findings (2026-01-17)
+
+### Epic 63: Critical Bug Fixes from Product Audit 🐛
+**Status**: ✅ VERIFIED FIXED
+**Priority**: P0
+**Context**: Deep product audit identified critical bugs. All verified as already fixed.
+**Verified Fixes**:
+- [x] Database module type (was `documents`, now `database`)
+- [x] Mutual-aid route requiresEnabled (now enabled)
+- [x] Member count uses actual groupMembers data
+- [x] EventFeedCard RSVP buttons wired up correctly
+
+---
+
+### Epic 64: Member Management System 👥
+**Status**: Not Started
+**Priority**: P0 - Required for multi-user MVP
+**Effort**: 25-35 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Group management is ~50% complete. Member invitation, role management, and encryption key sharing are not implemented.
+
+**Tasks**:
+- [ ] **Invitation System (8-12h)**
+  - Create `DBGroupInvitation` schema
+  - Implement `MemberInviteDialog.tsx`
+  - Generate invite links with expiration
+  - Handle invitation acceptance/decline
+- [ ] **Pending Invitations View (4-6h)**
+  - Show received/sent invitations
+  - Accept/decline buttons
+- [ ] **Role Management UI (6-10h)**
+  - Add role dropdown to member list
+  - Promote/demote functionality
+- [ ] **Member Removal (2-4h)**
+  - Remove member with confirmation
+- [ ] **Group Encryption Key Sharing (4-6h)**
+  - Share key with new members via NIP-17
+
+**Acceptance Criteria**:
+- Can invite members via link or pubkey
+- Can change member roles (admin only)
+- Can remove members from group
+- Group keys shared securely
+
+**Git Commit**: `feat(groups): implement member management system (Epic 64)`
+**Git Tag**: `v0.64.0-member-management`
+
+---
+
+### Epic 65: Events Module Completion 📅
+**Status**: Not Started
+**Priority**: P1
+**Effort**: 20-30 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Events module 40% complete. Missing multi-user features: sync, privacy enforcement, attendee visibility, editing.
+
+**Tasks**:
+- [ ] **Enable Event Relay Sync (4-6h)** - `src/modules/events/hooks/useEvents.ts:178-184`
+- [ ] **Implement Event Privacy Enforcement (4-6h)** - Filter by privacy level
+- [ ] **Add Attendee List View (3-4h)** - Show who's going/maybe/not-going
+- [ ] **Add Event Editing UI (4-6h)** - `EditEventDialog.tsx`
+- [ ] **Wire Up Calendar View (2h)** - Connect existing CalendarView
+- [ ] **Add Event Notifications (4-6h)** - Trigger on RSVP, new event
+
+**Acceptance Criteria**:
+- Events sync across devices
+- Private events only visible to invited users
+- Can edit existing events
+- Calendar view accessible
+
+**Git Commit**: `feat(events): complete events module with sync and privacy (Epic 65)`
+**Git Tag**: `v0.65.0-events-complete`
+
+---
+
+### Epic 66: Module Dependency System 🔗
+**Status**: Not Started
+**Priority**: P1
+**Effort**: 8-12 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes (`refactorer`)
+
+**Context**: Module system has zero dependency enforcement. CRM can be enabled without Database, causing silent failures.
+
+**Tasks**:
+- [ ] **Add Dependency Declaration (2-3h)**
+  - Update `ModulePlugin` interface with `dependencies?: Array<{ moduleId: string; required: boolean }>`
+- [ ] **Implement Dependency Validation (2-3h)**
+  - Check before `enableModule()`, throw if not met
+- [ ] **Add Dependency UI Warnings (2-3h)**
+  - Show "Requires: Database" in ModuleSettings
+- [ ] **Add Cascading Delete for Groups (2-3h)**
+  - Delete module data when group deleted
+
+**Acceptance Criteria**:
+- Modules declare dependencies in metadata
+- Cannot enable module without dependencies
+- Group deletion removes all module data
+
+**Git Commit**: `feat(modules): implement dependency enforcement system (Epic 66)`
+**Git Tag**: `v0.66.0-module-dependencies`
+
+---
+
+### Epic 67: Visual UX Polish 🎨
+**Status**: Not Started
+**Priority**: P1
+**Effort**: 10-15 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes (`ux-designer`)
+
+**Context**: Visual audit identified responsive issues and design inconsistencies.
+
+**Tasks**:
+- [ ] **Fix Security Page Tab Overflow (1h)** - Change `grid-cols-6` to responsive
+- [ ] **Fix Post Card Action Buttons (2h)** - Icon-only on mobile
+- [ ] **Consolidate Settings Interfaces (4-6h)** - Remove dialog-based settings
+- [ ] **Add Admin Indicator (1h)** - Show badge/hide settings for non-admins
+
+**Acceptance Criteria**:
+- No overflow on mobile viewports
+- Consistent settings experience
+- Admin status clearly visible
+
+**Git Commit**: `fix(ux): visual polish and responsive fixes (Epic 67)`
+**Git Tag**: `v0.67.0-ux-polish`
+
+---
+
+### Epic 68: E2E Test Suite Expansion 🧪
+**Status**: Not Started
+**Priority**: P2
+**Effort**: 15-20 hours
+**Dependencies**: Epics 64-65
+**Assignable to subagent**: Yes (`test-writer`)
+
+**Context**: E2E specifications created for 41 tests across auth, groups, events, microblogging, cross-module.
+
+**Tasks**:
+- [ ] **Authentication Tests (3-4h)** - 8 tests (identity, lock, password)
+- [ ] **Group Management Tests (3-4h)** - 7 tests (create, modules, members)
+- [ ] **Events Module Tests (3-4h)** - 7 tests (RSVP, capacity, privacy)
+- [ ] **Microblogging Tests (4-5h)** - 14 tests (posts, reactions, scheduled)
+- [ ] **Cross-Module Tests (2-3h)** - 5 tests (navigation, persistence)
+
+**Acceptance Criteria**:
+- 41 new E2E tests implemented
+- All tests pass consistently
+
+**Git Commit**: `test: comprehensive E2E test suite expansion (Epic 68)`
+**Git Tag**: `v0.68.0-e2e-tests`
+
+---
+
 ## 📋 Backlog: Nice to Have
 
 ### Backlog Item 0: Content Curation & Marketplace (Epic 46+)

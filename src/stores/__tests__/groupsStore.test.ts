@@ -6,9 +6,19 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useGroupsStore } from '../groupsStore';
 import type { DBGroup, DBGroupMember } from '@/core/storage/db';
 
-// Mock database
-const mockGroups = new Map<string, DBGroup>();
-const mockGroupMembers: DBGroupMember[] = [];
+// Use vi.hoisted for data that needs to be available in vi.mock
+const { mockGroups, mockGroupMembers, createMockTable } = vi.hoisted(() => ({
+  mockGroups: new Map<string, DBGroup>(),
+  mockGroupMembers: [] as DBGroupMember[],
+  createMockTable: () => ({
+    where: vi.fn(() => ({
+      equals: vi.fn(() => ({
+        delete: vi.fn(() => Promise.resolve(0)),
+        toArray: vi.fn(() => Promise.resolve([])),
+      })),
+    })),
+  }),
+}));
 
 vi.mock('@/core/storage/db', () => ({
   db: {
@@ -62,6 +72,15 @@ vi.mock('@/core/storage/db', () => ({
         })),
       })),
     },
+    // Core tables used by deleteGroup
+    messages: createMockTable(),
+    moduleInstances: createMockTable(),
+    conversations: createMockTable(),
+    groupEntities: createMockTable(),
+    groupEntityMessages: createMockTable(),
+    channels: createMockTable(),
+    // db.table() method for accessing module tables dynamically
+    table: vi.fn(() => createMockTable()),
     transaction: vi.fn(
       async (_mode: string, _tables: unknown[], callback: () => Promise<void>) => {
         await callback();

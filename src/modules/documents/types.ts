@@ -91,3 +91,178 @@ export interface ParticipantPresence {
   }
   lastSeen: number
 }
+
+/**
+ * Document Comment
+ * Inline comments on text selections
+ */
+export interface DocumentComment {
+  id: string
+  documentId: string
+  authorPubkey: string
+  content: string
+  createdAt: number
+  updatedAt?: number
+  // Position in document
+  from: number // Start position
+  to: number // End position
+  quotedText: string // The text being commented on
+  // Threading
+  parentCommentId?: string // For replies
+  // Status
+  resolved: boolean
+  resolvedAt?: number
+  resolvedByPubkey?: string
+  // Mentions
+  mentions: string[] // Pubkeys of mentioned users
+}
+
+/**
+ * Document Suggestion
+ * Track changes / suggestion mode
+ */
+export interface DocumentSuggestion {
+  id: string
+  documentId: string
+  authorPubkey: string
+  createdAt: number
+  // Change details
+  type: 'insertion' | 'deletion' | 'replacement'
+  from: number
+  to: number
+  originalText: string // Text being replaced/deleted
+  suggestedText: string // New text (for insertion/replacement)
+  // Status
+  status: 'pending' | 'accepted' | 'rejected'
+  reviewedAt?: number
+  reviewedByPubkey?: string
+  reviewNote?: string
+}
+
+/**
+ * Document Folder
+ * Organize documents in folders/collections
+ */
+export interface DocumentFolder {
+  id: string
+  groupId: string
+  name: string
+  description?: string
+  parentFolderId?: string // For nested folders
+  createdByPubkey: string
+  createdAt: number
+  updatedAt: number
+  color?: string // Folder color for visual organization
+  icon?: string // Optional icon
+}
+
+/**
+ * Document Permission Level
+ */
+export type DocumentPermission = 'view' | 'comment' | 'edit' | 'admin'
+
+/**
+ * Document Share Link
+ * Shareable links with granular permissions
+ */
+export interface DocumentShareLink {
+  id: string
+  documentId: string
+  createdByPubkey: string
+  permission: DocumentPermission
+  createdAt: number
+  expiresAt?: number // Optional expiration
+  isPublic: boolean // Public link vs private (requires auth)
+  password?: string // Optional password protection (hashed)
+  accessCount: number
+  lastAccessedAt?: number
+  maxAccessCount?: number // Optional access limit
+}
+
+/**
+ * Document Collaborator
+ * Individual user permissions for a document
+ */
+export interface DocumentCollaborator {
+  documentId: string
+  userPubkey: string
+  permission: DocumentPermission
+  addedByPubkey: string
+  addedAt: number
+  lastAccessAt?: number
+}
+
+/**
+ * Document Star/Favorite
+ * User's starred documents
+ */
+export interface DocumentStar {
+  documentId: string
+  userPubkey: string
+  createdAt: number
+}
+
+/**
+ * Document with folder info
+ */
+export interface DocumentWithFolder extends Document {
+  folderId?: string
+  folderName?: string
+  folderColor?: string
+}
+
+/**
+ * Update Document input with new fields
+ */
+export interface UpdateDocumentInputV2 extends UpdateDocumentInput {
+  folderId?: string | null // null to remove from folder
+}
+
+/**
+ * Create folder input
+ */
+export interface CreateFolderInput {
+  groupId: string
+  name: string
+  description?: string
+  parentFolderId?: string
+  color?: string
+  icon?: string
+}
+
+/**
+ * Create comment input
+ */
+export interface CreateCommentInput {
+  documentId: string
+  content: string
+  from: number
+  to: number
+  quotedText: string
+  parentCommentId?: string
+  mentions?: string[]
+}
+
+/**
+ * Create suggestion input
+ */
+export interface CreateSuggestionInput {
+  documentId: string
+  type: 'insertion' | 'deletion' | 'replacement'
+  from: number
+  to: number
+  originalText: string
+  suggestedText: string
+}
+
+/**
+ * Create share link input
+ */
+export interface CreateShareLinkInput {
+  documentId: string
+  permission: DocumentPermission
+  expiresAt?: number
+  isPublic?: boolean
+  password?: string
+  maxAccessCount?: number
+}

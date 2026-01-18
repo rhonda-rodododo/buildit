@@ -3,35 +3,38 @@
  * Tests for identity management and authentication
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { useAuthStore, getCurrentPrivateKey } from '../authStore';
-import type { EncryptedKeyData, SecuritySettings, LockState } from '@/core/crypto/SecureKeyManager';
+import type { EncryptedKeyData, LockState } from '@/core/crypto/SecureKeyManager';
 
-// Mock SecureKeyManager
-const mockSecureKeyManager = {
-  lockState: 'locked' as LockState,
-  isUnlocked: false,
-  currentIdentity: null as string | null,
-  addEventListener: vi.fn(() => vi.fn()),
-  createEncryptedKeyData: vi.fn(),
-  unlockWithPassword: vi.fn(),
-  lock: vi.fn(),
-  getPrivateKey: vi.fn(),
-  getCurrentPrivateKey: vi.fn(),
-  getDatabaseKey: vi.fn(),
-  changePassword: vi.fn(),
-  enableWebAuthn: vi.fn(),
-  disableWebAuthn: vi.fn(),
-  verifyPassword: vi.fn(),
-  exportPrivateKey: vi.fn(),
-  setSecuritySettings: vi.fn(),
-  getSecuritySettings: vi.fn(() => ({
-    authMethod: 'password-always' as const,
-    inactivityTimeout: 15,
-    lockOnHide: false,
-    lockOnClose: true,
-    requirePasswordForExport: true,
-  })),
-};
+// Use vi.hoisted to define mock before vi.mock is hoisted
+const { mockSecureKeyManager } = vi.hoisted(() => {
+  return {
+    mockSecureKeyManager: {
+      lockState: 'locked' as LockState,
+      isUnlocked: false,
+      currentIdentity: null as string | null,
+      addEventListener: vi.fn(() => vi.fn()),
+      createEncryptedKeyData: vi.fn(),
+      unlockWithPassword: vi.fn(),
+      lock: vi.fn(),
+      getPrivateKey: vi.fn(),
+      getCurrentPrivateKey: vi.fn(),
+      getDatabaseKey: vi.fn(),
+      changePassword: vi.fn(),
+      enableWebAuthn: vi.fn(),
+      disableWebAuthn: vi.fn(),
+      verifyPassword: vi.fn(),
+      exportPrivateKey: vi.fn(),
+      setSecuritySettings: vi.fn(),
+      getSecuritySettings: vi.fn(() => ({
+        authMethod: 'password-always' as const,
+        inactivityTimeout: 15,
+        lockOnHide: false,
+        lockOnClose: true,
+        requirePasswordForExport: true,
+      })),
+    },
+  };
+});
 
 vi.mock('@/core/crypto/SecureKeyManager', () => ({
   secureKeyManager: mockSecureKeyManager,
@@ -43,6 +46,8 @@ vi.mock('@/core/crypto/SecureKeyManager', () => ({
     requirePasswordForExport: true,
   },
 }));
+
+import { useAuthStore, getCurrentPrivateKey } from '../authStore';
 
 // Mock database
 const mockIdentities = new Map();
