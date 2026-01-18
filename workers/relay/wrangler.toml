@@ -1,0 +1,81 @@
+# BuildIt Network Nostr Relay
+# Based on Nosflare (https://github.com/Spl0itable/nosflare)
+#
+# Prerequisites:
+# 1. Create D1 database: wrangler d1 create buildit-relay
+# 2. Update database_id below with the created ID
+# 3. Deploy: wrangler deploy
+
+name = "buildit-relay"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "RELAY_DATABASE"
+database_name = "buildit-relay"
+database_id = "YOUR_D1_DATABASE_ID"  # Replace after running: wrangler d1 create buildit-relay
+
+# Durable Object binding for WebSocket handling
+[[durable_objects.bindings]]
+name = "RELAY_WEBSOCKET"
+class_name = "RelayWebSocket"
+
+# Durable Object migrations
+[[migrations]]
+tag = "v1"
+new_classes = ["RelayWebSocket"]
+
+# Scheduled tasks for database maintenance (daily at 3 AM UTC)
+[triggers]
+crons = ["0 3 * * *"]
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+# RELAY_PUBKEY = "your_hex_pubkey"  # Optional: set your relay operator pubkey
+# RELAY_CONTACT = "admin@buildit.network"  # Optional: contact email
+
+# Development environment
+[env.dev]
+name = "buildit-relay-dev"
+[env.dev.vars]
+ENVIRONMENT = "development"
+
+# Preview/staging environment
+[env.preview]
+name = "buildit-relay-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+
+# ============================================================================
+# DEPLOYMENT INSTRUCTIONS
+# ============================================================================
+#
+# Initial Setup:
+# 1. Install dependencies:
+#    cd workers/relay && bun install
+#
+# 2. Create D1 database:
+#    wrangler d1 create buildit-relay
+#    (Copy the database_id and update it above)
+#
+# 3. Initialize database schema:
+#    After deploying, POST to /admin/init-db to create tables
+#    Or run: wrangler d1 execute buildit-relay --file=schema.sql
+#
+# 4. Deploy:
+#    wrangler deploy
+#
+# Local Development:
+#    wrangler dev
+#
+# Logs:
+#    wrangler tail
+#
+# Custom Domain:
+#    After deployment, add a custom domain in Cloudflare dashboard
+#    Example: relay.buildit.network
+#
+# ============================================================================

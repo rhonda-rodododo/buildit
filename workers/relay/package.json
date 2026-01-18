@@ -1,0 +1,25 @@
+{
+  "name": "buildit-relay",
+  "version": "1.0.0",
+  "description": "BuildIt Network Nostr Relay - Based on Nosflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "tail": "wrangler tail",
+    "db:create": "wrangler d1 create buildit-relay",
+    "db:init": "curl -X POST http://localhost:8787/admin/init-db",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.8.0",
+    "@noble/hashes": "^1.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.99.0"
+  }
+}

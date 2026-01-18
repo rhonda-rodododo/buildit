@@ -17,7 +17,12 @@
     "pages:dev": "wrangler pages dev dist --port 8788",
     "pages:build": "tsc && vite build",
     "pages:deploy": "bun run pages:build && wrangler pages deploy dist",
-    "pages:deploy:preview": "bun run pages:build && wrangler pages deploy dist --branch preview"
+    "pages:deploy:preview": "bun run pages:build && wrangler pages deploy dist --branch preview",
+    "relay:install": "cd workers/relay && bun install",
+    "relay:dev": "cd workers/relay && wrangler dev",
+    "relay:deploy": "cd workers/relay && wrangler deploy",
+    "relay:deploy:preview": "cd workers/relay && wrangler deploy --env preview",
+    "relay:tail": "cd workers/relay && wrangler tail"
   },
   "keywords": [
     "nostr",
@@ -133,6 +138,7 @@
     "katex": "^0.16.27",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.544.0",
+    "mdast-util-to-hast": "^13.2.1",
     "negentropy": "^0.0.0",
     "nostr-tools": "^2.17.0",
     "pako": "^2.1.0",
@@ -154,6 +160,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tar": "^7.5.3",
     "tiny-secp256k1": "^2.2.4",
+    "undici": "^7.18.2",
     "uuid": "^13.0.0",
     "valibot": "^1.2.0",
     "vite-plugin-top-level-await": "^1.6.0",
