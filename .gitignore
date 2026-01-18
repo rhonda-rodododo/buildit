@@ -36,6 +36,10 @@ coverage
 test-results
 playwright-report
 playwright/.cache
+lighthouse-audit/
+
+# Playwright MCP
+.playwright-mcp/
 
 # Build
 build
