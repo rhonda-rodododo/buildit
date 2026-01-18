@@ -61,6 +61,8 @@ import {
   Clock,
   Edit3,
   FolderOpen,
+  Tag,
+  X,
 } from 'lucide-react'
 import { getPublicKey } from 'nostr-tools'
 import type { DBGroupMember } from '@/core/storage/db'
@@ -94,6 +96,9 @@ export const DocumentsPage: FC = () => {
     toggleStar,
     suggestionModeEnabled,
     toggleSuggestionMode,
+    getAllTags,
+    addDocumentTag,
+    removeDocumentTag,
   } = useDocumentsStore()
 
   // UI State
@@ -111,6 +116,9 @@ export const DocumentsPage: FC = () => {
   const [showStarred, setShowStarred] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [showFolderTree, setShowFolderTree] = useState(true)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showTagInput, setShowTagInput] = useState(false)
+  const [newTagValue, setNewTagValue] = useState('')
 
   // Get documents for the group - explicitly typed
   const groupDocs: DocType[] = useMemo(() => {
@@ -121,6 +129,11 @@ export const DocumentsPage: FC = () => {
   const currentDoc = useMemo(() => {
     return currentDocumentId ? documents.get(currentDocumentId) : null
   }, [currentDocumentId, documents])
+
+  // Get all available tags in the group
+  const availableTags = useMemo(() => {
+    return groupId ? getAllTags(groupId) : []
+  }, [groupId, getAllTags, documents]) // documents dependency to recompute when docs change
 
   const nostrClient = getNostrClient()
 
@@ -158,6 +171,13 @@ export const DocumentsPage: FC = () => {
       )
     }
 
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      result = result.filter((doc) =>
+        selectedTags.every((tag) => doc.tags.includes(tag))
+      )
+    }
+
     // Sort
     switch (sortMode) {
       case 'updated':
@@ -172,7 +192,7 @@ export const DocumentsPage: FC = () => {
     }
 
     return result
-  }, [groupDocs, selectedFolderId, showStarred, searchQuery, sortMode, isStarred])
+  }, [groupDocs, selectedFolderId, showStarred, searchQuery, sortMode, isStarred, selectedTags])
 
   // Get comment count for a document
   const getCommentCount = useCallback(
@@ -359,6 +379,15 @@ export const DocumentsPage: FC = () => {
                   <MessageSquare className="h-3 w-3 ml-2" />
                   <span>{commentCount}</span>
                 </>
+              )}
+              {doc.tags.length > 0 && (
+                <div className="flex items-center gap-1 ml-2">
+                  <Tag className="h-3 w-3" />
+                  {doc.tags.slice(0, 2).map((tag) => (
+                    <span key={tag} className="text-xs">{tag}</span>
+                  ))}
+                  {doc.tags.length > 2 && <span>+{doc.tags.length - 2}</span>}
+                </div>
               )}
             </div>
           </div>
@@ -638,6 +667,68 @@ export const DocumentsPage: FC = () => {
                 </div>
               </div>
 
+              {/* Document Tags Row */}
+              <div className="border-b px-3 py-2 flex items-center gap-2 bg-muted/30">
+                <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
+                {currentDoc.tags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="gap-1 cursor-pointer hover:bg-secondary/80"
+                    onClick={() => removeDocumentTag(currentDoc.id, tag)}
+                  >
+                    {tag}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                ))}
+                {showTagInput ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      value={newTagValue}
+                      onChange={(e) => setNewTagValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newTagValue.trim()) {
+                          addDocumentTag(currentDoc.id, newTagValue.trim())
+                          setNewTagValue('')
+                          setShowTagInput(false)
+                        }
+                        if (e.key === 'Escape') {
+                          setNewTagValue('')
+                          setShowTagInput(false)
+                        }
+                      }}
+                      placeholder="Add tag..."
+                      className="h-6 w-24 text-xs"
+                      autoFocus
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        if (newTagValue.trim()) {
+                          addDocumentTag(currentDoc.id, newTagValue.trim())
+                        }
+                        setNewTagValue('')
+                        setShowTagInput(false)
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={() => setShowTagInput(true)}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add tag
+                  </Button>
+                )}
+              </div>
+
               {/* Editor and Comments */}
               <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 overflow-auto p-4">
@@ -775,6 +866,52 @@ export const DocumentsPage: FC = () => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Tag Filters */}
+                {(availableTags.length > 0 || selectedTags.length > 0) && (
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <Tag className="h-4 w-4 text-muted-foreground shrink-0" />
+                    {selectedTags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="default"
+                        className="cursor-pointer gap-1"
+                        onClick={() => setSelectedTags(selectedTags.filter((t) => t !== tag))}
+                      >
+                        {tag}
+                        <X className="h-3 w-3" />
+                      </Badge>
+                    ))}
+                    {availableTags
+                      .filter((tag) => !selectedTags.includes(tag))
+                      .slice(0, 8)
+                      .map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="outline"
+                          className="cursor-pointer hover:bg-muted"
+                          onClick={() => setSelectedTags([...selectedTags, tag])}
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    {availableTags.length > 8 && (
+                      <span className="text-xs text-muted-foreground">
+                        +{availableTags.length - 8} more
+                      </span>
+                    )}
+                    {selectedTags.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setSelectedTags([])}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Document List/Grid */}

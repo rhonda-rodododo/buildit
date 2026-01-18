@@ -96,6 +96,15 @@ interface DocumentsActions {
   updateCollaboratorPermission: (documentId: string, userPubkey: string, permission: DocumentPermission) => void
   getCollaborators: (documentId: string) => DocumentCollaborator[]
   getUserPermission: (documentId: string, userPubkey: string) => DocumentPermission | null
+
+  // Epic 56: Tags
+  addDocumentTag: (documentId: string, tag: string) => void
+  removeDocumentTag: (documentId: string, tag: string) => void
+  getAllTags: (groupId: string) => string[]
+  getDocumentsByTag: (groupId: string, tag: string) => Document[]
+
+  // Epic 56: Recent documents
+  getRecentDocuments: (groupId: string, limit?: number) => Document[]
 }
 
 export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set, get) => ({
@@ -433,5 +442,60 @@ export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set,
     const collabs = get().collaborators.get(documentId) || []
     const collab = collabs.find((c) => c.userPubkey === userPubkey)
     return collab?.permission || null
+  },
+
+  // Epic 56: Tags
+  addDocumentTag: (documentId, tag) =>
+    set((state) => {
+      const documents = new Map(state.documents)
+      const document = documents.get(documentId)
+      if (document) {
+        const normalizedTag = tag.trim().toLowerCase()
+        if (normalizedTag && !document.tags.includes(normalizedTag)) {
+          documents.set(documentId, {
+            ...document,
+            tags: [...document.tags, normalizedTag],
+            updatedAt: Date.now(),
+          })
+        }
+      }
+      return { documents }
+    }),
+
+  removeDocumentTag: (documentId, tag) =>
+    set((state) => {
+      const documents = new Map(state.documents)
+      const document = documents.get(documentId)
+      if (document) {
+        const normalizedTag = tag.trim().toLowerCase()
+        documents.set(documentId, {
+          ...document,
+          tags: document.tags.filter((t) => t !== normalizedTag),
+          updatedAt: Date.now(),
+        })
+      }
+      return { documents }
+    }),
+
+  getAllTags: (groupId) => {
+    const docs = Array.from(get().documents.values()).filter((d) => d.groupId === groupId)
+    const allTags = docs.flatMap((d) => d.tags)
+    // Return unique tags sorted alphabetically
+    return [...new Set(allTags)].sort()
+  },
+
+  getDocumentsByTag: (groupId, tag) => {
+    const normalizedTag = tag.trim().toLowerCase()
+    return Array.from(get().documents.values())
+      .filter((doc) => doc.groupId === groupId && doc.tags.includes(normalizedTag))
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+  },
+
+  // Epic 56: Recent documents
+  getRecentDocuments: (groupId, limit = 10) => {
+    return Array.from(get().documents.values())
+      .filter((doc) => doc.groupId === groupId)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, limit)
   },
 }))

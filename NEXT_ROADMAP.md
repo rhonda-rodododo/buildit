@@ -24,11 +24,11 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-17 (Test infrastructure fixes + module routing)
+**Last Updated**: 2026-01-18 (Roadmap cleanup - 12 completed epics moved to COMPLETED_ROADMAP)
 **Active Phase**: Phase 1 Complete - Quality/Testing (Epic 51)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 199/199 tests passing (100% pass rate, 18 test files)
-**E2E Coverage**: 66% of epics (21/32) ✅ Epic 47 delivered 207 tests across 12 files
+**E2E Coverage**: 85%+ of epics ✅ Epic 68 added 54 new tests (36 test files total)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
 
@@ -81,79 +81,6 @@ See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete archit
 
 ---
 
-## 🟡 High Priority: MVP+ Features
-
-### Epic 32: Documents Module Implementation 📄
-**Status**: ✅ Complete
-**Priority**: P1
-**Effort**: 20-30 hours (Actual: 12 hours)
-**Dependencies**: Epic 28 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Documents module with full WYSIWYG editor and real-time collaboration using CRDT technology.
-
-**Tasks**:
-- [x] Install TipTap editor and dependencies (yjs, y-indexeddb, @tiptap/extension-collaboration, jspdf)
-- [x] Create Document schema and types
-- [x] Implement DocumentsStore (Zustand)
-- [x] Build WYSIWYG editor component with TipTap
-  - Rich formatting (bold, italic, headings, lists)
-  - Tables, images, code blocks
-  - Markdown shortcuts
-  - Toolbar and keyboard shortcuts
-- [x] Implement document CRUD operations
-- [x] Add document templates (meeting notes, proposals, manifestos, press releases)
-- [x] Implement version control:
-  - Auto-save working
-  - Version history view
-  - Version snapshots
-  - Rollback functionality (via Yjs)
-- [x] Add real-time collaboration with CRDT:
-  - Cursor position indicators
-  - User presence with avatars
-  - Yjs CRDT for conflict-free merging
-  - Encrypted Nostr provider (custom implementation)
-  - y-indexeddb for offline support
-- [x] Implement export features:
-  - PDF export (jsPDF)
-  - Markdown export
-  - HTML export
-  - Plain text export
-- [x] Add document encryption (NIP-17 for CRDT updates)
-- [x] Create comprehensive seed data
-- [x] Write E2E tests for collaborative editing (6 comprehensive tests)
-
-**Acceptance Criteria**:
-- ✅ Documents module fully functional
-- ✅ Can create, edit, delete documents with rich formatting
-- ✅ Version history working with Yjs snapshots
-- ✅ Export to PDF/MD/HTML/TXT functional
-- ✅ Real-time collaboration working with multiple users
-- ✅ 5 document templates available
-- ✅ E2E tests passing for collaborative editing
-
-**Testing Requirements**:
-- ✅ E2E tests written (`tests/e2e/collaborative-editing.spec.ts`)
-- ✅ Build successful
-- ✅ Type errors fixed
-- ✅ Manual test: Real-time collaboration verified
-
-**Implementation Highlights**:
-- Custom EncryptedNostrProvider for privacy-preserving CRDT sync
-- NIP-17 encryption for all collaborative edits
-- Zero-knowledge relay architecture
-- Offline-first with y-indexeddb
-- Presence indicators with colored cursors
-- Participant avatars in real-time
-
-**Reference Docs**: [CRDT_COLLABORATION_IMPLEMENTATION.md](./CRDT_COLLABORATION_IMPLEMENTATION.md), `/src/modules/documents/`
-
-**Git Commit Format**: `feat: implement Documents module with TipTap WYSIWYG editor and CRDT collaboration (Epic 32)`
-
-**Git Tag**: `v0.32.0-documents`
-
----
-
 ## 🟢 Medium Priority: Enhanced Features
 
 ### Epic 36: Additional Translations (German, Portuguese, Mandarin) 🌍
@@ -196,68 +123,6 @@ See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete archit
 ---
 
 ## 🔵 Feature Completeness: Deferred Features
-
-### Epic 49A: Crypto Payment Integration 💰 (Client-Side Only)
-**Status**: ✅ Complete
-**Priority**: P1 - Complete Deferred Features (TIER 1, PHASE 1)
-**Effort**: 6-8 hours
-**Dependencies**: Epic 38 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-**Backend Required**: ❌ No (100% client-side)
-
-**Context**: Implement cryptocurrency payment processing fully client-side using HD wallets and blockchain explorers. No backend infrastructure required.
-
-**Architecture**: See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for full details.
-
-**Tasks**:
-- [x] **Bitcoin Integration (3-4h)**
-  - [x] Install bitcoinjs-lib library
-  - [x] Generate Bitcoin HD wallet addresses (BIP32/BIP44)
-  - [x] Display Bitcoin QR code for donations
-  - [x] Poll Blockstream.info API for transaction confirmations (client-side)
-  - [x] Update donation totals when transactions detected
-- [x] **Ethereum Integration (2-3h)**
-  - [x] Install ethers.js library
-  - [x] Generate Ethereum addresses from HD wallet
-  - [x] Display Ethereum QR code for donations
-  - [x] Poll Etherscan.io API for transaction confirmations
-  - [x] Support ERC-20 tokens (USDC, DAI)
-- [x] **Donation Tracking (1-2h)**
-  - [x] Store crypto donation records in IndexedDB
-  - [x] Publish donation confirmations to Nostr (encrypted)
-  - [x] Display donation history in fundraising dashboard
-  - [x] Export donation reports (CSV)
-
-**Acceptance Criteria**:
-- ✅ Bitcoin donations work end-to-end (address generation → QR → detection)
-- ✅ Ethereum donations work end-to-end
-- ✅ Transaction confirmations detected automatically
-- ✅ Donation records stored securely client-side
-- ⏳ E2E tests cover crypto donation workflow (deferred)
-- ✅ No backend infrastructure required
-
-**Privacy**: ✅ Fully P2P, no third-party involvement, no backend
-
-**Testing Requirements**:
-- ⏳ E2E tests for Bitcoin donation flow (deferred to Epic 51)
-- ⏳ E2E tests for Ethereum donation flow (deferred to Epic 51)
-- Manual testing with testnet transactions
-- ✅ Build successful
-- ✅ `bun run test && bun run typecheck` passes
-
-**Git Commit**: `feat(fundraising): add crypto payment integration - Bitcoin & Ethereum (Epic 49A)`
-**Git Tag**: `v0.49a.0-crypto-payments`
-
-**Reference Docs**:
-- [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 38
-- [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
-- `/src/modules/fundraising/`
-
-**Git Commit Format**: `feat: add crypto payment integration (Bitcoin, Ethereum) - client-side only (Epic 49A)`
-
-**Git Tag**: `v0.49a.0-crypto-payments`
-
----
 
 ### Epic 49B: Stripe/PayPal Integration 💳 (Backend Required)
 **Status**: Not Started (Deferred to Phase 3)
@@ -328,56 +193,6 @@ Client → Receives receipt from Nostr
 
 ---
 
-### Epic 50: Microblogging Enhancement 🐦 ✅
-**Status**: COMPLETE
-**Priority**: P1 - Complete Deferred Features (TIER 1)
-**Effort**: 8-12 hours
-**Dependencies**: Epic 40 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Microblogging is "80% complete" per COMPLETED_ROADMAP Epic 40. Need to finish deferred features: feed filtering by followed users, post scheduling, and improved search.
-
-**Tasks**:
-- [x] **Feed Filtering (3-4h)**
-  - [x] Implement "Following" feed (integrates with friendsStore)
-  - [x] Filter posts by followed users
-  - [x] Add "All" vs "Following" toggle (feed type selector)
-  - [x] Optimize feed query performance
-- [x] **Post Scheduling (3-4h)**
-  - [x] Add "Schedule Post" option in composer (split button with popover)
-  - [x] Store scheduled posts in IndexedDB (scheduledPosts table)
-  - [x] Publish scheduled posts (publishScheduledPost action)
-  - [x] Edit/delete scheduled posts
-  - [x] View scheduled posts list (ScheduledPostsView component)
-- [x] **Enhanced Search (2-3h)**
-  - [x] Filter by hashtags (existing)
-  - [x] Filter by date range (dateFrom/dateTo)
-  - [x] Filter by author (authorId filter)
-- [x] **Additional Features (1-2h)**
-  - [x] Post pinning (pin to profile, pinPost/unpinPost actions)
-  - [ ] Post analytics (views, engagement) - deferred to future epic
-  - [ ] Thread view improvements - deferred to future epic
-
-**Acceptance Criteria**:
-- [x] "Following" feed shows only posts from followed users
-- [x] Posts can be scheduled and publish on demand
-- [x] Search finds posts by content, hashtags, date range, and users
-- [x] Build successful
-- [x] `bun run test && bun run typecheck` passes (199/199 tests)
-
-**Testing Requirements**:
-- [x] Unit tests passing (199/199)
-- [x] Build successful
-- [x] TypeScript passes
-
-**Reference Docs**: [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 40, `/src/modules/microblogging/`
-
-**Git Commit**: `feat(microblogging): complete Epic 50 - Microblogging Enhancement`
-
-**Git Tag**: `v0.50.0-microblogging-complete`
-
----
-
 ### Epic 51: Quality & Testing Completion 🧪
 **Status**: In Progress
 **Priority**: P1 - Complete Deferred Features (TIER 1)
@@ -438,376 +253,10 @@ Client → Receives receipt from Nostr
 
 ---
 
-## 🔴 Critical: Product Audit Findings (2026-01-17)
-
-### Epic 63: Critical Bug Fixes from Product Audit 🐛
-**Status**: ✅ Complete
-**Priority**: P0 - Blocking bugs from comprehensive audit
-**Effort**: 4-6 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`bug-fixer`)
-
-**Context**: Deep product audit identified 6 HIGH severity bugs and 5 MEDIUM severity bugs that need immediate attention.
-
-**Tasks**:
-- [x] **HIGH: Fix database module type** (1 min)
-  - File: `src/modules/database/index.ts:22`
-  - Change `type: 'documents'` to `type: 'database'`
-- [x] **HIGH: Fix mutual-aid route visibility** (2 min)
-  - File: `src/modules/mutual-aid/index.ts:100`
-  - Uncomment `requiresEnabled: true`
-- [x] **HIGH: Fix member count calculation** (30 min)
-  - File: `src/components/groups/GroupList.tsx`
-  - Use actual member count from groupMembers store
-- [x] **HIGH: Fix EventFeedCard RSVP buttons** (1h)
-  - File: `src/components/feed/EventFeedCard.tsx:182-188`
-  - Wire up onClick handlers to actual RSVP functions
-- [x] **HIGH: Event privacy not enforced** (4-6h)
-  - File: `src/modules/events/hooks/useEvents.ts`
-  - Added canViewEvent() with privacy filtering based on group membership
-- [x] **HIGH: No cross-device event sync** (6-8h)
-  - File: `src/modules/events/eventManager.ts` + `useEvents.ts`
-  - Implemented syncEvents() with relay query and auto-sync on mount
-- [x] **MEDIUM: Add module dependency validation** (2h)
-  - File: `src/stores/moduleStore.ts`
-  - Check dependencies before enableModule
-  - Added to types/modules.ts: ModuleDependency interface
-- [x] **MEDIUM: Fix RSVP capacity race condition** (2h)
-  - File: `src/modules/events/eventManager.ts:165-234`
-  - Used Dexie transaction for atomic capacity check
-
-**Acceptance Criteria**:
-- [x] Database module type queries work correctly
-- [x] Mutual aid tab hidden when module disabled
-- [x] Member counts display accurate numbers
-- [x] EventFeedCard RSVP buttons functional
-- [x] Module dependency validation works
-- [x] Event privacy enforced
-- [x] Events sync across devices
-- [x] RSVP capacity race condition fixed
-
-**Git Commit**: `fix: critical bugs from product audit (Epic 63)`
-**Git Tag**: `v0.63.0-audit-bugfixes`
-
----
-
-### Epic 64: Member Management System 👥
-**Status**: ✅ Complete (core features)
-**Priority**: P0 - Required for multi-user MVP
-**Effort**: 25-35 hours
-**Dependencies**: Epic 63 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Group management is 50% complete. Member invitation, role management, and encryption key sharing are not implemented despite types being defined.
-
-**Tasks**:
-- [x] **Invitation System (8-12h)**
-  - Created `DBGroupInvitation` table in db.ts
-  - Created `MemberInviteDialog.tsx` component
-  - Generate invite links with expiration (1-90 days)
-  - Direct invite by pubkey with optional message
-  - Role assignment on invite
-- [x] **Pending Invitations View (4-6h)**
-  - Integrated into `GroupMembersTab.tsx`
-  - Show pending invitations with expiry countdown
-  - Revoke invitation functionality
-- [x] **Role Management UI (6-10h)**
-  - Role dropdown for each member (admin/moderator/member/read-only)
-  - Real-time role updates via Dexie
-  - Admin-only role management controls
-- [x] **Member Removal (2-4h)**
-  - Remove member button with confirmation dialog
-  - Immediate database removal
-- [ ] **Group Encryption Key Sharing (4-6h)** - Deferred to future epic
-  - Share group key with new members via NIP-17
-  - Handle key rotation on member removal
-  - Document key lifecycle
-
-**Acceptance Criteria**:
-- [x] Can invite members via link or pubkey
-- [x] Pending invitations visible and actionable
-- [x] Can change member roles (admin only)
-- [x] Can remove members from group
-- [ ] Group encryption keys shared securely (deferred)
-
-**Git Commit**: `feat(groups): implement member management system (Epic 64)`
-**Git Tag**: `v0.64.0-member-management`
-
----
-
-### Epic 65: Events Module Completion 📅
-**Status**: ✅ Complete (core features)
-**Priority**: P1 - Events 40% complete, missing critical features
-**Effort**: 20-30 hours
-**Dependencies**: Epic 63 complete
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Events module has solid foundation but missing multi-user features: no sync, no privacy enforcement, no attendee visibility, no editing.
-
-**Tasks**:
-- [x] **Enable Event Relay Sync (4-6h)**
-  - File: `src/modules/events/eventManager.ts:308-346`
-  - Implemented syncEvents() with relay subscription
-  - Auto-sync on mount via useEvents hook
-  - 10s timeout fallback
-- [x] **Implement Event Privacy Enforcement (4-6h)**
-  - File: `src/modules/events/hooks/useEvents.ts:67-100`
-  - Added canViewEvent() with privacy filtering
-  - Filter by public/group/private/direct-action
-  - Check group membership via userGroupIds
-- [x] **Add Attendee List View (3-4h)**
-  - Created `AttendeeList.tsx` component
-  - Collapsible groups by RSVP status (going/maybe/not-going)
-  - Show avatars and display names
-  - RSVP notes visible to event creator only
-- [x] **Add Event Editing UI (4-6h)**
-  - Created `EditEventDialog.tsx` component
-  - Pre-populates form from existing event
-  - Integrated into EventDetail with Edit button (creator only)
-- [x] **Wire Up Calendar View (2h)**
-  - Added Calendar tab to EventsView
-  - Connected existing CalendarView component
-  - iCal export already implemented
-- [ ] **Add Event Notifications (4-6h)** - Deferred
-  - Trigger notification on new event in group
-  - Trigger notification on RSVP to user's event
-  - Trigger notification on event update
-
-**Acceptance Criteria**:
-- [x] Events sync across devices via relays
-- [x] Private events only visible to invited users
-- [x] Event creator can see attendee list with details
-- [x] Can edit existing events
-- [x] Calendar view accessible
-- [ ] Notifications delivered for event activities (deferred)
-
-**Git Commit**: `feat(events): complete events module with sync and privacy (Epic 65)`
-**Git Tag**: `v0.65.0-events-complete`
-
----
-
-### Epic 66: Module Dependency System 🔗
-**Status**: ✅ Complete
-**Priority**: P1 - Silent failures when dependencies missing
-**Effort**: 8-12 hours
-**Dependencies**: Epic 63 complete
-**Assignable to subagent**: Yes (`refactorer`)
-
-**Context**: Module system had zero dependency enforcement. CRM can now be enabled without Database thanks to fixes in Epic 63.
-
-**Tasks**:
-- [x] **Add Dependency Declaration (2-3h)**
-  - Updated `ModulePlugin` interface in `src/types/modules.ts`
-  - Added `dependencies?: Array<{ moduleId: string; required: boolean }>`
-  - Added `conflicts?: string[]` for incompatible modules
-- [x] **Implement Dependency Validation (2-3h)**
-  - File: `src/stores/moduleStore.ts:100-188`
-  - Check dependencies before `enableModule()`
-  - Throw clear error if dependencies not met
-  - Check dependents before `disableModule()`
-- [x] **Add Dependency UI Warnings (2-3h)**
-  - File: `src/components/modules/ModuleSettings.tsx`
-  - Shows "Requires:" badge with missing dependencies
-  - Disable toggle until dependencies met
-  - Warning when disabling module with active dependents
-- [ ] **Add Data Export on Disable (2-3h)** - Deferred
-  - Prompt user to export module data before disabling
-  - Clarify data persists but is hidden
-- [x] **Add Cascading Delete for Groups (2-3h)**
-  - File: `src/stores/groupsStore.ts:170-244`
-  - Delete all module data (events, rsvps, requests, etc.) when group deleted
-  - Transaction-based with graceful handling for missing tables
-
-**Acceptance Criteria**:
-- [x] Modules declare dependencies in metadata
-- [x] Cannot enable module without required dependencies
-- [x] Cannot disable module that others depend on
-- [x] UI shows dependency information clearly
-- [x] Group deletion removes all module data
-
-**Git Commit**: `feat(modules): implement dependency enforcement system (Epic 66)`
-**Git Tag**: `v0.66.0-module-dependencies`
-
----
-
-### Epic 67: Visual UX Polish & Responsive Fixes 🎨
-**Status**: ✅ Complete (core fixes)
-**Priority**: P1 - UX issues identified via visual audit
-**Effort**: 10-15 hours
-**Dependencies**: Playwright visual review complete
-**Assignable to subagent**: Yes (`ux-designer`)
-
-**Context**: Visual UX review identified responsive issues, touch target problems, and design inconsistencies.
-
-**Tasks**:
-- [x] **Fix Main Navigation Tab Overflow** (1h)
-  - File: `src/App.tsx`
-  - Added icons with tooltips, responsive text (hidden on mobile)
-  - Used grid layout with 44px minimum touch targets
-- [x] **Fix Security Page Tab Overflow** (1h)
-  - File: `src/pages/settings/SecurityPage.tsx`
-  - Same pattern: icons + tooltips + responsive text
-- [x] **Fix Post Card Action Buttons** (2h)
-  - File: `src/modules/microblogging/components/PostCard.tsx`
-  - Icons-only on mobile, text on desktop
-  - 44px minimum touch targets
-- [ ] **Consolidate Settings Interfaces** (4-6h) - Deferred
-  - Remove dialog-based GroupSettingsDialog
-  - Use single GroupSettingsPage for all settings
-  - Consistent navigation pattern
-- [x] **Fix Module Selection Checkbox UX** (1h)
-  - File: `src/components/groups/CreateGroupDialog.tsx`
-  - Made entire card clickable with keyboard navigation
-  - Added proper ARIA roles (checkbox, checked states)
-- [x] **Fix Login Form Touch Targets** (1h)
-  - File: `src/components/auth/LoginForm.tsx`
-  - Password toggle buttons now 44px minimum
-  - Added aria-describedby for error messages
-- [ ] **Add Admin Indicator** (1h) - Deferred
-  - Show admin badge/indicator in UI
-  - Hide settings gear for non-admins
-
-**Acceptance Criteria**:
-- [x] No overflow on mobile viewports
-- [x] Touch targets meet 44px minimum
-- [ ] Consistent settings experience (deferred)
-- [ ] Admin status clearly visible (deferred)
-
-**Git Commit**: `fix(ux): visual polish and responsive fixes (Epic 67)`
-**Git Tag**: `v0.67.0-ux-polish`
-
----
-
-### Epic 68: E2E Test Suite Expansion 🧪
-**Status**: ✅ Complete
-**Priority**: P2 - Comprehensive test coverage
-**Effort**: 15-20 hours (Actual: 3 hours)
-**Dependencies**: Epics 63-65 complete
-**Assignable to subagent**: Yes (`test-writer`)
-
-**Context**: E2E test specifications created for 41 test cases across 5 priority areas. Current coverage gaps in auth, groups, events, and cross-module flows.
-
-**Tasks**:
-- [x] **Authentication Tests (3-4h)** - 8 tests
-  - Create new identity with password ✅
-  - Import existing identity from nsec ✅
-  - Lock and unlock flow ✅
-  - Auto-lock after inactivity (deferred - requires timeout simulation)
-  - Change password ✅
-  - Switch identities ✅
-  - Duplicate identity prevention ✅
-- [x] **Group Management Tests (3-4h)** - 11 tests
-  - Create public/private groups ✅
-  - Enable/disable modules ✅
-  - Module data persistence ✅
-  - Member management ✅ (role changes, removal)
-  - Invite links generation ✅
-  - Invitation revocation ✅
-- [x] **Events Module Tests (3-4h)** - 12 tests
-  - Create event with all fields ✅
-  - RSVP and capacity limits ✅
-  - Privacy enforcement ✅
-  - Attendee list display ✅
-  - Edit event ✅
-  - Cancel RSVP ✅
-  - Calendar view navigation ✅
-  - Custom fields ✅
-- [x] **Microblogging Tests (4-5h)** - 24 tests
-  - Post creation with markdown/hashtags ✅
-  - Reactions and comments ✅
-  - Scheduled posts ✅
-  - Feed filtering ✅
-  - Hashtag filtering ✅
-  - View/edit scheduled posts ✅
-  - Publish immediately ✅
-- [x] **Cross-Module Integration Tests (2-3h)** - 7 tests
-  - Navigation between modules ✅
-  - Deep linking ✅
-  - Group context switching ✅
-  - State persistence after refresh ✅
-  - Activity feed integration ✅
-
-**Acceptance Criteria**:
-- ✅ 41+ new E2E tests implemented (54 total new tests)
-- ⏳ All tests pass consistently (requires Playwright execution)
-- ✅ Coverage includes critical user flows
-- ✅ Test utilities reusable
-
-**Git Commit**: `test: expand E2E test suite with 41 new tests (Epic 68)`
-**Git Tag**: `v0.68.0-e2e-tests`
-
----
-
-### Epic 69: Shared Embed Infrastructure 🔗
-**Status**: ✅ Complete
-**Priority**: P2 - Feature enhancement
-**Effort**: 8-12 hours
-**Dependencies**: None (can run in parallel with other epics)
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Social media embeds are implemented only in TipTap documents. Need unified system for microblogging, long-form posts, and other content types with click-to-load privacy pattern.
-
-**Tasks**:
-- [x] **Create shared embed types and provider registry** (2h)
-  - Files: `src/lib/embed/types.ts`, `src/lib/embed/providers.ts`
-  - Unified EmbedProvider and EmbedData interfaces
-  - Single source of truth for provider configs (YouTube, Vimeo, PeerTube, SoundCloud, Spotify, Mastodon, CodePen, CodeSandbox)
-- [x] **Create shared utilities** (1h)
-  - File: `src/lib/embed/utils.ts`
-  - URL detection, domain extraction, provider matching
-  - extractUrlsFromText, isEmbeddableUrl, detectProvider
-- [x] **Create useEmbed hook** (2h)
-  - File: `src/lib/embed/useEmbed.ts`
-  - Fetch embed data from oEmbed proxy
-  - Click-to-load state management
-  - Support for trusted providers (direct embed) and oEmbed providers
-- [x] **Create EmbedCard component** (2h)
-  - File: `src/lib/embed/EmbedCard.tsx`
-  - Standalone component with click-to-load
-  - Responsive, accessible, mobile-friendly
-  - Error handling and loading states
-- [x] **Integrate URL detection in posts** (1h)
-  - File: `src/modules/microblogging/postsStore.ts`
-  - Populate `links` array on post creation using extractUrlsFromText
-- [x] **Render embeds in PostCard** (2h)
-  - File: `src/modules/microblogging/components/PostCard.tsx`
-  - Show EmbedCard for first embeddable URL in post.links
-- [x] **Refactor SecureEmbed to use shared code** (1h)
-  - File: `src/modules/documents/extensions/SecureEmbed.tsx`
-  - Import from shared lib, reduce duplication
-  - Maintain TipTap-specific logic
-
-**Acceptance Criteria**:
-- [x] YouTube, Vimeo, Spotify embeds work in posts
-- [x] Click-to-load pattern for privacy
-- [x] Privacy-enhanced URLs used (youtube-nocookie, dnt=1)
-- [x] EmbedCard reusable across modules
-- [x] No duplicate provider configurations
-
-**Privacy & Security**:
-- Click-to-load default - No third-party requests until user clicks
-- Provider allowlist - Only trusted providers supported
-- Sandboxed iframes - Restrictive sandbox permissions per provider
-- Privacy-enhanced URLs - youtube-nocookie.com, Vimeo dnt=1
-- referrerPolicy="no-referrer" - Prevent URL leaking
-
-**Files Created**:
-- `src/lib/embed/types.ts` - Shared type definitions
-- `src/lib/embed/providers.ts` - Provider registry
-- `src/lib/embed/utils.ts` - URL detection utilities
-- `src/lib/embed/useEmbed.ts` - React hook for embed loading
-- `src/lib/embed/EmbedCard.tsx` - Standalone embed component
-- `src/lib/embed/index.ts` - Public exports
-
-**Git Commit**: `feat: shared embed infrastructure for posts and documents (Epic 69)`
-**Git Tag**: `v0.69.0-shared-embeds`
-
----
-
 ## 🟣 Publishing Platform Features
 
-### Epic 52: Long-Form Publishing Module 📝 ✅
-**Status**: COMPLETE
+### Epic 53B: Newsletter Module - Email Delivery 📬 (Backend Required)
+**Status**: Not Started (Deferred to Phase 3)
 **Priority**: P2 - Publishing Platform (TIER 2)
 **Effort**: 20-30 hours (Actual: 15 hours)
 **Dependencies**: Epic 32 complete (Documents module)
@@ -1223,7 +672,7 @@ buildit-network/
 ## 📚 Docs/Drive Enhancement
 
 ### Epic 56: Advanced Document Features ✨
-**Status**: Not Started
+**Status**: In Progress (90% complete - minor features remaining)
 **Priority**: P2 - Comprehensive Docs (TIER 4)
 **Effort**: 15-20 hours
 **Dependencies**: Epic 32 complete (Documents module)
@@ -1232,31 +681,31 @@ buildit-network/
 **Context**: User requested docs "as comprehensive and user friendly as google docs/drive, proton drive, etc". Add advanced features to match Google Docs capabilities.
 
 **Tasks**:
-- [ ] **Commenting & Suggestions (6-8h)**
-  - [ ] Add inline comments on text selections
-  - [ ] Add suggestion mode (track changes)
-  - [ ] Resolve/dismiss comments
-  - [ ] Reply to comments (threaded)
+- [x] **Commenting & Suggestions (6-8h)**
+  - [x] Add inline comments on text selections
+  - [x] Add suggestion mode (track changes)
+  - [x] Resolve/dismiss comments
+  - [x] Reply to comments (threaded)
   - [ ] Mention users in comments (@username)
-- [ ] **Advanced Editing (4-6h)**
-  - [ ] Add mathematical equations (KaTeX)
-  - [ ] Add diagrams (Mermaid or similar)
-  - [ ] Add table of contents (auto-generated)
-  - [ ] Add footnotes/endnotes
+- [x] **Advanced Editing (4-6h)**
+  - [x] Add mathematical equations (KaTeX)
+  - [x] Add diagrams (Mermaid or similar)
+  - [x] Add table of contents (auto-generated)
+  - [x] Add footnotes/endnotes
   - [ ] Add page breaks
   - [ ] Add headers/footers
-- [ ] **Document Organization (3-4h)**
-  - [ ] Folders/collections for documents
-  - [ ] Tags and labels
-  - [ ] Star/favorite documents
-  - [ ] Recent documents list
-  - [ ] Search across documents
-- [ ] **Permissions & Sharing (2-3h)**
-  - [ ] View-only access
-  - [ ] Comment-only access
-  - [ ] Edit access
-  - [ ] Share with link (public/private)
-  - [ ] Expiring share links
+- [x] **Document Organization (3-4h)**
+  - [x] Folders/collections for documents
+  - [x] Tags and labels
+  - [x] Star/favorite documents
+  - [x] Recent documents list
+  - [x] Search across documents
+- [x] **Permissions & Sharing (2-3h)**
+  - [x] View-only access
+  - [x] Comment-only access
+  - [x] Edit access
+  - [x] Share with link (public/private)
+  - [x] Expiring share links
 
 **Acceptance Criteria**:
 - Comments and suggestions work in documents
@@ -1567,164 +1016,6 @@ buildit-network/
 
 ---
 
-## 🔴 Product Audit Findings (2026-01-17)
-
-### Epic 63: Critical Bug Fixes from Product Audit 🐛
-**Status**: ✅ VERIFIED FIXED
-**Priority**: P0
-**Context**: Deep product audit identified critical bugs. All verified as already fixed.
-**Verified Fixes**:
-- [x] Database module type (was `documents`, now `database`)
-- [x] Mutual-aid route requiresEnabled (now enabled)
-- [x] Member count uses actual groupMembers data
-- [x] EventFeedCard RSVP buttons wired up correctly
-
----
-
-### Epic 64: Member Management System 👥
-**Status**: Not Started
-**Priority**: P0 - Required for multi-user MVP
-**Effort**: 25-35 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Group management is ~50% complete. Member invitation, role management, and encryption key sharing are not implemented.
-
-**Tasks**:
-- [ ] **Invitation System (8-12h)**
-  - Create `DBGroupInvitation` schema
-  - Implement `MemberInviteDialog.tsx`
-  - Generate invite links with expiration
-  - Handle invitation acceptance/decline
-- [ ] **Pending Invitations View (4-6h)**
-  - Show received/sent invitations
-  - Accept/decline buttons
-- [ ] **Role Management UI (6-10h)**
-  - Add role dropdown to member list
-  - Promote/demote functionality
-- [ ] **Member Removal (2-4h)**
-  - Remove member with confirmation
-- [ ] **Group Encryption Key Sharing (4-6h)**
-  - Share key with new members via NIP-17
-
-**Acceptance Criteria**:
-- Can invite members via link or pubkey
-- Can change member roles (admin only)
-- Can remove members from group
-- Group keys shared securely
-
-**Git Commit**: `feat(groups): implement member management system (Epic 64)`
-**Git Tag**: `v0.64.0-member-management`
-
----
-
-### Epic 65: Events Module Completion 📅
-**Status**: Not Started
-**Priority**: P1
-**Effort**: 20-30 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`feature-implementer`)
-
-**Context**: Events module 40% complete. Missing multi-user features: sync, privacy enforcement, attendee visibility, editing.
-
-**Tasks**:
-- [ ] **Enable Event Relay Sync (4-6h)** - `src/modules/events/hooks/useEvents.ts:178-184`
-- [ ] **Implement Event Privacy Enforcement (4-6h)** - Filter by privacy level
-- [ ] **Add Attendee List View (3-4h)** - Show who's going/maybe/not-going
-- [ ] **Add Event Editing UI (4-6h)** - `EditEventDialog.tsx`
-- [ ] **Wire Up Calendar View (2h)** - Connect existing CalendarView
-- [ ] **Add Event Notifications (4-6h)** - Trigger on RSVP, new event
-
-**Acceptance Criteria**:
-- Events sync across devices
-- Private events only visible to invited users
-- Can edit existing events
-- Calendar view accessible
-
-**Git Commit**: `feat(events): complete events module with sync and privacy (Epic 65)`
-**Git Tag**: `v0.65.0-events-complete`
-
----
-
-### Epic 66: Module Dependency System 🔗
-**Status**: Not Started
-**Priority**: P1
-**Effort**: 8-12 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`refactorer`)
-
-**Context**: Module system has zero dependency enforcement. CRM can be enabled without Database, causing silent failures.
-
-**Tasks**:
-- [ ] **Add Dependency Declaration (2-3h)**
-  - Update `ModulePlugin` interface with `dependencies?: Array<{ moduleId: string; required: boolean }>`
-- [ ] **Implement Dependency Validation (2-3h)**
-  - Check before `enableModule()`, throw if not met
-- [ ] **Add Dependency UI Warnings (2-3h)**
-  - Show "Requires: Database" in ModuleSettings
-- [ ] **Add Cascading Delete for Groups (2-3h)**
-  - Delete module data when group deleted
-
-**Acceptance Criteria**:
-- Modules declare dependencies in metadata
-- Cannot enable module without dependencies
-- Group deletion removes all module data
-
-**Git Commit**: `feat(modules): implement dependency enforcement system (Epic 66)`
-**Git Tag**: `v0.66.0-module-dependencies`
-
----
-
-### Epic 67: Visual UX Polish 🎨
-**Status**: Not Started
-**Priority**: P1
-**Effort**: 10-15 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes (`ux-designer`)
-
-**Context**: Visual audit identified responsive issues and design inconsistencies.
-
-**Tasks**:
-- [ ] **Fix Security Page Tab Overflow (1h)** - Change `grid-cols-6` to responsive
-- [ ] **Fix Post Card Action Buttons (2h)** - Icon-only on mobile
-- [ ] **Consolidate Settings Interfaces (4-6h)** - Remove dialog-based settings
-- [ ] **Add Admin Indicator (1h)** - Show badge/hide settings for non-admins
-
-**Acceptance Criteria**:
-- No overflow on mobile viewports
-- Consistent settings experience
-- Admin status clearly visible
-
-**Git Commit**: `fix(ux): visual polish and responsive fixes (Epic 67)`
-**Git Tag**: `v0.67.0-ux-polish`
-
----
-
-### Epic 68: E2E Test Suite Expansion 🧪
-**Status**: Not Started
-**Priority**: P2
-**Effort**: 15-20 hours
-**Dependencies**: Epics 64-65
-**Assignable to subagent**: Yes (`test-writer`)
-
-**Context**: E2E specifications created for 41 tests across auth, groups, events, microblogging, cross-module.
-
-**Tasks**:
-- [ ] **Authentication Tests (3-4h)** - 8 tests (identity, lock, password)
-- [ ] **Group Management Tests (3-4h)** - 7 tests (create, modules, members)
-- [ ] **Events Module Tests (3-4h)** - 7 tests (RSVP, capacity, privacy)
-- [ ] **Microblogging Tests (4-5h)** - 14 tests (posts, reactions, scheduled)
-- [ ] **Cross-Module Tests (2-3h)** - 5 tests (navigation, persistence)
-
-**Acceptance Criteria**:
-- 41 new E2E tests implemented
-- All tests pass consistently
-
-**Git Commit**: `test: comprehensive E2E test suite expansion (Epic 68)`
-**Git Tag**: `v0.68.0-e2e-tests`
-
----
-
 ## 📋 Backlog: Nice to Have
 
 ### Backlog Item 0: Content Curation & Marketplace (Epic 46+)
@@ -1868,27 +1159,11 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2025-10-08 (Epic 47 complete - moved to COMPLETED_ROADMAP)
-**Total Epics Pending**: 10 (Epic 31, 35-39, 43, 45)
-**Total Backlog Items**: 11+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
+**Last Updated**: 2026-01-18 (Roadmap cleanup - moved 12 completed epics to COMPLETED_ROADMAP)
+**Total Epics Pending**: ~15 (Epic 31, 36, 45, 49B, 51, 53B, 54-62)
+**Total Backlog Items**: 5+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
 
 ---
-
-### Epic 34 Follow-up: UI/UX Fixes ✅ COMPLETED
-**Status**: ✅ Complete
-**Priority**: P1
-**Effort**: 4-6 hours (Actual: 2 hours)
-**Dependencies**: Epic 34
-
-**Completed**:
-- [x] ✅ Add markdown rendering to PostCard (react-markdown + remark-gfm + rehype-sanitize)
-- [x] ✅ Fix emoji picker positioning and styling
-- [x] ✅ Comment out non-functional toolbar buttons with TODOs
-
-**Git Commit**: `fix: add markdown rendering and fix post composer UI (Epic 34 follow-up)`
-
----
-
 
 ### Epic 45: Pleasure Activism UX Philosophy 🌸
 **Status**: Not Started
