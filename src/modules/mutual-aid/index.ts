@@ -9,6 +9,7 @@ import { mutualAidSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Heart } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load MutualAidView to reduce initial bundle size
 const MutualAidView = lazy(() => import('./components/MutualAidView').then(m => ({ default: m.MutualAidView })));
@@ -114,17 +115,23 @@ export const mutualAidModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Mutual Aid module registered');
+      logger.info('💗 Mutual Aid module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Mutual Aid module enabled for group ${groupId}`, config);
+      logger.info(`💗 Mutual Aid module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Mutual Aid module disabled for group ${groupId}`);
+      logger.info(`💗 Mutual Aid module disabled for group ${groupId}`);
     },
   },
 
   routes: [
+    {
+      path: 'mutual-aid',
+      component: MutualAidView,
+      scope: 'app',
+      label: 'Mutual Aid',
+    },
     {
       path: 'mutual-aid',
       component: MutualAidView,

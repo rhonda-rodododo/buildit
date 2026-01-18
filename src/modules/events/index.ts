@@ -9,6 +9,7 @@ import { eventsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Calendar } from 'lucide-react';
 import { lazy } from 'react';
+import { logger } from '@/lib/logger';
 
 // Lazy load EventsView to reduce initial bundle size
 const EventsView = lazy(() => import('./components/EventsView').then(m => ({ default: m.EventsView })));
@@ -100,17 +101,23 @@ export const eventsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Events module registered');
+      logger.info('📅 Events module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Events module enabled for group ${groupId}`, config);
+      logger.info(`📅 Events module enabled for group ${groupId}`, config);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Events module disabled for group ${groupId}`);
+      logger.info(`📅 Events module disabled for group ${groupId}`);
     },
   },
 
   routes: [
+    {
+      path: 'events',
+      component: EventsView,
+      scope: 'app',
+      label: 'Events',
+    },
     {
       path: 'events',
       component: EventsView,
