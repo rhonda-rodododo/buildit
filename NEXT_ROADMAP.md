@@ -203,12 +203,12 @@ Client → Receives receipt from Nostr
 **Context**: Epic 47 deferred Phase 4 E2E tests (theme, i18n, routing) and Epic 30 deferred comprehensive Lighthouse audit. Complete these for production readiness.
 
 **Tasks**:
-- [ ] **E2E Phase 4 Tests (6-8h)**
-  - [ ] Theme switching tests (light/dark/system)
-  - [ ] i18n tests (all 7 languages)
-  - [ ] Routing tests (navigation, redirects, 404)
-  - [ ] PWA tests (offline mode, install)
-  - [ ] Accessibility tests (keyboard nav, screen reader)
+- [x] **E2E Phase 4 Tests (6-8h)** ✅ Complete
+  - [x] Theme switching tests (light/dark/system) - tests/e2e/theme.spec.ts
+  - [x] i18n tests (all 7 languages) - tests/e2e/i18n.spec.ts
+  - [x] Routing tests (navigation, redirects, 404) - tests/e2e/routing.spec.ts
+  - [x] PWA tests (offline mode, install) - tests/e2e/pwa.spec.ts
+  - [x] Accessibility tests (keyboard nav, screen reader) - tests/e2e/accessibility.spec.ts
 - [ ] **Lighthouse Audit (2-3h)**
   - [ ] Run Lighthouse on all major pages
   - [ ] Fix performance issues (score 90+)
