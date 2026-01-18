@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Table } from 'dexie'
-import { db, type DBGroup, type DBGroupMember } from '@/core/storage/db'
+import { db, type DBGroup, type DBGroupMember, type DBGroupInvitation } from '@/core/storage/db'
 import { generateSecretKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
 import { createGroup as createNostrGroup } from '@/core/groups/groupManager'
@@ -11,6 +11,8 @@ interface GroupsState {
   activeGroup: DBGroup | null
   groups: DBGroup[]
   groupMembers: Map<string, DBGroupMember[]>
+  pendingInvitations: DBGroupInvitation[]
+  sentInvitations: DBGroupInvitation[]
   isLoading: boolean
   error: string | null
 }
@@ -27,6 +29,25 @@ interface GroupsActions {
   updateGroup: (groupId: string, updates: Partial<DBGroup>) => Promise<void>
   deleteGroup: (groupId: string) => Promise<void>
   toggleModule: (groupId: string, module: string) => Promise<void>
+  // Invitation methods
+  createInvitation: (
+    groupId: string,
+    inviterPubkey: string,
+    options: {
+      inviteePubkey?: string
+      role?: DBGroupMember['role']
+      message?: string
+      expiresInHours?: number
+    }
+  ) => Promise<DBGroupInvitation>
+  loadPendingInvitations: (userPubkey: string) => Promise<void>
+  loadSentInvitations: (userPubkey: string) => Promise<void>
+  acceptInvitation: (invitationId: string, userPubkey: string) => Promise<void>
+  declineInvitation: (invitationId: string) => Promise<void>
+  revokeInvitation: (invitationId: string) => Promise<void>
+  // Member management
+  updateMemberRole: (groupId: string, memberPubkey: string, newRole: DBGroupMember['role']) => Promise<void>
+  removeMember: (groupId: string, memberPubkey: string) => Promise<void>
 }
 
 export const useGroupsStore = create<GroupsState & GroupsActions>()(
@@ -35,6 +56,8 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       activeGroup: null,
       groups: [],
       groupMembers: new Map(),
+      pendingInvitations: [],
+      sentInvitations: [],
       isLoading: false,
       error: null,
 
@@ -269,6 +292,159 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           set({ error: errorMsg })
           throw error
         }
+      },
+
+      // Invitation methods
+      createInvitation: async (groupId, inviterPubkey, options) => {
+        const { inviteePubkey, role = 'member', message, expiresInHours = 168 } = options // Default 7 days
+
+        // Generate unique invite code for link invites
+        const code = !inviteePubkey
+          ? bytesToHex(generateSecretKey()).slice(0, 16)
+          : undefined
+
+        const invitation: DBGroupInvitation = {
+          id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
+          groupId,
+          inviterPubkey,
+          inviteePubkey,
+          code,
+          role,
+          status: 'pending',
+          message,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + expiresInHours * 60 * 60 * 1000,
+        }
+
+        await db.groupInvitations.add(invitation)
+
+        // Update sent invitations list
+        set(state => ({
+          sentInvitations: [...state.sentInvitations, invitation]
+        }))
+
+        return invitation
+      },
+
+      loadPendingInvitations: async (userPubkey) => {
+        try {
+          const now = Date.now()
+          const invitations = await db.groupInvitations
+            .where('inviteePubkey')
+            .equals(userPubkey)
+            .and(inv => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
+            .toArray()
+
+          set({ pendingInvitations: invitations })
+        } catch (error) {
+          console.error('Failed to load pending invitations:', error)
+        }
+      },
+
+      loadSentInvitations: async (userPubkey) => {
+        try {
+          const invitations = await db.groupInvitations
+            .where('inviterPubkey')
+            .equals(userPubkey)
+            .toArray()
+
+          set({ sentInvitations: invitations })
+        } catch (error) {
+          console.error('Failed to load sent invitations:', error)
+        }
+      },
+
+      acceptInvitation: async (invitationId, userPubkey) => {
+        const invitation = await db.groupInvitations.get(invitationId)
+        if (!invitation) throw new Error('Invitation not found')
+        if (invitation.status !== 'pending') throw new Error('Invitation is no longer pending')
+        if (invitation.expiresAt && invitation.expiresAt < Date.now()) {
+          await db.groupInvitations.update(invitationId, { status: 'expired' })
+          throw new Error('Invitation has expired')
+        }
+
+        // Add user as group member
+        await db.groupMembers.add({
+          groupId: invitation.groupId,
+          pubkey: userPubkey,
+          role: invitation.role,
+          joined: Date.now(),
+        })
+
+        // Update invitation status
+        await db.groupInvitations.update(invitationId, {
+          status: 'accepted',
+          acceptedAt: Date.now(),
+        })
+
+        // Reload groups and invitations
+        await get().loadGroups(userPubkey)
+        await get().loadPendingInvitations(userPubkey)
+      },
+
+      declineInvitation: async (invitationId) => {
+        await db.groupInvitations.update(invitationId, { status: 'declined' })
+        set(state => ({
+          pendingInvitations: state.pendingInvitations.filter(inv => inv.id !== invitationId)
+        }))
+      },
+
+      revokeInvitation: async (invitationId) => {
+        await db.groupInvitations.update(invitationId, { status: 'revoked' })
+        set(state => ({
+          sentInvitations: state.sentInvitations.map(inv =>
+            inv.id === invitationId ? { ...inv, status: 'revoked' as const } : inv
+          )
+        }))
+      },
+
+      // Member management
+      updateMemberRole: async (groupId, memberPubkey, newRole) => {
+        const members = get().groupMembers.get(groupId) || []
+        const member = members.find(m => m.pubkey === memberPubkey)
+        if (!member || !member.id) throw new Error('Member not found')
+
+        await db.groupMembers.update(member.id, { role: newRole })
+
+        // Update adminPubkeys in group if role changed to/from admin
+        const group = get().groups.find(g => g.id === groupId)
+        if (group) {
+          let adminPubkeys = [...group.adminPubkeys]
+          if (newRole === 'admin' && !adminPubkeys.includes(memberPubkey)) {
+            adminPubkeys.push(memberPubkey)
+          } else if (newRole !== 'admin' && adminPubkeys.includes(memberPubkey)) {
+            adminPubkeys = adminPubkeys.filter(pk => pk !== memberPubkey)
+          }
+          if (adminPubkeys.length !== group.adminPubkeys.length) {
+            await get().updateGroup(groupId, { adminPubkeys })
+          }
+        }
+
+        // Reload members
+        await get().loadGroupMembers(groupId)
+      },
+
+      removeMember: async (groupId, memberPubkey) => {
+        const members = get().groupMembers.get(groupId) || []
+        const member = members.find(m => m.pubkey === memberPubkey)
+        if (!member || !member.id) throw new Error('Member not found')
+
+        // Check if this is the last admin
+        const group = get().groups.find(g => g.id === groupId)
+        if (group && group.adminPubkeys.includes(memberPubkey) && group.adminPubkeys.length === 1) {
+          throw new Error('Cannot remove the last admin. Transfer admin role first.')
+        }
+
+        await db.groupMembers.delete(member.id)
+
+        // Update adminPubkeys if member was admin
+        if (group && group.adminPubkeys.includes(memberPubkey)) {
+          const adminPubkeys = group.adminPubkeys.filter(pk => pk !== memberPubkey)
+          await get().updateGroup(groupId, { adminPubkeys })
+        }
+
+        // Reload members
+        await get().loadGroupMembers(groupId)
       },
     })
 )
