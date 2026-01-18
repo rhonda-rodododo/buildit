@@ -5,7 +5,6 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ProtectedKeyStorageService } from '@/lib/webauthn/ProtectedKeyStorage';
-import type { ProtectedKeyStorage } from '@/types/device';
 
 describe('Key Rotation and Re-encryption', () => {
   let service: ProtectedKeyStorageService;

@@ -13,38 +13,23 @@ import type {
 } from './types';
 
 // ============================================================================
-// Database Table Interfaces (exported for Dexie)
+// Database Table Types (exported for Dexie)
 // ============================================================================
 
-/**
- * Articles table
- * Long-form content entries
- */
-export interface DBArticle extends Article {}
+/** Articles table - Long-form content entries */
+export type DBArticle = Article;
 
-/**
- * Article Drafts table
- * Auto-saved drafts for articles
- */
-export interface DBArticleDraft extends ArticleDraft {}
+/** Article Drafts table - Auto-saved drafts for articles */
+export type DBArticleDraft = ArticleDraft;
 
-/**
- * Publications table
- * Blog/newsletter publications
- */
-export interface DBPublication extends Publication {}
+/** Publications table - Blog/newsletter publications */
+export type DBPublication = Publication;
 
-/**
- * Subscriptions table
- * Reader subscriptions to publications
- */
-export interface DBSubscription extends Subscription {}
+/** Subscriptions table - Reader subscriptions to publications */
+export type DBSubscription = Subscription;
 
-/**
- * Article Views table
- * Privacy-preserving view tracking
- */
-export interface DBArticleView extends ArticleView {}
+/** Article Views table - Privacy-preserving view tracking */
+export type DBArticleView = ArticleView;
 
 // ============================================================================
 // Module Schema Definition

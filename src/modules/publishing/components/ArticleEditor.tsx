@@ -140,17 +140,6 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
     },
   });
 
-  // Auto-save every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (editor && !isSaving) {
-        handleAutoSave();
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [editor, isSaving, title, subtitle, coverImage, tags, visibility, seo]);
-
   // Handle auto-save
   const handleAutoSave = useCallback(async () => {
     if (!editor) return;
@@ -174,6 +163,17 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
       setIsSaving(false);
     }
   }, [editor, title, subtitle, coverImage, tags, visibility, seo, onSave]);
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (editor && !isSaving) {
+        handleAutoSave();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [editor, isSaving, handleAutoSave]);
 
   // Handle manual save
   const handleSave = () => {

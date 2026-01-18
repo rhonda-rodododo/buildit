@@ -6,7 +6,6 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import { setupTestDatabase, teardownTestDatabase } from '@/test/test-utils';
 import { usePostsStore } from './postsStore';
-import type { ReactionType } from './types';
 
 describe('PostsStore - Advanced Social Features', () => {
   beforeAll(async () => {

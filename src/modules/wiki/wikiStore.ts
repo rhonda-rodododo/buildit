@@ -50,7 +50,7 @@ export const useWikiStore = create<WikiState>((set, get) => ({
   }),
 
   removePage: (id) => set((state) => {
-    const { [id]: removed, ...rest } = state.pages
+    const { [id]: _removed, ...rest } = state.pages
     return { pages: rest }
   }),
 
@@ -62,7 +62,7 @@ export const useWikiStore = create<WikiState>((set, get) => ({
   })),
 
   removeCategory: (id) => set((state) => {
-    const { [id]: removed, ...rest } = state.categories
+    const { [id]: _removed, ...rest } = state.categories
     return { categories: rest }
   }),
 

@@ -157,7 +157,7 @@ export const UserDirectory: FC = () => {
           {/* Filters */}
           <div className="flex gap-4 flex-wrap">
             <div className="flex-1 min-w-[200px]">
-              <Select value={filterVerified} onValueChange={(v: any) => setFilterVerified(v)}>
+              <Select value={filterVerified} onValueChange={(v) => setFilterVerified(v as 'all' | 'verified' | 'unverified')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by verification" />
                 </SelectTrigger>
@@ -170,7 +170,7 @@ export const UserDirectory: FC = () => {
             </div>
 
             <div className="flex-1 min-w-[200px]">
-              <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'name' | 'username' | 'recent')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>

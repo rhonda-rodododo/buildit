@@ -31,6 +31,7 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
     if (status === TorStatus.DISABLED) {
       initialize();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: only detect Tor once on mount
   }, []);
 
   const getStatusConfig = (status: TorStatus) => {

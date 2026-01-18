@@ -11,26 +11,17 @@ import type {
 } from './types';
 
 // ============================================================================
-// Database Table Interfaces (exported for Dexie)
+// Database Table Types (exported for Dexie)
 // ============================================================================
 
-/**
- * Public Pages table
- * SEO-optimized public pages for groups
- */
-export interface DBPublicPage extends PublicPage {}
+/** Public Pages table - SEO-optimized public pages for groups */
+export type DBPublicPage = PublicPage;
 
-/**
- * Analytics table
- * Privacy-preserving analytics events
- */
-export interface DBAnalytics extends Analytics {}
+/** Analytics table - Privacy-preserving analytics events */
+export type DBAnalytics = Analytics;
 
-/**
- * Analytics Summaries table
- * Aggregated analytics for dashboards
- */
-export interface DBAnalyticsSummary extends AnalyticsSummary {}
+/** Analytics Summaries table - Aggregated analytics for dashboards */
+export type DBAnalyticsSummary = AnalyticsSummary;
 
 // ============================================================================
 // Module Schema Definition

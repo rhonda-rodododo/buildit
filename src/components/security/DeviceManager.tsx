@@ -32,7 +32,7 @@ import {
   Clock,
   MapPin,
 } from 'lucide-react';
-import type { DeviceInfo } from '@/types/device';
+import type { DeviceInfo, DeviceSession } from '@/types/device';
 
 const DEVICE_ICONS = {
   desktop: Monitor,
@@ -175,7 +175,7 @@ export function DeviceManager() {
 interface DeviceCardProps {
   device: DeviceInfo;
   isCurrent: boolean;
-  sessions: any[];
+  sessions: DeviceSession[];
   onRemove: () => void;
   onTrust: () => void;
   onUntrust: () => void;

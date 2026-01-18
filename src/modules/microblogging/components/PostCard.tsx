@@ -440,10 +440,11 @@ export const PostCard: FC<PostCardProps> = ({
           <div className="space-y-4">
             {/* Quote content input */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label htmlFor="quote-content" className="text-sm font-medium mb-2 block">
                 Your comment
               </label>
               <textarea
+                id="quote-content"
                 value={quoteContent}
                 onChange={(e) => setQuoteContent(e.target.value)}
                 placeholder="What do you think about this?"

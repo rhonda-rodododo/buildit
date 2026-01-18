@@ -48,7 +48,7 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   }),
 
   removeProposal: (id) => set((state) => {
-    const { [id]: removed, ...rest } = state.proposals
+    const { [id]: _removed, ...rest } = state.proposals
     return { proposals: rest }
   }),
 

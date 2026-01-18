@@ -134,3 +134,11 @@ export type * from './types';
 
 // Export store
 export { usePostsStore } from './postsStore';
+
+// Export scheduler
+export {
+  startScheduledPostsScheduler,
+  stopScheduledPostsScheduler,
+  isSchedulerRunning,
+  triggerScheduledPostsCheck,
+} from './scheduledPostsScheduler';

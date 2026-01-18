@@ -15,50 +15,29 @@ import type {
 } from './types';
 
 // ============================================================================
-// Database Table Interfaces (exported for Dexie)
+// Database Table Types (exported for Dexie)
 // ============================================================================
 
-/**
- * Campaigns table
- * Fundraising campaigns
- */
-export interface DBCampaign extends Campaign {}
+/** Campaigns table - Fundraising campaigns */
+export type DBCampaign = Campaign;
 
-/**
- * Campaign Updates table
- * Updates posted to campaigns
- */
-export interface DBCampaignUpdate extends CampaignUpdate {}
+/** Campaign Updates table - Updates posted to campaigns */
+export type DBCampaignUpdate = CampaignUpdate;
 
-/**
- * Donations table
- * Individual donation records
- */
-export interface DBDonation extends Donation {}
+/** Donations table - Individual donation records */
+export type DBDonation = Donation;
 
-/**
- * Donation Tiers table
- * Tiered donation levels for campaigns
- */
-export interface DBDonationTier extends DonationTier {}
+/** Donation Tiers table - Tiered donation levels for campaigns */
+export type DBDonationTier = DonationTier;
 
-/**
- * Crypto Wallets table
- * HD wallet addresses for crypto donations
- */
-export interface DBCryptoWallet extends CryptoWallet {}
+/** Crypto Wallets table - HD wallet addresses for crypto donations */
+export type DBCryptoWallet = CryptoWallet;
 
-/**
- * Crypto Transactions table
- * Blockchain transaction records
- */
-export interface DBCryptoTransaction extends CryptoTransaction {}
+/** Crypto Transactions table - Blockchain transaction records */
+export type DBCryptoTransaction = CryptoTransaction;
 
-/**
- * Crypto Donation Requests table
- * Pending crypto payment requests
- */
-export interface DBCryptoDonationRequest extends CryptoDonationRequest {}
+/** Crypto Donation Requests table - Pending crypto payment requests */
+export type DBCryptoDonationRequest = CryptoDonationRequest;
 
 // ============================================================================
 // Module Schema Definition

@@ -78,7 +78,7 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
     return () => {
       client.unsubscribe(subId)
     }
-  }, [currentIdentity, conversationId, otherPubkey, setMessages, addMessage, markAsRead])
+  }, [currentIdentity, conversationId, otherPubkey, setMessages, addMessage, markAsRead, addNotification])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

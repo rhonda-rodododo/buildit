@@ -53,7 +53,7 @@ export function decompressMessage(data: Uint8Array): string {
   try {
     const decompressed = pako.inflate(data);
     return decoder.decode(decompressed);
-  } catch (error) {
+  } catch {
     // Not compressed, return as-is
     return decoder.decode(data);
   }

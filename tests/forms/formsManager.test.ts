@@ -7,7 +7,6 @@ import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { formsManager } from '@/modules/forms/formsManager';
 import { initializeDatabase } from '@/core/storage/db';
 import { db } from '@/core/storage/db';
-import type { Form, Campaign } from '@/modules/forms/types';
 
 describe('FormsManager', () => {
   const testGroupId = 'test-group-1';

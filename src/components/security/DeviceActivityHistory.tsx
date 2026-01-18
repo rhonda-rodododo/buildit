@@ -20,10 +20,11 @@ import {
   ShieldOff,
   AlertTriangle,
   X,
+  type LucideIcon,
 } from 'lucide-react';
 import type { DeviceActivity, DeviceActivityType } from '@/types/device';
 
-const ACTIVITY_ICONS: Record<DeviceActivityType, any> = {
+const ACTIVITY_ICONS: Record<DeviceActivityType, LucideIcon> = {
   login: LogIn,
   logout: LogOut,
   key_access: Key,

@@ -346,7 +346,7 @@ export class SecureKeyManager {
       this.emit({ type: 'unlocked', publicKey: encryptedData.publicKey });
 
       return privateKey;
-    } catch (error) {
+    } catch {
       throw new Error('Invalid password or corrupted key data');
     }
   }

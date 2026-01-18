@@ -224,6 +224,7 @@ export const PostComposer: FC<PostComposerProps> = ({
           placeholder={placeholder}
           className="min-h-[100px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
           disabled={isPosting}
+          aria-label="Post content"
         />
 
         {/* Character count and hashtag/mention indicators */}
@@ -435,10 +436,11 @@ export const PostComposer: FC<PostComposerProps> = ({
                       <span className="font-medium">Schedule post</span>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground mb-2 block">
+                      <label htmlFor="schedule-datetime" className="text-sm text-muted-foreground mb-2 block">
                         Choose when to publish
                       </label>
                       <Input
+                        id="schedule-datetime"
                         type="datetime-local"
                         value={scheduledDateTime}
                         onChange={(e) => setScheduledDateTime(e.target.value)}

@@ -38,6 +38,7 @@ export function SecurityPage() {
       }
     };
     initDevice();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: only initialize device once on mount
   }, []);
 
   return (

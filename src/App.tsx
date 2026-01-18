@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { useDeviceStore } from '@/stores/deviceStore'
 import { usePostsStore } from '@/modules/microblogging/postsStore'
+import { startScheduledPostsScheduler, stopScheduledPostsScheduler } from '@/modules/microblogging/scheduledPostsScheduler'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { HomePage } from '@/pages/HomePage'
 import { MessagingView } from '@/components/messaging/MessagingView'
@@ -37,13 +38,14 @@ const App: FC = () => {
     if (pathname) {
         navigate(pathname)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: only restore navigation once on mount
   }, [])
 
   useEffect(() => {
     // Load identities on mount (database is initialized in main.tsx)
     loadIdentities()
 
-    // Initialize device t  acking and WebAuthn support
+    // Initialize device tracking and WebAuthn support
     checkWebAuthnSupport()
     initializeCurrentDevice()
 
@@ -62,6 +64,19 @@ const App: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Start/stop scheduled posts scheduler based on login state
+  useEffect(() => {
+    if (currentIdentity) {
+      startScheduledPostsScheduler()
+    } else {
+      stopScheduledPostsScheduler()
+    }
+
+    return () => {
+      stopScheduledPostsScheduler()
+    }
+  }, [currentIdentity])
 
   if (!currentIdentity) {
     return (

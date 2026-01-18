@@ -10,20 +10,20 @@ import type {
 } from './types';
 
 // ============================================================================
-// Database Table Interfaces (exported for Dexie)
+// Database Table Types (exported for Dexie)
 // ============================================================================
 
 /**
  * Forms table
- * Public-facing interfaces for database tables
+ * Public-facing type for database tables
  */
-export interface DBForm extends Form {}
+export type DBForm = Form;
 
 /**
  * Form Submissions table
  * Metadata about form submissions (actual data goes to database records)
  */
-export interface DBFormSubmission extends FormSubmission {}
+export type DBFormSubmission = FormSubmission;
 
 // ============================================================================
 // Module Schema Definition

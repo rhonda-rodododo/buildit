@@ -3,7 +3,7 @@
  * Preview files with support for images, PDFs, videos, audio, and text files
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { X, Download, Share2, Clock, RotateCcw } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -27,12 +27,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
   const [loadingVersions, setLoadingVersions] = useState(false)
   const file = useFilesStore((state) => state.getFile(fileId))
 
-  useEffect(() => {
-    loadPreview()
-    loadVersions()
-  }, [fileId, groupKey])
-
-  const loadPreview = async () => {
+  const loadPreview = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -43,9 +38,9 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
     } finally {
       setLoading(false)
     }
-  }
+  }, [fileId, groupKey])
 
-  const loadVersions = async () => {
+  const loadVersions = useCallback(async () => {
     setLoadingVersions(true)
     try {
       const fileVersions = await fileManager.getFileVersions(fileId)
@@ -55,7 +50,12 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
     } finally {
       setLoadingVersions(false)
     }
-  }
+  }, [fileId])
+
+  useEffect(() => {
+    loadPreview()
+    loadVersions()
+  }, [loadPreview, loadVersions])
 
   const handleDownload = async () => {
     if (!file) return

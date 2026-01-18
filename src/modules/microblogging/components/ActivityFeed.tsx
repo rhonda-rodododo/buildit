@@ -253,8 +253,9 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                 <label className="text-sm font-medium mb-2 block">Date Range</label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <label className="text-xs text-muted-foreground mb-1 block">From</label>
+                    <label htmlFor="filter-date-from" className="text-xs text-muted-foreground mb-1 block">From</label>
                     <Input
+                      id="filter-date-from"
                       type="date"
                       value={feedFilter.dateFrom ? new Date(feedFilter.dateFrom).toISOString().split('T')[0] : ''}
                       onChange={(e) => {
@@ -264,8 +265,9 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-muted-foreground mb-1 block">To</label>
+                    <label htmlFor="filter-date-to" className="text-xs text-muted-foreground mb-1 block">To</label>
                     <Input
+                      id="filter-date-to"
                       type="date"
                       value={feedFilter.dateTo ? new Date(feedFilter.dateTo).toISOString().split('T')[0] : ''}
                       onChange={(e) => {
