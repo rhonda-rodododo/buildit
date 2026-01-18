@@ -5,6 +5,7 @@ import { NostrClient } from '@/core/nostr/client'
 import { CreateEventFormData, RSVPStatus, Event } from '../types'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
+import { useNotificationStore } from '@/stores/notificationStore'
 import { bytesToHex } from '@noble/hashes/utils'
 
 // Initialize Nostr client (singleton pattern)
@@ -26,6 +27,7 @@ const eventManager = new EventManager(getNostrClient())
 export function useEvents(groupId?: string) {
   const { currentIdentity } = useAuthStore()
   const { groups, groupMembers } = useGroupsStore()
+  const { addNotification } = useNotificationStore()
   const {
     events,
     addEvent,
@@ -212,9 +214,29 @@ export function useEvents(groupId?: string) {
       )
 
       addRSVP(rsvp)
+
+      // Send confirmation notification
+      const event = getEventById(eventId)
+      if (event) {
+        const statusLabels = {
+          going: 'Going',
+          maybe: 'Maybe',
+          'not-going': 'Not Going',
+        }
+        addNotification({
+          type: 'event_rsvp',
+          title: 'RSVP Confirmed',
+          message: `You marked "${event.title}" as ${statusLabels[status]}`,
+          metadata: {
+            eventId,
+            groupId: event.groupId,
+          },
+        })
+      }
+
       return rsvp
     },
-    [currentIdentity, addRSVP]
+    [currentIdentity, addRSVP, getEventById, addNotification]
   )
 
   /**

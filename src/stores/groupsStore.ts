@@ -6,6 +6,7 @@ import { bytesToHex } from '@noble/hashes/utils'
 import { createGroup as createNostrGroup } from '@/core/groups/groupManager'
 import { getNostrClient } from '@/core/nostr/client'
 import type { GroupCreationParams } from '@/types/group'
+import { useNotificationStore } from '@/stores/notificationStore'
 
 interface GroupsState {
   activeGroup: DBGroup | null
@@ -375,6 +376,19 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         await db.groupInvitations.update(invitationId, {
           status: 'accepted',
           acceptedAt: Date.now(),
+        })
+
+        // Get group name for notification
+        const group = await db.groups.get(invitation.groupId)
+
+        // Send notification
+        useNotificationStore.getState().addNotification({
+          type: 'group_invitation',
+          title: 'Joined Group',
+          message: `You've joined ${group?.name || 'the group'}`,
+          metadata: {
+            groupId: invitation.groupId,
+          },
         })
 
         // Reload groups and invitations

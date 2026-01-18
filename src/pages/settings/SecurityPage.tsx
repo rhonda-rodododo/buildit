@@ -129,7 +129,7 @@ export function SecurityPage() {
       {/* Main Tabs */}
       <Tabs defaultValue="devices" className="space-y-6">
         <TooltipProvider delayDuration={300}>
-          <TabsList className="grid w-full grid-cols-6 gap-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="devices" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
