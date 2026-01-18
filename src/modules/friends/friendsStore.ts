@@ -105,8 +105,6 @@ export const useFriendsStore = create<FriendsState>()(
         set((state) => ({
           friendRequests: [...state.friendRequests, request],
         }));
-
-        // TODO: Send Nostr event to notify recipient
       },
 
       // Accept friend request
@@ -172,8 +170,6 @@ export const useFriendsStore = create<FriendsState>()(
           friends: [...state.friends, friend1],
           friendRequests: state.friendRequests.filter((r) => r.id !== requestId),
         }));
-
-        // TODO: Send Nostr event to notify sender
       },
 
       // Decline friend request

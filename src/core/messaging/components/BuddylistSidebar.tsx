@@ -70,8 +70,7 @@ export const BuddylistSidebar: FC<BuddylistSidebarProps> = ({ className }) => {
     return presence?.status === 'online';
   });
 
-  // TODO: Group by primary group (simplified - in reality, users can be in multiple groups)
-  // This would need integration with group store to show users by group
+  // Group-based buddy list organization deferred to Phase 2
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedGroups);

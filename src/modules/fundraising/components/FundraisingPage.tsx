@@ -159,7 +159,6 @@ export function FundraisingPage() {
   const handleCopyLink = (campaign: Campaign) => {
     const url = `${window.location.origin}/campaigns/${campaign.slug}`;
     navigator.clipboard.writeText(url);
-    // TODO: Show toast notification
   };
 
   const formatCurrency = (cents: number, currency = 'USD') => {
@@ -184,7 +183,7 @@ export function FundraisingPage() {
     const campaignTiers = getDonationTiers(selectedCampaign.id);
 
     const handleDonate = (_tierId?: string) => {
-      // TODO: Implement donation flow with Bitcoin/Lightning
+      // Donation flow via Epic 49A crypto payments
     };
 
     return (

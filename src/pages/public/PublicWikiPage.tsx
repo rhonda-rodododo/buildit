@@ -40,7 +40,7 @@ export const PublicWikiPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // TODO: Load public wiki pages from Nostr or local DB
+    // Nostr public wiki integration deferred to Epic 53A - using demo data
     const loadPage = async () => {
       setIsLoading(true);
 

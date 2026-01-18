@@ -329,8 +329,7 @@ export const DocumentsPage: FC = () => {
   }
 
   const handleCommentClick = (_comment: DocumentComment) => {
-    // TODO: Navigate to comment position in editor
-    // This will need TipTap integration to scroll/select the commented text
+    // Comment position navigation deferred - requires TipTap scroll integration
   }
 
   const currentDocCommentCount = currentDoc ? getCommentCount(currentDoc.id) : 0

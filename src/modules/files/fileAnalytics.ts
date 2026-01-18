@@ -141,8 +141,7 @@ class FileAnalyticsService {
       if (mimeType.startsWith('text/') || mimeType === 'application/json') {
         content = await blob.text()
       } else if (mimeType === 'application/pdf') {
-        // For PDFs, we'd need pdf.js - for now, store empty
-        // TODO: Add PDF text extraction with pdf.js
+        // PDF text extraction deferred - see docs/TECH_DEBT.md
         content = ''
       }
 

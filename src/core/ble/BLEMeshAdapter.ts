@@ -413,8 +413,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    */
   private async startAdvertising(): Promise<void> {
     console.warn('[BLE Mesh] Peripheral mode not yet supported in Web Bluetooth API');
-    // TODO: Implement when Web Bluetooth API adds peripheral support
-    // For now, we can only act as central (client)
+    // Peripheral mode blocked by Web Bluetooth API - Phase 4+
   }
 
   /**
@@ -548,7 +547,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Perform periodic sync with peers
    */
   private async performSync(): Promise<void> {
-    // TODO: Implement Negentropy sync protocol
+    // Negentropy sync protocol deferred to Phase 4+ BLE mesh
     logger.info('[BLE Mesh] Periodic sync (Negentropy not yet implemented)');
   }
 

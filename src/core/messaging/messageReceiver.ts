@@ -126,7 +126,7 @@ class MessageReceiverService {
     const privateKey = getCurrentPrivateKey();
     if (!privateKey) {
       logger.warn('App is locked, cannot decrypt incoming message');
-      // TODO: Queue for later decryption when unlocked
+      // Message queueing for locked state deferred to Epic 60
       return;
     }
 
@@ -201,9 +201,8 @@ class MessageReceiverService {
       // This can happen when receiving a message in a new conversation
       logger.info(`Creating new conversation: ${conversationId}`);
 
-      // For now, we'll skip creating conversations from incoming messages
+      // Conversation discovery from incoming messages deferred to Phase 2
       // The sender should have created the conversation first
-      // TODO: Implement conversation discovery/creation from incoming messages
       return;
     }
 

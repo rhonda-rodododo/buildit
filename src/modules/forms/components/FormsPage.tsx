@@ -122,7 +122,7 @@ export function FormsPage() {
       const newForm: Form = {
         id: nanoid(),
         groupId,
-        tableId: 'default-table', // TODO: Link to actual database table
+        tableId: 'default-table', // Database linkage deferred to Phase 2
         title: formData.title,
         description: formData.description,
         status: 'draft',
@@ -199,7 +199,6 @@ export function FormsPage() {
   const handleCopyLink = (form: Form) => {
     const url = `${window.location.origin}/forms/${form.id}`;
     navigator.clipboard.writeText(url);
-    // TODO: Show toast notification
   };
 
   const handleFormSubmit = async (formId: string, _data: Record<string, unknown>) => {
@@ -252,7 +251,7 @@ export function FormsPage() {
     const submissions = getSubmissionsByForm(selectedForm.id);
 
     const handleExportSubmissions = () => {
-      // TODO: Implement CSV export for form submissions
+      // CSV export deferred - see docs/TECH_DEBT.md
     };
 
     return (
@@ -264,7 +263,7 @@ export function FormsPage() {
         </div>
         <SubmissionsList
           submissions={submissions}
-          onViewDetails={() => { /* TODO: Implement submission detail view */ }}
+          onViewDetails={() => { /* Detail view deferred to Phase 2 */ }}
           onFlagSpam={flagSubmissionAsSpam}
           onMarkProcessed={markSubmissionProcessed}
           onExport={handleExportSubmissions}
@@ -311,7 +310,7 @@ export function FormsPage() {
             const newForm: Form = {
               id: nanoid(),
               groupId,
-              tableId: 'default-table', // TODO: Link to actual database table
+              tableId: 'default-table', // Database linkage deferred to Phase 2
               title: template.name,
               description: template.description,
               status: 'draft',

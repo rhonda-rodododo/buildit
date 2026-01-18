@@ -172,7 +172,7 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
   )
 }
 
-// TODO: Implement auto-numbering footnotes
+// Auto-numbering footnotes deferred - see docs/TECH_DEBT.md
 // Counter for footnote numbers (resets per document)
 // let footnoteCounter = 0
 
@@ -264,7 +264,7 @@ export const Footnote = Node.create<FootnoteOptions>({
   },
 })
 
-// TODO: Export a function to reset footnote counter when auto-numbering is implemented
+// Footnote counter reset function - will be enabled with auto-numbering
 // export const resetFootnoteCounter = () => {
 //   footnoteCounter = 0
 // }

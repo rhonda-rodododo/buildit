@@ -50,8 +50,7 @@ export const CampaignPage: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Load campaign data from Nostr public events or local DB
-    // For now, show demo data
+    // Nostr public events integration deferred to Epic 53A - using demo data
     const loadCampaign = async () => {
       setIsLoading(true);
 

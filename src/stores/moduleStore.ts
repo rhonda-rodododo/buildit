@@ -512,7 +512,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           const targetEnabled = targetInstance?.state === 'enabled';
 
           // Version compatibility check (simplified - just check if enabled)
-          // TODO: Implement proper semver comparison if needed
+          // Semver comparison deferred - currently all modules compatible
           const versionCompatible = true;
 
           const satisfied =

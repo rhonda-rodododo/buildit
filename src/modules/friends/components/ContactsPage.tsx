@@ -168,10 +168,10 @@ export function ContactsPage() {
                   key={friend.id}
                   friend={friend}
                   onMessage={() => {
-                    // TODO: Open message dialog with this friend
+                    // Message dialog integration deferred to Phase 2
                   }}
                   onViewProfile={() => {
-                    // TODO: Open profile view for this friend
+                    // Profile view integration deferred to Phase 2
                   }}
                 />
               ))}

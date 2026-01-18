@@ -18,8 +18,7 @@ export function calculateMatchScore(request: AidItem, offer: AidItem): MatchResu
     reasons.push('Category match')
   }
 
-  // Location proximity (20 points)
-  // Simplified: exact match for now, TODO: implement geolocation distance
+  // Location proximity (20 points) - geolocation distance deferred to Phase 2
   if (request.location && offer.location) {
     if (request.location.toLowerCase() === offer.location.toLowerCase()) {
       score += 20

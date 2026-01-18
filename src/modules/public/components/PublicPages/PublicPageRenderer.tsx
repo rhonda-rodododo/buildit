@@ -16,9 +16,8 @@ interface PublicPageRendererProps {
 }
 
 export function PublicPageRenderer({ page, showMetadata = false }: PublicPageRendererProps) {
-  // Track page view analytics
+  // Track page view analytics - deferred due to privacy implications
   useEffect(() => {
-    // TODO: Track analytics event
     // addAnalyticsEvent({
     //   id: nanoid(),
     //   groupId: page.groupId,

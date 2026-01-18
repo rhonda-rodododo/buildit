@@ -171,10 +171,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
     if (activeTab === 'all') {
       return feedItems;
     } else if (activeTab === 'my-groups') {
-      // TODO: Filter by user's groups when group membership tracking is implemented
+      // Group membership filtering deferred to Phase 2
       return feedItems.filter(item => item.groupId !== undefined);
     } else if (activeTab === 'mentions') {
-      // TODO: Filter by mentions when mention tracking is fully implemented
+      // Mention tracking deferred to Phase 2
       return feedItems;
     }
     return feedItems;

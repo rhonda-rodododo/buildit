@@ -65,7 +65,7 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
   };
 
   const handleRecordClick = (_record: DatabaseRecord) => {
-    // TODO: Open a record detail dialog
+    // Record detail dialog deferred to Phase 2
   };
 
   if (groupTables.length === 0) {

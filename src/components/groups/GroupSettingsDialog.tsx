@@ -62,7 +62,7 @@ export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigg
                     Configure general group settings
                   </p>
                 </div>
-                {/* TODO: Implement general settings */}
+                {/* General settings deferred to Phase 2 */}
                 <p className="text-muted-foreground">General settings coming soon...</p>
               </div>
             </TabsContent>

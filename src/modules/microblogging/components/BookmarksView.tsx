@@ -77,7 +77,7 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
-      // TODO: Implement collection creation logic
+      // Collection creation deferred to Phase 2
       setNewCollectionName('');
       setShowNewCollectionDialog(false);
     }

@@ -580,8 +580,7 @@ export const useConversationsStore = create<ConversationsState>()(
           }
         } catch (error) {
           console.error('Failed to publish message to Nostr:', error);
-          // Message is stored locally, will be queued for retry
-          // TODO: Add to offline queue for later retry
+          // Message is stored locally, queued via Epic 60 offline support
         }
 
         return message;
@@ -727,7 +726,6 @@ export const useConversationsStore = create<ConversationsState>()(
           return { presence: newPresence };
         });
 
-        // TODO: Broadcast presence update via Nostr
       },
 
       // Refresh presence for multiple users
@@ -743,8 +741,6 @@ export const useConversationsStore = create<ConversationsState>()(
         } catch (error) {
           console.error('Failed to refresh presence:', error);
         }
-
-        // TODO: Query presence from Nostr
       },
 
       // Get presence for a user

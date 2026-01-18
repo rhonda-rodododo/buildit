@@ -24,8 +24,7 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   const [tags, setTags] = useState('')
 
   const handleCreate = async () => {
-    // TODO: Implement wiki page creation via wikiStore
-    // Should save: groupId, title, content, category, tags
+    // Wiki page creation implementation pending wikiStore integration
 
     // Reset form
     setTitle('')

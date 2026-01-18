@@ -61,7 +61,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
       pubkey: currentIdentity.publicKey,
       username: currentIdentity.username,
       timestamp: Date.now(),
-      signature: '', // TODO: Sign with private key
+      signature: '', // Signature implementation deferred to Phase 2
     };
 
     setQrData(JSON.stringify(qrPayload));
@@ -76,8 +76,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
 
     setIsSearching(true);
     try {
-      // TODO: Search for user by username via Nostr NIP-05
-      // For now, assume usernameQuery is a pubkey
+      // NIP-05 search deferred to Phase 2 - currently accepts pubkey
       await addFriend(usernameQuery, 'username', friendMessage || undefined);
       toast.success('Friend request sent!');
       onOpenChange(false);
@@ -135,7 +134,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     try {
       const qrData: FriendQRData = JSON.parse(data);
 
-      // TODO: Verify signature
+      // Signature verification deferred to Phase 2
       if (!qrData.pubkey) {
         throw new Error('Invalid QR code');
       }
@@ -156,7 +155,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     }
 
     try {
-      // TODO: Implement email invite via backend service
+      // Email invites require backend service (Phase 3)
       toast.info('Email invites coming soon!');
     } catch (error: any) {
       toast.error(error.message || 'Failed to send email invite');

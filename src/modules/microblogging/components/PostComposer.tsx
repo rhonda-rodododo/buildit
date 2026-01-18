@@ -299,64 +299,8 @@ export const PostComposer: FC<PostComposerProps> = ({
 
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t">
-          {/* Media and attachment buttons - TODO: Implement functionality */}
+          {/* Media and attachment buttons - deferred to Epic 55 */}
           <div className="flex items-center gap-1">
-            {/* TODO: Implement image upload with Files module
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 px-3"
-              disabled={true}
-              title="Add image (coming soon)"
-            >
-              <Image className="w-4 h-4" />
-            </Button>
-            */}
-            {/* TODO: Implement video upload
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 px-3"
-              disabled={true}
-              title="Add video (coming soon)"
-            >
-              <Video className="w-4 h-4" />
-            </Button>
-            */}
-            {/* TODO: Implement location tagging
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 px-3"
-              disabled={true}
-              title="Add location (coming soon)"
-            >
-              <MapPin className="w-4 h-4" />
-            </Button>
-            */}
-            {/* TODO: Link to Events module
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 px-3"
-              disabled={true}
-              title="Create event (coming soon)"
-            >
-              <Calendar className="w-4 h-4" />
-            </Button>
-            */}
-            {/* TODO: Link to Documents module
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 px-3"
-              disabled={true}
-              title="Attach document (coming soon)"
-            >
-              <FileText className="w-4 h-4" />
-            </Button>
-            */}
-
             <div className="relative">
               <Button
                 variant="ghost"

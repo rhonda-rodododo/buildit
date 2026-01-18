@@ -7,6 +7,6 @@ import type { ModuleSeed } from '@/types/modules';
 
 /**
  * Seed data for documents module
- * TODO: Implement in Phase 2
+ * Seed templates implementation deferred to Phase 2
  */
 export const documentsSeeds: ModuleSeed[] = [];

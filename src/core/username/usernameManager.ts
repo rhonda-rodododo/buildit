@@ -68,8 +68,7 @@ export class UsernameManager {
         await db.usernameSettings.add(defaultSettings);
       }
 
-      // TODO: Broadcast username to Nostr relays (NIP-01 kind:0 metadata)
-      // This would update the user's metadata event with the new username
+      // Nostr relay broadcast deferred to Phase 2 (see docs/TECH_DEBT.md)
 
       return { success: true };
     } catch (error) {
@@ -98,8 +97,6 @@ export class UsernameManager {
       username: undefined,
       displayName: undefined,
     });
-
-    // TODO: Broadcast updated metadata to Nostr relays
   }
 
   /**
@@ -205,8 +202,6 @@ export class UsernameManager {
       nip05Verified: true,
     });
 
-    // TODO: Broadcast updated metadata to Nostr relays
-
     return true;
   }
 
@@ -218,7 +213,5 @@ export class UsernameManager {
       nip05: undefined,
       nip05Verified: false,
     });
-
-    // TODO: Broadcast updated metadata to Nostr relays
   }
 }

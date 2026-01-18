@@ -246,7 +246,6 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           }
         }}
         onPreview={() => {
-          // TODO: Implement preview
           toast.info('Preview coming soon');
         }}
         onClose={() => setViewState({ type: 'dashboard' })}

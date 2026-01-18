@@ -77,7 +77,6 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
   const handleCopyLink = (page: PublicPage) => {
     const url = `${window.location.origin}/${groupId}/${page.slug}`;
     navigator.clipboard.writeText(url);
-    // TODO: Show toast notification
   };
 
   const getTypeIcon = (type: PublicPage['type']) => {

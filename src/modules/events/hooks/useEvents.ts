@@ -90,7 +90,7 @@ export function useEvents(groupId?: string) {
         // - Creator
         // - Co-hosts
         // - Group members (if event has groupId)
-        // - Explicitly invited users (TODO: implement invitation list)
+        // - Explicitly invited users (invitation list deferred to Phase 2)
         if (event.createdBy === userPubkey) return true
         if (event.coHosts?.includes(userPubkey)) return true
         if (event.groupId && userGroupIds.has(event.groupId)) return true

@@ -217,7 +217,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
   }, [logs, mountTime]);
 
   const handleExportLogs = () => {
-    // TODO: Implement CSV export for audit logs
+    // CSV export deferred - see docs/TECH_DEBT.md
   };
 
   const getActionIcon = (actionType: AuditLog['actionType']) => {

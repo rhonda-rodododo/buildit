@@ -56,8 +56,7 @@ async function processMessageItem(item: MessageQueueItem): Promise<boolean> {
 
     // The message was already stored locally, just need to publish to Nostr
     // This will be handled by the sendMessage function which handles network errors
-    // For now, we mark as completed since the local storage is done
-    // TODO: Implement Nostr publish retry separately
+    // Nostr publish retry deferred to Epic 60
 
     logger.info(`[QueueProcessor] Processed message queue item: ${item.id}`);
     return true;
@@ -142,7 +141,7 @@ async function processFileUploadItem(item: FileUploadQueueItem): Promise<boolean
 
     logger.info(`[QueueProcessor] Processing file upload: ${payload.fileName}`);
 
-    // TODO: Implement actual file upload logic
+    // File upload implementation deferred to Epic 60
     // - Retrieve file data from IndexedDB or blob storage
     // - Upload to server in chunks
     // - Update progress in the queue item
