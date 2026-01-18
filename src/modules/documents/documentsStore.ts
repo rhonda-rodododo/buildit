@@ -71,6 +71,7 @@ interface DocumentsActions {
   getDocumentSuggestions: (documentId: string) => DocumentSuggestion[]
   getPendingSuggestions: (documentId: string) => DocumentSuggestion[]
   setSuggestionMode: (enabled: boolean) => void
+  toggleSuggestionMode: () => void
 
   // Epic 56: Folders
   addFolder: (folder: DocumentFolder) => void
@@ -299,6 +300,7 @@ export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set,
   },
 
   setSuggestionMode: (enabled) => set({ suggestionModeEnabled: enabled }),
+  toggleSuggestionMode: () => set((state) => ({ suggestionModeEnabled: !state.suggestionModeEnabled })),
 
   // Epic 56: Folders
   addFolder: (folder) =>

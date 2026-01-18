@@ -17,6 +17,7 @@ export interface Document {
   collaborators: string[] // Pubkeys of users who can edit
   version: number
   parentVersionId?: string // For version history
+  folderId?: string // Folder this document belongs to
 }
 
 export interface DocumentVersion {
@@ -53,6 +54,7 @@ export interface CreateDocumentInput {
   template?: string
   isPublic?: boolean
   tags?: string[]
+  folderId?: string // Folder to create document in
 }
 
 export interface UpdateDocumentInput {

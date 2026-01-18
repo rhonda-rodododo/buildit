@@ -52,11 +52,12 @@ import { cn } from '@/lib/utils'
 import type { DocumentPermission, DocumentShareLink, DocumentCollaborator } from '../types'
 import { formatDistanceToNow } from 'date-fns'
 
-interface ShareDialogProps {
+export interface ShareDialogProps {
   documentId: string
   documentTitle: string
   currentUserPubkey: string
   trigger?: React.ReactNode
+  onClose?: () => void
 }
 
 const PermissionBadge: FC<{ permission: DocumentPermission }> = ({ permission }) => {

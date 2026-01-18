@@ -1,8 +1,10 @@
 /**
  * Documents Page - Main UI for document management
+ * Sophisticated document management with folders, comments, and sharing
+ * Inspired by Google Docs, Notion, and Proton Drive - but unique for organizers
  */
 
-import { FC, useState, useEffect, useCallback } from 'react'
+import { FC, useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
@@ -10,14 +12,60 @@ import { useGroupsStore } from '@/stores/groupsStore'
 import { getNostrClient } from '@/core/nostr/client'
 import { documentManager } from '../documentManager'
 import { TipTapEditor } from './TipTapEditor'
+import { FolderTree } from './FolderTree'
+import { CommentSidebar } from './CommentSidebar'
+import { ShareDialog } from './ShareDialog'
 import { documentTemplates } from '../templates'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { FileText, Plus, Save, Download, FileX, Users } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  FileText,
+  Plus,
+  Save,
+  Download,
+  FileX,
+  Users,
+  Star,
+  MessageSquare,
+  MoreHorizontal,
+  Trash2,
+  Copy,
+  History,
+  Share2,
+  Search,
+  Grid3X3,
+  List,
+  Clock,
+  Edit3,
+  FolderOpen,
+} from 'lucide-react'
 import { getPublicKey } from 'nostr-tools'
 import type { DBGroupMember } from '@/core/storage/db'
+// Alias Document type to avoid conflict with DOM's global Document
+import type { Document as DocType, DocumentComment } from '../types'
 import {
   Select,
   SelectContent,
@@ -25,23 +73,114 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
+import { formatDistanceToNow } from 'date-fns'
+
+type ViewMode = 'list' | 'grid'
+type SortMode = 'updated' | 'created' | 'name'
 
 export const DocumentsPage: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
-  const currentIdentity = useAuthStore(state => state.currentIdentity)
+  const currentIdentity = useAuthStore((state) => state.currentIdentity)
   const { groupMembers, loadGroupMembers } = useGroupsStore()
 
-  const { documents, getGroupDocuments, currentDocumentId, setCurrentDocument } = useDocumentsStore()
+  const {
+    documents,
+    getGroupDocuments,
+    currentDocumentId,
+    setCurrentDocument,
+    getUnresolvedComments,
+    isStarred,
+    toggleStar,
+    suggestionModeEnabled,
+    toggleSuggestionMode,
+  } = useDocumentsStore()
+
+  // UI State
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [isCreating, setIsCreating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [collaborationEnabled, setCollaborationEnabled] = useState(true) // Enable by default
+  const [collaborationEnabled, setCollaborationEnabled] = useState(true)
+  const [showCommentSidebar, setShowCommentSidebar] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [sortMode, setSortMode] = useState<SortMode>('updated')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
+  const [showStarred, setShowStarred] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [showFolderTree, setShowFolderTree] = useState(true)
 
-  const groupDocs = groupId ? getGroupDocuments(groupId) : []
-  const currentDoc = currentDocumentId ? documents.get(currentDocumentId) : null
+  // Get documents for the group - explicitly typed
+  const groupDocs: DocType[] = useMemo(() => {
+    return groupId ? getGroupDocuments(groupId) : []
+  }, [groupId, getGroupDocuments])
+
+  // Get current document
+  const currentDoc = useMemo(() => {
+    return currentDocumentId ? documents.get(currentDocumentId) : null
+  }, [currentDocumentId, documents])
+
   const nostrClient = getNostrClient()
+
+  // Get current user pubkey
+  const currentUserPubkey = useMemo(() => {
+    const privateKey = getCurrentPrivateKey()
+    return privateKey ? getPublicKey(privateKey) : ''
+  }, [])
+
+  // Filter and sort documents
+  const filteredAndSortedDocs: DocType[] = useMemo(() => {
+    // Start with a copy of the array
+    let result = groupDocs.slice()
+
+    // Filter by folder
+    if (selectedFolderId !== null) {
+      result = result.filter((doc) => {
+        const docWithFolder = doc as DocType & { folderId?: string }
+        return docWithFolder.folderId === selectedFolderId
+      })
+    }
+
+    // Filter by starred
+    if (showStarred) {
+      result = result.filter((doc) => isStarred(doc.id))
+    }
+
+    // Filter by search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(
+        (doc) =>
+          doc.title.toLowerCase().includes(query) ||
+          doc.content.toLowerCase().includes(query)
+      )
+    }
+
+    // Sort
+    switch (sortMode) {
+      case 'updated':
+        result.sort((a, b) => b.updatedAt - a.updatedAt)
+        break
+      case 'created':
+        result.sort((a, b) => b.createdAt - a.createdAt)
+        break
+      case 'name':
+        result.sort((a, b) => a.title.localeCompare(b.title))
+        break
+    }
+
+    return result
+  }, [groupDocs, selectedFolderId, showStarred, searchQuery, sortMode, isStarred])
+
+  // Get comment count for a document
+  const getCommentCount = useCallback(
+    (docId: string): number => {
+      return getUnresolvedComments(docId).length
+    },
+    [getUnresolvedComments]
+  )
 
   // Load group members for collaboration
   useEffect(() => {
@@ -53,9 +192,7 @@ export const DocumentsPage: FC = () => {
   useEffect(() => {
     // Sync form state when current document changes
     if (currentDoc) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setTitle(currentDoc.title)
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Form sync from prop
       setContent(currentDoc.content)
     }
   }, [currentDoc])
@@ -107,6 +244,7 @@ export const DocumentsPage: FC = () => {
           title: title.trim(),
           content: content,
           template: selectedTemplate || undefined,
+          folderId: selectedFolderId ?? undefined,
         },
         privateKey
       )
@@ -122,13 +260,12 @@ export const DocumentsPage: FC = () => {
     if (!currentDoc) return
 
     if (format === 'pdf') {
-      // PDF export handles download internally
       await documentManager.exportDocument(currentDoc.id, 'pdf')
     } else {
       const exported = await documentManager.exportDocument(currentDoc.id, format)
       const blob = new Blob([exported], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
+      const a = window.document.createElement('a')
       a.href = url
       a.download = `${currentDoc.title}.${format === 'markdown' ? 'md' : format}`
       a.click()
@@ -136,132 +273,544 @@ export const DocumentsPage: FC = () => {
     }
   }
 
-  return (
-    <div className="h-full flex">
-      {/* Sidebar */}
-      <div className="w-64 border-r p-4 space-y-4">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-full" onClick={() => { setTitle(''); setContent(''); setSelectedTemplate(''); }}>
-              <Plus className="mr-2 h-4 w-4" /> New Document
+  const handleDelete = async () => {
+    if (!currentDoc) return
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${currentDoc.title}"?`
+    )
+    if (!confirmed) return
+
+    try {
+      await documentManager.deleteDocument(currentDoc.id)
+      setCurrentDocument(null)
+    } catch (error) {
+      console.error('Failed to delete document:', error)
+    }
+  }
+
+  const handleDuplicate = async () => {
+    const privateKey = getCurrentPrivateKey()
+    if (!currentDoc || !groupId || !privateKey) return
+
+    try {
+      const doc = await documentManager.createDocument(
+        {
+          groupId,
+          title: `${currentDoc.title} (Copy)`,
+          content: currentDoc.content,
+          folderId: (currentDoc as DocType & { folderId?: string }).folderId,
+        },
+        privateKey
+      )
+      setCurrentDocument(doc.id)
+    } catch (error) {
+      console.error('Failed to duplicate document:', error)
+    }
+  }
+
+  const handleCommentClick = (comment: DocumentComment) => {
+    // Navigate to comment position in editor
+    console.log('Navigate to comment:', comment.id, 'at position:', comment.from, '-', comment.to)
+  }
+
+  const currentDocCommentCount = currentDoc ? getCommentCount(currentDoc.id) : 0
+
+  // Render document item for list view
+  const renderDocumentListItem = (doc: DocType) => {
+    const docIsStarred = isStarred(doc.id)
+    const commentCount = getCommentCount(doc.id)
+    const isSelected = currentDoc?.id === doc.id
+
+    return (
+      <Card
+        key={doc.id}
+        className={cn(
+          'p-3 cursor-pointer hover:bg-muted/50 transition-colors',
+          isSelected && 'bg-muted ring-1 ring-primary'
+        )}
+        onClick={() => setCurrentDocument(doc.id)}
+      >
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleStar(doc.id)
+            }}
+          >
+            {docIsStarred ? (
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            ) : (
+              <Star className="h-4 w-4 text-muted-foreground" />
+            )}
+          </Button>
+
+          <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
+
+          <div className="flex-1 min-w-0">
+            <p className="font-medium truncate text-sm">{doc.title}</p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{formatDistanceToNow(doc.updatedAt, { addSuffix: true })}</span>
+              {commentCount > 0 && (
+                <>
+                  <MessageSquare className="h-3 w-3 ml-2" />
+                  <span>{commentCount}</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setCurrentDocument(doc.id)}>
+                <Edit3 className="h-4 w-4 mr-2" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toggleStar(doc.id)}>
+                <Star className="h-4 w-4 mr-2" />
+                {docIsStarred ? 'Remove from starred' : 'Add to starred'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={async () => {
+                  setCurrentDocument(doc.id)
+                  await handleDuplicate()
+                }}
+              >
+                <Copy className="h-4 w-4 mr-2" /> Duplicate
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </Card>
+    )
+  }
+
+  // Render document item for grid view
+  const renderDocumentGridItem = (doc: DocType) => {
+    const docIsStarred = isStarred(doc.id)
+    const commentCount = getCommentCount(doc.id)
+    const isSelected = currentDoc?.id === doc.id
+
+    return (
+      <Card
+        key={doc.id}
+        className={cn(
+          'p-4 cursor-pointer hover:bg-muted/50 transition-colors',
+          isSelected && 'bg-muted ring-1 ring-primary'
+        )}
+        onClick={() => setCurrentDocument(doc.id)}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-start justify-between mb-2">
+            <FileText className="h-8 w-8 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 -mr-2 -mt-2"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleStar(doc.id)
+              }}
+            >
+              {docIsStarred ? (
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              ) : (
+                <Star className="h-4 w-4 text-muted-foreground" />
+              )}
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Document</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Document title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a template (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {documentTemplates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button onClick={handleCreate} disabled={!title.trim() || isCreating} className="w-full">
-                {isCreating ? 'Creating...' : 'Create Document'}
+          </div>
+          <h3 className="font-medium text-sm truncate mb-1">{doc.title}</h3>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto">
+            <span>{formatDistanceToNow(doc.updatedAt, { addSuffix: true })}</span>
+            {commentCount > 0 && (
+              <Badge variant="secondary" className="text-xs px-1.5">
+                <MessageSquare className="h-3 w-3 mr-1" />
+                {commentCount}
+              </Badge>
+            )}
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
+    <TooltipProvider>
+      <div className="h-full flex">
+        {/* Left Sidebar - Folders */}
+        {showFolderTree && groupId && (
+          <div className="w-56 border-r flex flex-col">
+            <div className="p-3 border-b flex items-center justify-between">
+              <span className="text-sm font-medium">Folders</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setShowFolderTree(false)}
+              >
+                <FolderOpen className="h-4 w-4" />
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-
-        <div className="space-y-2">
-          {groupDocs.map((doc) => (
-            <Card
-              key={doc.id}
-              className={`p-3 cursor-pointer hover:bg-muted ${currentDoc?.id === doc.id ? 'bg-muted' : ''}`}
-              onClick={() => setCurrentDocument(doc.id)}
-            >
-              <div className="flex items-start gap-2">
-                <FileText className="h-4 w-4 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate text-sm">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(doc.updatedAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-          {groupDocs.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No documents yet
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Editor */}
-      <div className="flex-1 flex flex-col">
-        {currentDoc ? (
-          <>
-            <div className="border-b p-4 flex items-center justify-between">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0"
-                placeholder="Document title"
-              />
-              <div className="flex gap-2">
-                <Button
-                  variant={collaborationEnabled ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCollaborationEnabled(!collaborationEnabled)}
-                >
-                  <Users className="h-4 w-4 mr-1" />
-                  {collaborationEnabled ? 'Collaboration On' : 'Enable Collaboration'}
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving || collaborationEnabled}>
-                  <Save className="h-4 w-4 mr-1" /> {isSaving ? 'Saving...' : 'Save'}
-                </Button>
-                <Select onValueChange={(format) => handleExport(format as any)}>
-                  <SelectTrigger className="w-32">
-                    <Download className="h-4 w-4 mr-1" />
-                    <SelectValue placeholder="Export" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="html">HTML</SelectItem>
-                    <SelectItem value="markdown">Markdown</SelectItem>
-                    <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="pdf">PDF</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <TipTapEditor
-                content={content}
-                onChange={setContent}
-                enableCollaboration={collaborationEnabled && !!currentDoc && !!groupId && !!nostrClient && !!getCurrentPrivateKey()}
-                documentId={currentDoc.id}
+            <ScrollArea className="flex-1">
+              <FolderTree
                 groupId={groupId}
-                nostrClient={nostrClient}
-                userPrivateKey={getCurrentPrivateKey() ?? undefined}
-                userPublicKey={getCurrentPrivateKey() ? getPublicKey(getCurrentPrivateKey()!) : undefined}
-                userName={currentIdentity?.name || 'Anonymous'}
-                collaboratorPubkeys={groupId && groupMembers.get(groupId) ? groupMembers.get(groupId)!.map((m: DBGroupMember) => m.pubkey) : []}
+                selectedFolderId={selectedFolderId}
+                onSelectFolder={setSelectedFolderId}
+                onSelectStarred={() => setShowStarred(true)}
+                showStarred={showStarred}
               />
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <FileX className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p>Select a document or create a new one to get started</p>
+            </ScrollArea>
+            <div className="p-2 border-t">
+              <Button
+                variant={showStarred ? 'secondary' : 'ghost'}
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setShowStarred(!showStarred)}
+              >
+                <Star className={cn('h-4 w-4 mr-2', showStarred && 'fill-yellow-400 text-yellow-400')} />
+                Starred
+              </Button>
             </div>
           </div>
         )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {currentDoc ? (
+            /* Document Editor View */
+            <>
+              {/* Document Header */}
+              <div className="border-b p-3 flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={() => toggleStar(currentDoc.id)}
+                    >
+                      {isStarred(currentDoc.id) ? (
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ) : (
+                        <Star className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isStarred(currentDoc.id) ? 'Remove from starred' : 'Add to starred'}
+                  </TooltipContent>
+                </Tooltip>
+
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="flex-1 text-lg font-semibold border-none shadow-none focus-visible:ring-0"
+                  placeholder="Document title"
+                />
+
+                <div className="flex items-center gap-1">
+                  {/* Suggestion Mode Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={suggestionModeEnabled ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={toggleSuggestionMode}
+                      >
+                        <Edit3 className="h-4 w-4 mr-1" />
+                        {suggestionModeEnabled ? 'Suggesting' : 'Editing'}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {suggestionModeEnabled
+                        ? 'Changes tracked as suggestions'
+                        : 'Direct editing mode'}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Collaboration Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={collaborationEnabled ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setCollaborationEnabled(!collaborationEnabled)}
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {collaborationEnabled ? 'Real-time collaboration enabled' : 'Enable collaboration'}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Comments Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={showCommentSidebar ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => setShowCommentSidebar(!showCommentSidebar)}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        {currentDocCommentCount > 0 && (
+                          <Badge variant="secondary" className="ml-1 text-xs px-1.5">
+                            {currentDocCommentCount}
+                          </Badge>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {showCommentSidebar ? 'Hide comments' : 'Show comments'}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* Share */}
+                  <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <ShareDialog
+                      documentId={currentDoc.id}
+                      documentTitle={currentDoc.title}
+                      currentUserPubkey={currentUserPubkey}
+                      onClose={() => setShareDialogOpen(false)}
+                    />
+                  </Dialog>
+
+                  {/* Save */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSave}
+                        disabled={isSaving || collaborationEnabled}
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {collaborationEnabled ? 'Auto-saving with collaboration' : 'Save document'}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {/* More Actions */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleDuplicate}>
+                        <Copy className="h-4 w-4 mr-2" /> Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <History className="h-4 w-4 mr-2" /> Version history
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleExport('html')}>
+                        <Download className="h-4 w-4 mr-2" /> Export HTML
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('markdown')}>
+                        <Download className="h-4 w-4 mr-2" /> Export Markdown
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                        <Download className="h-4 w-4 mr-2" /> Export PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              {/* Editor and Comments */}
+              <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 overflow-auto p-4">
+                  <TipTapEditor
+                    content={content}
+                    onChange={setContent}
+                    enableCollaboration={
+                      collaborationEnabled &&
+                      !!currentDoc &&
+                      !!groupId &&
+                      !!nostrClient &&
+                      !!getCurrentPrivateKey()
+                    }
+                    documentId={currentDoc.id}
+                    groupId={groupId}
+                    nostrClient={nostrClient}
+                    userPrivateKey={getCurrentPrivateKey() ?? undefined}
+                    userPublicKey={
+                      getCurrentPrivateKey() ? getPublicKey(getCurrentPrivateKey()!) : undefined
+                    }
+                    userName={currentIdentity?.name || 'Anonymous'}
+                    collaboratorPubkeys={
+                      groupId && groupMembers.get(groupId)
+                        ? groupMembers.get(groupId)!.map((m: DBGroupMember) => m.pubkey)
+                        : []
+                    }
+                  />
+                </div>
+
+                {/* Comment Sidebar */}
+                {showCommentSidebar && currentDoc && (
+                  <div className="w-80 border-l shrink-0">
+                    <CommentSidebar
+                      documentId={currentDoc.id}
+                      currentUserPubkey={currentUserPubkey}
+                      onCommentClick={handleCommentClick}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            /* Document List View */
+            <>
+              {/* List Header */}
+              <div className="border-b p-3">
+                <div className="flex items-center gap-2">
+                  {!showFolderTree && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowFolderTree(true)}
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                    </Button>
+                  )}
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => { setTitle(''); setContent(''); setSelectedTemplate(''); }}>
+                        <Plus className="mr-2 h-4 w-4" /> New Document
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Create New Document</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Document title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                        />
+                        <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a template (optional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {documentTemplates.map((template) => (
+                              <SelectItem key={template.id} value={template.id}>
+                                {template.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button onClick={handleCreate} disabled={!title.trim() || isCreating} className="w-full">
+                          {isCreating ? 'Creating...' : 'Create Document'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <div className="flex-1" />
+
+                  {/* Search */}
+                  <div className="relative w-64">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search documents..."
+                      className="pl-8"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Sort */}
+                  <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="updated">Last updated</SelectItem>
+                      <SelectItem value="created">Date created</SelectItem>
+                      <SelectItem value="name">Name</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* View Mode */}
+                  <div className="flex border rounded-md">
+                    <Button
+                      variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="rounded-r-none"
+                      onClick={() => setViewMode('list')}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="rounded-l-none"
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document List/Grid */}
+              <ScrollArea className="flex-1 p-4">
+                {filteredAndSortedDocs.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center py-16">
+                    <div className="text-center">
+                      <FileX className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                      <p className="text-muted-foreground">
+                        {searchQuery
+                          ? 'No documents match your search'
+                          : showStarred
+                            ? 'No starred documents'
+                            : 'No documents yet'}
+                      </p>
+                      {!searchQuery && !showStarred && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Create a new document to get started
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : viewMode === 'list' ? (
+                  <div className="space-y-2">
+                    {filteredAndSortedDocs.map((doc) => renderDocumentListItem(doc))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {filteredAndSortedDocs.map((doc) => renderDocumentGridItem(doc))}
+                  </div>
+                )}
+              </ScrollArea>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   )
 }
