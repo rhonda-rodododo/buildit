@@ -6,6 +6,11 @@
 import type { ModulePlugin } from '@/types/modules';
 import { publishingSchema } from './schema';
 import { BookOpen } from 'lucide-react';
+import { lazy } from 'react';
+import { logger } from '@/lib/logger';
+
+// Lazy load PublishingPage to reduce initial bundle size
+const PublishingPage = lazy(() => import('./components/PublishingPage').then(m => ({ default: m.PublishingPage })));
 
 /**
  * Publishing Module Plugin
@@ -98,15 +103,25 @@ export const publishingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Publishing module registered');
+      logger.info('📚 Publishing module registered');
     },
     onEnable: async (groupId: string) => {
-      console.info(`Publishing module enabled for group ${groupId}`);
+      logger.info(`📚 Publishing module enabled for group ${groupId}`);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Publishing module disabled for group ${groupId}`);
+      logger.info(`📚 Publishing module disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'publishing',
+      component: PublishingPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Publishing',
+    },
+  ],
 
   schema: publishingSchema,
 

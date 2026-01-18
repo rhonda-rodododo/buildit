@@ -8,6 +8,10 @@
 import type { ModulePlugin } from '@/types/modules';
 import { friendsSchema, friendsMigrations, friendsSeeds } from './schema';
 import { Users } from 'lucide-react';
+import { lazy } from 'react';
+
+// Lazy load ContactsPage to reduce initial bundle size
+const ContactsPage = lazy(() => import('./components/ContactsPage').then(m => ({ default: m.ContactsPage })));
 
 /**
  * Friends Module Definition
@@ -98,6 +102,16 @@ export const friendsModule: ModulePlugin = {
       },
     ],
   },
+
+  // App-scoped route for Friends page
+  routes: [
+    {
+      path: 'friends',
+      component: ContactsPage,
+      scope: 'app',
+      label: 'Friends',
+    },
+  ],
 
   // Schema is always loaded (modules are loaded at init)
   schema: friendsSchema,

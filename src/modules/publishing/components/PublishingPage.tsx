@@ -4,7 +4,9 @@
  */
 
 import { FC, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { usePublishingStore } from '../publishingStore';
+import { useAuthStore } from '@/stores/authStore';
 import { ArticleList } from './ArticleList';
 import { ArticleEditor } from './ArticleEditor';
 import { ArticleView } from './ArticleView';
@@ -37,8 +39,6 @@ import type { Article, Publication, CreatePublicationInput, UpdateArticleInput }
 import { toast } from 'sonner';
 
 interface PublishingPageProps {
-  groupId: string;
-  userPubkey: string;
   className?: string;
 }
 
@@ -52,10 +52,21 @@ type ViewState =
   | { type: 'analytics' };
 
 export const PublishingPage: FC<PublishingPageProps> = ({
-  groupId,
-  userPubkey,
   className,
 }) => {
+  // Get groupId from route params and userPubkey from auth store
+  const { groupId } = useParams<{ groupId: string }>();
+  const currentIdentity = useAuthStore((state) => state.currentIdentity);
+  const userPubkey = currentIdentity?.publicKey ?? '';
+
+  // Guard: require groupId and auth
+  if (!groupId || !userPubkey) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Please select a group and log in to manage publications.</p>
+      </div>
+    );
+  }
   const {
     createPublication,
     createArticle,

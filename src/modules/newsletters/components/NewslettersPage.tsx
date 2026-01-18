@@ -4,7 +4,9 @@
  */
 
 import { FC, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useNewslettersStore } from '../newslettersStore';
+import { useAuthStore } from '@/stores/authStore';
 import { NewsletterEditor } from './NewsletterEditor';
 import { IssuesList } from './IssuesList';
 import { SubscriberManager } from './SubscriberManager';
@@ -34,8 +36,6 @@ import type { Newsletter, NewsletterIssue, CreateNewsletterInput, UpdateIssueInp
 import { toast } from 'sonner';
 
 interface NewslettersPageProps {
-  groupId: string;
-  userPubkey: string;
   className?: string;
 }
 
@@ -46,10 +46,21 @@ type ViewState =
   | { type: 'sending'; issue: NewsletterIssue };
 
 export const NewslettersPage: FC<NewslettersPageProps> = ({
-  groupId,
-  userPubkey,
   className,
 }) => {
+  // Get groupId from route params and userPubkey from auth store
+  const { groupId } = useParams<{ groupId: string }>();
+  const currentIdentity = useAuthStore((state) => state.currentIdentity);
+  const userPubkey = currentIdentity?.publicKey ?? '';
+
+  // Guard: require groupId and auth
+  if (!groupId || !userPubkey) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Please select a group and log in to manage newsletters.</p>
+      </div>
+    );
+  }
   const {
     createNewsletter,
     createIssue,

@@ -6,6 +6,11 @@
 import { Mail } from 'lucide-react';
 import type { ModulePlugin } from '@/types/modules';
 import { newslettersSchema } from './schema';
+import { lazy } from 'react';
+import { logger } from '@/lib/logger';
+
+// Lazy load NewslettersPage to reduce initial bundle size
+const NewslettersPage = lazy(() => import('./components/NewslettersPage').then(m => ({ default: m.NewslettersPage })));
 
 /**
  * Newsletters module plugin definition
@@ -77,15 +82,25 @@ export const NewslettersModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: () => {
-      console.info('📧 Newsletters module registered');
+      logger.info('📧 Newsletters module registered');
     },
     onEnable: async (groupId) => {
-      console.info(`📧 Newsletters enabled for group ${groupId}`);
+      logger.info(`📧 Newsletters enabled for group ${groupId}`);
     },
     onDisable: async (groupId) => {
-      console.info(`📧 Newsletters disabled for group ${groupId}`);
+      logger.info(`📧 Newsletters disabled for group ${groupId}`);
     },
   },
+
+  routes: [
+    {
+      path: 'newsletters',
+      component: NewslettersPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Newsletters',
+    },
+  ],
 
   getDefaultConfig: () => ({
     defaultRateLimit: 30,

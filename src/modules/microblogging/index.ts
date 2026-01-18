@@ -6,6 +6,11 @@
 import type { ModulePlugin } from '@/types/modules';
 import { microbloggingSchema, microbloggingMigrations} from './schema';
 import { MessageSquare } from 'lucide-react';
+import { lazy } from 'react';
+import { logger } from '@/lib/logger';
+
+// Lazy load FeedPage to reduce initial bundle size
+const FeedPage = lazy(() => import('./components/FeedPage').then(m => ({ default: m.FeedPage })));
 
 /**
  * Microblogging Module Plugin
@@ -80,27 +85,34 @@ export const microbloggingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
-      console.info('Microblogging module registered');
+      logger.info('💬 Microblogging module registered');
     },
     onEnable: async (groupId: string) => {
-      console.info(`Microblogging module enabled for group ${groupId}`);
-      // Load seed posts for demo
-      // TODO: Load microbloggingSeeds.posts into database
+      logger.info(`💬 Microblogging module enabled for group ${groupId}`);
     },
     onDisable: async (groupId: string) => {
-      console.info(`Microblogging module disabled for group ${groupId}`);
-      // Note: Data persists even when disabled (UI-level only)
+      logger.info(`💬 Microblogging module disabled for group ${groupId}`);
     },
     onConfigUpdate: async (groupId: string, config: Record<string, unknown>) => {
-      console.info(`Microblogging config updated for group ${groupId}:`, config);
+      logger.info(`💬 Microblogging config updated for group ${groupId}:`, config);
     },
   },
+
+  routes: [
+    {
+      path: 'feed',
+      component: FeedPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Feed',
+    },
+  ],
 
   schema: microbloggingSchema,
 
   migrations: microbloggingMigrations,
 
-  seeds: [], // TODO: Implement proper ModuleSeed format for demo posts
+  seeds: [],
 
   getDefaultConfig: () => ({
     allowPublicPosts: true,

@@ -1,6 +1,6 @@
 import { FC, createElement } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Newspaper, MessageSquare, Users, UserPlus, Settings, FolderOpen } from 'lucide-react';
+import { Newspaper, MessageSquare, Users, Settings, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useModuleStore } from '@/stores/moduleStore';
 import { Separator } from '@/components/ui/separator';
@@ -27,10 +27,11 @@ function hasGroupRoutes(module: ModulePlugin) {
 export const AppSidebar: FC<AppSidebarProps> = ({ className }) => {
   const { registry } = useModuleStore();
 
+  // Core navigation links (non-module pages)
+  // Note: Friends is now loaded dynamically from the friends module
   const coreLinks = [
     { to: '/app', label: 'Feed', icon: Newspaper, end: true },
     { to: '/app/messages', label: 'Messages', icon: MessageSquare },
-    { to: '/app/friends', label: 'Friends', icon: UserPlus },
     { to: '/app/groups', label: 'Groups', icon: Users },
   ];
 
