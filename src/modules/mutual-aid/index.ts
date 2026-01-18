@@ -97,7 +97,7 @@ export const mutualAidModule: ModulePlugin = {
       path: 'mutual-aid',
       component: MutualAidView,
       scope: 'group',
-      // requiresEnabled: true,
+      requiresEnabled: true,
       label: 'Mutual Aid',
     },
   ],

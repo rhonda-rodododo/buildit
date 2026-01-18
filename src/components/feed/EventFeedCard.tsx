@@ -3,13 +3,15 @@
  * Displays an event in the activity feed
  */
 
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import type { EventFeedItem } from './types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useEventsStore } from '@/modules/events/eventsStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useNavigate } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
@@ -27,6 +29,22 @@ interface EventFeedCardProps {
 
 export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
   const { data: event } = item;
+  const { updateRSVP, getUserRSVP } = useEventsStore();
+  const { currentIdentity } = useAuthStore();
+  const navigate = useNavigate();
+
+  const userRSVP = currentIdentity
+    ? getUserRSVP(event.id, currentIdentity.publicKey)
+    : undefined;
+
+  const handleRSVP = useCallback((status: 'going' | 'maybe' | 'not-going') => {
+    if (!currentIdentity) return;
+    updateRSVP(event.id, currentIdentity.publicKey, status);
+  }, [event.id, currentIdentity, updateRSVP]);
+
+  const handleViewDetails = useCallback(() => {
+    navigate(`/app/groups/${event.groupId}/events/${event.id}`);
+  }, [navigate, event.groupId, event.id]);
 
   const getPrivacyIcon = () => {
     switch (event.privacy) {
@@ -179,11 +197,27 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 pt-2 border-t">
-          <Button className="flex-1">RSVP Going</Button>
-          <Button variant="outline" className="flex-1">
-            Maybe
+          <Button
+            className="flex-1"
+            variant={userRSVP?.status === 'going' ? 'default' : 'outline'}
+            onClick={() => handleRSVP('going')}
+            disabled={!currentIdentity}
+          >
+            {userRSVP?.status === 'going' ? '✓ Going' : 'RSVP Going'}
           </Button>
-          <Button variant="ghost" className="flex-1">
+          <Button
+            variant={userRSVP?.status === 'maybe' ? 'default' : 'outline'}
+            className="flex-1"
+            onClick={() => handleRSVP('maybe')}
+            disabled={!currentIdentity}
+          >
+            {userRSVP?.status === 'maybe' ? '✓ Maybe' : 'Maybe'}
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex-1"
+            onClick={handleViewDetails}
+          >
             Details
           </Button>
         </div>

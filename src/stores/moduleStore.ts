@@ -114,6 +114,40 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           return;
         }
 
+        // Check dependencies before enabling
+        const dependencies = entry.plugin.metadata.dependencies;
+        if (dependencies?.length) {
+          const missingDeps: string[] = [];
+          for (const dep of dependencies) {
+            if (dep.required) {
+              const depInstance = get().getModuleInstance(groupId, dep.moduleId);
+              if (depInstance?.state !== 'enabled') {
+                const depEntry = get().registry.get(dep.moduleId);
+                missingDeps.push(depEntry?.plugin.metadata.name || dep.moduleId);
+              }
+            }
+          }
+          if (missingDeps.length > 0) {
+            throw new Error(`Cannot enable ${entry.plugin.metadata.name}: requires ${missingDeps.join(', ')} to be enabled first`);
+          }
+        }
+
+        // Check conflicts
+        const conflicts = entry.plugin.metadata.conflicts;
+        if (conflicts?.length) {
+          const activeConflicts: string[] = [];
+          for (const conflictId of conflicts) {
+            const conflictInstance = get().getModuleInstance(groupId, conflictId);
+            if (conflictInstance?.state === 'enabled') {
+              const conflictEntry = get().registry.get(conflictId);
+              activeConflicts.push(conflictEntry?.plugin.metadata.name || conflictId);
+            }
+          }
+          if (activeConflicts.length > 0) {
+            throw new Error(`Cannot enable ${entry.plugin.metadata.name}: conflicts with ${activeConflicts.join(', ')}`);
+          }
+        }
+
         // Get config
         const finalConfig = config || entry.plugin.getDefaultConfig?.() || {};
 
@@ -200,6 +234,21 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         if (!instance) {
           console.warn(`Module ${moduleId} is not enabled for group ${groupId}`);
           return;
+        }
+
+        // Check if any other enabled modules depend on this one
+        const dependents: string[] = [];
+        for (const [, regEntry] of get().registry) {
+          const deps = regEntry.plugin.metadata.dependencies;
+          if (deps?.some(d => d.moduleId === moduleId && d.required)) {
+            const depInstance = get().getModuleInstance(groupId, regEntry.plugin.metadata.id);
+            if (depInstance?.state === 'enabled') {
+              dependents.push(regEntry.plugin.metadata.name);
+            }
+          }
+        }
+        if (dependents.length > 0) {
+          throw new Error(`Cannot disable ${entry.plugin.metadata.name}: ${dependents.join(', ')} depends on it`);
         }
 
         // Call onDisable lifecycle hook

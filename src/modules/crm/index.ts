@@ -49,6 +49,10 @@ export const crmModule: ModulePlugin = {
       },
     ],
     requiredPermission: 'member',
+    dependencies: [
+      { moduleId: 'database', required: true },
+      { moduleId: 'custom-fields', required: true },
+    ],
   },
 
   lifecycle: {

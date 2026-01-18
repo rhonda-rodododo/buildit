@@ -54,6 +54,16 @@ export interface ModuleConfigField {
 }
 
 /**
+ * Module Dependency
+ * Defines required or optional dependencies for a module
+ */
+export interface ModuleDependency {
+  moduleId: string;
+  required: boolean; // If true, module cannot be enabled without this dependency
+  minVersion?: string; // Optional minimum version requirement
+}
+
+/**
  * Module Metadata
  */
 export interface ModuleMetadata {
@@ -67,6 +77,8 @@ export interface ModuleMetadata {
   capabilities: ModuleCapability[];
   configSchema: ModuleConfigField[];
   requiredPermission: ModulePermission;
+  dependencies?: ModuleDependency[]; // Modules this module depends on
+  conflicts?: string[]; // Module IDs that conflict with this module
 }
 
 /**

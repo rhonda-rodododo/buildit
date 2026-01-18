@@ -9,7 +9,7 @@ interface GroupListProps {
 }
 
 export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
-  const { groups, activeGroup, setActiveGroup, loadGroups, isLoading } = useGroupsStore()
+  const { groups, activeGroup, setActiveGroup, loadGroups, loadGroupMembers, groupMembers, isLoading } = useGroupsStore()
   const { currentIdentity } = useAuthStore()
   const  navigate = useNavigate()
 
@@ -19,6 +19,15 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
     loadGroups(currentIdentity.publicKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdentity])
+
+  // Load members for all groups to get accurate counts
+  useEffect(() => {
+    groups.forEach(group => {
+      if (!groupMembers.has(group.id)) {
+        loadGroupMembers(group.id)
+      }
+    })
+  }, [groups, groupMembers, loadGroupMembers])
 
   const handleSelectGroup = (groupId: string) => {
     const group = groups.find(g => g.id === groupId)
@@ -47,7 +56,8 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
       ) : (
         groups.map((group) => {
           const isActive = activeGroup?.id === group.id
-          const memberCount = group.adminPubkeys.length // Simplified
+          const members = groupMembers.get(group.id)
+          const memberCount = members?.length ?? 1 // Default to 1 (creator) while loading
 
           return (
             <Card

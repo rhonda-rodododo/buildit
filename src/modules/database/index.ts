@@ -19,7 +19,7 @@ const DatabasePage = lazy(() => import('./components/DatabasePage').then(m => ({
 export const databaseModule: ModulePlugin = {
   metadata: {
     id: 'database',
-    type: 'documents',
+    type: 'database',
     name: 'Database',
     description: 'Airtable-like database with custom tables, views, and relationships',
     version: '1.0.0',
@@ -62,6 +62,9 @@ export const databaseModule: ModulePlugin = {
       },
     ],
     requiredPermission: 'member',
+    dependencies: [
+      { moduleId: 'custom-fields', required: true },
+    ],
   },
 
   lifecycle: {
