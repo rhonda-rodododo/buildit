@@ -1,6 +1,7 @@
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 import * as nip19 from 'nostr-tools/nip19'
+import { generateMnemonic, wordlists } from 'bip39'
 import type { Identity, KeyPair } from '@/types/identity'
 
 /**
@@ -134,22 +135,44 @@ export function isValidNpub(npub: string): boolean {
 }
 
 /**
- * Generate a random passphrase for key encryption
+ * Generate a cryptographically secure random passphrase using BIP-39 wordlist
+ * This provides proper entropy and human-readable words for backup
+ *
+ * @param wordCount - Number of words (12 = 128 bits, 15 = 160 bits, 18 = 192 bits, 24 = 256 bits)
+ * @returns Space-separated BIP-39 mnemonic passphrase
  */
-export function generatePassphrase(wordCount: number = 12): string {
-  // Simple implementation - in production, use BIP-39 wordlist
-  const words = []
-  const charset = 'abcdefghijklmnopqrstuvwxyz'
-
-  for (let i = 0; i < wordCount; i++) {
-    let word = ''
-    for (let j = 0; j < 6; j++) {
-      word += charset[Math.floor(Math.random() * charset.length)]
-    }
-    words.push(word)
+export function generatePassphrase(wordCount: 12 | 15 | 18 | 24 = 12): string {
+  // Map word count to entropy bits
+  const entropyBits: Record<number, number> = {
+    12: 128,
+    15: 160,
+    18: 192,
+    24: 256,
   }
 
-  return words.join(' ')
+  const strength = entropyBits[wordCount]
+  if (!strength) {
+    throw new Error('Invalid word count. Must be 12, 15, 18, or 24.')
+  }
+
+  // generateMnemonic uses crypto.getRandomValues() internally for secure randomness
+  return generateMnemonic(strength, undefined, wordlists.english)
+}
+
+/**
+ * Generate a cryptographically secure random integer in range [0, max)
+ * Uses crypto.getRandomValues() for security-critical randomness
+ */
+export function secureRandomInt(max: number): number {
+  const randomBuffer = new Uint32Array(1)
+  crypto.getRandomValues(randomBuffer)
+  // Use rejection sampling to avoid modulo bias
+  const maxValid = Math.floor(0xFFFFFFFF / max) * max
+  if (randomBuffer[0] >= maxValid) {
+    // Extremely rare - retry
+    return secureRandomInt(max)
+  }
+  return randomBuffer[0] % max
 }
 
 /**

@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign } from 'lucide-react';
 import type { Campaign, DonationTier } from '../../types';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface PublicCampaignViewProps {
   campaign: Campaign;
@@ -48,8 +49,8 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
             </div>
           </div>
 
-          {/* Description */}
-          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: campaign.description }} />
+          {/* Description - Sanitized to prevent XSS */}
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(campaign.description) }} />
         </div>
       </Card>
 

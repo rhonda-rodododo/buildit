@@ -8,6 +8,7 @@ import { Helmet } from 'react-helmet-async';
 import { Card } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
 import type { PublicPage } from '../../types';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface PublicPageRendererProps {
   page: PublicPage;
@@ -104,10 +105,10 @@ export function PublicPageRenderer({ page, showMetadata = false }: PublicPageRen
           )}
         </div>
 
-        {/* Page Content */}
+        {/* Page Content - Sanitized to prevent XSS */}
         <div
           className="prose prose-lg dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: page.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
         />
 
         {/* Metadata Footer */}

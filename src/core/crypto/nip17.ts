@@ -3,12 +3,29 @@ import { encryptNIP44, decryptNIP44, deriveConversationKey } from './nip44'
 import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
 
 /**
+ * Generate a cryptographically secure random integer in range [0, max)
+ * Uses crypto.getRandomValues() for security-critical randomness
+ */
+function secureRandomInt(max: number): number {
+  const randomBuffer = new Uint32Array(1)
+  crypto.getRandomValues(randomBuffer)
+  // Use rejection sampling to avoid modulo bias
+  const maxValid = Math.floor(0xFFFFFFFF / max) * max
+  if (randomBuffer[0] >= maxValid) {
+    // Extremely rare - retry
+    return secureRandomInt(max)
+  }
+  return randomBuffer[0] % max
+}
+
+/**
  * Randomize timestamp within a 2-day window for metadata protection
  * As per NIP-17 spec
+ * Uses crypto.getRandomValues() to prevent timing correlation attacks
  */
 function randomizeTimestamp(baseTime: number = Date.now()): number {
   const twoDaysInSeconds = 2 * 24 * 60 * 60
-  const randomOffset = Math.floor(Math.random() * twoDaysInSeconds) - twoDaysInSeconds / 2
+  const randomOffset = secureRandomInt(twoDaysInSeconds) - Math.floor(twoDaysInSeconds / 2)
   return Math.floor(baseTime / 1000) + randomOffset
 }
 

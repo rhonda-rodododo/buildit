@@ -7,6 +7,7 @@ import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react'
 import katex from 'katex'
 import { FC, useState, useEffect, useCallback } from 'react'
+import { sanitizeMathHtml } from '@/lib/security/sanitize'
 
 export interface MathBlockOptions {
   HTMLAttributes: Record<string, unknown>
@@ -103,7 +104,7 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
               <div className="p-2 bg-background rounded border">
                 <div
                   className="text-center"
-                  dangerouslySetInnerHTML={{ __html: renderedHtml }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeMathHtml(renderedHtml) }}
                 />
               </div>
             )}
@@ -133,7 +134,7 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
             {renderedHtml ? (
               <div
                 className="text-center"
-                dangerouslySetInnerHTML={{ __html: renderedHtml }}
+                dangerouslySetInnerHTML={{ __html: sanitizeMathHtml(renderedHtml) }}
               />
             ) : (
               <div className="text-center text-muted-foreground italic">

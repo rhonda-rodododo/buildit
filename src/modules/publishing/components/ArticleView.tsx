@@ -19,6 +19,7 @@ import {
 import type { Article, Publication } from '../types';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface ArticleViewProps {
   article: Article;
@@ -154,10 +155,10 @@ export const ArticleView: FC<ArticleViewProps> = ({
           </div>
         )}
 
-        {/* Article Content */}
+        {/* Article Content - Sanitized to prevent XSS */}
         <div
           className="prose prose-lg max-w-none dark:prose-invert mb-12"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
         />
 
         {/* Share Section */}

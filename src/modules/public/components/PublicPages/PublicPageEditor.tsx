@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import type { PublicPage, PageType, PageStatus, SEOMetadata } from '../../types';
 import { useState, useCallback, useEffect } from 'react';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface PublicPageEditorProps {
   page: PublicPage | null;
@@ -316,12 +317,12 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
             </Card>
           )}
 
-          {/* Preview */}
+          {/* Preview - Sanitized to prevent XSS */}
           {preview && (
             <Card className="p-8">
               <div className="prose prose-sm max-w-none">
                 <h1>{title}</h1>
-                <div dangerouslySetInnerHTML={{ __html: editor.getHTML() }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(editor.getHTML()) }} />
               </div>
             </Card>
           )}
