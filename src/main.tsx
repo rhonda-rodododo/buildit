@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { initializeModules } from "@/lib/modules/registry";
 import { initializeDatabase } from "@/core/storage/db";
 import { useAuthStore } from "@/stores/authStore";
+import { logger, criticalLogger } from "@/lib/logger";
 import "./index.css";
 import "./i18n/config";
 
@@ -19,9 +20,7 @@ async function initializeApp(): Promise<boolean> {
   const { getDB } = await import("@/core/storage/db");
   try {
     getDB();
-    console.info(
-      "⚠️  Database already initialized from previous session, skipping initialization"
-    );
+    logger.info("⚠️  Database already initialized from previous session, skipping initialization");
     return true; // Already initialized successfully
   } catch {
     // DB not initialized yet, continue
@@ -29,7 +28,7 @@ async function initializeApp(): Promise<boolean> {
 
   // If initialization is already in progress, wait for it to complete
   if (initializationPromise) {
-    console.info("⚠️  Initialization already in progress, waiting...");
+    logger.info("⚠️  Initialization already in progress, waiting...");
     return initializationPromise;
   }
 
@@ -40,37 +39,37 @@ async function initializeApp(): Promise<boolean> {
 
 async function doInitialize(): Promise<boolean> {
   try {
-    console.info("🚀 Starting app initialization...");
+    logger.info("🚀 Starting app initialization...");
 
     // Step 1: Initialize modules (registers schemas with db, but does NOT load instances yet)
-    console.info("  Step 1: Initializing modules...");
+    logger.info("  Step 1: Initializing modules...");
     await initializeModules();
-    console.info("  Step 1: ✅ Modules initialized");
+    logger.info("  Step 1: ✅ Modules initialized");
 
     // Step 2: Initialize database (opens db with all module schemas)
-    console.info("  Step 2: Initializing database...");
+    logger.info("  Step 2: Initializing database...");
     await initializeDatabase();
-    console.info("  Step 2: ✅ Database initialized");
+    logger.info("  Step 2: ✅ Database initialized");
 
     // Step 3: Initialize store initializer (subscribes to unlock/lock events)
-    console.info("  Step 3: Initializing store initializer...");
+    logger.info("  Step 3: Initializing store initializer...");
     const { initializeStoreInitializer } = await import("@/core/storage/StoreInitializer");
     initializeStoreInitializer();
-    console.info("  Step 3: ✅ Store initializer ready");
+    logger.info("  Step 3: ✅ Store initializer ready");
 
     // Step 4: Now load module instances (requires db to be open)
-    console.info("  Step 4: Loading module instances...");
+    logger.info("  Step 4: Loading module instances...");
     const moduleStore = (
       await import("@/stores/moduleStore")
     ).useModuleStore.getState();
     await moduleStore.loadModuleInstances();
-    console.info("  Step 4: ✅ Module instances loaded");
+    logger.info("  Step 4: ✅ Module instances loaded");
 
     // Step 5: Load identities from DB (public info only - private keys stay encrypted)
-    console.info("  Step 5: Loading identities...");
+    logger.info("  Step 5: Loading identities...");
     const authStore = useAuthStore.getState();
     await authStore.loadIdentities();
-    console.info("  Step 5: ✅ Identities loaded");
+    logger.info("  Step 5: ✅ Identities loaded");
 
     // If there's a saved identity preference, select it (but don't unlock)
     // The user will need to enter their password to unlock
@@ -79,23 +78,24 @@ async function doInitialize(): Promise<boolean> {
     // Step 6: Start syncing Nostr events for all groups + messages (if unlocked)
     // Note: Sync will only work if the app is unlocked
     if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
-      console.info("  Step 6: Starting syncs...");
+      logger.info("  Step 6: Starting syncs...");
       const { startAllSyncs } = await import("@/core/storage/sync");
       await startAllSyncs();
-      console.info("  Step 6: ✅ Syncs started");
+      logger.info("  Step 6: ✅ Syncs started");
     } else {
-      console.info("  Step 6: Skipped (not unlocked)");
+      logger.info("  Step 6: Skipped (not unlocked)");
     }
 
-    console.info("✅ App initialization complete");
+    logger.info("✅ App initialization complete");
     return true;
   } catch (error) {
-    console.error("❌ Failed to initialize app:", error);
+    // Use criticalLogger for errors since these should show in production
+    criticalLogger.error("❌ Failed to initialize app:", error);
     // Log more details about the error
     if (error instanceof Error) {
-      console.error("  Error name:", error.name);
-      console.error("  Error message:", error.message);
-      console.error("  Error stack:", error.stack);
+      criticalLogger.error("  Error name:", error.name);
+      criticalLogger.error("  Error message:", error.message);
+      criticalLogger.error("  Error stack:", error.stack);
     }
     initializationPromise = null; // Allow retry on error
     return false;
@@ -111,7 +111,7 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     initializeApp()
       .then((result) => {
-        console.info("App initialization result:", result);
+        logger.info("App initialization result:", result);
         if (result) {
           setIsAppInitialized(true);
         } else {
@@ -119,7 +119,7 @@ const RootLayout: React.FC = () => {
         }
       })
       .catch((error) => {
-        console.error("Initialization error:", error);
+        criticalLogger.error("Initialization error:", error);
         setInitError(error instanceof Error ? error.message : "An unexpected error occurred.");
       });
   }, []);
@@ -128,7 +128,7 @@ const RootLayout: React.FC = () => {
     // Recreate router when app is initialized to load dynamic routes
     // This intentionally triggers a re-render to update the router
     if (isAppInitialized) {
-      console.info("Recreating router after app initialization");
+      logger.info("Recreating router after app initialization");
       const routes = getRoutes();
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: router must update after initialization
       setRouter(createBrowserRouter(routes));
