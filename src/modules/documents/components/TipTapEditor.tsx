@@ -70,6 +70,9 @@ import {
   Superscript,
   ChevronDown,
   PenLine,
+  // Epic 56: New icons for page breaks and headers/footers
+  SeparatorHorizontal,
+  FileText,
 } from 'lucide-react'
 import { EncryptedNostrProvider } from '../providers/EncryptedNostrProvider'
 import { CommentMark } from '../extensions/CommentMark'
@@ -79,6 +82,9 @@ import { MermaidBlock } from '../extensions/MermaidBlock'
 import { TableOfContents } from '../extensions/TableOfContents'
 import { Footnote } from '../extensions/Footnote'
 import { SuggestionModeExtension } from '../extensions/SuggestionModePlugin'
+// Epic 56: Page breaks, Headers/Footers
+import { PageBreak } from '../extensions/PageBreak'
+import { HeaderFooter } from '../extensions/HeaderFooter'
 import { useDocumentsStore } from '../documentsStore'
 import { secureRandomInt } from '@/lib/utils'
 import type { NostrClient } from '@/core/nostr/client'
@@ -249,6 +255,9 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       MermaidBlock,
       TableOfContents,
       Footnote,
+      // Epic 56: Page breaks and Headers/Footers
+      PageBreak,
+      HeaderFooter,
       // Suggestion mode plugin
       SuggestionModeExtension.configure({
         enabled: suggestionMode,
@@ -376,6 +385,19 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       type: 'footnote',
       attrs: { content: '' },
     }).run()
+  }
+
+  // Epic 56: Page break and header/footer insert functions
+  const insertPageBreak = () => {
+    editor.chain().focus().insertPageBreak().run()
+  }
+
+  const insertHeader = () => {
+    editor.chain().focus().insertHeader().run()
+  }
+
+  const insertFooter = () => {
+    editor.chain().focus().insertFooter().run()
   }
 
   const hasSelection = !editor.state.selection.empty
@@ -650,6 +672,19 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
               <DropdownMenuItem onClick={insertFootnote}>
                 <Superscript className="h-4 w-4 mr-2" />
                 Footnote
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={insertPageBreak}>
+                <SeparatorHorizontal className="h-4 w-4 mr-2" />
+                Page Break
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={insertHeader}>
+                <FileText className="h-4 w-4 mr-2" />
+                Document Header
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={insertFooter}>
+                <FileText className="h-4 w-4 mr-2" />
+                Document Footer
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
