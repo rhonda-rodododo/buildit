@@ -11,6 +11,10 @@ import type {
   FileVersion,
   StorageQuota,
   FileUploadProgress,
+  FileFolderPermission,
+  FileAccessRequest,
+  FileSharingReportItem,
+  FilePermission,
 } from './types'
 
 interface FilesState {
@@ -24,6 +28,9 @@ interface FilesState {
   selectedFileIds: Set<string>
   isLoading: boolean
   error: string | null
+  // Epic 58: Permission inheritance & access requests
+  folderPermissions: Map<string, FileFolderPermission[]> // folderId -> permissions
+  accessRequests: Map<string, FileAccessRequest[]> // resourceId -> requests
 }
 
 interface FilesActions {
@@ -79,6 +86,25 @@ interface FilesActions {
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
   reset: () => void
+
+  // Epic 58: Folder Permission Inheritance
+  setFolderPermission: (permission: FileFolderPermission) => void
+  removeFolderPermission: (folderId: string, userPubkey: string) => void
+  getFolderPermissions: (folderId: string) => FileFolderPermission[]
+  getInheritedPermissions: (fileId: string, userPubkey: string) => FilePermission[] | null
+  getEffectivePermissions: (fileId: string, userPubkey: string) => FilePermission[] | null
+
+  // Epic 58: Access Requests
+  createAccessRequest: (request: FileAccessRequest) => void
+  updateAccessRequest: (requestId: string, updates: Partial<FileAccessRequest>) => void
+  getAccessRequests: (resourceId: string) => FileAccessRequest[]
+  getPendingAccessRequests: (groupId: string) => FileAccessRequest[]
+  approveAccessRequest: (requestId: string, reviewerPubkey: string, note?: string) => void
+  denyAccessRequest: (requestId: string, reviewerPubkey: string, note?: string) => void
+
+  // Epic 58: Sharing Report Export
+  generateSharingReport: (groupId: string) => FileSharingReportItem[]
+  exportSharingReportCSV: (groupId: string) => string
 }
 
 const initialState: FilesState = {
@@ -92,6 +118,9 @@ const initialState: FilesState = {
   selectedFileIds: new Set(),
   isLoading: false,
   error: null,
+  // Epic 58: Permission inheritance & access requests
+  folderPermissions: new Map(),
+  accessRequests: new Map(),
 }
 
 export const useFilesStore = create<FilesState & FilesActions>((set, get) => ({
@@ -359,4 +388,352 @@ export const useFilesStore = create<FilesState & FilesActions>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
   reset: () => set(initialState),
+
+  // Epic 58: Folder Permission Inheritance
+  setFolderPermission: (permission) =>
+    set((state) => {
+      const folderPermissions = new Map(state.folderPermissions)
+      const existing = folderPermissions.get(permission.folderId) || []
+      // Remove existing permission for this user, then add new one
+      const filtered = existing.filter((p) => p.userPubkey !== permission.userPubkey)
+      folderPermissions.set(permission.folderId, [...filtered, permission])
+      return { folderPermissions }
+    }),
+
+  removeFolderPermission: (folderId, userPubkey) =>
+    set((state) => {
+      const folderPermissions = new Map(state.folderPermissions)
+      const existing = folderPermissions.get(folderId) || []
+      folderPermissions.set(folderId, existing.filter((p) => p.userPubkey !== userPubkey))
+      return { folderPermissions }
+    }),
+
+  getFolderPermissions: (folderId) => {
+    return get().folderPermissions.get(folderId) || []
+  },
+
+  getInheritedPermissions: (fileId, userPubkey) => {
+    const { files, folders, folderPermissions } = get()
+    const file = files.get(fileId)
+    if (!file || !file.folderId) return null
+
+    // Walk up the folder tree looking for inherited permissions
+    let currentFolderId: string | null = file.folderId
+    while (currentFolderId) {
+      const permissions = folderPermissions.get(currentFolderId) || []
+      const userPermission = permissions.find(
+        (p) => p.userPubkey === userPubkey && p.inheritToChildren
+      )
+      if (userPermission) {
+        return userPermission.permissions
+      }
+      // Move to parent folder
+      const folder = folders.get(currentFolderId)
+      currentFolderId = folder?.parentId ?? null
+    }
+    return null
+  },
+
+  getEffectivePermissions: (fileId, userPubkey) => {
+    const { getInheritedPermissions, shares, files } = get()
+    const file = files.get(fileId)
+    if (!file) return null
+
+    // Check if user is the uploader (implicit full access)
+    if (file.uploadedBy === userPubkey) {
+      return ['view', 'download', 'edit', 'delete'] as FilePermission[]
+    }
+
+    // Check direct shares
+    const fileShares = Array.from(shares.values()).filter((s) => s.fileId === fileId)
+    for (const share of fileShares) {
+      if (share.sharedWith.length === 0 || share.sharedWith.includes(userPubkey)) {
+        return share.permissions
+      }
+    }
+
+    // Check inherited permission from folder
+    const inheritedPermissions = getInheritedPermissions(fileId, userPubkey)
+    if (inheritedPermissions) return inheritedPermissions
+
+    return null
+  },
+
+  // Epic 58: Access Requests
+  createAccessRequest: (request) =>
+    set((state) => {
+      const accessRequests = new Map(state.accessRequests)
+      const existing = accessRequests.get(request.resourceId) || []
+      accessRequests.set(request.resourceId, [...existing, request])
+      return { accessRequests }
+    }),
+
+  updateAccessRequest: (requestId, updates) =>
+    set((state) => {
+      const accessRequests = new Map(state.accessRequests)
+      for (const [resourceId, requests] of accessRequests.entries()) {
+        const index = requests.findIndex((r) => r.id === requestId)
+        if (index !== -1) {
+          const updated = [...requests]
+          updated[index] = { ...updated[index], ...updates }
+          accessRequests.set(resourceId, updated)
+          break
+        }
+      }
+      return { accessRequests }
+    }),
+
+  getAccessRequests: (resourceId) => {
+    return get().accessRequests.get(resourceId) || []
+  },
+
+  getPendingAccessRequests: (groupId) => {
+    const { accessRequests, files, folders } = get()
+    const pending: FileAccessRequest[] = []
+
+    for (const [, requests] of accessRequests.entries()) {
+      for (const request of requests) {
+        if (request.status !== 'pending') continue
+
+        // Check if this resource belongs to the group
+        if (request.resourceType === 'file') {
+          const file = files.get(request.resourceId)
+          if (file?.groupId === groupId) {
+            pending.push(request)
+          }
+        } else if (request.resourceType === 'folder') {
+          const folder = folders.get(request.resourceId)
+          if (folder?.groupId === groupId) {
+            pending.push(request)
+          }
+        }
+      }
+    }
+
+    return pending.sort((a, b) => b.createdAt - a.createdAt)
+  },
+
+  approveAccessRequest: (requestId, reviewerPubkey, note) => {
+    const { accessRequests, addShare, setFolderPermission, files, folders } = get()
+
+    // Find the request
+    let request: FileAccessRequest | undefined
+    for (const [, requests] of accessRequests.entries()) {
+      request = requests.find((r) => r.id === requestId)
+      if (request) break
+    }
+
+    if (!request || request.status !== 'pending') return
+
+    // Update request status
+    get().updateAccessRequest(requestId, {
+      status: 'approved',
+      reviewedAt: Date.now(),
+      reviewedByPubkey: reviewerPubkey,
+      reviewNote: note,
+    })
+
+    // Grant the permission based on resource type
+    if (request.resourceType === 'file') {
+      const file = files.get(request.resourceId)
+      if (file) {
+        addShare({
+          id: crypto.randomUUID(),
+          fileId: request.resourceId,
+          groupId: file.groupId,
+          sharedBy: reviewerPubkey,
+          sharedWith: [request.requesterPubkey],
+          permissions: request.requestedPermissions,
+          expiresAt: null,
+          createdAt: Date.now(),
+          accessCount: 0,
+          lastAccessedAt: null,
+        })
+      }
+    } else if (request.resourceType === 'folder') {
+      const folder = folders.get(request.resourceId)
+      if (folder) {
+        setFolderPermission({
+          folderId: request.resourceId,
+          groupId: folder.groupId,
+          userPubkey: request.requesterPubkey,
+          permissions: request.requestedPermissions,
+          inheritToChildren: true,
+          addedByPubkey: reviewerPubkey,
+          addedAt: Date.now(),
+        })
+      }
+    }
+  },
+
+  denyAccessRequest: (requestId, reviewerPubkey, note) => {
+    get().updateAccessRequest(requestId, {
+      status: 'denied',
+      reviewedAt: Date.now(),
+      reviewedByPubkey: reviewerPubkey,
+      reviewNote: note,
+    })
+  },
+
+  // Epic 58: Sharing Report Export
+  generateSharingReport: (groupId) => {
+    const { files, folders, shares, folderPermissions } = get()
+
+    const report: FileSharingReportItem[] = []
+
+    // Process files
+    for (const file of files.values()) {
+      if (file.groupId !== groupId) continue
+
+      const fileShares = Array.from(shares.values()).filter((s) => s.fileId === file.id)
+
+      // Get inherited permissions from folder
+      let inheritedFrom: FileSharingReportItem['inheritedFrom'] | undefined
+      if (file.folderId) {
+        const folder = folders.get(file.folderId)
+        const folderPerms = folderPermissions.get(file.folderId) || []
+        if (folder && folderPerms.some((p) => p.inheritToChildren)) {
+          inheritedFrom = {
+            folderId: folder.id,
+            folderName: folder.name,
+          }
+        }
+      }
+
+      const sharedWith: FileSharingReportItem['sharedWith'] = []
+
+      // Add direct shares
+      for (const share of fileShares) {
+        if (share.sharedWith.length === 0) {
+          // Shared with all group members
+          sharedWith.push({
+            pubkey: 'all-group-members',
+            permissions: share.permissions,
+            sharedAt: share.createdAt,
+            via: share.shareLink ? 'link' : 'direct',
+          })
+        } else {
+          for (const pubkey of share.sharedWith) {
+            sharedWith.push({
+              pubkey,
+              permissions: share.permissions,
+              sharedAt: share.createdAt,
+              via: 'direct',
+            })
+          }
+        }
+      }
+
+      // Add folder-inherited permissions
+      if (file.folderId) {
+        const folderPerms = folderPermissions.get(file.folderId) || []
+        for (const perm of folderPerms) {
+          if (perm.inheritToChildren) {
+            // Don't duplicate if already added
+            if (!sharedWith.some((s) => s.pubkey === perm.userPubkey)) {
+              sharedWith.push({
+                pubkey: perm.userPubkey,
+                permissions: perm.permissions,
+                sharedAt: perm.addedAt,
+                via: 'folder-inheritance',
+              })
+            }
+          }
+        }
+      }
+
+      // Only include if there's sharing activity
+      if (sharedWith.length > 0 || fileShares.some((s) => s.shareLink)) {
+        report.push({
+          resourceId: file.id,
+          resourceType: 'file',
+          resourceName: file.name,
+          size: file.size,
+          sharedWith,
+          shareLinks: fileShares
+            .filter((s) => s.shareLink)
+            .map((share) => ({
+              id: share.id,
+              permissions: share.permissions,
+              hasPassword: !!share.password,
+              accessCount: share.accessCount,
+              createdAt: share.createdAt,
+              expiresAt: share.expiresAt,
+            })),
+          inheritedFrom,
+        })
+      }
+    }
+
+    // Process folders with explicit permissions
+    for (const folder of folders.values()) {
+      if (folder.groupId !== groupId) continue
+
+      const folderPerms = folderPermissions.get(folder.id) || []
+      if (folderPerms.length === 0) continue
+
+      const sharedWith: FileSharingReportItem['sharedWith'] = folderPerms.map((perm) => ({
+        pubkey: perm.userPubkey,
+        permissions: perm.permissions,
+        sharedAt: perm.addedAt,
+        via: 'direct',
+      }))
+
+      report.push({
+        resourceId: folder.id,
+        resourceType: 'folder',
+        resourceName: folder.name,
+        sharedWith,
+        shareLinks: [],
+      })
+    }
+
+    return report.sort((a, b) => a.resourceName.localeCompare(b.resourceName))
+  },
+
+  exportSharingReportCSV: (groupId) => {
+    const report = get().generateSharingReport(groupId)
+    const rows: string[] = []
+
+    // Header
+    rows.push('Resource Type,Resource Name,Size (bytes),Shared With (Pubkey),Permissions,Shared Via,Shared At,Has Link,Link Has Password,Link Accesses,Link Expires')
+
+    for (const item of report) {
+      // Add rows for each shared user
+      for (const share of item.sharedWith) {
+        rows.push([
+          item.resourceType,
+          `"${item.resourceName.replace(/"/g, '""')}"`,
+          item.size?.toString() || '',
+          share.pubkey === 'all-group-members' ? 'All group members' : share.pubkey.slice(0, 16) + '...',
+          share.permissions.join(';'),
+          share.via,
+          new Date(share.sharedAt).toISOString(),
+          '',
+          '',
+          '',
+          '',
+        ].join(','))
+      }
+
+      // Add rows for each share link
+      for (const link of item.shareLinks) {
+        rows.push([
+          item.resourceType,
+          `"${item.resourceName.replace(/"/g, '""')}"`,
+          item.size?.toString() || '',
+          'Anyone with link',
+          link.permissions.join(';'),
+          'link',
+          new Date(link.createdAt).toISOString(),
+          'Yes',
+          link.hasPassword ? 'Yes' : 'No',
+          link.accessCount.toString(),
+          link.expiresAt ? new Date(link.expiresAt).toISOString() : 'Never',
+        ].join(','))
+      }
+    }
+
+    return rows.join('\n')
+  },
 }))

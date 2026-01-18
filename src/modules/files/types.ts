@@ -147,3 +147,65 @@ export interface FilePreview {
   content?: string // Text content
   language?: string // For code syntax highlighting
 }
+
+/**
+ * Epic 58: Folder Permission (for permission inheritance)
+ * Permissions set at folder level that cascade to all child items
+ */
+export interface FileFolderPermission {
+  folderId: string
+  groupId: string
+  userPubkey: string
+  permissions: FilePermission[]
+  inheritToChildren: boolean // Whether to cascade to child folders/files
+  addedByPubkey: string
+  addedAt: number
+}
+
+/**
+ * Epic 58: File Access Request
+ * Request access to a file or folder
+ */
+export interface FileAccessRequest {
+  id: string
+  resourceId: string // File or folder ID
+  resourceType: 'file' | 'folder'
+  resourceName: string
+  requesterPubkey: string
+  requestedPermissions: FilePermission[]
+  message?: string // Optional message from requester
+  status: 'pending' | 'approved' | 'denied'
+  createdAt: number
+  reviewedAt?: number
+  reviewedByPubkey?: string
+  reviewNote?: string
+}
+
+/**
+ * Epic 58: File Sharing Report Item
+ * Individual item in a sharing report export
+ */
+export interface FileSharingReportItem {
+  resourceId: string
+  resourceType: 'file' | 'folder'
+  resourceName: string
+  size?: number
+  sharedWith: {
+    pubkey: string
+    permissions: FilePermission[]
+    sharedAt: number
+    via: 'direct' | 'link' | 'folder-inheritance'
+  }[]
+  shareLinks: {
+    id: string
+    permissions: FilePermission[]
+    hasPassword: boolean
+    accessCount: number
+    createdAt: number
+    expiresAt?: number | null
+  }[]
+  inheritedFrom?: {
+    folderId: string
+    folderName: string
+  }
+}

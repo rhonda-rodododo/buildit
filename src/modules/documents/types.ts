@@ -268,3 +268,64 @@ export interface CreateShareLinkInput {
   password?: string
   maxAccessCount?: number
 }
+
+/**
+ * Epic 58: Folder Permission (for permission inheritance)
+ * Permissions set at folder level that cascade to all child items
+ */
+export interface FolderPermission {
+  folderId: string
+  groupId: string
+  userPubkey: string
+  permission: DocumentPermission
+  inheritToChildren: boolean // Whether to cascade to child folders/documents
+  addedByPubkey: string
+  addedAt: number
+}
+
+/**
+ * Epic 58: Access Request
+ * Request access to a document or folder
+ */
+export interface AccessRequest {
+  id: string
+  resourceId: string // Document or folder ID
+  resourceType: 'document' | 'folder'
+  resourceTitle: string
+  requesterPubkey: string
+  requestedPermission: DocumentPermission
+  message?: string // Optional message from requester
+  status: 'pending' | 'approved' | 'denied'
+  createdAt: number
+  reviewedAt?: number
+  reviewedByPubkey?: string
+  reviewNote?: string
+}
+
+/**
+ * Epic 58: Sharing Report Item
+ * Individual item in a sharing report export
+ */
+export interface SharingReportItem {
+  resourceId: string
+  resourceType: 'document' | 'folder'
+  resourceTitle: string
+  sharedWith: {
+    pubkey: string
+    permission: DocumentPermission
+    sharedAt: number
+    via: 'direct' | 'link' | 'folder-inheritance'
+  }[]
+  shareLinks: {
+    id: string
+    permission: DocumentPermission
+    isPublic: boolean
+    accessCount: number
+    createdAt: number
+    expiresAt?: number
+  }[]
+  inheritedFrom?: {
+    folderId: string
+    folderName: string
+  }
+}

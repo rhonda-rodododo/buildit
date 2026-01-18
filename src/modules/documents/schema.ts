@@ -52,4 +52,16 @@ export const documentsSchema: TableSchema[] = [
     schema: '[documentId+userPubkey], documentId, userPubkey, createdAt',
     indexes: ['[documentId+userPubkey]', 'documentId', 'userPubkey', 'createdAt'],
   },
+  // Epic 58: Folder permissions for inheritance
+  {
+    name: 'folderPermissions',
+    schema: '[folderId+userPubkey], folderId, groupId, userPubkey',
+    indexes: ['[folderId+userPubkey]', 'folderId', 'groupId', 'userPubkey'],
+  },
+  // Epic 58: Access requests
+  {
+    name: 'accessRequests',
+    schema: 'id, resourceId, resourceType, requesterPubkey, status, createdAt',
+    indexes: ['id', 'resourceId', 'resourceType', 'requesterPubkey', 'status', 'createdAt'],
+  },
 ];

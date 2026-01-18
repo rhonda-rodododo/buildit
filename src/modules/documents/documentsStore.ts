@@ -14,6 +14,9 @@ import type {
   DocumentShareLink,
   DocumentCollaborator,
   DocumentPermission,
+  FolderPermission,
+  AccessRequest,
+  SharingReportItem,
 } from './types'
 
 interface DocumentsState {
@@ -31,6 +34,9 @@ interface DocumentsState {
   shareLinks: Map<string, DocumentShareLink[]> // documentId -> share links
   collaborators: Map<string, DocumentCollaborator[]> // documentId -> collaborators
   suggestionModeEnabled: boolean
+  // Epic 58: Permission inheritance & access requests
+  folderPermissions: Map<string, FolderPermission[]> // folderId -> permissions
+  accessRequests: Map<string, AccessRequest[]> // resourceId -> requests
 }
 
 interface DocumentsActions {
@@ -105,6 +111,25 @@ interface DocumentsActions {
 
   // Epic 56: Recent documents
   getRecentDocuments: (groupId: string, limit?: number) => Document[]
+
+  // Epic 58: Folder Permission Inheritance
+  setFolderPermission: (permission: FolderPermission) => void
+  removeFolderPermission: (folderId: string, userPubkey: string) => void
+  getFolderPermissions: (folderId: string) => FolderPermission[]
+  getInheritedPermission: (documentId: string, userPubkey: string) => DocumentPermission | null
+  getEffectivePermission: (documentId: string, userPubkey: string) => DocumentPermission | null
+
+  // Epic 58: Access Requests
+  createAccessRequest: (request: AccessRequest) => void
+  updateAccessRequest: (requestId: string, updates: Partial<AccessRequest>) => void
+  getAccessRequests: (resourceId: string) => AccessRequest[]
+  getPendingAccessRequests: (groupId: string) => AccessRequest[]
+  approveAccessRequest: (requestId: string, reviewerPubkey: string, note?: string) => void
+  denyAccessRequest: (requestId: string, reviewerPubkey: string, note?: string) => void
+
+  // Epic 58: Sharing Report Export
+  generateSharingReport: (groupId: string) => SharingReportItem[]
+  exportSharingReportCSV: (groupId: string) => string
 }
 
 export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set, get) => ({
@@ -123,6 +148,9 @@ export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set,
   shareLinks: new Map(),
   collaborators: new Map(),
   suggestionModeEnabled: false,
+  // Epic 58: Permission inheritance & access requests
+  folderPermissions: new Map(),
+  accessRequests: new Map(),
 
   // Document CRUD
   addDocument: (document) =>
@@ -497,5 +525,345 @@ export const useDocumentsStore = create<DocumentsState & DocumentsActions>((set,
       .filter((doc) => doc.groupId === groupId)
       .sort((a, b) => b.updatedAt - a.updatedAt)
       .slice(0, limit)
+  },
+
+  // Epic 58: Folder Permission Inheritance
+  setFolderPermission: (permission) =>
+    set((state) => {
+      const folderPermissions = new Map(state.folderPermissions)
+      const existing = folderPermissions.get(permission.folderId) || []
+      // Remove existing permission for this user, then add new one
+      const filtered = existing.filter((p) => p.userPubkey !== permission.userPubkey)
+      folderPermissions.set(permission.folderId, [...filtered, permission])
+      return { folderPermissions }
+    }),
+
+  removeFolderPermission: (folderId, userPubkey) =>
+    set((state) => {
+      const folderPermissions = new Map(state.folderPermissions)
+      const existing = folderPermissions.get(folderId) || []
+      folderPermissions.set(folderId, existing.filter((p) => p.userPubkey !== userPubkey))
+      return { folderPermissions }
+    }),
+
+  getFolderPermissions: (folderId) => {
+    return get().folderPermissions.get(folderId) || []
+  },
+
+  getInheritedPermission: (documentId, userPubkey) => {
+    const { documents, folders, folderPermissions } = get()
+    const document = documents.get(documentId)
+    if (!document || !document.folderId) return null
+
+    // Walk up the folder tree looking for inherited permissions
+    let currentFolderId: string | undefined = document.folderId
+    while (currentFolderId) {
+      const permissions = folderPermissions.get(currentFolderId) || []
+      const userPermission = permissions.find(
+        (p) => p.userPubkey === userPubkey && p.inheritToChildren
+      )
+      if (userPermission) {
+        return userPermission.permission
+      }
+      // Move to parent folder
+      const folder = folders.get(currentFolderId)
+      currentFolderId = folder?.parentFolderId
+    }
+    return null
+  },
+
+  getEffectivePermission: (documentId, userPubkey) => {
+    const { getUserPermission, getInheritedPermission, documents } = get()
+    const document = documents.get(documentId)
+    if (!document) return null
+
+    // Check if user is the author (implicit admin)
+    if (document.authorPubkey === userPubkey) return 'admin'
+
+    // Check direct collaborator permission first
+    const directPermission = getUserPermission(documentId, userPubkey)
+    if (directPermission) return directPermission
+
+    // Check inherited permission from folder
+    const inheritedPermission = getInheritedPermission(documentId, userPubkey)
+    if (inheritedPermission) return inheritedPermission
+
+    // Check if document is public (view only)
+    if (document.isPublic) return 'view'
+
+    return null
+  },
+
+  // Epic 58: Access Requests
+  createAccessRequest: (request) =>
+    set((state) => {
+      const accessRequests = new Map(state.accessRequests)
+      const existing = accessRequests.get(request.resourceId) || []
+      accessRequests.set(request.resourceId, [...existing, request])
+      return { accessRequests }
+    }),
+
+  updateAccessRequest: (requestId, updates) =>
+    set((state) => {
+      const accessRequests = new Map(state.accessRequests)
+      for (const [resourceId, requests] of accessRequests.entries()) {
+        const index = requests.findIndex((r) => r.id === requestId)
+        if (index !== -1) {
+          const updated = [...requests]
+          updated[index] = { ...updated[index], ...updates }
+          accessRequests.set(resourceId, updated)
+          break
+        }
+      }
+      return { accessRequests }
+    }),
+
+  getAccessRequests: (resourceId) => {
+    return get().accessRequests.get(resourceId) || []
+  },
+
+  getPendingAccessRequests: (groupId) => {
+    const { accessRequests, documents, folders } = get()
+    const pending: AccessRequest[] = []
+
+    for (const [, requests] of accessRequests.entries()) {
+      for (const request of requests) {
+        if (request.status !== 'pending') continue
+
+        // Check if this resource belongs to the group
+        if (request.resourceType === 'document') {
+          const doc = documents.get(request.resourceId)
+          if (doc?.groupId === groupId) {
+            pending.push(request)
+          }
+        } else if (request.resourceType === 'folder') {
+          const folder = folders.get(request.resourceId)
+          if (folder?.groupId === groupId) {
+            pending.push(request)
+          }
+        }
+      }
+    }
+
+    return pending.sort((a, b) => b.createdAt - a.createdAt)
+  },
+
+  approveAccessRequest: (requestId, reviewerPubkey, note) => {
+    const { accessRequests, addCollaborator, setFolderPermission, folders } = get()
+
+    // Find the request
+    let request: AccessRequest | undefined
+    for (const [, requests] of accessRequests.entries()) {
+      request = requests.find((r) => r.id === requestId)
+      if (request) break
+    }
+
+    if (!request || request.status !== 'pending') return
+
+    // Update request status
+    get().updateAccessRequest(requestId, {
+      status: 'approved',
+      reviewedAt: Date.now(),
+      reviewedByPubkey: reviewerPubkey,
+      reviewNote: note,
+    })
+
+    // Grant the permission based on resource type
+    if (request.resourceType === 'document') {
+      addCollaborator({
+        documentId: request.resourceId,
+        userPubkey: request.requesterPubkey,
+        permission: request.requestedPermission,
+        addedByPubkey: reviewerPubkey,
+        addedAt: Date.now(),
+      })
+    } else if (request.resourceType === 'folder') {
+      const folder = folders.get(request.resourceId)
+      if (folder) {
+        setFolderPermission({
+          folderId: request.resourceId,
+          groupId: folder.groupId,
+          userPubkey: request.requesterPubkey,
+          permission: request.requestedPermission,
+          inheritToChildren: true,
+          addedByPubkey: reviewerPubkey,
+          addedAt: Date.now(),
+        })
+      }
+    }
+  },
+
+  denyAccessRequest: (requestId, reviewerPubkey, note) => {
+    get().updateAccessRequest(requestId, {
+      status: 'denied',
+      reviewedAt: Date.now(),
+      reviewedByPubkey: reviewerPubkey,
+      reviewNote: note,
+    })
+  },
+
+  // Epic 58: Sharing Report Export
+  generateSharingReport: (groupId) => {
+    const {
+      documents,
+      folders,
+      collaborators,
+      shareLinks,
+      folderPermissions,
+    } = get()
+
+    const report: SharingReportItem[] = []
+
+    // Process documents
+    for (const document of documents.values()) {
+      if (document.groupId !== groupId) continue
+
+      const docCollabs = collaborators.get(document.id) || []
+      const docLinks = shareLinks.get(document.id) || []
+
+      // Get inherited permissions from folder
+      let inheritedFrom: SharingReportItem['inheritedFrom'] | undefined
+      if (document.folderId) {
+        const folder = folders.get(document.folderId)
+        const folderPerms = folderPermissions.get(document.folderId) || []
+        if (folder && folderPerms.some((p) => p.inheritToChildren)) {
+          inheritedFrom = {
+            folderId: folder.id,
+            folderName: folder.name,
+          }
+        }
+      }
+
+      const sharedWith: SharingReportItem['sharedWith'] = []
+
+      // Add direct collaborators
+      for (const collab of docCollabs) {
+        sharedWith.push({
+          pubkey: collab.userPubkey,
+          permission: collab.permission,
+          sharedAt: collab.addedAt,
+          via: 'direct',
+        })
+      }
+
+      // Add folder-inherited permissions
+      if (document.folderId) {
+        const folderPerms = folderPermissions.get(document.folderId) || []
+        for (const perm of folderPerms) {
+          if (perm.inheritToChildren) {
+            // Don't duplicate if already added as direct
+            if (!sharedWith.some((s) => s.pubkey === perm.userPubkey)) {
+              sharedWith.push({
+                pubkey: perm.userPubkey,
+                permission: perm.permission,
+                sharedAt: perm.addedAt,
+                via: 'folder-inheritance',
+              })
+            }
+          }
+        }
+      }
+
+      // Only include if there's sharing activity
+      if (sharedWith.length > 0 || docLinks.length > 0 || document.isPublic) {
+        report.push({
+          resourceId: document.id,
+          resourceType: 'document',
+          resourceTitle: document.title,
+          sharedWith,
+          shareLinks: docLinks.map((link) => ({
+            id: link.id,
+            permission: link.permission,
+            isPublic: link.isPublic,
+            accessCount: link.accessCount,
+            createdAt: link.createdAt,
+            expiresAt: link.expiresAt,
+          })),
+          inheritedFrom,
+        })
+      }
+    }
+
+    // Process folders with explicit permissions
+    for (const folder of folders.values()) {
+      if (folder.groupId !== groupId) continue
+
+      const folderPerms = folderPermissions.get(folder.id) || []
+      if (folderPerms.length === 0) continue
+
+      const sharedWith: SharingReportItem['sharedWith'] = folderPerms.map((perm) => ({
+        pubkey: perm.userPubkey,
+        permission: perm.permission,
+        sharedAt: perm.addedAt,
+        via: 'direct',
+      }))
+
+      report.push({
+        resourceId: folder.id,
+        resourceType: 'folder',
+        resourceTitle: folder.name,
+        sharedWith,
+        shareLinks: [],
+      })
+    }
+
+    return report.sort((a, b) => a.resourceTitle.localeCompare(b.resourceTitle))
+  },
+
+  exportSharingReportCSV: (groupId) => {
+    const report = get().generateSharingReport(groupId)
+    const rows: string[] = []
+
+    // Header
+    rows.push('Resource Type,Resource Title,Shared With (Pubkey),Permission,Shared Via,Shared At,Public Link,Link Accesses,Link Expires')
+
+    for (const item of report) {
+      // Add rows for each shared user
+      for (const share of item.sharedWith) {
+        rows.push([
+          item.resourceType,
+          `"${item.resourceTitle.replace(/"/g, '""')}"`,
+          share.pubkey.slice(0, 16) + '...',
+          share.permission,
+          share.via,
+          new Date(share.sharedAt).toISOString(),
+          '',
+          '',
+          '',
+        ].join(','))
+      }
+
+      // Add rows for each share link
+      for (const link of item.shareLinks) {
+        rows.push([
+          item.resourceType,
+          `"${item.resourceTitle.replace(/"/g, '""')}"`,
+          link.isPublic ? 'Anyone with link' : 'Authenticated users',
+          link.permission,
+          'link',
+          new Date(link.createdAt).toISOString(),
+          link.isPublic ? 'Yes' : 'No',
+          link.accessCount.toString(),
+          link.expiresAt ? new Date(link.expiresAt).toISOString() : 'Never',
+        ].join(','))
+      }
+
+      // If no specific shares, add a row showing public status
+      if (item.sharedWith.length === 0 && item.shareLinks.length === 0) {
+        rows.push([
+          item.resourceType,
+          `"${item.resourceTitle.replace(/"/g, '""')}"`,
+          'Public',
+          'view',
+          'public',
+          '',
+          'Yes',
+          '',
+          '',
+        ].join(','))
+      }
+    }
+
+    return rows.join('\n')
   },
 }))
