@@ -22,6 +22,7 @@ async function initializeApp() {
     console.info(
       "⚠️  Database already initialized from previous session, skipping initialization"
     );
+    return true; // Already initialized successfully
   } catch {
     // DB not initialized yet, continue
   }
@@ -29,7 +30,14 @@ async function initializeApp() {
   // Prevent multiple initializations (React StrictMode, HMR, etc.)
   if (initializationStarted) {
     console.info("⚠️  Initialization already in progress, skipping...");
-    return;
+    // Wait a bit and check if initialization completed
+    await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      getDB();
+      return true; // Initialization completed by another caller
+    } catch {
+      return false; // Still not initialized, something went wrong
+    }
   }
   initializationStarted = true;
 
@@ -79,15 +87,23 @@ async function initializeApp() {
 const RootLayout: React.FC = () => {
   // Start initialization (non-blocking)
   const [isAppInitialized, setIsAppInitialized] = React.useState(false);
+  const [initError, setInitError] = React.useState<string | null>(null);
   const [router, setRouter] = React.useState(createBrowserRouter(getRoutes()));
 
   useEffect(() => {
     initializeApp()
       .then((result) => {
         console.info("App initialization result:", result);
-        setIsAppInitialized(true);
+        if (result) {
+          setIsAppInitialized(true);
+        } else {
+          setInitError("Failed to initialize application. Please refresh the page.");
+        }
       })
-      .catch(console.error);
+      .catch((error) => {
+        console.error("Initialization error:", error);
+        setInitError(error instanceof Error ? error.message : "An unexpected error occurred.");
+      });
   }, []);
 
   useEffect(() => {
@@ -101,13 +117,44 @@ const RootLayout: React.FC = () => {
     }
   }, [isAppInitialized]);
 
+  // Show error UI when initialization fails
+  if (initError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-destructive">Initialization Error</h1>
+          <p className="text-muted-foreground">{initError}</p>
+          <button
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading UI while initializing
+  if (!isAppInitialized) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+          <p className="text-muted-foreground">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider
       defaultTheme="system"
       defaultColorTheme="blue"
       storageKey="buildn-ui-theme"
     >
-      {isAppInitialized && <RouterProvider router={router} />}
+      <RouterProvider router={router} />
       <Toaster />
     </ThemeProvider>
   );

@@ -259,8 +259,8 @@ export default defineConfig({
         '**/tests/**',
       ],
       // Set to false to append coverage from multiple runs
-      // Run: bun test --coverage (first run cleans)
-      // Then: bun test --coverage --coverage.clean=false (append mode)
+      // Run: bun run test --coverage (first run cleans)
+      // Then: bun run test --coverage --coverage.clean=false (append mode)
       clean: true,
       // Thresholds for coverage (optional, can enable when ready)
       // thresholds: {

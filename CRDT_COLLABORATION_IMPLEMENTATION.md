@@ -296,7 +296,7 @@ await documentManager.startCollaboration(
 
 ### Run E2E Tests
 ```bash
-bun test:e2e -- collaborative-editing.spec.ts
+bun run test:e2e -- collaborative-editing.spec.ts
 ```
 
 ### Manual Testing

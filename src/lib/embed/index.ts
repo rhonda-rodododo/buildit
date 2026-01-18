@@ -35,14 +35,29 @@ export {
   getProviderByDomain,
   getSupportedProviderNames,
   getSupportedDomains,
+  // Video platforms
   youtubeProvider,
   vimeoProvider,
   peertubeProvider,
+  dailymotionProvider,
+  twitchProvider,
+  loomProvider,
+  tiktokProvider,
+  // Social media
+  twitterProvider,
+  instagramProvider,
+  redditProvider,
+  mastodonProvider,
+  blueskyProvider,
+  threadsProvider,
+  // Audio
   soundcloudProvider,
   spotifyProvider,
-  mastodonProvider,
+  // Code & Development
   codepenProvider,
   codesandboxProvider,
+  // Media
+  giphyProvider,
 } from './providers'
 
 // Utilities

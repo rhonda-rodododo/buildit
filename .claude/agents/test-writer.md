@@ -67,7 +67,7 @@ Write high-quality tests that:
   - Readable (clear test names and structure)
 
 ### 4. Execution and Refinement Phase
-- Run tests: `bun test` or `bun run test:e2e`
+- Run tests: `bun run test` or `bun run test:e2e`
 - Fix any failures
 - Check coverage: `bun run test:coverage`
 - Ensure >80% coverage for new code
@@ -94,9 +94,9 @@ Write high-quality tests that:
 
 ```bash
 # Unit/Integration tests
-bun test                     # Run all tests
-bun test <file>             # Run specific file
-bun test --coverage         # Run with coverage
+bun run test                     # Run all tests
+bun run test <file>             # Run specific file
+bun run test --coverage         # Run with coverage
 bun run test:coverage       # Coverage report
 
 # E2E tests

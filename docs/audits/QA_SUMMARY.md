@@ -54,7 +54,6 @@ PWA:             ✅ Enabled (26 files cached)
 ### Code Quality
 ```
 TypeScript Errors:     0  ✅
-ESLint Errors:         0  ✅
 TODOs in Code:         7  🟡
 Type Suppressions:     6  🟡
 ```

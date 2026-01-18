@@ -108,7 +108,7 @@ bun install        # Install dependencies
 bun run dev        # Development server
 bun run build      # Production build
 bun run test       # Run tests
-bun run lint       # Lint code
+bun run typecheck  # Type checking
 ```
 
 ## 🚀 Deployment

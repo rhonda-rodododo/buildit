@@ -219,17 +219,291 @@ export const codesandboxProvider: EmbedProvider = {
 }
 
 /**
+ * TikTok provider configuration
+ * Note: TikTok embeds require their embed script, so we use oEmbed
+ */
+export const tiktokProvider: EmbedProvider = {
+  id: 'tiktok',
+  name: 'TikTok',
+  domain: 'tiktok.com',
+  additionalDomains: ['www.tiktok.com', 'vm.tiktok.com'],
+  patterns: [
+    /^https?:\/\/(www\.)?tiktok\.com\/@[a-zA-Z0-9_.]+\/video\/(\d+)/,
+    /^https?:\/\/vm\.tiktok\.com\/([a-zA-Z0-9]+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '9/16', // Vertical video
+  getEmbedUrl: (url: string) => {
+    // TikTok requires oEmbed to get the proper embed HTML
+    // Direct embed URLs don't work reliably
+    const match = url.match(/tiktok\.com\/@[a-zA-Z0-9_.]+\/video\/(\d+)/)
+    if (!match) return null
+    return `https://www.tiktok.com/embed/v2/${match[1]}`
+  },
+}
+
+/**
+ * Twitter/X provider configuration
+ * Uses publish.twitter.com for embeds
+ */
+export const twitterProvider: EmbedProvider = {
+  id: 'twitter',
+  name: 'Twitter/X',
+  domain: 'twitter.com',
+  additionalDomains: ['x.com', 'www.twitter.com', 'www.x.com'],
+  patterns: [
+    /^https?:\/\/(www\.)?(twitter|x)\.com\/[a-zA-Z0-9_]+\/status\/(\d+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: () => null, // Twitter requires oEmbed for proper rendering
+}
+
+/**
+ * Instagram provider configuration
+ * Note: Instagram embeds require oEmbed API
+ */
+export const instagramProvider: EmbedProvider = {
+  id: 'instagram',
+  name: 'Instagram',
+  domain: 'instagram.com',
+  additionalDomains: ['www.instagram.com', 'instagr.am'],
+  patterns: [
+    /^https?:\/\/(www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)/,
+    /^https?:\/\/(www\.)?instagram\.com\/reel\/([a-zA-Z0-9_-]+)/,
+    /^https?:\/\/instagr\.am\/p\/([a-zA-Z0-9_-]+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: (url: string) => {
+    // Instagram embeds work best via oEmbed
+    const match = url.match(/instagram\.com\/(p|reel)\/([a-zA-Z0-9_-]+)/)
+    if (!match) return null
+    return `https://www.instagram.com/${match[1]}/${match[2]}/embed`
+  },
+}
+
+/**
+ * Twitch provider configuration
+ * Supports clips, videos, and channels
+ */
+export const twitchProvider: EmbedProvider = {
+  id: 'twitch',
+  name: 'Twitch',
+  domain: 'twitch.tv',
+  additionalDomains: ['www.twitch.tv', 'clips.twitch.tv'],
+  patterns: [
+    /^https?:\/\/(www\.)?twitch\.tv\/videos\/(\d+)/,
+    /^https?:\/\/(www\.)?twitch\.tv\/([a-zA-Z0-9_]+)\/clip\/([a-zA-Z0-9_-]+)/,
+    /^https?:\/\/clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/,
+    /^https?:\/\/(www\.)?twitch\.tv\/([a-zA-Z0-9_]+)$/, // Channel/stream
+  ],
+  priority: 'trusted',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: ['autoplay', 'fullscreen'],
+  aspectRatio: '16/9',
+  getEmbedUrl: (url: string) => {
+    const parent = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+
+    // Video URL
+    const videoMatch = url.match(/twitch\.tv\/videos\/(\d+)/)
+    if (videoMatch) {
+      return `https://player.twitch.tv/?video=${videoMatch[1]}&parent=${parent}&autoplay=false`
+    }
+
+    // Clip URL (long format)
+    const clipLongMatch = url.match(/twitch\.tv\/[a-zA-Z0-9_]+\/clip\/([a-zA-Z0-9_-]+)/)
+    if (clipLongMatch) {
+      return `https://clips.twitch.tv/embed?clip=${clipLongMatch[1]}&parent=${parent}&autoplay=false`
+    }
+
+    // Clip URL (short format)
+    const clipShortMatch = url.match(/clips\.twitch\.tv\/([a-zA-Z0-9_-]+)/)
+    if (clipShortMatch) {
+      return `https://clips.twitch.tv/embed?clip=${clipShortMatch[1]}&parent=${parent}&autoplay=false`
+    }
+
+    // Channel/stream URL
+    const channelMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)$/)
+    if (channelMatch) {
+      return `https://player.twitch.tv/?channel=${channelMatch[1]}&parent=${parent}&autoplay=false`
+    }
+
+    return null
+  },
+}
+
+/**
+ * Reddit provider configuration
+ */
+export const redditProvider: EmbedProvider = {
+  id: 'reddit',
+  name: 'Reddit',
+  domain: 'reddit.com',
+  additionalDomains: ['www.reddit.com', 'old.reddit.com', 'redd.it'],
+  patterns: [
+    /^https?:\/\/(www\.|old\.)?reddit\.com\/r\/[a-zA-Z0-9_]+\/comments\/([a-zA-Z0-9]+)/,
+    /^https?:\/\/redd\.it\/([a-zA-Z0-9]+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: () => null, // Reddit uses oEmbed
+}
+
+/**
+ * Giphy provider configuration
+ */
+export const giphyProvider: EmbedProvider = {
+  id: 'giphy',
+  name: 'Giphy',
+  domain: 'giphy.com',
+  additionalDomains: ['www.giphy.com', 'media.giphy.com'],
+  patterns: [
+    /^https?:\/\/(www\.)?giphy\.com\/gifs\/([a-zA-Z0-9-]+)/,
+    /^https?:\/\/giphy\.com\/embed\/([a-zA-Z0-9]+)/,
+    /^https?:\/\/media\.giphy\.com\/media\/([a-zA-Z0-9]+)\/giphy\.gif/,
+  ],
+  priority: 'trusted',
+  sandbox: ['allow-scripts', 'allow-same-origin'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: (url: string) => {
+    // Extract Giphy ID from various URL formats
+    const gifMatch = url.match(/giphy\.com\/gifs\/(?:[a-zA-Z0-9-]+-)?([a-zA-Z0-9]+)/)
+    const embedMatch = url.match(/giphy\.com\/embed\/([a-zA-Z0-9]+)/)
+    const mediaMatch = url.match(/media\.giphy\.com\/media\/([a-zA-Z0-9]+)/)
+
+    const giphyId = gifMatch?.[1] || embedMatch?.[1] || mediaMatch?.[1]
+    if (!giphyId) return null
+
+    return `https://giphy.com/embed/${giphyId}`
+  },
+}
+
+/**
+ * Loom provider configuration
+ */
+export const loomProvider: EmbedProvider = {
+  id: 'loom',
+  name: 'Loom',
+  domain: 'loom.com',
+  additionalDomains: ['www.loom.com'],
+  patterns: [
+    /^https?:\/\/(www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/,
+    /^https?:\/\/(www\.)?loom\.com\/embed\/([a-zA-Z0-9]+)/,
+  ],
+  priority: 'trusted',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-forms'],
+  allow: ['autoplay', 'fullscreen'],
+  aspectRatio: '16/9',
+  getEmbedUrl: (url: string) => {
+    const match = url.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/)
+    if (!match) return null
+    return `https://www.loom.com/embed/${match[1]}`
+  },
+}
+
+/**
+ * Dailymotion provider configuration
+ */
+export const dailymotionProvider: EmbedProvider = {
+  id: 'dailymotion',
+  name: 'Dailymotion',
+  domain: 'dailymotion.com',
+  additionalDomains: ['www.dailymotion.com', 'dai.ly'],
+  patterns: [
+    /^https?:\/\/(www\.)?dailymotion\.com\/video\/([a-zA-Z0-9]+)/,
+    /^https?:\/\/dai\.ly\/([a-zA-Z0-9]+)/,
+  ],
+  priority: 'trusted',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-presentation'],
+  allow: ['autoplay', 'fullscreen'],
+  aspectRatio: '16/9',
+  getEmbedUrl: (url: string) => {
+    const longMatch = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/)
+    const shortMatch = url.match(/dai\.ly\/([a-zA-Z0-9]+)/)
+    const videoId = longMatch?.[1] || shortMatch?.[1]
+    if (!videoId) return null
+    return `https://www.dailymotion.com/embed/video/${videoId}`
+  },
+}
+
+/**
+ * Bluesky/AT Protocol provider configuration
+ */
+export const blueskyProvider: EmbedProvider = {
+  id: 'bluesky',
+  name: 'Bluesky',
+  domain: 'bsky.app',
+  additionalDomains: ['staging.bsky.app'],
+  patterns: [
+    /^https?:\/\/bsky\.app\/profile\/([a-zA-Z0-9._-]+)\/post\/([a-zA-Z0-9]+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: () => null, // Bluesky uses oEmbed
+}
+
+/**
+ * Threads provider configuration
+ */
+export const threadsProvider: EmbedProvider = {
+  id: 'threads',
+  name: 'Threads',
+  domain: 'threads.net',
+  additionalDomains: ['www.threads.net'],
+  patterns: [
+    /^https?:\/\/(www\.)?threads\.net\/@[a-zA-Z0-9_.]+\/post\/([a-zA-Z0-9_-]+)/,
+    /^https?:\/\/(www\.)?threads\.net\/t\/([a-zA-Z0-9_-]+)/,
+  ],
+  priority: 'oembed',
+  sandbox: ['allow-scripts', 'allow-same-origin', 'allow-popups'],
+  allow: [],
+  aspectRatio: '1/1',
+  getEmbedUrl: () => null, // Threads uses oEmbed
+}
+
+/**
  * All registered providers
  */
 export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
+  // Video platforms
   youtube: youtubeProvider,
   vimeo: vimeoProvider,
   peertube: peertubeProvider,
+  dailymotion: dailymotionProvider,
+  twitch: twitchProvider,
+  loom: loomProvider,
+  tiktok: tiktokProvider,
+
+  // Social media
+  twitter: twitterProvider,
+  instagram: instagramProvider,
+  reddit: redditProvider,
+  mastodon: mastodonProvider,
+  bluesky: blueskyProvider,
+  threads: threadsProvider,
+
+  // Audio
   soundcloud: soundcloudProvider,
   spotify: spotifyProvider,
-  mastodon: mastodonProvider,
+
+  // Code & Development
   codepen: codepenProvider,
   codesandbox: codesandboxProvider,
+
+  // Media
+  giphy: giphyProvider,
 }
 
 /**

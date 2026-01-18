@@ -239,7 +239,7 @@ function LanguageSwitcher() {
 
 ```bash
 # Run tests
-bun test
+bun run test
 
 # Check for missing keys (manual review)
 # Compare translation files

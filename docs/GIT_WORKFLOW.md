@@ -122,7 +122,7 @@ cd ../buildit-epic-32
 cd ../buildit-epic-28
 
 # Ensure all tests pass
-bun test
+bun run test
 bun run typecheck
 
 # Commit changes
@@ -233,7 +233,7 @@ git worktree unlock <path>
 - **Name worktrees clearly**: `buildit-epic-28`, `buildit-docs`, etc.
 - **One epic per worktree**: Keep them isolated
 - **Clean up after merge**: Remove worktrees and delete branches
-- **Test independently**: Run `bun test` in each worktree before merging
+- **Test independently**: Run `bun run test` in each worktree before merging
 - **Commit frequently**: Small commits in each worktree
 - **Merge incrementally**: Don't let worktrees diverge too far from main
 
@@ -300,7 +300,7 @@ git merge --continue
 ```bash
 # Each worktree is independent
 cd ../buildit-epic-28
-bun test                    # Run tests
+bun run test                    # Run tests
 bun run typecheck           # Check types
 bun run build               # Verify build
 

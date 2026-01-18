@@ -326,7 +326,7 @@ Epic 47 successfully addressed the critical E2E test coverage gap identified in 
 ### Immediate (This Sprint)
 
 1. ✅ Fix auth helper for E2E tests
-2. Run test suite to identify failures: `bun test tests/e2e/`
+2. Run test suite to identify failures: `bun run test tests/e2e/`
 3. Address any flaky tests
 4. Add tests to CI/CD pipeline
 

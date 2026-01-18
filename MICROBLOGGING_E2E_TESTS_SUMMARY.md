@@ -246,19 +246,19 @@ Tests verify:
 
 ```bash
 # Run all microblogging tests
-bun test tests/e2e/microblogging.spec.ts
+bun run test tests/e2e/microblogging.spec.ts
 
 # Run all activity feed tests
-bun test tests/e2e/activity-feed.spec.ts
+bun run test tests/e2e/activity-feed.spec.ts
 
 # Run both test files
-bun test tests/e2e/microblogging.spec.ts tests/e2e/activity-feed.spec.ts
+bun run test tests/e2e/microblogging.spec.ts tests/e2e/activity-feed.spec.ts
 
 # Run with Playwright UI
 bun run test:e2e:ui --grep "Microblogging|Activity Feed"
 
 # Run specific test
-bun test tests/e2e/microblogging.spec.ts -g "should add reaction"
+bun run test tests/e2e/microblogging.spec.ts -g "should add reaction"
 ```
 
 ---

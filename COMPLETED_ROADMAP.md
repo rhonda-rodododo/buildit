@@ -1066,7 +1066,7 @@ Systematic E2E test coverage expansion addressing critical gap identified in ini
 
 **Next Steps**:
 - Fix auth helper for E2E tests
-- Run full test suite to identify failures: `bun test tests/e2e/`
+- Run full test suite to identify failures: `bun run test tests/e2e/`
 - Add tests to CI/CD pipeline
 - Implement missing features (Wiki version control, Files UI, Conversations components)
 - Phase 4 tests when themes/i18n become priority

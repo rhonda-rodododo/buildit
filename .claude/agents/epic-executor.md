@@ -55,14 +55,14 @@ Execute epics end-to-end with full autonomy:
     - Verify tests pass after each update
   - Create seed data for demo/testing
   - Update module registration if new module
-- Run tests after each significant change (`bun test`)
-- Run E2E tests after each module change (`bun test:e2e`)
+- Run tests after each significant change (`bun run test`)
+- Run E2E tests after each module change (`bun run test:e2e`)
 - Ensure TypeScript compilation succeeds (`bun run typecheck`)
 
 ### 3. Verification Phase
 - Verify all acceptance criteria met
-- Run full test suite: `bun test` → Must pass 100%
-- **Run E2E tests**: `bun test:e2e` → **Must pass 100% (MANDATORY)**
+- Run full test suite: `bun run test` → Must pass 100%
+- **Run E2E tests**: `bun run test:e2e` → **Must pass 100% (MANDATORY)**
   - **CRITICAL**: If any E2E tests fail, epic is NOT complete
   - Fix broken tests immediately - do not skip or disable
   - If existing tests break due to changes, update them
@@ -71,7 +71,6 @@ Execute epics end-to-end with full autonomy:
   - Modified modules: All affected workflows have E2E coverage
   - Cross-module features: Integration tests exist
 - Run type checking: `bun run typecheck` → Must pass
-- Run linting: `bun run lint` → Must pass
 - Perform manual testing as specified in epic
 
 ### 4. Git Commit Phase
@@ -99,14 +98,13 @@ An epic is only considered complete when ALL of the following are true:
 
 - ✅ All epic tasks completed (checkboxes ticked)
 - ✅ All acceptance criteria met
-- ✅ Unit tests passing 100% (`bun test`)
-- ✅ **E2E tests written/updated and passing 100%** (`bun test:e2e`) - MANDATORY
+- ✅ Unit tests passing 100% (`bun run test`)
+- ✅ **E2E tests written/updated and passing 100%** (`bun run test:e2e`) - MANDATORY
   - New features: Minimum 3 E2E tests created
   - Modified features: Existing E2E tests updated
   - Core features: E2E coverage verified (add if missing)
   - All E2E tests pass without errors
 - ✅ TypeScript compilation successful (`bun run typecheck`)
-- ✅ Linting passing (`bun run lint`)
 - ✅ Git commit created with proper format
 - ✅ Git tag created (if specified)
 - ✅ Epic moved to COMPLETED_ROADMAP.md (if fully complete)
@@ -119,10 +117,9 @@ An epic is only considered complete when ALL of the following are true:
 ### Automated Tests
 Always run these before committing:
 ```bash
-bun test                 # Unit tests
-bun test:e2e            # E2E tests (if they exist)
+bun run test                 # Unit tests
+bun run test:e2e            # E2E tests (if they exist)
 bun run typecheck        # TypeScript
-bun run lint            # Linting
 ```
 
 ### E2E Test Requirements (MANDATORY for ALL functionality)
@@ -139,7 +136,7 @@ bun run lint            # Linting
 1. Check if E2E tests exist for that functionality
 2. If tests exist: Update them to reflect changes
 3. If tests missing: ADD THEM (treat as missing coverage)
-4. Run `bun test:e2e` to verify all tests pass
+4. Run `bun run test:e2e` to verify all tests pass
 5. Epic is NOT complete until all E2E tests pass
 
 **E2E Test Structure**:
@@ -227,8 +224,8 @@ Stop and report if:
    - Test: Create document → Edit → Save → Verify persistence
    - Test: Document collaboration workflow
    - Test: Error handling (invalid data, network issues)
-9. Run `bun test` → All passing
-10. Run `bun test:e2e` → All E2E tests passing
+9. Run `bun run test` → All passing
+10. Run `bun run test:e2e` → All E2E tests passing
 11. Run `bun run typecheck` → No errors
 12. Commit: `feat: implement Documents module with TipTap WYSIWYG editor (Epic 32)`
 13. Tag: `git tag v0.32.0-documents`

@@ -98,7 +98,7 @@ Examples:
 ### 2. Test Preparation Phase
 - Check if tests exist: `find . -name "*test.ts*" | grep <filename>`
 - If no tests, write tests first (establishes baseline behavior)
-- Run tests: `bun test <file>` → Ensure passing
+- Run tests: `bun run test <file>` → Ensure passing
 - Keep tests running during refactoring
 
 ### 3. Incremental Refactoring Phase
@@ -106,14 +106,14 @@ Examples:
 
 For each change:
 1. Make one focused change
-2. Run tests: `bun test <file>`
+2. Run tests: `bun run test <file>`
 3. Run type check: `bun run typecheck`
 4. Verify no behavior changes
 5. Commit if substantial (optional, for safety)
 
 ### 4. Verification Phase
-- Run full test suite: `bun test` → Must pass 100%
-- **Run E2E tests**: `bun test:e2e` → **Must pass 100% (MANDATORY)**
+- Run full test suite: `bun run test` → Must pass 100%
+- **Run E2E tests**: `bun run test:e2e` → **Must pass 100% (MANDATORY)**
   - **CRITICAL**: Refactoring must not break E2E tests
   - If E2E tests fail, update them to match refactored structure
   - Ensure all user workflows still function correctly
@@ -246,8 +246,8 @@ During refactoring:
 - [ ] No behavior changes (unless intended and documented)
 
 After refactoring:
-- [ ] All unit tests still passing (`bun test`)
-- [ ] **All E2E tests still passing** (`bun test:e2e`) - MANDATORY
+- [ ] All unit tests still passing (`bun run test`)
+- [ ] **All E2E tests still passing** (`bun run test:e2e`) - MANDATORY
 - [ ] `bun run typecheck` succeeds
 - [ ] Manual testing confirms no regressions
 - [ ] Code is more maintainable
@@ -302,19 +302,19 @@ After refactoring:
 # Find code to refactor
 grep -rn "any" src/ | wc -l  # Count any usage
 grep -rn "TODO\|FIXME" src/  # Find technical debt markers
-grep -rn "eslint-disable" src/  # Find lint suppressions
+grep -rn "@ts-ignore\|@ts-expect-error" src/  # Find TypeScript suppressions
 
 # Find duplicated code (manual review)
 grep -rn "<pattern>" src/
 
 # Run tests for specific file
-bun test path/to/file.test.ts
+bun run test path/to/file.test.ts
 
 # Run all unit tests
-bun test
+bun run test
 
 # Run E2E tests (MANDATORY after refactoring)
-bun test:e2e
+bun run test:e2e
 
 # Run type checking
 bun run typecheck
@@ -328,8 +328,8 @@ git blame path/to/file.ts
 
 - ✅ Code is more maintainable
 - ✅ TypeScript types improved (less `any`, better inference)
-- ✅ All unit tests passing (`bun test`)
-- ✅ **All E2E tests passing** (`bun test:e2e`) - MANDATORY
+- ✅ All unit tests passing (`bun run test`)
+- ✅ **All E2E tests passing** (`bun run test:e2e`) - MANDATORY
 - ✅ No behavior changes (unless documented)
 - ✅ Type checking succeeds (`bun run typecheck`)
 - ✅ Code follows project conventions
@@ -344,7 +344,7 @@ git blame path/to/file.ts
    - `any` used in 5 places
    - Missing discriminated union for proposal states
    - Loose typing in vote counting function
-4. Check tests: `bun test src/modules/governance` → Passing
+4. Check tests: `bun run test src/modules/governance` → Passing
 5. Refactor 1: Replace `any` with proper `Proposal` type
 6. Run tests → Still passing ✓
 7. Refactor 2: Add discriminated union for proposal states
@@ -358,7 +358,7 @@ git blame path/to/file.ts
 9. Run tests → Still passing ✓
 10. Refactor 3: Improve vote counting types
 11. Run `bun run typecheck` → No errors ✓
-12. Run `bun test` → All passing ✓
+12. Run `bun run test` → All passing ✓
 13. Commit:
     ```
     refactor: improve TypeScript types in Governance module

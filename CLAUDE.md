@@ -7,7 +7,7 @@
 ```bash
 bun install        # Install dependencies
 bun run dev        # Start dev server
-bun test           # Run tests
+bun run test           # Run tests
 bun run build      # Production build
 ```
 
@@ -86,7 +86,7 @@ git diff v0.26.0-privacy..v0.27.0-security
 
 1. **Complete all tasks** - Check off all checkboxes in NEXT_ROADMAP.md
 2. **Meet acceptance criteria** - Verify all criteria from epic
-3. **Run tests** - `bun test && bun run typecheck` must pass
+3. **Run tests** - `bun run test && bun run typecheck` must pass
 4. **Create implementation commit** - Use format from epic (e.g., `feat: complete Epic 28 - Critical Bug Fixes`)
 5. **Create git tag** - Format specified in epic (e.g., `v0.28.0-bugfixes`)
 6. **Move epic to COMPLETED_ROADMAP.md**:
@@ -155,7 +155,7 @@ See [.claude/agents/](./.claude/agents/) for detailed subagent definitions and e
 
 1. **Read NEXT_ROADMAP.md first** - Understand what needs to be done
 2. **Use TodoWrite tool** - Track progress through epic tasks
-3. **Test frequently** - Run `bun test` after each significant change
+3. **Test frequently** - Run `bun run test` after each significant change
 4. **Check types** - Run `bun run typecheck` before committing
 5. **Use Context7 MCP** - Fetch latest library docs when needed (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`)
 6. **Commit with proper format** - Follow epic's commit format specification

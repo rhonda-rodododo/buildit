@@ -10,7 +10,7 @@ Active development roadmap for BuildIt Network. Epics are ordered by priority.
 When completing an epic:
 
 1. **Execute all tasks** - Check off all checkboxes, meet all acceptance criteria
-2. **Run tests** - `bun test && bun run typecheck` must pass
+2. **Run tests** - `bun run test && bun run typecheck` must pass
 3. **Create git commit** - Use exact format from epic (e.g., `feat: complete Epic 28 - Critical Bug Fixes`)
 4. **Create git tag** - Format: `v0.28.0-bugfixes` (see epic for tag name)
 5. **Move epic to COMPLETED_ROADMAP.md**:
@@ -243,7 +243,7 @@ See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete archit
 - ⏳ E2E tests for Ethereum donation flow (deferred to Epic 51)
 - Manual testing with testnet transactions
 - ✅ Build successful
-- ✅ `bun test && bun run typecheck` passes
+- ✅ `bun run test && bun run typecheck` passes
 
 **Git Commit**: `feat(fundraising): add crypto payment integration - Bitcoin & Ethereum (Epic 49A)`
 **Git Tag**: `v0.49a.0-crypto-payments`
@@ -316,7 +316,7 @@ Client → Receives receipt from Nostr
 - E2E tests for PayPal payment flow (sandbox)
 - Backend integration tests
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**:
 - [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
@@ -363,7 +363,7 @@ Client → Receives receipt from Nostr
 - [x] Posts can be scheduled and publish on demand
 - [x] Search finds posts by content, hashtags, date range, and users
 - [x] Build successful
-- [x] `bun test && bun run typecheck` passes (199/199 tests)
+- [x] `bun run test && bun run typecheck` passes (199/199 tests)
 
 **Testing Requirements**:
 - [x] Unit tests passing (199/199)
@@ -407,7 +407,7 @@ Client → Receives receipt from Nostr
   - [x] ~~Improve test performance~~ Tests run in 2.7s
 - [x] **Test Infrastructure Fixes**
   - [x] Fix vitest include/exclude patterns (E2E tests were incorrectly loaded)
-  - [x] Add `bun run test` script (vitest run) vs `bun test` (bun native)
+  - [x] Add `bun run test` script (vitest run) vs `bun run test` (bun native)
   - [x] Fix module routing causing 404s on plugin tabs
   - [x] Enable app-scoped module routes
   - [x] Create test coverage audit documentation
@@ -426,7 +426,7 @@ Client → Receives receipt from Nostr
 
 **Testing Requirements**:
 - All E2E tests pass
-- `bun test` reports 80%+ coverage
+- `bun run test` reports 80%+ coverage
 - `bun run typecheck` passes
 - Lighthouse CI passes
 
@@ -1012,7 +1012,7 @@ Client → Receive stats, update analytics dashboard
 - Backend integration tests (SendGrid sandbox)
 - Manual testing with real emails
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**:
 - [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
@@ -1104,7 +1104,7 @@ buildit-network/
 - Backend integration tests (Nostr message handling)
 - Docker build successful
 - Health check endpoint functional
-- `bun test` passes for backend tests
+- `bun run test` passes for backend tests
 
 **Reference Docs**:
 - [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md)
@@ -1193,7 +1193,7 @@ buildit-network/
 - Manual testing with Mastodon instance
 - Federation interoperability tests
 - Build successful for both client and server
-- `bun test` passes
+- `bun run test` passes
 
 **Reference Docs**: [Fedify Documentation](https://fedify.dev), [ActivityPub Spec](https://www.w3.org/TR/activitypub/), [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) Epic 40
 
@@ -1270,7 +1270,7 @@ buildit-network/
 - E2E tests for equations and diagrams
 - E2E tests for document organization
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [Google Docs](https://docs.google.com), [Notion](https://notion.so), `/src/modules/documents/`
 
@@ -1327,7 +1327,7 @@ buildit-network/
 - E2E tests for search
 - E2E tests for bulk operations
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [Google Drive](https://drive.google.com), [Proton Drive](https://proton.me/drive), `/src/modules/files/`
 
@@ -1382,7 +1382,7 @@ buildit-network/
 - E2E tests for permissions
 - E2E tests for access requests
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [Google Drive Sharing](https://support.google.com/drive/answer/2494822), `/src/modules/documents/`, `/src/modules/files/`
 
@@ -1441,7 +1441,7 @@ buildit-network/
 - Lighthouse mobile audit
 - Manual testing on real devices
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [Material Design Mobile](https://m3.material.io/), [iOS HIG](https://developer.apple.com/design/human-interface-guidelines/)
 
@@ -1496,7 +1496,7 @@ buildit-network/
 - E2E tests for background sync
 - Manual testing with network throttling
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [PWA Offline Cookbook](https://web.dev/offline-cookbook/), [Background Sync API](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API)
 
@@ -1557,7 +1557,7 @@ buildit-network/
 - E2E tests for stories
 - E2E tests for moderation
 - Build successful
-- `bun test && bun run typecheck` passes
+- `bun run test && bun run typecheck` passes
 
 **Reference Docs**: [Twitter Polls](https://help.twitter.com/en/using-twitter/twitter-polls), [Instagram Stories](https://help.instagram.com/1660923094227526)
 

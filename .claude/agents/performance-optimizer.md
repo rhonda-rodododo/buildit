@@ -153,7 +153,7 @@ bun run build
 ls -lh dist/assets/*.js
 
 # Run tests (ensure nothing broke)
-bun test
+bun run test
 
 # Type check
 bun run typecheck
@@ -271,7 +271,7 @@ const proposals = useGovernanceStore(state => state.proposals);
 After implementing optimizations:
 
 - [ ] `bun run build` succeeds
-- [ ] `bun test` passes (no broken functionality)
+- [ ] `bun run test` passes (no broken functionality)
 - [ ] `bun run typecheck` passes
 - [ ] Bundle size reduced (measured)
 - [ ] **All features still work** (nothing removed or degraded)

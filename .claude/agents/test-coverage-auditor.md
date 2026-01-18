@@ -261,10 +261,10 @@ grep -A2 "src/core/crypto\|src/core/auth" coverage/coverage-summary.json
 bun run test:coverage
 
 # Check coverage thresholds
-bun test --coverage --coverage.lines=80 --coverage.functions=85
+bun run test --coverage --coverage.lines=80 --coverage.functions=85
 
 # Coverage for specific directory
-bun test --coverage src/core/crypto
+bun run test --coverage src/core/crypto
 
 # Find untested files
 find src -name "*.ts" -o -name "*.tsx" | grep -v -e __tests__ -e .test. | wc -l
@@ -304,7 +304,7 @@ comm -23 <(find src -name "*.ts" | sort) <(find src -name "*.test.ts" | sed 's/.
 ### 1. Encryption & Crypto
 ```bash
 # Check coverage
-bun test --coverage src/core/crypto
+bun run test --coverage src/core/crypto
 ```
 **Must test**:
 - NIP-44 encryption/decryption
@@ -316,7 +316,7 @@ bun test --coverage src/core/crypto
 ### 2. Authentication & Identity
 ```bash
 # Check coverage
-bun test --coverage src/core/auth src/core/identity
+bun run test --coverage src/core/auth src/core/identity
 ```
 **Must test**:
 - Nsec import/export
@@ -328,7 +328,7 @@ bun test --coverage src/core/auth src/core/identity
 ### 3. Storage & Data Integrity
 ```bash
 # Check coverage
-bun test --coverage src/core/storage
+bun run test --coverage src/core/storage
 ```
 **Must test**:
 - CRUD operations
@@ -340,7 +340,7 @@ bun test --coverage src/core/storage
 ### 4. Nostr Protocol
 ```bash
 # Check coverage
-bun test --coverage src/core/nostr
+bun run test --coverage src/core/nostr
 ```
 **Must test**:
 - Event creation
