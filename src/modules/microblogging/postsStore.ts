@@ -19,6 +19,7 @@ import type {
   ReactionType,
 } from './types';
 import { useFriendsStore } from '@/core/friends/friendsStore';
+import { extractUrlsFromText } from '@/lib/embed';
 
 interface PostsState {
   // Posts
@@ -125,6 +126,11 @@ export const usePostsStore = create<PostsState>()(
       // Create post
       createPost: async (input: CreatePostInput): Promise<Post> => {
         const currentIdentity = useAuthStore.getState().currentIdentity;
+
+        // Extract URLs from content for link previews/embeds
+        const extractedUrls = extractUrlsFromText(input.content);
+        const links = extractedUrls.map((u) => u.url);
+
         const newPost: Post = {
           id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           authorId: currentIdentity?.publicKey || '',
@@ -138,7 +144,7 @@ export const usePostsStore = create<PostsState>()(
           bookmarkCount: 0,
           mentions: input.mentions || [],
           hashtags: input.hashtags || [],
-          links: [],
+          links,
           createdAt: Date.now(),
           isRepost: !!input.repostedPostId,
           repostedPostId: input.repostedPostId,

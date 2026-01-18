@@ -3,7 +3,7 @@
  * Display a single post with reactions, comments, and engagement actions
  */
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { LazyMarkdown } from '@/components/markdown/LazyMarkdown';
 import { usePostsStore } from '../postsStore';
@@ -11,6 +11,7 @@ import type { Post, ReactionType } from '../types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { EmbedCard, isEmbeddableUrl } from '@/lib/embed';
 import {
   Heart,
   MessageCircle,
@@ -99,6 +100,14 @@ export const PostCard: FC<PostCardProps> = ({
   const isReposted = hasReposted(post.id);
   const isBookmarked = hasBookmarked(post.id);
   const isPinned = post.isPinned || checkIsPinned(post.id);
+
+  // Find the first embeddable URL from post links (like Twitter/Bluesky behavior)
+  const firstEmbeddableUrl = useMemo(() => {
+    if (post.links && post.links.length > 0) {
+      return post.links.find((url) => isEmbeddableUrl(url)) || null;
+    }
+    return null;
+  }, [post.links]);
 
   const handlePinToggle = async () => {
     if (isPinned) {
@@ -277,6 +286,13 @@ export const PostCard: FC<PostCardProps> = ({
             alt={post.media[0].alt || 'Post image'}
             className="w-full max-h-96 object-cover"
           />
+        </div>
+      )}
+
+      {/* Embedded content (YouTube, Vimeo, Spotify, etc.) */}
+      {firstEmbeddableUrl && (
+        <div className="mb-3">
+          <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
         </div>
       )}
 

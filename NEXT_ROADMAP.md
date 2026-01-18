@@ -415,7 +415,6 @@ Client → Receives receipt from Nostr
   - [x] Fix all TypeScript errors
   - [ ] Remove all console.log statements
   - [ ] Remove all TODO/FIXME comments or convert to issues
-  - [ ] Run ESLint and fix issues
 
 **Acceptance Criteria**:
 - E2E Phase 4 tests pass (theme, i18n, routing, PWA, a11y)
@@ -736,6 +735,72 @@ Client → Receives receipt from Nostr
 
 **Git Commit**: `test: expand E2E test suite with 41 new tests (Epic 68)`
 **Git Tag**: `v0.68.0-e2e-tests`
+
+---
+
+### Epic 69: Shared Embed Infrastructure 🔗
+**Status**: ✅ Complete
+**Priority**: P2 - Feature enhancement
+**Effort**: 8-12 hours
+**Dependencies**: None (can run in parallel with other epics)
+**Assignable to subagent**: Yes (`feature-implementer`)
+
+**Context**: Social media embeds are implemented only in TipTap documents. Need unified system for microblogging, long-form posts, and other content types with click-to-load privacy pattern.
+
+**Tasks**:
+- [x] **Create shared embed types and provider registry** (2h)
+  - Files: `src/lib/embed/types.ts`, `src/lib/embed/providers.ts`
+  - Unified EmbedProvider and EmbedData interfaces
+  - Single source of truth for provider configs (YouTube, Vimeo, PeerTube, SoundCloud, Spotify, Mastodon, CodePen, CodeSandbox)
+- [x] **Create shared utilities** (1h)
+  - File: `src/lib/embed/utils.ts`
+  - URL detection, domain extraction, provider matching
+  - extractUrlsFromText, isEmbeddableUrl, detectProvider
+- [x] **Create useEmbed hook** (2h)
+  - File: `src/lib/embed/useEmbed.ts`
+  - Fetch embed data from oEmbed proxy
+  - Click-to-load state management
+  - Support for trusted providers (direct embed) and oEmbed providers
+- [x] **Create EmbedCard component** (2h)
+  - File: `src/lib/embed/EmbedCard.tsx`
+  - Standalone component with click-to-load
+  - Responsive, accessible, mobile-friendly
+  - Error handling and loading states
+- [x] **Integrate URL detection in posts** (1h)
+  - File: `src/modules/microblogging/postsStore.ts`
+  - Populate `links` array on post creation using extractUrlsFromText
+- [x] **Render embeds in PostCard** (2h)
+  - File: `src/modules/microblogging/components/PostCard.tsx`
+  - Show EmbedCard for first embeddable URL in post.links
+- [x] **Refactor SecureEmbed to use shared code** (1h)
+  - File: `src/modules/documents/extensions/SecureEmbed.tsx`
+  - Import from shared lib, reduce duplication
+  - Maintain TipTap-specific logic
+
+**Acceptance Criteria**:
+- [x] YouTube, Vimeo, Spotify embeds work in posts
+- [x] Click-to-load pattern for privacy
+- [x] Privacy-enhanced URLs used (youtube-nocookie, dnt=1)
+- [x] EmbedCard reusable across modules
+- [x] No duplicate provider configurations
+
+**Privacy & Security**:
+- Click-to-load default - No third-party requests until user clicks
+- Provider allowlist - Only trusted providers supported
+- Sandboxed iframes - Restrictive sandbox permissions per provider
+- Privacy-enhanced URLs - youtube-nocookie.com, Vimeo dnt=1
+- referrerPolicy="no-referrer" - Prevent URL leaking
+
+**Files Created**:
+- `src/lib/embed/types.ts` - Shared type definitions
+- `src/lib/embed/providers.ts` - Provider registry
+- `src/lib/embed/utils.ts` - URL detection utilities
+- `src/lib/embed/useEmbed.ts` - React hook for embed loading
+- `src/lib/embed/EmbedCard.tsx` - Standalone embed component
+- `src/lib/embed/index.ts` - Public exports
+
+**Git Commit**: `feat: shared embed infrastructure for posts and documents (Epic 69)`
+**Git Tag**: `v0.69.0-shared-embeds`
 
 ---
 
