@@ -15,7 +15,7 @@
 import type { Event as NostrEvent, Filter } from 'nostr-tools';
 import { NostrClient } from '../nostr/client';
 import type { RelayConfig } from '@/types/nostr';
-import { useTorStore } from '../tor/torStore';
+import { useTorStore } from '@/modules/security/tor/torStore';
 import {
   type ITransportAdapter,
   TransportType,

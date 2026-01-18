@@ -170,6 +170,14 @@ const MODULE_LOADERS: ModuleLoader[] = [
     id: 'newsletters',
     load: () => import('@/modules/newsletters'),
   },
+  {
+    id: 'friends',
+    load: () => import('@/modules/friends'),
+  },
+  {
+    id: 'security',
+    load: () => import('@/modules/security'),
+  },
 ];
 
 /**

@@ -23,12 +23,12 @@ async function createIdentity(page, name = 'Test User', password = 'testpassword
   // Click create button
   await panel.getByRole('button', { name: /create identity/i }).click();
 
-  // Wait for navigation to dashboard or groups
-  await page.waitForURL(/\/(dashboard|groups)/, { timeout: 15000 });
+  // Wait for navigation to app (feed page)
+  await page.waitForURL(/\/app/, { timeout: 15000 });
 }
 
 // Helper function to import an identity
-async function importIdentity(page, nsec: string, password = 'testpassword123') {
+async function importIdentity(page, nsec: string, password = 'testpassword123', name = 'Imported User') {
   // Click Import tab
   const importTab = page.getByRole('tab', { name: /^import$/i });
   await importTab.click();
@@ -37,9 +37,11 @@ async function importIdentity(page, nsec: string, password = 'testpassword123') 
   // Get the Import tabpanel
   const panel = page.getByRole('tabpanel', { name: /import/i });
 
+  // Fill in display name (required)
+  await panel.getByRole('textbox', { name: /display name/i }).fill(name);
+
   // Fill in nsec - look for the private key input
-  const nsecInput = panel.getByPlaceholder(/private key|nsec/i);
-  await nsecInput.fill(nsec);
+  await panel.getByRole('textbox', { name: /private key/i }).fill(nsec);
 
   // Fill in password
   await panel.getByRole('textbox', { name: /^password$/i }).fill(password);
@@ -48,13 +50,36 @@ async function importIdentity(page, nsec: string, password = 'testpassword123') 
   // Click import button
   await panel.getByRole('button', { name: /import identity/i }).click();
 
-  // Wait for navigation
-  await page.waitForURL(/\/(dashboard|groups)/, { timeout: 15000 });
+  // Wait for navigation to app (feed page)
+  await page.waitForURL(/\/app/, { timeout: 15000 });
 }
 
 test.describe('Authentication Flow', () => {
-  test('should create new identity and access dashboard', async ({ page }) => {
+  // Clear IndexedDB before each test to ensure clean state
+  test.beforeEach(async ({ page }) => {
+    // Navigate to app first to establish origin
     await page.goto('/');
+
+    // Clear all IndexedDB databases
+    await page.evaluate(async () => {
+      const databases = await indexedDB.databases();
+      for (const db of databases) {
+        if (db.name) {
+          indexedDB.deleteDatabase(db.name);
+        }
+      }
+    });
+
+    // Reload to ensure app initializes fresh
+    await page.reload();
+
+    // Wait for app to initialize (either login page or loading)
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('should create new identity and access dashboard', async ({ page }) => {
+    // Wait for the login page to fully render with the Create New tab
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Should show login page initially with BuildIt Network heading
     await expect(page.getByText(/buildIt network/i).first()).toBeVisible();
@@ -63,11 +88,12 @@ test.describe('Authentication Flow', () => {
     await createIdentity(page, 'New Test User', 'securepassword123');
 
     // Verify we're logged in and on the dashboard/groups page
-    await expect(page).toHaveURL(/\/(dashboard|groups)/);
+    await expect(page).toHaveURL(/\/app/);
   });
 
   test('should import existing identity', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Test nsec (for testing purposes only)
     const testNsec = 'nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5';
@@ -76,11 +102,12 @@ test.describe('Authentication Flow', () => {
     await importIdentity(page, testNsec, 'importpassword123');
 
     // Should be logged in
-    await expect(page).toHaveURL(/\/(dashboard|groups)/);
+    await expect(page).toHaveURL(/\/app/);
   });
 
   test('should switch between identities', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Create first identity
     await createIdentity(page, 'First Identity', 'password123456');
@@ -101,14 +128,23 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should export private key', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Create identity first
     await createIdentity(page, 'Export Test', 'exportpassword12');
 
-    // Navigate to security settings
-    await page.goto('/settings/security');
+    // Navigate to security settings via UI (not goto to preserve session)
+    const settingsLink = page.getByRole('link', { name: 'Settings' });
+    await settingsLink.click();
     await page.waitForLoadState('networkidle');
+
+    // Then click on Security tab/link
+    const securityLink = page.getByRole('link', { name: /security/i });
+    if (await securityLink.isVisible({ timeout: 2000 })) {
+      await securityLink.click();
+      await page.waitForLoadState('networkidle');
+    }
 
     // Look for export key option or advanced security section
     const advancedTab = page.getByRole('tab', { name: /advanced/i });
@@ -126,14 +162,22 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should lock and unlock identity', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Create identity with password
     await createIdentity(page, 'Lock Test User', 'lockpassword123');
 
-    // Navigate to security settings
-    await page.goto('/settings/security');
+    // Navigate to security settings via UI
+    const settingsLink = page.getByRole('link', { name: 'Settings' });
+    await settingsLink.click();
     await page.waitForLoadState('networkidle');
+
+    const securityLink = page.getByRole('link', { name: /security/i });
+    if (await securityLink.isVisible({ timeout: 2000 })) {
+      await securityLink.click();
+      await page.waitForLoadState('networkidle');
+    }
 
     // Look for session tab or lock settings
     const sessionTab = page.getByRole('tab', { name: /session/i });
@@ -158,20 +202,28 @@ test.describe('Authentication Flow', () => {
         }
 
         // Should return to app
-        await expect(page).toHaveURL(/\/(dashboard|groups|settings)/);
+        await expect(page).toHaveURL(/\/app/);
       }
     }
   });
 
   test('should change password', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Create identity
     await createIdentity(page, 'Password Change Test', 'oldpassword123');
 
-    // Navigate to security settings
-    await page.goto('/settings/security');
+    // Navigate to security settings via UI
+    const settingsLink = page.getByRole('link', { name: 'Settings' });
+    await settingsLink.click();
     await page.waitForLoadState('networkidle');
+
+    const securityLink = page.getByRole('link', { name: /security/i });
+    if (await securityLink.isVisible({ timeout: 2000 })) {
+      await securityLink.click();
+      await page.waitForLoadState('networkidle');
+    }
 
     // Look for session tab which may contain password change
     const sessionTab = page.getByRole('tab', { name: /session/i });
@@ -204,14 +256,15 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should prevent duplicate identity import', async ({ page }) => {
-    await page.goto('/');
+    // Wait for the login page to fully render
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
     // Import identity first time
     const testNsec = 'nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5';
     await importIdentity(page, testNsec, 'duplicatetest12');
 
     // Now we're logged in
-    await expect(page).toHaveURL(/\/(dashboard|groups)/);
+    await expect(page).toHaveURL(/\/app/);
 
     // Try to add the same identity again
     // First, navigate to a place where we can add new identities

@@ -22,7 +22,9 @@ export type ModuleType =
   | 'forms'
   | 'fundraising'
   | 'publishing'
-  | 'newsletters';
+  | 'newsletters'
+  | 'friends' // Friend relationships and contacts
+  | 'security'; // Privacy and security enhancements (Tor, etc.)
 
 /**
  * Module Capability - defines what a module can do

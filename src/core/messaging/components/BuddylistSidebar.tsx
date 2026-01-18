@@ -5,7 +5,7 @@
 
 import { FC, useState } from 'react';
 import { Search, ChevronDown, ChevronRight, MessageSquare } from 'lucide-react';
-import { useFriendsStore } from '@/core/friends/friendsStore';
+import { useFriendsStore } from '@/modules/friends/friendsStore';
 import { useConversationsStore } from '../conversationsStore';
 import { BuddylistItem } from './BuddylistItem';
 import { Input } from '@/components/ui/input';

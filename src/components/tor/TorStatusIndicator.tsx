@@ -12,8 +12,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Shield, ShieldAlert, ShieldCheck, ShieldOff, Loader2 } from 'lucide-react';
-import { useTorStore } from '@/core/tor/torStore';
-import { TorStatus } from '@/core/tor/types';
+import { useTorStore } from '@/modules/security/tor/torStore';
+import { TorStatus } from '@/modules/security/tor/types';
 import { cn } from '@/lib/utils';
 
 interface TorStatusIndicatorProps {

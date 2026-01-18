@@ -12,9 +12,9 @@ import "./i18n/config";
 
 // Initialize modules and database
 // IMPORTANT: Modules must be initialized first to register their schemas
-let initializationStarted = false;
+let initializationPromise: Promise<boolean> | null = null;
 
-async function initializeApp() {
+async function initializeApp(): Promise<boolean> {
   // Check if DB is already initialized (from previous HMR cycle)
   const { getDB } = await import("@/core/storage/db");
   try {
@@ -27,42 +27,50 @@ async function initializeApp() {
     // DB not initialized yet, continue
   }
 
-  // Prevent multiple initializations (React StrictMode, HMR, etc.)
-  if (initializationStarted) {
-    console.info("⚠️  Initialization already in progress, skipping...");
-    // Wait a bit and check if initialization completed
-    await new Promise(resolve => setTimeout(resolve, 100));
-    try {
-      getDB();
-      return true; // Initialization completed by another caller
-    } catch {
-      return false; // Still not initialized, something went wrong
-    }
+  // If initialization is already in progress, wait for it to complete
+  if (initializationPromise) {
+    console.info("⚠️  Initialization already in progress, waiting...");
+    return initializationPromise;
   }
-  initializationStarted = true;
 
+  // Start initialization and save the promise so other callers can wait for it
+  initializationPromise = doInitialize();
+  return initializationPromise;
+}
+
+async function doInitialize(): Promise<boolean> {
   try {
     console.info("🚀 Starting app initialization...");
 
     // Step 1: Initialize modules (registers schemas with db, but does NOT load instances yet)
+    console.info("  Step 1: Initializing modules...");
     await initializeModules();
+    console.info("  Step 1: ✅ Modules initialized");
 
     // Step 2: Initialize database (opens db with all module schemas)
+    console.info("  Step 2: Initializing database...");
     await initializeDatabase();
+    console.info("  Step 2: ✅ Database initialized");
 
     // Step 3: Initialize store initializer (subscribes to unlock/lock events)
+    console.info("  Step 3: Initializing store initializer...");
     const { initializeStoreInitializer } = await import("@/core/storage/StoreInitializer");
     initializeStoreInitializer();
+    console.info("  Step 3: ✅ Store initializer ready");
 
     // Step 4: Now load module instances (requires db to be open)
+    console.info("  Step 4: Loading module instances...");
     const moduleStore = (
       await import("@/stores/moduleStore")
     ).useModuleStore.getState();
     await moduleStore.loadModuleInstances();
+    console.info("  Step 4: ✅ Module instances loaded");
 
     // Step 5: Load identities from DB (public info only - private keys stay encrypted)
+    console.info("  Step 5: Loading identities...");
     const authStore = useAuthStore.getState();
     await authStore.loadIdentities();
+    console.info("  Step 5: ✅ Identities loaded");
 
     // If there's a saved identity preference, select it (but don't unlock)
     // The user will need to enter their password to unlock
@@ -71,15 +79,25 @@ async function initializeApp() {
     // Step 6: Start syncing Nostr events for all groups + messages (if unlocked)
     // Note: Sync will only work if the app is unlocked
     if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
+      console.info("  Step 6: Starting syncs...");
       const { startAllSyncs } = await import("@/core/storage/sync");
       await startAllSyncs();
+      console.info("  Step 6: ✅ Syncs started");
+    } else {
+      console.info("  Step 6: Skipped (not unlocked)");
     }
 
     console.info("✅ App initialization complete");
     return true;
   } catch (error) {
     console.error("❌ Failed to initialize app:", error);
-    initializationStarted = false; // Allow retry on error
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("  Error name:", error.name);
+      console.error("  Error message:", error.message);
+      console.error("  Error stack:", error.stack);
+    }
+    initializationPromise = null; // Allow retry on error
     return false;
   }
 }

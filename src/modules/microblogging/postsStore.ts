@@ -18,7 +18,7 @@ import type {
   PostFeedFilter,
   ReactionType,
 } from './types';
-import { useFriendsStore } from '@/core/friends/friendsStore';
+import { useFriendsStore } from '@/modules/friends/friendsStore';
 import { extractUrlsFromText } from '@/lib/embed';
 
 interface PostsState {

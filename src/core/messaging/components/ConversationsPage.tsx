@@ -6,7 +6,7 @@
 import { FC, useEffect, useState } from 'react';
 import { Plus, Search, Archive, Pin } from 'lucide-react';
 import { useConversationsStore } from '../conversationsStore';
-import { useFriendsStore } from '@/core/friends/friendsStore';
+import { useFriendsStore } from '@/modules/friends/friendsStore';
 import { BuddylistSidebar } from './BuddylistSidebar';
 import { ChatWindowContainer } from './ChatWindowContainer';
 import { Button } from '@/components/ui/button';

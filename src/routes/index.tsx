@@ -10,7 +10,7 @@ import { getAllModules } from '@/lib/modules/registry';
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const HomePage = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })));
 const ConversationsPage = lazy(() => import('@/core/messaging/components').then(m => ({ default: m.ConversationsPage })));
-const ContactsPage = lazy(() => import('@/core/friends/components').then(m => ({ default: m.ContactsPage })));
+const ContactsPage = lazy(() => import('@/modules/friends/components').then(m => ({ default: m.ContactsPage })));
 const UserDirectory = lazy(() => import('@/pages/UserDirectory').then(m => ({ default: m.UserDirectory })));
 const GroupsPage = lazy(() => import('@/pages/GroupsPage').then(m => ({ default: m.GroupsPage })));
 const GroupLayout = lazy(() => import('@/layouts/GroupLayout').then(m => ({ default: m.GroupLayout })));

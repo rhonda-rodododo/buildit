@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import type { TableSchema } from '@/types/modules';
-import type { DBFriend, FriendRequest, FriendInviteLink } from '@/core/friends/schema';
+import type { DBFriend, FriendRequest, FriendInviteLink } from '@/modules/friends/types';
 import type {
   DBConversation,
   ConversationMember,

@@ -37,8 +37,8 @@ import {
   CheckCircle2,
   XCircle,
 } from 'lucide-react';
-import { useTorStore } from '@/core/tor/torStore';
-import { TorConnectionMethod, TorStatus } from '@/core/tor/types';
+import { useTorStore } from '@/modules/security/tor/torStore';
+import { TorConnectionMethod, TorStatus } from '@/modules/security/tor/types';
 import { TorStatusIndicator } from './TorStatusIndicator';
 
 export function TorSettings() {

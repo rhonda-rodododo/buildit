@@ -18,8 +18,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { useGroupsStore } from '@/stores/groupsStore';
 import { useContactsStore } from '@/stores/contactsStore';
 import { useDeviceStore } from '@/stores/deviceStore';
-import { useTorStore } from '@/core/tor/torStore';
-import { useFriendsStore } from '@/core/friends/friendsStore';
+import { useTorStore } from '@/modules/security/tor/torStore';
+import { useFriendsStore } from '@/modules/friends/friendsStore';
 import { useConversationsStore } from '@/core/messaging/conversationsStore';
 
 // Module stores
