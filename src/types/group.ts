@@ -58,6 +58,8 @@ export type GroupModule =
   | 'microblogging'
   | 'forms'
   | 'fundraising'
+  | 'publishing'
+  | 'newsletters'
 
 export interface GroupInvitation {
   id: string
@@ -116,6 +118,17 @@ export interface GroupCreationParams {
   tags?: string[]
   enabledModules: GroupModule[]
   initialMembers?: string[] // Additional pubkeys to invite
+
+  // Template support
+  templateId?: string // Template used to create this group
+  templateEnhancements?: string[] // Enhancement IDs that were enabled
+  includeDemoData?: boolean // Whether to seed demo data
+
+  // Module configurations from template
+  moduleConfigs?: Record<GroupModule, Record<string, unknown>>
+
+  // Sub-templates to apply (for modules like CRM)
+  subTemplates?: Record<GroupModule, string>
 }
 
 export interface GroupUpdateParams {

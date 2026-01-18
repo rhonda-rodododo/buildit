@@ -119,5 +119,115 @@
     "loading": "Cargando...",
     "error": "Error",
     "success": "Éxito"
+  },
+  "templates": {
+    "title": "Elige una plantilla",
+    "subtitle": "Elige una plantilla para comenzar rápidamente con módulos preconfigurados.",
+    "manualMode": "Configuración manual",
+    "customize": "Personalizar",
+    "continue": "Continuar",
+    "createGroup": "Crear grupo",
+    "creating": "Creando...",
+    "modules": "módulos",
+    "modulesEnabled": "módulos se habilitarán",
+    "modulesToEnable": "Módulos a habilitar",
+    "includeSampleData": "Incluir datos de ejemplo",
+    "sampleDataDescription": "Poblar el grupo con contenido de ejemplo para ayudarte a comenzar",
+    "optionalEnhancements": "Mejoras opcionales",
+    "summary": "Resumen",
+    "template": "Plantilla",
+    "enhancementsAdded": "mejoras añadidas",
+    "demoDataWillBeLoaded": "Se cargarán datos de demostración",
+    "manualModeDescription": "Modo manual: Seleccionarás módulos individuales en el siguiente paso.",
+    "complexity": {
+      "1": "Simple",
+      "2": "Básico",
+      "3": "Estándar",
+      "4": "Avanzado",
+      "5": "Experto"
+    },
+    "categories": {
+      "community": "Comunidad",
+      "mutual-aid": "Ayuda mutua",
+      "organizing": "Organización",
+      "civic": "Acción cívica",
+      "governance": "Gobernanza"
+    },
+    "simpleGroup": {
+      "name": "Grupo simple",
+      "description": "Un grupo mínimo con solo mensajería. Perfecto para empezar rápidamente."
+    },
+    "mutualAidNetwork": {
+      "name": "Red de ayuda mutua",
+      "description": "Comparte recursos y coordina el apoyo comunitario. Perfecto para redes vecinales.",
+      "enhancements": {
+        "governance": {
+          "name": "Decisiones democráticas",
+          "description": "Añade propuestas y votaciones para decisiones colectivas"
+        },
+        "events": {
+          "name": "Eventos y reuniones",
+          "description": "Coordina encuentros y eventos comunitarios"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "Sección sindical",
+      "description": "Herramientas completas para organización laboral: campañas, contactos y gobernanza democrática.",
+      "enhancements": {
+        "publicPresence": {
+          "name": "Presencia pública",
+          "description": "Crea una página pública para tu sección"
+        },
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para contratos, quejas y notas"
+        },
+        "files": {
+          "name": "Almacenamiento de archivos",
+          "description": "Almacenamiento seguro para contratos, fotos y evidencias"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "Colectivo activista",
+      "description": "Coordina campañas, construye conocimiento y moviliza tu comunidad efectivamente.",
+      "enhancements": {
+        "crm": {
+          "name": "Gestión de contactos",
+          "description": "Seguimiento de simpatizantes, voluntarios y esfuerzos de difusión"
+        },
+        "database": {
+          "name": "Bases de datos personalizadas",
+          "description": "Crea sistemas de seguimiento personalizados para tus campañas"
+        },
+        "files": {
+          "name": "Biblioteca de medios",
+          "description": "Almacena y organiza materiales de campaña"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "Centro comunitario",
+      "description": "Un espacio de propósito general para organización y conexión comunitaria. Perfecto para vecindarios y grupos sociales.",
+      "enhancements": {
+        "governance": {
+          "name": "Decisiones colectivas",
+          "description": "Añade propuestas y votaciones para decisiones comunitarias"
+        },
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para notas de reuniones y planificación"
+        },
+        "files": {
+          "name": "Compartir archivos",
+          "description": "Almacenamiento compartido para recursos comunitarios"
+        },
+        "crm": {
+          "name": "Directorio de contactos",
+          "description": "Gestiona contactos comunitarios y negocios locales"
+        }
+      }
+    }
   }
 }

@@ -54,13 +54,99 @@ export interface ModuleConfigField {
 }
 
 /**
+ * Dependency Relationship Types
+ * Defines how one module relates to another
+ */
+export type DependencyRelationship =
+  | 'requires'           // Hard dependency - cannot enable without it
+  | 'optional'           // Soft dependency - works alone, enhanced if available
+  | 'enhances'           // This module enhances another (inverse of optional)
+  | 'recommendedWith'    // UI hint - suggested companion module
+  | 'incompatibleWith';  // Cannot be enabled together
+
+/**
+ * Enhancement Configuration
+ * Defines what features are unlocked when a dependency is met
+ */
+export interface EnhancementConfig {
+  /** Feature flags that are enabled when dependency is met */
+  featureFlags?: string[];
+  /** UI slots where components can be injected */
+  uiSlots?: string[];
+  /** Data integrations that are activated */
+  dataIntegrations?: string[];
+}
+
+/**
  * Module Dependency
  * Defines required or optional dependencies for a module
  */
 export interface ModuleDependency {
   moduleId: string;
-  required: boolean; // If true, module cannot be enabled without this dependency
-  minVersion?: string; // Optional minimum version requirement
+
+  /**
+   * Relationship type between modules
+   * - 'requires': Hard dependency, cannot enable without it
+   * - 'optional': Works alone, enhanced when available
+   * - 'enhances': This module enhances another module
+   * - 'recommendedWith': UI hint for suggested companion
+   * - 'incompatibleWith': Cannot be enabled together
+   */
+  relationship: DependencyRelationship;
+
+  /** Minimum version requirement (semver) */
+  minVersion?: string;
+
+  /** Maximum version allowed (for compatibility) */
+  maxVersion?: string;
+
+  /** Human-readable explanation of why this dependency exists */
+  reason?: string;
+
+  /** Configuration for what features are unlocked when dependency is met */
+  enhancementConfig?: EnhancementConfig;
+}
+
+/**
+ * Legacy Module Dependency (for backward compatibility)
+ * @deprecated Use ModuleDependency with 'relationship' instead
+ */
+export interface LegacyModuleDependency {
+  moduleId: string;
+  required: boolean;
+  minVersion?: string;
+}
+
+/**
+ * Dependency Status at runtime
+ * Describes whether a dependency is satisfied for a specific group
+ */
+export interface DependencyStatus {
+  moduleId: string;
+  relationship: DependencyRelationship;
+  satisfied: boolean;
+  targetModuleEnabled: boolean;
+  versionCompatible: boolean;
+  reason?: string;
+}
+
+/**
+ * Normalize legacy dependency format to new format
+ */
+export function normalizeDependency(
+  dep: ModuleDependency | LegacyModuleDependency
+): ModuleDependency {
+  // Check if it's already in new format
+  if ('relationship' in dep) {
+    return dep;
+  }
+
+  // Convert legacy format
+  return {
+    moduleId: dep.moduleId,
+    relationship: dep.required ? 'requires' : 'optional',
+    minVersion: dep.minVersion,
+  };
 }
 
 /**
@@ -77,8 +163,30 @@ export interface ModuleMetadata {
   capabilities: ModuleCapability[];
   configSchema: ModuleConfigField[];
   requiredPermission: ModulePermission;
-  dependencies?: ModuleDependency[]; // Modules this module depends on
-  conflicts?: string[]; // Module IDs that conflict with this module
+
+  /**
+   * Modules this module depends on
+   * Supports both new relationship-based format and legacy required boolean
+   */
+  dependencies?: (ModuleDependency | LegacyModuleDependency)[];
+
+  /**
+   * Capability IDs this module provides to other modules
+   * e.g., ['custom-fields', 'file-upload']
+   */
+  providesCapabilities?: string[];
+
+  /**
+   * Module IDs this module enhances when enabled
+   * This is the inverse of an 'optional' dependency
+   */
+  enhances?: string[];
+
+  /**
+   * @deprecated Use dependencies with relationship: 'incompatibleWith' instead
+   * Module IDs that conflict with this module
+   */
+  conflicts?: string[];
 }
 
 /**
@@ -127,6 +235,34 @@ export interface ModuleLifecycle {
    * Called when module is unregistered
    */
   onUnregister?: () => void | Promise<void>;
+
+  /**
+   * Called when an optional dependency becomes available
+   * Allows module to enhance itself when a companion module is enabled
+   */
+  onDependencyEnabled?: (
+    groupId: string,
+    dependencyModuleId: string,
+    dependencyConfig: Record<string, unknown>
+  ) => void | Promise<void>;
+
+  /**
+   * Called when an optional dependency is disabled
+   * Allows module to gracefully degrade features
+   */
+  onDependencyDisabled?: (
+    groupId: string,
+    dependencyModuleId: string
+  ) => void | Promise<void>;
+
+  /**
+   * Called when this module is enabled and an enhancing module is already active
+   */
+  onEnhancedBy?: (
+    groupId: string,
+    enhancingModuleId: string,
+    enhancingConfig: Record<string, unknown>
+  ) => void | Promise<void>;
 }
 
 /**

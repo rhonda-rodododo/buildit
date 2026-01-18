@@ -4,7 +4,8 @@ import { useGroupsStore } from '@/stores/groupsStore';
 import { getAllModules } from '@/lib/modules/registry';
 import { canManageModules } from '@/lib/modules/permissions';
 import { useAuthStore } from '@/stores/authStore';
-import type { ModulePlugin } from '@/types/modules';
+import type { ModulePlugin, ModuleDependency } from '@/types/modules';
+import { normalizeDependency } from '@/types/modules';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -27,7 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings, CheckCircle2, XCircle, AlertTriangle, Link2, Info } from 'lucide-react';
+import {
+  Settings,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Info,
+  Sparkles,
+  Lock,
+  Puzzle,
+  Lightbulb,
+} from 'lucide-react';
 
 interface ModuleSettingsProps {
   groupId: string;
@@ -56,17 +67,30 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
     return map;
   }, [allModules]);
 
-  // Get dependencies for a module
-  const getDependencies = useCallback((module: ModulePlugin) => {
-    return module.metadata.dependencies || [];
+  // Get dependencies for a module (normalized to new format)
+  const getDependencies = useCallback((module: ModulePlugin): ModuleDependency[] => {
+    const rawDeps = module.metadata.dependencies || [];
+    return rawDeps.map(normalizeDependency);
   }, []);
 
-  // Get modules that depend on this module
-  const getDependents = useCallback((moduleId: string) => {
-    return allModules.filter(m =>
-      m.metadata.dependencies?.some(d => d.moduleId === moduleId && d.required)
-    );
-  }, [allModules]);
+  // Get enhancing modules for a module
+  const getEnhancingModules = useCallback((moduleId: string): string[] => {
+    const enhancing: string[] = [];
+    for (const m of allModules) {
+      // Check enhances array in metadata
+      if (m.metadata.enhances?.includes(moduleId)) {
+        enhancing.push(m.metadata.id);
+        continue;
+      }
+      // Check 'enhances' relationship in dependencies
+      const deps = getDependencies(m);
+      if (deps.some(d => d.moduleId === moduleId && d.relationship === 'enhances')) {
+        enhancing.push(m.metadata.id);
+      }
+    }
+    return enhancing;
+  }, [allModules, getDependencies]);
+
 
   // Check if all required dependencies are enabled
   const areDependenciesSatisfied = useCallback((module: ModulePlugin): { satisfied: boolean; missing: string[] } => {
@@ -74,7 +98,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
     const missing: string[] = [];
 
     for (const dep of deps) {
-      if (dep.required && !isModuleEnabled(groupId, dep.moduleId)) {
+      if (dep.relationship === 'requires' && !isModuleEnabled(groupId, dep.moduleId)) {
         const depModule = moduleMap.get(dep.moduleId);
         missing.push(depModule?.metadata.name || dep.moduleId);
       }
@@ -83,19 +107,22 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
     return { satisfied: missing.length === 0, missing };
   }, [getDependencies, isModuleEnabled, groupId, moduleMap]);
 
-  // Check if any enabled modules depend on this module
+  // Check if any enabled modules have required dependency on this module
   const hasEnabledDependents = useCallback((moduleId: string): string[] => {
-    const dependents = getDependents(moduleId);
     const enabledDependents: string[] = [];
 
-    for (const dep of dependents) {
-      if (isModuleEnabled(groupId, dep.metadata.id)) {
-        enabledDependents.push(dep.metadata.name);
+    for (const m of allModules) {
+      const deps = getDependencies(m);
+      const hasRequiredDep = deps.some(
+        d => d.moduleId === moduleId && d.relationship === 'requires'
+      );
+      if (hasRequiredDep && isModuleEnabled(groupId, m.metadata.id)) {
+        enabledDependents.push(m.metadata.name);
       }
     }
 
     return enabledDependents;
-  }, [getDependents, isModuleEnabled, groupId]);
+  }, [allModules, getDependencies, isModuleEnabled, groupId]);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -335,30 +362,124 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {/* Dependencies section */}
+                    {/* Dependencies section - grouped by relationship type */}
                     {dependencies.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-                          <Link2 className="h-3.5 w-3.5" />
-                          Requires:
-                        </h4>
-                        <div className="flex flex-wrap gap-1">
-                          {dependencies.map((dep) => {
-                            const depModule = moduleMap.get(dep.moduleId);
-                            const depEnabled = isModuleEnabled(groupId, dep.moduleId);
-                            return (
-                              <Badge
-                                key={dep.moduleId}
-                                variant={depEnabled ? 'default' : 'destructive'}
-                                className="text-xs"
-                              >
-                                {depModule?.metadata.name || dep.moduleId}
-                                {dep.required && !depEnabled && ' (missing)'}
-                              </Badge>
-                            );
-                          })}
-                        </div>
+                      <div className="space-y-2">
+                        {/* Required dependencies */}
+                        {dependencies.filter(d => d.relationship === 'requires').length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <Lock className="h-3.5 w-3.5" />
+                              Required:
+                            </h4>
+                            <div className="flex flex-wrap gap-1">
+                              {dependencies.filter(d => d.relationship === 'requires').map((dep) => {
+                                const depModule = moduleMap.get(dep.moduleId);
+                                const depEnabled = isModuleEnabled(groupId, dep.moduleId);
+                                return (
+                                  <Tooltip key={dep.moduleId}>
+                                    <TooltipTrigger asChild>
+                                      <Badge
+                                        variant={depEnabled ? 'default' : 'destructive'}
+                                        className="text-xs cursor-help"
+                                      >
+                                        <Lock className={`h-3 w-3 mr-1 ${depEnabled ? 'text-green-400' : 'text-red-400'}`} />
+                                        {depModule?.metadata.name || dep.moduleId}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{dep.reason || `${depModule?.metadata.name || dep.moduleId} is required`}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Optional enhancements */}
+                        {dependencies.filter(d => d.relationship === 'optional').length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <Puzzle className="h-3.5 w-3.5" />
+                              Enhanced by:
+                            </h4>
+                            <div className="flex flex-wrap gap-1">
+                              {dependencies.filter(d => d.relationship === 'optional').map((dep) => {
+                                const depModule = moduleMap.get(dep.moduleId);
+                                const depEnabled = isModuleEnabled(groupId, dep.moduleId);
+                                return (
+                                  <Tooltip key={dep.moduleId}>
+                                    <TooltipTrigger asChild>
+                                      <Badge
+                                        variant={depEnabled ? 'default' : 'outline'}
+                                        className={`text-xs cursor-help ${depEnabled ? 'bg-purple-500/10 text-purple-600 border-purple-500/30' : ''}`}
+                                      >
+                                        <Puzzle className={`h-3 w-3 mr-1 ${depEnabled ? 'text-purple-500' : 'text-muted-foreground'}`} />
+                                        {depModule?.metadata.name || dep.moduleId}
+                                        {depEnabled && <Sparkles className="h-3 w-3 ml-1 text-purple-400" />}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>
+                                        {depEnabled
+                                          ? `Enhanced by ${depModule?.metadata.name || dep.moduleId}`
+                                          : dep.reason || `Enable ${depModule?.metadata.name || dep.moduleId} for more features`}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recommended modules */}
+                        {dependencies.filter(d => d.relationship === 'recommendedWith').length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                              <Lightbulb className="h-3.5 w-3.5 text-blue-500" />
+                              Recommended:
+                            </h4>
+                            <div className="flex flex-wrap gap-1">
+                              {dependencies.filter(d => d.relationship === 'recommendedWith').map((dep) => {
+                                const depModule = moduleMap.get(dep.moduleId);
+                                const depEnabled = isModuleEnabled(groupId, dep.moduleId);
+                                return (
+                                  <Tooltip key={dep.moduleId}>
+                                    <TooltipTrigger asChild>
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-xs cursor-help border-blue-400/50 ${depEnabled ? 'bg-blue-500/10' : ''}`}
+                                      >
+                                        <Lightbulb className={`h-3 w-3 mr-1 ${depEnabled ? 'text-blue-500' : 'text-blue-400'}`} />
+                                        {depModule?.metadata.name || dep.moduleId}
+                                        {depEnabled && <CheckCircle2 className="h-3 w-3 ml-1 text-green-500" />}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{dep.reason || `${depModule?.metadata.name || dep.moduleId} works well with this module`}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
+                    )}
+
+                    {/* Modules that enhance this one */}
+                    {enabled && getEnhancingModules(module.metadata.id).filter(id => isModuleEnabled(groupId, id)).length > 0 && (
+                      <Alert className="py-2 bg-purple-500/10 border-purple-500/20">
+                        <Sparkles className="h-4 w-4 text-purple-500" />
+                        <AlertDescription className="text-xs">
+                          Enhanced by: {getEnhancingModules(module.metadata.id)
+                            .filter(id => isModuleEnabled(groupId, id))
+                            .map(id => moduleMap.get(id)?.metadata.name || id)
+                            .join(', ')}
+                        </AlertDescription>
+                      </Alert>
                     )}
 
                     {/* Warning when dependencies not satisfied */}

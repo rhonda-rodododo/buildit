@@ -119,5 +119,115 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success"
+  },
+  "templates": {
+    "title": "Choose a Template",
+    "subtitle": "Choose a template to get started quickly with pre-configured modules.",
+    "manualMode": "Manual setup",
+    "customize": "Customize",
+    "continue": "Continue",
+    "createGroup": "Create Group",
+    "creating": "Creating...",
+    "modules": "modules",
+    "modulesEnabled": "modules will be enabled",
+    "modulesToEnable": "Modules to Enable",
+    "includeSampleData": "Include sample data",
+    "sampleDataDescription": "Populate the group with example content to help you get started",
+    "optionalEnhancements": "Optional Enhancements",
+    "summary": "Summary",
+    "template": "Template",
+    "enhancementsAdded": "enhancements added",
+    "demoDataWillBeLoaded": "Demo data will be loaded",
+    "manualModeDescription": "Manual mode: You'll select individual modules in the next step.",
+    "complexity": {
+      "1": "Simple",
+      "2": "Basic",
+      "3": "Standard",
+      "4": "Advanced",
+      "5": "Expert"
+    },
+    "categories": {
+      "community": "Community",
+      "mutual-aid": "Mutual Aid",
+      "organizing": "Organizing",
+      "civic": "Civic Action",
+      "governance": "Governance"
+    },
+    "simpleGroup": {
+      "name": "Simple Group",
+      "description": "A minimal group with just messaging. Perfect for getting started quickly."
+    },
+    "mutualAidNetwork": {
+      "name": "Mutual Aid Network",
+      "description": "Share resources and coordinate community support. Perfect for neighborhood networks.",
+      "enhancements": {
+        "governance": {
+          "name": "Democratic Decisions",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "events": {
+          "name": "Events & Gatherings",
+          "description": "Coordinate meetups and community events"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "Union Chapter",
+      "description": "Complete tools for workplace organizing: campaigns, contacts, and democratic governance.",
+      "enhancements": {
+        "publicPresence": {
+          "name": "Public Presence",
+          "description": "Create a public-facing page for your chapter"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for contracts, grievances, and notes"
+        },
+        "files": {
+          "name": "File Storage",
+          "description": "Secure storage for contracts, photos, and evidence"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "Activist Collective",
+      "description": "Coordinate campaigns, build knowledge, and mobilize your community effectively.",
+      "enhancements": {
+        "crm": {
+          "name": "Contact Management",
+          "description": "Track supporters, volunteers, and outreach efforts"
+        },
+        "database": {
+          "name": "Custom Databases",
+          "description": "Create custom tracking systems for your campaigns"
+        },
+        "files": {
+          "name": "Media Library",
+          "description": "Store and organize campaign materials"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "Community Hub",
+      "description": "A general-purpose space for community organizing and connection. Perfect for neighborhoods and social groups.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Decisions",
+          "description": "Add proposals and voting for community decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for meeting notes and planning"
+        },
+        "files": {
+          "name": "File Sharing",
+          "description": "Shared file storage for community resources"
+        },
+        "crm": {
+          "name": "Contact Directory",
+          "description": "Manage community contacts and local businesses"
+        }
+      }
+    }
   }
 }

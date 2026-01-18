@@ -78,6 +78,38 @@ export const mutualAidModule: ModulePlugin = {
       },
     ],
     requiredPermission: 'all',
+    // Enhanced dependencies
+    dependencies: [
+      {
+        moduleId: 'custom-fields',
+        relationship: 'optional',
+        reason: 'Enables custom fields for requests like dietary restrictions, allergies, and specific needs',
+        enhancementConfig: {
+          featureFlags: ['custom-request-fields', 'custom-offer-fields'],
+          uiSlots: ['request-form-fields', 'offer-form-fields'],
+        },
+      },
+      {
+        moduleId: 'public',
+        relationship: 'optional',
+        reason: 'Enables publishing mutual aid requests to public pages',
+        enhancementConfig: {
+          featureFlags: ['public-requests'],
+          uiSlots: ['request-share-public'],
+        },
+      },
+      {
+        moduleId: 'events',
+        relationship: 'recommendedWith',
+        reason: 'Coordinate mutual aid with community events like food drives or resource fairs',
+      },
+      {
+        moduleId: 'crm',
+        relationship: 'recommendedWith',
+        reason: 'Track volunteer availability and resource provider contacts with CRM',
+      },
+    ],
+    providesCapabilities: ['resource-requests', 'resource-offers', 'rideshare-coordination'],
   },
 
   lifecycle: {

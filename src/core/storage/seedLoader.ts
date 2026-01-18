@@ -5,6 +5,8 @@
 
 import type { BuildItDB } from './db';
 import { getAllModules } from '@/lib/modules/registry';
+import type { TemplateSelection, ResolvedTemplate } from '@/core/groupTemplates/types';
+import { templateRegistry } from '@/core/groupTemplates';
 
 /**
  * Load seed data for all modules
@@ -206,4 +208,67 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
   }
 
   console.info(`✅ Demo data cleared for group ${groupId}`);
+}
+
+/**
+ * Load seed data based on a template selection
+ * Uses the template's demoData.seeds configuration
+ * @param db Database instance
+ * @param groupId Group ID
+ * @param userPubkey User public key
+ * @param templateSelection Template selection with enhancements
+ */
+export async function loadTemplateSeeds(
+  db: BuildItDB,
+  groupId: string,
+  userPubkey: string,
+  templateSelection: TemplateSelection
+): Promise<void> {
+  console.info('📦 Loading template seed data...');
+
+  // Resolve the template to get the seed list
+  const resolved = templateRegistry.resolveTemplate(templateSelection);
+
+  if (resolved.seeds.length === 0) {
+    console.info('  ⏭️  No seeds defined for this template');
+    return;
+  }
+
+  console.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
+
+  // Load seeds that match the template's seed names
+  await loadAllSeeds(db, groupId, userPubkey, {
+    moduleIds: resolved.enabledModules,
+    seedNames: resolved.seeds,
+  });
+}
+
+/**
+ * Load seed data based on a resolved template
+ * Use this when you already have the resolved template from templateRegistry
+ * @param db Database instance
+ * @param groupId Group ID
+ * @param userPubkey User public key
+ * @param resolved Already-resolved template
+ */
+export async function loadResolvedTemplateSeeds(
+  db: BuildItDB,
+  groupId: string,
+  userPubkey: string,
+  resolved: ResolvedTemplate
+): Promise<void> {
+  console.info('📦 Loading resolved template seed data...');
+
+  if (resolved.seeds.length === 0) {
+    console.info('  ⏭️  No seeds defined for this template');
+    return;
+  }
+
+  console.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
+
+  // Load seeds that match the template's seed names
+  await loadAllSeeds(db, groupId, userPubkey, {
+    moduleIds: resolved.enabledModules,
+    seedNames: resolved.seeds,
+  });
 }

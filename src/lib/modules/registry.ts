@@ -1,6 +1,95 @@
-import type { ModulePlugin } from '@/types/modules';
+import type { ModulePlugin, ModuleDependency } from '@/types/modules';
+import { normalizeDependency } from '@/types/modules';
 import { useModuleStore } from '@/stores/moduleStore';
 import { registerModuleSchema } from '@/core/storage/db';
+
+/**
+ * Result of dependency graph validation
+ */
+interface DependencyGraphValidation {
+  valid: boolean;
+  cycles?: string[][];
+  warnings?: string[];
+}
+
+/**
+ * Validate dependency graph for cycles
+ * Called during module registration to prevent circular dependencies
+ *
+ * Only checks 'requires' relationships as they form hard dependencies.
+ * 'optional' and 'enhances' don't cause initialization problems.
+ */
+function validateDependencyGraph(
+  newPlugin: ModulePlugin,
+  existingModules: Map<string, ModulePlugin>
+): DependencyGraphValidation {
+  // Build combined registry with new module
+  const registry = new Map(existingModules);
+  registry.set(newPlugin.metadata.id, newPlugin);
+
+  const visited = new Set<string>();
+  const recursionStack = new Set<string>();
+  const cycles: string[][] = [];
+  const warnings: string[] = [];
+
+  function getNormalizedDeps(moduleId: string): ModuleDependency[] {
+    const plugin = registry.get(moduleId);
+    if (!plugin) return [];
+    const rawDeps = plugin.metadata.dependencies || [];
+    return rawDeps.map(normalizeDependency);
+  }
+
+  function detectCycle(moduleId: string, path: string[]): boolean {
+    if (recursionStack.has(moduleId)) {
+      // Found a cycle
+      const cycleStart = path.indexOf(moduleId);
+      cycles.push([...path.slice(cycleStart), moduleId]);
+      return true;
+    }
+
+    if (visited.has(moduleId)) {
+      return false;
+    }
+
+    visited.add(moduleId);
+    recursionStack.add(moduleId);
+
+    const deps = getNormalizedDeps(moduleId);
+
+    // Only traverse 'requires' relationships for cycle detection
+    // as these are the only ones that could cause initialization issues
+    for (const dep of deps) {
+      if (dep.relationship === 'requires') {
+        if (detectCycle(dep.moduleId, [...path, moduleId])) {
+          // Don't return early - continue to find all cycles
+        }
+      }
+    }
+
+    recursionStack.delete(moduleId);
+    return false;
+  }
+
+  // Check for cycles starting from the new module
+  detectCycle(newPlugin.metadata.id, []);
+
+  // Also validate that all required dependencies exist
+  const deps = getNormalizedDeps(newPlugin.metadata.id);
+  for (const dep of deps) {
+    if (dep.relationship === 'requires' && !registry.has(dep.moduleId)) {
+      warnings.push(
+        `Module "${newPlugin.metadata.id}" requires "${dep.moduleId}" but it is not registered. ` +
+        `Ensure "${dep.moduleId}" is loaded first.`
+      );
+    }
+  }
+
+  return {
+    valid: cycles.length === 0,
+    cycles: cycles.length > 0 ? cycles : undefined,
+    warnings: warnings.length > 0 ? warnings : undefined,
+  };
+}
 
 /**
  * Module loader definition
@@ -84,6 +173,11 @@ const MODULE_LOADERS: ModuleLoader[] = [
 ];
 
 /**
+ * Track loaded plugins for cycle detection
+ */
+const loadedPlugins = new Map<string, ModulePlugin>();
+
+/**
  * Load a single module
  */
 async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
@@ -106,6 +200,26 @@ async function loadModule(loader: ModuleLoader): Promise<ModulePlugin | null> {
       console.error(`No module plugin found in module ${loader.id}`);
       return null;
     }
+
+    // Validate dependency graph before registering
+    const validation = validateDependencyGraph(plugin, loadedPlugins);
+
+    if (!validation.valid) {
+      const cycleStr = validation.cycles!
+        .map(c => c.join(' → '))
+        .join(', ');
+      console.error(
+        `❌ Cannot load module "${plugin.metadata.id}": circular dependency detected: ${cycleStr}`
+      );
+      return null;
+    }
+
+    if (validation.warnings?.length) {
+      validation.warnings.forEach(w => console.warn(`⚠️ ${w}`));
+    }
+
+    // Track loaded plugin for future cycle detection
+    loadedPlugins.set(plugin.metadata.id, plugin);
 
     // Register module schema with the schema registry (before db instance is created)
     if (plugin.schema && plugin.schema.length > 0) {

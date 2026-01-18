@@ -69,6 +69,33 @@ export const eventsModule: ModulePlugin = {
       },
     ],
     requiredPermission: 'all',
+    // Enhanced dependencies
+    dependencies: [
+      {
+        moduleId: 'custom-fields',
+        relationship: 'optional',
+        reason: 'Enables custom RSVP fields like dietary preferences, skills, and accessibility needs',
+        enhancementConfig: {
+          featureFlags: ['custom-rsvp-fields', 'custom-event-fields'],
+          uiSlots: ['event-form-fields', 'rsvp-form-fields'],
+        },
+      },
+      {
+        moduleId: 'public',
+        relationship: 'optional',
+        reason: 'Enables publishing events to public pages',
+        enhancementConfig: {
+          featureFlags: ['public-events'],
+          uiSlots: ['event-share-public'],
+        },
+      },
+      {
+        moduleId: 'governance',
+        relationship: 'recommendedWith',
+        reason: 'Use governance for event approval workflows and voting on event proposals',
+      },
+    ],
+    providesCapabilities: ['event-scheduling', 'rsvp-management', 'campaign-coordination'],
   },
 
   lifecycle: {

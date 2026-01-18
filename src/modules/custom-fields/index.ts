@@ -52,6 +52,10 @@ export const customFieldsModule: ModulePlugin = {
       },
     ],
     requiredPermission: 'all',
+    // Custom Fields provides capabilities to other modules
+    providesCapabilities: ['custom-fields', 'dynamic-forms', 'field-validation'],
+    // This module enhances other modules when enabled
+    enhances: ['events', 'mutual-aid', 'database', 'crm'],
   },
 
   lifecycle: {

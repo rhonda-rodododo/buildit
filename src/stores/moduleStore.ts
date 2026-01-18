@@ -5,7 +5,10 @@ import type {
   ModuleInstance,
   ModuleState,
   ModuleType,
+  ModuleDependency,
+  DependencyStatus,
 } from '@/types/modules';
+import { normalizeDependency } from '@/types/modules';
 import { db } from '@/core/storage/db';
 import { useAuthStore } from './authStore';
 
@@ -27,6 +30,47 @@ interface ModuleStore {
   getModulesByType: (groupId: string, type: ModuleType) => ModuleInstance[];
   isModuleEnabled: (groupId: string, moduleId: string) => boolean;
   loadModuleInstances: () => Promise<void>;
+
+  // Dependency Discovery API
+  /**
+   * Get all dependencies for a module with their current satisfaction status
+   */
+  getDependencyStatus: (groupId: string, moduleId: string) => DependencyStatus[];
+
+  /**
+   * Get all enabled optional dependencies for a module
+   */
+  getActiveOptionalDependencies: (groupId: string, moduleId: string) => string[];
+
+  /**
+   * Check if a specific optional dependency is enabled
+   */
+  hasOptionalDependency: (groupId: string, moduleId: string, dependencyId: string) => boolean;
+
+  /**
+   * Get all modules that enhance a given module (via 'enhances' metadata or 'optional' dependency)
+   */
+  getEnhancingModules: (groupId: string, moduleId: string) => string[];
+
+  /**
+   * Get modules that are recommended with a given module
+   */
+  getRecommendedModules: (moduleId: string) => string[];
+
+  /**
+   * Get normalized dependencies for a module
+   */
+  getNormalizedDependencies: (moduleId: string) => ModuleDependency[];
+
+  /**
+   * Check if a module provides a specific capability
+   */
+  hasCapability: (moduleId: string, capabilityId: string) => boolean;
+
+  /**
+   * Get all modules that provide a given capability
+   */
+  getModulesWithCapability: (capabilityId: string) => string[];
 }
 
 function getInstanceKey(groupId: string, moduleId: string): string {
@@ -114,38 +158,55 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           return;
         }
 
-        // Check dependencies before enabling
-        const dependencies = entry.plugin.metadata.dependencies;
-        if (dependencies?.length) {
-          const missingDeps: string[] = [];
-          for (const dep of dependencies) {
-            if (dep.required) {
-              const depInstance = get().getModuleInstance(groupId, dep.moduleId);
-              if (depInstance?.state !== 'enabled') {
-                const depEntry = get().registry.get(dep.moduleId);
-                missingDeps.push(depEntry?.plugin.metadata.name || dep.moduleId);
-              }
+        // Normalize dependencies to new format
+        const normalizedDeps = get().getNormalizedDependencies(moduleId);
+
+        // Check required dependencies before enabling
+        const missingDeps: string[] = [];
+        for (const dep of normalizedDeps) {
+          if (dep.relationship === 'requires') {
+            const depInstance = get().getModuleInstance(groupId, dep.moduleId);
+            if (depInstance?.state !== 'enabled') {
+              const depEntry = get().registry.get(dep.moduleId);
+              missingDeps.push(depEntry?.plugin.metadata.name || dep.moduleId);
             }
           }
-          if (missingDeps.length > 0) {
-            throw new Error(`Cannot enable ${entry.plugin.metadata.name}: requires ${missingDeps.join(', ')} to be enabled first`);
+        }
+        if (missingDeps.length > 0) {
+          throw new Error(`Cannot enable ${entry.plugin.metadata.name}: requires ${missingDeps.join(', ')} to be enabled first`);
+        }
+
+        // Check incompatible modules (both new format and legacy conflicts)
+        const activeConflicts: string[] = [];
+
+        // New format: incompatibleWith relationship
+        for (const dep of normalizedDeps) {
+          if (dep.relationship === 'incompatibleWith') {
+            const conflictInstance = get().getModuleInstance(groupId, dep.moduleId);
+            if (conflictInstance?.state === 'enabled') {
+              const conflictEntry = get().registry.get(dep.moduleId);
+              activeConflicts.push(conflictEntry?.plugin.metadata.name || dep.moduleId);
+            }
           }
         }
 
-        // Check conflicts
+        // Legacy: conflicts array
         const conflicts = entry.plugin.metadata.conflicts;
         if (conflicts?.length) {
-          const activeConflicts: string[] = [];
           for (const conflictId of conflicts) {
             const conflictInstance = get().getModuleInstance(groupId, conflictId);
             if (conflictInstance?.state === 'enabled') {
               const conflictEntry = get().registry.get(conflictId);
-              activeConflicts.push(conflictEntry?.plugin.metadata.name || conflictId);
+              const name = conflictEntry?.plugin.metadata.name || conflictId;
+              if (!activeConflicts.includes(name)) {
+                activeConflicts.push(name);
+              }
             }
           }
-          if (activeConflicts.length > 0) {
-            throw new Error(`Cannot enable ${entry.plugin.metadata.name}: conflicts with ${activeConflicts.join(', ')}`);
-          }
+        }
+
+        if (activeConflicts.length > 0) {
+          throw new Error(`Cannot enable ${entry.plugin.metadata.name}: conflicts with ${activeConflicts.join(', ')}`);
         }
 
         // Get config
@@ -203,6 +264,47 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           });
 
           console.info(`Module ${moduleId} enabled for group ${groupId}`);
+
+          // Call onDependencyEnabled for modules that have this as an optional dependency
+          for (const [, regEntry] of get().registry) {
+            const otherModuleId = regEntry.plugin.metadata.id;
+            if (otherModuleId === moduleId) continue;
+
+            const otherInstance = get().getModuleInstance(groupId, otherModuleId);
+            if (otherInstance?.state !== 'enabled') continue;
+
+            const otherDeps = get().getNormalizedDependencies(otherModuleId);
+            const hasOptionalDep = otherDeps.some(
+              d => d.moduleId === moduleId && d.relationship === 'optional'
+            );
+
+            if (hasOptionalDep && regEntry.plugin.lifecycle?.onDependencyEnabled) {
+              try {
+                await regEntry.plugin.lifecycle.onDependencyEnabled(groupId, moduleId, finalConfig);
+              } catch (err) {
+                console.warn(`Failed to notify ${otherModuleId} of dependency enabled:`, err);
+              }
+            }
+          }
+
+          // Call onEnhancedBy for this module if enhancing modules are already enabled
+          if (entry.plugin.lifecycle?.onEnhancedBy) {
+            const enhancingModules = get().getEnhancingModules(groupId, moduleId);
+            for (const enhancerId of enhancingModules) {
+              const enhancerInstance = get().getModuleInstance(groupId, enhancerId);
+              if (enhancerInstance?.state === 'enabled') {
+                try {
+                  await entry.plugin.lifecycle.onEnhancedBy(
+                    groupId,
+                    enhancerId,
+                    enhancerInstance.config
+                  );
+                } catch (err) {
+                  console.warn(`Failed to notify ${moduleId} of enhancement by ${enhancerId}:`, err);
+                }
+              }
+            }
+          }
         } catch (error) {
           // Update state to error
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -236,12 +338,18 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           return;
         }
 
-        // Check if any other enabled modules depend on this one
+        // Check if any other enabled modules have a required dependency on this one
         const dependents: string[] = [];
         for (const [, regEntry] of get().registry) {
-          const deps = regEntry.plugin.metadata.dependencies;
-          if (deps?.some(d => d.moduleId === moduleId && d.required)) {
-            const depInstance = get().getModuleInstance(groupId, regEntry.plugin.metadata.id);
+          const otherModuleId = regEntry.plugin.metadata.id;
+          const normalizedDeps = get().getNormalizedDependencies(otherModuleId);
+
+          const hasRequiredDep = normalizedDeps.some(
+            d => d.moduleId === moduleId && d.relationship === 'requires'
+          );
+
+          if (hasRequiredDep) {
+            const depInstance = get().getModuleInstance(groupId, otherModuleId);
             if (depInstance?.state === 'enabled') {
               dependents.push(regEntry.plugin.metadata.name);
             }
@@ -249,6 +357,28 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         }
         if (dependents.length > 0) {
           throw new Error(`Cannot disable ${entry.plugin.metadata.name}: ${dependents.join(', ')} depends on it`);
+        }
+
+        // Notify modules with optional dependency on this module BEFORE disabling
+        for (const [, regEntry] of get().registry) {
+          const otherModuleId = regEntry.plugin.metadata.id;
+          if (otherModuleId === moduleId) continue;
+
+          const otherInstance = get().getModuleInstance(groupId, otherModuleId);
+          if (otherInstance?.state !== 'enabled') continue;
+
+          const otherDeps = get().getNormalizedDependencies(otherModuleId);
+          const hasOptionalDep = otherDeps.some(
+            d => d.moduleId === moduleId && d.relationship === 'optional'
+          );
+
+          if (hasOptionalDep && regEntry.plugin.lifecycle?.onDependencyDisabled) {
+            try {
+              await regEntry.plugin.lifecycle.onDependencyDisabled(groupId, moduleId);
+            } catch (err) {
+              console.warn(`Failed to notify ${otherModuleId} of dependency disabled:`, err);
+            }
+          }
         }
 
         // Call onDisable lifecycle hook
@@ -360,6 +490,161 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
 
         set({ instances: instanceMap });
         console.info(`✅ Loaded ${instances.length} module instances from database`);
+      },
+
+      // Dependency Discovery API Implementation
+
+      getNormalizedDependencies: (moduleId: string): ModuleDependency[] => {
+        const entry = get().registry.get(moduleId);
+        if (!entry) return [];
+
+        const rawDeps = entry.plugin.metadata.dependencies || [];
+        return rawDeps.map(normalizeDependency);
+      },
+
+      getDependencyStatus: (groupId: string, moduleId: string): DependencyStatus[] => {
+        const normalizedDeps = get().getNormalizedDependencies(moduleId);
+        const statuses: DependencyStatus[] = [];
+
+        for (const dep of normalizedDeps) {
+          const targetInstance = get().getModuleInstance(groupId, dep.moduleId);
+          const targetEnabled = targetInstance?.state === 'enabled';
+
+          // Version compatibility check (simplified - just check if enabled)
+          // TODO: Implement proper semver comparison if needed
+          const versionCompatible = true;
+
+          const satisfied =
+            dep.relationship === 'requires'
+              ? targetEnabled && versionCompatible
+              : dep.relationship === 'optional'
+              ? targetEnabled
+              : dep.relationship === 'incompatibleWith'
+              ? !targetEnabled
+              : true; // recommendedWith, enhances don't require satisfaction
+
+          statuses.push({
+            moduleId: dep.moduleId,
+            relationship: dep.relationship,
+            satisfied,
+            targetModuleEnabled: targetEnabled,
+            versionCompatible,
+            reason: dep.reason,
+          });
+        }
+
+        return statuses;
+      },
+
+      getActiveOptionalDependencies: (groupId: string, moduleId: string): string[] => {
+        const normalizedDeps = get().getNormalizedDependencies(moduleId);
+        const active: string[] = [];
+
+        for (const dep of normalizedDeps) {
+          if (dep.relationship === 'optional') {
+            const targetInstance = get().getModuleInstance(groupId, dep.moduleId);
+            if (targetInstance?.state === 'enabled') {
+              active.push(dep.moduleId);
+            }
+          }
+        }
+
+        return active;
+      },
+
+      hasOptionalDependency: (groupId: string, moduleId: string, dependencyId: string): boolean => {
+        const normalizedDeps = get().getNormalizedDependencies(moduleId);
+        const dep = normalizedDeps.find(
+          d => d.moduleId === dependencyId && d.relationship === 'optional'
+        );
+
+        if (!dep) return false;
+
+        const targetInstance = get().getModuleInstance(groupId, dependencyId);
+        return targetInstance?.state === 'enabled';
+      },
+
+      getEnhancingModules: (groupId: string, moduleId: string): string[] => {
+        const enhancing: string[] = [];
+
+        for (const [, regEntry] of get().registry) {
+          const otherModuleId = regEntry.plugin.metadata.id;
+          if (otherModuleId === moduleId) continue;
+
+          // Check if this module declares it enhances our target
+          const enhancesArray = regEntry.plugin.metadata.enhances || [];
+          if (enhancesArray.includes(moduleId)) {
+            const instance = get().getModuleInstance(groupId, otherModuleId);
+            if (instance?.state === 'enabled') {
+              enhancing.push(otherModuleId);
+            }
+            continue;
+          }
+
+          // Check if this module has 'enhances' relationship to our target
+          const normalizedDeps = get().getNormalizedDependencies(otherModuleId);
+          const hasEnhancesRel = normalizedDeps.some(
+            d => d.moduleId === moduleId && d.relationship === 'enhances'
+          );
+
+          if (hasEnhancesRel) {
+            const instance = get().getModuleInstance(groupId, otherModuleId);
+            if (instance?.state === 'enabled') {
+              enhancing.push(otherModuleId);
+            }
+          }
+        }
+
+        return enhancing;
+      },
+
+      getRecommendedModules: (moduleId: string): string[] => {
+        const normalizedDeps = get().getNormalizedDependencies(moduleId);
+        const recommended: string[] = [];
+
+        for (const dep of normalizedDeps) {
+          if (dep.relationship === 'recommendedWith') {
+            recommended.push(dep.moduleId);
+          }
+        }
+
+        // Also check modules that recommend this one
+        for (const [, regEntry] of get().registry) {
+          const otherModuleId = regEntry.plugin.metadata.id;
+          if (otherModuleId === moduleId) continue;
+
+          const otherDeps = get().getNormalizedDependencies(otherModuleId);
+          const recommendsThis = otherDeps.some(
+            d => d.moduleId === moduleId && d.relationship === 'recommendedWith'
+          );
+
+          if (recommendsThis && !recommended.includes(otherModuleId)) {
+            recommended.push(otherModuleId);
+          }
+        }
+
+        return recommended;
+      },
+
+      hasCapability: (moduleId: string, capabilityId: string): boolean => {
+        const entry = get().registry.get(moduleId);
+        if (!entry) return false;
+
+        const providesCapabilities = entry.plugin.metadata.providesCapabilities || [];
+        return providesCapabilities.includes(capabilityId);
+      },
+
+      getModulesWithCapability: (capabilityId: string): string[] => {
+        const modulesWithCap: string[] = [];
+
+        for (const [, regEntry] of get().registry) {
+          const providesCapabilities = regEntry.plugin.metadata.providesCapabilities || [];
+          if (providesCapabilities.includes(capabilityId)) {
+            modulesWithCap.push(regEntry.plugin.metadata.id);
+          }
+        }
+
+        return modulesWithCap;
       },
     })
 );
