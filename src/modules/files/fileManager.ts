@@ -19,7 +19,9 @@ import type {
   FileType,
   EncryptedFileBlob,
   FileVersion,
+  ArchiveEntry,
 } from './types'
+import { fileAnalytics } from './fileAnalytics'
 import { useFilesStore } from './filesStore'
 import { db } from '@/core/storage/db'
 
@@ -210,6 +212,16 @@ class FileManager {
     setTimeout(() => {
       useFilesStore.getState().removeUploadProgress(id)
     }, 2000)
+
+    // Epic 57: Index file content and store hash for analytics
+    try {
+      await fileAnalytics.indexFileContent(id, input.groupId, input.file, input.file.type)
+      await fileAnalytics.storeFileHash(id, input.groupId, input.file)
+      await fileAnalytics.logActivity(input.groupId, id, input.name, 'upload', userPubkey)
+    } catch (err) {
+      // Non-critical, don't fail upload
+      console.error('Failed to index file for analytics:', err)
+    }
 
     return fileMetadata
   }
@@ -624,6 +636,38 @@ class FileManager {
       }
     }
 
+    // Epic 57: Office file preview (DOCX, XLSX, PPTX)
+    if (this.isOfficeFile(file.mimeType, file.name)) {
+      return {
+        type: 'office',
+        url: URL.createObjectURL(blob),
+      }
+    }
+
+    // Epic 57: Archive preview (ZIP, TAR)
+    if (file.type === 'archive' || this.isArchiveFile(file.mimeType, file.name)) {
+      try {
+        const contents = await this.getArchiveContents(blob, file.name)
+        return {
+          type: 'archive',
+          archiveContents: contents,
+        }
+      } catch (err) {
+        console.error('Failed to read archive:', err)
+        return { type: 'none' }
+      }
+    }
+
+    // Epic 57: 3D model preview (OBJ, STL)
+    if (this.is3DModelFile(file.name)) {
+      const data = new Uint8Array(await blob.arrayBuffer())
+      return {
+        type: '3d',
+        modelData: data,
+        url: URL.createObjectURL(blob),
+      }
+    }
+
     // Text preview
     if (file.type === 'document' && blob.size < 1024 * 1024) { // Max 1MB for text preview
       const text = await blob.text()
@@ -651,6 +695,137 @@ class FileManager {
     }
 
     return { type: 'none' }
+  }
+
+  /**
+   * Epic 57: Check if file is an Office document
+   */
+  private isOfficeFile(mimeType: string, filename: string): boolean {
+    const officeMimeTypes = [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
+      'application/msword', // doc
+      'application/vnd.ms-excel', // xls
+      'application/vnd.ms-powerpoint', // ppt
+    ]
+
+    if (officeMimeTypes.includes(mimeType)) return true
+
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return ['docx', 'xlsx', 'pptx', 'doc', 'xls', 'ppt'].includes(ext || '')
+  }
+
+  /**
+   * Epic 57: Check if file is an archive
+   */
+  private isArchiveFile(mimeType: string, filename: string): boolean {
+    const archiveMimeTypes = [
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-tar',
+      'application/gzip',
+      'application/x-gzip',
+      'application/x-rar-compressed',
+      'application/x-7z-compressed',
+    ]
+
+    if (archiveMimeTypes.includes(mimeType)) return true
+
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return ['zip', 'tar', 'tar.gz', 'tgz', 'gz', 'rar', '7z'].includes(ext || '')
+  }
+
+  /**
+   * Epic 57: Check if file is a 3D model
+   */
+  private is3DModelFile(filename: string): boolean {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return ['obj', 'stl', 'gltf', 'glb', 'fbx', '3ds'].includes(ext || '')
+  }
+
+  /**
+   * Epic 57: Get archive contents
+   */
+  private async getArchiveContents(blob: Blob, filename: string): Promise<ArchiveEntry[]> {
+    const entries: ArchiveEntry[] = []
+    const ext = filename.split('.').pop()?.toLowerCase()
+
+    if (ext === 'zip') {
+      // Use JSZip to list contents
+      const JSZip = (await import('jszip')).default
+      const zip = await JSZip.loadAsync(blob)
+
+      zip.forEach((relativePath, file) => {
+        // Cast to access internal properties (JSZip doesn't expose uncompressed size directly)
+        const fileWithData = file as unknown as { _data?: { uncompressedSize?: number } }
+        entries.push({
+          name: file.name.split('/').pop() || file.name,
+          path: relativePath,
+          size: fileWithData._data?.uncompressedSize || 0,
+          isDirectory: file.dir,
+          modifiedAt: file.date,
+        })
+      })
+    } else if (ext === 'tar' || ext === 'tgz' || ext === 'tar.gz') {
+      // Parse tar archives client-side
+      try {
+        let tarData: Uint8Array
+
+        // For .tgz or .tar.gz, decompress first
+        if (ext === 'tgz' || filename.endsWith('.tar.gz')) {
+          const pako = (await import('pako')).default
+          const compressed = new Uint8Array(await blob.arrayBuffer())
+          tarData = pako.ungzip(compressed)
+        } else {
+          tarData = new Uint8Array(await blob.arrayBuffer())
+        }
+
+        // Parse tar headers (512-byte blocks)
+        let offset = 0
+        while (offset < tarData.length - 512) {
+          // Read filename (first 100 bytes)
+          const nameBytes = tarData.slice(offset, offset + 100)
+          const name = new TextDecoder().decode(nameBytes).replace(/\0+$/, '')
+
+          if (!name) break // Empty block = end of archive
+
+          // Read file size (octal string at offset 124, 12 bytes)
+          const sizeBytes = tarData.slice(offset + 124, offset + 136)
+          const sizeStr = new TextDecoder().decode(sizeBytes).replace(/\0+$/, '').trim()
+          const size = parseInt(sizeStr, 8) || 0
+
+          // Read type flag (offset 156)
+          const typeFlag = tarData[offset + 156]
+          const isDirectory = typeFlag === 53 // ASCII '5'
+
+          entries.push({
+            name: name.split('/').pop() || name,
+            path: name,
+            size,
+            isDirectory,
+          })
+
+          // Skip to next header (header + file data padded to 512-byte boundary)
+          offset += 512 + Math.ceil(size / 512) * 512
+        }
+      } catch (err) {
+        console.error('Failed to parse tar:', err)
+        entries.push({
+          name: 'Archive (unable to read contents)',
+          path: '/',
+          size: blob.size,
+          isDirectory: true,
+        })
+      }
+    }
+
+    return entries.sort((a, b) => {
+      // Directories first
+      if (a.isDirectory && !b.isDirectory) return -1
+      if (!a.isDirectory && b.isDirectory) return 1
+      return a.path.localeCompare(b.path)
+    })
   }
 
   /**

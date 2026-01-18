@@ -81,7 +81,25 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         globIgnores: ['stats.html'],
+        // Mobile-optimized precaching: skip large chunks for faster initial load
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB max
+        // Skip waiting to update immediately
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
+          {
+            // Cache navigation requests with network-first for fresh content
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              networkTimeoutSeconds: 3, // Fast fallback to cache on slow networks
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -104,6 +122,33 @@ export default defineConfig({
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          },
+          {
+            // Cache images with cache-first for performance
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache API responses with stale-while-revalidate
+            urlPattern: /\/api\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 5 // 5 minutes
               }
             }
           }
@@ -146,81 +191,10 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Core vendor libraries
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'vendor-react';
-          }
-          if (id.includes('node_modules/react-router-dom/')) {
-            return 'vendor-router';
-          }
-
-          // Crypto libraries
-          if (id.includes('@noble/secp256k1') || id.includes('nostr-tools')) {
-            return 'vendor-crypto';
-          }
-
-          // UI libraries - split by package for better caching
-          if (id.includes('@radix-ui/')) {
-            return 'vendor-radix';
-          }
-          if (id.includes('lucide-react')) {
-            return 'vendor-icons';
-          }
-
-          // Heavy markdown editor - separate chunk
-          if (id.includes('@uiw/react-md-editor')) {
-            return 'vendor-md-editor';
-          }
-
-          // Table/data visualization libraries
-          if (id.includes('@tanstack/react-table') || id.includes('@tanstack/react-virtual')) {
-            return 'vendor-table';
-          }
-          if (id.includes('@hello-pangea/dnd')) {
-            return 'vendor-dnd';
-          }
-
-          // Date libraries
-          if (id.includes('date-fns')) {
-            return 'vendor-date';
-          }
-
-          // State management and storage
-          if (id.includes('zustand') || id.includes('dexie')) {
-            return 'vendor-state';
-          }
-
-          // Utilities
-          if (id.includes('node_modules/') && (
-            id.includes('clsx') ||
-            id.includes('tailwind-merge') ||
-            id.includes('zod') ||
-            id.includes('class-variance-authority')
-          )) {
-            return 'vendor-utils';
-          }
-
-          // Module chunks - let them be lazy loaded naturally
-          if (id.includes('src/modules/wiki/')) {
-            return 'module-wiki';
-          }
-          if (id.includes('src/modules/events/')) {
-            return 'module-events';
-          }
-          if (id.includes('src/modules/database/')) {
-            return 'module-database';
-          }
-          if (id.includes('src/modules/governance/')) {
-            return 'module-governance';
-          }
-          if (id.includes('src/modules/mutual-aid/')) {
-            return 'module-mutual-aid';
-          }
-          if (id.includes('src/modules/crm/')) {
-            return 'module-crm';
-          }
-        },
+        // Use Vite's automatic code splitting
+        // Manual chunks can cause circular dependency issues with React
+        // Vite will automatically split large chunks and lazy-load them
+        manualChunks: undefined,
       },
     },
     chunkSizeWarningLimit: 500, // Keep at 500KB to catch issues

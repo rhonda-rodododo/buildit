@@ -21,7 +21,7 @@ bun run build      # Production build
 # Remove your line when done or blocked
 
 # Currently locked:
-(none)
+claude-opus-session: 51
 ```
 
 **Protocol:**
