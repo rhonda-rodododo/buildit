@@ -6,7 +6,7 @@ import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
  * Generate a cryptographically secure random integer in range [0, max)
  * Uses crypto.getRandomValues() for security-critical randomness
  */
-function secureRandomInt(max: number): number {
+export function secureRandomInt(max: number): number {
   const randomBuffer = new Uint32Array(1)
   crypto.getRandomValues(randomBuffer)
   // Use rejection sampling to avoid modulo bias
@@ -23,7 +23,7 @@ function secureRandomInt(max: number): number {
  * As per NIP-17 spec
  * Uses crypto.getRandomValues() to prevent timing correlation attacks
  */
-function randomizeTimestamp(baseTime: number = Date.now()): number {
+export function randomizeTimestamp(baseTime: number = Date.now()): number {
   const twoDaysInSeconds = 2 * 24 * 60 * 60
   const randomOffset = secureRandomInt(twoDaysInSeconds) - Math.floor(twoDaysInSeconds / 2)
   return Math.floor(baseTime / 1000) + randomOffset

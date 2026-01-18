@@ -2,6 +2,7 @@ import { type Event as NostrEvent } from 'nostr-tools'
 import { NostrClient } from '@/core/nostr/client'
 import { createEventFromTemplate } from '@/core/nostr/nip01'
 import { encryptNIP44, decryptNIP44 } from '@/core/crypto/nip44'
+import { randomizeTimestamp } from '@/core/crypto/nip17'
 import type { GroupThread, GroupMessage } from '@/types/group'
 
 // Nostr event kinds for group messaging
@@ -36,7 +37,7 @@ export async function createGroupThread(
         ['title', title],
         ...(category ? [['category', category]] : []),
       ],
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: randomizeTimestamp(),
     },
     privateKey
   )
@@ -74,7 +75,7 @@ export async function sendGroupMessage(
       kind: GROUP_MESSAGE_KINDS.THREAD_MESSAGE,
       content: encryptedContent,
       tags,
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: randomizeTimestamp(),
     },
     privateKey
   )
@@ -253,7 +254,7 @@ export async function editGroupMessage(
       kind: GROUP_MESSAGE_KINDS.EDIT_MESSAGE,
       content: encryptedContent,
       tags: [['e', originalMessageId]],
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: randomizeTimestamp(),
     },
     privateKey
   )
@@ -275,7 +276,7 @@ export async function deleteGroupMessage(
       kind: GROUP_MESSAGE_KINDS.DELETE_MESSAGE,
       content: '',
       tags: [['e', messageId]],
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: randomizeTimestamp(),
     },
     privateKey
   )
@@ -298,7 +299,7 @@ export async function addReaction(
       kind: GROUP_MESSAGE_KINDS.REACTION,
       content: emoji,
       tags: [['e', messageId]],
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: randomizeTimestamp(),
     },
     privateKey
   )
