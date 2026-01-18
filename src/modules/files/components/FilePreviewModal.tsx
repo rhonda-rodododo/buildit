@@ -1,15 +1,16 @@
 /**
  * File Preview Modal
  * Preview files with support for images, PDFs, videos, audio, text, and code files
- * Epic 57: Enhanced preview with syntax highlighting and markdown rendering
+ * Epic 57: Enhanced preview with syntax highlighting, markdown rendering, archives, office, and 3D
  */
 
-import { useState, useEffect, useCallback, FC } from 'react'
-import { X, Download, Share2, Clock, RotateCcw, Code2 } from 'lucide-react'
+import { useState, useEffect, useCallback, FC, Suspense, lazy } from 'react'
+import { X, Download, Share2, Clock, RotateCcw, Code2, Folder, File, FileText, Archive } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Prism as SyntaxHighlighterBase } from 'react-syntax-highlighter'
 import type { SyntaxHighlighterProps } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -20,7 +21,10 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { fileManager } from '../fileManager'
 import { useFilesStore } from '../filesStore'
-import type { FilePreview, FileVersion } from '../types'
+import type { FilePreview, FileVersion, ArchiveEntry } from '../types'
+
+// Lazy load Three.js for 3D model preview
+const Model3DPreview = lazy(() => import('./Model3DPreview').then(m => ({ default: m.Model3DPreview })))
 
 interface FilePreviewModalProps {
   fileId: string
@@ -239,6 +243,66 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                 </div>
               )}
 
+              {/* Epic 57: Office File Preview */}
+              {preview.type === 'office' && preview.url && (
+                <div className="flex flex-col items-center justify-center h-full bg-muted/10 p-8">
+                  <FileText className="h-16 w-16 text-blue-500 mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Office Document</h3>
+                  <p className="text-sm text-muted-foreground mb-4 text-center">
+                    Office documents can be viewed by downloading the file.
+                    <br />
+                    Open in Microsoft Office, Google Docs, or LibreOffice.
+                  </p>
+                  <Button onClick={handleDownload}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download to View
+                  </Button>
+                </div>
+              )}
+
+              {/* Epic 57: Archive Preview */}
+              {preview.type === 'archive' && preview.archiveContents && (
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center gap-2 p-3 border-b bg-muted/30">
+                    <Archive className="h-5 w-5 text-yellow-600" />
+                    <span className="font-medium">Archive Contents</span>
+                    <Badge variant="secondary" className="ml-auto">
+                      {preview.archiveContents.length} items
+                    </Badge>
+                  </div>
+                  <ScrollArea className="flex-1">
+                    <div className="p-2">
+                      {preview.archiveContents.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          Empty archive or unable to read contents
+                        </p>
+                      ) : (
+                        <ArchiveContentsList entries={preview.archiveContents} />
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+
+              {/* Epic 57: 3D Model Preview */}
+              {preview.type === '3d' && preview.url && (
+                <div className="h-full">
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Loading 3D viewer...</p>
+                      </div>
+                    </div>
+                  }>
+                    <Model3DPreview
+                      url={preview.url}
+                      filename={file.name}
+                    />
+                  </Suspense>
+                </div>
+              )}
+
               {/* No Preview Available */}
               {preview.type === 'none' && (
                 <div className="flex items-center justify-center h-full">
@@ -377,5 +441,40 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
         </Tabs>
       </DialogContent>
     </Dialog>
+  )
+}
+
+/**
+ * Epic 57: Archive contents list component
+ */
+function ArchiveContentsList({ entries }: { entries: ArchiveEntry[] }) {
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return '-'
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  return (
+    <div className="space-y-1">
+      {entries.map((entry, index) => (
+        <div
+          key={`${entry.path}-${index}`}
+          className="flex items-center gap-2 p-2 rounded hover:bg-accent text-sm"
+        >
+          {entry.isDirectory ? (
+            <Folder className="h-4 w-4 text-blue-500 flex-shrink-0" />
+          ) : (
+            <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          )}
+          <span className="flex-1 truncate" title={entry.path}>
+            {entry.path}
+          </span>
+          <span className="text-muted-foreground text-xs flex-shrink-0">
+            {formatSize(entry.size)}
+          </span>
+        </div>
+      ))}
+    </div>
   )
 }

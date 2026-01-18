@@ -286,7 +286,7 @@ export function decryptLocal(encrypted: string): string {
     try {
       return decryptNIP44(ciphertext, key);
     } catch (error) {
-      console.warn('Local decryption failed:', error);
+      logger.warn('Local decryption failed:', error);
       return '[Decryption failed]';
     }
   }
@@ -301,7 +301,7 @@ export function decryptLocal(encrypted: string): string {
     try {
       return decryptNIP44(ciphertext, privateKey);
     } catch (error) {
-      console.warn('Legacy decryption failed:', error);
+      logger.warn('Legacy decryption failed:', error);
       return '[Decryption failed]';
     }
   }
@@ -472,7 +472,7 @@ export function decryptObject<T extends Record<string, unknown>>(
       try {
         (decrypted as Record<string, unknown>)[field] = decryptNIP44(ciphertext, key);
       } catch (error) {
-        console.warn(`Decryption failed for ${tableName}.${field}:`, error);
+        logger.warn(`Decryption failed for ${tableName}.${field}:`, error);
         (decrypted as Record<string, unknown>)[field] = '[Decryption failed]';
       }
     }
@@ -485,7 +485,7 @@ export function decryptObject<T extends Record<string, unknown>>(
       try {
         (decrypted as Record<string, unknown>)[field] = decryptNIP44(ciphertext, privateKey);
       } catch (error) {
-        console.warn(`Legacy decryption failed for ${tableName}.${field}:`, error);
+        logger.warn(`Legacy decryption failed for ${tableName}.${field}:`, error);
         (decrypted as Record<string, unknown>)[field] = '[Decryption failed]';
       }
     }
@@ -616,7 +616,7 @@ export async function migrateToLocalEncryption(db: any): Promise<{ migrated: num
                 needsUpdate = true;
               }
             } catch (err) {
-              console.warn(`Migration failed for ${tableName}.${field}:`, err);
+              logger.warn(`Migration failed for ${tableName}.${field}:`, err);
               failed++;
             }
           }
@@ -631,7 +631,7 @@ export async function migrateToLocalEncryption(db: any): Promise<{ migrated: num
         }
       }
     } catch (err) {
-      console.error(`Migration failed for table ${tableName}:`, err);
+      logger.error(`Migration failed for table ${tableName}:`, err);
     }
   }
 

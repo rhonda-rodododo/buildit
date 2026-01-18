@@ -2,11 +2,28 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+  /** Container className for the scrollable wrapper */
+  containerClassName?: string;
+}
+
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
+  TableProps
+>(({ className, containerClassName, ...props }, ref) => (
+  <div
+    className={cn(
+      "relative w-full overflow-auto",
+      // Mobile-friendly scrolling with momentum
+      "-webkit-overflow-scrolling-touch",
+      // Show scroll hint on mobile
+      "max-md:after:content-[''] max-md:after:absolute max-md:after:right-0 max-md:after:top-0 max-md:after:bottom-0 max-md:after:w-4 max-md:after:bg-gradient-to-l max-md:after:from-background max-md:after:to-transparent max-md:after:pointer-events-none max-md:after:opacity-50",
+      containerClassName
+    )}
+    role="region"
+    aria-label="Scrollable table"
+    tabIndex={0}
+  >
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}

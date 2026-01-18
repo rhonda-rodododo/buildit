@@ -74,6 +74,62 @@ export interface CoalitionSettings {
 
   /** Role permissions */
   permissions: CoalitionPermissions;
+
+  /** Syndication configuration for media coalitions */
+  syndication?: CoalitionSyndicationConfig;
+}
+
+/**
+ * Syndication configuration for media coalitions
+ * Enables Indymedia-style content aggregation and distribution
+ */
+export interface CoalitionSyndicationConfig {
+  /** Whether syndication is enabled for this coalition */
+  enabled: boolean;
+
+  /** Syndication mode */
+  mode: 'auto-approve' | 'editorial-review' | 'member-vote';
+
+  /** Level of syndication this coalition handles */
+  level: 'local' | 'regional' | 'global';
+
+  /** Groups approved to syndicate content to this coalition */
+  approvedSources: string[];
+
+  /** Whether to auto-publish approved syndicated content */
+  autoPublishAfterApproval: boolean;
+
+  /** Require attribution for syndicated content */
+  attributionRequired: boolean;
+
+  /** Default delay in hours before content syndicates out */
+  defaultSyndicationDelay: number;
+
+  /** Content categories this coalition accepts */
+  acceptedCategories?: string[];
+
+  /** Parent coalition IDs for upward syndication */
+  parentCoalitions?: string[];
+}
+
+/**
+ * Syndication settings for individual articles/content
+ */
+export interface ContentSyndicationSettings {
+  /** Whether syndication is enabled for this content */
+  enabled: boolean;
+
+  /** Delay in hours before syndicating (local exclusivity period) */
+  delay: number;
+
+  /** Target coalitions to syndicate to */
+  targetCoalitions: string[];
+
+  /** Syndication level */
+  level: 'local' | 'regional' | 'global';
+
+  /** Whether editorial review is required before syndication */
+  requireReview: boolean;
 }
 
 export interface CoalitionPermissions {

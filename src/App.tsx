@@ -21,6 +21,8 @@ import { APP_CONFIG } from '@/config/app'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useModuleStore } from './stores/moduleStore'
 import { Home, MessageSquare, Users, Calendar, Heart, Shield } from 'lucide-react'
+import { MobileBottomNav, MobileBottomNavSpacer } from '@/components/navigation/MobileBottomNav'
+import { useIsMobile } from '@/hooks/useMobile'
 
 const App: FC = () => {
   const { currentIdentity, loadIdentities, logout } = useAuthStore()
@@ -28,6 +30,7 @@ const App: FC = () => {
   const { registry} = useModuleStore()
   const { posts, createPost } = usePostsStore()
   const [activeTab, setActiveTab] = useState('feed')
+  const isMobile = useIsMobile()
   // const [routes, setRoutes] = useState(getRoutes())
   useEffect(() => {
     // Update routes when module registry changes (e.g. modules added/removed)
@@ -204,7 +207,13 @@ const App: FC = () => {
             <SecurityPage />
           </TabsContent>
         </Tabs>
+
+        {/* Spacer for mobile bottom nav */}
+        {isMobile && <MobileBottomNavSpacer />}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && <MobileBottomNav />}
     </div>
   )
 }

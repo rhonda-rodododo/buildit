@@ -19,14 +19,25 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+      // Base styles
+      "flex w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 shadow-sm ring-offset-background",
+      // Touch-friendly sizing: 44px min height on mobile
+      "min-h-[44px] py-2 md:min-h-0 md:h-9",
+      // Typography: larger on mobile
+      "text-base md:text-sm",
+      // States
+      "data-[placeholder]:text-muted-foreground",
+      "focus:outline-none focus:ring-2 focus:ring-ring",
+      "disabled:cursor-not-allowed disabled:opacity-50",
+      // Text truncation
+      "[&>span]:line-clamp-1",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -118,12 +129,21 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      // Base styles
+      "relative flex w-full cursor-default select-none items-center rounded-sm pl-2 pr-8 outline-none",
+      // Touch-friendly sizing: min 44px on mobile for tap targets
+      "min-h-[44px] py-2 md:min-h-0 md:py-1.5",
+      // Typography
+      "text-base md:text-sm",
+      // States
+      "focus:bg-accent focus:text-accent-foreground",
+      "active:bg-accent/80",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="absolute right-2 flex h-4 w-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>

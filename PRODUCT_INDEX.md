@@ -1,6 +1,6 @@
 # BuildIt Network - Product Documentation Index
 
-**Last Updated**: 2025-10-06
+**Last Updated**: 2026-01-18
 **Project Status**: v1.0.0-mvp (Release Candidate)
 
 ---
@@ -18,6 +18,14 @@
 - **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - NIP-17/44/59 implementation, key management
 - **[PRIVACY.md](./PRIVACY.md)** - Threat model, security considerations, OPSEC
 - **[docs/GIT_WORKFLOW.md](./docs/GIT_WORKFLOW.md)** - Git worktrees for parallel development
+
+### 🔮 Product Visions
+Multi-epic product visions with comprehensive specifications:
+- **[docs/visions/MEDIA_COLLECTIVE.md](./docs/visions/MEDIA_COLLECTIVE.md)** - Indymedia-style federated media network
+
+### 📋 Group Templates
+Detailed specifications for group templates:
+- **[docs/templates/MEDIA_COLLECTIVE_TEMPLATE.md](./docs/templates/MEDIA_COLLECTIVE_TEMPLATE.md)** - Media collective template specification
 
 ### 👥 User Research & Product Strategy (For Humans)
 - **[README.md](./README.md)** - Project overview, tech stack, deployment guide

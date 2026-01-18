@@ -228,6 +228,113 @@
           "description": "Gérez les contacts communautaires et les entreprises locales"
         }
       }
+    },
+    "mediaCollective": {
+      "name": "Collectif Médias",
+      "description": "Journalisme communautaire avec autogouvernance démocratique. Publiez des articles, syndiquez vers les réseaux et prenez des décisions ensemble.",
+      "channels": {
+        "general": "Général",
+        "editorial": "Éditorial",
+        "pitches": "Propositions d'articles",
+        "governance": "Gouvernance",
+        "announcements": "Annonces"
+      },
+      "roles": {
+        "editor": "Rédacteur",
+        "writer": "Auteur",
+        "copyEditor": "Correcteur",
+        "publisher": "Éditeur",
+        "newsletterEditor": "Responsable newsletter"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "Salle de rédaction ouverte",
+          "description": "Acceptez les soumissions publiques d'articles de la communauté"
+        },
+        "wireService": {
+          "name": "Mode fil de presse",
+          "description": "Agrégez et republiez des articles d'autres collectifs"
+        },
+        "events": {
+          "name": "Événements et conférences de presse",
+          "description": "Organisez des événements presse, réunions communautaires et coordination de couverture"
+        },
+        "mutualAid": {
+          "name": "Ressources communautaires",
+          "description": "Connectez les lecteurs aux ressources communautaires et à l'aide mutuelle"
+        },
+        "microblogging": {
+          "name": "Actualités en direct",
+          "description": "Publiez des mises à jour rapides, des nouvelles de dernière minute et du contenu style réseaux sociaux"
+        },
+        "fundraising": {
+          "name": "Collecte de fonds et adhésion",
+          "description": "Acceptez les dons et gérez les adhésions"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "Changement de politique éditoriale",
+        "description": "Proposer des modifications aux directives, normes ou politiques éditoriales"
+      },
+      "coveragePriority": {
+        "title": "Priorité de couverture",
+        "description": "Définir ou modifier les priorités de couverture du collectif"
+      },
+      "styleGuideUpdate": {
+        "title": "Mise à jour du guide de style",
+        "description": "Proposer des mises à jour du guide de style du collectif"
+      },
+      "newMemberApproval": {
+        "title": "Approbation d'un nouveau membre",
+        "description": "Voter sur l'acceptation d'un nouveau membre au collectif"
+      },
+      "roleAssignment": {
+        "title": "Attribution de rôle",
+        "description": "Attribuer un membre à un rôle spécifique"
+      },
+      "electEditorialBoard": {
+        "title": "Élection du comité de rédaction",
+        "description": "Élire les membres du comité de rédaction"
+      },
+      "joinCoalition": {
+        "title": "Rejoindre une coalition",
+        "description": "Voter pour rejoindre une coalition médias régionale ou mondiale"
+      },
+      "leaveCoalition": {
+        "title": "Quitter une coalition",
+        "description": "Voter pour quitter une coalition dont le collectif fait partie"
+      },
+      "partnershipAgreement": {
+        "title": "Accord de partenariat",
+        "description": "Établir un partenariat avec une autre organisation"
+      },
+      "budgetAllocation": {
+        "title": "Allocation budgétaire",
+        "description": "Allouer les fonds du collectif à des fins spécifiques"
+      },
+      "contentDispute": {
+        "title": "Résolution de litige de contenu",
+        "description": "Résoudre les litiges concernant du contenu publié ou en attente"
+      },
+      "retractionRequest": {
+        "title": "Rétractation ou correction",
+        "description": "Voter sur la rétractation ou la correction de contenu publié"
+      },
+      "syndicationApproval": {
+        "title": "Approbation de syndication",
+        "description": "Approuver la syndication d'un article spécifique vers une ou plusieurs coalitions"
+      }
+    },
+    "categories": {
+      "editorial": "Gouvernance éditoriale",
+      "membership": "Adhésion et rôles",
+      "operations": "Opérations et finances",
+      "content": "Décisions de contenu",
+      "coalition": "Adhésion à une coalition"
     }
   }
 }

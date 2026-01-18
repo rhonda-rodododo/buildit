@@ -12,6 +12,7 @@ import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
 import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
 import { getNostrClient } from '@/core/nostr/client';
+import { secureRandomString } from '@/lib/utils';
 import type { GiftWrap } from '@/types/nostr';
 import type {
   DBConversation,
@@ -154,7 +155,7 @@ export const useConversationsStore = create<ConversationsState>()(
         }
 
         const conversation: DBConversation = {
-          id: `conv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `conv-${Date.now()}-${secureRandomString(9)}`,
           type,
           name,
           participants: [...new Set([currentIdentity.publicKey, ...participants])], // Dedupe
@@ -487,7 +488,7 @@ export const useConversationsStore = create<ConversationsState>()(
         const now = Date.now();
 
         const message: ConversationMessage = {
-          id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `msg-${Date.now()}-${secureRandomString(9)}`,
           conversationId,
           from: currentIdentity.publicKey,
           content,
@@ -775,7 +776,7 @@ export const useConversationsStore = create<ConversationsState>()(
         }
 
         const newWindow: ChatWindow = {
-          id: `window-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `window-${Date.now()}-${secureRandomString(9)}`,
           conversationId,
           isMinimized: false,
           position: { x: 100 + windows.length * 30, y: 100 + windows.length * 30 },

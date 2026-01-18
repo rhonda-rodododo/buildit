@@ -42,6 +42,22 @@ vi.mock('@/core/messaging/messageReceiver', () => ({
   fetchMessageHistory: vi.fn().mockResolvedValue(0),
 }));
 
+// Mock logger using vi.hoisted for proper hoisting
+const { mockLoggerWarn, mockLogger } = vi.hoisted(() => {
+  const mockLoggerWarn = vi.fn();
+  const mockLogger = {
+    info: vi.fn(),
+    warn: mockLoggerWarn,
+    error: vi.fn(),
+    debug: vi.fn(),
+  };
+  return { mockLoggerWarn, mockLogger };
+});
+
+vi.mock('@/lib/logger', () => ({
+  logger: mockLogger,
+}));
+
 describe('sync.ts', () => {
   beforeEach(async () => {
     enableTestMode();
@@ -452,7 +468,7 @@ describe('Nostr Event Processing', () => {
       return 'sub-test';
     });
 
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockLoggerWarn.mockClear();
 
     const { startGroupSync, stopGroupSync } = await import('./sync');
 
@@ -472,9 +488,8 @@ describe('Nostr Event Processing', () => {
       await eventCallback(nostrEvent);
     }
 
-    expect(consoleSpy).toHaveBeenCalledWith('Unknown event kind: 99999');
+    expect(mockLoggerWarn).toHaveBeenCalledWith('Unknown event kind: 99999');
 
-    consoleSpy.mockRestore();
     stopGroupSync('test-group-unknown');
   });
 

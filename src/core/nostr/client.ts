@@ -1,5 +1,6 @@
 import { SimplePool, type Event as NostrEvent, type Filter, mergeFilters } from 'nostr-tools'
 import type { RelayConfig, RelayStatus, Subscription, PublishResult } from '@/types/nostr'
+import { secureRandomString } from '@/lib/utils'
 
 export class NostrClient {
   private pool: SimplePool
@@ -76,7 +77,7 @@ export class NostrClient {
     onEvent: (event: NostrEvent) => void,
     onEose?: () => void
   ): string {
-    const subId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const subId = `sub_${Date.now()}_${secureRandomString(9)}`
 
     const subscription: Subscription = {
       id: subId,

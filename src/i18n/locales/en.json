@@ -228,6 +228,113 @@
           "description": "Manage community contacts and local businesses"
         }
       }
+    },
+    "mediaCollective": {
+      "name": "Media Collective",
+      "description": "Community journalism with democratic self-governance. Publish articles, syndicate to networks, and make decisions together.",
+      "channels": {
+        "general": "General",
+        "editorial": "Editorial",
+        "pitches": "Story Pitches",
+        "governance": "Governance",
+        "announcements": "Announcements"
+      },
+      "roles": {
+        "editor": "Editor",
+        "writer": "Writer",
+        "copyEditor": "Copy Editor",
+        "publisher": "Publisher",
+        "newsletterEditor": "Newsletter Editor"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "Open Newsroom",
+          "description": "Accept public story submissions from the community"
+        },
+        "wireService": {
+          "name": "Wire Service Mode",
+          "description": "Aggregate and republish stories from other collectives"
+        },
+        "events": {
+          "name": "Events & Press Conferences",
+          "description": "Organize press events, community meetings, and coverage coordination"
+        },
+        "mutualAid": {
+          "name": "Community Resources",
+          "description": "Connect readers with community resources and mutual aid"
+        },
+        "microblogging": {
+          "name": "Breaking News Updates",
+          "description": "Post quick updates, breaking news, and social media-style content"
+        },
+        "fundraising": {
+          "name": "Fundraising & Membership",
+          "description": "Accept donations and manage memberships"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "Editorial Policy Change",
+        "description": "Propose changes to editorial guidelines, standards, or policies"
+      },
+      "coveragePriority": {
+        "title": "Coverage Priority",
+        "description": "Set or change coverage priorities for the collective"
+      },
+      "styleGuideUpdate": {
+        "title": "Style Guide Update",
+        "description": "Propose updates to the collective's style guide"
+      },
+      "newMemberApproval": {
+        "title": "New Member Approval",
+        "description": "Vote on accepting a new member to the collective"
+      },
+      "roleAssignment": {
+        "title": "Role Assignment",
+        "description": "Assign a member to a specific role"
+      },
+      "electEditorialBoard": {
+        "title": "Elect Editorial Board",
+        "description": "Elect members to serve on the editorial board"
+      },
+      "joinCoalition": {
+        "title": "Join Coalition",
+        "description": "Vote on joining a regional or global media coalition"
+      },
+      "leaveCoalition": {
+        "title": "Leave Coalition",
+        "description": "Vote on leaving a coalition the collective currently belongs to"
+      },
+      "partnershipAgreement": {
+        "title": "Partnership Agreement",
+        "description": "Establish a partnership with another organization"
+      },
+      "budgetAllocation": {
+        "title": "Budget Allocation",
+        "description": "Allocate collective funds for specific purposes"
+      },
+      "contentDispute": {
+        "title": "Content Dispute Resolution",
+        "description": "Resolve disputes about published or pending content"
+      },
+      "retractionRequest": {
+        "title": "Retraction or Correction",
+        "description": "Vote on retracting or correcting published content"
+      },
+      "syndicationApproval": {
+        "title": "Syndication Approval",
+        "description": "Approve syndicating a specific article to coalition(s)"
+      }
+    },
+    "categories": {
+      "editorial": "Editorial Governance",
+      "membership": "Membership & Roles",
+      "operations": "Operations & Finance",
+      "content": "Content Decisions",
+      "coalition": "Coalition Membership"
     }
   }
 }

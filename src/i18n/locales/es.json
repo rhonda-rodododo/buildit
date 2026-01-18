@@ -228,6 +228,113 @@
           "description": "Gestiona contactos comunitarios y negocios locales"
         }
       }
+    },
+    "mediaCollective": {
+      "name": "Colectivo de Medios",
+      "description": "Periodismo comunitario con autogobierno democrático. Publica artículos, sindica a redes y toma decisiones juntos.",
+      "channels": {
+        "general": "General",
+        "editorial": "Editorial",
+        "pitches": "Propuestas de historias",
+        "governance": "Gobernanza",
+        "announcements": "Anuncios"
+      },
+      "roles": {
+        "editor": "Editor",
+        "writer": "Escritor",
+        "copyEditor": "Corrector de estilo",
+        "publisher": "Publicador",
+        "newsletterEditor": "Editor de boletín"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "Sala de redacción abierta",
+          "description": "Acepta envíos públicos de historias de la comunidad"
+        },
+        "wireService": {
+          "name": "Modo servicio de noticias",
+          "description": "Agrega y republica historias de otros colectivos"
+        },
+        "events": {
+          "name": "Eventos y conferencias de prensa",
+          "description": "Organiza eventos de prensa, reuniones comunitarias y coordinación de cobertura"
+        },
+        "mutualAid": {
+          "name": "Recursos comunitarios",
+          "description": "Conecta a los lectores con recursos comunitarios y ayuda mutua"
+        },
+        "microblogging": {
+          "name": "Actualizaciones de última hora",
+          "description": "Publica actualizaciones rápidas, noticias de última hora y contenido estilo redes sociales"
+        },
+        "fundraising": {
+          "name": "Recaudación y membresía",
+          "description": "Acepta donaciones y gestiona membresías"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "Cambio de política editorial",
+        "description": "Proponer cambios a las directrices, estándares o políticas editoriales"
+      },
+      "coveragePriority": {
+        "title": "Prioridad de cobertura",
+        "description": "Establecer o cambiar las prioridades de cobertura del colectivo"
+      },
+      "styleGuideUpdate": {
+        "title": "Actualización de guía de estilo",
+        "description": "Proponer actualizaciones a la guía de estilo del colectivo"
+      },
+      "newMemberApproval": {
+        "title": "Aprobación de nuevo miembro",
+        "description": "Votar sobre la aceptación de un nuevo miembro al colectivo"
+      },
+      "roleAssignment": {
+        "title": "Asignación de rol",
+        "description": "Asignar un miembro a un rol específico"
+      },
+      "electEditorialBoard": {
+        "title": "Elegir junta editorial",
+        "description": "Elegir miembros para servir en la junta editorial"
+      },
+      "joinCoalition": {
+        "title": "Unirse a coalición",
+        "description": "Votar sobre unirse a una coalición de medios regional o global"
+      },
+      "leaveCoalition": {
+        "title": "Abandonar coalición",
+        "description": "Votar sobre abandonar una coalición a la que el colectivo pertenece"
+      },
+      "partnershipAgreement": {
+        "title": "Acuerdo de asociación",
+        "description": "Establecer una asociación con otra organización"
+      },
+      "budgetAllocation": {
+        "title": "Asignación de presupuesto",
+        "description": "Asignar fondos del colectivo para propósitos específicos"
+      },
+      "contentDispute": {
+        "title": "Resolución de disputa de contenido",
+        "description": "Resolver disputas sobre contenido publicado o pendiente"
+      },
+      "retractionRequest": {
+        "title": "Retractación o corrección",
+        "description": "Votar sobre retractar o corregir contenido publicado"
+      },
+      "syndicationApproval": {
+        "title": "Aprobación de sindicación",
+        "description": "Aprobar la sindicación de un artículo específico a coalición(es)"
+      }
+    },
+    "categories": {
+      "editorial": "Gobernanza editorial",
+      "membership": "Membresía y roles",
+      "operations": "Operaciones y finanzas",
+      "content": "Decisiones de contenido",
+      "coalition": "Membresía de coalición"
     }
   }
 }

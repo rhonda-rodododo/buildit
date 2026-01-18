@@ -15,6 +15,7 @@ import type {
   DBCoalition,
   DBChannel,
 } from '@/core/groupEntity/types';
+import type { DBOfflineQueueItem, DBCacheMetadata } from '@/core/offline/types';
 
 /**
  * CORE DATABASE SCHEMA INTERFACES
@@ -137,6 +138,9 @@ export type {
   DBCoalition,
   DBChannel,
 };
+
+// Re-export offline queue types for convenience
+export type { DBOfflineQueueItem, DBCacheMetadata };
 
 /**
  * Core database schema (always present)
@@ -275,6 +279,18 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'id, groupId, conversationId, type, createdBy, createdAt',
     indexes: ['id', 'groupId', 'conversationId', 'type', 'createdBy', 'createdAt'],
   },
+  // Epic 60: Offline queue for messages, posts, file uploads
+  {
+    name: 'offlineQueue',
+    schema: 'id, type, status, authorPubkey, createdAt, updatedAt, nextRetryAt',
+    indexes: ['id', 'type', 'status', 'authorPubkey', 'createdAt', 'updatedAt', 'nextRetryAt'],
+  },
+  // Epic 60: Cache metadata for LRU eviction
+  {
+    name: 'cacheMetadata',
+    schema: 'key, type, size, lastAccessedAt, createdAt',
+    indexes: ['key', 'type', 'size', 'lastAccessedAt', 'createdAt'],
+  },
 ];
 
 /**
@@ -303,6 +319,9 @@ export class BuildItDB extends Dexie {
   groupEntityMessages!: Table<DBGroupEntityMessage, string>;
   coalitions!: Table<DBCoalition, string>;
   channels!: Table<DBChannel, string>;
+  // Epic 60: Offline queue and cache management
+  offlineQueue!: Table<DBOfflineQueueItem, string>;
+  cacheMetadata!: Table<DBCacheMetadata, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();
@@ -348,7 +367,7 @@ export class BuildItDB extends Dexie {
     for (const schemas of this.moduleSchemas.values()) {
       for (const table of schemas) {
         if (schemaMap[table.name]) {
-          console.warn(`Table ${table.name} conflicts with existing table`);
+          logger.warn(`Table ${table.name} conflicts with existing table`);
         } else {
           schemaMap[table.name] = table.schema;
         }
@@ -421,7 +440,7 @@ const schemaRegistry = new Map<string, TableSchema[]>();
 export function registerModuleSchema(moduleId: string, schema: TableSchema[]): void {
   if (_dbInstance) {
     // Database already initialized (probably due to HMR), skip registration
-    console.warn(`⚠️  DB already initialized, skipping schema registration for: $`);
+    logger.warn(`⚠️  DB already initialized, skipping schema registration for: $`);
     return;
   }
 
@@ -463,7 +482,7 @@ export const db = new Proxy({} as BuildItDB, {
 export async function initializeDatabase(): Promise<void> {
   // Prevent re-initialization (important for HMR)
   if (_dbInstance) {
-    console.warn('⚠️  Database already initialized, skipping...');
+    logger.warn('⚠️  Database already initialized, skipping...');
     return;
   }
 

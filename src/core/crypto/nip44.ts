@@ -1,4 +1,5 @@
 import * as nip44 from 'nostr-tools/nip44'
+import { logger } from '@/lib/logger'
 
 /**
  * SECURITY: Application-layer message padding for traffic analysis resistance
@@ -54,7 +55,7 @@ function removeRandomPadding(paddedText: string): string {
 
   if (isNaN(paddingLength) || paddingLength < 0 || paddingLength > 255) {
     // Invalid padding length - return original (corrupted?)
-    console.warn('Invalid padding length in message');
+    logger.warn('Invalid padding length in message');
     return paddedText;
   }
 

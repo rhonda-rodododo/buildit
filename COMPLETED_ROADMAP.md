@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2025-10-09 (Epic 48 completed - Files Module Completion)
+**Last Updated**: 2026-01-18 (Epics 49A, 50, 52, 53A, 63-69 completed - Roadmap cleanup)
 
 ---
 
@@ -60,6 +60,18 @@ Archive of completed epics. This document provides high-level summaries only.
 | 39 | v0.39.0 | ✅ | `v0.39.0-tor` | Tor Integration - Auto-detection, .onion relay support (11 relays), TorSettings UI, manual SOCKS5 proxy, enhanced security features, health monitoring, E2E tests |
 | 43 | v0.43.0 | ✅ | `v0.43.0-group-entity` | Group Entity & Coalition Features - Groups as collective identities, encrypted keypairs, "speak as group" toggle, coalitions, role-based channels, organizing templates |
 | 48 | v0.48.0 | ✅ | `v0.48.0-files-complete` | Files Module Completion - File preview (images, PDFs, videos, audio, text), file sharing with permissions, version history, copy operations |
+| 34.5 | v0.34.5 | ✅ | `v0.34.5-ui-fixes` | UI/UX Fixes - Markdown rendering in PostCard, emoji picker positioning, non-functional toolbar cleanup |
+| 49A | v0.49a.0 | ✅ | `v0.49a.0-crypto-payments` | Crypto Payment Integration (Client-Side) - Bitcoin & Ethereum HD wallets, transaction monitoring, QR codes, ERC-20 tokens |
+| 50 | v0.50.0 | ✅ | `v0.50.0-microblogging-complete` | Microblogging Enhancement - Following feed filter, post scheduling, date/author search, post pinning |
+| 52 | v0.52.0 | ✅ | `v0.52.0-publishing` | Long-Form Publishing Module - Articles with TipTap, publications, subscriber tiers, RSS feeds, SEO metadata |
+| 53A | v0.53a.0 | ✅ | `v0.53a.0-newsletters-nostr` | Newsletter Module (Nostr DMs) - NIP-17 delivery, subscriber management, delivery queue with retry logic |
+| 63 | v0.63.0 | ✅ | `v0.63.0-audit-bugfixes` | Critical Bug Fixes - Database type, mutual-aid visibility, member counts, RSVP buttons, event privacy, cross-device sync |
+| 64 | v0.64.0 | ✅ | `v0.64.0-member-management` | Member Management System - Invitation links, direct pubkey invites, role management, member removal |
+| 65 | v0.65.0 | ✅ | `v0.65.0-events-complete` | Events Module Completion - Relay sync, privacy enforcement, attendee list, event editing, calendar view |
+| 66 | v0.66.0 | ✅ | `v0.66.0-module-dependencies` | Module Dependency System - Dependency declaration, validation, UI warnings, cascading delete |
+| 67 | v0.67.0 | ✅ | `v0.67.0-ux-polish` | Visual UX Polish - Responsive tab overflow fixes, 44px touch targets, keyboard navigation, ARIA roles |
+| 68 | v0.68.0 | ✅ | `v0.68.0-e2e-tests` | E2E Test Suite Expansion - 54 new tests across auth, groups, events, microblogging, cross-module flows |
+| 69 | v0.69.0 | ✅ | `v0.69.0-shared-embeds` | Shared Embed Infrastructure - EmbedCard component, provider registry, click-to-load privacy, URL detection |
 
 ---
 
@@ -1773,5 +1785,113 @@ react-markdown bundle             ~60 KB    (loads when PostCard renders)
 - Runtime performance testing and Core Web Vitals measurement
 
 **Reference**: Bundle analysis in dist/stats.html, Performance summary in commit message
+
+---
+
+### Epic 34.5: UI/UX Fixes ✅
+**Tag**: `v0.34.5-ui-fixes` | **Commits**: `git log v0.34.0-social-core..v0.34.5-ui-fixes`
+
+Follow-up fixes to Epic 34 Social Features Core. Added markdown rendering to PostCard using react-markdown with remark-gfm and rehype-sanitize. Fixed emoji picker positioning and styling issues. Commented out non-functional toolbar buttons with TODO annotations.
+
+**Reference**: `src/modules/microblogging/components/PostCard.tsx`
+
+---
+
+### Epic 49A: Crypto Payment Integration (Client-Side) ✅
+**Tag**: `v0.49a.0-crypto-payments` | **Commits**: `git log v0.49a.0-crypto-payments`
+
+Full client-side cryptocurrency payment processing for fundraising campaigns. Bitcoin integration using bitcoinjs-lib with BIP32/BIP44 HD wallet address generation, QR code display, and Blockstream.info API polling for transaction confirmations. Ethereum integration using ethers.js with ERC-20 token support (USDC, DAI) and Etherscan API monitoring. Donation records stored in IndexedDB, encrypted Nostr publishing, CSV export. No backend infrastructure required.
+
+**Reference**: `src/modules/fundraising/cryptoPayments.ts`, `src/modules/fundraising/components/CryptoDonation/`
+
+---
+
+### Epic 50: Microblogging Enhancement ✅
+**Tag**: `v0.50.0-microblogging-complete` | **Commits**: `git log v0.50.0-microblogging-complete`
+
+Completed deferred features from Epic 40. Feed filtering with "Following" feed that integrates with friendsStore, "All" vs "Following" toggle. Post scheduling with schedule option in composer, scheduled posts stored in IndexedDB, edit/delete/publish scheduled posts, ScheduledPostsView component. Enhanced search with hashtag, date range, and author filters. Post pinning with pin/unpin actions.
+
+**Reference**: `src/modules/microblogging/postsStore.ts`, `src/modules/microblogging/types.ts`
+
+---
+
+### Epic 52: Long-Form Publishing Module ✅
+**Tag**: `v0.52.0-publishing` | **Commits**: `git log v0.52.0-publishing`
+
+Comprehensive publishing module for Substack/Ghost-style long-form content. Article editor reusing TipTap from Documents module with metadata editor (title, subtitle, cover image, tags), SEO controls, draft/publish/schedule workflow, preview mode, auto-save. Publication management with setup wizard, settings, theme customization. Public article pages with RSS feed generation, Open Graph and Twitter Cards. Subscriber management with free vs paid tiers, subscriber-only content, Nostr identity subscription.
+
+**Reference**: `src/modules/publishing/`, `src/modules/publishing/publishingStore.ts`
+
+---
+
+### Epic 53A: Newsletter Module (Nostr DMs) ✅
+**Tag**: `v0.53a.0-newsletters-nostr` | **Commits**: `git log v0.53a.0-newsletters-nostr`
+
+Newsletter module with delivery via NIP-17 encrypted Nostr DMs. Fully P2P, privacy-preserving, no email service required. Newsletter editor reusing TipTap with template system. Subscriber management with pubkey subscriptions, CSV import/export, preferences. Delivery system with batch NIP-17 DM sending, rate limiting for relay throttling, delivery queue with retry logic, status tracking via relay confirmations.
+
+**Reference**: `src/modules/newsletters/`, `src/modules/newsletters/newslettersStore.ts`
+
+---
+
+### Epic 63: Critical Bug Fixes from Product Audit ✅
+**Tag**: `v0.63.0-audit-bugfixes` | **Commits**: `git log v0.63.0-audit-bugfixes`
+
+Deep product audit identified and fixed critical bugs. Database module type corrected from `documents` to `database`. Mutual-aid route visibility fixed with `requiresEnabled: true`. Member count calculation uses actual groupMembers data. EventFeedCard RSVP buttons wired to actual functions. Event privacy enforcement added with `canViewEvent()` filtering by group membership. Cross-device event sync implemented with relay query. Module dependency validation added. RSVP capacity race condition fixed with Dexie transactions.
+
+**Reference**: `src/modules/database/index.ts`, `src/modules/mutual-aid/index.ts`, `src/modules/events/hooks/useEvents.ts`
+
+---
+
+### Epic 64: Member Management System ✅
+**Tag**: `v0.64.0-member-management` | **Commits**: `git log v0.64.0-member-management`
+
+Complete member management for multi-user groups. Invitation system with `DBGroupInvitation` table, `MemberInviteDialog` component, invite links with 1-90 day expiration, direct invite by pubkey with optional message. Pending invitations view integrated into `GroupMembersTab` with expiry countdown and revoke functionality. Role management UI with dropdown for admin/moderator/member/read-only, real-time updates via Dexie. Member removal with confirmation dialog. Group encryption key sharing deferred to future epic.
+
+**Reference**: `src/components/groups/MemberInviteDialog.tsx`, `src/components/groups/GroupMembersTab.tsx`
+
+---
+
+### Epic 65: Events Module Completion ✅
+**Tag**: `v0.65.0-events-complete` | **Commits**: `git log v0.65.0-events-complete`
+
+Completed events module for multi-user functionality. Relay sync with `syncEvents()` in eventManager, auto-sync on mount via useEvents hook. Privacy enforcement with `canViewEvent()` filtering by public/group/private/direct-action and group membership. Attendee list view with `AttendeeList.tsx` component showing collapsible groups by RSVP status, avatars, RSVP notes visible to creator only. Event editing with `EditEventDialog.tsx` pre-populating form. Calendar view tab connected to existing CalendarView. Event notifications deferred.
+
+**Reference**: `src/modules/events/hooks/useEvents.ts`, `src/modules/events/components/AttendeeList.tsx`, `src/modules/events/components/EditEventDialog.tsx`
+
+---
+
+### Epic 66: Module Dependency System ✅
+**Tag**: `v0.66.0-module-dependencies` | **Commits**: `git log v0.66.0-module-dependencies`
+
+Module dependency enforcement to prevent silent failures. Dependency declaration with `ModuleDependency` interface in `types/modules.ts` supporting required/optional dependencies and conflicts. Dependency validation in `moduleStore.ts` checking before `enableModule()`, throwing clear errors, checking dependents before `disableModule()`. UI warnings in `ModuleSettings.tsx` showing "Requires:" badge, disabling toggle until dependencies met. Cascading delete for groups removing all module data via Dexie transactions.
+
+**Reference**: `src/types/modules.ts`, `src/stores/moduleStore.ts`, `src/components/modules/ModuleSettings.tsx`
+
+---
+
+### Epic 67: Visual UX Polish & Responsive Fixes ✅
+**Tag**: `v0.67.0-ux-polish` | **Commits**: `git log v0.67.0-ux-polish`
+
+Visual audit fixes for responsive issues and design inconsistencies. Main navigation tab overflow fixed with icons, tooltips, responsive text, grid layout with 44px minimum touch targets. Security page tab overflow fixed with same pattern. Post card action buttons with icons-only on mobile, text on desktop. Module selection checkbox UX with entire card clickable, keyboard navigation, proper ARIA roles. Login form touch targets at 44px minimum with aria-describedby for errors. Settings consolidation and admin indicator deferred.
+
+**Reference**: `src/App.tsx`, `src/pages/settings/SecurityPage.tsx`, `src/components/groups/CreateGroupDialog.tsx`
+
+---
+
+### Epic 68: E2E Test Suite Expansion ✅
+**Tag**: `v0.68.0-e2e-tests` | **Commits**: `git log v0.68.0-e2e-tests`
+
+Comprehensive E2E test suite with 54 new tests across 5 priority areas. Authentication tests (8) covering identity creation, import, lock/unlock, password change, identity switching. Group management tests (11) for create, modules, member management, invite links. Events module tests (12) for RSVP, capacity, privacy, attendee list, editing, calendar. Microblogging tests (24) for posts, reactions, comments, scheduled posts, feed filtering. Cross-module integration tests (7) for navigation, deep linking, state persistence.
+
+**Reference**: `tests/e2e/auth.spec.ts`, `tests/e2e/groups.spec.ts`, `tests/e2e/events.spec.ts`, `tests/e2e/microblogging.spec.ts`
+
+---
+
+### Epic 69: Shared Embed Infrastructure ✅
+**Tag**: `v0.69.0-shared-embeds` | **Commits**: `git log v0.69.0-shared-embeds`
+
+Unified embed system for social media across modules with click-to-load privacy pattern. Shared embed types and provider registry in `src/lib/embed/` with EmbedProvider and EmbedData interfaces. Provider configs for YouTube, Vimeo, PeerTube, SoundCloud, Spotify, Mastodon, CodePen, CodeSandbox. Shared utilities for URL detection, domain extraction, provider matching. useEmbed hook for oEmbed proxy, click-to-load state. EmbedCard component with responsive, accessible design. URL detection in posts populating `links` array. PostCard renders EmbedCard for embeddable URLs. SecureEmbed refactored to use shared code.
+
+**Reference**: `src/lib/embed/`, `src/modules/microblogging/postsStore.ts`, `src/modules/microblogging/components/PostCard.tsx`
 
 ---

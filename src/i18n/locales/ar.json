@@ -228,6 +228,113 @@
           "description": "إدارة جهات الاتصال المجتمعية والأعمال المحلية"
         }
       }
+    },
+    "mediaCollective": {
+      "name": "تجمع إعلامي",
+      "description": "صحافة مجتمعية مع حوكمة ذاتية ديمقراطية. انشر المقالات وشاركها عبر الشبكات واتخذ القرارات معاً.",
+      "channels": {
+        "general": "عام",
+        "editorial": "التحرير",
+        "pitches": "مقترحات القصص",
+        "governance": "الحوكمة",
+        "announcements": "الإعلانات"
+      },
+      "roles": {
+        "editor": "محرر",
+        "writer": "كاتب",
+        "copyEditor": "مدقق لغوي",
+        "publisher": "ناشر",
+        "newsletterEditor": "محرر النشرة الإخبارية"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "غرفة أخبار مفتوحة",
+          "description": "قبول المقالات العامة من المجتمع"
+        },
+        "wireService": {
+          "name": "وضع خدمة الأخبار",
+          "description": "تجميع وإعادة نشر القصص من التجمعات الأخرى"
+        },
+        "events": {
+          "name": "الأحداث والمؤتمرات الصحفية",
+          "description": "تنظيم الأحداث الصحفية والاجتماعات المجتمعية وتنسيق التغطية"
+        },
+        "mutualAid": {
+          "name": "الموارد المجتمعية",
+          "description": "ربط القراء بالموارد المجتمعية والمساعدة المتبادلة"
+        },
+        "microblogging": {
+          "name": "تحديثات الأخبار العاجلة",
+          "description": "نشر تحديثات سريعة وأخبار عاجلة ومحتوى بأسلوب وسائل التواصل"
+        },
+        "fundraising": {
+          "name": "جمع التبرعات والعضوية",
+          "description": "قبول التبرعات وإدارة العضويات"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "تغيير السياسة التحريرية",
+        "description": "اقتراح تغييرات على الإرشادات أو المعايير أو السياسات التحريرية"
+      },
+      "coveragePriority": {
+        "title": "أولوية التغطية",
+        "description": "تحديد أو تغيير أولويات التغطية للتجمع"
+      },
+      "styleGuideUpdate": {
+        "title": "تحديث دليل الأسلوب",
+        "description": "اقتراح تحديثات لدليل أسلوب التجمع"
+      },
+      "newMemberApproval": {
+        "title": "الموافقة على عضو جديد",
+        "description": "التصويت على قبول عضو جديد في التجمع"
+      },
+      "roleAssignment": {
+        "title": "تعيين الدور",
+        "description": "تعيين عضو في دور محدد"
+      },
+      "electEditorialBoard": {
+        "title": "انتخاب هيئة التحرير",
+        "description": "انتخاب الأعضاء للعمل في هيئة التحرير"
+      },
+      "joinCoalition": {
+        "title": "الانضمام إلى تحالف",
+        "description": "التصويت على الانضمام إلى تحالف إعلامي إقليمي أو عالمي"
+      },
+      "leaveCoalition": {
+        "title": "مغادرة التحالف",
+        "description": "التصويت على مغادرة تحالف ينتمي إليه التجمع حالياً"
+      },
+      "partnershipAgreement": {
+        "title": "اتفاقية شراكة",
+        "description": "إنشاء شراكة مع منظمة أخرى"
+      },
+      "budgetAllocation": {
+        "title": "تخصيص الميزانية",
+        "description": "تخصيص أموال التجمع لأغراض محددة"
+      },
+      "contentDispute": {
+        "title": "حل نزاع المحتوى",
+        "description": "حل النزاعات حول المحتوى المنشور أو المعلق"
+      },
+      "retractionRequest": {
+        "title": "سحب أو تصحيح",
+        "description": "التصويت على سحب أو تصحيح المحتوى المنشور"
+      },
+      "syndicationApproval": {
+        "title": "الموافقة على المشاركة",
+        "description": "الموافقة على مشاركة مقال معين مع تحالف أو أكثر"
+      }
+    },
+    "categories": {
+      "editorial": "الحوكمة التحريرية",
+      "membership": "العضوية والأدوار",
+      "operations": "العمليات والمالية",
+      "content": "قرارات المحتوى",
+      "coalition": "عضوية التحالف"
     }
   }
 }

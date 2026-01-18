@@ -11,6 +11,7 @@ import { MUTUAL_AID_NETWORK_TEMPLATE } from './mutualAidNetwork';
 import { UNION_CHAPTER_TEMPLATE } from './unionChapter';
 import { ACTIVIST_COLLECTIVE_TEMPLATE } from './activistCollective';
 import { COMMUNITY_HUB_TEMPLATE } from './communityHub';
+import { MEDIA_COLLECTIVE_TEMPLATE } from './mediaCollective';
 
 // Re-export individual templates
 export { SIMPLE_GROUP_TEMPLATE } from './simpleGroup';
@@ -18,6 +19,7 @@ export { MUTUAL_AID_NETWORK_TEMPLATE } from './mutualAidNetwork';
 export { UNION_CHAPTER_TEMPLATE } from './unionChapter';
 export { ACTIVIST_COLLECTIVE_TEMPLATE } from './activistCollective';
 export { COMMUNITY_HUB_TEMPLATE } from './communityHub';
+export { MEDIA_COLLECTIVE_TEMPLATE } from './mediaCollective';
 
 /**
  * All built-in templates, ordered by complexity
@@ -28,6 +30,7 @@ export const BUILTIN_TEMPLATES: GroupTemplate[] = [
   COMMUNITY_HUB_TEMPLATE,       // Complexity: 3
   ACTIVIST_COLLECTIVE_TEMPLATE, // Complexity: 3
   UNION_CHAPTER_TEMPLATE,       // Complexity: 4
+  MEDIA_COLLECTIVE_TEMPLATE,    // Complexity: 5
 ];
 
 /**
@@ -37,7 +40,7 @@ export const TEMPLATES_BY_CATEGORY: Record<TemplateCategory, GroupTemplate[]> = 
   community: [SIMPLE_GROUP_TEMPLATE, COMMUNITY_HUB_TEMPLATE],
   'mutual-aid': [MUTUAL_AID_NETWORK_TEMPLATE],
   organizing: [UNION_CHAPTER_TEMPLATE],
-  civic: [ACTIVIST_COLLECTIVE_TEMPLATE],
+  civic: [ACTIVIST_COLLECTIVE_TEMPLATE, MEDIA_COLLECTIVE_TEMPLATE],
   governance: [], // Could add dedicated governance templates later
 };
 

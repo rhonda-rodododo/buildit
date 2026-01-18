@@ -1,7 +1,7 @@
 /**
  * Files Page
  * Main file manager interface with upload, folders, and preview
- * Epic 57: Enhanced with advanced search filters and bulk operations
+ * Epic 57: Enhanced with advanced search filters, bulk operations, analytics, and content search
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
@@ -23,6 +23,11 @@ import {
   Download,
   Trash2,
   FolderInput,
+  Share2,
+  BarChart3,
+  Clock,
+  Star,
+  BookmarkPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,15 +55,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useFilesStore } from '../filesStore'
 import { fileManager } from '../fileManager'
+import { fileAnalytics } from '../fileAnalytics'
 import { FileUploadZone } from './FileUploadZone'
 import { FolderBrowser } from './FolderBrowser'
 import { FileList } from './FileList'
 import { CreateFolderDialog } from './CreateFolderDialog'
 import { MoveFolderDialog } from './MoveFolderDialog'
-import type { FileType } from '../types'
+import { FileAnalyticsDashboard } from './FileAnalyticsDashboard'
+import { BulkShareDialog } from './BulkShareDialog'
+import type { FileType, SavedSearchFilter, RecentSearch } from '../types'
 
 type ViewMode = 'grid' | 'list'
 type SizeFilter = 'all' | 'small' | 'medium' | 'large'
@@ -89,6 +112,16 @@ export function FilesPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showMoveDialog, setShowMoveDialog] = useState(false)
   const [bulkOperationInProgress, setBulkOperationInProgress] = useState(false)
+
+  // Epic 57: Analytics & Search state
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showBulkShare, setShowBulkShare] = useState(false)
+  const [savedFilters, setSavedFilters] = useState<SavedSearchFilter[]>([])
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([])
+  const [showSaveFilterDialog, setShowSaveFilterDialog] = useState(false)
+  const [filterName, setFilterName] = useState('')
+  const [contentSearchResults, setContentSearchResults] = useState<Set<string> | null>(null)
+  const [isContentSearching, setIsContentSearching] = useState(false)
 
   const currentFolderId = useFilesStore((state) => state.currentFolderId)
   const files = useFilesStore((state) => state.getGroupFiles(groupId, currentFolderId))
@@ -219,14 +252,103 @@ export function FilesPage() {
     if (!quota) {
       fileManager.initializeStorageQuota(groupId, 1024 * 1024 * 1024) // 1GB default
     }
+
+    // Load saved filters and recent searches
+    const loadSearchData = async () => {
+      const filters = await fileAnalytics.getSavedFilters(groupId)
+      const searches = await fileAnalytics.getRecentSearches(groupId)
+      setSavedFilters(filters)
+      setRecentSearches(searches)
+    }
+    loadSearchData()
   }, [groupId, quota])
+
+  // Epic 57: Full-text content search
+  const handleContentSearch = useCallback(async () => {
+    if (!searchQuery.trim()) {
+      setContentSearchResults(null)
+      return
+    }
+
+    setIsContentSearching(true)
+    try {
+      const results = await fileAnalytics.searchFileContents(groupId, searchQuery)
+      setContentSearchResults(new Set(results))
+
+      // Record recent search
+      await fileAnalytics.addRecentSearch(groupId, searchQuery)
+      const searches = await fileAnalytics.getRecentSearches(groupId)
+      setRecentSearches(searches)
+    } catch (err) {
+      console.error('Content search failed:', err)
+    } finally {
+      setIsContentSearching(false)
+    }
+  }, [groupId, searchQuery])
+
+  // Epic 57: Save current filter
+  const handleSaveFilter = async () => {
+    if (!filterName.trim()) return
+
+    try {
+      await fileAnalytics.saveSearchFilter({
+        name: filterName,
+        groupId,
+        query: searchQuery || undefined,
+        type: filters.type !== 'all' ? filters.type : undefined,
+        size: filters.size !== 'all' ? filters.size : undefined,
+        date: filters.date !== 'all' ? filters.date : undefined,
+      })
+
+      const updatedFilters = await fileAnalytics.getSavedFilters(groupId)
+      setSavedFilters(updatedFilters)
+      setShowSaveFilterDialog(false)
+      setFilterName('')
+    } catch (err) {
+      console.error('Failed to save filter:', err)
+    }
+  }
+
+  // Epic 57: Apply saved filter
+  const applySavedFilter = (filter: SavedSearchFilter) => {
+    if (filter.query) setSearchQuery(filter.query)
+    setFilters({
+      type: (filter.type as FileType | 'all') || 'all',
+      size: filter.size || 'all',
+      date: filter.date || 'all',
+    })
+    setShowFilters(false)
+  }
+
+  // Epic 57: Delete saved filter
+  const handleDeleteSavedFilter = async (filterId: string) => {
+    await fileAnalytics.deleteSavedFilter(filterId)
+    const updatedFilters = await fileAnalytics.getSavedFilters(groupId)
+    setSavedFilters(updatedFilters)
+  }
+
+  // Epic 57: Apply recent search
+  const applyRecentSearch = (search: RecentSearch) => {
+    setSearchQuery(search.query)
+  }
+
+  // Epic 57: Clear recent searches
+  const handleClearRecentSearches = async () => {
+    await fileAnalytics.clearRecentSearches(groupId)
+    setRecentSearches([])
+  }
 
   // Filter files by search query and filters
   const filteredFiles = useMemo(() => {
     return files.filter((file) => {
-      // Search query filter
+      // Search query filter (name search)
       if (searchQuery && !file.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false
+        // Also check if file is in content search results
+        if (contentSearchResults && !contentSearchResults.has(file.id)) {
+          return false
+        } else if (!contentSearchResults) {
+          return false
+        }
       }
 
       // Type filter
@@ -307,6 +429,15 @@ export function FilesPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            {/* Epic 57: Analytics button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAnalytics(true)}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Analytics
+            </Button>
             {/* Epic 57: Selection mode toggle */}
             <Button
               variant={selectionMode ? 'secondary' : 'outline'}
@@ -377,6 +508,16 @@ export function FilesPage() {
                   <FolderInput className="mr-2 h-4 w-4" />
                   Move
                 </Button>
+                {/* Epic 57: Bulk share */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBulkShare(true)}
+                  disabled={bulkOperationInProgress}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -397,12 +538,103 @@ export function FilesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search files..."
+              placeholder="Search files by name or content..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setContentSearchResults(null) // Reset content search when query changes
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleContentSearch()
+              }}
+              className="pl-9 pr-20"
             />
+            {/* Epic 57: Content search button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 text-xs"
+              onClick={handleContentSearch}
+              disabled={isContentSearching}
+            >
+              {isContentSearching ? 'Searching...' : 'Search Contents'}
+            </Button>
           </div>
+
+          {/* Epic 57: Recent searches dropdown */}
+          {recentSearches.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Clock className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="flex items-center justify-between px-2 py-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Recent Searches</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs"
+                    onClick={handleClearRecentSearches}
+                  >
+                    Clear
+                  </Button>
+                </div>
+                <DropdownMenuSeparator />
+                {recentSearches.slice(0, 5).map((search) => (
+                  <DropdownMenuItem
+                    key={search.id}
+                    onClick={() => applyRecentSearch(search)}
+                  >
+                    <Clock className="h-3 w-3 mr-2 text-muted-foreground" />
+                    {search.query}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {/* Epic 57: Saved filters dropdown */}
+          {savedFilters.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Star className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-2 py-1.5">
+                  <span className="text-xs font-medium text-muted-foreground">Saved Filters</span>
+                </div>
+                <DropdownMenuSeparator />
+                {savedFilters.map((filter) => (
+                  <DropdownMenuItem
+                    key={filter.id}
+                    className="flex items-center justify-between"
+                  >
+                    <span
+                      onClick={() => applySavedFilter(filter)}
+                      className="flex-1 cursor-pointer"
+                    >
+                      {filter.name}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteSavedFilter(filter.id)
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Filter popover */}
           <Popover open={showFilters} onOpenChange={setShowFilters}>
@@ -527,6 +759,22 @@ export function FilesPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Epic 57: Save filter button */}
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={() => {
+                      setShowFilters(false)
+                      setShowSaveFilterDialog(true)
+                    }}
+                  >
+                    <BookmarkPlus className="h-4 w-4 mr-2" />
+                    Save Filter
+                  </Button>
+                )}
               </div>
             </PopoverContent>
           </Popover>
@@ -577,6 +825,15 @@ export function FilesPage() {
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setFilters((f) => ({ ...f, date: 'all' }))}
+                />
+              </Badge>
+            )}
+            {contentSearchResults && (
+              <Badge variant="secondary" className="gap-1">
+                Content matches: {contentSearchResults.size}
+                <X
+                  className="h-3 w-3 cursor-pointer"
+                  onClick={() => setContentSearchResults(null)}
                 />
               </Badge>
             )}
@@ -649,6 +906,63 @@ export function FilesPage() {
           onClose={() => setShowMoveDialog(false)}
         />
       )}
+
+      {/* Epic 57: Analytics dashboard */}
+      {showAnalytics && (
+        <FileAnalyticsDashboard
+          groupId={groupId}
+          onClose={() => setShowAnalytics(false)}
+        />
+      )}
+
+      {/* Epic 57: Bulk share dialog */}
+      {showBulkShare && (
+        <BulkShareDialog
+          fileIds={Array.from(selectedFiles)}
+          groupId={groupId}
+          onClose={() => setShowBulkShare(false)}
+          onComplete={() => {
+            setSelectedFiles(new Set())
+            setSelectionMode(false)
+          }}
+        />
+      )}
+
+      {/* Epic 57: Save filter dialog */}
+      <Dialog open={showSaveFilterDialog} onOpenChange={setShowSaveFilterDialog}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Save Search Filter</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="filter-name">Filter Name</Label>
+            <Input
+              id="filter-name"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              placeholder="e.g., 'Large videos this month'"
+              className="mt-2"
+            />
+            <div className="mt-4 text-sm text-muted-foreground">
+              <p>This filter will save:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                {searchQuery && <li>Search: "{searchQuery}"</li>}
+                {filters.type !== 'all' && <li>Type: {filters.type}</li>}
+                {filters.size !== 'all' && <li>Size: {filters.size}</li>}
+                {filters.date !== 'all' && <li>Modified: {filters.date}</li>}
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveFilterDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveFilter} disabled={!filterName.trim()}>
+              Save Filter
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

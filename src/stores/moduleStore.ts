@@ -87,7 +87,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
 
         // Check if already registered
         if (get().registry.has(metadata.id)) {
-          console.warn(`Module ${metadata.id} is already registered`);
+          logger.warn(`Module ${metadata.id} is already registered`);
           return;
         }
 
@@ -114,7 +114,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
       unregisterModule: async (moduleId: string) => {
         const entry = get().registry.get(moduleId);
         if (!entry) {
-          console.warn(`Module ${moduleId} is not registered`);
+          logger.warn(`Module ${moduleId} is not registered`);
           return;
         }
 
@@ -283,7 +283,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
               try {
                 await regEntry.plugin.lifecycle.onDependencyEnabled(groupId, moduleId, finalConfig);
               } catch (err) {
-                console.warn(`Failed to notify ${otherModuleId} of dependency enabled:`, err);
+                logger.warn(`Failed to notify ${otherModuleId} of dependency enabled:`, err);
               }
             }
           }
@@ -301,7 +301,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
                     enhancerInstance.config
                   );
                 } catch (err) {
-                  console.warn(`Failed to notify ${moduleId} of enhancement by ${enhancerId}:`, err);
+                  logger.warn(`Failed to notify ${moduleId} of enhancement by ${enhancerId}:`, err);
                 }
               }
             }
@@ -327,7 +327,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
       disableModule: async (groupId: string, moduleId: string) => {
         const entry = get().registry.get(moduleId);
         if (!entry) {
-          console.warn(`Module ${moduleId} is not registered`);
+          logger.warn(`Module ${moduleId} is not registered`);
           return;
         }
 
@@ -335,7 +335,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         const instance = get().instances.get(key);
 
         if (!instance) {
-          console.warn(`Module ${moduleId} is not enabled for group ${groupId}`);
+          logger.warn(`Module ${moduleId} is not enabled for group ${groupId}`);
           return;
         }
 
@@ -377,7 +377,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
             try {
               await regEntry.plugin.lifecycle.onDependencyDisabled(groupId, moduleId);
             } catch (err) {
-              console.warn(`Failed to notify ${otherModuleId} of dependency disabled:`, err);
+              logger.warn(`Failed to notify ${otherModuleId} of dependency disabled:`, err);
             }
           }
         }

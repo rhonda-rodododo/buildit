@@ -135,17 +135,86 @@ export interface CreateShareInput {
 
 export interface BulkFileOperation {
   fileIds: string[]
-  operation: 'move' | 'copy' | 'delete' | 'tag'
+  operation: 'move' | 'copy' | 'delete' | 'tag' | 'share'
   targetFolderId?: string
   tags?: string[]
 }
 
 // Preview types
 export interface FilePreview {
-  type: 'image' | 'pdf' | 'text' | 'video' | 'audio' | 'code' | 'none'
+  type: 'image' | 'pdf' | 'text' | 'video' | 'audio' | 'code' | 'office' | 'archive' | '3d' | 'none'
   url?: string // Object URL for preview
   content?: string // Text content
   language?: string // For code syntax highlighting
+  // Epic 57: Archive preview
+  archiveContents?: ArchiveEntry[]
+  // Epic 57: 3D model preview
+  modelData?: Uint8Array
+}
+
+// Epic 57: Archive entry for preview
+export interface ArchiveEntry {
+  name: string
+  path: string
+  size: number
+  isDirectory: boolean
+  modifiedAt?: Date
+}
+
+// Epic 57: Saved search filter
+export interface SavedSearchFilter {
+  id: string
+  name: string
+  groupId: string
+  query?: string
+  type?: FileType | 'all'
+  size?: 'all' | 'small' | 'medium' | 'large'
+  date?: 'all' | 'today' | 'week' | 'month' | 'year'
+  createdAt: number
+}
+
+// Epic 57: Recent search
+export interface RecentSearch {
+  id: string
+  groupId: string
+  query: string
+  timestamp: number
+}
+
+// Epic 57: File analytics
+export interface FileAnalytics {
+  groupId: string
+  totalFiles: number
+  totalSize: number
+  storageByType: Record<FileType, { count: number; size: number }>
+  mostAccessedFiles: { fileId: string; accessCount: number }[]
+  sharedFilesCount: number
+  recentActivity: FileActivityLog[]
+  duplicates: DuplicateFileGroup[]
+}
+
+// Epic 57: File activity log entry
+export interface FileActivityLog {
+  id: string
+  groupId: string
+  fileId: string
+  fileName: string
+  action: 'upload' | 'download' | 'share' | 'delete' | 'move' | 'rename' | 'view'
+  userPubkey: string
+  timestamp: number
+  metadata?: Record<string, unknown>
+}
+
+// Epic 57: Duplicate file group
+export interface DuplicateFileGroup {
+  hash: string
+  files: {
+    id: string
+    name: string
+    path: string
+    size: number
+    createdAt: number
+  }[]
 }
 
 /**

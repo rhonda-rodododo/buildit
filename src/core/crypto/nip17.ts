@@ -2,6 +2,7 @@ import { finalizeEvent, generateSecretKey, verifyEvent } from 'nostr-tools'
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from './nip44'
 import { z } from 'zod'
 import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
+import { logger } from '@/lib/logger'
 
 /**
  * SECURITY: Zod schemas for validating decrypted NIP-17 content
@@ -254,7 +255,7 @@ export function unwrapGiftWrap(
   try {
     sealVerified = verifyEvent(seal)
   } catch (error) {
-    console.warn('Seal signature verification failed:', error)
+    logger.warn('Seal signature verification failed:', error)
     sealVerified = false
   }
 

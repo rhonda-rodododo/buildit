@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { useAuthStore } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
+import { secureRandomString } from '@/lib/utils';
 import type {
   Post,
   Reaction,
@@ -132,7 +133,7 @@ export const usePostsStore = create<PostsState>()(
         const links = extractedUrls.map((u) => u.url);
 
         const newPost: Post = {
-          id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `post-${Date.now()}-${secureRandomString(9)}`,
           authorId: currentIdentity?.publicKey || '',
           content: input.content,
           contentType: input.contentType || 'text',
@@ -360,7 +361,7 @@ export const usePostsStore = create<PostsState>()(
         const hasExistingReaction = existingReaction !== undefined;
 
         const newReaction: Reaction = {
-          id: `reaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `reaction-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
           type,
@@ -462,7 +463,7 @@ export const usePostsStore = create<PostsState>()(
           : undefined;
 
         const newComment: Comment = {
-          id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `comment-${Date.now()}-${secureRandomString(9)}`,
           postId,
           authorId,
           content,
@@ -521,7 +522,7 @@ export const usePostsStore = create<PostsState>()(
       repost: async (postId: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
-          id: `repost-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `repost-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
           isQuote: false,
@@ -561,7 +562,7 @@ export const usePostsStore = create<PostsState>()(
       quotePost: async (postId: string, content: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
-          id: `repost-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `repost-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
           isQuote: true,
@@ -616,7 +617,7 @@ export const usePostsStore = create<PostsState>()(
       bookmarkPost: async (postId: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newBookmark: Bookmark = {
-          id: `bookmark-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `bookmark-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
           createdAt: Date.now(),
@@ -738,7 +739,7 @@ export const usePostsStore = create<PostsState>()(
       schedulePost: async (input: CreatePostInput, scheduledFor: number): Promise<ScheduledPost> => {
         const currentIdentity = useAuthStore.getState().currentIdentity;
         const scheduledPost: ScheduledPost = {
-          id: `scheduled-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `scheduled-${Date.now()}-${secureRandomString(9)}`,
           authorId: currentIdentity?.publicKey || '',
           content: input.content,
           contentType: input.contentType || 'text',

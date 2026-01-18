@@ -44,7 +44,7 @@ export function startGroupSync(groupId: string): void {
   const { currentIdentity } = useAuthStore.getState();
 
   if (!currentIdentity) {
-    console.warn('Cannot sync: no identity');
+    logger.warn('Cannot sync: no identity');
     return;
   }
 
@@ -112,7 +112,7 @@ async function processNostrEvent(event: NostrEvent, groupId: string): Promise<vo
       await syncDatabaseRecord(event, groupId);
       break;
     default:
-      console.warn(`Unknown event kind: ${event.kind}`);
+      logger.warn(`Unknown event kind: ${event.kind}`);
   }
 }
 
@@ -365,7 +365,7 @@ export async function startAllGroupsSync(): Promise<void> {
   const { currentIdentity } = useAuthStore.getState();
 
   if (!currentIdentity) {
-    console.warn('Cannot sync: no identity');
+    logger.warn('Cannot sync: no identity');
     return;
   }
 
@@ -409,13 +409,13 @@ export function startMessageSync(): void {
   const { currentIdentity } = useAuthStore.getState();
 
   if (!currentIdentity) {
-    console.warn('Cannot start message sync: no identity');
+    logger.warn('Cannot start message sync: no identity');
     return;
   }
 
   // Check if app is unlocked
   if (!getCurrentPrivateKey()) {
-    console.warn('Cannot start message sync: app is locked');
+    logger.warn('Cannot start message sync: app is locked');
     return;
   }
 
@@ -436,12 +436,12 @@ export async function fetchHistoricalMessages(since?: number): Promise<number> {
   const { currentIdentity } = useAuthStore.getState();
 
   if (!currentIdentity) {
-    console.warn('Cannot fetch messages: no identity');
+    logger.warn('Cannot fetch messages: no identity');
     return 0;
   }
 
   if (!getCurrentPrivateKey()) {
-    console.warn('Cannot fetch messages: app is locked');
+    logger.warn('Cannot fetch messages: app is locked');
     return 0;
   }
 

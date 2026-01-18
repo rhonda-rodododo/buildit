@@ -3,6 +3,7 @@ import { createPrivateDM, unwrapGiftWrap } from '@/core/crypto/nip17'
 import { verifyEventSignature } from '@/core/nostr/nip01'
 import { NostrClient } from '@/core/nostr/client'
 import type { GiftWrap } from '@/types/nostr'
+import { logger } from '@/lib/logger'
 
 export interface DirectMessage {
   id: string
@@ -52,7 +53,7 @@ export async function receiveDirectMessage(
   try {
     // SECURITY: Verify gift wrap signature before processing
     if (!verifyEventSignature(giftWrap as unknown as NostrEvent)) {
-      console.warn('Gift wrap signature verification failed')
+      logger.warn('Gift wrap signature verification failed')
       return null
     }
 
@@ -62,7 +63,7 @@ export async function receiveDirectMessage(
 
     // SECURITY: Reject messages with invalid seal signatures
     if (!sealVerified) {
-      console.warn('Seal signature verification failed, cannot trust sender identity')
+      logger.warn('Seal signature verification failed, cannot trust sender identity')
       return null
     }
 

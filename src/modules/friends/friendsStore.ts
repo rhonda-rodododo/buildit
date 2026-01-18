@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { useAuthStore } from '@/stores/authStore';
 import { db } from '@/core/storage/db';
+import { secureRandomString } from '@/lib/utils';
 import type {
   DBFriend,
   FriendRequest,
@@ -85,7 +86,7 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Create friend request
         const request: FriendRequest = {
-          id: `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `req-${Date.now()}-${secureRandomString(9)}`,
           fromPubkey: currentIdentity.publicKey,
           toPubkey: friendPubkey,
           message,
@@ -120,7 +121,7 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Create friend relationship for both users
         const friend1: DBFriend = {
-          id: `friend-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `friend-${Date.now()}-${secureRandomString(9)}`,
           userPubkey: currentIdentity.publicKey,
           friendPubkey: request.fromPubkey,
           username: request.fromUsername,
@@ -140,7 +141,7 @@ export const useFriendsStore = create<FriendsState>()(
         };
 
         const friend2: DBFriend = {
-          id: `friend-${Date.now()}-${Math.random().toString(36).substr(2, 9) + '2'}`,
+          id: `friend-${Date.now()}-${secureRandomString(9)}2`,
           userPubkey: request.fromPubkey,
           friendPubkey: currentIdentity.publicKey,
           status: 'accepted',
@@ -344,9 +345,9 @@ export const useFriendsStore = create<FriendsState>()(
         if (!currentIdentity) throw new Error('Not authenticated');
 
         const link: FriendInviteLink = {
-          id: `invite-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `invite-${Date.now()}-${secureRandomString(9)}`,
           creatorPubkey: currentIdentity.publicKey,
-          code: Math.random().toString(36).substr(2, 8).toUpperCase(),
+          code: secureRandomString(8).toUpperCase(),
           expiresAt,
           maxUses,
           currentUses: 0,

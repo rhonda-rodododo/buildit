@@ -105,27 +105,27 @@ class MessageReceiverService {
     // SECURITY: Verify the gift wrap event signature first
     // This ensures the event wasn't tampered with in transit
     if (!verifyEventSignature(event)) {
-      console.warn('Gift wrap signature verification failed, rejecting event:', event.id);
+      logger.warn('Gift wrap signature verification failed, rejecting event:', event.id);
       return;
     }
 
     // Verify this is addressed to us
     if (!this.userPubkey) {
-      console.warn('No user pubkey set, ignoring gift wrap');
+      logger.warn('No user pubkey set, ignoring gift wrap');
       return;
     }
 
     const giftWrap = event as unknown as GiftWrap;
 
     if (!isGiftWrapForRecipient(giftWrap, this.userPubkey)) {
-      console.warn('Gift wrap not addressed to current user, ignoring');
+      logger.warn('Gift wrap not addressed to current user, ignoring');
       return;
     }
 
     // Get private key for decryption
     const privateKey = getCurrentPrivateKey();
     if (!privateKey) {
-      console.warn('App is locked, cannot decrypt incoming message');
+      logger.warn('App is locked, cannot decrypt incoming message');
       // TODO: Queue for later decryption when unlocked
       return;
     }
@@ -137,7 +137,7 @@ class MessageReceiverService {
       // SECURITY: Reject messages with invalid seal signatures
       // The seal signature proves the sender's identity
       if (!unwrapped.sealVerified) {
-        console.warn('Seal signature verification failed, rejecting message:', event.id);
+        logger.warn('Seal signature verification failed, rejecting message:', event.id);
         return;
       }
 
@@ -172,7 +172,7 @@ class MessageReceiverService {
     const recipientPubkey = recipientTag?.[1];
 
     if (!recipientPubkey || recipientPubkey !== this.userPubkey) {
-      console.warn('Message not addressed to current user');
+      logger.warn('Message not addressed to current user');
       return;
     }
 
@@ -190,7 +190,7 @@ class MessageReceiverService {
     if (!conversationId) {
       // No conversation ID in tags, try to find existing DM or create new one
       // We now have the verified sender pubkey from the seal
-      console.warn('No conversation ID in message tags, sender:', senderPubkey.slice(0, 8));
+      logger.warn('No conversation ID in message tags, sender:', senderPubkey.slice(0, 8));
       return;
     }
 
@@ -264,7 +264,7 @@ class MessageReceiverService {
   async fetchHistory(userPubkey: string, since?: number): Promise<number> {
     const privateKey = getCurrentPrivateKey();
     if (!privateKey) {
-      console.warn('App is locked, cannot fetch history');
+      logger.warn('App is locked, cannot fetch history');
       return 0;
     }
 

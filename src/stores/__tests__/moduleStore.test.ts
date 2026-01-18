@@ -14,6 +14,22 @@ vi.mock('@/core/storage/db', () => ({
   },
 }));
 
+// Mock logger using vi.hoisted for proper hoisting
+const { mockLoggerWarn, mockLogger } = vi.hoisted(() => {
+  const mockLoggerWarn = vi.fn();
+  const mockLogger = {
+    info: vi.fn(),
+    warn: mockLoggerWarn,
+    error: vi.fn(),
+    debug: vi.fn(),
+  };
+  return { mockLoggerWarn, mockLogger };
+});
+
+vi.mock('@/lib/logger', () => ({
+  logger: mockLogger,
+}));
+
 describe('moduleStore', () => {
   const mockModule: ModulePlugin = {
     metadata: {
@@ -54,14 +70,13 @@ describe('moduleStore', () => {
     });
 
     it('should warn when registering duplicate module', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockLoggerWarn.mockClear();
       const { registerModule } = useModuleStore.getState();
 
       await registerModule(mockModule);
       await registerModule(mockModule);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Module test-module is already registered');
-      consoleSpy.mockRestore();
+      expect(mockLoggerWarn).toHaveBeenCalledWith('Module test-module is already registered');
     });
 
     it('should call onRegister lifecycle hook', async () => {

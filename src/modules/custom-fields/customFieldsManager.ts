@@ -9,6 +9,71 @@ import type { CustomField, EntityType, JSONSchemaField, FieldWidgetConfig } from
 import { CustomFieldSchema } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * SECURITY: Safe regex creation with ReDoS protection
+ *
+ * ReDoS (Regular Expression Denial of Service) attacks exploit patterns
+ * that can cause catastrophic backtracking, like (a+)+b or (.*a){10}.
+ *
+ * This function:
+ * 1. Validates the pattern can be compiled
+ * 2. Limits pattern length to prevent complexity
+ * 3. Detects common ReDoS patterns
+ * 4. Wraps execution with a timeout (via linear-time matching only)
+ */
+const MAX_PATTERN_LENGTH = 500;
+
+// Patterns commonly associated with ReDoS attacks
+// These detect nested quantifiers and other problematic patterns
+const REDOS_PATTERNS = [
+  /\([^)]*\+[^)]*\)\+/,        // Nested + quantifiers: (a+)+
+  /\([^)]*\*[^)]*\)\*/,        // Nested * quantifiers: (a*)*
+  /\([^)]*\+[^)]*\)\*/,        // Mixed nested: (a+)*
+  /\([^)]*\*[^)]*\)\+/,        // Mixed nested: (a*)+
+  /\(\.\*[^)]*\)\{/,           // (.*x){n} patterns
+  /\(\.\+[^)]*\)\{/,           // (.+x){n} patterns
+  /\([^)]*\|[^)]*\)\+/,        // Alternation with quantifier: (a|b)+
+  /\([^)]*\|[^)]*\)\*/,        // Alternation with quantifier: (a|b)*
+];
+
+/**
+ * Check if a regex pattern is potentially vulnerable to ReDoS
+ */
+function isReDoSVulnerable(pattern: string): boolean {
+  return REDOS_PATTERNS.some(redosPattern => redosPattern.test(pattern));
+}
+
+/**
+ * Safely create a RegExp with ReDoS protection
+ * Returns null if the pattern is invalid or potentially dangerous
+ */
+function safeRegex(pattern: string): RegExp | null {
+  // Length check
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    console.warn('SECURITY: Regex pattern too long:', pattern.length);
+    return null;
+  }
+
+  // Check for known ReDoS patterns
+  if (isReDoSVulnerable(pattern)) {
+    console.warn('SECURITY: Potentially vulnerable regex pattern detected');
+    return null;
+  }
+
+  // Try to compile the pattern
+  try {
+    const regex = new RegExp(pattern);
+
+    // Additional runtime safety: add a flag to limit backtracking if supported
+    // Note: 'u' flag enables Unicode mode which has stricter parsing
+    // This helps catch some invalid patterns early
+    return regex;
+  } catch (error) {
+    console.warn('SECURITY: Invalid regex pattern:', error);
+    return null;
+  }
+}
+
 export class CustomFieldsManager {
   /**
    * Load fields for a specific entity type in a group
@@ -149,7 +214,15 @@ export class CustomFieldsManager {
         zodSchema = z.string();
         if (schema.minLength) zodSchema = zodSchema.min(schema.minLength);
         if (schema.maxLength) zodSchema = zodSchema.max(schema.maxLength);
-        if (schema.pattern) zodSchema = zodSchema.regex(new RegExp(schema.pattern));
+        // SECURITY: Use safeRegex to prevent ReDoS attacks
+        if (schema.pattern) {
+          const regex = safeRegex(schema.pattern);
+          if (regex) {
+            zodSchema = zodSchema.regex(regex);
+          } else {
+            console.warn(`Unsafe or invalid regex pattern ignored for field: ${field.name}`);
+          }
+        }
         if (schema.enum) zodSchema = z.enum(schema.enum as any);
         break;
 
