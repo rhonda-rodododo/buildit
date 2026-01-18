@@ -84,27 +84,66 @@ Deep multi-agent audit of BuildIt Network covering group management, events modu
 
 ## Part 3: UX/Design Issues
 
-### Identified via Code Review (Needs Visual Verification)
+### Identified via Code Review + Visual Audit
 
-1. **Security page tabs overflow** - `grid-cols-6` on SecurityPage.tsx:130 will overflow mobile
-2. **Post card action buttons cramped** - 5 buttons with `flex-1` on narrow screens
-3. **Password toggle touch targets** - Only 16px (h-4 w-4), should be 44px minimum
-4. **Module selection checkbox confusing** - `pointer-events-none` with `readOnly`
-5. **Two settings interfaces** - Dialog-based and page-based, inconsistent
-6. **No admin indicator** - Settings visible but permission errors on use
+#### HIGH Priority
+| Issue | Location | Fix |
+|-------|----------|-----|
+| **Main navigation tabs overflow** | `src/App.tsx` - 6 tabs with `min-w-fit` overflow on 375px | Use bottom nav or horizontal scroll with better UX |
+| **Security page tabs overflow** | `src/pages/settings/SecurityPage.tsx:130` - `grid-cols-6` | Use `flex overflow-x-auto` or collapse on mobile |
+| **PostCard action buttons cramped** | `src/modules/microblogging/components/PostCard.tsx` - 5 buttons with `flex-1` | Stack vertically or use icons-only on mobile |
 
-### Visual Review Tasks (Requires Playwright Execution)
+#### MEDIUM Priority
+| Issue | Location | Fix |
+|-------|----------|-----|
+| **Touch target sizes** | Multiple files | Audit all buttons for 44x44px minimum, add `p-2` or `min-w-[44px]` |
+| **Form error associations** | `src/components/auth/LoginForm.tsx` | Add `aria-describedby` for error messages |
+| **Module selection cards not keyboard accessible** | `src/components/groups/CreateGroupDialog.tsx` | Add `tabIndex` and `aria-pressed` |
+| **Privacy dropdown complexity** | `src/modules/microblogging/components/PostComposer.tsx` | Simplify or truncate description on mobile |
+| **Checkbox in card uses raw input** | `CreateGroupDialog.tsx` | Replace with shadcn Checkbox component |
 
-Screenshots needed for:
-- [ ] Login form (desktop + mobile)
-- [ ] Main feed view with posts
-- [ ] Post card reaction picker
-- [ ] Groups list and create dialog
-- [ ] Events view and create dialog
-- [ ] Mutual aid request/offer cards
-- [ ] Security page tabs
-- [ ] All views at 375x667 mobile viewport
-- [ ] Dark mode variations
+#### LOW Priority
+| Issue | Location | Fix |
+|-------|----------|-----|
+| **Empty states minimal** | Multiple views | Add illustrations and CTAs |
+| **Loading states missing** | Login form | Add skeleton screens |
+| **Quote dialog no character limit** | PostCard.tsx | Add max length indicator |
+| **User name hidden on mobile** | App.tsx - `hidden sm:inline` | Consider avatar with tooltip |
+
+### Mobile Responsiveness Summary
+
+| Component | Status | Issues |
+|-----------|--------|--------|
+| Login Form | ✅ Good | Touch targets could be larger |
+| Main Tabs | ⚠️ Needs Work | 6 tabs overflow on 375px |
+| Feed | ✅ Good | Action buttons cramped |
+| Groups Dialog | ⚠️ Needs Work | Module grid too cramped (`grid-cols-2` on mobile) |
+| Events | ✅ Good | N/A |
+| Mutual Aid | ✅ Good | N/A |
+| Security Page | ⚠️ Needs Work | 6 sub-tabs overflow |
+
+### Accessibility Checklist Results
+
+- [x] Semantic HTML (`<main>`, `<nav>`, `<button>`, etc.)
+- [x] Skip link for main content
+- [x] ARIA labels on icon buttons (most)
+- [ ] Keyboard navigation needs testing (some areas)
+- [ ] Color contrast needs visual verification
+- [x] Touch targets mostly adequate (some exceptions)
+- [ ] Error messages need association with inputs
+- [ ] Focus management in dialogs needs verification
+- [x] Headings in logical order
+- [x] Alt text patterns established (Avatars use fallbacks)
+
+### Visual Review Playwright Test
+
+A comprehensive Playwright test has been created at `tests/e2e/ux-audit.spec.ts` to capture screenshots. To run:
+
+```bash
+bunx playwright test tests/e2e/ux-audit.spec.ts --project=chromium
+```
+
+Screenshots will be saved to `tests/e2e/ux-audit-screenshots/`.
 
 ---
 
