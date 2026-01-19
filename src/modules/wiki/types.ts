@@ -1,4 +1,15 @@
 import { z } from 'zod'
+import type { IndexabilitySettings } from '@/types/indexability'
+import { DEFAULT_INDEXABILITY } from '@/types/indexability'
+
+/**
+ * Indexability settings schema for zod validation
+ */
+export const IndexabilitySettingsSchema = z.object({
+  isSearchIndexable: z.boolean(),
+  isAiIndexable: z.boolean(),
+  noArchive: z.boolean().optional(),
+})
 
 export const WikiPageSchema = z.object({
   id: z.string(),
@@ -12,6 +23,9 @@ export const WikiPageSchema = z.object({
   updated: z.number(),
   updatedBy: z.string(), // pubkey
   parentVersion: z.string().optional(), // For version history
+  // Public visibility and indexability
+  isPublic: z.boolean().default(false),
+  indexability: IndexabilitySettingsSchema.default(DEFAULT_INDEXABILITY),
 })
 
 export type WikiPage = z.infer<typeof WikiPageSchema>
@@ -40,6 +54,8 @@ export interface CreatePageInput {
   content: string
   category?: string
   tags?: string[]
+  isPublic?: boolean
+  indexability?: Partial<IndexabilitySettings>
 }
 
 export interface UpdatePageInput {
@@ -49,4 +65,10 @@ export interface UpdatePageInput {
   category?: string
   tags?: string[]
   changeDescription?: string
+  isPublic?: boolean
+  indexability?: Partial<IndexabilitySettings>
 }
+
+// Re-export indexability types for convenience
+export type { IndexabilitySettings }
+export { DEFAULT_INDEXABILITY }

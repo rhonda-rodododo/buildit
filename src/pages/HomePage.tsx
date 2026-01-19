@@ -1,20 +1,22 @@
 /**
  * HomePage Component
  * Main page with activity feed and post composer
+ *
+ * Note: Seed posts are loaded in App.tsx to avoid race conditions.
+ * This component only loads seeds for other modules (events, mutual aid, etc.)
  */
 
 import { FC, useEffect } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { ActivityFeed } from '@/modules/microblogging/components/ActivityFeed';
-import { usePostsStore } from '@/modules/microblogging/postsStore';
 import { useEventsStore } from '@/modules/events/eventsStore';
 import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore';
 import { useGovernanceStore } from '@/modules/governance/governanceStore';
 import { useWikiStore } from '@/modules/wiki/wikiStore';
 import { useAuthStore } from '@/stores/authStore';
-import { microbloggingSeeds } from '@/modules/microblogging/schema';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 export const HomePage: FC = () => {
-  const { posts, createPost } = usePostsStore();
   const { events, addEvent } = useEventsStore();
   const { aidItems, addAidItem } = useMutualAidStore();
   const { proposals, addProposal } = useGovernanceStore();
@@ -23,21 +25,10 @@ export const HomePage: FC = () => {
 
   useEffect(() => {
     // Load seed data if collections are empty (demo data)
+    // Note: Posts seeds are loaded in App.tsx with localStorage deduplication
     const loadSeedData = async () => {
       const userPubkey = currentIdentity?.publicKey || 'demo-user';
       const now = Date.now();
-
-      // Load seed posts
-      if (posts.length === 0) {
-        for (const seedPost of microbloggingSeeds.posts) {
-          await createPost({
-            content: seedPost.content,
-            contentType: seedPost.contentType,
-            visibility: seedPost.visibility,
-            hashtags: seedPost.hashtags,
-          });
-        }
-      }
 
       // Load seed events
       if (events.length === 0) {
@@ -201,6 +192,8 @@ export const HomePage: FC = () => {
             created: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago - Fixed: use 'created' not 'createdAt'
             updated: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday - Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
+            isPublic: false,
+            indexability: DEFAULT_INDEXABILITY,
           },
           {
             id: 'wiki-2',
@@ -213,6 +206,8 @@ export const HomePage: FC = () => {
             created: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
             updated: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
+            isPublic: false,
+            indexability: DEFAULT_INDEXABILITY,
           },
           {
             id: 'wiki-3',
@@ -225,6 +220,8 @@ export const HomePage: FC = () => {
             created: now - 20 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
             updated: now - 4 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
             updatedBy: userPubkey,
+            isPublic: false,
+            indexability: DEFAULT_INDEXABILITY,
           },
         ];
 
@@ -240,6 +237,7 @@ export const HomePage: FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
+      <PageMeta titleKey="app.name" descriptionKey="meta.home" path="/app" />
       {/* Activity Feed (includes composer) */}
       <ActivityFeed showComposer={true} />
     </div>

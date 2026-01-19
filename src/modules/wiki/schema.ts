@@ -4,6 +4,7 @@
  */
 
 import type { TableSchema } from '@/types/modules';
+import type { IndexabilitySettings } from '@/types/indexability';
 
 /**
  * Wiki Page table interface
@@ -19,6 +20,9 @@ export interface DBWikiPage {
   created: number;
   updated: number;
   updatedBy: string;
+  // Public visibility and indexability
+  isPublic: boolean;
+  indexability: IndexabilitySettings;
 }
 
 /**
@@ -27,8 +31,8 @@ export interface DBWikiPage {
 export const wikiSchema: TableSchema[] = [
   {
     name: 'wikiPages',
-    schema: 'id, groupId, title, category, updated, updatedBy',
-    indexes: ['id', 'groupId', 'title', 'category', 'updated', 'updatedBy'],
+    schema: 'id, groupId, title, category, updated, updatedBy, isPublic, [isPublic+indexability.isSearchIndexable]',
+    indexes: ['id', 'groupId', 'title', 'category', 'updated', 'updatedBy', 'isPublic', '[isPublic+indexability.isSearchIndexable]'],
   },
 ];
 

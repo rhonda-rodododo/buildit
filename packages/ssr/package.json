@@ -1,0 +1,29 @@
+{
+  "name": "@buildit/ssr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buildit/shared": "workspace:*",
+    "@tanstack/react-router": "^1.121.4",
+    "@tanstack/start": "^1.121.4",
+    "nostr-tools": "^2.17.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vinxi": "^0.5.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.19.0"
+  }
+}

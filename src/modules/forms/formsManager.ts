@@ -430,6 +430,10 @@ export class FormsManager {
       type: pageData.type,
       content: pageData.content,
       seo: pageData.seo,
+      indexability: {
+        isSearchIndexable: true,
+        isAiIndexable: false,
+      },
       status: 'draft',
       created: now,
       createdBy: creatorPubkey,

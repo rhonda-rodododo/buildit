@@ -1,8 +1,12 @@
 {
   "name": "buildn",
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "description": "BuildN - a social action network. A privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, and community organizers.",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -22,7 +26,11 @@
     "relay:dev": "cd workers/relay && wrangler dev",
     "relay:deploy": "cd workers/relay && wrangler deploy",
     "relay:deploy:preview": "cd workers/relay && wrangler deploy --env preview",
-    "relay:tail": "cd workers/relay && wrangler tail"
+    "relay:tail": "cd workers/relay && wrangler tail",
+    "ssr:dev": "cd packages/ssr && bun run dev",
+    "ssr:build": "cd packages/ssr && bun run build",
+    "ssr:deploy": "cd packages/ssr && bun run deploy",
+    "shared:typecheck": "cd packages/shared && bun run typecheck"
   },
   "keywords": [
     "nostr",
@@ -35,6 +43,7 @@
   "license": "ISC",
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "turbo": "^2.3.4",
     "@cloudflare/workers-types": "^4.20241218.0",
     "@playwright/test": "^1.55.1",
     "@tailwindcss/postcss": "^4.1.14",

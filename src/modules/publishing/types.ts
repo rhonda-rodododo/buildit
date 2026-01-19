@@ -4,6 +4,11 @@
  */
 
 import type { SEOMetadata } from '../public/types';
+import type {
+  IndexabilitySettings,
+  IndexabilityDefaults,
+  DEFAULT_INDEXABILITY,
+} from '@/types/indexability';
 
 // ============================================================================
 // Article Types
@@ -43,6 +48,9 @@ export interface Article {
 
   // SEO
   seo: SEOMetadata;
+
+  // Indexability (for public articles)
+  indexability: IndexabilitySettings;
 
   // Timestamps
   createdAt: number;
@@ -166,6 +174,9 @@ export interface PublicationSettings {
 
   // Social links
   socialLinks?: SocialLinks;
+
+  // Indexability defaults for new articles
+  indexabilityDefaults?: IndexabilityDefaults;
 }
 
 /**
@@ -326,6 +337,7 @@ export interface CreateArticleInput {
   tags?: string[];
   visibility?: ArticleVisibility;
   seo?: Partial<SEOMetadata>;
+  indexability?: Partial<IndexabilitySettings>;
 }
 
 export interface UpdateArticleInput {
@@ -338,6 +350,7 @@ export interface UpdateArticleInput {
   status?: ArticleStatus;
   scheduledAt?: number;
   seo?: Partial<SEOMetadata>;
+  indexability?: Partial<IndexabilitySettings>;
 }
 
 export interface CreatePublicationInput {
@@ -362,6 +375,10 @@ export interface UpdatePublicationInput {
   defaultSeo?: Partial<SEOMetadata>;
   status?: PublicationStatus;
 }
+
+// Re-export indexability types for convenience
+export type { IndexabilitySettings, IndexabilityDefaults };
+export { DEFAULT_INDEXABILITY };
 
 export interface SubscribeInput {
   publicationId: string;

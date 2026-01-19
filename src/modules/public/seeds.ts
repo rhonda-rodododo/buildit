@@ -7,6 +7,7 @@ import type { ModuleSeed } from '@/types/modules';
 import type { BuildItDB } from '@/core/storage/db';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { PublicPage } from './types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 import { logger } from '@/lib/logger';
 /**
@@ -66,6 +67,7 @@ We are a grassroots union organizing workers across industries. Join us in the f
         twitterImage: '/images/workers-united-twitter.jpg',
         canonicalUrl: 'https://workersunited.org',
       },
+      indexability: DEFAULT_INDEXABILITY,
       status: 'published',
       publishedAt: now,
       created: now,
@@ -119,6 +121,7 @@ Want to join the movement? [Contact us](/contact) or [sign up to volunteer](/vol
         description: 'Learn about Workers United, a grassroots labor union fighting for economic justice and workplace dignity since 2020.',
         keywords: ['labor union', 'workers rights', 'grassroots organizing', 'mission', 'values'],
       },
+      indexability: DEFAULT_INDEXABILITY,
       status: 'published',
       publishedAt: now,
       created: now,

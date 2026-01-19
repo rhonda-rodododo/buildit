@@ -35,8 +35,8 @@ export const publicSchema: TableSchema[] = [
   // Public Pages
   {
     name: 'publicPages',
-    schema: 'id, groupId, slug, type, status, created',
-    indexes: ['id', 'groupId', 'slug', 'type', 'status', 'created'],
+    schema: 'id, groupId, slug, type, status, created, [status+indexability.isSearchIndexable]',
+    indexes: ['id', 'groupId', 'slug', 'type', 'status', 'created', '[status+indexability.isSearchIndexable]'],
   },
 
   // Analytics

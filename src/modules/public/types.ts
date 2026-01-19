@@ -4,6 +4,9 @@
  * Shared by Forms and Fundraising modules
  */
 
+import type { IndexabilitySettings } from '@/types/indexability';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
+
 // ============================================================================
 // Public Pages Types
 // ============================================================================
@@ -25,6 +28,9 @@ export interface PublicPage {
 
   // SEO
   seo: SEOMetadata;
+
+  // Indexability controls
+  indexability: IndexabilitySettings;
 
   // Status
   status: PageStatus;
@@ -145,3 +151,7 @@ export interface PublicState {
   loading: boolean;
   error: string | null;
 }
+
+// Re-export indexability types for convenience
+export type { IndexabilitySettings };
+export { DEFAULT_INDEXABILITY };

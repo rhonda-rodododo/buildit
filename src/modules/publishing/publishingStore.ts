@@ -24,6 +24,7 @@ import type {
   PublicationSettings,
 } from './types';
 import type { SEOMetadata } from '../public/types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 // ============================================================================
 // Helper Functions
@@ -313,6 +314,7 @@ export const usePublishingStore = create<PublishingState & PublishingActions>((s
       status: 'draft',
       visibility: input.visibility || 'public',
       seo: { ...getDefaultSEO(), ...input.seo },
+      indexability: { ...DEFAULT_INDEXABILITY, ...input.indexability },
       createdAt: now,
       updatedAt: now,
       readingTimeMinutes: input.content ? calculateReadingTime(input.content) : 0,
@@ -340,6 +342,9 @@ export const usePublishingStore = create<PublishingState & PublishingActions>((s
           ...article,
           ...updates,
           seo: updates.seo ? { ...article.seo, ...updates.seo } : article.seo,
+          indexability: updates.indexability
+            ? { ...article.indexability, ...updates.indexability }
+            : article.indexability,
           updatedAt: now,
           lastSavedAt: now,
           version: article.version + 1,

@@ -36,7 +36,8 @@ import {
   Save,
   Globe
 } from 'lucide-react';
-import type { PublicPage, PageType, PageStatus, SEOMetadata } from '../../types';
+import type { PublicPage, PageType, PageStatus, SEOMetadata, IndexabilitySettings } from '../../types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 import { useState, useCallback, useEffect } from 'react';
 import { sanitizeHtml } from '@/lib/security/sanitize';
 
@@ -53,6 +54,9 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
   const [type, setType] = useState<PageType>(page?.type || 'custom');
   const [status, setStatus] = useState<PageStatus>(page?.status || 'draft');
   const [seo, setSeo] = useState<SEOMetadata>(page?.seo || {});
+  const [indexability, setIndexability] = useState<IndexabilitySettings>(
+    page?.indexability || DEFAULT_INDEXABILITY
+  );
   const [preview, setPreview] = useState(false);
 
   const editor = useEditor({
@@ -110,11 +114,12 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
       status,
       content: editor.getHTML(),
       seo,
+      indexability,
       ...(status === 'published' && !page?.publishedAt ? { publishedAt: Date.now() } : {}),
     };
 
     onSave(pageData);
-  }, [editor, groupId, title, slug, type, status, seo, page, onSave]);
+  }, [editor, groupId, title, slug, type, status, seo, indexability, page, onSave]);
 
   const handlePublish = useCallback(() => {
     setStatus('published');
@@ -330,7 +335,12 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
 
         {/* SEO Tab */}
         <TabsContent value="seo">
-          <SEOControls seo={seo} onUpdate={setSeo} />
+          <SEOControls
+            seo={seo}
+            onUpdate={setSeo}
+            indexability={indexability}
+            onIndexabilityUpdate={setIndexability}
+          />
         </TabsContent>
 
         {/* Settings Tab */}

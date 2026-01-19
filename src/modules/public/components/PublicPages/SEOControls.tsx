@@ -1,6 +1,6 @@
 /**
  * SEO Controls Component
- * Edit SEO metadata for public pages
+ * Edit SEO metadata and indexability settings for public pages
  */
 
 import { Card } from '@/components/ui/card';
@@ -8,20 +8,93 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { SEOMetadata } from '../../types';
+import { Switch } from '@/components/ui/switch';
+import type { SEOMetadata, IndexabilitySettings } from '../../types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 interface SEOControlsProps {
   seo: SEOMetadata;
   onUpdate: (seo: SEOMetadata) => void;
+  indexability?: IndexabilitySettings;
+  onIndexabilityUpdate?: (indexability: IndexabilitySettings) => void;
 }
 
-export function SEOControls({ seo, onUpdate }: SEOControlsProps) {
+export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate }: SEOControlsProps) {
   const handleUpdate = (updates: Partial<SEOMetadata>) => {
     onUpdate({ ...seo, ...updates });
   };
 
+  const currentIndexability = indexability ?? DEFAULT_INDEXABILITY;
+
+  const handleIndexabilityUpdate = (updates: Partial<IndexabilitySettings>) => {
+    if (onIndexabilityUpdate) {
+      onIndexabilityUpdate({ ...currentIndexability, ...updates });
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Indexability Controls */}
+      {onIndexabilityUpdate && (
+        <Card className="p-6 space-y-4">
+          <h3 className="font-semibold">Indexability</h3>
+          <p className="text-sm text-muted-foreground">
+            Control how search engines and AI systems can access this content.
+          </p>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="search-indexable">Search Engine Indexing</Label>
+                <p className="text-xs text-muted-foreground">
+                  Allow Google, Bing, DuckDuckGo and other search engines to index this page
+                </p>
+              </div>
+              <Switch
+                id="search-indexable"
+                checked={currentIndexability.isSearchIndexable}
+                onCheckedChange={(checked) => handleIndexabilityUpdate({ isSearchIndexable: checked })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="ai-indexable">AI Training / Indexing</Label>
+                <p className="text-xs text-muted-foreground">
+                  Allow AI crawlers (GPTBot, Claude, etc.) to use this content for training
+                </p>
+              </div>
+              <Switch
+                id="ai-indexable"
+                checked={currentIndexability.isAiIndexable}
+                onCheckedChange={(checked) => handleIndexabilityUpdate({ isAiIndexable: checked })}
+                disabled={!currentIndexability.isSearchIndexable}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="no-archive">Prevent Archiving</Label>
+                <p className="text-xs text-muted-foreground">
+                  Block archive.org and similar services from caching this page
+                </p>
+              </div>
+              <Switch
+                id="no-archive"
+                checked={currentIndexability.noArchive ?? false}
+                onCheckedChange={(checked) => handleIndexabilityUpdate({ noArchive: checked })}
+              />
+            </div>
+          </div>
+
+          {!currentIndexability.isSearchIndexable && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              Note: AI indexing is automatically disabled when search engine indexing is off.
+            </p>
+          )}
+        </Card>
+      )}
+
       {/* Basic SEO */}
       <Card className="p-6 space-y-4">
         <h3 className="font-semibold">Basic SEO</h3>

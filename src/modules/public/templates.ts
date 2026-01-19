@@ -4,6 +4,7 @@
  */
 
 import type { PublicPage, PageType, SEOMetadata } from './types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 interface PageTemplate {
   title: string;
@@ -200,6 +201,7 @@ export function createPageFromTemplate(
     type: template.type,
     content: template.content,
     seo: template.seo,
+    indexability: DEFAULT_INDEXABILITY,
     status: 'draft',
     ...overrides,
   };

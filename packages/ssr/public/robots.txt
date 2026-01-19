@@ -1,0 +1,35 @@
+# BuildIt Network Robots.txt
+# AI crawler control is handled per-page via meta robots tags
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://buildit.network/sitemap.xml
+
+# AI Crawlers - Per-page control via meta robots
+# When content has isAiIndexable: false, the page will include "noai" in meta robots
+# These crawlers should respect the per-page meta robots directives
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Rate limiting hint for well-behaved crawlers
+Crawl-delay: 1

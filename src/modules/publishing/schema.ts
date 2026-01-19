@@ -43,7 +43,7 @@ export const publishingSchema: TableSchema[] = [
   // Articles
   {
     name: 'articles',
-    schema: 'id, publicationId, groupId, slug, status, visibility, authorPubkey, publishedAt, createdAt, updatedAt, [publicationId+status], [publicationId+publishedAt]',
+    schema: 'id, publicationId, groupId, slug, status, visibility, authorPubkey, publishedAt, createdAt, updatedAt, [publicationId+status], [publicationId+publishedAt], [visibility+indexability.isSearchIndexable]',
     indexes: [
       'id',
       'publicationId',
@@ -57,6 +57,7 @@ export const publishingSchema: TableSchema[] = [
       'updatedAt',
       '[publicationId+status]',
       '[publicationId+publishedAt]',
+      '[visibility+indexability.isSearchIndexable]',
     ],
   },
   // Article Drafts

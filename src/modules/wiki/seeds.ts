@@ -5,6 +5,7 @@
 
 import type { ModuleSeed } from '@/types/modules';
 import type { DBWikiPage } from './schema';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 import { logger } from '@/lib/logger';
 /**
@@ -60,6 +61,8 @@ Remember: Everything here is version controlled. Don't worry about breaking thin
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
 
         // COMMUNITY GUIDELINES
@@ -123,6 +126,8 @@ All reports handled with care and confidentiality.`,
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
 
         // SECURITY
@@ -204,6 +209,8 @@ Security culture isn't paranoia - it's community care. We protect each other.`,
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
 
         // ORGANIZING RESOURCES
@@ -309,6 +316,8 @@ Remember: We keep us safe! 🤝`,
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
 
         // MEETING PROTOCOLS
@@ -425,6 +434,8 @@ Good meetings build power and relationships! 💪`,
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
 
         // LEGAL RESOURCES
@@ -531,6 +542,8 @@ You have the right to remain silent and you should use it! 🤐`,
           created: now,
           updated: now,
           updatedBy: userPubkey,
+          isPublic: false,
+          indexability: DEFAULT_INDEXABILITY,
         },
       ];
 
