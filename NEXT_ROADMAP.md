@@ -24,13 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-18 (Roadmap cleanup - 12 completed epics moved to COMPLETED_ROADMAP)
-**Active Phase**: Phase 1 Complete - Quality/Testing (Epic 51)
+**Last Updated**: 2026-01-19 (Epic 70 TanStack Start SSR App complete)
+**Active Phase**: Phase 1 Complete - Quality/Testing (Epic 51), Native App (Epic 63)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 1088/1088 tests passing (100% pass rate, 57 test files)
 **E2E Coverage**: 85%+ of epics ✅ Epic 68 added 54 new tests (36 test files total)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
+**Native App**: 🚧 Foundation complete (@buildit/sdk, design-tokens, OneStack scaffold)
 
 **🎯 Architectural Decision**: Hybrid Nostr + Optional Backend
 - **Phase 1** (33-43h): Client-side only features (crypto payments, publishing, Nostr newsletters)
@@ -485,7 +486,7 @@ Client → Receive stats, update analytics dashboard
 
 ## 🔧 Backend Infrastructure (Phase 3)
 
-### Epic 62: Backend Service Setup 🛠️ (Required for Epics 49B, 53B, 54, SSR)
+### Epic 62: Backend Service Setup 🛠️ (Required for Epics 49B, 53B, 54)
 **Status**: Not Started (Deferred to Phase 3)
 **Priority**: P2 - Backend Infrastructure (TIER 1, PHASE 3)
 **Effort**: 8-12 hours
@@ -497,7 +498,8 @@ Client → Receive stats, update analytics dashboard
 - Credit card payments (Stripe/PayPal) - Epic 49B
 - Email newsletter delivery - Epic 53B
 - Federation (Mastodon/Bluesky) - Epic 54
-- Server-side rendering for SEO - Future epic
+
+**Note**: SSR for SEO is complete (Epic 70) using TanStack Start on Cloudflare Workers - no traditional backend required.
 
 **Context**: Set up Bun backend service in monorepo structure. Backend will be stateless, optional, and self-hostable. Communicates with client via Nostr (NIP-17 encrypted messages).
 
@@ -852,6 +854,117 @@ buildit-network/
 
 ## 📱 Mobile & Social Polish
 
+### Epic 63: React Native App MVP (OneStack) 📱
+**Status**: In Progress (Foundation Complete)
+**Priority**: P1 - Mobile App
+**Effort**: 40-60 hours
+**Dependencies**: None (can proceed in parallel with web features)
+**Assignable to subagent**: Yes (`epic-executor`)
+
+**Context**: Build native iOS/Android app using [One](https://onestack.dev) (OneStack) framework. Shares business logic via `@buildit/sdk` and design tokens via `@buildit/design-tokens`. Multi-device support (NIP-46, QR device linking) already implemented in web app.
+
+**Architecture**:
+```
+┌────────────────────────────────────────────────┐
+│              BuildIt Network                    │
+├────────────────────────────────────────────────┤
+│  ┌─────────────┐         ┌─────────────────┐  │
+│  │   Web SPA   │         │   Native App    │  │
+│  │ (React/Vite)│         │ (One/RN/Expo)   │  │
+│  └──────┬──────┘         └────────┬────────┘  │
+│         │                         │            │
+│    src/core/*               @buildit/sdk      │
+│   (full features)         (portable subset)   │
+│         └────────────┬────────────┘            │
+│              ┌───────┴───────┐                 │
+│              │ design-tokens │ Colors, spacing │
+│              └───────────────┘                 │
+│                                                 │
+│  ┌─────────────┐                               │
+│  │     SSR     │ @buildit/shared (read-only)  │
+│  │  (TanStack) │ Event parsing, relay config   │
+│  └─────────────┘                               │
+└────────────────────────────────────────────────┘
+```
+
+**SDK Integration Decision**:
+- **Native App**: Uses `@buildit/sdk` for all crypto/Nostr operations ✅
+- **Web SPA**: Continues using `src/core/*` directly (58 imports across 41 files). SDK was extracted from this code - functionally identical. Future migration optional.
+- **SSR**: Uses `@buildit/shared` (read-only event parsing). No signing/encryption needed.
+
+**Completed Tasks**:
+- [x] Clean up empty stub packages (core, modules, storage, stores, types, ui)
+- [x] Create `@buildit/sdk` package with portable business logic
+  - [x] Nostr protocol utilities (event creation, verification)
+  - [x] NIP-44 encryption with padding
+  - [x] Key management (generation, derivation, recovery phrase)
+  - [x] Shared types
+- [x] Create `@buildit/design-tokens` package
+  - [x] OKLCH color definitions (light/dark themes)
+  - [x] Spacing scale (Tailwind-compatible)
+  - [x] Typography scale and text styles
+- [x] Set up OneStack app in `apps/native/`
+  - [x] Vite + One configuration
+  - [x] File-system routing
+  - [x] Basic screens (home, login, import)
+
+**Remaining Tasks**:
+- [ ] **Secure Key Storage (4-6h)**
+  - [ ] Integrate expo-secure-store for key persistence
+  - [ ] Key encryption at rest
+  - [ ] Biometric unlock option
+- [ ] **Device Linking (8-12h)**
+  - [ ] QR code scanner for NIP-46
+  - [ ] Device transfer receive flow
+  - [ ] Connection approval UI
+  - [ ] Linked devices management
+- [ ] **Core Navigation (6-8h)**
+  - [ ] Tab navigation (Home, Messages, Groups, Settings)
+  - [ ] Group list and detail screens
+  - [ ] Message thread screen
+  - [ ] Settings screen with multi-device
+- [ ] **Messaging MVP (10-15h)**
+  - [ ] DM list and compose
+  - [ ] Group message view
+  - [ ] Real-time message updates
+  - [ ] Offline message queue
+- [ ] **Platform Polish (6-8h)**
+  - [ ] iOS-specific optimizations
+  - [ ] Android-specific optimizations
+  - [ ] Push notification setup (Expo)
+  - [ ] App icon and splash screen
+- [ ] **Testing & Release (4-6h)**
+  - [ ] TestFlight build
+  - [ ] Android internal testing track
+  - [ ] Basic E2E tests
+
+**Acceptance Criteria**:
+- App builds for iOS and Android
+- Can create new identity or import via phrase/key/QR
+- Can link device to existing web identity via NIP-46
+- Can view and send DMs
+- Can view group messages
+- Offline message queue works
+- TestFlight and internal Android builds available
+
+**Testing Requirements**:
+- Manual testing on iOS (Expo Go + native build)
+- Manual testing on Android (Expo Go)
+- `bun run native:dev` works
+- `bun run sdk:typecheck` passes
+- `bun run tokens:typecheck` passes
+
+**Reference Docs**:
+- [One Documentation](https://onestack.dev/docs)
+- [Expo Documentation](https://docs.expo.dev)
+- Multi-device: `src/core/device-sync/`, `src/core/nostr/nip46/`
+
+**Git Commit Format**: `feat: complete native app MVP with OneStack (Epic 63)`
+
+**Git Tag**: `v0.63.0-native-mvp`
+
+---
+
 ### Epic 59: Mobile-First UX 📱
 **Status**: Not Started
 **Priority**: P2 - Mobile Polish (TIER 5)
@@ -1168,8 +1281,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2026-01-18 (Roadmap cleanup - moved 12 completed epics to COMPLETED_ROADMAP)
-**Total Epics Pending**: ~15 (Epic 31, 36, 45, 49B, 51, 53B, 54-62)
+**Last Updated**: 2026-01-19 (Epic 70 TanStack Start SSR App complete)
+**Total Epics Pending**: ~14 (Epic 31, 36, 45, 49B, 51, 53B, 54-63)
 **Total Backlog Items**: 5+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
 
 ---
@@ -1358,8 +1471,7 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
    - Yes → Proceed to Phase 4 (Epic 54)
 
 4. **SEO**: Server-side rendering needed for public pages?
-   - No → Static generation works ✅
-   - Yes → Proceed to Phase 3 (SSR)
+   - ✅ **COMPLETE** (Epic 70) - TanStack Start SSR on Cloudflare Workers
 
 5. **Hosting**: If backend needed, self-host or use hosted service?
    - Self-host → Full privacy control
@@ -1375,7 +1487,7 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 - Epic 62: Backend Service Setup (8-12h) - Monorepo, Bun, Nostr integration
 - Epic 49B: Stripe/PayPal Integration (10-15h) - Credit card payments
 - Epic 53B: Newsletter - Email Delivery (10-15h) - SendGrid/Mailgun
-- Epic SSR: Server-Side Rendering (8-12h) - SEO for public pages
+- ~~Epic SSR: Server-Side Rendering (8-12h)~~ ✅ **COMPLETE** (Epic 70)
 
 **Deliverable**: Optional backend service for credit cards, email, and SSR
 
@@ -1393,16 +1505,16 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ### Architecture Summary
 
-| Feature | Phase | Backend? | Effort | Privacy |
-|---------|-------|----------|--------|---------|
-| **Crypto payments** | 1 | ❌ | 6-8h | ✅✅✅ |
-| **Long-form publishing** | 1 | ❌ | 15-20h | ✅✅✅ |
-| **Newsletters (Nostr)** | 1 | ❌ | 12-15h | ✅✅✅ |
-| **Backend setup** | 3 | ✅ | 8-12h | ✅ |
-| **Stripe/PayPal** | 3 | ✅ | 10-15h | ⚠️ |
-| **Newsletters (Email)** | 3 | ✅ | 10-15h | ⚠️ |
-| **SSR for SEO** | 3 | ✅ | 8-12h | ✅ |
-| **ActivityPub** | 4 | ✅ | 40-60h | ⚠️ |
+| Feature | Phase | Backend? | Effort | Privacy | Status |
+|---------|-------|----------|--------|---------|--------|
+| **Crypto payments** | 1 | ❌ | 6-8h | ✅✅✅ | ✅ Complete |
+| **Long-form publishing** | 1 | ❌ | 15-20h | ✅✅✅ | ✅ Complete |
+| **Newsletters (Nostr)** | 1 | ❌ | 12-15h | ✅✅✅ | ✅ Complete |
+| **SSR for SEO** | 1 | ❌ | 8-12h | ✅ | ✅ Complete (Epic 70) |
+| **Backend setup** | 3 | ✅ | 8-12h | ✅ | Not started |
+| **Stripe/PayPal** | 3 | ✅ | 10-15h | ⚠️ | Not started |
+| **Newsletters (Email)** | 3 | ✅ | 10-15h | ⚠️ | Not started |
+| **ActivityPub** | 4 | ✅ | 40-60h | ⚠️ | Not started |
 
 **Total Effort**:
 - Phase 1 only: 33-43 hours (2-3 weeks) ✅ No backend

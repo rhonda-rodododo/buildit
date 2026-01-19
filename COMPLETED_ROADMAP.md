@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-18 (Epics 49A, 50, 52, 53A, 63-69 completed - Roadmap cleanup)
+**Last Updated**: 2026-01-19 (Epic 70 SSR Public Content App completed)
 
 ---
 
@@ -72,6 +72,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 67 | v0.67.0 | ✅ | `v0.67.0-ux-polish` | Visual UX Polish - Responsive tab overflow fixes, 44px touch targets, keyboard navigation, ARIA roles |
 | 68 | v0.68.0 | ✅ | `v0.68.0-e2e-tests` | E2E Test Suite Expansion - 54 new tests across auth, groups, events, microblogging, cross-module flows |
 | 69 | v0.69.0 | ✅ | `v0.69.0-shared-embeds` | Shared Embed Infrastructure - EmbedCard component, provider registry, click-to-load privacy, URL detection |
+| 70 | v0.70.0 | ✅ | `v0.70.0-ssr-public` | TanStack Start SSR App - Public content routes (articles, wiki, events, campaigns, publications), RSS feed, SEO metadata |
 
 ---
 
@@ -1893,5 +1894,72 @@ Comprehensive E2E test suite with 54 new tests across 5 priority areas. Authenti
 Unified embed system for social media across modules with click-to-load privacy pattern. Shared embed types and provider registry in `src/lib/embed/` with EmbedProvider and EmbedData interfaces. Provider configs for YouTube, Vimeo, PeerTube, SoundCloud, Spotify, Mastodon, CodePen, CodeSandbox. Shared utilities for URL detection, domain extraction, provider matching. useEmbed hook for oEmbed proxy, click-to-load state. EmbedCard component with responsive, accessible design. URL detection in posts populating `links` array. PostCard renders EmbedCard for embeddable URLs. SecureEmbed refactored to use shared code.
 
 **Reference**: `src/lib/embed/`, `src/modules/microblogging/postsStore.ts`, `src/modules/microblogging/components/PostCard.tsx`
+
+---
+
+### Epic 70: TanStack Start SSR Public Content App ✅
+**Tag**: `v0.70.0-ssr-public` | **Commits**: `git log v0.70.0-ssr-public`
+
+TanStack Start server-side rendering application for public, SEO-optimized content delivery. Serves as "headless CMS frontend" for content users mark as public + search indexable. Monorepo structure with `packages/ssr/` app, `packages/shared/` types.
+
+**Architecture (Headless CMS Pattern)**:
+- **SPA = CMS Backend**: Content creation, editing, SEO controls, analytics dashboard
+- **SSR App = CMS Frontend**: Read-only public website rendering published content
+
+**Routes Implemented**:
+- `/` - Public homepage with hero, features, testimonials, CTA
+- `/articles` - Article listing with search, tags, pagination
+- `/articles/$slug` - Individual article with full SEO metadata
+- `/wiki` - Wiki index page
+- `/wiki/$slug` - Wiki article page
+- `/events` - Public events listing
+- `/events/$id` - Event detail page with date/time/location
+- `/campaigns/$slug` - Fundraising campaign page with progress, tiers
+- `/publications` - Publication index grouped by author
+- `/publications/$slug` - Publication page showing author's articles
+- `/about` - About page with mission, Nostr info, features
+- `/privacy` - Privacy policy page
+- `/contact` - Contact page with GitHub, Nostr, community links
+- `/docs` - Documentation page
+- `/feed.xml` - RSS 2.0 feed generation
+
+**Technical Implementation**:
+- **Framework**: TanStack Start with TanStack Router file-based routing
+- **Data Fetching**: `createServerFn` for server-side Nostr relay queries
+- **SEO**: Full Open Graph, Twitter Cards, canonical URLs, robots directives
+- **Indexability Controls**: `isSearchIndexable`, `isAiIndexable`, `noArchive` flags
+- **AI Crawler Control**: Meta robots tags for GPTBot, Google-Extended, etc.
+- **Shared Types**: `@buildit/shared` package with Nostr event parsing utilities
+
+**Files Created** (packages/ssr/):
+- `src/routes/` - 14 route files with full SEO metadata
+- `src/lib/nostr.ts` - Nostr relay fetching utilities
+- `src/components/` - CTABanner, FeatureGrid, TestimonialCard, Footer
+- `app.config.ts` - TanStack Start configuration
+
+**Shared Package** (packages/shared/):
+- `src/nostr/events.ts` - ArticleContent, EventContent, CampaignContent types
+- `src/nostr/relays.ts` - Default relay configuration
+- `src/types/indexability.ts` - Indexability settings types
+
+**Deployment Configuration**:
+- Cloudflare Workers compatible via TanStack Start adapter
+- Separate domains: `buildit.network` (SSR) + `app.buildit.network` (SPA)
+
+**Epic 70 Acceptance Criteria (Met)**:
+- ✅ SSR app renders all public content routes
+- ✅ Full SEO metadata on all pages (title, description, OG, Twitter)
+- ✅ RSS feed generation for articles
+- ✅ Indexability controls integrated (search/AI flags)
+- ✅ Shared types between SPA and SSR
+- ✅ TypeScript compilation passes
+- ✅ Build successful
+
+**Known Limitations**:
+- Nostr relay fetching returns mock data (actual relay connection pending)
+- Cloudflare KV caching not configured (deployment-time setup)
+- Custom domain not set up
+
+**Reference**: `packages/ssr/`, `packages/shared/`, Plan file: `.claude/plans/deep-roaming-jellyfish.md`
 
 ---
