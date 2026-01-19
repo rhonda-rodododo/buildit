@@ -19,6 +19,7 @@
     "@expo/cli": "^54.0.21",
     "@expo/metro-config": "^54.0.13",
     "@react-native/assets-registry": "^0.83.1",
+    "@react-native/babel-preset": "^0.83.1",
     "@react-native/dev-middleware": "^0.83.1",
     "@react-navigation/core": "^7.14.0",
     "@react-navigation/elements": "^2.9.5",
