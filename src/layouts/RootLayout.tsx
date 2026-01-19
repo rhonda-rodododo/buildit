@@ -1,7 +1,8 @@
-import { FC, useEffect } from 'react';
+import { FC, Suspense, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useDeviceStore } from '@/stores/deviceStore';
+import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
  * Root layout - handles app initialization
@@ -51,5 +52,9 @@ export const  RootLayout: FC = () => {
   }, [currentIdentity, navigate]);
 
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<RouteLoader />}>
+      <Outlet />
+    </Suspense>
+  );
 };

@@ -1,6 +1,7 @@
-import { FC } from 'react';
+import { FC, Suspense } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
  * Auth layout - wraps unauthenticated pages
@@ -15,7 +16,9 @@ export const AuthLayout: FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Outlet />
+      <Suspense fallback={<RouteLoader />}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 };

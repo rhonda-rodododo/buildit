@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
+import { clearStorageAndReload } from './helpers/test-utils'
 
 /**
  * Routing E2E Tests
@@ -28,23 +29,15 @@ async function createIdentity(page: Page, name = 'Test User', password = 'testpa
 }
 
 test.describe('Routing Tests', () => {
+  // Increase timeout for routing tests - they need time for module initialization
+  test.setTimeout(60000)
+
   test.beforeEach(async ({ page }) => {
     // Navigate to app first to establish origin
     await page.goto('/')
 
-    // Clear IndexedDB
-    await page.evaluate(async () => {
-      const databases = await indexedDB.databases()
-      for (const db of databases) {
-        if (db.name) {
-          indexedDB.deleteDatabase(db.name)
-        }
-      }
-    })
-
-    // Reload to ensure app initializes fresh
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+    // Clear storage and reload, waiting for app to fully initialize
+    await clearStorageAndReload(page)
   })
 
   test('redirects unauthenticated users to login', async ({ page }) => {
@@ -59,7 +52,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('redirects authenticated users from login to app', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Redirect Test User', 'testpass123')
 
     // Try to go back to login page
@@ -72,7 +65,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('navigates between sidebar sections', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Nav Test User', 'testpass123')
 
     // Verify on app page
@@ -110,7 +103,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('handles 404 for unknown routes', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, '404 Test User', 'testpass123')
 
     // Navigate to a non-existent route
@@ -133,7 +126,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('preserves route on page refresh', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Refresh Test User', 'testpass123')
 
     // Navigate to groups
@@ -154,7 +147,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('browser back/forward navigation works', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'History Test User', 'testpass123')
 
     // Navigate to groups
@@ -183,7 +176,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('deep links work correctly', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Deep Link User', 'testpass123')
 
     // Navigate to groups page directly using URL
@@ -196,7 +189,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('handles special characters in URLs', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Special Char User', 'testpass123')
 
     // Try URL with special characters
@@ -209,7 +202,7 @@ test.describe('Routing Tests', () => {
   })
 
   test('routes have proper document titles', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Title Test User', 'testpass123')
 
     // Check home page title
@@ -227,18 +220,11 @@ test.describe('Routing Tests', () => {
 })
 
 test.describe('Route Protection', () => {
+  test.setTimeout(60000)
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
-    await page.evaluate(async () => {
-      const databases = await indexedDB.databases()
-      for (const db of databases) {
-        if (db.name) {
-          indexedDB.deleteDatabase(db.name)
-        }
-      }
-    })
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+    await clearStorageAndReload(page)
   })
 
   test('protected routes require authentication', async ({ page }) => {
@@ -273,22 +259,15 @@ test.describe('Route Protection', () => {
 })
 
 test.describe('Group Route Navigation', () => {
+  test.setTimeout(60000)
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
-    await page.evaluate(async () => {
-      const databases = await indexedDB.databases()
-      for (const db of databases) {
-        if (db.name) {
-          indexedDB.deleteDatabase(db.name)
-        }
-      }
-    })
-    await page.reload()
-    await page.waitForLoadState('networkidle')
+    await clearStorageAndReload(page)
   })
 
   test('can navigate to group page after creating group', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible()
     await createIdentity(page, 'Group Nav User', 'testpass123')
 
     // Navigate to groups

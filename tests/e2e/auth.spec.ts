@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { clearStorageAndReload } from './helpers/test-utils';
 
 /**
  * Authentication E2E Tests
@@ -55,31 +56,22 @@ async function importIdentity(page, nsec: string, password = 'testpassword123', 
 }
 
 test.describe('Authentication Flow', () => {
+  // Increase timeout for auth tests - they need time for module initialization + multiple operations
+  test.setTimeout(60000);
+
   // Clear IndexedDB before each test to ensure clean state
   test.beforeEach(async ({ page }) => {
     // Navigate to app first to establish origin
     await page.goto('/');
 
-    // Clear all IndexedDB databases
-    await page.evaluate(async () => {
-      const databases = await indexedDB.databases();
-      for (const db of databases) {
-        if (db.name) {
-          indexedDB.deleteDatabase(db.name);
-        }
-      }
-    });
-
-    // Reload to ensure app initializes fresh
-    await page.reload();
-
-    // Wait for app to initialize (either login page or loading)
-    await page.waitForLoadState('networkidle');
+    // Clear storage and reload, waiting for app to fully initialize
+    // This can take 15-30s as the app initializes 18 modules
+    await clearStorageAndReload(page);
   });
 
   test('should create new identity and access dashboard', async ({ page }) => {
     // Wait for the login page to fully render with the Create New tab
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Should show login page initially with BuildIt Network heading
     await expect(page.getByText(/buildIt network/i).first()).toBeVisible();
@@ -93,7 +85,7 @@ test.describe('Authentication Flow', () => {
 
   test('should import existing identity', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Test nsec (for testing purposes only)
     const testNsec = 'nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5';
@@ -107,7 +99,7 @@ test.describe('Authentication Flow', () => {
 
   test('should switch between identities', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Create first identity
     await createIdentity(page, 'First Identity', 'password123456');
@@ -129,7 +121,7 @@ test.describe('Authentication Flow', () => {
 
   test('should export private key', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Create identity first
     await createIdentity(page, 'Export Test', 'exportpassword12');
@@ -163,7 +155,7 @@ test.describe('Authentication Flow', () => {
 
   test('should lock and unlock identity', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Create identity with password
     await createIdentity(page, 'Lock Test User', 'lockpassword123');
@@ -209,7 +201,7 @@ test.describe('Authentication Flow', () => {
 
   test('should change password', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Create identity
     await createIdentity(page, 'Password Change Test', 'oldpassword123');
@@ -257,7 +249,7 @@ test.describe('Authentication Flow', () => {
 
   test('should prevent duplicate identity import', async ({ page }) => {
     // Wait for the login page to fully render
-    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible();
 
     // Import identity first time
     const testNsec = 'nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5';

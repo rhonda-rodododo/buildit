@@ -1,7 +1,8 @@
-import { FC } from 'react';
+import { FC, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { GroupSidebar } from '@/components/navigation/GroupSidebar';
 import { GroupContextProvider } from '@/contexts/GroupContext';
+import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
  * Group layout - wraps group-specific pages
@@ -20,7 +21,9 @@ export const GroupLayout: FC = () => {
 
         {/* Group content - renders child routes including module routes */}
         <div className="flex-1">
-          <Outlet />
+          <Suspense fallback={<RouteLoader />}>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </GroupContextProvider>

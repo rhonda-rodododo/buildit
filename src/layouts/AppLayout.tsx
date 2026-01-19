@@ -1,9 +1,10 @@
-import { FC, useEffect } from 'react';
+import { FC, Suspense, useEffect } from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
+import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
  * App layout - wraps authenticated app pages
@@ -55,7 +56,9 @@ export const AppLayout: FC = () => {
         {/* Main content */}
         <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-screen-2xl">
           <Breadcrumbs />
-          <Outlet />
+          <Suspense fallback={<RouteLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

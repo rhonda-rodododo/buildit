@@ -376,8 +376,9 @@ export class BuildItDB extends Dexie {
 
     // Use version based on number of module schemas + 1 for core
     // This ensures schema updates when modules are added
+    // Note: This only DEFINES the schema - Dexie only runs upgrades when version actually changes
     const version = this.moduleSchemas.size + 1;
-    logger.info(`Initializing database version ${version} with ${Object.keys(schemaMap).length} tables`);
+    logger.info(`🏗️  Defining database schema v${version} (${Object.keys(schemaMap).length} tables)`);
     this.version(version).stores(schemaMap);
   }
 
