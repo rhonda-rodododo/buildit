@@ -29,7 +29,7 @@ interface FieldEditorProps {
 const fieldFormSchema = z.object({
   name: z.string().regex(/^[a-z0-9_]+$/, 'Field name must be lowercase alphanumeric with underscores'),
   label: z.string().min(1, 'Label is required').max(100),
-  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship']),
+  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship', 'pubkey']),
   required: z.boolean(),
   placeholder: z.string().optional(),
   helpText: z.string().optional(),

@@ -9,6 +9,8 @@ import { customFieldsSeeds } from './seeds';
 import type { BuildItDB } from '@/core/storage/db';
 import { Settings } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import customFieldsTranslations from './i18n';
 
 /**
  * Custom Fields Module Plugin
@@ -61,6 +63,7 @@ export const customFieldsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('custom-fields', customFieldsTranslations);
       logger.info('⚙️ Custom Fields module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -134,6 +135,7 @@ export const UserDirectory: FC = () => {
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-4xl">
+      <PageMeta titleKey="crm.title" descriptionKey="meta.crm" path="/app/directory" />
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>User Directory</CardTitle>

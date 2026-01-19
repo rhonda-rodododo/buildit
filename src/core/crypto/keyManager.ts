@@ -1,5 +1,5 @@
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure'
-import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
 import * as nip19 from 'nostr-tools/nip19'
 import { generateMnemonic, wordlists } from 'bip39'
 import type { Identity, KeyPair } from '@/types/identity'

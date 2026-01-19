@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { useGroupContext } from '@/contexts/GroupContext';
+import { PageMeta } from '@/components/PageMeta';
 import { MessagingView } from '@/components/messaging/MessagingView';
 import { Card } from '@/components/ui/card';
 
@@ -20,6 +21,10 @@ export const GroupMessagesPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta
+        title={`${group.name} - Messages`}
+        descriptionKey="meta.messages"
+      />
       <div>
         <h1 className="text-3xl font-bold">Messages</h1>
         <p className="text-muted-foreground">

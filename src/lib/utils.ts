@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { bytesToHex } from '@noble/hashes/utils'
-import { sha256 } from '@noble/hashes/sha256'
+import { bytesToHex } from '@noble/hashes/utils.js'
+import { sha256 } from '@noble/hashes/sha2.js'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

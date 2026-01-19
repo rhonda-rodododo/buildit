@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { Calendar } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import eventsTranslations from './i18n';
 
 // Lazy load EventsView to reduce initial bundle size
 const EventsView = lazy(() => import('./components/EventsView').then(m => ({ default: m.EventsView })));
@@ -101,6 +103,8 @@ export const eventsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      // Register module translations for lazy loading
+      registerModuleTranslations('events', eventsTranslations);
       logger.info('📅 Events module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

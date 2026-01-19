@@ -6,6 +6,7 @@
 import { FC, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { PageMeta } from '@/components/PageMeta';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -149,6 +150,12 @@ export const CampaignPage: FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <PageMeta
+        titleKey="common.campaigns"
+        title={campaign.name}
+        description={campaign.description}
+        path={`/campaigns/${campaign.slug}`}
+      />
       <PublicHeader />
 
       {/* Hero Section */}

@@ -5,7 +5,7 @@
  */
 
 import { useState, useMemo } from 'react'
-import { hexToBytes } from '@noble/hashes/utils'
+import { hexToBytes } from '@noble/hashes/utils.js'
 import { Folder, File, Image, Video, Music, FileText, Archive, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

@@ -9,6 +9,8 @@ import { publicSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { Globe } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import publicTranslations from './i18n';
 
 // Types
 export * from './types';
@@ -71,6 +73,7 @@ export const publicModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('public', publicTranslations);
       logger.info('🌐 Public module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

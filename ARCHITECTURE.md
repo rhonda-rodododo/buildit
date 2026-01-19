@@ -271,7 +271,7 @@ interface Module {
 **Module Structure (Complete Encapsulation)**:
 ```
 src/modules/[module-name]/
-├── index.ts              # Module registration & exports
+├── index.ts              # Module registration (schema + i18n) & exports
 ├── schema.ts             # Database schema (Dexie tables, types)
 ├── migrations.ts         # Schema version upgrades
 ├── seeds.ts              # Example data and templates
@@ -284,16 +284,14 @@ src/modules/[module-name]/
 ├── hooks/                # Module-specific React hooks
 │   ├── use[Module].ts
 │   └── ...
-└── i18n/                 # Module translations
-    ├── en.json
-    ├── es.json
-    └── ...
+└── i18n/                 # Module translations (scoped)
+    └── index.ts          # Uses defineModuleTranslations()
 ```
 
 **Example: Events Module**:
 ```
 src/modules/events/
-├── index.ts              # Exports EventsModule
+├── index.ts              # Registers schema + i18n, exports module
 ├── schema.ts             # DBEvent, DBRSVP tables
 ├── migrations.ts         # v1→v2 add imageUrl field
 ├── seeds.ts              # Sample events for demo
@@ -310,8 +308,22 @@ src/modules/events/
 │   ├── useEvents.ts
 │   └── useRSVPs.ts
 └── i18n/
-    ├── en.json           # "events.create.title": "Create Event"
-    └── es.json
+    └── index.ts          # defineModuleTranslations({ en: {...}, es: {...} })
+```
+
+**Module Registration (index.ts)**:
+Every module must register both its schema and translations at import time:
+```typescript
+import { registerModuleSchema } from '@/core/storage/db';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import { eventsSchema } from './schema';
+import eventsTranslations from './i18n';
+
+// Register schema and translations
+registerModuleSchema('events', eventsSchema);
+registerModuleTranslations('events', eventsTranslations);
+
+// Exports...
 ```
 
 ### Custom Fields System

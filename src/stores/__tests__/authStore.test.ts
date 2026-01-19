@@ -47,7 +47,7 @@ vi.mock('@/core/crypto/SecureKeyManager', () => ({
   },
 }));
 
-import { useAuthStore, getCurrentPrivateKey } from '../authStore';
+import { useAuthStore, getCurrentPrivateKey, getSavedIdentityPubkey, SELECTED_IDENTITY_KEY } from '../authStore';
 
 // Mock database
 const mockIdentities = new Map();
@@ -106,6 +106,9 @@ describe('authStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIdentities.clear();
+
+    // Clear localStorage
+    localStorage.clear();
 
     // Reset mock state
     mockSecureKeyManager.lockState = 'locked';
@@ -700,6 +703,104 @@ describe('authStore', () => {
 
       const result = getCurrentPrivateKey();
       expect(result).toBe(mockKey);
+    });
+  });
+
+  describe('session persistence (localStorage)', () => {
+    it('should save identity pubkey to localStorage when creating identity', async () => {
+      const mockEncryptedData: EncryptedKeyData = {
+        publicKey: 'new-pubkey',
+        encryptedPrivateKey: 'encrypted',
+        salt: 'salt123',
+        iv: 'iv123',
+        webAuthnProtected: false,
+        createdAt: Date.now(),
+        keyVersion: 1,
+      };
+
+      mockSecureKeyManager.createEncryptedKeyData.mockResolvedValue(mockEncryptedData);
+      mockSecureKeyManager.unlockWithPassword.mockResolvedValue(new Uint8Array(32).fill(1));
+
+      const { createNewIdentity } = useAuthStore.getState();
+      await createNewIdentity('Test User', 'password123');
+
+      // Verify localStorage was updated
+      const savedPubkey = localStorage.getItem(SELECTED_IDENTITY_KEY);
+      expect(savedPubkey).toBeTruthy();
+      expect(getSavedIdentityPubkey()).toBeTruthy();
+    });
+
+    it('should save identity pubkey to localStorage when importing identity', async () => {
+      const mockEncryptedData: EncryptedKeyData = {
+        publicKey: 'imported-pubkey',
+        encryptedPrivateKey: 'encrypted',
+        salt: 'salt123',
+        iv: 'iv123',
+        webAuthnProtected: false,
+        createdAt: Date.now(),
+        keyVersion: 1,
+      };
+
+      mockSecureKeyManager.createEncryptedKeyData.mockResolvedValue(mockEncryptedData);
+      mockSecureKeyManager.unlockWithPassword.mockResolvedValue(new Uint8Array(32).fill(2));
+
+      const { importIdentity } = useAuthStore.getState();
+      await importIdentity('nsec1test', 'Imported User', 'password123');
+
+      // Verify localStorage was updated
+      const savedPubkey = localStorage.getItem(SELECTED_IDENTITY_KEY);
+      expect(savedPubkey).toBeTruthy();
+    });
+
+    it('should save identity pubkey to localStorage when switching identities', async () => {
+      const identity = {
+        publicKey: 'pubkey-1',
+        npub: 'npub1one',
+        name: 'User One',
+      };
+      useAuthStore.setState({
+        identities: [identity],
+        currentIdentity: null,
+      });
+
+      const { setCurrentIdentity } = useAuthStore.getState();
+      await setCurrentIdentity('pubkey-1');
+
+      // Verify localStorage was updated
+      expect(localStorage.getItem(SELECTED_IDENTITY_KEY)).toBe('pubkey-1');
+      expect(getSavedIdentityPubkey()).toBe('pubkey-1');
+    });
+
+    it('should clear localStorage when setting identity to null', async () => {
+      // Set up an existing identity selection
+      localStorage.setItem(SELECTED_IDENTITY_KEY, 'existing-pubkey');
+
+      const identity = {
+        publicKey: 'pubkey-1',
+        npub: 'npub1one',
+        name: 'User One',
+      };
+      useAuthStore.setState({
+        identities: [identity],
+        currentIdentity: identity,
+      });
+
+      const { setCurrentIdentity } = useAuthStore.getState();
+      await setCurrentIdentity(null);
+
+      // Verify localStorage was cleared
+      expect(localStorage.getItem(SELECTED_IDENTITY_KEY)).toBeNull();
+      expect(getSavedIdentityPubkey()).toBeNull();
+    });
+
+    it('getSavedIdentityPubkey should return null when no identity saved', () => {
+      localStorage.clear();
+      expect(getSavedIdentityPubkey()).toBeNull();
+    });
+
+    it('getSavedIdentityPubkey should return the saved pubkey', () => {
+      localStorage.setItem(SELECTED_IDENTITY_KEY, 'test-pubkey-123');
+      expect(getSavedIdentityPubkey()).toBe('test-pubkey-123');
     });
   });
 });

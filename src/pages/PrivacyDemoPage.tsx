@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { AnonymousReactions } from '@/components/privacy/AnonymousReactions';
 import { AnonymousVoting } from '@/components/privacy/AnonymousVoting';
 import { PrivacyDashboard } from '@/components/privacy/PrivacyDashboard';
@@ -21,6 +22,7 @@ export const PrivacyDemoPage: FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      <PageMeta title="Privacy Demo" descriptionKey="meta.privacy" />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Privacy & Anonymous Engagement</h1>

@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BulkActionsToolbar } from '@/components/bulk-operations/BulkActionsToolbar';
@@ -127,6 +128,7 @@ export const BulkOperationsPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta titleKey="crm.title" descriptionKey="meta.crm" path="/app/bulk-operations" />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Bulk Operations</h1>

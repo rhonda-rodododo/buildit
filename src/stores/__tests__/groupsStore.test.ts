@@ -154,7 +154,7 @@ vi.mock('nostr-tools/pure', () => ({
   generateSecretKey: vi.fn(() => new Uint8Array(32).fill(42)),
 }));
 
-vi.mock('@noble/hashes/utils', () => ({
+vi.mock('@noble/hashes/utils.js', () => ({
   bytesToHex: vi.fn(() => 'abcd1234'),
 }));
 

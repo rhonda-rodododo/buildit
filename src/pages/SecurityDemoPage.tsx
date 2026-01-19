@@ -5,6 +5,7 @@
  */
 
 import { FC } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { MemberVerification } from '@/components/security/MemberVerification';
 import { AnomalyDetection } from '@/components/security/AnomalyDetection';
 import { AuditLogs } from '@/components/security/AuditLogs';
@@ -20,6 +21,7 @@ import {
 export const SecurityDemoPage: FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
+      <PageMeta title="Security Demo" descriptionKey="meta.security" />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Infiltration Countermeasures</h1>

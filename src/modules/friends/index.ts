@@ -9,6 +9,8 @@ import type { ModulePlugin } from '@/types/modules';
 import { friendsSchema, friendsMigrations, friendsSeeds } from './schema';
 import { Users } from 'lucide-react';
 import { lazy } from 'react';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import friendsTranslations from './i18n';
 
 // Lazy load ContactsPage to reduce initial bundle size
 const ContactsPage = lazy(() => import('./components/ContactsPage').then(m => ({ default: m.ContactsPage })));
@@ -112,6 +114,13 @@ export const friendsModule: ModulePlugin = {
       label: 'Friends',
     },
   ],
+
+  // Register translations when module loads
+  lifecycle: {
+    onRegister: async () => {
+      registerModuleTranslations('friends', friendsTranslations);
+    },
+  },
 
   // Schema is always loaded (modules are loaded at init)
   schema: friendsSchema,

@@ -8,6 +8,8 @@ import { messagingSchema } from './schema';
 import type { BuildItDB } from '@/core/storage/db';
 import { MessageSquare } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import messagingTranslations from './i18n';
 
 /**
  * Messaging Module Plugin
@@ -69,6 +71,7 @@ export const messagingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('messaging', messagingTranslations);
       logger.info('💬 Messaging module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

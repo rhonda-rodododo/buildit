@@ -16,6 +16,12 @@ export interface DBTable {
   description?: string;
   icon?: string; // emoji or icon name
 
+  // Form layout configuration (JSON string)
+  formLayout?: string; // FormLayout serialized
+
+  // Detail view configuration (JSON string)
+  detailConfig?: string; // DetailConfig serialized
+
   // Access control
   createdBy: string;
   created: number;
@@ -33,7 +39,7 @@ export interface DBView {
   name: string;
 
   // View type
-  type: 'table' | 'board' | 'calendar' | 'gallery'; // view type
+  type: 'table' | 'board' | 'calendar' | 'gallery' | 'detail' | 'report'; // view type
 
   // View configuration (JSON string)
   config: string; // ViewConfig serialized
@@ -100,6 +106,69 @@ export interface DBRelationship {
 }
 
 /**
+ * Activity Types for record timeline
+ */
+export type RecordActivityType =
+  | 'created'
+  | 'updated'
+  | 'field_changed'
+  | 'comment'
+  | 'attachment_added'
+  | 'attachment_removed'
+  | 'status_changed'
+  | 'assigned'
+  | 'linked'
+  | 'unlinked';
+
+/**
+ * Database Record Activity
+ * Activity log for records (timeline)
+ */
+export interface DBRecordActivity {
+  id: string; // uuid (primary key)
+  recordId: string; // which record this activity belongs to
+  tableId: string; // which table the record belongs to
+  groupId: string;
+  type: RecordActivityType;
+  actorPubkey: string; // who performed the action
+  data: string; // JSON object with activity-specific data
+  createdAt: number;
+}
+
+/**
+ * Database Record Comment
+ * Comments/notes per record with threading support
+ */
+export interface DBRecordComment {
+  id: string; // uuid (primary key)
+  recordId: string; // which record this comment belongs to
+  tableId: string; // which table the record belongs to
+  groupId: string;
+  authorPubkey: string;
+  content: string;
+  parentId?: string; // for threaded replies
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Database Record Attachment
+ * File attachments linking records to files module
+ */
+export interface DBRecordAttachment {
+  id: string; // uuid (primary key)
+  recordId: string; // which record this attachment belongs to
+  tableId: string; // which table the record belongs to
+  groupId: string;
+  fileId: string; // reference to files module
+  fileName?: string; // cached file name for display
+  fileType?: string; // cached file type
+  fileSize?: number; // cached file size in bytes
+  addedBy: string; // pubkey of who attached the file
+  addedAt: number;
+}
+
+/**
  * Database module schema definition
  */
 export const databaseSchema: TableSchema[] = [
@@ -122,5 +191,21 @@ export const databaseSchema: TableSchema[] = [
     name: 'databaseRelationships',
     schema: 'id, groupId, sourceTableId, sourceFieldName, targetTableId, targetFieldName, type, onDelete, created, createdBy',
     indexes: ['id', 'groupId', 'sourceTableId', 'targetTableId', 'created', 'createdBy'],
+  },
+  // Activity/Timeline tables
+  {
+    name: 'databaseRecordActivities',
+    schema: 'id, recordId, tableId, groupId, type, actorPubkey, data, createdAt',
+    indexes: ['id', 'recordId', 'tableId', 'groupId', 'type', 'actorPubkey', 'createdAt'],
+  },
+  {
+    name: 'databaseRecordComments',
+    schema: 'id, recordId, tableId, groupId, authorPubkey, content, parentId, createdAt, updatedAt',
+    indexes: ['id', 'recordId', 'tableId', 'groupId', 'authorPubkey', 'parentId', 'createdAt'],
+  },
+  {
+    name: 'databaseRecordAttachments',
+    schema: 'id, recordId, tableId, groupId, fileId, fileName, fileType, fileSize, addedBy, addedAt',
+    indexes: ['id', 'recordId', 'tableId', 'groupId', 'fileId', 'addedBy', 'addedAt'],
   },
 ];

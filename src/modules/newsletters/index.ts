@@ -8,6 +8,8 @@ import type { ModulePlugin } from '@/types/modules';
 import { newslettersSchema } from './schema';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import newslettersTranslations from './i18n';
 
 // Lazy load NewslettersPage to reduce initial bundle size
 const NewslettersPage = lazy(() => import('./components/NewslettersPage').then(m => ({ default: m.NewslettersPage })));
@@ -82,6 +84,7 @@ export const NewslettersModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: () => {
+      registerModuleTranslations('newsletters', newslettersTranslations);
       logger.info('📧 Newsletters module registered');
     },
     onEnable: async (groupId) => {

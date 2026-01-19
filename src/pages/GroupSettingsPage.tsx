@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { useGroupsStore } from '@/stores/groupsStore';
+import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -49,6 +50,10 @@ export const GroupSettingsPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta
+        title={`${group.name} - Settings`}
+        descriptionKey="meta.settings"
+      />
       <div>
         <h1 className="text-3xl font-bold">Group Settings</h1>
         <p className="text-muted-foreground">

@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { useGroupContext } from '@/contexts/GroupContext';
+import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -23,6 +24,10 @@ export const GroupMembersPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta
+        title={`${group.name} - Members`}
+        descriptionKey="meta.groups"
+      />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Members</h1>

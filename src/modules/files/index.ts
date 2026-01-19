@@ -8,6 +8,8 @@ import type { ModulePlugin } from '@/types/modules'
 import { filesSchema } from './schema'
 import { FolderOpen } from 'lucide-react'
 import { logger } from '@/lib/logger'
+import { registerModuleTranslations } from '@/i18n/moduleI18n'
+import filesTranslations from './i18n'
 
 // Lazy load components
 const FilesPage = lazy(() =>
@@ -80,6 +82,7 @@ export const filesModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('files', filesTranslations)
       logger.info('📁 Files module registered')
     },
     onEnable: async (groupId: string) => {

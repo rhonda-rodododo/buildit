@@ -9,6 +9,9 @@ import type {
   DatabaseView,
   DatabaseRecord,
   DatabaseRelationship,
+  RecordActivity,
+  RecordComment,
+  RecordAttachment,
 } from './types';
 
 export interface DatabaseState {
@@ -25,6 +28,16 @@ export interface DatabaseState {
 
   // Relationships
   relationships: Map<string, DatabaseRelationship>;
+
+  // Activities (keyed by recordId)
+  activitiesByRecord: Map<string, RecordActivity[]>;
+
+  // Comments (keyed by recordId)
+  commentsByRecord: Map<string, RecordComment[]>;
+
+  // Attachments (keyed by recordId, and also by id for quick lookup)
+  attachmentsByRecord: Map<string, RecordAttachment[]>;
+  attachmentsById: Map<string, RecordAttachment>;
 
   // Loading states
   loading: boolean;
@@ -58,6 +71,26 @@ export interface DatabaseState {
   deleteRelationship: (id: string) => void;
   getRelationshipsByTable: (tableId: string) => DatabaseRelationship[];
 
+  // Actions: Activities
+  addActivity: (activity: RecordActivity) => void;
+  setActivitiesForRecord: (recordId: string, activities: RecordActivity[]) => void;
+  getActivitiesByRecord: (recordId: string) => RecordActivity[];
+  clearActivitiesForRecord: (recordId: string) => void;
+
+  // Actions: Comments
+  addComment: (comment: RecordComment) => void;
+  updateComment: (id: string, update: Partial<RecordComment>) => void;
+  deleteComment: (id: string) => void;
+  setCommentsForRecord: (recordId: string, comments: RecordComment[]) => void;
+  getCommentsByRecord: (recordId: string) => RecordComment[];
+
+  // Actions: Attachments
+  addAttachment: (attachment: RecordAttachment) => void;
+  deleteAttachment: (id: string) => void;
+  setAttachmentsForRecord: (recordId: string, attachments: RecordAttachment[]) => void;
+  getAttachmentsByRecord: (recordId: string) => RecordAttachment[];
+  getAttachment: (id: string) => RecordAttachment | undefined;
+
   // Loading
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -74,6 +107,10 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
   currentViewId: null,
   recordsByTable: new Map(),
   relationships: new Map(),
+  activitiesByRecord: new Map(),
+  commentsByRecord: new Map(),
+  attachmentsByRecord: new Map(),
+  attachmentsById: new Map(),
   loading: false,
   error: null,
 
@@ -251,6 +288,149 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
     );
   },
 
+  // Actions: Activities
+  addActivity: (activity) => {
+    set((state) => {
+      const newActivitiesByRecord = new Map(state.activitiesByRecord);
+      const existing = newActivitiesByRecord.get(activity.recordId) || [];
+      // Prepend new activity (most recent first)
+      newActivitiesByRecord.set(activity.recordId, [activity, ...existing]);
+      return { activitiesByRecord: newActivitiesByRecord };
+    });
+  },
+
+  setActivitiesForRecord: (recordId, activities) => {
+    set((state) => {
+      const newActivitiesByRecord = new Map(state.activitiesByRecord);
+      newActivitiesByRecord.set(recordId, activities);
+      return { activitiesByRecord: newActivitiesByRecord };
+    });
+  },
+
+  getActivitiesByRecord: (recordId) => {
+    return get().activitiesByRecord.get(recordId) || [];
+  },
+
+  clearActivitiesForRecord: (recordId) => {
+    set((state) => {
+      const newActivitiesByRecord = new Map(state.activitiesByRecord);
+      newActivitiesByRecord.delete(recordId);
+      return { activitiesByRecord: newActivitiesByRecord };
+    });
+  },
+
+  // Actions: Comments
+  addComment: (comment) => {
+    set((state) => {
+      const newCommentsByRecord = new Map(state.commentsByRecord);
+      const existing = newCommentsByRecord.get(comment.recordId) || [];
+      newCommentsByRecord.set(comment.recordId, [...existing, comment]);
+      return { commentsByRecord: newCommentsByRecord };
+    });
+  },
+
+  updateComment: (id, update) => {
+    set((state) => {
+      const newCommentsByRecord = new Map(state.commentsByRecord);
+      for (const [recordId, comments] of newCommentsByRecord.entries()) {
+        const idx = comments.findIndex((c) => c.id === id);
+        if (idx !== -1) {
+          const newComments = [...comments];
+          newComments[idx] = { ...newComments[idx], ...update };
+          newCommentsByRecord.set(recordId, newComments);
+          break;
+        }
+      }
+      return { commentsByRecord: newCommentsByRecord };
+    });
+  },
+
+  deleteComment: (id) => {
+    set((state) => {
+      const newCommentsByRecord = new Map(state.commentsByRecord);
+      for (const [recordId, comments] of newCommentsByRecord.entries()) {
+        const filtered = comments.filter((c) => c.id !== id);
+        if (filtered.length !== comments.length) {
+          newCommentsByRecord.set(recordId, filtered);
+          break;
+        }
+      }
+      return { commentsByRecord: newCommentsByRecord };
+    });
+  },
+
+  setCommentsForRecord: (recordId, comments) => {
+    set((state) => {
+      const newCommentsByRecord = new Map(state.commentsByRecord);
+      newCommentsByRecord.set(recordId, comments);
+      return { commentsByRecord: newCommentsByRecord };
+    });
+  },
+
+  getCommentsByRecord: (recordId) => {
+    return get().commentsByRecord.get(recordId) || [];
+  },
+
+  // Actions: Attachments
+  addAttachment: (attachment) => {
+    set((state) => {
+      const newAttachmentsByRecord = new Map(state.attachmentsByRecord);
+      const newAttachmentsById = new Map(state.attachmentsById);
+      const existing = newAttachmentsByRecord.get(attachment.recordId) || [];
+      newAttachmentsByRecord.set(attachment.recordId, [...existing, attachment]);
+      newAttachmentsById.set(attachment.id, attachment);
+      return { attachmentsByRecord: newAttachmentsByRecord, attachmentsById: newAttachmentsById };
+    });
+  },
+
+  deleteAttachment: (id) => {
+    set((state) => {
+      const attachment = state.attachmentsById.get(id);
+      if (!attachment) return state;
+
+      const newAttachmentsByRecord = new Map(state.attachmentsByRecord);
+      const newAttachmentsById = new Map(state.attachmentsById);
+
+      const existing = newAttachmentsByRecord.get(attachment.recordId) || [];
+      newAttachmentsByRecord.set(
+        attachment.recordId,
+        existing.filter((a) => a.id !== id)
+      );
+      newAttachmentsById.delete(id);
+
+      return { attachmentsByRecord: newAttachmentsByRecord, attachmentsById: newAttachmentsById };
+    });
+  },
+
+  setAttachmentsForRecord: (recordId, attachments) => {
+    set((state) => {
+      const newAttachmentsByRecord = new Map(state.attachmentsByRecord);
+      const newAttachmentsById = new Map(state.attachmentsById);
+
+      // Clear old attachments for this record from the byId map
+      const oldAttachments = newAttachmentsByRecord.get(recordId) || [];
+      for (const old of oldAttachments) {
+        newAttachmentsById.delete(old.id);
+      }
+
+      // Set new attachments
+      newAttachmentsByRecord.set(recordId, attachments);
+      for (const attachment of attachments) {
+        newAttachmentsById.set(attachment.id, attachment);
+      }
+
+      return { attachmentsByRecord: newAttachmentsByRecord, attachmentsById: newAttachmentsById };
+    });
+  },
+
+  getAttachmentsByRecord: (recordId) => {
+    return get().attachmentsByRecord.get(recordId) || [];
+  },
+
+  getAttachment: (id) => {
+    return get().attachmentsById.get(id);
+  },
+
   // Loading
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
@@ -264,6 +444,10 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
       currentViewId: null,
       recordsByTable: new Map(),
       relationships: new Map(),
+      activitiesByRecord: new Map(),
+      commentsByRecord: new Map(),
+      attachmentsByRecord: new Map(),
+      attachmentsById: new Map(),
       loading: false,
       error: null,
     }),

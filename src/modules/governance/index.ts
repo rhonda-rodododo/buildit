@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { Vote } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import governanceTranslations from './i18n';
 
 // Lazy load GovernanceView to reduce initial bundle size
 const GovernanceView = lazy(() => import('./components/GovernanceView').then(m => ({ default: m.GovernanceView })));
@@ -80,6 +82,7 @@ export const governanceModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('governance', governanceTranslations);
       logger.info('🗳️ Governance module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

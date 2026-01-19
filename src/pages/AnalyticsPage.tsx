@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CRMAnalytics } from '@/components/analytics/CRMAnalytics';
 import { CampaignAnalytics } from '@/components/analytics/CampaignAnalytics';
@@ -14,6 +15,7 @@ export const AnalyticsPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta titleKey="crm.title" descriptionKey="meta.analytics" path="/app/analytics" />
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
         <p className="text-muted-foreground">

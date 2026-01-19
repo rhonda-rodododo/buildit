@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ export const OnboardingDemoPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta title="Onboarding Demo" descriptionKey="meta.defaultDescription" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

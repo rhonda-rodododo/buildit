@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { initializeModules } from "@/lib/modules/registry";
 import { initializeDatabase } from "@/core/storage/db";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore, getSavedIdentityPubkey } from "@/stores/authStore";
 import { logger, criticalLogger } from "@/lib/logger";
 import "./index.css";
 import "./i18n/config";
@@ -14,6 +14,8 @@ import "./i18n/config";
 // Initialize modules and database
 // IMPORTANT: Modules must be initialized first to register their schemas
 let initializationPromise: Promise<boolean> | null = null;
+
+const INIT_TIMEOUT_MS = 15000; // 15 seconds
 
 async function initializeApp(): Promise<boolean> {
   // Check if DB is already initialized (from previous HMR cycle)
@@ -32,32 +34,44 @@ async function initializeApp(): Promise<boolean> {
     return initializationPromise;
   }
 
-  // Start initialization and save the promise so other callers can wait for it
-  initializationPromise = doInitialize();
+  // Start initialization with timeout wrapper
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Initialization timed out after ${INIT_TIMEOUT_MS / 1000} seconds. This may indicate a database or module loading issue.`));
+    }, INIT_TIMEOUT_MS);
+  });
+
+  initializationPromise = Promise.race([doInitialize(), timeoutPromise]);
   return initializationPromise;
 }
 
 async function doInitialize(): Promise<boolean> {
+  let currentStep = 'starting';
+
   try {
     logger.info("🚀 Starting app initialization...");
 
     // Step 1: Initialize modules (registers schemas with db, but does NOT load instances yet)
+    currentStep = 'initializing modules';
     logger.info("  Step 1: Initializing modules...");
     await initializeModules();
     logger.info("  Step 1: ✅ Modules initialized");
 
     // Step 2: Initialize database (opens db with all module schemas)
+    currentStep = 'initializing database';
     logger.info("  Step 2: Initializing database...");
     await initializeDatabase();
     logger.info("  Step 2: ✅ Database initialized");
 
     // Step 3: Initialize store initializer (subscribes to unlock/lock events)
+    currentStep = 'initializing store initializer';
     logger.info("  Step 3: Initializing store initializer...");
     const { initializeStoreInitializer } = await import("@/core/storage/StoreInitializer");
     initializeStoreInitializer();
     logger.info("  Step 3: ✅ Store initializer ready");
 
     // Step 4: Now load module instances (requires db to be open)
+    currentStep = 'loading module instances';
     logger.info("  Step 4: Loading module instances...");
     const moduleStore = (
       await import("@/stores/moduleStore")
@@ -66,17 +80,26 @@ async function doInitialize(): Promise<boolean> {
     logger.info("  Step 4: ✅ Module instances loaded");
 
     // Step 5: Load identities from DB (public info only - private keys stay encrypted)
+    currentStep = 'loading identities';
     logger.info("  Step 5: Loading identities...");
     const authStore = useAuthStore.getState();
     await authStore.loadIdentities();
     logger.info("  Step 5: ✅ Identities loaded");
 
-    // If there's a saved identity preference, select it (but don't unlock)
-    // The user will need to enter their password to unlock
-    // This is handled by the UI layer now
+    // Step 5b: Restore selected identity from localStorage (if any)
+    const savedIdentityPubkey = getSavedIdentityPubkey();
+    if (savedIdentityPubkey) {
+      const savedIdentity = authStore.identities.find(i => i.publicKey === savedIdentityPubkey);
+      if (savedIdentity) {
+        logger.info("  Step 5b: Restoring saved identity selection...");
+        useAuthStore.setState({ currentIdentity: savedIdentity });
+        logger.info("  Step 5b: ✅ Identity selection restored (still locked)");
+      }
+    }
 
     // Step 6: Start syncing Nostr events for all groups + messages (if unlocked)
     // Note: Sync will only work if the app is unlocked
+    currentStep = 'starting syncs';
     if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
       logger.info("  Step 6: Starting syncs...");
       const { startAllSyncs } = await import("@/core/storage/sync");
@@ -90,7 +113,7 @@ async function doInitialize(): Promise<boolean> {
     return true;
   } catch (error) {
     // Use criticalLogger for errors since these should show in production
-    criticalLogger.error("❌ Failed to initialize app:", error);
+    criticalLogger.error(`❌ Failed to initialize app while ${currentStep}:`, error);
     // Log more details about the error
     if (error instanceof Error) {
       criticalLogger.error("  Error name:", error.name);
@@ -98,7 +121,7 @@ async function doInitialize(): Promise<boolean> {
       criticalLogger.error("  Error stack:", error.stack);
     }
     initializationPromise = null; // Allow retry on error
-    return false;
+    throw new Error(`Initialization failed while ${currentStep}: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

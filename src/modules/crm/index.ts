@@ -10,6 +10,8 @@ import { CRM_TEMPLATES } from './templates';
 import { Users } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import crmTranslations from './i18n';
 
 // Lazy load CRMView to reduce initial bundle size
 const CRMView = lazy(() => import('./components/CRMView').then(m => ({ default: m.CRMView })));
@@ -58,6 +60,7 @@ export const crmModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('crm', crmTranslations);
       logger.info('👥 CRM module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

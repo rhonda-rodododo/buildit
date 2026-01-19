@@ -155,7 +155,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true
+        enabled: false // Disabled in dev - causes InvalidStateError with HMR
       }
     })
   ],
@@ -170,6 +170,15 @@ export default defineConfig({
       '@/hooks': path.resolve(__dirname, './src/hooks'),
       '@/types': path.resolve(__dirname, './src/types'),
     },
+  },
+  optimizeDeps: {
+    include: [
+      '@noble/hashes',
+      '@noble/hashes/utils',
+      '@noble/hashes/sha256',
+      '@noble/secp256k1',
+      '@scure/bip39',
+    ],
   },
   server: {
     proxy: {
@@ -225,13 +234,13 @@ export default defineConfig({
         },
       },
       {
-        // node project: Crypto/core tests and unit tests that use WebCrypto
+        // node project: Crypto tests that specifically need Node's WebCrypto
         extends: true, // Inherit resolve.alias and plugins from root config
         test: {
           name: 'node',
           environment: 'node',
           include: [
-            '**/__tests__/**/*.test.{ts,tsx}',
+            '**/core/crypto/__tests__/**/*.test.{ts,tsx}',
             '**/tests/unit/**/*.test.{ts,tsx}',
           ],
           exclude: [
@@ -262,7 +271,7 @@ export default defineConfig({
             // Exclude tests handled by other projects
             '**/*.ui.test.{ts,tsx}',
             '**/integration/**/*.test.{ts,tsx}',
-            '**/__tests__/**/*.test.{ts,tsx}',
+            '**/core/crypto/__tests__/**/*.test.{ts,tsx}',
             '**/tests/unit/**/*.test.{ts,tsx}',
           ],
           setupFiles: './src/test/setup.ts',

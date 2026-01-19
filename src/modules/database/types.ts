@@ -12,7 +12,7 @@ export type { CustomFieldValues };
 /**
  * View Types
  */
-export type ViewType = 'table' | 'board' | 'calendar' | 'gallery';
+export type ViewType = 'table' | 'board' | 'calendar' | 'gallery' | 'detail' | 'report';
 
 /**
  * Relationship Types
@@ -80,14 +80,17 @@ export interface ViewConfig {
   // Table view config
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
+  visibleFields?: string[]; // Alias for columnOrder, used in templates
 
   // Board view config
   boardGroupBy?: string; // field name to group by (status, priority, etc.)
+  boardCardTitleField?: string; // field name for card title
   boardCardFields?: string[]; // fields to show on cards
 
   // Calendar view config
   calendarDateField?: string; // field name for date
   calendarEndDateField?: string; // field name for end date (optional)
+  calendarTitleField?: string; // field name for event title
   calendarViewMode?: 'month' | 'week' | 'day' | 'agenda';
 
   // Gallery view config
@@ -95,6 +98,74 @@ export interface ViewConfig {
   galleryTitleField?: string; // field name for title
   galleryDescriptionField?: string; // field name for description
   galleryColumns?: number; // number of columns
+
+  // Detail view config
+  detailHeaderField?: string; // Main title field
+  detailSubtitleField?: string; // Subtitle field
+  detailAvatarField?: string; // Avatar/image field
+  detailSections?: DetailViewSection[];
+  detailShowTimeline?: boolean;
+  detailShowAttachments?: boolean;
+  detailShowRelatedRecords?: boolean;
+
+  // Report view config
+  reportType?: 'summary' | 'chart' | 'pivot';
+  reportGroupBy?: string[];
+  reportAggregations?: ReportAggregation[];
+  reportChartType?: 'bar' | 'line' | 'pie' | 'donut';
+  reportChartLabelField?: string;
+  reportChartValueField?: string;
+  reportChartGroupField?: string;
+  reportPivotRowField?: string;
+  reportPivotColumnField?: string;
+  reportPivotValueField?: string;
+  reportPivotAggregation?: 'count' | 'sum' | 'avg' | 'min' | 'max';
+}
+
+/**
+ * Detail View Section
+ */
+export interface DetailViewSection {
+  id: string;
+  label: string;
+  type: 'fields' | 'related' | 'timeline' | 'attachments' | 'custom';
+  fields?: string[]; // For 'fields' type - field names to display
+  relatedTableKey?: string; // For 'related' type
+  columns?: 1 | 2 | 3; // Multi-column layout
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+}
+
+/**
+ * Report Aggregation
+ */
+export interface ReportAggregation {
+  field: string;
+  operation: 'count' | 'sum' | 'avg' | 'min' | 'max' | 'countDistinct';
+  label?: string;
+}
+
+/**
+ * Form Section for layout
+ */
+export interface FormSection {
+  id: string;
+  label: string;
+  description?: string;
+  fields: string[]; // Field names in order
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  columns?: 1 | 2 | 3; // Multi-column layout
+}
+
+/**
+ * Form Layout configuration
+ */
+export interface FormLayout {
+  sections: FormSection[];
+  submitLabel?: string;
+  cancelLabel?: string;
+  showSectionNumbers?: boolean;
 }
 
 /**
@@ -109,6 +180,20 @@ export interface DatabaseTable {
 
   // Custom fields for this table
   fields: CustomField[];
+
+  // Form layout configuration (optional)
+  formLayout?: FormLayout;
+
+  // Detail view configuration (optional) - for single record views
+  detailConfig?: {
+    headerField?: string;
+    subtitleField?: string;
+    avatarField?: string;
+    sections?: DetailViewSection[];
+    showTimeline?: boolean;
+    showAttachments?: boolean;
+    showRelatedRecords?: boolean;
+  };
 
   // Timestamps
   created: number;
@@ -364,4 +449,190 @@ export const DatabaseTemplateSchema = z.object({
   created: z.number(),
   createdBy: z.string().optional(),
   updated: z.number(),
+});
+
+/**
+ * Activity Types for record timeline
+ */
+export type RecordActivityType =
+  | 'created'
+  | 'updated'
+  | 'field_changed'
+  | 'comment'
+  | 'attachment_added'
+  | 'attachment_removed'
+  | 'status_changed'
+  | 'assigned'
+  | 'linked'
+  | 'unlinked';
+
+/**
+ * Activity data for field changes
+ */
+export interface FieldChangeActivityData {
+  fieldName: string;
+  fieldLabel?: string;
+  oldValue: unknown;
+  newValue: unknown;
+}
+
+/**
+ * Activity data for status changes
+ */
+export interface StatusChangeActivityData {
+  fieldName: string;
+  oldStatus: string;
+  newStatus: string;
+}
+
+/**
+ * Activity data for assignments
+ */
+export interface AssignmentActivityData {
+  assigneeType: 'user' | 'persona';
+  assigneePubkey: string;
+  assigneeName?: string;
+}
+
+/**
+ * Activity data for linking/unlinking records
+ */
+export interface LinkActivityData {
+  linkedRecordId: string;
+  linkedTableId: string;
+  linkedTableName?: string;
+  linkedRecordDisplayValue?: string;
+}
+
+/**
+ * Activity data for comments
+ */
+export interface CommentActivityData {
+  commentId: string;
+  contentPreview: string;
+  isReply: boolean;
+  parentCommentId?: string;
+}
+
+/**
+ * Activity data for attachments
+ */
+export interface AttachmentActivityData {
+  attachmentId: string;
+  fileId: string;
+  fileName: string;
+  fileType?: string;
+  fileSize?: number;
+}
+
+/**
+ * Union of all activity data types
+ */
+export type RecordActivityData =
+  | FieldChangeActivityData
+  | StatusChangeActivityData
+  | AssignmentActivityData
+  | LinkActivityData
+  | CommentActivityData
+  | AttachmentActivityData
+  | Record<string, unknown>;
+
+/**
+ * Record Activity
+ * Activity log for records (timeline)
+ */
+export interface RecordActivity {
+  id: string;
+  recordId: string;
+  tableId: string;
+  groupId: string;
+  type: RecordActivityType;
+  actorPubkey: string;
+  data: RecordActivityData;
+  createdAt: number;
+}
+
+/**
+ * Record Comment
+ * Comments/notes per record with threading support
+ */
+export interface RecordComment {
+  id: string;
+  recordId: string;
+  tableId: string;
+  groupId: string;
+  authorPubkey: string;
+  content: string;
+  parentId?: string;
+  createdAt: number;
+  updatedAt: number;
+  // Computed fields (not stored)
+  replies?: RecordComment[];
+}
+
+/**
+ * Record Attachment
+ * File attachments linking records to files module
+ */
+export interface RecordAttachment {
+  id: string;
+  recordId: string;
+  tableId: string;
+  groupId: string;
+  fileId: string;
+  fileName?: string;
+  fileType?: string;
+  fileSize?: number;
+  addedBy: string;
+  addedAt: number;
+}
+
+/**
+ * Zod Schemas for Activity Types
+ */
+export const RecordActivitySchema = z.object({
+  id: z.string().uuid(),
+  recordId: z.string(),
+  tableId: z.string(),
+  groupId: z.string(),
+  type: z.enum([
+    'created',
+    'updated',
+    'field_changed',
+    'comment',
+    'attachment_added',
+    'attachment_removed',
+    'status_changed',
+    'assigned',
+    'linked',
+    'unlinked',
+  ]),
+  actorPubkey: z.string(),
+  data: z.record(z.string(), z.unknown()),
+  createdAt: z.number(),
+});
+
+export const RecordCommentSchema = z.object({
+  id: z.string().uuid(),
+  recordId: z.string(),
+  tableId: z.string(),
+  groupId: z.string(),
+  authorPubkey: z.string(),
+  content: z.string().min(1).max(10000),
+  parentId: z.string().optional(),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+});
+
+export const RecordAttachmentSchema = z.object({
+  id: z.string().uuid(),
+  recordId: z.string(),
+  tableId: z.string(),
+  groupId: z.string(),
+  fileId: z.string(),
+  fileName: z.string().optional(),
+  fileType: z.string().optional(),
+  fileSize: z.number().optional(),
+  addedBy: z.string(),
+  addedAt: z.number(),
 });

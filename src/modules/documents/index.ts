@@ -8,6 +8,8 @@ import { documentsSchema } from './schema';
 import { FileText } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import documentsTranslations from './i18n';
 
 // Lazy load DocumentsPage to reduce initial bundle size
 const DocumentsPage = lazy(() => import('./components/DocumentsPage').then(m => ({ default: m.DocumentsPage })));
@@ -65,6 +67,7 @@ export const documentsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('documents', documentsTranslations);
       logger.info('📄 Documents module registered');
     },
     onEnable: async (groupId: string) => {

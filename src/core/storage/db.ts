@@ -143,6 +143,56 @@ export type {
 export type { DBOfflineQueueItem, DBCacheMetadata };
 
 /**
+ * MULTI-DEVICE SUPPORT INTERFACES
+ */
+
+export interface DBLinkedDevice {
+  id: string;
+  identityPubkey: string;
+  type: 'primary' | 'linked' | 'bunker';
+  name: string;
+  deviceInfo: string; // JSON-encoded DeviceInfo
+  lastSeen: number;
+  isCurrent: boolean;
+  createdAt: number;
+}
+
+export interface DBDeviceTransfer {
+  id: string;
+  identityPubkey: string;
+  direction: 'outgoing' | 'incoming';
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'expired';
+  deviceName: string;
+  sessionData?: string; // JSON-encoded session data (encrypted)
+  createdAt: number;
+  expiresAt: number;
+  completedAt?: number;
+  errorMessage?: string;
+}
+
+export interface DBBunkerConnection {
+  id: string;
+  identityPubkey: string;
+  remotePubkey: string; // The requesting app's pubkey
+  name: string; // User-friendly name for the connection
+  status: 'pending' | 'approved' | 'denied' | 'revoked';
+  permissions: string; // JSON-encoded NIP-46 permissions
+  relays: string; // JSON-encoded relay list
+  lastConnected: number;
+  createdAt: number;
+}
+
+export interface DBIdentityBackup {
+  id: string;
+  identityPubkey: string;
+  type: 'recovery_phrase' | 'encrypted_file' | 'device_transfer';
+  encryptedData?: string; // For encrypted file backups
+  checksum: string; // SHA-256 checksum for verification
+  deviceId: string; // Device that created the backup
+  createdAt: number;
+}
+
+/**
  * Core database schema (always present)
  */
 const CORE_SCHEMA: TableSchema[] = [
@@ -291,6 +341,30 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'key, type, size, lastAccessedAt, createdAt',
     indexes: ['key', 'type', 'size', 'lastAccessedAt', 'createdAt'],
   },
+  // Multi-device support: Linked devices tracking
+  {
+    name: 'linkedDevices',
+    schema: 'id, identityPubkey, type, name, lastSeen, isCurrent, createdAt',
+    indexes: ['id', 'identityPubkey', 'type', 'lastSeen', 'isCurrent', 'createdAt'],
+  },
+  // Multi-device support: Device transfer sessions
+  {
+    name: 'deviceTransfers',
+    schema: 'id, identityPubkey, direction, status, deviceName, createdAt, completedAt',
+    indexes: ['id', 'identityPubkey', 'direction', 'status', 'createdAt'],
+  },
+  // Multi-device support: NIP-46 bunker connections
+  {
+    name: 'bunkerConnections',
+    schema: 'id, identityPubkey, remotePubkey, name, status, permissions, lastConnected, createdAt',
+    indexes: ['id', 'identityPubkey', 'remotePubkey', 'status', 'lastConnected'],
+  },
+  // Multi-device support: Identity backups
+  {
+    name: 'identityBackups',
+    schema: 'id, identityPubkey, type, createdAt, deviceId',
+    indexes: ['id', 'identityPubkey', 'type', 'createdAt'],
+  },
 ];
 
 /**
@@ -322,6 +396,12 @@ export class BuildItDB extends Dexie {
   // Epic 60: Offline queue and cache management
   offlineQueue!: Table<DBOfflineQueueItem, string>;
   cacheMetadata!: Table<DBCacheMetadata, string>;
+
+  // Multi-device support tables
+  linkedDevices!: Table<DBLinkedDevice, string>;
+  deviceTransfers!: Table<DBDeviceTransfer, string>;
+  bunkerConnections!: Table<DBBunkerConnection, string>;
+  identityBackups!: Table<DBIdentityBackup, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();

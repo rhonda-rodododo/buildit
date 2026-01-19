@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { Book } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import wikiTranslations from './i18n';
 
 // Lazy load WikiView to reduce initial bundle size (includes heavy md-editor)
 const WikiView = lazy(() => import('./components/WikiView').then(m => ({ default: m.WikiView })));
@@ -74,6 +76,7 @@ export const wikiModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('wiki', wikiTranslations);
       logger.info('📚 Wiki module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

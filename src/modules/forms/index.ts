@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { FileText } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import formsTranslations from './i18n';
 
 // Lazy load FormsPage to reduce initial bundle size
 const FormsPage = lazy(() => import('./components/FormsPage').then(m => ({ default: m.FormsPage })));
@@ -84,6 +86,7 @@ export const formsModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('forms', formsTranslations);
       logger.info('📝 Forms module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

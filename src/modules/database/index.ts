@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { Database } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import databaseTranslations from './i18n';
 
 // Lazy load DatabasePage to reduce initial bundle size (includes heavy @tanstack/react-table)
 const DatabasePage = lazy(() => import('./components/DatabasePage').then(m => ({ default: m.DatabasePage })));
@@ -70,6 +72,7 @@ export const databaseModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('database', databaseTranslations);
       logger.info('📊 Database module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

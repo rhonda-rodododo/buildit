@@ -42,6 +42,10 @@ i18n
     lng: initialLanguage,
     fallbackLng: 'en',
     defaultNS,
+    // Support multiple namespaces for module translations
+    ns: [defaultNS],
+    // Allow module namespaces to be added dynamically
+    partialBundledLanguages: true,
     interpolation: {
       escapeValue: false, // React already escapes values
     },

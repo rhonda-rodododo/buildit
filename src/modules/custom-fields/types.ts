@@ -19,7 +19,8 @@ export type FieldType =
   | 'checkbox'
   | 'radio'
   | 'file'
-  | 'relationship';
+  | 'relationship'
+  | 'pubkey';
 
 /**
  * Entity Types that can have custom fields
@@ -89,11 +90,39 @@ export interface FieldWidgetConfig {
   // Relationship specific
   relationshipType?: EntityType;
   relationshipLabel?: string;
+  relationshipTargetTable?: string; // Table ID for database relationships
+  relationshipDisplayField?: string; // Field to display for linked records
+
+  // Pubkey specific (social linking)
+  pubkeySource?: 'group_members' | 'friends' | 'any'; // Where to search for users
+  pubkeyDisplayFormat?: 'name' | 'name_with_avatar' | 'avatar_only'; // How to display
 
   // Layout
   gridColumn?: string; // CSS grid column value
   hidden?: boolean;
   disabled?: boolean;
+}
+
+/**
+ * Field Visibility Rule
+ * Used for conditional field visibility and dynamic required validation
+ */
+export type VisibilityOperator =
+  | 'equals'
+  | 'not-equals'
+  | 'contains'
+  | 'not-contains'
+  | 'not-empty'
+  | 'empty'
+  | 'greater-than'
+  | 'less-than'
+  | 'in'
+  | 'not-in';
+
+export interface FieldVisibilityRule {
+  field: string; // Field name to check
+  operator: VisibilityOperator;
+  value?: unknown; // Value to compare against (not needed for 'empty' / 'not-empty')
 }
 
 /**
@@ -117,6 +146,10 @@ export interface CustomField {
 
   // Display order
   order: number;
+
+  // Conditional visibility
+  visibilityRules?: FieldVisibilityRule[]; // Show only if ALL rules pass (AND logic)
+  requiredIf?: FieldVisibilityRule[]; // Required only if ALL rules pass (AND logic)
 
   // Timestamps
   created: number;
@@ -166,7 +199,7 @@ export const JSONSchemaFieldSchema: z.ZodType<JSONSchemaField> = z.object({
 }) as z.ZodType<JSONSchemaField>;
 
 export const FieldWidgetConfigSchema = z.object({
-  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship']),
+  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship', 'pubkey']),
   placeholder: z.string().optional(),
   helpText: z.string().optional(),
   className: z.string().optional(),
@@ -176,9 +209,33 @@ export const FieldWidgetConfigSchema = z.object({
   multiple: z.boolean().optional(),
   relationshipType: z.enum(['event', 'aid-request', 'aid-offer', 'contact', 'proposal', 'wiki-page', 'database-record']).optional(),
   relationshipLabel: z.string().optional(),
+  relationshipTargetTable: z.string().optional(),
+  relationshipDisplayField: z.string().optional(),
+  pubkeySource: z.enum(['group_members', 'friends', 'any']).optional(),
+  pubkeyDisplayFormat: z.enum(['name', 'name_with_avatar', 'avatar_only']).optional(),
   gridColumn: z.string().optional(),
   hidden: z.boolean().optional(),
   disabled: z.boolean().optional(),
+});
+
+/**
+ * Field Visibility Rule Schema
+ */
+export const FieldVisibilityRuleSchema = z.object({
+  field: z.string(),
+  operator: z.enum([
+    'equals',
+    'not-equals',
+    'contains',
+    'not-contains',
+    'not-empty',
+    'empty',
+    'greater-than',
+    'less-than',
+    'in',
+    'not-in',
+  ]),
+  value: z.unknown().optional(),
 });
 
 export const CustomFieldSchema = z.object({
@@ -190,6 +247,8 @@ export const CustomFieldSchema = z.object({
   schema: JSONSchemaFieldSchema,
   widget: FieldWidgetConfigSchema,
   order: z.number().int().min(0),
+  visibilityRules: z.array(FieldVisibilityRuleSchema).optional(),
+  requiredIf: z.array(FieldVisibilityRuleSchema).optional(),
   created: z.number(),
   createdBy: z.string(),
   updated: z.number(),
@@ -296,6 +355,14 @@ export const FIELD_TYPE_DEFINITIONS: Record<FieldType, FieldTypeDefinition> = {
     label: 'Relationship',
     description: 'Link to another entity',
     icon: 'Link',
+    jsonSchemaType: 'string',
+    supportsOptions: false,
+  },
+  pubkey: {
+    widget: 'pubkey',
+    label: 'User (Pubkey)',
+    description: 'Link to a Nostr user profile',
+    icon: 'User',
     jsonSchemaType: 'string',
     supportsOptions: false,
   },

@@ -8,6 +8,8 @@ import { publishingSchema } from './schema';
 import { BookOpen } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import publishingTranslations from './i18n';
 
 // Lazy load PublishingPage to reduce initial bundle size
 const PublishingPage = lazy(() => import('./components/PublishingPage').then(m => ({ default: m.PublishingPage })));
@@ -103,6 +105,7 @@ export const publishingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('publishing', publishingTranslations);
       logger.info('📚 Publishing module registered');
     },
     onEnable: async (groupId: string) => {

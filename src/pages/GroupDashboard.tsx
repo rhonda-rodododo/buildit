@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { useParams } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const GroupDashboard: FC = () => {
@@ -7,6 +8,7 @@ export const GroupDashboard: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta titleKey="groups.title" descriptionKey="meta.groups" />
       <Card>
         <CardHeader>
           <CardTitle>Group Dashboard</CardTitle>

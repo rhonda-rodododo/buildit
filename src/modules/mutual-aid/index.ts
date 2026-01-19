@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { Heart } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import mutualAidTranslations from './i18n';
 
 // Lazy load MutualAidView to reduce initial bundle size
 const MutualAidView = lazy(() => import('./components/MutualAidView').then(m => ({ default: m.MutualAidView })));
@@ -115,6 +117,7 @@ export const mutualAidModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('mutual-aid', mutualAidTranslations);
       logger.info('💗 Mutual Aid module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

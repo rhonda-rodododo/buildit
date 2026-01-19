@@ -5,6 +5,7 @@
 
 import { FC, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { PageMeta } from '@/components/PageMeta';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -103,6 +104,11 @@ export const ContactDetailPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta
+        title={contact.name}
+        descriptionKey="meta.crm"
+        path={`/app/contacts/${contact.id}`}
+      />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Contact Details</h1>

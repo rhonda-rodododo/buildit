@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { SmartNotifications } from '@/components/notifications/SmartNotifications';
 import { Card } from '@/components/ui/card';
 import {
@@ -22,6 +23,7 @@ export const NotificationsDemoPage: FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      <PageMeta title="Notifications Demo" descriptionKey="meta.notifications" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

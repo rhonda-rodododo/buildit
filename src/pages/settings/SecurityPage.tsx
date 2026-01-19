@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,9 +17,10 @@ import { PrivacySettings } from '@/components/security/PrivacySettings';
 import { LockSettings } from '@/components/security/LockSettings';
 import { TorSettings } from '@/components/tor/TorSettings';
 import { WebAuthnSetup } from '@/components/security/WebAuthnSetup';
+import { BackupRestorePanel, DeviceTransferPanel, RemoteSigningPanel } from '@/components/settings/MultiDevice';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { useAuthStore } from '@/stores/authStore';
-import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock, Smartphone } from 'lucide-react';
+import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock, Smartphone, Key } from 'lucide-react';
 
 export function SecurityPage() {
   const [showWebAuthnSetup, setShowWebAuthnSetup] = useState(false);
@@ -44,6 +46,7 @@ export function SecurityPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <PageMeta titleKey="common.security" descriptionKey="meta.security" path="/app/settings/security" />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Security & Devices</h1>
@@ -178,11 +181,11 @@ export function SecurityPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="advanced" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
-                  <AlertTriangle className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Advanced</span>
+                  <Key className="h-4 w-4 shrink-0" />
+                  <span className="hidden sm:inline text-sm">Backup</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Advanced</TooltipContent>
+              <TooltipContent className="sm:hidden">Backup & Multi-Device</TooltipContent>
             </Tooltip>
           </TabsList>
         </TooltipProvider>
@@ -208,25 +211,37 @@ export function SecurityPage() {
         </TabsContent>
 
         <TabsContent value="advanced">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-                Advanced Security Settings
-              </CardTitle>
-              <CardDescription>
-                Coming soon: Key rotation, backup & recovery, and more
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="space-y-6">
+            {/* Backup & Recovery */}
+            {currentIdentity && (
+              <BackupRestorePanel identityPubkey={currentIdentity.publicKey} />
+            )}
+
+            {/* Device Transfer */}
+            {currentIdentity && (
+              <DeviceTransferPanel
+                identityPubkey={currentIdentity.publicKey}
+                npub={currentIdentity.npub}
+              />
+            )}
+
+            {/* Remote Signing (NIP-46) */}
+            {currentIdentity && (
+              <RemoteSigningPanel
+                identityPubkey={currentIdentity.publicKey}
+                mode="bunker"
+              />
+            )}
+
+            {!currentIdentity && (
               <Alert>
+                <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Advanced features including key rotation, encrypted backups, and
-                  multi-device sync will be available in a future update.
+                  Please unlock your identity to access multi-device features.
                 </AlertDescription>
               </Alert>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 

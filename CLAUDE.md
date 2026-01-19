@@ -307,7 +307,7 @@ Custom Fields (foundational)
 Each module is fully self-contained:
 ```
 src/modules/[module-name]/
-├── index.ts              # Module registration
+├── index.ts              # Module registration (schema + i18n) & exports
 ├── schema.ts             # DB tables, types
 ├── migrations.ts         # Version upgrades
 ├── seeds.ts              # Example/template data
@@ -316,7 +316,19 @@ src/modules/[module-name]/
 ├── [module]Manager.ts    # Business logic
 ├── components/           # ALL UI components
 ├── hooks/                # Module hooks
-└── i18n/                 # Module translations
+└── i18n/                 # Module translations (scoped)
+    └── index.ts          # Uses defineModuleTranslations()
+```
+
+**Required in index.ts**: Every module must register both schema and translations:
+```typescript
+import { registerModuleSchema } from '@/core/storage/db';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import { myModuleSchema } from './schema';
+import myModuleTranslations from './i18n';
+
+registerModuleSchema('my-module', myModuleSchema);
+registerModuleTranslations('my-module', myModuleTranslations);
 ```
 
 ### Dynamic Database Schema Composition

@@ -8,6 +8,8 @@ import { microbloggingSchema, microbloggingMigrations} from './schema';
 import { MessageSquare } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import microbloggingTranslations from './i18n';
 
 // Lazy load FeedPage to reduce initial bundle size
 const FeedPage = lazy(() => import('./components/FeedPage').then(m => ({ default: m.FeedPage })));
@@ -85,6 +87,7 @@ export const microbloggingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('microblogging', microbloggingTranslations);
       logger.info('💬 Microblogging module registered');
     },
     onEnable: async (groupId: string) => {

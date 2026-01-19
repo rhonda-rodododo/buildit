@@ -7,6 +7,8 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { Shield } from 'lucide-react';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import securityTranslations from './i18n';
 
 /**
  * Security Module Definition
@@ -79,6 +81,13 @@ export const securityModule: ModulePlugin = {
         defaultValue: true,
       },
     ],
+  },
+
+  // Register translations when module loads
+  lifecycle: {
+    onRegister: async () => {
+      registerModuleTranslations('security', securityTranslations);
+    },
   },
 
   // No database tables needed - settings stored in user preferences

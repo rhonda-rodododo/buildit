@@ -4,10 +4,15 @@
  */
 
 import { registerModuleSchema } from '@/core/storage/db';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
 import { socialSchema } from './schema';
+import socialTranslations from './i18n';
 
 // Register the schema
 registerModuleSchema('social', socialSchema);
+
+// Register translations
+registerModuleTranslations('social', socialTranslations);
 
 // Export types
 export * from './types';

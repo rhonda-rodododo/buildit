@@ -15,8 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Check, X } from 'lucide-react';
+import { Check, X, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PubkeyFieldRenderer } from './PubkeyFieldRenderer';
+import { PubkeyFieldEditor } from './PubkeyFieldEditor';
+import { RelationshipFieldRenderer } from './RelationshipFieldRenderer';
+import { RelationshipFieldEditor } from './RelationshipFieldEditor';
 
 interface EditableCellProps {
   field: CustomField;
@@ -25,6 +29,11 @@ interface EditableCellProps {
   onEdit: () => void;
   onSave: (value: unknown) => void;
   onCancel: () => void;
+  // Optional props for social/relationship features
+  groupId?: string;
+  onStartDM?: (pubkey: string) => void;
+  onViewProfile?: (pubkey: string) => void;
+  onNavigateToRecord?: (recordId: string, tableId: string) => void;
 }
 
 export function EditableCell({
@@ -34,6 +43,10 @@ export function EditableCell({
   onEdit,
   onSave,
   onCancel,
+  groupId,
+  onStartDM,
+  onViewProfile,
+  onNavigateToRecord,
 }: EditableCellProps) {
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -65,6 +78,42 @@ export function EditableCell({
 
   // Display mode
   if (!isEditing) {
+    // Special rendering for pubkey fields
+    if (field.widget.widget === 'pubkey') {
+      return (
+        <div
+          className="px-2 py-1.5 min-h-[2.5rem] flex items-center cursor-text hover:bg-muted/50 rounded"
+          onClick={onEdit}
+        >
+          <PubkeyFieldRenderer
+            pubkey={value as string | null}
+            displayFormat={field.widget.pubkeyDisplayFormat}
+            onStartDM={onStartDM}
+            onViewProfile={onViewProfile}
+            showActions={!!(onStartDM || onViewProfile)}
+          />
+        </div>
+      );
+    }
+
+    // Special rendering for relationship fields
+    if (field.widget.widget === 'relationship' && field.widget.relationshipTargetTable) {
+      return (
+        <div
+          className="px-2 py-1.5 min-h-[2.5rem] flex items-center cursor-text hover:bg-muted/50 rounded"
+          onClick={onEdit}
+        >
+          <RelationshipFieldRenderer
+            recordId={value as string | string[] | null}
+            targetTableId={field.widget.relationshipTargetTable}
+            displayField={field.widget.relationshipDisplayField}
+            onNavigateToRecord={onNavigateToRecord}
+            multiple={field.schema.type === 'array'}
+          />
+        </div>
+      );
+    }
+
     return (
       <div
         className="px-2 py-1.5 min-h-[2.5rem] flex items-center cursor-text hover:bg-muted/50 rounded"
@@ -243,6 +292,46 @@ export function EditableCell({
           </div>
         );
 
+      case 'pubkey':
+        return (
+          <div className="flex flex-col gap-1">
+            <PubkeyFieldEditor
+              value={editValue as string | null}
+              onChange={(val) => {
+                setEditValue(val);
+                setTimeout(() => onSave(val), 0);
+              }}
+              source={field.widget.pubkeySource}
+              groupId={groupId}
+              placeholder={field.widget.placeholder}
+            />
+          </div>
+        );
+
+      case 'relationship':
+        if (!field.widget.relationshipTargetTable) {
+          return (
+            <div className="px-2 py-1 text-muted-foreground text-sm">
+              No target table configured
+            </div>
+          );
+        }
+        return (
+          <div className="flex flex-col gap-1">
+            <RelationshipFieldEditor
+              value={editValue as string | string[] | null}
+              onChange={(val) => {
+                setEditValue(val);
+                setTimeout(() => onSave(val), 0);
+              }}
+              targetTableId={field.widget.relationshipTargetTable}
+              displayField={field.widget.relationshipDisplayField}
+              multiple={field.schema.type === 'array'}
+              placeholder={field.widget.placeholder}
+            />
+          </div>
+        );
+
       default:
         return (
           <div className="px-2 py-1 text-muted-foreground text-sm">
@@ -287,6 +376,25 @@ function formatFieldValue(value: unknown, field: CustomField): React.ReactNode {
       return field.widget.options?.find((opt) => opt.value === value)?.label ?? String(value);
     case 'number':
       return typeof value === 'number' ? value.toLocaleString() : String(value);
+    case 'pubkey':
+      // Truncate pubkey for simple display
+      return typeof value === 'string' ? `${value.slice(0, 8)}...${value.slice(-4)}` : String(value);
+    case 'relationship':
+      // Show linked indicator
+      if (Array.isArray(value)) {
+        return (
+          <div className="flex items-center gap-1">
+            <Link2 className="h-3 w-3 text-primary" />
+            <span className="text-sm">{value.length} linked</span>
+          </div>
+        );
+      }
+      return (
+        <div className="flex items-center gap-1">
+          <Link2 className="h-3 w-3 text-primary" />
+          <span className="text-sm text-primary">Linked</span>
+        </div>
+      );
     default:
       return String(value);
   }

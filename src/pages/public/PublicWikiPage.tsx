@@ -6,6 +6,7 @@
 import { FC, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
+import { PageMeta } from '@/components/PageMeta';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -229,6 +230,13 @@ Blocks must be addressed. They represent fundamental objections based on group v
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <PageMeta
+        titleKey="common.wiki"
+        title={page.title}
+        descriptionKey="meta.wiki"
+        path={`/wiki/${page.slug}`}
+        keywords={page.tags}
+      />
       <PublicWikiHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">

@@ -11,10 +11,25 @@ import type {
   DatabaseRelationship,
   FilterRule,
   SortRule,
+  RecordActivity,
+  RecordActivityType,
+  RecordActivityData,
+  RecordComment,
+  RecordAttachment,
+  FieldChangeActivityData,
 } from './types';
-import type { DBTable, DBView, DBRecord, DBRelationship } from './schema';
+import type {
+  DBTable,
+  DBView,
+  DBRecord,
+  DBRelationship,
+  DBRecordActivity,
+  DBRecordComment,
+  DBRecordAttachment,
+} from './schema';
 import { useDatabaseStore } from './databaseStore';
 import type { CustomField } from '../custom-fields/types';
+import { logger } from '@/lib/logger';
 
 export class DatabaseManager {
   /**
@@ -70,14 +85,23 @@ export class DatabaseManager {
    */
   async updateTable(
     id: string,
-    updates: Partial<Pick<DatabaseTable, 'name' | 'description' | 'icon'>>
+    updates: Partial<Pick<DatabaseTable, 'name' | 'description' | 'icon' | 'formLayout' | 'detailConfig'>>
   ): Promise<void> {
     const now = Date.now();
 
-    await db.databaseTables!.update(id, {
-      ...updates,
-      updated: now,
-    });
+    // Prepare DB updates - serialize JSON fields
+    const dbUpdates: Record<string, unknown> = { updated: now };
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.icon !== undefined) dbUpdates.icon = updates.icon;
+    if (updates.formLayout !== undefined) {
+      dbUpdates.formLayout = JSON.stringify(updates.formLayout);
+    }
+    if (updates.detailConfig !== undefined) {
+      dbUpdates.detailConfig = JSON.stringify(updates.detailConfig);
+    }
+
+    await db.databaseTables!.update(id, dbUpdates);
 
     useDatabaseStore.getState().updateTable(id, { ...updates, updated: now });
   }
@@ -375,6 +399,8 @@ export class DatabaseManager {
         description: dbTable.description,
         icon: dbTable.icon,
         fields: [], // Will be populated from custom fields
+        formLayout: dbTable.formLayout ? JSON.parse(dbTable.formLayout) : undefined,
+        detailConfig: dbTable.detailConfig ? JSON.parse(dbTable.detailConfig) : undefined,
         created: dbTable.created,
         createdBy: dbTable.createdBy,
         updated: dbTable.updated,
@@ -489,6 +515,499 @@ export class DatabaseManager {
   async deleteRelationship(id: string): Promise<void> {
     await db.databaseRelationships.delete(id);
     useDatabaseStore.getState().deleteRelationship(id);
+  }
+
+  // ============================================
+  // Activity/Timeline Methods
+  // ============================================
+
+  /**
+   * Log an activity for a record
+   */
+  async logActivity(
+    recordId: string,
+    tableId: string,
+    groupId: string,
+    type: RecordActivityType,
+    data: RecordActivityData,
+    actorPubkey: string
+  ): Promise<RecordActivity> {
+    const now = Date.now();
+    const id = crypto.randomUUID();
+
+    const activity: RecordActivity = {
+      id,
+      recordId,
+      tableId,
+      groupId,
+      type,
+      actorPubkey,
+      data,
+      createdAt: now,
+    };
+
+    // Save to DB
+    const dbActivity: DBRecordActivity = {
+      id: activity.id,
+      recordId: activity.recordId,
+      tableId: activity.tableId,
+      groupId: activity.groupId,
+      type: activity.type,
+      actorPubkey: activity.actorPubkey,
+      data: JSON.stringify(activity.data),
+      createdAt: activity.createdAt,
+    };
+
+    try {
+      await db.table('databaseRecordActivities').add(dbActivity);
+      useDatabaseStore.getState().addActivity(activity);
+    } catch (error) {
+      logger.error('Failed to log activity:', error);
+    }
+
+    return activity;
+  }
+
+  /**
+   * Get activities for a record
+   */
+  async getRecordActivities(
+    recordId: string,
+    tableId: string,
+    limit?: number
+  ): Promise<RecordActivity[]> {
+    try {
+      let query = db
+        .table('databaseRecordActivities')
+        .where('[recordId+tableId]')
+        .equals([recordId, tableId])
+        .reverse();
+
+      if (limit) {
+        query = query.limit(limit);
+      }
+
+      const dbActivities = await query.toArray();
+
+      const activities: RecordActivity[] = dbActivities.map((dbActivity: DBRecordActivity) => ({
+        id: dbActivity.id,
+        recordId: dbActivity.recordId,
+        tableId: dbActivity.tableId,
+        groupId: dbActivity.groupId,
+        type: dbActivity.type as RecordActivityType,
+        actorPubkey: dbActivity.actorPubkey,
+        data: JSON.parse(dbActivity.data),
+        createdAt: dbActivity.createdAt,
+      }));
+
+      return activities;
+    } catch (error) {
+      logger.error('Failed to get record activities:', error);
+      return [];
+    }
+  }
+
+  // ============================================
+  // Comment Methods
+  // ============================================
+
+  /**
+   * Add a comment to a record
+   */
+  async addRecordComment(
+    recordId: string,
+    tableId: string,
+    groupId: string,
+    content: string,
+    authorPubkey: string,
+    parentId?: string
+  ): Promise<RecordComment | null> {
+    const now = Date.now();
+    const id = crypto.randomUUID();
+
+    const comment: RecordComment = {
+      id,
+      recordId,
+      tableId,
+      groupId,
+      authorPubkey,
+      content,
+      parentId,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    // Save to DB
+    const dbComment: DBRecordComment = {
+      id: comment.id,
+      recordId: comment.recordId,
+      tableId: comment.tableId,
+      groupId: comment.groupId,
+      authorPubkey: comment.authorPubkey,
+      content: comment.content,
+      parentId: comment.parentId,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    };
+
+    try {
+      await db.table('databaseRecordComments').add(dbComment);
+      useDatabaseStore.getState().addComment(comment);
+
+      // Log activity
+      await this.logActivity(recordId, tableId, groupId, 'comment', {
+        commentId: comment.id,
+        contentPreview: content.substring(0, 100),
+        isReply: !!parentId,
+        parentCommentId: parentId,
+      }, authorPubkey);
+
+      return comment;
+    } catch (error) {
+      logger.error('Failed to add comment:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update a comment
+   */
+  async updateRecordComment(
+    commentId: string,
+    content: string
+  ): Promise<boolean> {
+    const now = Date.now();
+
+    try {
+      await db.table('databaseRecordComments').update(commentId, {
+        content,
+        updatedAt: now,
+      });
+      useDatabaseStore.getState().updateComment(commentId, { content, updatedAt: now });
+      return true;
+    } catch (error) {
+      logger.error('Failed to update comment:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Delete a comment
+   */
+  async deleteRecordComment(commentId: string): Promise<boolean> {
+    try {
+      await db.table('databaseRecordComments').delete(commentId);
+      useDatabaseStore.getState().deleteComment(commentId);
+      return true;
+    } catch (error) {
+      logger.error('Failed to delete comment:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get comments for a record
+   */
+  async getRecordComments(recordId: string, _tableId: string): Promise<RecordComment[]> {
+    try {
+      const dbComments = await db
+        .table('databaseRecordComments')
+        .where('recordId')
+        .equals(recordId)
+        .toArray();
+
+      const comments: RecordComment[] = dbComments.map((dbComment: DBRecordComment) => ({
+        id: dbComment.id,
+        recordId: dbComment.recordId,
+        tableId: dbComment.tableId,
+        groupId: dbComment.groupId,
+        authorPubkey: dbComment.authorPubkey,
+        content: dbComment.content,
+        parentId: dbComment.parentId,
+        createdAt: dbComment.createdAt,
+        updatedAt: dbComment.updatedAt,
+      }));
+
+      // Build threaded structure
+      const rootComments: RecordComment[] = [];
+      const commentMap = new Map<string, RecordComment>();
+
+      // First pass: create map
+      for (const comment of comments) {
+        comment.replies = [];
+        commentMap.set(comment.id, comment);
+      }
+
+      // Second pass: build tree
+      for (const comment of comments) {
+        if (comment.parentId && commentMap.has(comment.parentId)) {
+          const parent = commentMap.get(comment.parentId)!;
+          parent.replies = parent.replies || [];
+          parent.replies.push(comment);
+        } else {
+          rootComments.push(comment);
+        }
+      }
+
+      // Sort by created time (oldest first within each level)
+      const sortByCreated = (a: RecordComment, b: RecordComment) => a.createdAt - b.createdAt;
+      rootComments.sort(sortByCreated);
+      for (const comment of commentMap.values()) {
+        comment.replies?.sort(sortByCreated);
+      }
+
+      return rootComments;
+    } catch (error) {
+      logger.error('Failed to get record comments:', error);
+      return [];
+    }
+  }
+
+  // ============================================
+  // Attachment Methods
+  // ============================================
+
+  /**
+   * Attach a file to a record
+   */
+  async attachFileToRecord(
+    recordId: string,
+    tableId: string,
+    groupId: string,
+    fileId: string,
+    userPubkey: string,
+    fileInfo?: { fileName?: string; fileType?: string; fileSize?: number }
+  ): Promise<RecordAttachment | null> {
+    const now = Date.now();
+    const id = crypto.randomUUID();
+
+    const attachment: RecordAttachment = {
+      id,
+      recordId,
+      tableId,
+      groupId,
+      fileId,
+      fileName: fileInfo?.fileName,
+      fileType: fileInfo?.fileType,
+      fileSize: fileInfo?.fileSize,
+      addedBy: userPubkey,
+      addedAt: now,
+    };
+
+    // Save to DB
+    const dbAttachment: DBRecordAttachment = {
+      id: attachment.id,
+      recordId: attachment.recordId,
+      tableId: attachment.tableId,
+      groupId: attachment.groupId,
+      fileId: attachment.fileId,
+      fileName: attachment.fileName,
+      fileType: attachment.fileType,
+      fileSize: attachment.fileSize,
+      addedBy: attachment.addedBy,
+      addedAt: attachment.addedAt,
+    };
+
+    try {
+      await db.table('databaseRecordAttachments').add(dbAttachment);
+      useDatabaseStore.getState().addAttachment(attachment);
+
+      // Log activity
+      await this.logActivity(recordId, tableId, groupId, 'attachment_added', {
+        attachmentId: attachment.id,
+        fileId,
+        fileName: fileInfo?.fileName || 'Unknown file',
+        fileType: fileInfo?.fileType,
+        fileSize: fileInfo?.fileSize,
+      }, userPubkey);
+
+      return attachment;
+    } catch (error) {
+      logger.error('Failed to attach file:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Detach a file from a record
+   */
+  async detachFileFromRecord(
+    attachmentId: string,
+    recordId: string,
+    tableId: string,
+    groupId: string,
+    userPubkey: string
+  ): Promise<boolean> {
+    try {
+      // Get attachment info before deleting for activity log
+      const attachment = useDatabaseStore.getState().getAttachment(attachmentId);
+
+      await db.table('databaseRecordAttachments').delete(attachmentId);
+      useDatabaseStore.getState().deleteAttachment(attachmentId);
+
+      // Log activity
+      if (attachment) {
+        await this.logActivity(recordId, tableId, groupId, 'attachment_removed', {
+          attachmentId,
+          fileId: attachment.fileId,
+          fileName: attachment.fileName || 'Unknown file',
+          fileType: attachment.fileType,
+          fileSize: attachment.fileSize,
+        }, userPubkey);
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('Failed to detach file:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get attachments for a record
+   */
+  async getRecordAttachments(recordId: string, _tableId: string): Promise<RecordAttachment[]> {
+    try {
+      const dbAttachments = await db
+        .table('databaseRecordAttachments')
+        .where('recordId')
+        .equals(recordId)
+        .toArray();
+
+      const attachments: RecordAttachment[] = dbAttachments.map((dbAttachment: DBRecordAttachment) => ({
+        id: dbAttachment.id,
+        recordId: dbAttachment.recordId,
+        tableId: dbAttachment.tableId,
+        groupId: dbAttachment.groupId,
+        fileId: dbAttachment.fileId,
+        fileName: dbAttachment.fileName,
+        fileType: dbAttachment.fileType,
+        fileSize: dbAttachment.fileSize,
+        addedBy: dbAttachment.addedBy,
+        addedAt: dbAttachment.addedAt,
+      }));
+
+      return attachments;
+    } catch (error) {
+      logger.error('Failed to get record attachments:', error);
+      return [];
+    }
+  }
+
+  // ============================================
+  // Enhanced Record Methods (with activity logging)
+  // ============================================
+
+  /**
+   * Create a new record with activity logging
+   */
+  async createRecordWithActivity(
+    tableId: string,
+    groupId: string,
+    userPubkey: string,
+    customFields: Record<string, unknown>
+  ): Promise<DatabaseRecord> {
+    const record = await this.createRecord(tableId, groupId, userPubkey, customFields);
+
+    // Log activity
+    await this.logActivity(record.id, tableId, groupId, 'created', {
+      fieldsSet: Object.keys(customFields),
+    }, userPubkey);
+
+    return record;
+  }
+
+  /**
+   * Update a record with activity logging for field changes
+   */
+  async updateRecordWithActivity(
+    id: string,
+    tableId: string,
+    groupId: string,
+    updates: Partial<Pick<DatabaseRecord, 'customFields'>>,
+    userPubkey: string,
+    table?: DatabaseTable
+  ): Promise<void> {
+    const currentRecord = useDatabaseStore.getState().getRecord(id, tableId);
+    if (!currentRecord) {
+      throw new Error('Record not found');
+    }
+
+    // Detect field changes
+    const fieldChanges: FieldChangeActivityData[] = [];
+    if (updates.customFields) {
+      for (const [fieldName, newValue] of Object.entries(updates.customFields)) {
+        const oldValue = currentRecord.customFields[fieldName];
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          const field = table?.fields.find((f) => f.name === fieldName);
+          fieldChanges.push({
+            fieldName,
+            fieldLabel: field?.label,
+            oldValue,
+            newValue,
+          });
+        }
+      }
+    }
+
+    // Update record
+    await this.updateRecord(id, tableId, updates);
+
+    // Log activities for field changes
+    for (const change of fieldChanges) {
+      await this.logActivity(id, tableId, groupId, 'field_changed', change, userPubkey);
+    }
+
+    // Also log a general update activity
+    if (fieldChanges.length > 0) {
+      await this.logActivity(id, tableId, groupId, 'updated', {
+        fieldsChanged: fieldChanges.map((c) => c.fieldName),
+      }, userPubkey);
+    }
+  }
+
+  /**
+   * Delete a record with all related data
+   */
+  async deleteRecordWithRelatedData(id: string, tableId: string): Promise<void> {
+    // Delete all activities for this record
+    try {
+      const activities = await db
+        .table('databaseRecordActivities')
+        .where('recordId')
+        .equals(id)
+        .toArray();
+      await db.table('databaseRecordActivities').bulkDelete(activities.map((a: DBRecordActivity) => a.id));
+    } catch {
+      // Table might not exist yet
+    }
+
+    // Delete all comments for this record
+    try {
+      const comments = await db
+        .table('databaseRecordComments')
+        .where('recordId')
+        .equals(id)
+        .toArray();
+      await db.table('databaseRecordComments').bulkDelete(comments.map((c: DBRecordComment) => c.id));
+    } catch {
+      // Table might not exist yet
+    }
+
+    // Delete all attachments for this record
+    try {
+      const attachments = await db
+        .table('databaseRecordAttachments')
+        .where('recordId')
+        .equals(id)
+        .toArray();
+      await db.table('databaseRecordAttachments').bulkDelete(attachments.map((a: DBRecordAttachment) => a.id));
+    } catch {
+      // Table might not exist yet
+    }
+
+    // Delete the record itself
+    await this.deleteRecord(id, tableId);
   }
 }
 

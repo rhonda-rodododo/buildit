@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { useGroupContext } from '@/contexts/GroupContext';
+import { PageMeta } from '@/components/PageMeta';
 import { ActivityFeed } from '@/components/feed/ActivityFeed';
 import { PostComposer } from '@/modules/microblogging/components/PostComposer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,11 @@ export const GroupFeedPage: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta
+        title={`${group.name} - Feed`}
+        descriptionKey="meta.groups"
+        path={`/app/groups/${groupId}/feed`}
+      />
       <div>
         <h1 className="text-3xl font-bold">{group.name} - Feed</h1>
         <p className="text-muted-foreground">

@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { EngagementLadder } from '@/components/engagement/EngagementLadder';
 import { SmartNotifications } from '@/components/notifications/SmartNotifications';
 import { Card } from '@/components/ui/card';
@@ -30,6 +31,7 @@ export const EngagementPage: FC = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      <PageMeta titleKey="crm.title" descriptionKey="meta.analytics" path="/app/engagement" />
       {/* Header */}
       <div>
         <div className="flex items-center justify-between mb-2">

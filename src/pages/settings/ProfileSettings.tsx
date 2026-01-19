@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -146,6 +147,7 @@ export const ProfileSettings: FC = () => {
 
   return (
     <div className="space-y-6">
+      <PageMeta titleKey="common.profile" descriptionKey="meta.settings" path="/app/settings/profile" />
       {/* Username & Display Name */}
       <Card>
         <CardHeader>

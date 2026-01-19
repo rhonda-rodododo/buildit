@@ -10,6 +10,8 @@ import type { BuildItDB } from '@/core/storage/db';
 import { DollarSign } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
+import { registerModuleTranslations } from '@/i18n/moduleI18n';
+import fundraisingTranslations from './i18n';
 
 // Lazy load FundraisingPage to reduce initial bundle size
 const FundraisingPage = lazy(() => import('./components/FundraisingPage').then(m => ({ default: m.FundraisingPage })));
@@ -91,6 +93,7 @@ export const fundraisingModule: ModulePlugin = {
 
   lifecycle: {
     onRegister: async () => {
+      registerModuleTranslations('fundraising', fundraisingTranslations);
       logger.info('💰 Fundraising module registered');
     },
     onEnable: async (groupId: string, config: Record<string, unknown>) => {

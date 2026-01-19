@@ -34,6 +34,17 @@ import {
   clearRateLimitState,
 } from '@/lib/security/rateLimiter';
 
+// localStorage key for persisting selected identity across page refreshes
+export const SELECTED_IDENTITY_KEY = 'buildit-selected-identity';
+
+/**
+ * Get the saved identity public key from localStorage
+ * Used by main.tsx to restore identity selection on app init
+ */
+export function getSavedIdentityPubkey(): string | null {
+  return localStorage.getItem(SELECTED_IDENTITY_KEY);
+}
+
 /**
  * SECURITY: Clear all session data from stores when switching identities
  * This prevents data leakage between accounts.
@@ -271,6 +282,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           isLoading: false,
         }));
 
+        // Persist selected identity to localStorage for session persistence
+        localStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
+
         // Return full identity with private key
         return identity;
       } catch (error) {
@@ -330,6 +344,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           lockState: 'unlocked',
           isLoading: false,
         }));
+
+        // Persist selected identity to localStorage for session persistence
+        localStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
 
         return identity;
       } catch (error) {
@@ -404,8 +421,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       }
 
       if (!publicKey) {
-        // Clearing current identity - lock
+        // Clearing current identity - lock and clear localStorage
         secureKeyManager.lock();
+        localStorage.removeItem(SELECTED_IDENTITY_KEY);
         set({ currentIdentity: null, lockState: 'locked' });
         return;
       }
@@ -418,6 +436,9 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
       // Lock the current session before switching
       secureKeyManager.lock();
+
+      // Persist selected identity to localStorage for session persistence
+      localStorage.setItem(SELECTED_IDENTITY_KEY, publicKey);
 
       set({ currentIdentity: identity, lockState: 'locked' });
     },
