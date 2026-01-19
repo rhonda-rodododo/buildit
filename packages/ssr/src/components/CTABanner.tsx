@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+
 const APP_URL = 'https://app.buildit.network';
 
 interface CTABannerProps {
@@ -5,7 +7,8 @@ interface CTABannerProps {
   description?: string;
   primaryCTA?: string;
   secondaryCTA?: string;
-  variant?: 'default' | 'minimal';
+  secondaryLink?: string;
+  variant?: 'default' | 'minimal' | 'full';
 }
 
 export function CTABanner({
@@ -13,6 +16,7 @@ export function CTABanner({
   description = 'Join thousands of activists, unions, and community organizers using BuildIt Network for privacy-first collaboration.',
   primaryCTA = 'Get Started Free',
   secondaryCTA = 'Learn More',
+  secondaryLink = '/about',
   variant = 'default',
 }: CTABannerProps) {
   if (variant === 'minimal') {
@@ -44,6 +48,82 @@ export function CTABanner({
     );
   }
 
+  // Full variant - for larger CTAs with both buttons
+  if (variant === 'full') {
+    return (
+      <div className="cta-banner">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '1rem',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              margin: 0,
+            }}
+          >
+            {title}
+          </h2>
+          {description && (
+            <p
+              style={{
+                fontSize: '1rem',
+                opacity: 0.9,
+                maxWidth: '600px',
+                margin: 0,
+              }}
+            >
+              {description}
+            </p>
+          )}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              marginTop: '0.5rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            <a
+              href={`${APP_URL}/login`}
+              className="btn btn-lg"
+              style={{
+                textDecoration: 'none',
+                background: 'white',
+                color: 'var(--primary)',
+              }}
+            >
+              {primaryCTA}
+            </a>
+            {secondaryCTA && (
+              <Link
+                to={secondaryLink}
+                className="btn btn-lg"
+                style={{
+                  textDecoration: 'none',
+                  background: 'transparent',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                }}
+              >
+                {secondaryCTA}
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default variant
   return (
     <div className="cta-banner">
       <div
@@ -93,8 +173,8 @@ export function CTABanner({
           >
             {primaryCTA}
           </a>
-          <a
-            href="/about"
+          <Link
+            to={secondaryLink}
             className="btn btn-lg"
             style={{
               textDecoration: 'none',
@@ -104,7 +184,7 @@ export function CTABanner({
             }}
           >
             {secondaryCTA}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

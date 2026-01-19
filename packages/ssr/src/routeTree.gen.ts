@@ -9,12 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WikiIndexRouteImport } from './routes/wiki/index'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -23,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 const WikiIndexRoute = WikiIndexRouteImport.update({
   id: '/wiki/',
   path: '/wiki/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
@@ -43,50 +67,109 @@ const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/events/': typeof EventsIndexRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles': typeof ArticlesIndexRoute
+  '/events': typeof EventsIndexRoute
   '/wiki': typeof WikiIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/events/': typeof EventsIndexRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/articles/$slug' | '/wiki/$slug' | '/articles/' | '/wiki/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles/$slug' | '/wiki/$slug' | '/articles' | '/wiki'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/about'
+    | '/contact'
+    | '/privacy'
     | '/articles/$slug'
     | '/wiki/$slug'
     | '/articles/'
+    | '/events/'
+    | '/wiki/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/privacy'
+    | '/articles/$slug'
+    | '/wiki/$slug'
+    | '/articles'
+    | '/events'
+    | '/wiki'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/privacy'
+    | '/articles/$slug'
+    | '/wiki/$slug'
+    | '/articles/'
+    | '/events/'
     | '/wiki/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  PrivacyRoute: typeof PrivacyRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   WikiSlugRoute: typeof WikiSlugRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
   WikiIndexRoute: typeof WikiIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/wiki'
       fullPath: '/wiki/'
       preLoaderRoute: typeof WikiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/articles/': {
@@ -127,9 +217,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  PrivacyRoute: PrivacyRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   WikiSlugRoute: WikiSlugRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
   WikiIndexRoute: WikiIndexRoute,
 }
 export const routeTree = rootRouteImport
