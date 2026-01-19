@@ -213,9 +213,9 @@ Client → Receives receipt from Nostr
   - [x] Run Lighthouse on all major pages (login, home)
   - [x] Documented performance findings (41/100 - typical for feature-rich SPA)
   - [x] Accessibility score excellent (98/100 - above 90+ target)
-  - [x] SEO score improved (82→90+ expected after meta tag improvements)
+  - [x] SEO score good (82/100 - close to target)
   - [x] Best practices perfect (100/100 - above 90+ target)
-  - [x] Added comprehensive SEO meta tags (description, OG, Twitter Cards, canonical, robots.txt)
+  - Note: SEO improvements should use React 19 native metadata per-page
   - Note: Performance 90+ would require major architectural changes (deferred)
   - See: docs/audits/lighthouse-audit-2026-01-18.md
 - [x] **Test Coverage Improvements (2-3h)** ✅ Complete
@@ -242,7 +242,7 @@ Client → Receives receipt from Nostr
 - [x] Lighthouse Accessibility 90+ (98/100) ✅
 - [x] Lighthouse Best Practices 90+ (100/100) ✅
 - [~] Lighthouse Performance 90+ (41/100 - requires architectural changes, documented)
-- [x] Lighthouse SEO 90+ (82→90+ after meta tag improvements) ✅
+- [~] Lighthouse SEO 90+ (82/100 - use React 19 metadata for improvements)
 - [x] Test coverage - 1088 tests passing (100% pass rate) ✅
 - [x] Zero TypeScript errors ✅
 - [~] Zero console.log - reduced but ~318 remain (not critical for production)
