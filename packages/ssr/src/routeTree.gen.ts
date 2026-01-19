@@ -8,53 +8,82 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as WikiIndexRouteImport } from './routes/wiki/index'
+import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
+import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
+import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 
-// Import Routes
-
-import { Route as rootRoute } from './routes/__root'
-
-// Create Virtual Modules
-
-const IndexLazyImport = createFileRoute('/')()
-const WikiIndexLazyImport = createFileRoute('/wiki/')()
-const WikiSlugLazyImport = createFileRoute('/wiki/$slug')()
-const ArticlesIndexLazyImport = createFileRoute('/articles/')()
-const ArticlesSlugLazyImport = createFileRoute('/articles/$slug')()
-
-// Create/Update Routes
-
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as unknown as Parameters<typeof IndexLazyImport.update>[0])
-
-const WikiIndexLazyRoute = WikiIndexLazyImport.update({
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WikiIndexRoute = WikiIndexRouteImport.update({
   id: '/wiki/',
   path: '/wiki/',
-  getParentRoute: () => rootRoute,
-} as unknown as Parameters<typeof WikiIndexLazyImport.update>[0])
-
-const WikiSlugLazyRoute = WikiSlugLazyImport.update({
-  id: '/wiki/$slug',
-  path: '/wiki/$slug',
-  getParentRoute: () => rootRoute,
-} as unknown as Parameters<typeof WikiSlugLazyImport.update>[0])
-
-const ArticlesIndexLazyRoute = ArticlesIndexLazyImport.update({
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   id: '/articles/',
   path: '/articles/',
-  getParentRoute: () => rootRoute,
-} as unknown as Parameters<typeof ArticlesIndexLazyImport.update>[0])
-
-const ArticlesSlugLazyRoute = ArticlesSlugLazyImport.update({
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WikiSlugRoute = WikiSlugRouteImport.update({
+  id: '/wiki/$slug',
+  path: '/wiki/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   id: '/articles/$slug',
   path: '/articles/$slug',
-  getParentRoute: () => rootRoute,
-} as unknown as Parameters<typeof ArticlesSlugLazyImport.update>[0])
+  getParentRoute: () => rootRouteImport,
+} as any)
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
+  '/wiki/$slug': typeof WikiSlugRoute
+  '/articles/': typeof ArticlesIndexRoute
+  '/wiki/': typeof WikiIndexRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
+  '/wiki/$slug': typeof WikiSlugRoute
+  '/articles': typeof ArticlesIndexRoute
+  '/wiki': typeof WikiIndexRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/articles/$slug': typeof ArticlesSlugRoute
+  '/wiki/$slug': typeof WikiSlugRoute
+  '/articles/': typeof ArticlesIndexRoute
+  '/wiki/': typeof WikiIndexRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/articles/$slug' | '/wiki/$slug' | '/articles/' | '/wiki/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/articles/$slug' | '/wiki/$slug' | '/articles' | '/wiki'
+  id:
+    | '__root__'
+    | '/'
+    | '/articles/$slug'
+    | '/wiki/$slug'
+    | '/articles/'
+    | '/wiki/'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  ArticlesSlugRoute: typeof ArticlesSlugRoute
+  WikiSlugRoute: typeof WikiSlugRoute
+  ArticlesIndexRoute: typeof ArticlesIndexRoute
+  WikiIndexRoute: typeof WikiIndexRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -62,124 +91,56 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/articles/': {
-      id: '/articles/'
-      path: '/articles'
-      fullPath: '/articles'
-      preLoaderRoute: typeof ArticlesIndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/articles/$slug': {
-      id: '/articles/$slug'
-      path: '/articles/$slug'
-      fullPath: '/articles/$slug'
-      preLoaderRoute: typeof ArticlesSlugLazyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/wiki/': {
       id: '/wiki/'
       path: '/wiki'
-      fullPath: '/wiki'
-      preLoaderRoute: typeof WikiIndexLazyImport
-      parentRoute: typeof rootRoute
+      fullPath: '/wiki/'
+      preLoaderRoute: typeof WikiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/articles/': {
+      id: '/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof ArticlesIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/wiki/$slug': {
       id: '/wiki/$slug'
       path: '/wiki/$slug'
       fullPath: '/wiki/$slug'
-      preLoaderRoute: typeof WikiSlugLazyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof WikiSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/articles/$slug': {
+      id: '/articles/$slug'
+      path: '/articles/$slug'
+      fullPath: '/articles/$slug'
+      preLoaderRoute: typeof ArticlesSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
-}
-
-// Create and export the route tree
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
-  '/articles': typeof ArticlesIndexLazyRoute
-  '/articles/$slug': typeof ArticlesSlugLazyRoute
-  '/wiki': typeof WikiIndexLazyRoute
-  '/wiki/$slug': typeof WikiSlugLazyRoute
-}
-
-export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
-  '/articles': typeof ArticlesIndexLazyRoute
-  '/articles/$slug': typeof ArticlesSlugLazyRoute
-  '/wiki': typeof WikiIndexLazyRoute
-  '/wiki/$slug': typeof WikiSlugLazyRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
-  '/articles/': typeof ArticlesIndexLazyRoute
-  '/articles/$slug': typeof ArticlesSlugLazyRoute
-  '/wiki/': typeof WikiIndexLazyRoute
-  '/wiki/$slug': typeof WikiSlugLazyRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/articles' | '/articles/$slug' | '/wiki' | '/wiki/$slug'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles' | '/articles/$slug' | '/wiki' | '/wiki/$slug'
-  id: '__root__' | '/' | '/articles/' | '/articles/$slug' | '/wiki/' | '/wiki/$slug'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
-  ArticlesIndexLazyRoute: typeof ArticlesIndexLazyRoute
-  ArticlesSlugLazyRoute: typeof ArticlesSlugLazyRoute
-  WikiIndexLazyRoute: typeof WikiIndexLazyRoute
-  WikiSlugLazyRoute: typeof WikiSlugLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
-  ArticlesIndexLazyRoute: ArticlesIndexLazyRoute,
-  ArticlesSlugLazyRoute: ArticlesSlugLazyRoute,
-  WikiIndexLazyRoute: WikiIndexLazyRoute,
-  WikiSlugLazyRoute: WikiSlugLazyRoute,
+  IndexRoute: IndexRoute,
+  ArticlesSlugRoute: ArticlesSlugRoute,
+  WikiSlugRoute: WikiSlugRoute,
+  ArticlesIndexRoute: ArticlesIndexRoute,
+  WikiIndexRoute: WikiIndexRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/articles/",
-        "/articles/$slug",
-        "/wiki/",
-        "/wiki/$slug"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/articles/": {
-      "filePath": "articles/index.tsx"
-    },
-    "/articles/$slug": {
-      "filePath": "articles/$slug.tsx"
-    },
-    "/wiki/": {
-      "filePath": "wiki/index.tsx"
-    },
-    "/wiki/$slug": {
-      "filePath": "wiki/$slug.tsx"
-    }
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }
-ROUTE_MANIFEST_END */

@@ -1,14 +1,16 @@
-import { createFileRoute, notFound } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
+import { createFileRoute, notFound, Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
 import { fetchArticleBySlug } from '../../lib/nostr';
+import type { ArticleContent } from '@buildit/shared/nostr';
 import {
   generateRobotsMetaContent,
   DEFAULT_INDEXABILITY,
 } from '@buildit/shared/types';
+import { CTABanner } from '../../components/CTABanner';
 
 const getArticle = createServerFn({ method: 'GET' })
-  .validator((slug: string) => slug)
-  .handler(async ({ data: slug }) => {
+  .inputValidator((slug: string) => slug)
+  .handler(async ({ data: slug }): Promise<ArticleContent> => {
     const article = await fetchArticleBySlug(slug);
     if (!article) {
       throw notFound();
@@ -22,8 +24,11 @@ export const Route = createFileRoute('/articles/$slug')({
     return { article };
   },
   head: ({ loaderData }) => {
-    const { article } = loaderData;
-    // For now, use default indexability. In production, this would come from the article data
+    const data = loaderData as { article: ArticleContent } | undefined;
+    if (!data) {
+      return { meta: [{ title: 'Article | BuildIt Network' }] };
+    }
+    const { article } = data;
     const robotsContent = generateRobotsMetaContent(DEFAULT_INDEXABILITY);
 
     return {
@@ -45,9 +50,7 @@ export const Route = createFileRoute('/articles/$slug')({
           property: 'og:url',
           content: `https://buildit.network/articles/${article.slug}`,
         },
-        ...(article.image
-          ? [{ property: 'og:image', content: article.image }]
-          : []),
+        ...(article.image ? [{ property: 'og:image', content: article.image }] : []),
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: article.title },
@@ -60,7 +63,7 @@ export const Route = createFileRoute('/articles/$slug')({
           property: 'article:published_time',
           content: new Date(article.publishedAt).toISOString(),
         },
-        ...article.tags.map((tag) => ({
+        ...article.tags.map((tag: string) => ({
           property: 'article:tag',
           content: tag,
         })),
@@ -78,112 +81,152 @@ export const Route = createFileRoute('/articles/$slug')({
 });
 
 function ArticlePage() {
-  const { article } = Route.useLoaderData();
-  const formattedDate = new Date(article.publishedAt).toLocaleDateString(
-    'en-US',
-    {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }
-  );
+  const loaderData = Route.useLoaderData() as { article: ArticleContent } | undefined;
+  if (!loaderData) {
+    return null;
+  }
+  const { article } = loaderData;
+  const formattedDate = new Date(article.publishedAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <nav className="max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="/" className="text-xl font-bold text-blue-600">
-              BuildIt Network
-            </a>
-            <div className="flex items-center space-x-4">
-              <a href="/articles" className="text-blue-600 font-medium">
-                Articles
-              </a>
-              <a href="/wiki" className="text-gray-600 hover:text-gray-900">
-                Wiki
-              </a>
-              <a href="/events" className="text-gray-600 hover:text-gray-900">
-                Events
-              </a>
-            </div>
-          </div>
-        </nav>
-      </header>
-
+    <div>
       {/* Article */}
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        <article>
-          {/* Header */}
-          <header className="mb-8">
-            <div className="mb-4">
-              <a
-                href="/articles"
-                className="text-blue-600 hover:underline text-sm"
-              >
-                &larr; Back to Articles
-              </a>
+      <section style={{ padding: '2rem 0 4rem' }}>
+        <div className="container container-md">
+          <article>
+            {/* Breadcrumb */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <Link to="/articles" className="link" style={{ fontSize: '0.875rem' }}>
+                ← Back to Articles
+              </Link>
             </div>
 
-            <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+            {/* Header */}
+            <header style={{ marginBottom: '2rem' }}>
+              <h1
+                style={{
+                  fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  marginBottom: '1rem',
+                }}
+              >
+                {article.title}
+              </h1>
 
-            {article.summary && (
-              <p className="text-xl text-gray-600 mb-4">{article.summary}</p>
+              {article.summary && (
+                <p
+                  className="text-muted"
+                  style={{
+                    fontSize: '1.25rem',
+                    lineHeight: 1.6,
+                    marginBottom: '1rem',
+                  }}
+                >
+                  {article.summary}
+                </p>
+              )}
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <time
+                  dateTime={new Date(article.publishedAt).toISOString()}
+                  className="text-muted"
+                  style={{ fontSize: '0.875rem' }}
+                >
+                  {formattedDate}
+                </time>
+                {article.tags.length > 0 && (
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {article.tags.map((tag: string) => (
+                      <span key={tag} className="badge badge-secondary">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </header>
+
+            {/* Cover Image */}
+            {article.image && (
+              <img
+                src={article.image}
+                alt={article.title}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '400px',
+                  objectFit: 'cover',
+                  borderRadius: 'var(--radius)',
+                  marginBottom: '2rem',
+                }}
+              />
             )}
 
-            <div className="flex items-center gap-4 text-gray-500 text-sm">
-              <time dateTime={new Date(article.publishedAt).toISOString()}>
-                {formattedDate}
-              </time>
-              {article.tags.length > 0 && (
-                <div className="flex gap-2">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-gray-100 px-2 py-1 rounded text-xs"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </header>
-
-          {/* Cover Image */}
-          {article.image && (
-            <img
-              src={article.image}
-              alt={article.title}
-              className="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
+            {/* Content */}
+            <div
+              className="prose"
+              style={{ maxWidth: 'none' }}
+              dangerouslySetInnerHTML={{ __html: article.content }}
             />
-          )}
+          </article>
 
-          {/* Content */}
-          <div
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </article>
-      </main>
+          {/* CTA */}
+          <div style={{ marginTop: '3rem' }}>
+            <CTABanner
+              variant="minimal"
+              title="Want to join the discussion?"
+              primaryCTA="Create Account"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4rem 0',
+      }}
+    >
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📄</div>
+        <h1
+          style={{
+            fontSize: '1.5rem',
+            fontWeight: 700,
+            marginBottom: '0.5rem',
+          }}
+        >
           Article Not Found
         </h1>
-        <p className="text-gray-600 mb-8">
-          The article you&apos;re looking for doesn&apos;t exist or has been removed.
+        <p className="text-muted" style={{ marginBottom: '1.5rem' }}>
+          The article you're looking for doesn't exist or has been removed.
         </p>
-        <a href="/articles" className="text-blue-600 hover:underline">
-          &larr; Back to Articles
-        </a>
+        <Link
+          to="/articles"
+          className="btn btn-outline btn-md"
+          style={{ textDecoration: 'none' }}
+        >
+          ← Back to Articles
+        </Link>
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import type { NostrEvent } from 'nostr-tools';
 import { fetchWikiPages } from '../../lib/nostr';
+import { CTABanner } from '../../components/CTABanner';
 
-const getWikiPages = createServerFn({ method: 'GET' }).handler(async () => {
+const getWikiPages = createServerFn({ method: 'GET' }).handler(async (): Promise<NostrEvent[]> => {
   const pages = await fetchWikiPages({ limit: 50 });
   return pages;
 });
@@ -22,8 +24,10 @@ export const Route = createFileRoute('/wiki/')({
         content: 'Collaborative knowledge base for organizers',
       },
       { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://buildit.network/wiki' },
       { name: 'twitter:card', content: 'summary' },
     ],
+    links: [{ rel: 'canonical', href: 'https://buildit.network/wiki' }],
   }),
   loader: async () => {
     const pages = await getWikiPages();
@@ -32,13 +36,23 @@ export const Route = createFileRoute('/wiki/')({
   component: WikiPage,
 });
 
+interface ParsedWikiPage {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  category: string | undefined;
+  updatedAt: number;
+}
+
 function WikiPage() {
-  const { pages } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData() as { pages: NostrEvent[] } | undefined;
+  const pages = loaderData?.pages ?? [];
 
   // Parse wiki pages from Nostr events
-  const parsedPages = pages.map((event) => {
+  const parsedPages: ParsedWikiPage[] = pages.map((event: NostrEvent) => {
     const getTag = (name: string): string | undefined => {
-      const tag = event.tags.find((t) => t[0] === name);
+      const tag = event.tags.find((t: string[]) => t[0] === name);
       return tag ? tag[1] : undefined;
     };
 
@@ -53,83 +67,156 @@ function WikiPage() {
   });
 
   // Group by category
-  const categories = parsedPages.reduce(
+  const categories = parsedPages.reduce<Record<string, ParsedWikiPage[]>>(
     (acc, page) => {
       const category = page.category || 'Uncategorized';
       if (!acc[category]) acc[category] = [];
       acc[category].push(page);
       return acc;
     },
-    {} as Record<string, typeof parsedPages>
+    {}
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <nav className="max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="/" className="text-xl font-bold text-blue-600">
-              BuildIt Network
-            </a>
-            <div className="flex items-center space-x-4">
-              <a href="/articles" className="text-gray-600 hover:text-gray-900">
-                Articles
-              </a>
-              <a href="/wiki" className="text-blue-600 font-medium">
-                Wiki
-              </a>
-              <a href="/events" className="text-gray-600 hover:text-gray-900">
-                Events
-              </a>
+    <div>
+      {/* Page Header */}
+      <section style={{ padding: '3rem 0 2rem' }}>
+        <div className="container container-lg">
+          <h1
+            style={{
+              fontSize: '2.5rem',
+              fontWeight: 700,
+              marginBottom: '0.75rem',
+            }}
+          >
+            Wiki
+          </h1>
+          <p
+            className="text-muted"
+            style={{ fontSize: '1.125rem', maxWidth: '600px' }}
+          >
+            Collaborative knowledge base for organizing resources, guides, and
+            best practices.
+          </p>
+        </div>
+      </section>
+
+      {/* Wiki Content */}
+      <section style={{ padding: '0 0 3rem' }}>
+        <div className="container container-lg">
+          {parsedPages.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2rem',
+              }}
+            >
+              {Object.entries(categories).map(([category, categoryPages]) => (
+                <section key={category}>
+                  <h2
+                    style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 600,
+                      marginBottom: '1rem',
+                      paddingBottom: '0.5rem',
+                      borderBottom: '1px solid var(--border)',
+                    }}
+                  >
+                    {category}
+                  </h2>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    {categoryPages.map((page) => (
+                      <WikiPageCard key={page.id} page={page} />
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
-          </div>
-        </nav>
-      </header>
+          )}
+        </div>
+      </section>
 
-      {/* Content */}
-      <main className="max-w-5xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-4">Wiki</h1>
-        <p className="text-gray-600 mb-8">
-          Collaborative knowledge base for organizing resources, guides, and
-          best practices.
-        </p>
-
-        {parsedPages.length === 0 ? (
-          <div className="text-center py-12 text-gray-600">
-            <p className="text-lg">No public wiki pages yet.</p>
-            <p className="mt-2">
-              Check back soon for resources from the BuildIt community.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {Object.entries(categories).map(([category, categoryPages]) => (
-              <section key={category}>
-                <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                  {category}
-                </h2>
-                <div className="grid gap-4">
-                  {categoryPages.map((page) => (
-                    <a
-                      key={page.id}
-                      href={`/wiki/${page.slug}`}
-                      className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition"
-                    >
-                      <h3 className="font-medium text-blue-600 mb-1">
-                        {page.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm line-clamp-2">
-                        {page.summary}
-                      </p>
-                    </a>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
-      </main>
+      {/* CTA */}
+      <section style={{ padding: '2rem 0 4rem' }}>
+        <div className="container container-lg">
+          <CTABanner
+            variant="minimal"
+            title="Want to contribute to the wiki?"
+            primaryCTA="Get Started"
+          />
+        </div>
+      </section>
     </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div
+      className="card"
+      style={{
+        padding: '3rem 2rem',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📚</div>
+      <h2
+        style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}
+      >
+        No public wiki pages yet
+      </h2>
+      <p className="text-muted" style={{ marginBottom: '1.5rem' }}>
+        Check back soon for resources from the BuildIt community.
+      </p>
+      <Link
+        to="/"
+        className="btn btn-outline btn-md"
+        style={{ textDecoration: 'none' }}
+      >
+        Back to Home
+      </Link>
+    </div>
+  );
+}
+
+function WikiPageCard({ page }: { page: ParsedWikiPage }) {
+  return (
+    <Link
+      to="/wiki/$slug"
+      params={{ slug: page.slug }}
+      className="card"
+      style={{
+        padding: '1rem 1.25rem',
+        textDecoration: 'none',
+        color: 'inherit',
+        display: 'block',
+        transition: 'background 0.15s ease',
+      }}
+    >
+      <h3
+        className="link"
+        style={{
+          fontSize: '1rem',
+          fontWeight: 500,
+          marginBottom: '0.25rem',
+        }}
+      >
+        {page.title}
+      </h3>
+      <p
+        className="text-muted line-clamp-2"
+        style={{ fontSize: '0.875rem', margin: 0 }}
+      >
+        {page.summary}
+      </p>
+    </Link>
   );
 }

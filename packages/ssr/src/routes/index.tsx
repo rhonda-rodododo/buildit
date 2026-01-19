@@ -1,15 +1,18 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { CTABanner } from '../components/CTABanner';
+
+const APP_URL = 'https://app.buildit.network';
 
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: 'BuildIt Network - Privacy-First Organizing' },
+      { title: 'BuildIt Network - Privacy-First Organizing Platform' },
       {
         name: 'description',
         content:
           'A privacy-first organizing platform for activist groups, co-ops, unions, and community organizers. Built on Nostr protocol with end-to-end encryption.',
       },
-      { property: 'og:title', content: 'BuildIt Network' },
+      { property: 'og:title', content: 'BuildIt Network - Privacy-First Organizing' },
       {
         property: 'og:description',
         content: 'Privacy-first organizing platform for social action',
@@ -29,78 +32,90 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Hero Section */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold">BuildIt Network</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <a
-                href="/articles"
-                className="text-white/80 hover:text-white transition"
-              >
-                Articles
-              </a>
-              <a
-                href="/wiki"
-                className="text-white/80 hover:text-white transition"
-              >
-                Wiki
-              </a>
-              <a
-                href="/events"
-                className="text-white/80 hover:text-white transition"
-              >
-                Events
-              </a>
-              <a
-                href="https://app.buildit.network"
-                className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition"
-              >
-                Launch App
-              </a>
-            </div>
-          </div>
-        </nav>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Organize Securely.
-            <br />
-            Build Power Together.
-          </h1>
-          <p className="text-xl text-white/80 max-w-2xl mb-8">
-            A privacy-first platform for activist groups, co-ops, unions, and
-            community organizers. End-to-end encrypted. Decentralized. Built for
-            the movement.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <a
-              href="https://app.buildit.network"
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition"
+      <section style={{ padding: '4rem 0 3rem' }}>
+        <div className="container container-xl">
+          <div
+            style={{
+              maxWidth: '800px',
+              margin: '0 auto',
+              textAlign: 'center',
+            }}
+          >
+            <h1
+              style={{
+                fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+                fontWeight: 800,
+                lineHeight: 1.1,
+                marginBottom: '1.5rem',
+              }}
             >
-              Get Started
-            </a>
-            <a
-              href="/articles"
-              className="border border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition"
+              <span className="text-gradient">Organize Securely.</span>
+              <br />
+              Build Power Together.
+            </h1>
+            <p
+              className="text-muted"
+              style={{
+                fontSize: '1.25rem',
+                lineHeight: 1.6,
+                marginBottom: '2rem',
+                maxWidth: '600px',
+                margin: '0 auto 2rem',
+              }}
             >
-              Read Articles
-            </a>
+              A privacy-first platform for activist groups, co-ops, unions, and
+              community organizers. End-to-end encrypted. Decentralized. Built for
+              the movement.
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '0.75rem',
+              }}
+            >
+              <a
+                href={`${APP_URL}/login`}
+                className="btn btn-primary btn-lg"
+                style={{ textDecoration: 'none' }}
+              >
+                Get Started Free
+              </a>
+              <Link
+                to="/articles"
+                className="btn btn-outline btn-lg"
+                style={{ textDecoration: 'none' }}
+              >
+                Read Articles
+              </Link>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">
+      <section style={{ padding: '3rem 0' }}>
+        <div className="container container-xl">
+          <h2
+            style={{
+              fontSize: '1.875rem',
+              fontWeight: 700,
+              textAlign: 'center',
+              marginBottom: '2.5rem',
+            }}
+          >
             Built for Organizers
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.5rem',
+            }}
+          >
             <FeatureCard
               title="End-to-End Encrypted"
               description="All private communications are encrypted using NIP-17. Only you and your intended recipients can read your messages."
@@ -120,75 +135,49 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">BuildIt Network</h3>
-              <p className="text-gray-400">
-                Privacy-first organizing for the digital age.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Platform</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="/articles" className="hover:text-white">
-                    Articles
-                  </a>
-                </li>
-                <li>
-                  <a href="/wiki" className="hover:text-white">
-                    Wiki
-                  </a>
-                </li>
-                <li>
-                  <a href="/events" className="hover:text-white">
-                    Events
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="/about" className="hover:text-white">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/buildit-network"
-                    className="hover:text-white"
-                  >
-                    GitHub
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="/privacy" className="hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="/terms" className="hover:text-white">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; {new Date().getFullYear()} BuildIt Network. Open Source.</p>
+      {/* Content Highlights */}
+      <section style={{ padding: '3rem 0' }}>
+        <div className="container container-xl">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '2rem',
+            }}
+          >
+            <ContentSection
+              title="Latest Articles"
+              description="Guides, tutorials, and insights for digital organizing"
+              href="/articles"
+              linkText="View all articles"
+            />
+            <ContentSection
+              title="Knowledge Base"
+              description="Collaborative documentation and how-tos"
+              href="/wiki"
+              linkText="Browse wiki"
+            />
+            <ContentSection
+              title="Upcoming Events"
+              description="Connect with organizers and communities"
+              href="/events"
+              linkText="See events"
+            />
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* CTA Section */}
+      <section style={{ padding: '3rem 0 4rem' }}>
+        <div className="container container-lg">
+          <CTABanner
+            title="Ready to organize with privacy?"
+            description="Join thousands of activists, unions, and community organizers using BuildIt Network. Free, open source, and built for the movement."
+            primaryCTA="Create Free Account"
+            secondaryCTA="Learn More"
+          />
+        </div>
+      </section>
     </div>
   );
 }
@@ -203,10 +192,58 @@ function FeatureCard({
   icon: string;
 }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+    <div
+      className="card card-shadow"
+      style={{
+        padding: '1.5rem',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+      }}
+    >
+      <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{icon}</div>
+      <h3
+        style={{
+          fontSize: '1.125rem',
+          fontWeight: 600,
+          marginBottom: '0.5rem',
+        }}
+      >
+        {title}
+      </h3>
+      <p className="text-muted" style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function ContentSection({
+  title,
+  description,
+  href,
+  linkText,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  linkText: string;
+}) {
+  return (
+    <div
+      className="card"
+      style={{
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+      }}
+    >
+      <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>{title}</h3>
+      <p className="text-muted" style={{ margin: 0, fontSize: '0.875rem' }}>
+        {description}
+      </p>
+      <Link to={href} className="link" style={{ fontSize: '0.875rem' }}>
+        {linkText} →
+      </Link>
     </div>
   );
 }

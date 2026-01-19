@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "buildit-public",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+
+  // Environment variables
+  "vars": {
+    "NOSTR_RELAYS": "wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol",
+    "SITE_URL": "https://buildit.network",
+    "SITE_NAME": "BuildIt Network"
+  }
+}

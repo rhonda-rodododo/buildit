@@ -4,6 +4,7 @@
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -20,6 +21,6 @@
       "@buildit/shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src/**/*", "app.config.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "vite.config.ts"]
 }
