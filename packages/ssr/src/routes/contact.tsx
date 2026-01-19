@@ -72,13 +72,15 @@ function ContactPage() {
               >
                 Report bugs, request features, or contribute to the codebase.
               </p>
-              <Link
-                to="https://github.com/buildn/buildit-network"
+              <a
+                href="https://github.com/buildn/buildit-network"
                 className="btn btn-outline btn-md"
                 style={{ textDecoration: 'none' }}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Open GitHub
-              </Link>
+              </a>
             </div>
 
             {/* Nostr */}
@@ -99,13 +101,15 @@ function ContactPage() {
               >
                 Follow us on Nostr for updates, discussions, and community news.
               </p>
-              <Link
-                to="https://njump.me/buildit"
+              <a
+                href="https://njump.me/buildit"
                 className="btn btn-outline btn-md"
                 style={{ textDecoration: 'none' }}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Find on Nostr
-              </Link>
+              </a>
             </div>
 
             {/* Community */}
@@ -126,13 +130,13 @@ function ContactPage() {
               >
                 Join the BuildIt Network community to connect with other organizers.
               </p>
-              <Link
-                to="https://app.buildit.network/login"
+              <a
+                href="https://app.buildit.network/login"
                 className="btn btn-primary btn-md"
                 style={{ textDecoration: 'none' }}
               >
                 Join Community
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -178,12 +182,14 @@ function ContactPage() {
               </li>
               <li style={{ marginBottom: '0.5rem' }}>
                 Search existing{' '}
-                <Link
-                  to="https://github.com/buildn/buildit-network/issues"
+                <a
+                  href="https://github.com/buildn/buildit-network/issues"
                   className="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   GitHub issues
-                </Link>{' '}
+                </a>{' '}
                 for known problems
               </li>
               <li>

@@ -175,9 +175,9 @@ function PrivacyPage() {
               handles data, please reach out through our{' '}
               <Link to="/contact" className="link">contact page</Link> or open an
               issue on{' '}
-              <Link to="https://github.com/buildn/buildit-network" className="link">
+              <a href="https://github.com/buildn/buildit-network" className="link" target="_blank" rel="noopener noreferrer">
                 GitHub
-              </Link>.
+              </a>.
             </p>
 
             <h2>Changes to This Policy</h2>

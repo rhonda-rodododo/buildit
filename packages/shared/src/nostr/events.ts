@@ -63,6 +63,8 @@ export interface NostrFilter {
 export interface ArticleContent {
   id: string;
   pubkey: string;
+  authorPubkey: string; // Alias for pubkey for clarity
+  authorName?: string; // From author metadata if available
   slug: string;
   title: string;
   summary?: string;
@@ -95,6 +97,8 @@ export function parseArticleFromEvent(event: NostrEvent): ArticleContent | null 
   return {
     id: event.id,
     pubkey: event.pubkey,
+    authorPubkey: event.pubkey,
+    authorName: getTag('author'),
     slug,
     title,
     summary: getTag('summary'),

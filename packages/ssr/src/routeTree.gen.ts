@@ -15,9 +15,14 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WikiIndexRouteImport } from './routes/wiki/index'
+import { Route as PublicationsIndexRouteImport } from './routes/publications/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as WikiSlugRouteImport } from './routes/wiki/$slug'
+import { Route as PublicationsSlugRouteImport } from './routes/publications/$slug'
+import { Route as FeedXmlRouteImport } from './routes/feed.xml'
+import { Route as EventsIdRouteImport } from './routes/events/$id'
+import { Route as CampaignsSlugRouteImport } from './routes/campaigns/$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -50,6 +55,11 @@ const WikiIndexRoute = WikiIndexRouteImport.update({
   path: '/wiki/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicationsIndexRoute = PublicationsIndexRouteImport.update({
+  id: '/publications/',
+  path: '/publications/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -65,6 +75,26 @@ const WikiSlugRoute = WikiSlugRouteImport.update({
   path: '/wiki/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicationsSlugRoute = PublicationsSlugRouteImport.update({
+  id: '/publications/$slug',
+  path: '/publications/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedXmlRoute = FeedXmlRouteImport.update({
+  id: '/feed/xml',
+  path: '/feed/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIdRoute = EventsIdRouteImport.update({
+  id: '/events/$id',
+  path: '/events/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampaignsSlugRoute = CampaignsSlugRouteImport.update({
+  id: '/campaigns/$slug',
+  path: '/campaigns/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   id: '/articles/$slug',
   path: '/articles/$slug',
@@ -78,9 +108,14 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
+  '/events/$id': typeof EventsIdRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
+  '/publications/': typeof PublicationsIndexRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRoutesByTo {
@@ -90,9 +125,14 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
+  '/events/$id': typeof EventsIdRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles': typeof ArticlesIndexRoute
   '/events': typeof EventsIndexRoute
+  '/publications': typeof PublicationsIndexRoute
   '/wiki': typeof WikiIndexRoute
 }
 export interface FileRoutesById {
@@ -103,9 +143,14 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/campaigns/$slug': typeof CampaignsSlugRoute
+  '/events/$id': typeof EventsIdRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
+  '/publications/': typeof PublicationsIndexRoute
   '/wiki/': typeof WikiIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,9 +162,14 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/articles/$slug'
+    | '/campaigns/$slug'
+    | '/events/$id'
+    | '/feed/xml'
+    | '/publications/$slug'
     | '/wiki/$slug'
     | '/articles/'
     | '/events/'
+    | '/publications/'
     | '/wiki/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -129,9 +179,14 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/articles/$slug'
+    | '/campaigns/$slug'
+    | '/events/$id'
+    | '/feed/xml'
+    | '/publications/$slug'
     | '/wiki/$slug'
     | '/articles'
     | '/events'
+    | '/publications'
     | '/wiki'
   id:
     | '__root__'
@@ -141,9 +196,14 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/articles/$slug'
+    | '/campaigns/$slug'
+    | '/events/$id'
+    | '/feed/xml'
+    | '/publications/$slug'
     | '/wiki/$slug'
     | '/articles/'
     | '/events/'
+    | '/publications/'
     | '/wiki/'
   fileRoutesById: FileRoutesById
 }
@@ -154,9 +214,14 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   PrivacyRoute: typeof PrivacyRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
+  CampaignsSlugRoute: typeof CampaignsSlugRoute
+  EventsIdRoute: typeof EventsIdRoute
+  FeedXmlRoute: typeof FeedXmlRoute
+  PublicationsSlugRoute: typeof PublicationsSlugRoute
   WikiSlugRoute: typeof WikiSlugRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
+  PublicationsIndexRoute: typeof PublicationsIndexRoute
   WikiIndexRoute: typeof WikiIndexRoute
 }
 
@@ -204,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WikiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publications/': {
+      id: '/publications/'
+      path: '/publications'
+      fullPath: '/publications/'
+      preLoaderRoute: typeof PublicationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -225,6 +297,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WikiSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publications/$slug': {
+      id: '/publications/$slug'
+      path: '/publications/$slug'
+      fullPath: '/publications/$slug'
+      preLoaderRoute: typeof PublicationsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed/xml': {
+      id: '/feed/xml'
+      path: '/feed/xml'
+      fullPath: '/feed/xml'
+      preLoaderRoute: typeof FeedXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$id': {
+      id: '/events/$id'
+      path: '/events/$id'
+      fullPath: '/events/$id'
+      preLoaderRoute: typeof EventsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campaigns/$slug': {
+      id: '/campaigns/$slug'
+      path: '/campaigns/$slug'
+      fullPath: '/campaigns/$slug'
+      preLoaderRoute: typeof CampaignsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/$slug': {
       id: '/articles/$slug'
       path: '/articles/$slug'
@@ -242,9 +342,14 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   PrivacyRoute: PrivacyRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
+  CampaignsSlugRoute: CampaignsSlugRoute,
+  EventsIdRoute: EventsIdRoute,
+  FeedXmlRoute: FeedXmlRoute,
+  PublicationsSlugRoute: PublicationsSlugRoute,
   WikiSlugRoute: WikiSlugRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
+  PublicationsIndexRoute: PublicationsIndexRoute,
   WikiIndexRoute: WikiIndexRoute,
 }
 export const routeTree = rootRouteImport

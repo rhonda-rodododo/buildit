@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { CTABanner } from '../components/CTABanner';
 
 export const Route = createFileRoute('/about')({
@@ -71,7 +71,7 @@ function AboutPage() {
 
             <h2>Built on Nostr</h2>
             <p>
-              <Link to="https://nostr.com" className="link">Nostr</Link> is a decentralized
+              <a href="https://nostr.com" className="link" target="_blank" rel="noopener noreferrer">Nostr</a> is a decentralized
               protocol that puts users in control. Unlike traditional platforms:
             </p>
             <ul>
@@ -100,9 +100,9 @@ function AboutPage() {
               BuildIt Network is open source software. We believe that security tools must
               be auditable, and that the communities who use them should be able to
               contribute to their development. You can find our code on{' '}
-              <Link to="https://github.com/buildn/buildit-network" className="link">
+              <a href="https://github.com/buildn/buildit-network" className="link" target="_blank" rel="noopener noreferrer">
                 GitHub
-              </Link>.
+              </a>.
             </p>
 
             <h2>Get Involved</h2>
