@@ -353,6 +353,9 @@ export class DeviceTransferService {
 
       logger.info('Key payload received and decrypted', { sessionId: sessionId.slice(0, 8) });
 
+      // SECURITY: Clean up session to remove sensitive key material from memory
+      this.cleanupSession(sessionId);
+
       return { privateKey, metadata };
     } catch (error) {
       session.status = 'failed';
@@ -361,6 +364,9 @@ export class DeviceTransferService {
       this.emitUpdate(session);
 
       await this.completeTransferRecord(sessionId, 'failed', session.errorMessage);
+
+      // SECURITY: Clean up session even on failure
+      this.cleanupSession(sessionId);
 
       throw error;
     }
@@ -387,6 +393,9 @@ export class DeviceTransferService {
     }
 
     logger.info('Device transfer completed', { sessionId: sessionId.slice(0, 8) });
+
+    // SECURITY: Clean up session to remove sensitive key material from memory
+    this.cleanupSession(sessionId);
   }
 
   /**
@@ -406,6 +415,9 @@ export class DeviceTransferService {
     await this.completeTransferRecord(sessionId, 'failed', session.errorMessage);
 
     logger.info('Device transfer aborted', { sessionId: sessionId.slice(0, 8), reason });
+
+    // SECURITY: Clean up session to remove sensitive key material from memory
+    this.cleanupSession(sessionId);
   }
 
   /**
@@ -496,6 +508,23 @@ export class DeviceTransferService {
     await this.completeTransferRecord(sessionId, 'expired');
 
     logger.info('Device transfer session expired', { sessionId: sessionId.slice(0, 8) });
+
+    // SECURITY: Clean up session to remove sensitive key material from memory
+    this.cleanupSession(sessionId);
+  }
+
+  /**
+   * SECURITY: Clean up session and remove sensitive key material from memory
+   * While hex strings can't be explicitly zeroed (immutable), removing references
+   * allows the garbage collector to reclaim the memory sooner
+   */
+  private cleanupSession(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      // Remove from active sessions map - allows garbage collection
+      this.sessions.delete(sessionId);
+      logger.debug('Session cleaned up', { sessionId: sessionId.slice(0, 8) });
+    }
   }
 
   /**

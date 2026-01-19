@@ -454,23 +454,24 @@ export class BunkerService {
     return this.uint8ToHex(hash);
   }
 
-  // NIP-04 encryption (legacy, for compatibility)
+  // NIP-04 encryption (legacy, for compatibility with older Nostr clients)
+  // Note: NIP-04 is considered deprecated in favor of NIP-44, but still widely used
   private async nip04Encrypt(
-    _privateKey: Uint8Array,
-    _pubkey: string,
-    _plaintext: string
+    privateKey: Uint8Array,
+    pubkey: string,
+    plaintext: string
   ): Promise<string> {
-    // Import from nostr-tools or implement
-    // For now, throw not implemented
-    throw new Error('NIP-04 encryption not yet implemented');
+    const { encrypt } = await import('nostr-tools/nip04');
+    return encrypt(privateKey, pubkey, plaintext);
   }
 
   private async nip04Decrypt(
-    _privateKey: Uint8Array,
-    _pubkey: string,
-    _ciphertext: string
+    privateKey: Uint8Array,
+    pubkey: string,
+    ciphertext: string
   ): Promise<string> {
-    throw new Error('NIP-04 decryption not yet implemented');
+    const { decrypt } = await import('nostr-tools/nip04');
+    return decrypt(privateKey, pubkey, ciphertext);
   }
 
   // NIP-44 encryption (modern)

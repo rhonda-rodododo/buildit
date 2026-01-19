@@ -116,6 +116,12 @@ export class SecureKeyManager {
       ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
         window.addEventListener(event, this.recordActivity.bind(this), { passive: true });
       });
+
+      // SECURITY: Clear keys when browser window/tab closes
+      // This ensures keys don't remain in memory if the browser crashes or force-closes
+      window.addEventListener('beforeunload', () => {
+        this.lock();
+      });
     }
   }
 

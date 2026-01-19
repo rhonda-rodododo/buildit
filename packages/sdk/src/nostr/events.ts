@@ -27,9 +27,9 @@ function generateUUID(): string {
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
     globalThis.crypto.getRandomValues(bytes)
   } else {
-    for (let i = 0; i < 16; i++) {
-      bytes[i] = Math.floor(Math.random() * 256)
-    }
+    // SECURITY: Never use Math.random() for cryptographic operations
+    // Throw error instead of silently using insecure random
+    throw new Error('@buildit/sdk: crypto.getRandomValues not available. Add a secure polyfill.')
   }
   // Set version (4) and variant (10xx)
   bytes[6] = (bytes[6] & 0x0f) | 0x40

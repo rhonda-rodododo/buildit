@@ -32,12 +32,9 @@ function getRandomBytes(length: number): Uint8Array {
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
     globalThis.crypto.getRandomValues(bytes)
   } else {
-    // Fallback for environments without crypto.getRandomValues
-    // This should not be used in production - add proper polyfill
-    for (let i = 0; i < length; i++) {
-      bytes[i] = Math.floor(Math.random() * 256)
-    }
-    console.warn('@buildit/sdk: Using insecure random fallback. Add crypto polyfill.')
+    // SECURITY: Never use Math.random() for cryptographic operations
+    // Throw error instead of silently using insecure random
+    throw new Error('@buildit/sdk: crypto.getRandomValues not available. Add a secure polyfill.')
   }
   return bytes
 }

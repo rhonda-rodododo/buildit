@@ -13,7 +13,10 @@ import * as secp256k1 from '@noble/secp256k1';
 import { sha256 } from '@noble/hashes/sha2.js';
 
 // PBKDF2 iterations for passphrase derivation
-const PBKDF2_ITERATIONS = 100_000; // Lower than backup since transfer is time-sensitive
+// OWASP 2023 recommends minimum 310,000 for SHA-256
+// While transfers are time-sensitive, this is still double-encrypted with ECDH
+// and the passphrase layer needs to be brute-force resistant
+const PBKDF2_ITERATIONS = 310_000;
 
 /**
  * Transfer Crypto Service

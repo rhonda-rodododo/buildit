@@ -203,7 +203,11 @@ export function calculateRetryDelay(
   );
 
   // Add jitter to prevent thundering herd
-  const jitterAmount = baseDelay * jitter * Math.random();
+  // Use crypto.getRandomValues() for consistent security practice
+  const randomBuffer = new Uint32Array(1);
+  crypto.getRandomValues(randomBuffer);
+  const randomValue = randomBuffer[0] / 0xFFFFFFFF;
+  const jitterAmount = baseDelay * jitter * randomValue;
 
   return Math.floor(baseDelay + jitterAmount);
 }
