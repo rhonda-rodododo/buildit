@@ -174,8 +174,8 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       '@noble/hashes',
-      '@noble/hashes/utils',
-      '@noble/hashes/sha256',
+      '@noble/hashes/utils.js',
+      '@noble/hashes/sha2.js',
       '@noble/secp256k1',
       '@scure/bip39',
     ],

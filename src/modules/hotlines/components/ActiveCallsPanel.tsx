@@ -1,0 +1,294 @@
+/**
+ * Active Calls Panel Component
+ * Displays and manages currently active calls
+ */
+
+import { useEffect, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  Phone,
+  PhoneOff,
+  Pause,
+  Play,
+  Plus,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useHotlinesStore } from '../hotlinesStore';
+import type { HotlineCall, Priority } from '../types';
+
+interface ActiveCallsPanelProps {
+  hotlineId: string;
+}
+
+const priorityColors: Record<Priority, string> = {
+  low: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+  medium: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  high: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  urgent: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+};
+
+export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
+  const { activeCalls, isLoading, loadActiveCalls, startCall, endCall, updateCall } =
+    useHotlinesStore();
+  const [newCallOpen, setNewCallOpen] = useState(false);
+  const [endCallDialogOpen, setEndCallDialogOpen] = useState(false);
+  const [selectedCall, setSelectedCall] = useState<HotlineCall | null>(null);
+  const [summary, setSummary] = useState('');
+
+  // Form state for new call
+  const [callerName, setCallerName] = useState('');
+  const [callerPhone, setCallerPhone] = useState('');
+  const [priority, setPriority] = useState<Priority>('medium');
+
+  useEffect(() => {
+    loadActiveCalls(hotlineId);
+    // Refresh every 30 seconds
+    const interval = setInterval(() => loadActiveCalls(hotlineId), 30000);
+    return () => clearInterval(interval);
+  }, [hotlineId, loadActiveCalls]);
+
+  const handleStartCall = async () => {
+    try {
+      await startCall(
+        hotlineId,
+        { callerName, callerPhone, priority },
+        'current-user-pubkey' // TODO: Get from auth context
+      );
+      setNewCallOpen(false);
+      setCallerName('');
+      setCallerPhone('');
+      setPriority('medium');
+    } catch (error) {
+      console.error('Failed to start call:', error);
+    }
+  };
+
+  const handleEndCall = async () => {
+    if (!selectedCall) return;
+    try {
+      await endCall(selectedCall.id, summary);
+      setEndCallDialogOpen(false);
+      setSelectedCall(null);
+      setSummary('');
+    } catch (error) {
+      console.error('Failed to end call:', error);
+    }
+  };
+
+  const handleHoldCall = async (call: HotlineCall) => {
+    const newStatus = call.status === 'on-hold' ? 'active' : 'on-hold';
+    await updateCall(call.id, { status: newStatus });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2].map((i) => (
+          <Skeleton key={i} className="h-24 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* New Call Button */}
+      <Dialog open={newCallOpen} onOpenChange={setNewCallOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Start New Call
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start New Call</DialogTitle>
+            <DialogDescription>
+              Log a new incoming call to the hotline
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="callerName">Caller Name</Label>
+              <Input
+                id="callerName"
+                value={callerName}
+                onChange={(e) => setCallerName(e.target.value)}
+                placeholder="Enter caller name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="callerPhone">Phone Number</Label>
+              <Input
+                id="callerPhone"
+                value={callerPhone}
+                onChange={(e) => setCallerPhone(e.target.value)}
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewCallOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleStartCall}>
+              <Phone className="h-4 w-4 mr-2" />
+              Start Call
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Active Calls List */}
+      {activeCalls.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p>No active calls</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {activeCalls.map((call) => (
+            <div
+              key={call.id}
+              className="p-4 rounded-lg border bg-card"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                    {call.status === 'on-hold' ? (
+                      <Pause className="h-4 w-4 text-yellow-600" />
+                    ) : (
+                      <Phone className="h-4 w-4 text-green-600" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {call.callerName || 'Unknown Caller'}
+                      </span>
+                      <Badge variant="secondary" className={priorityColors[call.priority]}>
+                        {call.priority}
+                      </Badge>
+                      {call.status === 'on-hold' && (
+                        <Badge variant="outline">On Hold</Badge>
+                      )}
+                    </div>
+                    {call.callerPhone && (
+                      <p className="text-sm text-muted-foreground">
+                        {call.callerPhone}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Started {formatDistanceToNow(call.callTime, { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleHoldCall(call)}
+                  >
+                    {call.status === 'on-hold' ? (
+                      <>
+                        <Play className="h-4 w-4 mr-1" />
+                        Resume
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="h-4 w-4 mr-1" />
+                        Hold
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedCall(call);
+                      setEndCallDialogOpen(true);
+                    }}
+                  >
+                    <PhoneOff className="h-4 w-4 mr-1" />
+                    End
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* End Call Dialog */}
+      <Dialog open={endCallDialogOpen} onOpenChange={setEndCallDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>End Call</DialogTitle>
+            <DialogDescription>
+              Provide a summary of the call before ending
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="summary">Call Summary</Label>
+              <Textarea
+                id="summary"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="Enter a summary of the call..."
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEndCallDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEndCall} variant="destructive">
+              <PhoneOff className="h-4 w-4 mr-2" />
+              End Call
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export default ActiveCallsPanel;

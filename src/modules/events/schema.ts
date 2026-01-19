@@ -39,6 +39,40 @@ export interface DBRSVP {
 }
 
 /**
+ * Volunteer role table interface
+ */
+export interface DBEventVolunteerRole {
+  id: string;
+  eventId: string;
+  name: string;
+  description?: string;
+  spotsNeeded: number;
+  spotsFilled: number;
+  requiredTrainings?: string; // JSON stringified array
+  shiftStart?: number;
+  shiftEnd?: number;
+  created: number;
+  createdBy: string;
+}
+
+/**
+ * Volunteer signup table interface
+ */
+export interface DBEventVolunteerSignup {
+  id: string;
+  eventId: string;
+  roleId: string;
+  contactId: string;
+  contactPubkey?: string;
+  status: 'pending' | 'confirmed' | 'declined' | 'no-show';
+  signupTime: number;
+  confirmedBy?: string;
+  notes?: string;
+  created: number;
+  updated: number;
+}
+
+/**
  * Events module schema definition
  */
 export const eventsSchema: TableSchema[] = [
@@ -51,6 +85,16 @@ export const eventsSchema: TableSchema[] = [
     name: 'rsvps',
     schema: '++id, [eventId+userPubkey], eventId, userPubkey, status',
     indexes: ['++id', '[eventId+userPubkey]', 'eventId', 'userPubkey', 'status'],
+  },
+  {
+    name: 'eventVolunteerRoles',
+    schema: 'id, eventId, created',
+    indexes: ['id', 'eventId', 'created'],
+  },
+  {
+    name: 'eventVolunteerSignups',
+    schema: 'id, eventId, roleId, contactId, contactPubkey, status, signupTime',
+    indexes: ['id', 'eventId', 'roleId', 'contactId', 'contactPubkey', 'status', 'signupTime'],
   },
 ];
 

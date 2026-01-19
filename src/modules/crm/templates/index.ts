@@ -11,6 +11,9 @@ import { tenantOrganizingTemplate } from './tenantOrganizing';
 import { nonprofitCRMTemplate } from './nonprofitCRM';
 import { memberManagementTemplate } from './memberManagement';
 import { salesPipelineTemplate } from './salesPipeline';
+import { unionElectionCampaignTemplate } from './unionElectionCampaign';
+import { streetMedicsTemplate } from './streetMedics';
+import { selfDefenseTemplate } from './selfDefense';
 
 // Re-export individual templates
 export {
@@ -19,6 +22,9 @@ export {
   nonprofitCRMTemplate,
   memberManagementTemplate,
   salesPipelineTemplate,
+  unionElectionCampaignTemplate,
+  streetMedicsTemplate,
+  selfDefenseTemplate,
 };
 
 /**
@@ -31,4 +37,7 @@ export const builtInTemplates: CRMMultiTableTemplate[] = [
   nonprofitCRMTemplate,
   memberManagementTemplate,
   salesPipelineTemplate,
+  unionElectionCampaignTemplate,
+  streetMedicsTemplate,
+  selfDefenseTemplate,
 ];

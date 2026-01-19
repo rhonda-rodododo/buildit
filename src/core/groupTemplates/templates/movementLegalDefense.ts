@@ -1,22 +1,33 @@
 /**
- * Legal Aid Organization Template
+ * Movement Legal Defense Collective Template
  *
- * Comprehensive template for legal aid organizations, legal observers,
- * mass defense coordination, and NLG-style legal support networks.
- * Includes case management, court calendars, and lawyer coordination.
+ * Comprehensive template for movement legal defense, legal observers,
+ * mass defense coordination, jail support, and NLG-style legal support networks.
+ * Includes case management, court calendars, lawyer coordination, and hotlines.
  */
 
 import type { GroupTemplate } from '../types';
 
-export const LEGAL_AID_ORG_TEMPLATE: GroupTemplate = {
-  id: 'legal-aid-org',
-  name: 'Legal Aid Organization',
+export const MOVEMENT_LEGAL_DEFENSE_TEMPLATE: GroupTemplate = {
+  id: 'movement-legal-defense',
+  name: 'Movement Legal Defense Collective',
   description:
-    'Full-featured legal support with case management, court calendars, and lawyer coordination. Built for legal observers, mass defense, and legal aid networks.',
+    'Full-featured mass defense coordination with case management, court calendars, lawyer coordination, and jail support hotlines. Built for NLG-style legal observers and legal defense networks.',
   icon: '⚖️',
-  category: 'civic',
+  category: 'movement-defense',
   complexity: 5,
-  tags: ['legal', 'legal-aid', 'defense', 'nlg', 'court', 'lawyers', 'observers', 'civil-rights'],
+  tags: [
+    'legal',
+    'legal-defense',
+    'mass-defense',
+    'nlg',
+    'court',
+    'lawyers',
+    'legal-observers',
+    'civil-rights',
+    'jail-support',
+    'hotline',
+  ],
   defaultPrivacy: 'private',
 
   modules: [
@@ -40,6 +51,15 @@ export const LEGAL_AID_ORG_TEMPLATE: GroupTemplate = {
       moduleId: 'custom-fields',
       enabled: true,
       required: true,
+    },
+    {
+      moduleId: 'hotlines',
+      enabled: true,
+      required: true,
+      config: {
+        defaultType: 'jail-support',
+        preCreateHotlines: [{ name: 'Jail Support Hotline', type: 'jail-support' }],
+      },
     },
     {
       moduleId: 'events',
@@ -128,6 +148,12 @@ export const LEGAL_AID_ORG_TEMPLATE: GroupTemplate = {
       privacy: 'members',
     },
     {
+      name: 'jail-support',
+      description: 'Jail support hotline coordination',
+      type: 'chat',
+      privacy: 'members',
+    },
+    {
       name: 'urgent',
       description: 'Urgent matters requiring immediate attention',
       type: 'chat',
@@ -167,6 +193,12 @@ export const LEGAL_AID_ORG_TEMPLATE: GroupTemplate = {
       permissions: ['invite_members', 'create_events', 'create_proposals'],
     },
     {
+      name: 'Hotline Operator',
+      description: 'Operates jail support hotline',
+      color: '#DC2626',
+      permissions: ['create_events'],
+    },
+    {
       name: 'Volunteer',
       description: 'General volunteer support',
       color: '#6B7280',
@@ -188,7 +220,7 @@ export const LEGAL_AID_ORG_TEMPLATE: GroupTemplate = {
     allowInvites: true,
   },
 
-  i18nKey: 'templates.legalAidOrg',
+  i18nKey: 'templates.movementLegalDefense',
 };
 
-export default LEGAL_AID_ORG_TEMPLATE;
+export default MOVEMENT_LEGAL_DEFENSE_TEMPLATE;

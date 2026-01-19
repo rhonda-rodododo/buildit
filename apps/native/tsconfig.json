@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@buildit/sdk": ["../../packages/sdk/src"],
+      "@buildit/sdk/*": ["../../packages/sdk/src/*"],
+      "@buildit/design-tokens": ["../../packages/design-tokens/src"],
+      "@buildit/design-tokens/*": ["../../packages/design-tokens/src/*"]
+    },
+    "baseUrl": "."
+  },
+  "include": ["src/**/*", "app/**/*"],
+  "exclude": ["node_modules"]
+}

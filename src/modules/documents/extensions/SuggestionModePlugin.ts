@@ -5,7 +5,7 @@
  * Epic 56: Advanced Document Features
  */
 
-import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state'
+import { Plugin, PluginKey, Transaction, EditorState } from 'prosemirror-state'
 import { Extension } from '@tiptap/core'
 import { secureRandomInt } from '@/lib/utils'
 
@@ -95,7 +95,7 @@ export const SuggestionModeExtension = Extension.create<SuggestionModeOptions, S
       new Plugin({
         key: suggestionModePluginKey,
 
-        appendTransaction(transactions: readonly Transaction[], oldState, newState) {
+        appendTransaction(transactions: readonly Transaction[], oldState: EditorState, newState: EditorState) {
           // Check if suggestion mode is enabled via editor storage
           const editor = extension.editor
           const storage = (editor?.storage as unknown as Record<string, SuggestionModeStorage> | undefined)?.['suggestionMode']
@@ -123,9 +123,9 @@ export const SuggestionModeExtension = Extension.create<SuggestionModeOptions, S
             newText: string
           }> = []
 
-          primaryTr.steps.forEach((step) => {
+          primaryTr.steps.forEach((step: { getMap: () => { forEach: (callback: (oldStart: number, oldEnd: number, newStart: number, newEnd: number) => void) => void } }) => {
             const stepMap = step.getMap()
-            stepMap.forEach((oldStart, oldEnd, newStart, newEnd) => {
+            stepMap.forEach((oldStart: number, oldEnd: number, newStart: number, newEnd: number) => {
               const oldText = oldState.doc.textBetween(oldStart, oldEnd, ' ')
               const newText = newState.doc.textBetween(newStart, newEnd, ' ')
 

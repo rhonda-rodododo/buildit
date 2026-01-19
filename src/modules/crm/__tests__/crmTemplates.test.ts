@@ -10,11 +10,12 @@ import { tenantOrganizingTemplate } from '../templates/tenantOrganizing';
 import { nonprofitCRMTemplate } from '../templates/nonprofitCRM';
 import { memberManagementTemplate } from '../templates/memberManagement';
 import { salesPipelineTemplate } from '../templates/salesPipeline';
+import { unionElectionCampaignTemplate } from '../templates/unionElectionCampaign';
 
 describe('CRM Templates', () => {
   describe('Built-in Templates', () => {
-    it('should have 5 built-in templates', () => {
-      expect(builtInTemplates.length).toBe(5);
+    it('should have multiple built-in templates', () => {
+      expect(builtInTemplates.length).toBeGreaterThanOrEqual(6);
     });
 
     it('should have unique template IDs', () => {
@@ -239,6 +240,69 @@ describe('CRM Templates', () => {
           expect(targetExists).toBe(true);
         }
       }
+    });
+  });
+
+  describe('Union Election Campaign Template', () => {
+    const template = unionElectionCampaignTemplate;
+
+    it('should have correct metadata', () => {
+      expect(template.id).toBe('union-election-campaign');
+      expect(template.name).toBe('Union Election Campaign');
+      expect(template.category).toBe('organizing');
+    });
+
+    it('should have all required tables', () => {
+      const tableKeys = template.tables.map((t) => t.key);
+      expect(tableKeys).toContain('workers');
+      expect(tableKeys).toContain('house_visits');
+      expect(tableKeys).toContain('authorization_cards');
+      expect(tableKeys).toContain('organizers');
+      expect(tableKeys).toContain('anti_union_activity');
+      expect(tableKeys).toContain('campaign_milestones');
+    });
+
+    it('should have workers table as primary', () => {
+      const workersTable = template.tables.find((t) => t.key === 'workers');
+      expect(workersTable?.isPrimary).toBe(true);
+    });
+
+    it('should have support level and card status tracking', () => {
+      const workersTable = template.tables.find((t) => t.key === 'workers');
+      const fieldNames = workersTable?.fields.map((f) => f.name);
+      expect(fieldNames).toContain('support_level');
+      expect(fieldNames).toContain('card_status');
+    });
+
+    it('should have house visit tracking', () => {
+      const houseVisitsTable = template.tables.find((t) => t.key === 'house_visits');
+      const fieldNames = houseVisitsTable?.fields.map((f) => f.name);
+      expect(fieldNames).toContain('visit_type');
+      expect(fieldNames).toContain('result');
+      expect(fieldNames).toContain('issues_discussed');
+    });
+
+    it('should have anti-union activity tracking', () => {
+      const antiUnionTable = template.tables.find((t) => t.key === 'anti_union_activity');
+      const fieldNames = antiUnionTable?.fields.map((f) => f.name);
+      expect(fieldNames).toContain('incident_type');
+      expect(fieldNames).toContain('severity');
+      expect(fieldNames).toContain('ulp_filed');
+    });
+
+    it('should have relationships between tables', () => {
+      expect(template.relationships.length).toBeGreaterThan(0);
+
+      const workerHouseVisitRel = template.relationships.find(
+        (r) => r.sourceTable === 'house_visits' && r.targetTable === 'workers'
+      );
+      expect(workerHouseVisitRel).toBeDefined();
+    });
+
+    it('should have integrations enabled', () => {
+      expect(template.integrations?.files).toBe(true);
+      expect(template.integrations?.messaging).toBe(true);
+      expect(template.integrations?.events).toBe(true);
     });
   });
 

@@ -12,11 +12,12 @@ import type { GroupPrivacyLevel, GroupModule } from '@/types/group';
  * Organizes templates by use case for easier discovery
  */
 export type TemplateCategory =
-  | 'organizing'    // Union, labor organizing
-  | 'civic'         // Civic engagement, activism, democracy
-  | 'mutual-aid'    // Mutual aid networks
-  | 'governance'    // Collective decision-making
-  | 'community';    // General community building
+  | 'organizing'        // Union, labor organizing
+  | 'civic'             // Civic engagement, activism, democracy
+  | 'mutual-aid'        // Mutual aid networks
+  | 'governance'        // Collective decision-making
+  | 'community'         // General community building
+  | 'movement-defense'; // Movement legal defense, street medics, self-defense
 
 /**
  * Complexity Level (1-5)
@@ -276,6 +277,7 @@ export function getCategoryLabel(category: TemplateCategory): string {
     'mutual-aid': 'Mutual Aid',
     governance: 'Governance',
     community: 'Community',
+    'movement-defense': 'Movement Defense',
   };
   return labels[category];
 }

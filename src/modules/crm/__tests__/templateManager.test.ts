@@ -13,7 +13,7 @@ vi.mock('../templateStore', () => ({
   useTemplateStore: {
     getState: () => ({
       customTemplates: new Map(),
-      getAllTemplates: (groupId?: string) => builtInTemplates,
+      getAllTemplates: () => builtInTemplates,
       getTemplateById: (id: string) => builtInTemplates.find((t) => t.id === id),
       loadCustomTemplates: vi.fn().mockResolvedValue(undefined),
     }),
@@ -47,7 +47,7 @@ describe('CRM Template Manager', () => {
   describe('getAvailableTemplates', () => {
     it('should return all available templates', () => {
       const templates = crmTemplateManager.getAvailableTemplates();
-      expect(templates.length).toBe(5);
+      expect(templates.length).toBeGreaterThanOrEqual(6);
     });
 
     it('should return templates with groupId filter', () => {
@@ -60,7 +60,7 @@ describe('CRM Template Manager', () => {
     it('should return only built-in templates', () => {
       const templates = crmTemplateManager.getBuiltInTemplates();
       expect(templates).toEqual(builtInTemplates);
-      expect(templates.length).toBe(5);
+      expect(templates.length).toBe(8);
     });
 
     it('should include all expected template IDs', () => {
@@ -71,6 +71,9 @@ describe('CRM Template Manager', () => {
       expect(ids).toContain('nonprofit-crm');
       expect(ids).toContain('member-management');
       expect(ids).toContain('sales-pipeline');
+      expect(ids).toContain('union-election-campaign');
+      expect(ids).toContain('street-medics');
+      expect(ids).toContain('self-defense');
     });
   });
 

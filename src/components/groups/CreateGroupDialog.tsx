@@ -50,6 +50,7 @@ const CATEGORY_ICONS: Record<TemplateCategory, string> = {
   organizing: '✊',
   civic: '📢',
   governance: '🗳️',
+  'movement-defense': '🛡️',
 }
 
 export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {

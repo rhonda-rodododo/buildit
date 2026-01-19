@@ -32,6 +32,7 @@ export default defineModuleTranslations({
 
     // Template categories
     unionOrganizing: 'Union Organizing',
+    unionElectionCampaign: 'Union Election Campaign',
     fundraising: 'Fundraising',
     legalTracking: 'Legal Tracking',
     tenantOrganizing: 'Tenant Organizing',
@@ -39,6 +40,8 @@ export default defineModuleTranslations({
     memberManagement: 'Member Management',
     salesPipeline: 'Sales Pipeline',
     nlgMassDefense: 'NLG Mass Defense',
+    streetMedics: 'Street Medics',
+    selfDefense: 'Community Self-Defense',
 
     // Dashboard
     totalRecords: 'Total Records',
@@ -144,6 +147,7 @@ export default defineModuleTranslations({
     relationships: 'relaciones',
 
     unionOrganizing: 'Organización Sindical',
+    unionElectionCampaign: 'Campaña de Elección Sindical',
     fundraising: 'Recaudación de Fondos',
     legalTracking: 'Seguimiento Legal',
     tenantOrganizing: 'Organización de Inquilinos',
@@ -151,6 +155,8 @@ export default defineModuleTranslations({
     memberManagement: 'Gestión de Miembros',
     salesPipeline: 'Pipeline de Ventas',
     nlgMassDefense: 'Defensa Masiva NLG',
+    streetMedics: 'Médicos de Calle',
+    selfDefense: 'Autodefensa Comunitaria',
 
     totalRecords: 'Total de Registros',
     contacts: 'Contactos',
@@ -226,6 +232,7 @@ export default defineModuleTranslations({
     relationships: 'relations',
 
     unionOrganizing: 'Organisation Syndicale',
+    unionElectionCampaign: 'Campagne Électorale Syndicale',
     fundraising: 'Collecte de Fonds',
     legalTracking: 'Suivi Juridique',
     tenantOrganizing: 'Organisation des Locataires',
@@ -233,6 +240,8 @@ export default defineModuleTranslations({
     memberManagement: 'Gestion des Membres',
     salesPipeline: 'Pipeline de Ventes',
     nlgMassDefense: 'Défense Collective NLG',
+    streetMedics: 'Médecins de Rue',
+    selfDefense: 'Autodéfense Communautaire',
 
     totalRecords: 'Total des Enregistrements',
     contacts: 'Contacts',
@@ -308,6 +317,7 @@ export default defineModuleTranslations({
     relationships: 'العلاقات',
 
     unionOrganizing: 'تنظيم النقابات',
+    unionElectionCampaign: 'حملة انتخابات النقابة',
     fundraising: 'جمع التبرعات',
     legalTracking: 'التتبع القانوني',
     tenantOrganizing: 'تنظيم المستأجرين',
@@ -315,6 +325,8 @@ export default defineModuleTranslations({
     memberManagement: 'إدارة الأعضاء',
     salesPipeline: 'خط أنابيب المبيعات',
     nlgMassDefense: 'الدفاع الجماعي NLG',
+    streetMedics: 'مسعفو الشوارع',
+    selfDefense: 'الدفاع الذاتي المجتمعي',
 
     totalRecords: 'إجمالي السجلات',
     contacts: 'جهات الاتصال',

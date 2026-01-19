@@ -91,3 +91,94 @@ export interface CreateEventFormData {
   groupId?: string
   customFields?: CustomFieldValues
 }
+
+/**
+ * Volunteer role signup status
+ */
+export type VolunteerSignupStatus = 'pending' | 'confirmed' | 'declined' | 'no-show'
+
+/**
+ * Event Volunteer Role
+ * Defines a role that volunteers can sign up for at an event
+ */
+export interface EventVolunteerRole {
+  id: string
+  eventId: string
+  name: string
+  description?: string
+  spotsNeeded: number
+  spotsFilled: number
+  requiredTrainings?: string[] // Training IDs from CRM
+  shiftStart?: number // Unix timestamp
+  shiftEnd?: number // Unix timestamp
+  created: number
+  createdBy: string
+}
+
+/**
+ * Event Volunteer Signup
+ * Records a volunteer's signup for a specific role
+ */
+export interface EventVolunteerSignup {
+  id: string
+  eventId: string
+  roleId: string
+  contactId: string // CRM contact ID
+  contactPubkey?: string // If linked to user
+  status: VolunteerSignupStatus
+  signupTime: number
+  confirmedBy?: string
+  notes?: string
+  created: number
+  updated: number
+}
+
+/**
+ * Volunteer role with signup data
+ */
+export interface EventVolunteerRoleWithSignups extends EventVolunteerRole {
+  signups: EventVolunteerSignup[]
+}
+
+/**
+ * Create volunteer role data
+ */
+export interface CreateVolunteerRoleData {
+  name: string
+  description?: string
+  spotsNeeded: number
+  requiredTrainings?: string[]
+  shiftStart?: number
+  shiftEnd?: number
+}
+
+/**
+ * Zod schemas for volunteer types
+ */
+export const EventVolunteerRoleSchema = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  name: z.string().min(1).max(100),
+  description: z.string().optional(),
+  spotsNeeded: z.number().int().min(1),
+  spotsFilled: z.number().int().min(0),
+  requiredTrainings: z.array(z.string()).optional(),
+  shiftStart: z.number().optional(),
+  shiftEnd: z.number().optional(),
+  created: z.number(),
+  createdBy: z.string(),
+})
+
+export const EventVolunteerSignupSchema = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  roleId: z.string(),
+  contactId: z.string(),
+  contactPubkey: z.string().optional(),
+  status: z.enum(['pending', 'confirmed', 'declined', 'no-show']),
+  signupTime: z.number(),
+  confirmedBy: z.string().optional(),
+  notes: z.string().optional(),
+  created: z.number(),
+  updated: z.number(),
+})

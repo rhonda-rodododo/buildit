@@ -60,6 +60,7 @@ export type GroupModule =
   | 'fundraising'
   | 'publishing'
   | 'newsletters'
+  | 'hotlines'
 
 export interface GroupInvitation {
   id: string

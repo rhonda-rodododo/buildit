@@ -178,7 +178,8 @@
       "mutual-aid": "Ayuda mutua",
       "organizing": "Organización",
       "civic": "Acción cívica",
-      "governance": "Gobernanza"
+      "governance": "Gobernanza",
+      "movement-defense": "Defensa del Movimiento"
     },
     "simpleGroup": {
       "name": "Grupo simple",
@@ -213,6 +214,24 @@
         "files": {
           "name": "Almacenamiento de archivos",
           "description": "Almacenamiento seguro para contratos, fotos y evidencias"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "Campaña de elección sindical",
+      "description": "Organiza una elección sindical con seguimiento de trabajadores, visitas a domicilio, tarjetas de autorización y coordinación con la NLRB.",
+      "enhancements": {
+        "wiki": {
+          "name": "Base de conocimientos",
+          "description": "Documenta las reglas de la NLRB, tácticas antisindicales y recursos de organización"
+        },
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para planificación y documentación de ULPs"
+        },
+        "publicPresence": {
+          "name": "Campaña pública",
+          "description": "Añade páginas públicas para difusión a trabajadores (usar con precaución)"
         }
       }
     },
@@ -297,6 +316,68 @@
         "fundraising": {
           "name": "Recaudación y membresía",
           "description": "Acepta donaciones y gestiona membresías"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "Colectivo de Defensa Legal del Movimiento",
+      "description": "Coordinación completa de defensa masiva con gestión de casos, calendarios judiciales, coordinación de abogados y líneas de apoyo carcelario.",
+      "enhancements": {
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para escritos legales, plantillas y notas de casos"
+        },
+        "wiki": {
+          "name": "Base de conocimientos",
+          "description": "Documenta guías de conoce tus derechos, procedimientos legales y recursos"
+        },
+        "publicPresence": {
+          "name": "Recursos públicos",
+          "description": "Añade páginas públicas con información de conoce tus derechos y cómo obtener ayuda"
+        },
+        "fundraising": {
+          "name": "Fondo de fianzas y donaciones",
+          "description": "Añade gestión de fondo de fianzas y seguimiento de donaciones"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "Colectivo de Médicos de Calle",
+      "description": "Entrena y moviliza médicos de calle para protestas y eventos comunitarios. Rastrea certificaciones, coordina despliegues y gestiona suministros médicos.",
+      "enhancements": {
+        "governance": {
+          "name": "Gobernanza colectiva",
+          "description": "Añade propuestas y votaciones para decisiones colectivas"
+        },
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para protocolos, materiales de capacitación y debriefs"
+        },
+        "hotlines": {
+          "name": "Despacho médico",
+          "description": "Añade línea de despacho para coordinación médica de emergencia"
+        },
+        "fundraising": {
+          "name": "Fondo de suministros",
+          "description": "Rastrea donaciones para suministros y equipos médicos"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "Colectivo de Autodefensa Comunitaria",
+      "description": "Entrena y coordina mariscales de seguridad y equipos de desescalada para manifestaciones y eventos comunitarios.",
+      "enhancements": {
+        "governance": {
+          "name": "Gobernanza colectiva",
+          "description": "Añade propuestas y votaciones para decisiones colectivas"
+        },
+        "documents": {
+          "name": "Suite de documentos",
+          "description": "Documentos colaborativos para protocolos, informes de incidentes y materiales de capacitación"
+        },
+        "hotlines": {
+          "name": "Despacho de seguridad",
+          "description": "Añade línea de despacho para coordinación de seguridad"
         }
       }
     }

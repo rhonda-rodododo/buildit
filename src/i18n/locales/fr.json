@@ -178,7 +178,8 @@
       "mutual-aid": "Aide mutuelle",
       "organizing": "Organisation",
       "civic": "Action civique",
-      "governance": "Gouvernance"
+      "governance": "Gouvernance",
+      "movement-defense": "Défense du Mouvement"
     },
     "simpleGroup": {
       "name": "Groupe simple",
@@ -213,6 +214,24 @@
         "files": {
           "name": "Stockage de fichiers",
           "description": "Stockage sécurisé pour les contrats, photos et preuves"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "Campagne électorale syndicale",
+      "description": "Organisez une élection syndicale avec suivi des travailleurs, visites à domicile, cartes d'autorisation et coordination NLRB.",
+      "enhancements": {
+        "wiki": {
+          "name": "Base de connaissances",
+          "description": "Documentez les règles NLRB, les tactiques antisyndicales et les ressources d'organisation"
+        },
+        "documents": {
+          "name": "Suite de documents",
+          "description": "Documents collaboratifs pour la planification et la documentation des pratiques déloyales"
+        },
+        "publicPresence": {
+          "name": "Campagne publique",
+          "description": "Ajoutez des pages publiques pour la sensibilisation des travailleurs (à utiliser avec précaution)"
         }
       }
     },
@@ -297,6 +316,68 @@
         "fundraising": {
           "name": "Collecte de fonds et adhésion",
           "description": "Acceptez les dons et gérez les adhésions"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "Collectif de Défense Juridique du Mouvement",
+      "description": "Coordination complète de défense de masse avec gestion des dossiers, calendriers judiciaires, coordination des avocats et lignes de soutien carcéral.",
+      "enhancements": {
+        "documents": {
+          "name": "Suite de documents",
+          "description": "Documents collaboratifs pour mémoires juridiques, modèles et notes de dossiers"
+        },
+        "wiki": {
+          "name": "Base de connaissances",
+          "description": "Documentez les guides de connaissance de vos droits, procédures juridiques et ressources"
+        },
+        "publicPresence": {
+          "name": "Ressources publiques",
+          "description": "Ajoutez des pages publiques avec des informations sur vos droits et comment obtenir de l'aide"
+        },
+        "fundraising": {
+          "name": "Fonds de caution et dons",
+          "description": "Ajoutez la gestion du fonds de caution et le suivi des dons"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "Collectif de Médecins de Rue",
+      "description": "Formez et mobilisez des médecins de rue pour les manifestations et événements communautaires. Suivez les certifications, coordonnez les déploiements et gérez les fournitures médicales.",
+      "enhancements": {
+        "governance": {
+          "name": "Gouvernance collective",
+          "description": "Ajoutez des propositions et des votes pour les décisions collectives"
+        },
+        "documents": {
+          "name": "Suite de documents",
+          "description": "Documents collaboratifs pour protocoles, matériaux de formation et débriefings"
+        },
+        "hotlines": {
+          "name": "Dispatch médical",
+          "description": "Ajoutez une ligne de dispatch pour la coordination médicale d'urgence"
+        },
+        "fundraising": {
+          "name": "Fonds de fournitures",
+          "description": "Suivez les dons pour les fournitures et équipements médicaux"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "Collectif d'Autodéfense Communautaire",
+      "description": "Formez et coordonnez des agents de sécurité et des équipes de désescalade pour les manifestations et événements communautaires.",
+      "enhancements": {
+        "governance": {
+          "name": "Gouvernance collective",
+          "description": "Ajoutez des propositions et des votes pour les décisions collectives"
+        },
+        "documents": {
+          "name": "Suite de documents",
+          "description": "Documents collaboratifs pour protocoles, rapports d'incidents et matériaux de formation"
+        },
+        "hotlines": {
+          "name": "Dispatch de sécurité",
+          "description": "Ajoutez une ligne de dispatch pour la coordination de la sécurité"
         }
       }
     }

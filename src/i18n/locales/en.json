@@ -178,7 +178,8 @@
       "mutual-aid": "Mutual Aid",
       "organizing": "Organizing",
       "civic": "Civic Action",
-      "governance": "Governance"
+      "governance": "Governance",
+      "movement-defense": "Movement Defense"
     },
     "simpleGroup": {
       "name": "Simple Group",
@@ -213,6 +214,24 @@
         "files": {
           "name": "File Storage",
           "description": "Secure storage for contracts, photos, and evidence"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "Union Election Campaign",
+      "description": "Organize a union election with worker tracking, house visits, authorization cards, and NLRB coordination.",
+      "enhancements": {
+        "wiki": {
+          "name": "Knowledge Base",
+          "description": "Document NLRB rules, anti-union tactics, and organizing resources"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for planning and ULP documentation"
+        },
+        "publicPresence": {
+          "name": "Public Campaign",
+          "description": "Add public pages for worker outreach (use with caution)"
         }
       }
     },
@@ -253,6 +272,68 @@
         "crm": {
           "name": "Contact Directory",
           "description": "Manage community contacts and local businesses"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "Movement Legal Defense Collective",
+      "description": "Full-featured mass defense coordination with case management, court calendars, lawyer coordination, and jail support hotlines.",
+      "enhancements": {
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for legal briefs, templates, and case notes"
+        },
+        "wiki": {
+          "name": "Knowledge Base",
+          "description": "Document know-your-rights guides, legal procedures, and resources"
+        },
+        "publicPresence": {
+          "name": "Public Resources",
+          "description": "Add public pages for know-your-rights info and how to get help"
+        },
+        "fundraising": {
+          "name": "Bail Fund & Donations",
+          "description": "Add bail fund management and donation tracking"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "Street Medics Collective",
+      "description": "Train and mobilize street medics for protests and community events. Track certifications, coordinate deployments, and manage medical supplies.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Governance",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for protocols, training materials, and debriefs"
+        },
+        "hotlines": {
+          "name": "Medical Dispatch",
+          "description": "Add dispatch hotline for emergency medical coordination"
+        },
+        "fundraising": {
+          "name": "Supply Fund",
+          "description": "Track donations for medical supplies and equipment"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "Community Self-Defense Collective",
+      "description": "Train and coordinate safety marshals and de-escalation teams for demonstrations and community events.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Governance",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for protocols, incident reports, and training materials"
+        },
+        "hotlines": {
+          "name": "Security Dispatch",
+          "description": "Add dispatch hotline for security coordination"
         }
       }
     },
