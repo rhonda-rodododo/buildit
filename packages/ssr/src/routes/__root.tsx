@@ -3,6 +3,7 @@ import {
   Outlet,
   HeadContent,
   Scripts,
+  Link,
 } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { PublicHeader } from '../components/PublicHeader';
@@ -10,6 +11,7 @@ import { PublicFooter } from '../components/PublicFooter';
 import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
+  notFoundComponent: NotFoundPage,
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -68,5 +70,60 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <div style={{ padding: '4rem 0' }}>
+      <div className="container container-md" style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>
+        <h1
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            marginBottom: '0.75rem',
+          }}
+        >
+          Page Not Found
+        </h1>
+        <p
+          className="text-muted"
+          style={{
+            fontSize: '1.125rem',
+            marginBottom: '2rem',
+            maxWidth: '500px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          Sorry, we couldn't find the page you're looking for. It might have
+          been moved or doesn't exist.
+        </p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Link
+            to="/"
+            className="btn btn-primary btn-lg"
+            style={{ textDecoration: 'none' }}
+          >
+            Go Home
+          </Link>
+          <Link
+            to="/articles"
+            className="btn btn-outline btn-lg"
+            style={{ textDecoration: 'none' }}
+          >
+            Browse Articles
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
