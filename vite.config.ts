@@ -9,6 +9,12 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 import path from 'path'
 
 export default defineConfig({
+  define: {
+    // Handle Node.js globals for browser compatibility
+    'process.env': {},
+    'process.browser': true,
+    'process.version': '"v20.0.0"',
+  },
   plugins: [
     wasm(),
     topLevelAwait(),
