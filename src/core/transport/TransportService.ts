@@ -18,7 +18,7 @@
  *
  * // Subscribe to incoming messages from any transport
  * transport.onMessage((message) => {
- *   logger.info('Received:', message);
+ *   log.info('Received:', message);
  * });
  * ```
  */
@@ -37,7 +37,9 @@ import {
 } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('transport');
 /**
  * Transport service configuration
  */
@@ -101,7 +103,7 @@ export class TransportService {
    */
   static reset(): void {
     if (TransportService.instance) {
-      TransportService.instance.disconnect().catch(console.error);
+      TransportService.instance.disconnect().catch(e => log.error('Disconnect failed:', e));
       TransportService.instance = null;
     }
   }
@@ -111,17 +113,17 @@ export class TransportService {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.warn('[TransportService] Already initialized');
+      log.warn('Already initialized');
       return;
     }
 
-    logger.info('[TransportService] Initializing transports...');
-    logger.info('[TransportService] Priority: BLE Mesh (PRIMARY) → Nostr Relays (SECONDARY)');
+    log.info('[TransportService] Initializing transports...');
+    log.info('[TransportService] Priority: BLE Mesh (PRIMARY) → Nostr Relays (SECONDARY)');
 
     await this.router.initialize();
     this.initialized = true;
 
-    logger.info('[TransportService] Transports initialized');
+    log.info('[TransportService] Transports initialized');
   }
 
   /**
@@ -132,19 +134,19 @@ export class TransportService {
       throw new Error('TransportService not initialized');
     }
 
-    logger.info('[TransportService] Connecting to mesh network and relays...');
+    log.info('[TransportService] Connecting to mesh network and relays...');
     await this.router.connect();
-    logger.info('[TransportService] Connected');
+    log.info('[TransportService] Connected');
   }
 
   /**
    * Disconnect all transports
    */
   async disconnect(): Promise<void> {
-    logger.info('[TransportService] Disconnecting...');
+    log.info('[TransportService] Disconnecting...');
     await this.router.disconnect();
     this.initialized = false;
-    logger.info('[TransportService] Disconnected');
+    log.info('[TransportService] Disconnected');
   }
 
   /**

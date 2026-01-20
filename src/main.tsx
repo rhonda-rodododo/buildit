@@ -7,7 +7,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { initializeModules } from "@/lib/modules/registry";
 import { initializeDatabase } from "@/core/storage/db";
 import { useAuthStore, getSavedIdentityPubkey } from "@/stores/authStore";
-import { logger, criticalLogger } from "@/lib/logger";
+import { createLogger, criticalLogger } from "@/lib/logger";
+
+const log = createLogger('init');
 import "./index.css";
 import "./i18n/config";
 
@@ -22,7 +24,7 @@ async function initializeApp(): Promise<boolean> {
   const { getDB } = await import("@/core/storage/db");
   try {
     getDB();
-    logger.info("⚠️  Database already initialized from previous session, skipping initialization");
+    log.info("⚠️  Database already initialized from previous session, skipping initialization");
     return true; // Already initialized successfully
   } catch {
     // DB not initialized yet, continue
@@ -30,7 +32,7 @@ async function initializeApp(): Promise<boolean> {
 
   // If initialization is already in progress, wait for it to complete
   if (initializationPromise) {
-    logger.info("⚠️  Initialization already in progress, waiting...");
+    log.info("⚠️  Initialization already in progress, waiting...");
     return initializationPromise;
   }
 
@@ -49,51 +51,51 @@ async function doInitialize(): Promise<boolean> {
   let currentStep = 'starting';
 
   try {
-    logger.info("🚀 Starting app initialization...");
+    log.info("🚀 Starting app initialization...");
 
     // Step 1: Initialize modules (registers schemas with db, but does NOT load instances yet)
     currentStep = 'initializing modules';
-    logger.info("  Step 1: Initializing modules...");
+    log.info("  Step 1: Initializing modules...");
     await initializeModules();
-    logger.info("  Step 1: ✅ Modules initialized");
+    log.info("  Step 1: ✅ Modules initialized");
 
     // Step 2: Initialize database (opens db with all module schemas)
     currentStep = 'initializing database';
-    logger.info("  Step 2: Initializing database...");
+    log.info("  Step 2: Initializing database...");
     await initializeDatabase();
-    logger.info("  Step 2: ✅ Database initialized");
+    log.info("  Step 2: ✅ Database initialized");
 
     // Step 3: Initialize store initializer (subscribes to unlock/lock events)
     currentStep = 'initializing store initializer';
-    logger.info("  Step 3: Initializing store initializer...");
+    log.info("  Step 3: Initializing store initializer...");
     const { initializeStoreInitializer } = await import("@/core/storage/StoreInitializer");
     initializeStoreInitializer();
-    logger.info("  Step 3: ✅ Store initializer ready");
+    log.info("  Step 3: ✅ Store initializer ready");
 
     // Step 4: Now load module instances (requires db to be open)
     currentStep = 'loading module instances';
-    logger.info("  Step 4: Loading module instances...");
+    log.info("  Step 4: Loading module instances...");
     const moduleStore = (
       await import("@/stores/moduleStore")
     ).useModuleStore.getState();
     await moduleStore.loadModuleInstances();
-    logger.info("  Step 4: ✅ Module instances loaded");
+    log.info("  Step 4: ✅ Module instances loaded");
 
     // Step 5: Load identities from DB (public info only - private keys stay encrypted)
     currentStep = 'loading identities';
-    logger.info("  Step 5: Loading identities...");
+    log.info("  Step 5: Loading identities...");
     const authStore = useAuthStore.getState();
     await authStore.loadIdentities();
-    logger.info("  Step 5: ✅ Identities loaded");
+    log.info("  Step 5: ✅ Identities loaded");
 
     // Step 5b: Restore selected identity from localStorage (if any)
     const savedIdentityPubkey = getSavedIdentityPubkey();
     if (savedIdentityPubkey) {
       const savedIdentity = authStore.identities.find(i => i.publicKey === savedIdentityPubkey);
       if (savedIdentity) {
-        logger.info("  Step 5b: Restoring saved identity selection...");
+        log.info("  Step 5b: Restoring saved identity selection...");
         useAuthStore.setState({ currentIdentity: savedIdentity });
-        logger.info("  Step 5b: ✅ Identity selection restored (still locked)");
+        log.info("  Step 5b: ✅ Identity selection restored (still locked)");
       }
     }
 
@@ -101,15 +103,15 @@ async function doInitialize(): Promise<boolean> {
     // Note: Sync will only work if the app is unlocked
     currentStep = 'starting syncs';
     if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
-      logger.info("  Step 6: Starting syncs...");
+      log.info("  Step 6: Starting syncs...");
       const { startAllSyncs } = await import("@/core/storage/sync");
       await startAllSyncs();
-      logger.info("  Step 6: ✅ Syncs started");
+      log.info("  Step 6: ✅ Syncs started");
     } else {
-      logger.info("  Step 6: Skipped (not unlocked)");
+      log.info("  Step 6: Skipped (not unlocked)");
     }
 
-    logger.info("✅ App initialization complete");
+    log.info("✅ App initialization complete");
     return true;
   } catch (error) {
     // Use criticalLogger for errors since these should show in production
@@ -134,7 +136,7 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     initializeApp()
       .then((result) => {
-        logger.info("App initialization result:", result);
+        log.info("App initialization result:", result);
         if (result) {
           setIsAppInitialized(true);
         } else {
@@ -151,7 +153,7 @@ const RootLayout: React.FC = () => {
     // Recreate router when app is initialized to load dynamic routes
     // This intentionally triggers a re-render to update the router
     if (isAppInitialized) {
-      logger.info("Recreating router after app initialization");
+      log.info("Recreating router after app initialization");
       const routes = getRoutes();
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: router must update after initialization
       setRouter(createBrowserRouter(routes));

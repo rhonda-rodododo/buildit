@@ -16,7 +16,9 @@ import type { Event as NostrEvent, Filter } from 'nostr-tools';
 import { NostrClient } from '../nostr/client';
 import type { RelayConfig } from '@/types/nostr';
 import { useTorStore } from '@/modules/security/tor/torStore';
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('transport');
 import {
   type ITransportAdapter,
   TransportType,
@@ -131,7 +133,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    * Initialize the adapter
    */
   async initialize(): Promise<void> {
-    logger.info('[Nostr Relay] Initializing adapter...');
+    log.info('[Nostr Relay] Initializing adapter...');
     this.setStatus(TransportStatus.DISCONNECTED);
   }
 
@@ -146,7 +148,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
     const torStore = useTorStore.getState();
     const torEnabled = torStore.config.enabled;
 
-    logger.info(
+    log.info(
       `[Nostr Relay] Connecting to relays... (Tor: ${torEnabled ? 'enabled' : 'disabled'})`
     );
     this.setStatus(TransportStatus.CONNECTING);
@@ -166,7 +168,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
           this.handleIncomingEvent(event);
         },
         () => {
-          logger.info('[Nostr Relay] Subscription EOSE');
+          log.info('[Nostr Relay] Subscription EOSE');
         }
       );
 
@@ -182,11 +184,11 @@ export class NostrRelayAdapter implements ITransportAdapter {
 
       if (torEnabled) {
         const onionCount = statuses.filter(s => s.connected && s.url.includes('.onion')).length;
-        logger.info(
+        log.info(
           `[Nostr Relay] Connected to ${connectedCount} relays (${onionCount} .onion)`
         );
       } else {
-        logger.info(`[Nostr Relay] Connected to ${connectedCount} relays`);
+        log.info(`[Nostr Relay] Connected to ${connectedCount} relays`);
       }
     } catch (error) {
       this.setStatus(TransportStatus.ERROR);
@@ -199,7 +201,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    * Disconnect from Nostr relays
    */
   async disconnect(): Promise<void> {
-    logger.info('[Nostr Relay] Disconnecting from relays...');
+    log.info('[Nostr Relay] Disconnecting from relays...');
 
     // Unsubscribe from all subscriptions
     for (const subId of this.subscriptionIds) {
@@ -212,7 +214,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
 
     this.stats.connectedPeers = 0;
     this.setStatus(TransportStatus.DISCONNECTED);
-    logger.info('[Nostr Relay] Disconnected from relays');
+    log.info('[Nostr Relay] Disconnected from relays');
   }
 
   /**
@@ -247,7 +249,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
       const eventSize = JSON.stringify(message.event).length;
       this.stats.bytesTransmitted += eventSize;
 
-      logger.info(`[Nostr Relay] Message sent: ${message.id} (${successCount}/${results.length} relays)`);
+      log.info(`[Nostr Relay] Message sent: ${message.id} (${successCount}/${results.length} relays)`);
     } catch (error) {
       this.stats.failedDeliveries++;
       this.emitError(new Error(`Failed to send message: ${error}`));
@@ -304,7 +306,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    */
   addRelay(config: RelayConfig): void {
     this.client.addRelay(config);
-    logger.info(`[Nostr Relay] Added relay: ${config.url}`);
+    log.info(`[Nostr Relay] Added relay: ${config.url}`);
   }
 
   /**
@@ -312,7 +314,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
    */
   removeRelay(url: string): void {
     this.client.removeRelay(url);
-    logger.info(`[Nostr Relay] Removed relay: ${url}`);
+    log.info(`[Nostr Relay] Removed relay: ${url}`);
   }
 
   /**
@@ -370,7 +372,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
       try {
         callback(message);
       } catch (error) {
-        console.error('[Nostr Relay] Message callback error:', error);
+        log.error(' Message callback error:', error);
       }
     });
   }
@@ -383,7 +385,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
       try {
         callback(error);
       } catch (err) {
-        console.error('[Nostr Relay] Error callback error:', err);
+        log.error(' Error callback error:', err);
       }
     });
   }

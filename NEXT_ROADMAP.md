@@ -45,6 +45,37 @@ See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete archit
 
 ---
 
+## 🟡 Quick Fixes: Developer Experience
+
+### Epic 71: Scoped Debug Logging 🔧
+**Status**: ✅ Complete
+**Priority**: P1 - DX improvement
+**Effort**: 1-2 hours
+**Dependencies**: None
+**Assignable to subagent**: Yes
+
+**Context**: Console logging is too noisy - ~300 logger.info calls fire in dev mode with no way to filter. Need scoped debug flags so developers can focus on specific areas.
+
+**Tasks**:
+- [x] Update `src/lib/logger.ts` with scoped debug system
+- [x] Migrate `src/main.tsx` logging to use `createLogger('init')`
+- [x] Migrate transport layer logging to `createLogger('transport')`
+- [x] Fix emoji picker clipping bug
+- [x] Verify typecheck passes
+
+**Note**: The default `logger.info/debug` are now no-ops in dev (without DEBUG set), achieving the main goal. Additional files can be migrated to scoped loggers incrementally as needed.
+
+**Acceptance Criteria**:
+- ✅ `localStorage.setItem('DEBUG', 'transport')` only shows transport logs
+- ✅ `localStorage.setItem('DEBUG', '*')` shows all logs (previous behavior)
+- ✅ No DEBUG set = quiet console (warnings and errors only)
+- ✅ `bun run typecheck` passes
+
+**Git Commit Format**: `refactor: implement scoped debug logging (Epic 71)`
+**Git Tag**: `v0.71.0-logging`
+
+---
+
 ## 🔴 Critical Path: Production Readiness
 
 ### Epic 31: Legal & Compliance Documentation 📋

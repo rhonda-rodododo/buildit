@@ -1,4 +1,6 @@
-import { logger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('transport');
 
 /**
  * Transport Router
@@ -54,7 +56,7 @@ export class TransportRouter {
 
     // Subscribe to adapter errors
     adapter.onError((error) => {
-      console.error(`[TransportRouter] ${adapter.type} error:`, error);
+      log.error(` ${adapter.type} error:`, error);
     });
   }
 
@@ -69,7 +71,7 @@ export class TransportRouter {
           await adapter.initialize();
         }
       } catch (error) {
-        console.error(`[TransportRouter] Failed to initialize ${adapter.type}:`, error);
+        log.error(` Failed to initialize ${adapter.type}:`, error);
       }
     });
 
@@ -87,7 +89,7 @@ export class TransportRouter {
           await adapter.connect();
         }
       } catch (error) {
-        console.error(`[TransportRouter] Failed to connect ${adapter.type}:`, error);
+        log.error(` Failed to connect ${adapter.type}:`, error);
       }
     });
 
@@ -107,7 +109,7 @@ export class TransportRouter {
           await adapter.disconnect();
         }
       } catch (error) {
-        console.error(`[TransportRouter] Failed to disconnect ${adapter.type}:`, error);
+        log.error(` Failed to disconnect ${adapter.type}:`, error);
       }
     });
 
@@ -138,10 +140,10 @@ export class TransportRouter {
         message.status = DeliveryStatus.SENT;
         await adapter.sendMessage(message);
 
-        logger.info(`[TransportRouter] Message sent via ${transportType}`);
+        log.info(`[TransportRouter] Message sent via ${transportType}`);
         return;
       } catch (error) {
-        console.error(`[TransportRouter] Failed to send via ${transportType}:`, error);
+        log.error(` Failed to send via ${transportType}:`, error);
 
         // Continue to next transport if failover enabled
         if (!this.config.autoFailover) {
@@ -154,7 +156,7 @@ export class TransportRouter {
     if (this.config.storeAndForward) {
       message.status = DeliveryStatus.PENDING;
       this.messageQueue.push(message);
-      logger.info('[TransportRouter] Message queued for later delivery');
+      log.info('[TransportRouter] Message queued for later delivery');
 
       // Clean up old queued messages
       this.cleanMessageQueue();
@@ -236,7 +238,7 @@ export class TransportRouter {
       try {
         callback(message);
       } catch (error) {
-        console.error('[TransportRouter] Message callback error:', error);
+        log.error(' Message callback error:', error);
       }
     });
   }
@@ -245,7 +247,7 @@ export class TransportRouter {
    * Handle transport status change
    */
   private handleStatusChange(transportType: TransportType, status: TransportStatus): void {
-    logger.info(`[TransportRouter] ${transportType} status changed to ${status}`);
+    log.info(`[TransportRouter] ${transportType} status changed to ${status}`);
 
     // Notify subscribers
     const callbacks = this.statusCallbacks.get(transportType);
@@ -253,13 +255,13 @@ export class TransportRouter {
       try {
         callback(status);
       } catch (error) {
-        console.error('[TransportRouter] Status callback error:', error);
+        log.error(' Status callback error:', error);
       }
     });
 
     // Process queued messages when transport becomes available
     if (status === TransportStatus.CONNECTED) {
-      this.processMessageQueue().catch(console.error);
+      this.processMessageQueue().catch(e => log.error('Queue processing failed:', e));
     }
   }
 
@@ -271,7 +273,7 @@ export class TransportRouter {
       return;
     }
 
-    logger.info(`[TransportRouter] Processing ${this.messageQueue.length} queued messages`);
+    log.info(`[TransportRouter] Processing ${this.messageQueue.length} queued messages`);
 
     const messagesToSend = [...this.messageQueue];
     this.messageQueue = [];
@@ -280,7 +282,7 @@ export class TransportRouter {
       try {
         await this.sendMessage(message);
       } catch (error) {
-        console.error('[TransportRouter] Failed to send queued message:', error);
+        log.error(' Failed to send queued message:', error);
       }
     }
   }

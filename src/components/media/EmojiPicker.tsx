@@ -20,7 +20,7 @@ interface EmojiPickerProps {
  * - Composable and lightweight
  */
 export const EmojiPicker: FC<EmojiPickerProps> = ({
-  onEmojiSelect: _onEmojiSelect,
+  onEmojiSelect,
   triggerButton,
   className = '',
 }) => {
@@ -33,15 +33,18 @@ export const EmojiPicker: FC<EmojiPickerProps> = ({
           </Button>
         )}
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="start">
-        <FrimousseEmojiPicker.Root className="w-full">
+      <PopoverContent className="w-[352px] p-0" align="start" sideOffset={5}>
+        <FrimousseEmojiPicker.Root
+          className="flex flex-col w-full"
+          onEmojiSelect={(emoji) => onEmojiSelect(emoji.emoji)}
+        >
           <div className="p-2 border-b border-border">
             <FrimousseEmojiPicker.Search
               placeholder="Search emoji..."
               className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background"
             />
           </div>
-          <FrimousseEmojiPicker.Viewport className="h-[300px] overflow-y-auto p-2">
+          <FrimousseEmojiPicker.Viewport className="h-[300px] p-2">
             <FrimousseEmojiPicker.Loading>
               <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
                 Loading emojis...
@@ -52,7 +55,7 @@ export const EmojiPicker: FC<EmojiPickerProps> = ({
                 No emoji found.
               </div>
             </FrimousseEmojiPicker.Empty>
-            <FrimousseEmojiPicker.List className="grid grid-cols-8 gap-1" />
+            <FrimousseEmojiPicker.List />
           </FrimousseEmojiPicker.Viewport>
         </FrimousseEmojiPicker.Root>
       </PopoverContent>
@@ -67,20 +70,26 @@ export const InlineEmojiPicker: FC<{
   onEmojiSelect: (emoji: string) => void;
   position?: { top: number; left: number };
   onClose?: () => void;
-}> = ({ onEmojiSelect: _onEmojiSelect, position, onClose: _onClose }) => {
+}> = ({ onEmojiSelect, position, onClose }) => {
   return (
     <div
-      className="absolute z-50 bg-popover border border-border rounded-lg shadow-lg w-80"
+      className="absolute z-50 bg-popover border border-border rounded-lg shadow-lg w-[352px]"
       style={position ? { top: position.top, left: position.left } : undefined}
     >
-      <FrimousseEmojiPicker.Root>
+      <FrimousseEmojiPicker.Root
+        className="flex flex-col w-full"
+        onEmojiSelect={(emoji) => {
+          onEmojiSelect(emoji.emoji);
+          onClose?.();
+        }}
+      >
         <div className="p-2 border-b border-border">
           <FrimousseEmojiPicker.Search
             placeholder="Search emoji..."
             className="w-full px-3 py-2 text-sm rounded-md border border-input bg-background"
           />
         </div>
-        <FrimousseEmojiPicker.Viewport className="h-[250px] overflow-y-auto p-2">
+        <FrimousseEmojiPicker.Viewport className="h-[250px] p-2">
           <FrimousseEmojiPicker.Loading>
             <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
               Loading...
@@ -91,7 +100,7 @@ export const InlineEmojiPicker: FC<{
               No emoji found.
             </div>
           </FrimousseEmojiPicker.Empty>
-          <FrimousseEmojiPicker.List className="grid grid-cols-8 gap-1" />
+          <FrimousseEmojiPicker.List />
         </FrimousseEmojiPicker.Viewport>
       </FrimousseEmojiPicker.Root>
     </div>
