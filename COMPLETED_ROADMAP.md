@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 59 Mobile-First UX completed)
+**Last Updated**: 2026-01-24 (Epic 61 Advanced Social Features completed)
 
 ---
 
@@ -81,6 +81,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 51 | v0.51.0 | ✅ | `v0.51.0-testing-complete` | Quality & Testing Completion - E2E Phase 4, Lighthouse audit, 1236 tests, code quality |
 | 60 | v0.60.0 | ✅ | `v0.60.0-offline-enhanced` | Offline Mode Enhancement - Queue processor, SyncStatusIndicator, cache management, background sync |
 | 59 | v0.59.0 | ✅ | `v0.59.0-mobile-ux` | Mobile-First UX - Bottom nav, swipe gestures, pull-to-refresh, infinite scroll, haptic feedback |
+| 61 | v0.61.0 | ✅ | `v0.61.0-social-advanced` | Advanced Social Features - Polls, stories, moderation, user lists, trending topics |
 
 ---
 
@@ -2318,5 +2319,63 @@ Comprehensive mobile UX implementation with touch-optimized interactions and res
 - Safe padding (`.px-safe`)
 
 **Reference**: `src/components/mobile/`, `src/hooks/useMobile.ts`
+
+---
+
+### Epic 61: Advanced Social Features ✅
+**Tag**: `v0.61.0-social-advanced` | **Commits**: `git log v0.59.0-mobile-ux..v0.61.0-social-advanced`
+
+Added advanced social features to match modern social platforms including polls, stories, moderation tools, user lists, and trending topics.
+
+**Polls**:
+- PollComposer: Create polls with question, multiple options (2-6), single or multiple choice
+- PollDisplay: Vote on polls and view live results with percentages
+- Poll duration settings (1h to 1 week)
+- Hide results until poll ends option
+- Poll analytics (vote counts, voter counts)
+
+**Stories**:
+- StoryComposer: Create text, image, or video stories with customization
+- StoryViewer: Full-screen carousel viewer with auto-advance (5s per story)
+- StoriesBar: Horizontal scrolling bar showing user stories in feed
+- 24h expiration with automatic cleanup
+- View tracking and reply functionality
+- Text story customization (background colors, fonts)
+
+**Moderation**:
+- MuteUserButton: Mute/unmute users to hide their content
+- ReportDialog: Report content with 9 reason types (spam, harassment, etc.)
+- Auto-moderation rules (keyword and regex filters)
+- Moderation logs for audit trail
+- Block users (via existing friendsStore)
+- Admin moderation queue for reviewing reports
+
+**Lists & Trending**:
+- UserListManager: Create and manage curated user lists (public/private)
+- TrendingTopics: Display trending hashtags calculated from recent posts
+- Bookmarks functionality already existed
+
+**Key Components**:
+- `src/modules/microblogging/socialFeaturesStore.ts` - Zustand store for all features
+- `src/modules/microblogging/components/Poll*.tsx` - Poll UI components
+- `src/modules/microblogging/components/Story*.tsx` - Story UI components
+- `src/modules/microblogging/components/ReportDialog.tsx` - Content reporting
+- `src/modules/microblogging/components/MuteUserButton.tsx` - User muting
+- `src/modules/microblogging/components/UserListManager.tsx` - List management
+- `src/modules/microblogging/components/TrendingTopics.tsx` - Trending display
+
+**Database Schema**:
+- `polls` - Poll definitions with options and settings
+- `pollVotes` - User votes on polls
+- `stories` - Ephemeral story content
+- `storyViews` - Story view tracking
+- `storyReplies` - Replies to stories
+- `mutedUsers` - Muted user relationships
+- `contentReports` - Abuse reports
+- `autoModRules` - Auto-moderation configuration
+- `moderationLogs` - Moderation action audit trail
+- `userLists` - Curated user lists
+
+**Reference**: `src/modules/microblogging/socialFeaturesStore.ts`
 
 ---
