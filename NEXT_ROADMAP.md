@@ -687,7 +687,7 @@ buildit-network/
   - [x] Message thread screen (chat/[pubkey].tsx)
   - [x] Real-time message updates (relay subscriptions)
   - [x] Offline message queue persistence
-  - [ ] Group message view (pending group detail route)
+  - [x] Group message view (group/[id].tsx with chat, members, info tabs)
 - [x] **Platform Polish (6-8h)** ✅ (Partial)
   - [x] App configuration (app.json with iOS/Android settings)
   - [x] Push notification service (expo-notifications)
