@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   RELAY_CONFIG: 'buildit_relay_config',
   LANGUAGE: 'buildit_language',
   THEME: 'buildit_theme',
+  BUNKER_CONNECTIONS: 'buildit_bunker_connections',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

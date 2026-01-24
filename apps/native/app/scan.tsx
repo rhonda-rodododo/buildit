@@ -4,48 +4,18 @@
  * Scans a QR code from another device to establish a NIP-46 remote signing connection.
  */
 
-import { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Pressable, Alert, Platform } from 'react-native'
+import { useState, useEffect, useCallback } from 'react'
+import { View, Text, StyleSheet, Pressable, Alert, Platform, TextInput } from 'react-native'
 import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
-
-interface Nip46QRData {
-  bunkerUrl: string
-  pubkey: string
-  relay: string
-  secret?: string
-}
-
-function parseNip46QR(data: string): Nip46QRData | null {
-  // NIP-46 bunker URL format: bunker://<pubkey>?relay=<relay>&secret=<secret>
-  // or nostrconnect://<pubkey>?relay=<relay>&secret=<secret>
-  try {
-    const url = new URL(data)
-
-    if (url.protocol !== 'bunker:' && url.protocol !== 'nostrconnect:') {
-      return null
-    }
-
-    const pubkey = url.hostname || url.pathname.replace('//', '')
-    const relay = url.searchParams.get('relay')
-    const secret = url.searchParams.get('secret') || undefined
-
-    if (!pubkey || !relay) {
-      return null
-    }
-
-    return {
-      bunkerUrl: data,
-      pubkey,
-      relay: decodeURIComponent(relay),
-      secret,
-    }
-  } catch {
-    return null
-  }
-}
+import {
+  deviceLinkingService,
+  type Nip46ConnectionData,
+  type Nip46ConnectionStatus,
+} from '../src/services/deviceLinking'
+import { useAuthStore } from '../src/stores'
 
 export default function ScanScreen() {
   const router = useRouter()
@@ -53,6 +23,68 @@ export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions()
   const [scanned, setScanned] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<Nip46ConnectionStatus | null>(null)
+  const [bunkerUrl, setBunkerUrl] = useState('')
+  const { addLinkedDevice } = useAuthStore()
+
+  // Listen for connection status changes
+  useEffect(() => {
+    const unsubscribe = deviceLinkingService.onStatusChange((_, status) => {
+      setConnectionStatus(status)
+    })
+    return unsubscribe
+  }, [])
+
+  const handleConnection = useCallback(
+    async (connectionData: Nip46ConnectionData) => {
+      setIsProcessing(true)
+      setConnectionStatus('connecting')
+
+      try {
+        const connection = await deviceLinkingService.connect(connectionData)
+
+        // Add to linked devices in auth store
+        await addLinkedDevice({
+          name: connection.name,
+          platform: Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web',
+        })
+
+        Alert.alert('Connected!', 'Successfully linked to your other device.', [
+          {
+            text: 'OK',
+            onPress: () => router.push('/(tabs)/settings'),
+          },
+        ])
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Connection failed'
+        Alert.alert('Connection Failed', message, [
+          {
+            text: 'Try Again',
+            onPress: () => {
+              setScanned(false)
+              setIsProcessing(false)
+              setConnectionStatus(null)
+            },
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => router.back(),
+          },
+        ])
+      }
+    },
+    [addLinkedDevice, router]
+  )
+
+  const handleManualConnect = useCallback(() => {
+    const connectionData = deviceLinkingService.parseConnectionUrl(bunkerUrl.trim())
+    if (!connectionData) {
+      Alert.alert('Invalid URL', 'Please enter a valid bunker:// or nostrconnect:// URL')
+      return
+    }
+    handleConnection(connectionData)
+  }, [bunkerUrl, handleConnection])
 
   // Web doesn't support camera scanning the same way
   if (Platform.OS === 'web') {
@@ -62,21 +94,37 @@ export default function ScanScreen() {
           <Text style={styles.title}>Device Linking</Text>
           <Text style={styles.subtitle}>
             Camera scanning is not supported on web.{'\n'}
-            Please use a mobile device to scan QR codes.
+            Paste a bunker URL to connect.
           </Text>
 
           <View style={styles.webInputContainer}>
             <Text style={styles.label}>Paste bunker URL</Text>
+            <TextInput
+              style={styles.urlInput}
+              value={bunkerUrl}
+              onChangeText={setBunkerUrl}
+              placeholder="bunker://pubkey?relay=..."
+              placeholderTextColor="#a3a3a3"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
             <Text style={styles.hint}>
               You can paste a bunker:// or nostrconnect:// URL directly
             </Text>
           </View>
 
           <Pressable
-            style={styles.backButton}
-            onPress={() => router.back()}
+            style={[styles.primaryButton, !bunkerUrl && styles.primaryButtonDisabled]}
+            onPress={handleManualConnect}
+            disabled={!bunkerUrl || isProcessing}
           >
-            <Text style={styles.backButtonText}>Go Back</Text>
+            <Text style={styles.primaryButtonText}>
+              {isProcessing ? 'Connecting...' : 'Connect'}
+            </Text>
+          </Pressable>
+
+          <Pressable style={styles.linkButton} onPress={() => router.back()}>
+            <Text style={styles.linkText}>Go Back</Text>
           </Pressable>
         </View>
       </View>
@@ -121,11 +169,10 @@ export default function ScanScreen() {
     if (scanned || isProcessing) return
 
     setScanned(true)
-    setIsProcessing(true)
 
-    const nip46Data = parseNip46QR(data)
+    const connectionData = deviceLinkingService.parseConnectionUrl(data)
 
-    if (!nip46Data) {
+    if (!connectionData) {
       Alert.alert(
         'Invalid QR Code',
         'This QR code is not a valid NIP-46 device link. Please scan a QR code generated by the BuildIt web app.',
@@ -150,7 +197,7 @@ export default function ScanScreen() {
     // Show confirmation dialog
     Alert.alert(
       'Connect to Device?',
-      `This will link your identity to:\n\nRelay: ${nip46Data.relay}\n\nThis device will be able to sign events on your behalf.`,
+      `This will link your identity from another device.\n\nRelay: ${connectionData.relay}\n\nThis device will be able to sign events using the linked identity.`,
       [
         {
           text: 'Cancel',
@@ -162,41 +209,7 @@ export default function ScanScreen() {
         },
         {
           text: 'Connect',
-          onPress: async () => {
-            try {
-              // TODO: Implement actual NIP-46 connection
-              // This would involve:
-              // 1. Connecting to the relay
-              // 2. Sending a connect request with the secret
-              // 3. Waiting for approval from the other device
-              // 4. Storing the connection details
-
-              Alert.alert(
-                'Connection Initiated',
-                'Please approve the connection on your other device.',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => router.push('/'),
-                  },
-                ]
-              )
-            } catch (error) {
-              Alert.alert(
-                'Connection Failed',
-                'Could not establish connection. Please try again.',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => {
-                      setScanned(false)
-                      setIsProcessing(false)
-                    },
-                  },
-                ]
-              )
-            }
-          },
+          onPress: () => handleConnection(connectionData),
         },
       ]
     )
@@ -244,7 +257,18 @@ export default function ScanScreen() {
       {isProcessing && (
         <View style={styles.processingOverlay}>
           <View style={styles.processingBox}>
-            <Text style={styles.processingText}>Processing...</Text>
+            <Text style={styles.processingText}>
+              {connectionStatus === 'connecting'
+                ? 'Connecting to relay...'
+                : connectionStatus === 'awaiting_approval'
+                  ? 'Waiting for approval...'
+                  : 'Processing...'}
+            </Text>
+            {connectionStatus === 'awaiting_approval' && (
+              <Text style={styles.processingHint}>
+                Please approve the connection on your other device
+              </Text>
+            )}
           </View>
         </View>
       )}
@@ -320,6 +344,20 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: fontSize.xs,
     color: '#737373',
+  },
+  urlInput: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: spacing[3],
+    marginBottom: spacing[2],
+    fontSize: fontSize.sm,
+    fontFamily: 'monospace',
+    color: '#0a0a0a',
+    borderWidth: 1,
+    borderColor: '#e5e5e5',
+  },
+  primaryButtonDisabled: {
+    backgroundColor: '#a3a3a3',
   },
   backButton: {
     width: '100%',
@@ -431,5 +469,11 @@ const styles = StyleSheet.create({
   processingText: {
     fontSize: fontSize.base,
     color: '#0a0a0a',
+  },
+  processingHint: {
+    fontSize: fontSize.sm,
+    color: '#737373',
+    marginTop: spacing[2],
+    textAlign: 'center',
   },
 })
