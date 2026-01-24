@@ -24,14 +24,14 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-24 (Epic 63 E2E tests, platform optimizations)
-**Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63)
+**Last Updated**: 2026-01-24 (Epic 63 Native MVP feature-complete)
+**Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63 ✅ MVP Complete)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 1274/1274 tests passing (100% pass rate, 63 test files)
 **E2E Coverage**: 85%+ of epics ✅ Epic 68 added 54 new tests (36 test files total)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
-**Native App**: 🚧 Foundation complete (@buildit/sdk, design-tokens, OneStack scaffold)
+**Native App**: ✅ MVP Complete (all programmatic features, E2E tests, NIP-29 messaging)
 
 **🎯 Architectural Decision**: Hybrid Nostr + Optional Backend
 - **Phase 1** (33-43h): Client-side only features (crypto payments, publishing, Nostr newsletters)
@@ -614,9 +614,9 @@ buildit-network/
 ## 📱 Mobile & Social Polish
 
 ### Epic 63: React Native App MVP (OneStack) 📱
-**Status**: In Progress (Foundation Complete)
+**Status**: ✅ MVP Complete (Feature-complete, pending TestFlight/Play Store)
 **Priority**: P1 - Mobile App
-**Effort**: 40-60 hours
+**Effort**: 40-60 hours (Completed)
 **Dependencies**: None (can proceed in parallel with web features)
 **Assignable to subagent**: Yes (`epic-executor`)
 
@@ -672,6 +672,7 @@ buildit-network/
   - [x] Integrate expo-secure-store for key persistence
   - [x] Key encryption at rest
   - [x] Biometric unlock option (Face ID/Touch ID/fingerprint)
+  - [x] PIN-based unlock fallback (6-digit PIN with visual feedback)
 - [x] **Device Linking (8-12h)** ✅
   - [x] QR code scanner for NIP-46
   - [x] NIP-46 device linking service implementation
@@ -682,23 +683,31 @@ buildit-network/
   - [x] Group list with store integration (groups.tsx, groupsStore.ts)
   - [x] Message thread screen (chat/[pubkey].tsx)
   - [x] Settings screen with multi-device
+  - [x] Relay management screen
+  - [x] PIN setup in settings
 - [x] **Messaging MVP (10-15h)** ✅
   - [x] DM list and compose (messages.tsx, compose.tsx)
   - [x] Message thread screen (chat/[pubkey].tsx)
   - [x] Real-time message updates (relay subscriptions)
   - [x] Offline message queue persistence
   - [x] Group message view (group/[id].tsx with chat, members, info tabs)
-- [x] **Platform Polish (6-8h)** ✅ (Partial)
+  - [x] NIP-29 group message sending and receiving
+- [x] **Groups (4-6h)** ✅
+  - [x] Create group with NIP-29 metadata publishing
+  - [x] Join group via invite code
+  - [x] Leave group with confirmation
+  - [x] Group member list and info
+- [x] **Platform Polish (6-8h)** ✅
   - [x] App configuration (app.json with iOS/Android settings)
   - [x] Push notification service (expo-notifications)
   - [x] App icon and splash screen placeholders
   - [x] iOS-specific optimizations (haptic feedback, platform styling, safe areas)
   - [x] Android-specific optimizations (haptic feedback via vibration, Material styling)
-  - [ ] Replace placeholder icons with production assets
+  - [ ] Replace placeholder icons with production assets (requires design)
 - [x] **Testing & Release (4-6h)** ✅ (E2E Tests Complete)
   - [x] Basic E2E tests (auth, messaging, groups, settings - Detox)
-  - [ ] TestFlight build
-  - [ ] Android internal testing track
+  - [ ] TestFlight build (excluded - requires Apple Developer account)
+  - [ ] Android internal testing track (excluded - requires Google Play Console)
 
 **Acceptance Criteria**:
 - App builds for iOS and Android
