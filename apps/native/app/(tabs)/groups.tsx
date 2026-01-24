@@ -67,9 +67,7 @@ export default function GroupsTab() {
       <Pressable
         style={styles.groupItem}
         onPress={() => {
-          // TODO: Navigate to group detail when route exists
-          // router.push(`/group/${item.id}`)
-          console.log('View group:', item.id)
+          router.push(`/group/${item.id}` as const)
         }}
       >
         <View style={styles.groupIcon}>
