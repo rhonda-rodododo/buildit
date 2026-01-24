@@ -5,12 +5,14 @@ import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
  * Auth layout - wraps unauthenticated pages
- * Redirects to app if already logged in
+ * Redirects to app if already logged in AND unlocked
  */
 export const AuthLayout: FC = () => {
-  const { currentIdentity } = useAuthStore();
+  const { currentIdentity, lockState } = useAuthStore();
 
-  if (currentIdentity) {
+  // Only redirect to app if user has an identity AND is unlocked
+  // If locked, stay on login page to unlock
+  if (currentIdentity && lockState === 'unlocked') {
     return <Navigate to="/app" replace />;
   }
 

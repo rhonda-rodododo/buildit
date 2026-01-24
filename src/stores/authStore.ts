@@ -163,8 +163,21 @@ interface AuthActions {
   // Export (requires password)
   exportPrivateKey: (password: string) => Promise<string>;
 
-  // Legacy logout (now just locks)
-  logout: () => void;
+  // Backup status tracking
+  updateBackupStatus: (updates: {
+    recoveryPhraseShownAt?: number;
+    recoveryPhraseConfirmedAt?: number;
+    lastBackupAt?: number;
+  }) => Promise<void>;
+  checkBackupStatus: () => Promise<{
+    hasValidBackup: boolean;
+    importedWithoutBackup: boolean;
+    recoveryPhraseConfirmedAt?: number;
+    lastBackupAt?: number;
+  }>;
+
+  // Logout (clears all state and returns to login)
+  logout: () => Promise<void>;
 
   // Internal
   _handleSecureKeyManagerEvent: (event: SecureKeyManagerEvent) => void;
@@ -762,10 +775,77 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
     },
 
     /**
-     * Legacy logout - now just locks
+     * Update backup status for current identity
+     * Used to track when user has saved their recovery phrase or created a backup
      */
-    logout: () => {
+    updateBackupStatus: async (updates: {
+      recoveryPhraseShownAt?: number;
+      recoveryPhraseConfirmedAt?: number;
+      lastBackupAt?: number;
+    }) => {
+      const current = get().currentIdentity;
+      if (!current) {
+        throw new Error('No identity selected');
+      }
+
+      await db.identities.update(current.publicKey, updates);
+    },
+
+    /**
+     * Check backup status for current identity
+     * Returns whether user has a valid backup and related timestamps
+     */
+    checkBackupStatus: async () => {
+      const current = get().currentIdentity;
+      if (!current) {
+        return {
+          hasValidBackup: false,
+          importedWithoutBackup: false,
+        };
+      }
+
+      const identity = await db.identities.get(current.publicKey);
+      if (!identity) {
+        return {
+          hasValidBackup: false,
+          importedWithoutBackup: false,
+        };
+      }
+
+      const hasValidBackup = !!(
+        identity.recoveryPhraseConfirmedAt ||
+        identity.lastBackupAt
+      );
+
+      return {
+        hasValidBackup,
+        importedWithoutBackup: identity.importedWithoutBackup || false,
+        recoveryPhraseConfirmedAt: identity.recoveryPhraseConfirmedAt,
+        lastBackupAt: identity.lastBackupAt,
+      };
+    },
+
+    /**
+     * Logout - clear all authentication state and return to login
+     *
+     * This fully logs out the user by:
+     * 1. Locking the SecureKeyManager (clearing private key from memory)
+     * 2. Clearing the current identity from state
+     * 3. Clearing the saved identity from localStorage
+     * 4. Clearing all session data from other stores
+     */
+    logout: async () => {
+      // Lock first to clear private key from memory
       get().lock();
+
+      // Clear all session data before clearing identity
+      await clearAllSessionData();
+
+      // Clear current identity from state
+      set({ currentIdentity: null });
+
+      // Clear from localStorage so user goes to login on refresh
+      localStorage.removeItem(SELECTED_IDENTITY_KEY);
     },
   };
 });

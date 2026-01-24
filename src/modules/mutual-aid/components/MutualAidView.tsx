@@ -8,7 +8,7 @@ export const MutualAidView: FC = () => {
   const [activeTab, setActiveTab] = useState('browse')
 
   return (
-    <div className="space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Mutual Aid</h2>

@@ -7,7 +7,7 @@ export const GroupDashboard: FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
 
   return (
-    <div className="space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       <PageMeta titleKey="groups.title" descriptionKey="meta.groups" />
       <Card>
         <CardHeader>

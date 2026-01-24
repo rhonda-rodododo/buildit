@@ -15,12 +15,12 @@ import { RouteLoader } from '@/components/ui/page-loader';
 export const GroupLayout: FC = () => {
   return (
     <GroupContextProvider>
-      <div className="flex gap-6">
+      <div className="grid lg:grid-cols-[auto_1fr] h-full">
         {/* Desktop group sidebar */}
         <GroupSidebar className="hidden lg:flex" />
 
         {/* Group content - renders child routes including module routes */}
-        <div className="flex-1">
+        <div className="overflow-y-auto">
           <Suspense fallback={<RouteLoader />}>
             <Outlet />
           </Suspense>

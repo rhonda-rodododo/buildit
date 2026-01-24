@@ -42,7 +42,7 @@ export function HotlinesPage() {
   const currentHotline = hotlines.find((h) => h.id === currentHotlineId);
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

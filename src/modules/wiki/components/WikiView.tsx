@@ -1,4 +1,4 @@
-import { FC, useState, Suspense, lazy } from 'react'
+import { FC, useState, Suspense, lazy, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Plus, Search } from 'lucide-react'
@@ -16,14 +16,27 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const pages = useWikiStore(state =>
-    searchQuery
-      ? state.searchPages(groupId, searchQuery)
-      : state.getPagesByGroup(groupId)
-  )
+  // Access raw state to avoid selector instability
+  const pagesRecord = useWikiStore(state => state.pages)
+
+  // Memoize filtered/searched pages to prevent infinite re-renders
+  const pages = useMemo(() => {
+    const allPages = Object.values(pagesRecord)
+      .filter(p => p.groupId === groupId)
+      .sort((a, b) => b.updated - a.updated)
+
+    if (!searchQuery) return allPages
+
+    const lowercaseQuery = searchQuery.toLowerCase()
+    return allPages.filter(p =>
+      p.title.toLowerCase().includes(lowercaseQuery) ||
+      p.content.toLowerCase().includes(lowercaseQuery) ||
+      p.tags.some(t => t.toLowerCase().includes(lowercaseQuery))
+    )
+  }, [pagesRecord, groupId, searchQuery])
 
   return (
-    <div className="space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Knowledge Base</h2>

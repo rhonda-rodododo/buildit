@@ -65,19 +65,37 @@ export const MobileNav: FC = () => {
                 Modules
               </h3>
               <nav className="space-y-1">
-                {modules.map((module) => {
-                  const Icon = module.metadata.icon;
-                  return (
-                    <div
-                      key={module.metadata.id}
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground"
-                      title={module.metadata.description}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="flex-1">{module.metadata.name}</span>
-                    </div>
-                  );
-                })}
+                {modules
+                  .filter((module) => {
+                    // Only show modules that have app-level routes
+                    const appRoutes = module.routes?.filter(r => r.scope === 'app') || [];
+                    return appRoutes.length > 0;
+                  })
+                  .map((module) => {
+                    const Icon = module.metadata.icon;
+                    // Get the first app-level route for this module
+                    const appRoute = module.routes?.find(r => r.scope === 'app');
+                    const routePath = appRoute?.path || module.metadata.id;
+
+                    return (
+                      <SheetClose key={module.metadata.id} asChild>
+                        <NavLink
+                          to={`/app/${routePath}`}
+                          className={({ isActive }) =>
+                            cn(
+                              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-medium',
+                              isActive
+                                ? 'bg-primary text-primary-foreground'
+                                : 'hover:bg-muted'
+                            )
+                          }
+                        >
+                          <Icon className="h-4 w-4" />
+                          {module.metadata.name}
+                        </NavLink>
+                      </SheetClose>
+                    );
+                  })}
               </nav>
             </div>
           </>

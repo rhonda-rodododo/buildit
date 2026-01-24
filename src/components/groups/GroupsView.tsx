@@ -44,42 +44,44 @@ export const GroupsView: FC = () => {
   }, [currentIdentity?.publicKey])
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col">
       {/* Pending Invitations Banner */}
       {invitationCount > 0 && (
-        <Collapsible open={invitationsOpen} onOpenChange={setInvitationsOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              <span className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                You have pending group invitations
-                <Badge variant="secondary">{invitationCount}</Badge>
-              </span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${invitationsOpen ? 'rotate-180' : ''}`}
-              />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
-            <PendingInvitationsView />
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="p-2 border-b">
+          <Collapsible open={invitationsOpen} onOpenChange={setInvitationsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  You have pending group invitations
+                  <Badge variant="secondary">{invitationCount}</Badge>
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${invitationsOpen ? 'rotate-180' : ''}`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <PendingInvitationsView />
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
       )}
 
-      {/* Main Groups Layout */}
-      <div className="flex flex-col sm:flex-row h-[calc(100vh-14rem)] sm:h-[calc(100vh-10rem)] gap-4">
+      {/* Main Groups Layout - fills remaining height */}
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-[280px_1fr] min-h-0">
         {/* Sidebar - Group List */}
-        <div className="w-full sm:w-80 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 sm:pr-4 flex flex-col max-h-64 sm:max-h-none">
-          <div className="mb-4">
+        <div className="border-b sm:border-b-0 sm:border-r flex flex-col overflow-hidden">
+          <div className="p-3 border-b">
             <CreateGroupDialog trigger={<Button className="w-full text-sm">Create Group</Button>} />
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-3">
             <GroupList />
           </div>
         </div>
 
         {/* Main - Group View */}
-        <div className="flex-1 border rounded-lg overflow-hidden min-h-[300px]">
+        <div className="overflow-y-auto">
           <GroupView />
         </div>
       </div>

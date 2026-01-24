@@ -233,7 +233,7 @@ export function FormsPage() {
 
   if (viewMode === 'preview' && selectedForm) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Forms
@@ -243,7 +243,7 @@ export function FormsPage() {
           form={selectedForm}
           onSubmit={(data) => handleFormSubmit(selectedForm.id, data)}
         />
-      </div>
+      </div></div>
     );
   }
 
@@ -255,8 +255,8 @@ export function FormsPage() {
     };
 
     return (
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 space-y-6 overflow-y-auto">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Forms
           </Button>
@@ -274,21 +274,21 @@ export function FormsPage() {
 
   if (viewMode === 'analytics' && selectedForm) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Forms
           </Button>
         </div>
         <AnalyticsDashboard resourceType="form" resourceId={selectedForm.id} />
-      </div>
+      </div></div>
     );
   }
 
   if (viewMode === 'templates') {
     return (
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 space-y-6 overflow-y-auto">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Forms
           </Button>
@@ -356,7 +356,7 @@ export function FormsPage() {
 
   // Forms List View
   return (
-    <div className="p-6 space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

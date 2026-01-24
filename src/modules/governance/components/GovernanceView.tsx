@@ -13,23 +13,24 @@ interface GovernanceViewProps {
 export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-  // Memoize selectors to prevent creating new functions on every render
-  const draftSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
-    state.getProposalsByStatus(groupId, 'draft'), [groupId]
-  )
-  const votingSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
-    state.getProposalsByStatus(groupId, 'voting'), [groupId]
-  )
-  const decidedSelector = useMemo(() => (state: ReturnType<typeof useGovernanceStore.getState>) =>
-    state.getProposalsByStatus(groupId, 'decided'), [groupId]
-  )
+  // Access raw state to avoid selector instability
+  const proposalsRecord = useGovernanceStore(state => state.proposals)
 
-  const draftProposals = useGovernanceStore(draftSelector)
-  const votingProposals = useGovernanceStore(votingSelector)
-  const decidedProposals = useGovernanceStore(decidedSelector)
+  // Memoize filtered proposals to prevent infinite re-renders
+  const { draftProposals, votingProposals, decidedProposals } = useMemo(() => {
+    const allProposals = Object.values(proposalsRecord)
+      .filter(p => p.groupId === groupId)
+      .sort((a, b) => b.created - a.created)
+
+    return {
+      draftProposals: allProposals.filter(p => p.status === 'draft'),
+      votingProposals: allProposals.filter(p => p.status === 'voting'),
+      decidedProposals: allProposals.filter(p => p.status === 'decided'),
+    }
+  }, [proposalsRecord, groupId])
 
   return (
-    <div className="space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Governance</h2>

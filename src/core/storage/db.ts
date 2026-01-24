@@ -40,6 +40,11 @@ export interface DBIdentity {
   lastUsed: number;
   // Security settings stored per-identity
   securitySettings?: string; // JSON-encoded SecuritySettings
+  // Backup tracking - for recovery UX
+  recoveryPhraseShownAt?: number; // When recovery phrase was first displayed
+  recoveryPhraseConfirmedAt?: number; // When user verified they saved recovery phrase
+  lastBackupAt?: number; // When last backup file was created
+  importedWithoutBackup?: boolean; // True if imported via nsec (skipped backup flow)
 }
 
 export interface DBGroup {

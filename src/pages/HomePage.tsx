@@ -236,10 +236,12 @@ export const HomePage: FC = () => {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="h-full flex flex-col">
       <PageMeta titleKey="app.name" descriptionKey="meta.home" path="/app" />
-      {/* Activity Feed (includes composer) */}
-      <ActivityFeed showComposer={true} />
+      {/* Activity Feed - centered for readability */}
+      <div className="flex-1 w-full max-w-3xl mx-auto px-4 py-4">
+        <ActivityFeed showComposer={true} />
+      </div>
     </div>
   );
 };

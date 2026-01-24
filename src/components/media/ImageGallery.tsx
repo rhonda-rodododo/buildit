@@ -95,6 +95,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => handleDownload(currentImage)}
+                aria-label="Download image"
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -102,6 +103,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
+                aria-label="Close gallery"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -220,6 +222,7 @@ export const ImageDisplay: FC<{
               e.stopPropagation();
               setShowBlurred(true);
             }}
+            aria-label="Hide content"
           >
             <EyeOff className="h-4 w-4" />
           </Button>
@@ -227,7 +230,7 @@ export const ImageDisplay: FC<{
       )}
       {onClick && (
         <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-          <Button variant="secondary" size="icon">
+          <Button variant="secondary" size="icon" aria-label="View fullscreen">
             <Maximize2 className="h-4 w-4" />
           </Button>
         </div>

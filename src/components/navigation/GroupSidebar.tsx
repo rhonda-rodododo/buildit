@@ -1,6 +1,6 @@
 import { FC, createElement } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -50,12 +50,21 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
     );
 
   return (
-    <aside className={cn('border-r flex flex-col p-4', className)}>
+    <aside className={cn('w-64 border-r bg-card flex flex-col p-4 h-full overflow-y-auto', className)}>
+      {/* Back navigation */}
+      <NavLink
+        to="/app"
+        className="flex items-center gap-2 px-3 py-2 mb-4 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Network
+      </NavLink>
+
       {/* Group name */}
       <div className="px-3 w-auto flex flex-col mb-6">
         <h2 className="text-lg font-semibold truncate">{group.name}</h2>
         <p className="text-xs text-muted-foreground truncate">{group.description}</p>
-      </div>  
+      </div>
 
       <nav className="w-full flex flex-col">
         {/* Dashboard link */}

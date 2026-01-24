@@ -40,10 +40,14 @@
     "generateNew": "Generar nueva identidad"
   },
   "nav": {
+    "feed": "Inicio",
     "messages": "Mensajes",
     "groups": "Grupos",
     "events": "Eventos",
-    "mutualAid": "Ayuda mutua"
+    "mutualAid": "Ayuda mutua",
+    "tools": "Herramientas",
+    "settings": "Configuración",
+    "openMenu": "Abrir menú de navegación"
   },
   "messages": {
     "title": "Mensajes",

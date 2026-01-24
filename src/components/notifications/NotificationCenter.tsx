@@ -34,6 +34,7 @@ export function NotificationCenter() {
         size="icon"
         className="relative"
         onClick={() => setOpen(true)}
+        aria-label="Open notifications"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -122,11 +123,11 @@ function NotificationItem({ notification, onMarkRead, onRemove }: NotificationIt
         </div>
         <div className="flex items-center gap-2">
           {!notification.read && (
-            <Button variant="ghost" size="sm" onClick={onMarkRead}>
+            <Button variant="ghost" size="sm" onClick={onMarkRead} aria-label="Mark as read">
               <Check className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onRemove}>
+          <Button variant="ghost" size="sm" onClick={onRemove} aria-label="Remove notification">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>

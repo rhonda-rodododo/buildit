@@ -45,8 +45,8 @@ const DialogContent = React.forwardRef<
         "fixed z-50 grid gap-4 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         // Mobile: full screen (when enabled)
         fullScreenMobile && "inset-0 max-md:rounded-none max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:w-full max-md:max-w-full max-md:p-4 max-md:overflow-auto max-md:data-[state=closed]:slide-out-to-bottom max-md:data-[state=open]:slide-in-from-bottom",
-        // Desktop: centered modal
-        "md:left-[50%] md:top-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:w-full md:max-w-lg md:rounded-lg md:p-6",
+        // Desktop: centered modal (default max-w-2xl, can be overridden per dialog)
+        "md:left-[50%] md:top-[50%] md:translate-x-[-50%] md:translate-y-[-50%] md:w-full md:max-w-2xl md:rounded-lg md:p-6",
         "md:data-[state=closed]:zoom-out-95 md:data-[state=open]:zoom-in-95 md:data-[state=closed]:slide-out-to-left-1/2 md:data-[state=closed]:slide-out-to-top-[48%] md:data-[state=open]:slide-in-from-left-1/2 md:data-[state=open]:slide-in-from-top-[48%]",
         className
       )}

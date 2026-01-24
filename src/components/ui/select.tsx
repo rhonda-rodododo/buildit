@@ -29,8 +29,10 @@ const SelectTrigger = React.forwardRef<
       "data-[placeholder]:text-muted-foreground",
       "focus:outline-none focus:ring-2 focus:ring-ring",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      // Text truncation
-      "[&>span]:line-clamp-1",
+      // Overflow control - prevent content bleeding outside trigger
+      "overflow-hidden",
+      // Text truncation for SelectValue content
+      "[&>span]:line-clamp-1 [&>span]:overflow-hidden [&>span]:text-ellipsis",
       className
     )}
     {...props}

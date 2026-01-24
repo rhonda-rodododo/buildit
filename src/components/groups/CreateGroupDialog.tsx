@@ -10,20 +10,18 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
-  Lock,
   ChevronRight,
   ChevronLeft,
   Sparkles,
   Package,
-  Settings2,
   Info,
+  Lock,
 } from 'lucide-react'
-import { loadAllSeeds, loadTemplateSeeds } from '@/core/storage/seedLoader'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { loadTemplateSeeds } from '@/core/storage/seedLoader'
 import { db } from '@/core/storage/db'
 import type { GroupPrivacyLevel, GroupModule } from '@/types/group'
 import { getAllModules } from '@/lib/modules/registry'
@@ -63,13 +61,11 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
   // Template selection state
   const [selectedTemplate, setSelectedTemplate] = useState<GroupTemplate | null>(null)
   const [selection, setSelection] = useState<TemplateSelection | null>(null)
-  const [useManualMode, setUseManualMode] = useState(false)
 
   // Group details state
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [privacyLevel, setPrivacyLevel] = useState<GroupPrivacyLevel>('private')
-  const [selectedModules, setSelectedModules] = useState<GroupModule[]>(['messaging'])
   const [loadDemoData, setLoadDemoData] = useState(false)
   const [creating, setCreating] = useState(false)
   const [availableModules, setAvailableModules] = useState<{ value: GroupModule; label: string; description: string }[]>([])
@@ -111,11 +107,9 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       setStep('template')
       setSelectedTemplate(null)
       setSelection(null)
-      setUseManualMode(false)
       setName('')
       setDescription('')
       setPrivacyLevel('private')
-      setSelectedModules(['messaging'])
       setLoadDemoData(false)
     }
   }, [open])
@@ -138,14 +132,6 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
     })
   }
 
-  const toggleModule = (module: GroupModule) => {
-    if (selectedModules.includes(module)) {
-      setSelectedModules(selectedModules.filter(m => m !== module))
-    } else {
-      setSelectedModules([...selectedModules, module])
-    }
-  }
-
   const handleCreate = async () => {
     if (!name.trim() || !currentIdentity || creating) return
 
@@ -157,19 +143,14 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
     setCreating(true)
     try {
-      // Determine which modules to enable
-      const modulesToEnable = useManualMode
-        ? selectedModules
-        : resolvedModules
-
       const group = await createGroup(
         {
           name: name.trim(),
           description: description.trim(),
           privacyLevel,
-          enabledModules: modulesToEnable,
-          templateId: !useManualMode && selectedTemplate ? selectedTemplate.id : undefined,
-          templateEnhancements: !useManualMode && selection ? selection.enabledEnhancements : undefined,
+          enabledModules: resolvedModules,
+          templateId: selectedTemplate?.id,
+          templateEnhancements: selection?.enabledEnhancements,
           includeDemoData: loadDemoData,
         },
         privateKey,
@@ -179,7 +160,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       // Enable selected modules in module store
       if (group) {
         const { enableModule } = useModuleStore.getState()
-        for (const moduleId of modulesToEnable) {
+        for (const moduleId of resolvedModules) {
           try {
             await enableModule(group.id, moduleId)
           } catch (error) {
@@ -189,19 +170,11 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       }
 
       // Load demo data if requested
-      if (loadDemoData && group) {
-        if (!useManualMode && selection) {
-          // Use template-specific seeds with includeDemoData flag
-          await loadTemplateSeeds(db, group.id, currentIdentity.publicKey, {
-            ...selection,
-            includeDemoData: true,
-          })
-        } else {
-          // Manual mode: load all available seeds for selected modules
-          await loadAllSeeds(db, group.id, currentIdentity.publicKey, {
-            moduleIds: modulesToEnable,
-          })
-        }
+      if (loadDemoData && group && selection) {
+        await loadTemplateSeeds(db, group.id, currentIdentity.publicKey, {
+          ...selection,
+          includeDemoData: true,
+        })
       }
 
       setOpen(false)
@@ -213,7 +186,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
     }
   }
 
-  const canProceedFromTemplate = selectedTemplate !== null || useManualMode
+  const canProceedFromTemplate = selectedTemplate !== null
   const canCreate = name.trim().length > 0 && !isLocked
 
   return (
@@ -221,7 +194,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
       <DialogTrigger asChild>
         {trigger || <Button>Create Group</Button>}
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="md:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {t('groups.createNewGroup', 'Create New Group')}
@@ -233,104 +206,72 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
           </DialogTitle>
         </DialogHeader>
 
-        {isLocked && (
-          <Alert>
-            <Lock className="h-4 w-4" />
-            <AlertDescription>
-              {t('groups.unlockToCreate', 'Please unlock the app to create a group. Enter your password on the main screen.')}
-            </AlertDescription>
-          </Alert>
-        )}
-
         <TooltipProvider>
           <div className="mt-4">
             {/* Step 1: Template Selection */}
             {step === 'template' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {t('templates.subtitle', 'Choose a template to get started quickly with pre-configured modules.')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="manual-mode" className="text-sm text-muted-foreground">
-                      {t('templates.manualMode', 'Manual setup')}
-                    </Label>
-                    <Switch
-                      id="manual-mode"
-                      checked={useManualMode}
-                      onCheckedChange={setUseManualMode}
-                    />
-                  </div>
+                <p className="text-sm text-muted-foreground">
+                  {t('templates.subtitle', 'Choose a template to get started quickly with pre-configured modules.')}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {BUILTIN_TEMPLATES.map((template) => {
+                    const isSelected = selectedTemplate?.id === template.id
+                    const { base: moduleCount } = templateRegistry.getModuleCount(template.id)
+
+                    return (
+                      <Card
+                        key={template.id}
+                        className={`cursor-pointer transition-all ${
+                          isSelected
+                            ? 'ring-2 ring-primary bg-primary/5'
+                            : 'hover:bg-accent'
+                        }`}
+                        onClick={() => handleSelectTemplate(template)}
+                      >
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{template.icon}</span>
+                              <CardTitle className="text-base">{template.name}</CardTitle>
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {getComplexityLabel(template.complexity)}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <CardDescription className="text-xs mb-3">
+                            {template.description}
+                          </CardDescription>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Package className="h-3 w-3" />
+                            <span>{moduleCount} {t('templates.modules', 'modules')}</span>
+                            <span className="mx-1">•</span>
+                            <span>{CATEGORY_ICONS[template.category]} {t(`templates.categories.${template.category}`, getCategoryLabel(template.category))}</span>
+                          </div>
+                          {template.enhancements && template.enhancements.length > 0 && (
+                            <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                              <Sparkles className="h-3 w-3" />
+                              <span>+{template.enhancements.length} {t('templates.optionalEnhancements', 'optional enhancements')}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
-
-                {!useManualMode ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {BUILTIN_TEMPLATES.map((template) => {
-                      const isSelected = selectedTemplate?.id === template.id
-                      const { base: moduleCount } = templateRegistry.getModuleCount(template.id)
-
-                      return (
-                        <Card
-                          key={template.id}
-                          className={`cursor-pointer transition-all ${
-                            isSelected
-                              ? 'ring-2 ring-primary bg-primary/5'
-                              : 'hover:bg-accent'
-                          }`}
-                          onClick={() => handleSelectTemplate(template)}
-                        >
-                          <CardHeader className="pb-2">
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-2xl">{template.icon}</span>
-                                <CardTitle className="text-base">{template.name}</CardTitle>
-                              </div>
-                              <Badge variant="secondary" className="text-xs">
-                                {getComplexityLabel(template.complexity)}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="pt-0">
-                            <CardDescription className="text-xs mb-3">
-                              {template.description}
-                            </CardDescription>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Package className="h-3 w-3" />
-                              <span>{moduleCount} {t('templates.modules', 'modules')}</span>
-                              <span className="mx-1">•</span>
-                              <span>{CATEGORY_ICONS[template.category]} {t(`templates.categories.${template.category}`, getCategoryLabel(template.category))}</span>
-                            </div>
-                            {template.enhancements && template.enhancements.length > 0 && (
-                              <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                                <Sparkles className="h-3 w-3" />
-                                <span>+{template.enhancements.length} {t('templates.optionalEnhancements', 'optional enhancements')}</span>
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <Alert>
-                    <Settings2 className="h-4 w-4" />
-                    <AlertDescription>
-                      {t('templates.manualModeDescription', "Manual mode: You'll select individual modules in the next step.")}
-                    </AlertDescription>
-                  </Alert>
-                )}
 
                 <div className="flex justify-end gap-2 pt-4 border-t">
                   <Button variant="outline" onClick={() => setOpen(false)}>
                     {t('common.cancel', 'Cancel')}
                   </Button>
                   <Button
-                    onClick={() => setStep(useManualMode ? 'details' : 'customize')}
+                    onClick={() => setStep('customize')}
                     disabled={!canProceedFromTemplate}
                   >
-                    {useManualMode ? t('templates.continue', 'Continue') : t('templates.customize', 'Customize')}
+                    {t('templates.customize', 'Customize')}
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
@@ -455,6 +396,16 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
             {/* Step 3: Group Details */}
             {step === 'details' && (
               <div className="space-y-6">
+                {/* Locked State Warning */}
+                {isLocked && (
+                  <Alert variant="destructive">
+                    <Lock className="h-4 w-4" />
+                    <AlertDescription>
+                      {t('groups.unlockRequired', 'Please unlock the app to create a group.')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 {/* Basic Info */}
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -498,71 +449,8 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   </div>
                 </div>
 
-                {/* Manual Module Selection (only in manual mode) */}
-                {useManualMode && (
-                  <div className="space-y-2">
-                    <Label id="module-selection-label">{t('groups.enableModules', 'Enable Modules')}</Label>
-                    <div
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                      role="group"
-                      aria-labelledby="module-selection-label"
-                    >
-                      {availableModules.map((module) => {
-                        const isSelected = selectedModules.includes(module.value)
-                        return (
-                          <Card
-                            key={module.value}
-                            className={`p-3 cursor-pointer transition-colors min-h-[64px] ${
-                              isSelected
-                                ? 'bg-primary text-primary-foreground ring-2 ring-primary'
-                                : 'hover:bg-accent'
-                            } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            onClick={() => !isLocked && toggleModule(module.value)}
-                            tabIndex={isLocked ? -1 : 0}
-                            role="checkbox"
-                            aria-checked={isSelected}
-                          >
-                            <div className="flex items-start gap-3">
-                              <Checkbox
-                                checked={isSelected}
-                                className={`mt-0.5 pointer-events-none ${
-                                  isSelected
-                                    ? 'border-primary-foreground data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary'
-                                    : ''
-                                }`}
-                              />
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{module.label}</p>
-                                <p className="text-xs opacity-90">{module.description}</p>
-                              </div>
-                            </div>
-                          </Card>
-                        )
-                      })}
-                    </div>
-
-                    {/* Demo Data Option (manual mode) */}
-                    <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg mt-4">
-                      <Checkbox
-                        id="demo-data-manual"
-                        checked={loadDemoData}
-                        onCheckedChange={(checked) => setLoadDemoData(checked as boolean)}
-                        disabled={isLocked}
-                      />
-                      <div className="flex-1">
-                        <Label htmlFor="demo-data-manual" className="text-sm font-medium">
-                          {t('templates.includeSampleData', 'Include sample data')}
-                        </Label>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {t('templates.sampleDataDescription', 'Populate the group with example content to help you get started')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Summary (template mode) */}
-                {!useManualMode && selectedTemplate && (
+                {/* Summary */}
+                {selectedTemplate && (
                   <div className="p-4 bg-muted rounded-lg space-y-2">
                     <div className="flex items-center gap-2">
                       <Info className="h-4 w-4 text-muted-foreground" />
@@ -590,7 +478,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                 <div className="flex justify-between gap-2 pt-4 border-t">
                   <Button
                     variant="outline"
-                    onClick={() => setStep(useManualMode ? 'template' : 'customize')}
+                    onClick={() => setStep('customize')}
                   >
                     <ChevronLeft className="mr-1 h-4 w-4" />
                     {t('common.back', 'Back')}

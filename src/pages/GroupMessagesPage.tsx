@@ -20,19 +20,19 @@ export const GroupMessagesPage: FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col p-4">
       <PageMeta
         title={`${group.name} - Messages`}
         descriptionKey="meta.messages"
       />
-      <div>
+      <div className="mb-4">
         <h1 className="text-3xl font-bold">Messages</h1>
         <p className="text-muted-foreground">
           Group conversations and threads
         </p>
       </div>
 
-      <Card className="p-0 overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
+      <Card className="flex-1 p-0 overflow-hidden min-h-0">
         <MessagingView groupId={groupId} />
       </Card>
     </div>

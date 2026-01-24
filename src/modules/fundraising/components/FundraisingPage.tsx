@@ -187,8 +187,8 @@ export function FundraisingPage() {
     };
 
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Campaigns
           </Button>
@@ -198,14 +198,14 @@ export function FundraisingPage() {
           tiers={campaignTiers}
           onDonate={handleDonate}
         />
-      </div>
+      </div></div>
     );
   }
 
   if (viewMode === 'donors' && selectedCampaign) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 space-y-6 overflow-y-auto">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Campaigns
           </Button>
@@ -217,21 +217,21 @@ export function FundraisingPage() {
 
   if (viewMode === 'analytics' && selectedCampaign) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Campaigns
           </Button>
         </div>
         <AnalyticsDashboard resourceType="campaign" resourceId={selectedCampaign.id} />
-      </div>
+      </div></div>
     );
   }
 
   if (viewMode === 'templates') {
     return (
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="h-full p-4 space-y-6 overflow-y-auto">
+        <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
             ← Back to Campaigns
           </Button>
@@ -274,7 +274,7 @@ export function FundraisingPage() {
 
   // Campaigns List View
   return (
-    <div className="p-6 space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -8,9 +8,10 @@ import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
 import path from 'path'
 
-export default defineConfig({
-  define: {
+export default defineConfig(({ mode }) => ({
+  define: mode === 'test' ? {} : {
     // Handle Node.js globals for browser compatibility
+    // Skip in test mode since Node.js already has these globals
     'process.env': {},
     'process.browser': true,
     'process.version': '"v20.0.0"',
@@ -320,4 +321,4 @@ export default defineConfig({
       // },
     },
   },
-})
+}))

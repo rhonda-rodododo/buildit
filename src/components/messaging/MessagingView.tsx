@@ -13,7 +13,7 @@ export const MessagingView: FC<MessagingViewProps> = ({ groupId }) => {
   const { activeConversationId } = useMessagingStore()
 
   return (
-    <div className="flex flex-col sm:flex-row h-[calc(100vh-14rem)] sm:h-[calc(100vh-10rem)] gap-4">
+    <div className="flex flex-col sm:flex-row h-full gap-4">
       {/* Sidebar - Conversation List */}
       <div className="w-full sm:w-80 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 sm:pr-4 flex flex-col max-h-64 sm:max-h-none">
         <div className="mb-4">

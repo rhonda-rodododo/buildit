@@ -49,7 +49,7 @@ export const GroupSettingsPage: FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h-full p-4 space-y-6 overflow-y-auto">
       <PageMeta
         title={`${group.name} - Settings`}
         descriptionKey="meta.settings"

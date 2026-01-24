@@ -26,10 +26,7 @@ import {
   Smile,
   Hash,
   AtSign,
-  Send,
-  X,
   Clock,
-  ChevronDown,
   Link2,
   Link2Off,
 } from 'lucide-react';
@@ -38,6 +35,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { EmojiPicker } from '@/components/media/EmojiPicker';
 import {
@@ -63,10 +70,11 @@ export const PostComposer: FC<PostComposerProps> = ({
   const [content, setContent] = useState('');
   const [privacy, setPrivacy] = useState<PostPrivacy>('group');
   const [isPosting, setIsPosting] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSchedulePicker, setShowSchedulePicker] = useState(false);
   const [scheduledDateTime, setScheduledDateTime] = useState('');
   const [linkPreviewsEnabled, setLinkPreviewsEnabled] = useState(true);
+  const [showPublicWarning, setShowPublicWarning] = useState(false);
+  const [pendingPrivacy, setPendingPrivacy] = useState<PostPrivacy | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -198,290 +206,237 @@ export const PostComposer: FC<PostComposerProps> = ({
       textarea.focus();
     }, 0);
 
-    setShowEmojiPicker(false);
   };
 
-  const getPrivacyIcon = (privacyLevel: PostPrivacy) => {
-    switch (privacyLevel) {
-      case 'public':
-        return <Globe className="w-4 h-4" />;
-      case 'followers':
-        return <Users className="w-4 h-4" />;
-      case 'group':
-        return <Lock className="w-4 h-4" />;
-      case 'encrypted':
-        return <Shield className="w-4 h-4" />;
+  // Handle privacy change with warning for public posts
+  const handlePrivacyChange = (value: PostPrivacy) => {
+    if (value === 'public' && privacy !== 'public') {
+      // Show warning dialog before switching to public
+      setPendingPrivacy(value);
+      setShowPublicWarning(true);
+    } else {
+      setPrivacy(value);
     }
   };
 
-  const getPrivacyLabel = (privacyLevel: PostPrivacy) => {
-    switch (privacyLevel) {
-      case 'public':
-        return 'Public';
-      case 'followers':
-        return 'Followers';
-      case 'group':
-        return 'Group only';
-      case 'encrypted':
-        return 'Encrypted';
+  // Confirm public privacy after warning
+  const confirmPublicPrivacy = () => {
+    if (pendingPrivacy) {
+      setPrivacy(pendingPrivacy);
+      setPendingPrivacy(null);
     }
+    setShowPublicWarning(false);
   };
 
-  const getPrivacyDescription = (privacyLevel: PostPrivacy) => {
-    switch (privacyLevel) {
-      case 'public':
-        return 'Visible to anyone, shared on public relays';
-      case 'followers':
-        return 'Only people who follow you can see this';
-      case 'group':
-        return 'Only members of your groups can see this';
-      case 'encrypted':
-        return 'End-to-end encrypted, only specific people can decrypt';
-    }
+  // Cancel public privacy change
+  const cancelPublicPrivacy = () => {
+    setPendingPrivacy(null);
+    setShowPublicWarning(false);
   };
 
   return (
-    <Card className={`p-4 ${className}`}>
-      <div className="space-y-4">
-        {/* Text Input */}
-        <Textarea
-          ref={textareaRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={placeholder}
-          className="min-h-[100px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
-          disabled={isPosting}
-          aria-label="Post content"
-        />
+    <Card className={`overflow-hidden ${className}`}>
+      {/* Textarea - flush with card edges */}
+      <Textarea
+        ref={textareaRef}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder={placeholder}
+        className="min-h-[80px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base px-3 py-3"
+        disabled={isPosting}
+        aria-label="Post content"
+      />
 
-        {/* Character count and hashtag/mention indicators */}
-        {content && (
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>{content.length} characters</span>
-            {(content.match(/#[\w]+/g) || []).length > 0 && (
-              <span className="flex items-center gap-1">
-                <Hash className="w-3 h-3" />
-                {(content.match(/#[\w]+/g) || []).length} hashtag{(content.match(/#[\w]+/g) || []).length !== 1 ? 's' : ''}
-              </span>
-            )}
-            {(content.match(/@[\w]+/g) || []).length > 0 && (
-              <span className="flex items-center gap-1">
-                <AtSign className="w-3 h-3" />
-                {(content.match(/@[\w]+/g) || []).length} mention{(content.match(/@[\w]+/g) || []).length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-        )}
+      {/* Link Previews (Signal-style encrypted) */}
+      {linkPreviewsEnabled && (previews.length > 0 || previewLoading) && (
+        <div className="px-3 pb-2 space-y-2">
+          {previewLoading && previews.length === 0 && (
+            <LinkPreviewSkeleton compact />
+          )}
+          {previews.map((preview) => (
+            <LinkPreviewCard
+              key={preview.url}
+              preview={preview}
+              compact
+              showRemove
+              onRemove={() => removePreview(preview.url)}
+            />
+          ))}
+        </div>
+      )}
 
-        {/* Link Previews (Signal-style encrypted) */}
-        {linkPreviewsEnabled && (previews.length > 0 || previewLoading) && (
-          <div className="space-y-2">
-            {previewLoading && previews.length === 0 && (
-              <LinkPreviewSkeleton compact />
-            )}
-            {previews.map((preview) => (
-              <LinkPreviewCard
-                key={preview.url}
-                preview={preview}
-                compact
-                showRemove
-                onRemove={() => removePreview(preview.url)}
-              />
-            ))}
-            {previews.length > 0 && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Shield className="w-3 h-3" />
-                Preview will be encrypted with your post
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Toolbar */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t">
-          {/* Media and attachment buttons - deferred to Epic 55 */}
-          <div className="flex items-center gap-1">
-            <div className="relative">
+      {/* Compact Toolbar - flush with card edges */}
+      <div className="flex items-center justify-between border-t bg-muted/30 px-1 py-1">
+        {/* Left side: action buttons */}
+        <div className="flex items-center">
+          {/* Emoji Picker - component has its own Popover */}
+          <EmojiPicker
+            onEmojiSelect={handleEmojiSelect}
+            triggerButton={
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                size="icon"
+                className="h-8 w-8"
                 disabled={isPosting}
                 aria-label="Add emoji"
               >
                 <Smile className="w-4 h-4" />
               </Button>
+            }
+          />
 
-              {showEmojiPicker && (
-                <div className="absolute left-0 bottom-full mb-2 z-50">
-                  <Card className="relative shadow-lg">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-background shadow-md z-10"
-                      onClick={() => setShowEmojiPicker(false)}
-                      aria-label="Close emoji picker"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                    <EmojiPicker
-                      onEmojiSelect={handleEmojiSelect}
-                    />
-                  </Card>
-                </div>
+          {/* Link Preview Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 ${!linkPreviewsEnabled ? 'text-muted-foreground' : ''}`}
+            onClick={() => {
+              setLinkPreviewsEnabled(!linkPreviewsEnabled);
+              if (linkPreviewsEnabled) {
+                clearPreviews();
+              }
+            }}
+            disabled={isPosting}
+            aria-label={linkPreviewsEnabled ? 'Disable link previews' : 'Enable link previews'}
+            title={linkPreviewsEnabled ? 'Link previews on' : 'Link previews off'}
+          >
+            {linkPreviewsEnabled ? (
+              <Link2 className="w-4 h-4" />
+            ) : (
+              <Link2Off className="w-4 h-4" />
+            )}
+          </Button>
+
+          {/* Character count - only when typing */}
+          {content && (
+            <span className="text-xs text-muted-foreground ml-2">
+              {content.length}
+              {(content.match(/#[\w]+/g) || []).length > 0 && (
+                <> · <Hash className="w-3 h-3 inline" />{(content.match(/#[\w]+/g) || []).length}</>
               )}
-            </div>
-
-            {/* Link Preview Toggle */}
-            <Button
-              variant={linkPreviewsEnabled ? 'ghost' : 'outline'}
-              size="sm"
-              className="h-9 px-3"
-              onClick={() => {
-                setLinkPreviewsEnabled(!linkPreviewsEnabled);
-                if (!linkPreviewsEnabled) {
-                  // Re-enable - previews will regenerate automatically
-                } else {
-                  // Disable - clear existing previews
-                  clearPreviews();
-                }
-              }}
-              disabled={isPosting}
-              aria-label={linkPreviewsEnabled ? 'Disable link previews' : 'Enable link previews'}
-              title={linkPreviewsEnabled ? 'Link previews enabled (encrypted)' : 'Link previews disabled'}
-            >
-              {linkPreviewsEnabled ? (
-                <Link2 className="w-4 h-4" />
-              ) : (
-                <Link2Off className="w-4 h-4" />
+              {(content.match(/@[\w]+/g) || []).length > 0 && (
+                <> · <AtSign className="w-3 h-3 inline" />{(content.match(/@[\w]+/g) || []).length}</>
               )}
-            </Button>
-          </div>
+            </span>
+          )}
+        </div>
 
-          {/* Privacy selector and post button */}
-          <div className="flex items-center gap-2">
-            <Select
-              value={privacy}
-              onValueChange={(value) => setPrivacy(value as PostPrivacy)}
-              disabled={isPosting}
+        {/* Right side: privacy + post */}
+        <div className="flex items-center gap-1">
+          {/* Compact Privacy selector */}
+          <Select
+            value={privacy}
+            onValueChange={(value) => handlePrivacyChange(value as PostPrivacy)}
+            disabled={isPosting}
+          >
+            <SelectTrigger
+              className="h-8 w-auto gap-1 border-0 bg-transparent px-2 text-xs"
+              aria-label="Post privacy level"
             >
-              <SelectTrigger className="h-9 w-[140px]">
+              <SelectValue placeholder="Privacy" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="group" title="Only members of your groups can see this">
                 <div className="flex items-center gap-2">
-                  {getPrivacyIcon(privacy)}
-                  <SelectValue />
+                  <Lock className="w-4 h-4 flex-shrink-0" />
+                  <span>Group only</span>
                 </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="group">
-                  <div className="flex items-center gap-2">
-                    {getPrivacyIcon('group')}
-                    <div>
-                      <div className="font-medium">{getPrivacyLabel('group')}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {getPrivacyDescription('group')}
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="public">
-                  <div className="flex items-center gap-2">
-                    {getPrivacyIcon('public')}
-                    <div>
-                      <div className="font-medium">{getPrivacyLabel('public')}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {getPrivacyDescription('public')}
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="followers">
-                  <div className="flex items-center gap-2">
-                    {getPrivacyIcon('followers')}
-                    <div>
-                      <div className="font-medium">{getPrivacyLabel('followers')}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {getPrivacyDescription('followers')}
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="encrypted">
-                  <div className="flex items-center gap-2">
-                    {getPrivacyIcon('encrypted')}
-                    <div>
-                      <div className="font-medium">{getPrivacyLabel('encrypted')}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {getPrivacyDescription('encrypted')}
-                      </div>
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              </SelectItem>
+              <SelectItem value="public" title="Visible to anyone, shared on public relays">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 flex-shrink-0" />
+                  <span>Public</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="followers" title="Only people who follow you can see this">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 flex-shrink-0" />
+                  <span>Followers</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="encrypted" title="End-to-end encrypted, only specific people can decrypt">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 flex-shrink-0" />
+                  <span>Encrypted</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-            {/* Post button with schedule option */}
-            <div className="flex items-center gap-0">
-              <Button
-                onClick={handleSubmit}
-                disabled={!content.trim() || isPosting}
-                size="sm"
-                className="h-9 rounded-r-none"
-              >
-                {isPosting ? (
-                  'Posting...'
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Post
-                  </>
-                )}
-              </Button>
-              <Popover open={showSchedulePicker} onOpenChange={setShowSchedulePicker}>
-                <PopoverTrigger asChild>
+          {/* Post button with schedule dropdown */}
+          <div className="flex items-center">
+            <Button
+              onClick={handleSubmit}
+              disabled={!content.trim() || isPosting}
+              size="sm"
+              className="h-8 px-3 rounded-r-none text-xs"
+            >
+              {isPosting ? '...' : 'Post'}
+            </Button>
+            <Popover open={showSchedulePicker} onOpenChange={setShowSchedulePicker}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="h-8 px-1.5 rounded-l-none border-l border-primary-foreground/20"
+                  disabled={!content.trim() || isPosting}
+                  aria-label="Schedule post"
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="space-y-3">
+                  <p className="font-medium text-sm">Schedule post</p>
+                  <Input
+                    type="datetime-local"
+                    value={scheduledDateTime}
+                    onChange={(e) => setScheduledDateTime(e.target.value)}
+                    min={getMinDateTime()}
+                    className="text-sm"
+                  />
                   <Button
-                    variant="default"
+                    onClick={handleSchedule}
+                    disabled={!scheduledDateTime || isPosting}
                     size="sm"
-                    className="h-9 px-2 rounded-l-none border-l border-primary-foreground/20"
-                    disabled={!content.trim() || isPosting}
-                    aria-label="Schedule post options"
+                    className="w-full"
                   >
-                    <ChevronDown className="w-4 h-4" />
+                    Schedule
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80" align="end">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium">Schedule post</span>
-                    </div>
-                    <div>
-                      <label htmlFor="schedule-datetime" className="text-sm text-muted-foreground mb-2 block">
-                        Choose when to publish
-                      </label>
-                      <Input
-                        id="schedule-datetime"
-                        type="datetime-local"
-                        value={scheduledDateTime}
-                        onChange={(e) => setScheduledDateTime(e.target.value)}
-                        min={getMinDateTime()}
-                      />
-                    </div>
-                    <Button
-                      onClick={handleSchedule}
-                      disabled={!scheduledDateTime || isPosting}
-                      className="w-full"
-                    >
-                      <Clock className="w-4 h-4 mr-2" />
-                      Schedule Post
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
+
+      {/* Public Privacy Warning Dialog */}
+      <AlertDialog open={showPublicWarning} onOpenChange={setShowPublicWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-warning" />
+              Make this post public?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                Public posts are visible to <strong>anyone</strong> on the internet and will be shared on public Nostr relays.
+              </p>
+              <p className="text-warning">
+                For activist organizing, consider whether this content should remain private to protect your community.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelPublicPrivacy}>
+              Keep Private
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPublicPrivacy}>
+              Make Public
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
