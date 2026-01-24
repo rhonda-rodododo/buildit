@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
 import { usePostsStore } from '../postsStore';
 import type { PostPrivacy, CreatePostInput } from '../types';
@@ -60,12 +61,14 @@ interface PostComposerProps {
 }
 
 export const PostComposer: FC<PostComposerProps> = ({
-  placeholder = "What's on your mind? Share updates, organize actions, build solidarity...",
+  placeholder,
   onPostCreated,
   className,
 }) => {
+  const { t } = useTranslation();
   const { currentIdentity } = useAuthStore();
   const { createPost, schedulePost } = usePostsStore();
+  const effectivePlaceholder = placeholder || t('posts.placeholder');
 
   const [content, setContent] = useState('');
   const [privacy, setPrivacy] = useState<PostPrivacy>('group');
@@ -131,10 +134,10 @@ export const PostComposer: FC<PostComposerProps> = ({
       onPostCreated?.();
 
       // Show success toast
-      toast.success('Post created successfully');
+      toast.success(t('posts.postCreated'));
     } catch (error) {
       console.error('Failed to create post:', error);
-      toast.error('Failed to create post')
+      toast.error(t('posts.postFailed'))
     } finally {
       setIsPosting(false);
     }
@@ -145,7 +148,7 @@ export const PostComposer: FC<PostComposerProps> = ({
 
     const scheduledFor = new Date(scheduledDateTime).getTime();
     if (scheduledFor <= Date.now()) {
-      toast.error('Please select a future date and time');
+      toast.error(t('posts.selectFutureDate'));
       return;
     }
 
@@ -181,10 +184,10 @@ export const PostComposer: FC<PostComposerProps> = ({
       onPostCreated?.();
 
       // Show success toast
-      toast.success('Post scheduled successfully');
+      toast.success(t('posts.postScheduled'));
     } catch (error) {
       console.error('Failed to schedule post:', error);
-      toast.error('Failed to schedule post');
+      toast.error(t('posts.scheduleFailed'));
     } finally {
       setIsPosting(false);
     }
@@ -241,7 +244,7 @@ export const PostComposer: FC<PostComposerProps> = ({
         ref={textareaRef}
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder={placeholder}
+        placeholder={effectivePlaceholder}
         className="min-h-[80px] resize-none border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base px-3 py-3"
         disabled={isPosting}
         aria-label="Post content"
@@ -278,7 +281,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                 size="icon"
                 className="h-8 w-8"
                 disabled={isPosting}
-                aria-label="Add emoji"
+                aria-label={t('posts.addEmoji')}
               >
                 <Smile className="w-4 h-4" />
               </Button>
@@ -297,8 +300,8 @@ export const PostComposer: FC<PostComposerProps> = ({
               }
             }}
             disabled={isPosting}
-            aria-label={linkPreviewsEnabled ? 'Disable link previews' : 'Enable link previews'}
-            title={linkPreviewsEnabled ? 'Link previews on' : 'Link previews off'}
+            aria-label={linkPreviewsEnabled ? t('posts.disableLinkPreviews') : t('posts.enableLinkPreviews')}
+            title={linkPreviewsEnabled ? t('posts.linkPreviewsOn') : t('posts.linkPreviewsOff')}
           >
             {linkPreviewsEnabled ? (
               <Link2 className="w-4 h-4" />
@@ -331,33 +334,33 @@ export const PostComposer: FC<PostComposerProps> = ({
           >
             <SelectTrigger
               className="h-8 w-auto gap-1 border-0 bg-transparent px-2 text-xs"
-              aria-label="Post privacy level"
+              aria-label={t('posts.postPrivacy')}
             >
-              <SelectValue placeholder="Privacy" />
+              <SelectValue placeholder={t('posts.privacy')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="group" title="Only members of your groups can see this">
+              <SelectItem value="group" title={t('posts.groupOnlyDesc')}>
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 flex-shrink-0" />
-                  <span>Group only</span>
+                  <span>{t('posts.groupOnly')}</span>
                 </div>
               </SelectItem>
-              <SelectItem value="public" title="Visible to anyone, shared on public relays">
+              <SelectItem value="public" title={t('posts.publicDesc')}>
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 flex-shrink-0" />
-                  <span>Public</span>
+                  <span>{t('posts.public')}</span>
                 </div>
               </SelectItem>
-              <SelectItem value="followers" title="Only people who follow you can see this">
+              <SelectItem value="followers" title={t('posts.followersDesc')}>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 flex-shrink-0" />
-                  <span>Followers</span>
+                  <span>{t('posts.followers')}</span>
                 </div>
               </SelectItem>
-              <SelectItem value="encrypted" title="End-to-end encrypted, only specific people can decrypt">
+              <SelectItem value="encrypted" title={t('posts.encryptedDesc')}>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 flex-shrink-0" />
-                  <span>Encrypted</span>
+                  <span>{t('posts.encrypted')}</span>
                 </div>
               </SelectItem>
             </SelectContent>
@@ -371,7 +374,7 @@ export const PostComposer: FC<PostComposerProps> = ({
               size="sm"
               className="h-8 px-3 rounded-r-none text-xs"
             >
-              {isPosting ? '...' : 'Post'}
+              {isPosting ? '...' : t('posts.post')}
             </Button>
             <Popover open={showSchedulePicker} onOpenChange={setShowSchedulePicker}>
               <PopoverTrigger asChild>
@@ -380,14 +383,14 @@ export const PostComposer: FC<PostComposerProps> = ({
                   size="sm"
                   className="h-8 px-1.5 rounded-l-none border-l border-primary-foreground/20"
                   disabled={!content.trim() || isPosting}
-                  aria-label="Schedule post"
+                  aria-label={t('posts.schedulePost')}
                 >
                   <Clock className="w-3.5 h-3.5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-72" align="end">
                 <div className="space-y-3">
-                  <p className="font-medium text-sm">Schedule post</p>
+                  <p className="font-medium text-sm">{t('posts.schedulePost')}</p>
                   <Input
                     type="datetime-local"
                     value={scheduledDateTime}
@@ -401,7 +404,7 @@ export const PostComposer: FC<PostComposerProps> = ({
                     size="sm"
                     className="w-full"
                   >
-                    Schedule
+                    {t('posts.schedule')}
                   </Button>
                 </div>
               </PopoverContent>
@@ -416,23 +419,23 @@ export const PostComposer: FC<PostComposerProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Globe className="w-5 h-5 text-warning" />
-              Make this post public?
+              {t('posts.makePublicTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>
-                Public posts are visible to <strong>anyone</strong> on the internet and will be shared on public Nostr relays.
+                {t('posts.makePublicWarning')}
               </p>
               <p className="text-warning">
-                For activist organizing, consider whether this content should remain private to protect your community.
+                {t('posts.publicActivistWarning')}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={cancelPublicPrivacy}>
-              Keep Private
+              {t('posts.keepPrivate')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={confirmPublicPrivacy}>
-              Make Public
+              {t('posts.makePublic')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

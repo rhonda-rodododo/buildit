@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Phone, Plus, Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { CallLogList } from './CallLogList';
 import { ActiveCallsPanel } from './ActiveCallsPanel';
 
 export function HotlinesPage() {
+  const { t } = useTranslation();
   const { groupId } = useParams<{ groupId: string }>();
   const {
     hotlines,
@@ -48,15 +50,15 @@ export function HotlinesPage() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Phone className="h-6 w-6" />
-            Hotlines
+            {t('hotlines.title')}
           </h1>
           <p className="text-muted-foreground">
-            Manage call lines, dispatch, and coordination
+            {t('hotlines.subtitle')}
           </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Create Hotline
+          {t('hotlines.createHotline')}
         </Button>
       </div>
 
@@ -65,13 +67,13 @@ export function HotlinesPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total Calls</CardDescription>
+              <CardDescription>{t('hotlines.totalCalls')}</CardDescription>
               <CardTitle className="text-2xl">{stats.totalCalls}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Active Calls</CardDescription>
+              <CardDescription>{t('hotlines.activeCalls')}</CardDescription>
               <CardTitle className="text-2xl text-green-600">
                 {stats.activeCalls}
               </CardTitle>
@@ -79,7 +81,7 @@ export function HotlinesPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Avg Duration</CardDescription>
+              <CardDescription>{t('hotlines.avgDuration')}</CardDescription>
               <CardTitle className="text-2xl flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 {Math.round(stats.averageCallDuration / 60)}m
@@ -88,7 +90,7 @@ export function HotlinesPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Operators On Duty</CardDescription>
+              <CardDescription>{t('hotlines.operatorsOnDuty')}</CardDescription>
               <CardTitle className="text-2xl flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 {stats.activeOperators}
@@ -102,8 +104,8 @@ export function HotlinesPage() {
         {/* Hotlines List */}
         <Card>
           <CardHeader>
-            <CardTitle>Hotlines</CardTitle>
-            <CardDescription>Select a hotline to view calls</CardDescription>
+            <CardTitle>{t('hotlines.title')}</CardTitle>
+            <CardDescription>{t('hotlines.selectHotline')}</CardDescription>
           </CardHeader>
           <CardContent>
             <HotlinesList
@@ -129,10 +131,10 @@ export function HotlinesPage() {
                 <Tabs defaultValue="active">
                   <TabsList>
                     <TabsTrigger value="active">
-                      Active ({activeCalls.length})
+                      {t('hotlines.active')} ({activeCalls.length})
                     </TabsTrigger>
-                    <TabsTrigger value="history">Call History</TabsTrigger>
-                    <TabsTrigger value="operators">Operators</TabsTrigger>
+                    <TabsTrigger value="history">{t('hotlines.callHistory')}</TabsTrigger>
+                    <TabsTrigger value="operators">{t('hotlines.operators')}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="active" className="mt-4">
@@ -145,7 +147,7 @@ export function HotlinesPage() {
 
                   <TabsContent value="operators" className="mt-4">
                     <div className="text-muted-foreground text-center py-8">
-                      Operator management coming soon
+                      {t('hotlines.operatorManagementSoon')}
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -155,7 +157,7 @@ export function HotlinesPage() {
             <Card>
               <CardContent className="flex items-center justify-center h-64">
                 <p className="text-muted-foreground">
-                  Select a hotline to view calls and operators
+                  {t('hotlines.selectHotlineToView')}
                 </p>
               </CardContent>
             </Card>

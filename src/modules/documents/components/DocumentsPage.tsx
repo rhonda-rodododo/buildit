@@ -63,6 +63,7 @@ import {
   FolderOpen,
   Tag,
   X,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { getPublicKey } from 'nostr-tools'
 import type { DBGroupMember } from '@/core/storage/db'
@@ -290,6 +291,32 @@ export const DocumentsPage: FC = () => {
       a.download = `${currentDoc.title}.${format === 'markdown' ? 'md' : format}`
       a.click()
       URL.revokeObjectURL(url)
+    }
+  }
+
+  // Epic 58: Export sharing report
+  const exportSharingReportCSV = useDocumentsStore((state) => state.exportSharingReportCSV)
+  const [exportingReport, setExportingReport] = useState(false)
+
+  const handleExportSharingReport = async () => {
+    if (!groupId) return
+    setExportingReport(true)
+    try {
+      const csv = await exportSharingReportCSV(groupId)
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = window.document.createElement('a')
+      a.href = url
+      a.download = `documents-sharing-report-${new Date().toISOString().slice(0, 10)}.csv`
+      window.document.body.appendChild(a)
+      a.click()
+      window.document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Failed to export sharing report:', err)
+      alert('Failed to export sharing report')
+    } finally {
+      setExportingReport(false)
     }
   }
 
@@ -864,6 +891,24 @@ export const DocumentsPage: FC = () => {
                       <Grid3X3 className="h-4 w-4" />
                     </Button>
                   </div>
+
+                  {/* Epic 58: Export Sharing Report */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleExportSharingReport}
+                        disabled={exportingReport}
+                      >
+                        <FileSpreadsheet className="h-4 w-4 mr-1" />
+                        {exportingReport ? 'Exporting...' : 'Export Sharing'}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Export CSV report of all document sharing permissions
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
 
                 {/* Tag Filters */}

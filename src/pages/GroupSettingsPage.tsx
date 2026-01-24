@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { useGroupsStore } from '@/stores/groupsStore';
 import { PageMeta } from '@/components/PageMeta';
@@ -16,6 +17,7 @@ import { Save } from 'lucide-react';
  * Configure group settings and enabled modules
  */
 export const GroupSettingsPage: FC = () => {
+  const { t } = useTranslation();
   const { group, groupId, availableModules, isModuleEnabled, refetch } = useGroupContext();
   const { updateGroup, toggleModule } = useGroupsStore();
 
@@ -24,7 +26,7 @@ export const GroupSettingsPage: FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   if (!group) {
-    return <div>Group not found</div>;
+    return <div>{t('pages.groupNotFound')}</div>;
   }
 
   const handleSave = async () => {
@@ -55,43 +57,43 @@ export const GroupSettingsPage: FC = () => {
         descriptionKey="meta.settings"
       />
       <div>
-        <h1 className="text-3xl font-bold">Group Settings</h1>
+        <h1 className="text-3xl font-bold">{t('pages.groupSettings')}</h1>
         <p className="text-muted-foreground">
-          Configure {group.name} settings and features
+          {t('pages.configureSettings', { name: group.name })}
         </p>
       </div>
 
       {/* Basic settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle>{t('pages.basicInformation')}</CardTitle>
           <CardDescription>
-            Update your group's name and description
+            {t('pages.updateNameDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Group Name</Label>
+            <Label htmlFor="name">{t('groups.groupName')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter group name"
+              placeholder={t('pages.enterGroupName')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('groups.description')}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter group description"
+              placeholder={t('pages.enterGroupDescription')}
               rows={3}
             />
           </div>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="h-4 w-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? t('pages.saving') : t('pages.saveChanges')}
           </Button>
         </CardContent>
       </Card>
@@ -99,9 +101,9 @@ export const GroupSettingsPage: FC = () => {
       {/* Module settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Enabled Modules</CardTitle>
+          <CardTitle>{t('groups.enabledModules')}</CardTitle>
           <CardDescription>
-            Choose which modules are available for this group
+            {t('pages.chooseModules')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -119,7 +121,7 @@ export const GroupSettingsPage: FC = () => {
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{module.metadata.name}</h3>
                         <Badge variant={enabled ? 'default' : 'secondary'}>
-                          {enabled ? 'Enabled' : 'Disabled'}
+                          {enabled ? t('pages.enabled') : t('pages.disabled')}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -140,19 +142,19 @@ export const GroupSettingsPage: FC = () => {
       {/* Privacy settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Privacy</CardTitle>
+          <CardTitle>{t('groups.privacy')}</CardTitle>
           <CardDescription>
-            Manage group privacy and visibility
+            {t('pages.managePrivacy')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label>Privacy Level</Label>
+            <Label>{t('pages.privacyLevel')}</Label>
             <Badge variant="outline">{group.privacy}</Badge>
             <p className="text-sm text-muted-foreground">
               {group.privacy === 'public'
-                ? 'Anyone can see this group and join'
-                : 'Invitation only - encrypted content'}
+                ? t('pages.publicAccess')
+                : t('pages.privateAccess')}
             </p>
           </div>
         </CardContent>

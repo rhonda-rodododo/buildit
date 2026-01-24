@@ -798,7 +798,7 @@ buildit-network/
 ---
 
 ### Epic 58: Advanced Sharing & Permissions 🔐
-**Status**: In Progress (75% complete)
+**Status**: In Progress (90% complete)
 **Priority**: P2 - Comprehensive Access Control (TIER 4)
 **Effort**: 10-15 hours
 **Dependencies**: Epics 48, 56 complete
@@ -813,22 +813,22 @@ buildit-network/
   - [x] Expiring links (time-based)
   - [x] Link analytics (views, downloads) - accessCount tracking
   - [x] Revoke links
-- [x] **Granular Permissions (3-4h)** - Complete (already implemented)
+- [x] **Granular Permissions (3-4h)** - Complete (store logic done)
   - [x] Viewer (read-only)
   - [x] Commenter (read + comment)
   - [x] Editor (read + write)
   - [x] Owner (full control)
-  - [ ] Permission inheritance (folders)
-- [ ] **Access Requests (2-3h)**
-  - [ ] Request access flow
-  - [ ] Approve/deny requests
-  - [ ] Notification of access changes
-  - [ ] View pending requests
+  - [ ] Permission inheritance (folders) - UI component needed
+- [x] **Access Requests (2-3h)** - Complete
+  - [x] Request access flow (AccessRequestDialog)
+  - [x] Approve/deny requests (AccessRequestsPanel)
+  - [ ] Notification of access changes (deferred - integrate with NotificationCenter)
+  - [x] View pending requests
 - [x] **Sharing Dashboard (1-2h)**
   - [x] View all shared items
   - [x] Filter by permission level
   - [x] Revoke sharing in bulk
-  - [ ] Export sharing report
+  - [x] Export sharing report (CSV export in Files analytics and Documents header)
 
 **Acceptance Criteria**:
 - Public links work with encryption and expiration

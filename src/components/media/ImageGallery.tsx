@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Download, AlertTriangle, Eye, EyeOff, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -16,6 +17,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
   onClose,
   initialIndex = 0,
 }) => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [decryptedUrls, setDecryptedUrls] = useState<Record<string, string>>({});
   const [showBlurred, setShowBlurred] = useState<Record<string, boolean>>({});
@@ -73,7 +75,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
               {currentImage.contentWarning && (
                 <div className="flex items-center gap-1 text-warning">
                   <AlertTriangle className="h-4 w-4" />
-                  <span className="text-xs">Sensitive Content</span>
+                  <span className="text-xs">{t('media.sensitiveContent')}</span>
                 </div>
               )}
             </div>
@@ -85,9 +87,9 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                   onClick={() => toggleBlur(currentImage.id)}
                 >
                   {showBlurred[currentImage.id] ? (
-                    <><EyeOff className="h-4 w-4 mr-2" /> Hide</>
+                    <><EyeOff className="h-4 w-4 mr-2" /> {t('common.hide')}</>
                   ) : (
-                    <><Eye className="h-4 w-4 mr-2" /> Show</>
+                    <><Eye className="h-4 w-4 mr-2" /> {t('common.show')}</>
                   )}
                 </Button>
               )}
@@ -95,7 +97,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => handleDownload(currentImage)}
-                aria-label="Download image"
+                aria-label={t('media.downloadImage')}
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -103,7 +105,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                aria-label="Close gallery"
+                aria-label={t('media.closeGallery')}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -115,9 +117,9 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
             {currentImage.encrypted && !decryptedUrls[currentImage.id] ? (
               <div className="text-center space-y-4">
                 <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">This image is encrypted</p>
+                <p className="text-sm text-muted-foreground">{t('media.imageEncrypted')}</p>
                 <Button onClick={() => handleDecrypt(currentImage)}>
-                  Decrypt & View
+                  {t('media.decryptAndView')}
                 </Button>
               </div>
             ) : (
@@ -140,7 +142,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                   size="sm"
                   onClick={() => setCurrentIndex((currentIndex - 1 + images.length) % images.length)}
                 >
-                  Previous
+                  {t('common.previous')}
                 </Button>
                 <span className="text-sm">
                   {currentIndex + 1} / {images.length}
@@ -150,7 +152,7 @@ export const ImageGallery: FC<ImageGalleryProps> = ({
                   size="sm"
                   onClick={() => setCurrentIndex((currentIndex + 1) % images.length)}
                 >
-                  Next
+                  {t('common.next')}
                 </Button>
               </div>
 
@@ -186,6 +188,7 @@ export const ImageDisplay: FC<{
   onClick?: () => void;
   className?: string;
 }> = ({ image, onClick, className = '' }) => {
+  const { t } = useTranslation();
   const [showBlurred, setShowBlurred] = useState(image.blurOnLoad || image.contentWarning);
 
   return (
@@ -209,7 +212,7 @@ export const ImageDisplay: FC<{
             }}
           >
             <Eye className="h-4 w-4 mr-2" />
-            Show Content
+            {t('media.showContent')}
           </Button>
         </div>
       )}
@@ -222,7 +225,7 @@ export const ImageDisplay: FC<{
               e.stopPropagation();
               setShowBlurred(true);
             }}
-            aria-label="Hide content"
+            aria-label={t('media.hideContent')}
           >
             <EyeOff className="h-4 w-4" />
           </Button>
@@ -230,7 +233,7 @@ export const ImageDisplay: FC<{
       )}
       {onClick && (
         <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-          <Button variant="secondary" size="icon" aria-label="View fullscreen">
+          <Button variant="secondary" size="icon" aria-label={t('media.viewFullscreen')}>
             <Maximize2 className="h-4 w-4" />
           </Button>
         </div>

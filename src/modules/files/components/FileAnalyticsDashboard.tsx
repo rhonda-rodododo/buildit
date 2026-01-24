@@ -19,6 +19,7 @@ import {
   File,
   AlertTriangle,
   RefreshCw,
+  Download,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -129,6 +130,32 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
       loadAnalytics()
     } catch (err) {
       console.error('Failed to delete file:', err)
+    }
+  }
+
+  // Epic 58: Export sharing report as CSV
+  const exportSharingReport = useFilesStore((state) => state.exportSharingReportCSV)
+  const [exporting, setExporting] = useState(false)
+
+  const handleExportSharingReport = async () => {
+    setExporting(true)
+    try {
+      const csv = await exportSharingReport(groupId)
+      // Create and download the file
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `sharing-report-${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Failed to export sharing report:', err)
+      alert('Failed to export sharing report')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -443,6 +470,17 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                     <p className="text-xs text-muted-foreground mt-4">
                       View individual file shares in the file list.
                     </p>
+                    {/* Epic 58: Export sharing report button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-4"
+                      onClick={handleExportSharingReport}
+                      disabled={exporting}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {exporting ? 'Exporting...' : 'Export Sharing Report'}
+                    </Button>
                   </div>
                 </div>
               ) : (

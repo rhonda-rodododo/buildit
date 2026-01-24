@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,14 +13,15 @@ import { UserPlus } from 'lucide-react';
  * Manage group members and invitations
  */
 export const GroupMembersPage: FC = () => {
+  const { t } = useTranslation();
   const { group, members, isLoading } = useGroupContext();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (!group) {
-    return <div>Group not found</div>;
+    return <div>{t('pages.groupNotFound')}</div>;
   }
 
   return (
@@ -30,20 +32,20 @@ export const GroupMembersPage: FC = () => {
       />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Members</h1>
+          <h1 className="text-3xl font-bold">{t('pages.members')}</h1>
           <p className="text-muted-foreground">
-            {members.length} {members.length === 1 ? 'member' : 'members'} in {group.name}
+            {t('pages.membersCount', { count: members.length })} {t('pages.memberIn', { name: group.name })}
           </p>
         </div>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
-          Invite Members
+          {t('pages.inviteMembers')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Group Members</CardTitle>
+          <CardTitle>{t('pages.groupMembers')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -63,7 +65,7 @@ export const GroupMembersPage: FC = () => {
                       {member.pubkey.slice(0, 8)}...{member.pubkey.slice(-8)}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Joined {new Date(member.joined).toLocaleDateString()}
+                      {t('pages.joined', { date: new Date(member.joined).toLocaleDateString() })}
                     </div>
                   </div>
                 </div>
@@ -74,7 +76,7 @@ export const GroupMembersPage: FC = () => {
             ))}
             {members.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                No members found
+                {t('pages.noMembersFound')}
               </div>
             )}
           </div>

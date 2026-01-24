@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GroupList } from './GroupList'
 import { GroupView } from './GroupView'
 import { CreateGroupDialog } from './CreateGroupDialog'
@@ -11,6 +12,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { db } from '@/core/storage/db'
 
 export const GroupsView: FC = () => {
+  const { t } = useTranslation()
   const { currentIdentity } = useAuthStore()
   const [invitationCount, setInvitationCount] = useState(0)
   const [invitationsOpen, setInvitationsOpen] = useState(false)
@@ -53,7 +55,7 @@ export const GroupsView: FC = () => {
               <Button variant="outline" className="w-full justify-between">
                 <span className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  You have pending group invitations
+                  {t('groups.pendingInvitations')}
                   <Badge variant="secondary">{invitationCount}</Badge>
                 </span>
                 <ChevronDown
@@ -73,7 +75,7 @@ export const GroupsView: FC = () => {
         {/* Sidebar - Group List */}
         <div className="border-b sm:border-b-0 sm:border-r flex flex-col overflow-hidden">
           <div className="p-3 border-b">
-            <CreateGroupDialog trigger={<Button className="w-full text-sm">Create Group</Button>} />
+            <CreateGroupDialog trigger={<Button className="w-full text-sm">{t('groups.createGroup')}</Button>} />
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             <GroupList />

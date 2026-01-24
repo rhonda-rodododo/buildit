@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { useAuthStore } from '@/stores/authStore'
 import { getConversationId } from '@/core/messaging/dm'
@@ -12,6 +13,7 @@ interface NewConversationDialogProps {
 }
 
 export const NewConversationDialog: FC<NewConversationDialogProps> = ({ trigger }) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [pubkey, setPubkey] = useState('')
   const { addConversation, setActiveConversation, conversations } = useMessagingStore()
@@ -24,7 +26,7 @@ export const NewConversationDialog: FC<NewConversationDialogProps> = ({ trigger 
 
     // Validate pubkey format (64 hex characters)
     if (!/^[0-9a-f]{64}$/i.test(trimmedPubkey)) {
-      alert('Invalid public key. Must be 64 hex characters.')
+      alert(t('messages.invalidPublicKey'))
       return
     }
 
@@ -54,18 +56,18 @@ export const NewConversationDialog: FC<NewConversationDialogProps> = ({ trigger 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button>New Conversation</Button>}
+        {trigger || <Button>{t('messages.newConversation')}</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Start New Conversation</DialogTitle>
+          <DialogTitle>{t('messages.startNewConversation')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="pubkey">Recipient Public Key</Label>
+            <Label htmlFor="pubkey">{t('messages.recipientPublicKey')}</Label>
             <Input
               id="pubkey"
-              placeholder="Enter 64-character hex public key..."
+              placeholder={t('messages.recipientPlaceholder')}
               value={pubkey}
               onChange={(e) => setPubkey(e.target.value)}
               onKeyDown={(e) => {
@@ -77,10 +79,10 @@ export const NewConversationDialog: FC<NewConversationDialogProps> = ({ trigger 
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleCreate} disabled={!pubkey.trim()}>
-              Start Conversation
+              {t('messages.startConversation')}
             </Button>
           </div>
         </div>

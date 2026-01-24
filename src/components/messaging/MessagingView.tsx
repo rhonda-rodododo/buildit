@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ConversationList } from './ConversationList'
 import { MessageThread } from './MessageThread'
 import { NewConversationDialog } from './NewConversationDialog'
@@ -10,6 +11,7 @@ interface MessagingViewProps {
 }
 
 export const MessagingView: FC<MessagingViewProps> = ({ groupId }) => {
+  const { t } = useTranslation()
   const { activeConversationId } = useMessagingStore()
 
   return (
@@ -17,7 +19,7 @@ export const MessagingView: FC<MessagingViewProps> = ({ groupId }) => {
       {/* Sidebar - Conversation List */}
       <div className="w-full sm:w-80 border-b sm:border-b-0 sm:border-r pb-4 sm:pb-0 sm:pr-4 flex flex-col max-h-64 sm:max-h-none">
         <div className="mb-4">
-          <NewConversationDialog trigger={<Button className="w-full text-sm">New Conversation</Button>} />
+          <NewConversationDialog trigger={<Button className="w-full text-sm">{t('messages.newConversation')}</Button>} />
         </div>
         <div className="flex-1 overflow-y-auto">
           <ConversationList groupId={groupId} />
@@ -30,7 +32,7 @@ export const MessagingView: FC<MessagingViewProps> = ({ groupId }) => {
           <MessageThread conversationId={activeConversationId} />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground text-sm p-4 text-center">
-            Select a conversation or start a new one
+            {t('messages.selectConversation')}
           </div>
         )}
       </div>

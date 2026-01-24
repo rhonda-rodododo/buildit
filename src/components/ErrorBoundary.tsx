@@ -1,21 +1,23 @@
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const ErrorBoundary: FC = () => {
+  const { t } = useTranslation();
   const error = useRouteError();
 
   let errorMessage: string;
-  let errorStatus: string | number = 'Error';
+  let errorStatus: string | number = t('common.error');
 
   if (isRouteErrorResponse(error)) {
     errorStatus = error.status;
-    errorMessage = error.statusText || error.data?.message || 'An error occurred';
+    errorMessage = error.statusText || error.data?.message || t('common.anErrorOccurred');
   } else if (error instanceof Error) {
     errorMessage = error.message;
   } else {
-    errorMessage = 'An unknown error occurred';
+    errorMessage = t('common.unknownError');
   }
 
   return (
@@ -23,16 +25,16 @@ export const ErrorBoundary: FC = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{errorStatus}</CardTitle>
-          <CardDescription>Something went wrong</CardDescription>
+          <CardDescription>{t('common.somethingWentWrong')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">{errorMessage}</p>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link to="/app">Go to App</Link>
+              <Link to="/app">{t('common.goToApp')}</Link>
             </Button>
             <Button onClick={() => window.location.reload()}>
-              Reload Page
+              {t('common.reloadPage')}
             </Button>
           </div>
         </CardContent>

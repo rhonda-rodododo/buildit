@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +24,7 @@ import { AddFriendDialog } from './AddFriendDialog';
 import type { FriendStatus, TrustTier, FriendFilter } from '../types';
 
 export function ContactsPage() {
+  const { t } = useTranslation();
   const {
     loadFriends,
     getFriends,
@@ -61,14 +63,14 @@ export function ContactsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Friends & Contacts</h1>
+          <h1 className="text-3xl font-bold">{t('friends.title')}</h1>
           <p className="text-muted-foreground">
-            Manage your connections and friend requests
+            {t('friends.subtitle')}
           </p>
         </div>
         <Button onClick={() => setAddDialogOpen(true)} data-testid="add-friend-button">
           <UserPlus className="mr-2 h-4 w-4" />
-          Add Friend
+          {t('friends.addFriend')}
         </Button>
       </div>
 
@@ -76,19 +78,19 @@ export function ContactsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="friends-stats">
         <div className="p-4 rounded-lg border bg-card" data-testid="stat-friends">
           <div className="text-2xl font-bold">{stats.accepted}</div>
-          <div className="text-sm text-muted-foreground">Friends</div>
+          <div className="text-sm text-muted-foreground">{t('friends.friends')}</div>
         </div>
         <div className="p-4 rounded-lg border bg-card" data-testid="stat-verified">
           <div className="text-2xl font-bold">{stats.verified}</div>
-          <div className="text-sm text-muted-foreground">Verified</div>
+          <div className="text-sm text-muted-foreground">{t('friends.verified')}</div>
         </div>
         <div className="p-4 rounded-lg border bg-card" data-testid="stat-favorites">
           <div className="text-2xl font-bold">{stats.favorites}</div>
-          <div className="text-sm text-muted-foreground">Favorites</div>
+          <div className="text-sm text-muted-foreground">{t('friends.favorites')}</div>
         </div>
         <div className="p-4 rounded-lg border bg-card" data-testid="stat-pending">
           <div className="text-2xl font-bold">{incomingRequests.length}</div>
-          <div className="text-sm text-muted-foreground">Pending Requests</div>
+          <div className="text-sm text-muted-foreground">{t('friends.pendingRequests')}</div>
         </div>
       </div>
 
@@ -97,7 +99,7 @@ export function ContactsPage() {
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search friends..."
+            placeholder={t('friends.searchFriends')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -112,13 +114,13 @@ export function ContactsPage() {
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Trust Level" />
+            <SelectValue placeholder={t('friends.trustLevel')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Trust Levels</SelectItem>
-            <SelectItem value="friend">Friend</SelectItem>
-            <SelectItem value="verified">Verified</SelectItem>
-            <SelectItem value="trusted">Trusted</SelectItem>
+            <SelectItem value="all">{t('friends.allTrustLevels')}</SelectItem>
+            <SelectItem value="friend">{t('friends.friend')}</SelectItem>
+            <SelectItem value="verified">{t('friends.verified')}</SelectItem>
+            <SelectItem value="trusted">{t('friends.trusted')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -128,7 +130,7 @@ export function ContactsPage() {
           data-testid="filter-favorites-button"
         >
           <Archive className="mr-2 h-4 w-4" />
-          Favorites
+          {t('friends.favorites')}
         </Button>
       </div>
 
@@ -137,14 +139,14 @@ export function ContactsPage() {
         <TabsList>
           <TabsTrigger value="all">
             <Users className="mr-2 h-4 w-4" />
-            All Friends
+            {t('friends.allFriends')}
             <Badge variant="secondary" className="ml-2">
               {stats.accepted}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="requests">
             <Inbox className="mr-2 h-4 w-4" />
-            Requests
+            {t('friends.requests')}
             {incomingRequests.length > 0 && (
               <Badge variant="destructive" className="ml-2">
                 {incomingRequests.length}
@@ -158,8 +160,8 @@ export function ContactsPage() {
           {filteredFriends.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No friends found</p>
-              <p className="text-sm">Try adjusting your filters or add some friends!</p>
+              <p>{t('friends.noFriendsFound')}</p>
+              <p className="text-sm">{t('friends.noFriendsHint')}</p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -184,13 +186,13 @@ export function ContactsPage() {
           {/* Incoming Requests */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Incoming Requests</h2>
+              <h2 className="text-xl font-semibold">{t('friends.incomingRequests')}</h2>
               <Badge variant="secondary">{incomingRequests.length}</Badge>
             </div>
 
             {incomingRequests.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No incoming requests</p>
+                <p>{t('friends.noIncomingRequests')}</p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -204,13 +206,13 @@ export function ContactsPage() {
           {/* Outgoing Requests */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Sent Requests</h2>
+              <h2 className="text-xl font-semibold">{t('friends.sentRequests')}</h2>
               <Badge variant="secondary">{outgoingRequests.length}</Badge>
             </div>
 
             {outgoingRequests.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No sent requests</p>
+                <p>{t('friends.noSentRequests')}</p>
               </div>
             ) : (
               <div className="grid gap-4">
