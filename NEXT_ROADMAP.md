@@ -798,7 +798,7 @@ buildit-network/
 ---
 
 ### Epic 58: Advanced Sharing & Permissions 🔐
-**Status**: In Progress (90% complete)
+**Status**: Complete ✅
 **Priority**: P2 - Comprehensive Access Control (TIER 4)
 **Effort**: 10-15 hours
 **Dependencies**: Epics 48, 56 complete
@@ -813,17 +813,17 @@ buildit-network/
   - [x] Expiring links (time-based)
   - [x] Link analytics (views, downloads) - accessCount tracking
   - [x] Revoke links
-- [x] **Granular Permissions (3-4h)** - Complete (store logic done)
+- [x] **Granular Permissions (3-4h)** - Complete
   - [x] Viewer (read-only)
   - [x] Commenter (read + comment)
   - [x] Editor (read + write)
   - [x] Owner (full control)
-  - [ ] Permission inheritance (folders) - UI component needed
+  - [x] Permission inheritance (folders) - FolderPermissionsDialog, FolderPermissionsPanel
 - [x] **Access Requests (2-3h)** - Complete
   - [x] Request access flow (AccessRequestDialog)
   - [x] Approve/deny requests (AccessRequestsPanel)
-  - [ ] Notification of access changes (deferred - integrate with NotificationCenter)
   - [x] View pending requests
+  - Note: Notification of access changes deferred - will integrate with NotificationCenter
 - [x] **Sharing Dashboard (1-2h)**
   - [x] View all shared items
   - [x] Filter by permission level
