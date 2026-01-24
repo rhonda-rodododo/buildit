@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 58 Advanced Sharing & Permissions completed)
+**Last Updated**: 2026-01-24 (Epic 56 Advanced Document Features completed)
 
 ---
 
@@ -77,6 +77,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 72 | v0.72.0 | ✅ | `v0.72.0-auth-recovery` | Account Recovery System - Recovery phrase setup/verification, unlock form, password reset, backup reminders, logout warnings |
 | 57 | v0.57.0 | ✅ | `v0.57.0-files-enhanced` | File Management Enhancement - Archive/3D preview, full-text search, save filters, analytics dashboard, bulk share |
 | 58 | v0.58.0 | ✅ | `v0.58.0-sharing-advanced` | Advanced Sharing & Permissions - Public links, granular permissions, access requests, folder inheritance UI |
+| 56 | v0.56.0 | ✅ | `v0.56.0-docs-advanced` | Advanced Document Features - @mentions in comments, page breaks, headers/footers, equations, diagrams |
 
 ---
 
@@ -2123,5 +2124,54 @@ Implemented comprehensive sharing and permissions for documents and files to mat
 - `src/modules/documents/components/AccessRequestsPanel.tsx`
 
 **Reference**: `src/modules/files/`, `src/modules/documents/`
+
+---
+
+### Epic 56: Advanced Document Features ✅
+**Tag**: `v0.56.0-docs-advanced` | **Commits**: `git log v0.56.0-docs-advanced`
+
+Implemented comprehensive document editing features to match Google Docs capabilities.
+
+**Commenting & Suggestions**:
+- Inline comments on text selections with threading
+- Suggestion mode (track changes) via SuggestionModePlugin
+- Resolve/dismiss comments functionality
+- Reply to comments (nested threading)
+- @username mentions in comments with autocomplete (MentionExtension.tsx)
+
+**Advanced Editing**:
+- Mathematical equations with KaTeX (MathBlock.tsx)
+- Diagrams with Mermaid (MermaidBlock.tsx)
+- Auto-generated table of contents (TableOfContents.tsx)
+- Footnotes/endnotes (Footnote.tsx)
+- Page breaks with print styling (PageBreak.tsx)
+- Headers/footers with alignment controls (HeaderFooter.tsx)
+
+**Document Organization**:
+- Folders/collections with nesting
+- Tags and labels system
+- Star/favorite documents
+- Recent documents list
+- Full-text search across documents
+
+**Permissions & Sharing**:
+- View-only access (viewer)
+- Comment-only access (commenter)
+- Edit access (editor)
+- Share with public/private links
+- Expiring share links with time-based expiration
+
+**Key Components**:
+- `src/modules/documents/extensions/MentionExtension.tsx`
+- `src/modules/documents/extensions/PageBreak.tsx`
+- `src/modules/documents/extensions/HeaderFooter.tsx`
+- `src/modules/documents/extensions/MathBlock.tsx`
+- `src/modules/documents/extensions/MermaidBlock.tsx`
+- `src/modules/documents/extensions/TableOfContents.tsx`
+- `src/modules/documents/extensions/Footnote.tsx`
+- `src/modules/documents/components/CommentSidebar.tsx`
+- `src/modules/documents/components/TipTapEditor.tsx`
+
+**Reference**: `src/modules/documents/`
 
 ---
