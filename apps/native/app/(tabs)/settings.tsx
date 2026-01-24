@@ -19,6 +19,7 @@ import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../../src/stores'
 import type { LinkedDevice } from '../../src/stores'
+import { BiometricSettings } from '../../src/components'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
 interface SettingRowProps {
@@ -83,7 +84,6 @@ export default function SettingsTab() {
   const insets = useSafeAreaInsets()
   const { identity, linkedDevices, removeLinkedDevice, logout } = useAuthStore()
   const [showRecoveryPhrase, setShowRecoveryPhrase] = useState(false)
-  const [biometricEnabled, setBiometricEnabled] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
 
   const handleShowRecoveryPhrase = () => {
@@ -222,21 +222,7 @@ export default function SettingsTab() {
             </View>
           </View>
         )}
-        {Platform.OS !== 'web' && (
-          <SettingRow
-            icon="🔒"
-            title="Biometric Lock"
-            subtitle="Require Face ID or fingerprint"
-            rightElement={
-              <Switch
-                value={biometricEnabled}
-                onValueChange={setBiometricEnabled}
-                trackColor={{ false: '#e5e5e5', true: '#0a0a0a' }}
-                thumbColor="#ffffff"
-              />
-            }
-          />
-        )}
+        {Platform.OS !== 'web' && <BiometricSettings />}
       </View>
 
       {/* Devices Section */}

@@ -20,6 +20,18 @@ import {
   clearAllSecureStorage,
   hasStoredIdentity,
 } from '../storage/secureStorage'
+import {
+  getBiometricStatus,
+  enableBiometricAuth,
+  disableBiometricAuth,
+  quickUnlock,
+  getBiometricTypeName,
+  type BiometricStatus,
+  type BiometricType,
+} from '../services/biometricAuth'
+
+// Re-export biometric types for convenience
+export type { BiometricStatus, BiometricType }
 
 /**
  * Stored keypair (hex strings only, no Uint8Array)
@@ -52,6 +64,8 @@ interface AuthState {
   isLoading: boolean
   isInitialized: boolean
   error: string | null
+  isLocked: boolean
+  biometricStatus: BiometricStatus | null
 
   // Actions
   initialize: () => Promise<void>
@@ -63,6 +77,17 @@ interface AuthState {
   addLinkedDevice: (device: Omit<LinkedDevice, 'id' | 'linkedAt' | 'lastSeen'>) => Promise<void>
   removeLinkedDevice: (deviceId: string) => Promise<void>
   clearError: () => void
+
+  // Lock/Unlock
+  lock: () => void
+  unlock: () => void
+  attemptBiometricUnlock: () => Promise<boolean>
+
+  // Biometric settings
+  refreshBiometricStatus: () => Promise<void>
+  enableBiometric: () => Promise<boolean>
+  disableBiometric: () => Promise<void>
+  getBiometricTypeName: () => string
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -71,6 +96,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoading: false,
   isInitialized: false,
   error: null,
+  isLocked: true,
+  biometricStatus: null,
 
   initialize: async () => {
     set({ isLoading: true, error: null })
@@ -95,6 +122,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             ? JSON.parse(linkedDevicesStr)
             : []
 
+          // Load biometric status
+          const biometricStatus = await getBiometricStatus()
+
           set({
             identity: {
               publicKey,
@@ -104,9 +134,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               createdAt: Date.now(), // Could store this separately
             },
             linkedDevices,
+            biometricStatus,
             isLoading: false,
             isInitialized: true,
+            isLocked: true, // Start locked, require biometric or explicit unlock
           })
+
+          // Attempt biometric unlock if enabled
+          if (biometricStatus.isEnabled) {
+            // Small delay to let the UI initialize
+            setTimeout(async () => {
+              const success = await quickUnlock()
+              if (success) {
+                useAuthStore.setState({ isLocked: false })
+              }
+            }, 500)
+          }
+
           return
         }
       }
@@ -271,4 +315,87 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  // Lock/Unlock methods
+  lock: () => {
+    set({ isLocked: true })
+  },
+
+  unlock: () => {
+    const { identity } = get()
+    if (identity) {
+      set({ isLocked: false })
+    }
+  },
+
+  attemptBiometricUnlock: async () => {
+    const { identity, biometricStatus } = get()
+
+    if (!identity) {
+      return false
+    }
+
+    if (!biometricStatus?.isEnabled) {
+      return false
+    }
+
+    try {
+      const success = await quickUnlock()
+      if (success) {
+        set({ isLocked: false })
+      }
+      return success
+    } catch (error) {
+      console.error('Biometric unlock failed:', error)
+      return false
+    }
+  },
+
+  // Biometric settings
+  refreshBiometricStatus: async () => {
+    try {
+      const status = await getBiometricStatus()
+      set({ biometricStatus: status })
+    } catch (error) {
+      console.error('Failed to get biometric status:', error)
+      set({
+        biometricStatus: {
+          isAvailable: false,
+          isEnabled: false,
+          biometricType: 'none',
+          securityLevel: 'none',
+        },
+      })
+    }
+  },
+
+  enableBiometric: async () => {
+    try {
+      const success = await enableBiometricAuth()
+      if (success) {
+        await get().refreshBiometricStatus()
+      }
+      return success
+    } catch (error) {
+      console.error('Failed to enable biometric:', error)
+      set({ error: 'Failed to enable biometric authentication' })
+      return false
+    }
+  },
+
+  disableBiometric: async () => {
+    try {
+      await disableBiometricAuth()
+      await get().refreshBiometricStatus()
+    } catch (error) {
+      console.error('Failed to disable biometric:', error)
+      set({ error: 'Failed to disable biometric authentication' })
+    }
+  },
+
+  getBiometricTypeName: () => {
+    const { biometricStatus } = get()
+    if (!biometricStatus) return 'Biometrics'
+    return getBiometricTypeName(biometricStatus.biometricType)
+  },
 }))
