@@ -19,7 +19,8 @@ import {
  * Get the appropriate font family for the platform
  */
 export function getFontFamily(variant: 'sans' | 'mono' = 'sans'): string {
-  const families = fontFamily[variant]
+  // Cast to readonly string array to work with .includes() and .join()
+  const families = fontFamily[variant] as readonly string[]
 
   // On iOS/Android, use system font or Inter if available
   if (Platform.OS === 'ios') {
