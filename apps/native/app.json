@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "BuildIt Network",
+    "slug": "buildit-network",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "network.buildit.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "BuildIt needs camera access to scan QR codes for device linking and contact sharing.",
+        "NSFaceIDUsageDescription": "BuildIt uses Face ID to securely unlock your encrypted identity."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0a"
+      },
+      "package": "network.buildit.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ]
+    },
+    "web": {
+      "bundler": "vite",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-secure-store",
+      "expo-local-authentication",
+      [
+        "expo-clipboard",
+        {
+          "iOSBackgroundModes": []
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0a0a0a",
+          "sounds": []
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "owner": "buildit-network"
+  }
+}
