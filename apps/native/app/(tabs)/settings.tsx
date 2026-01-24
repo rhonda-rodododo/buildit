@@ -19,7 +19,7 @@ import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../../src/stores'
 import type { LinkedDevice } from '../../src/stores'
-import { BiometricSettings, LanguagePicker } from '../../src/components'
+import { BiometricSettings, LanguagePicker, ThemeToggle } from '../../src/components'
 import { useTranslation } from '../../src/i18n'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
@@ -275,6 +275,7 @@ export default function SettingsTab() {
       {/* Preferences Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('meta.preferences')}</Text>
+        <ThemeToggle />
         <LanguagePicker />
       </View>
 

@@ -11,9 +11,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { I18nextProvider } from 'react-i18next'
 import { AuthProvider } from '../src/providers'
+import { ThemeProvider, useTheme } from '../src/theme'
 import i18n, { initializeI18n } from '../src/i18n'
 
-export default function RootLayout() {
+function AppContent() {
+  const { theme, colors, isLoaded } = useTheme()
   const [isI18nReady, setIsI18nReady] = useState(false)
 
   useEffect(() => {
@@ -26,11 +28,11 @@ export default function RootLayout() {
       })
   }, [])
 
-  // Show loading while i18n initializes
-  if (!isI18nReady) {
+  // Show loading while providers initialize
+  if (!isI18nReady || !isLoaded) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#0a0a0a" />
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     )
   }
@@ -38,7 +40,7 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <SafeAreaProvider>
-        <StatusBar style="dark" />
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
         <AuthProvider>
           <Slot />
         </AuthProvider>
@@ -47,11 +49,18 @@ export default function RootLayout() {
   )
 }
 
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  )
+}
+
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
   },
 })
