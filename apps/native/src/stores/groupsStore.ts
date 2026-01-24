@@ -51,6 +51,7 @@ interface GroupsState {
   loadGroups: () => Promise<void>
   loadGroupMembers: (groupId: string) => Promise<void>
   setActiveGroup: (group: Group | null) => void
+  createGroup: (options: { name: string; description?: string; privacy: string }) => Promise<Group>
   joinGroup: (groupId: string, relays: string[]) => Promise<void>
   leaveGroup: (groupId: string) => Promise<void>
   markGroupAsRead: (groupId: string) => void
@@ -205,6 +206,41 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
 
   setActiveGroup: (group: Group | null) => {
     set({ activeGroup: group, error: null })
+  },
+
+  createGroup: async (options: { name: string; description?: string; privacy: string }) => {
+    if (!currentUserPubkey) {
+      throw new Error('Not initialized')
+    }
+
+    // Generate a unique group ID
+    const groupId = `group_${Date.now()}_${Math.random().toString(36).slice(2)}`
+
+    // Create the new group
+    const newGroup: Group = {
+      id: groupId,
+      name: options.name,
+      description: options.description,
+      memberCount: 1,
+      myRole: 'admin', // Creator is always admin
+      lastActivity: Date.now(),
+      unreadCount: 0,
+      createdAt: Date.now(),
+      relays: DEFAULT_RELAYS,
+    }
+
+    // Add to groups list
+    const { groups } = get()
+    const updatedGroups = [...groups, newGroup]
+    set({ groups: updatedGroups })
+
+    // Persist to cache
+    await setSecureItem(STORAGE_KEYS.GROUPS_CACHE, JSON.stringify(updatedGroups))
+
+    // TODO: In a full implementation, publish group creation event to relays
+    // using NIP-29 format
+
+    return newGroup
   },
 
   joinGroup: async (groupId: string, relays: string[]) => {

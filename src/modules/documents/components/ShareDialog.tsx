@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDocumentsStore } from '../documentsStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,11 +62,12 @@ export interface ShareDialogProps {
 }
 
 const PermissionBadge: FC<{ permission: DocumentPermission }> = ({ permission }) => {
+  const { t } = useTranslation()
   const config = {
-    view: { label: 'Viewer', icon: Eye, color: 'bg-blue-100 text-blue-700' },
-    comment: { label: 'Commenter', icon: MessageSquare, color: 'bg-green-100 text-green-700' },
-    edit: { label: 'Editor', icon: Pencil, color: 'bg-orange-100 text-orange-700' },
-    admin: { label: 'Admin', icon: Shield, color: 'bg-purple-100 text-purple-700' },
+    view: { label: t('shareDialog.permissions.view'), icon: Eye, color: 'bg-blue-100 text-blue-700' },
+    comment: { label: t('shareDialog.permissions.comment'), icon: MessageSquare, color: 'bg-green-100 text-green-700' },
+    edit: { label: t('shareDialog.permissions.edit'), icon: Pencil, color: 'bg-orange-100 text-orange-700' },
+    admin: { label: t('shareDialog.permissions.admin'), icon: Shield, color: 'bg-purple-100 text-purple-700' },
   }
 
   const { label, icon: Icon, color } = config[permission]
@@ -84,6 +86,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
   currentUserPubkey,
   trigger,
 }) => {
+  const { t } = useTranslation()
   const {
     getShareLinks,
     addShareLink,
@@ -184,7 +187,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
         {trigger || (
           <Button variant="outline" size="sm">
             <Share2 className="h-4 w-4 mr-2" />
-            Share
+            {t('shareDialog.share')}
           </Button>
         )}
       </DialogTrigger>
@@ -192,10 +195,10 @@ export const ShareDialog: FC<ShareDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
-            Share "{documentTitle}"
+            {t('shareDialog.title', { title: documentTitle })}
           </DialogTitle>
           <DialogDescription>
-            Invite people or create a shareable link
+            {t('shareDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -203,11 +206,11 @@ export const ShareDialog: FC<ShareDialogProps> = ({
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="people" className="gap-2">
               <Users className="h-4 w-4" />
-              People
+              {t('shareDialog.tabs.people')}
             </TabsTrigger>
             <TabsTrigger value="link" className="gap-2">
               <Link2 className="h-4 w-4" />
-              Link
+              {t('shareDialog.tabs.link')}
             </TabsTrigger>
           </TabsList>
 
@@ -216,7 +219,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
             {/* Invite input */}
             <div className="flex gap-2">
               <Input
-                placeholder="Add people by npub or email..."
+                placeholder={t('shareDialog.people.placeholder')}
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 className="flex-1"
@@ -232,25 +235,25 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                   <SelectItem value="view">
                     <div className="flex items-center gap-2">
                       <Eye className="h-4 w-4" />
-                      Viewer
+                      {t('shareDialog.permissions.view')}
                     </div>
                   </SelectItem>
                   <SelectItem value="comment">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="h-4 w-4" />
-                      Commenter
+                      {t('shareDialog.permissions.comment')}
                     </div>
                   </SelectItem>
                   <SelectItem value="edit">
                     <div className="flex items-center gap-2">
                       <Pencil className="h-4 w-4" />
-                      Editor
+                      {t('shareDialog.permissions.edit')}
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleInvite} disabled={!inviteEmail.trim()}>
-                Invite
+                {t('shareDialog.people.invite')}
               </Button>
             </div>
 
@@ -265,7 +268,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
-                    You
+                    {t('shareDialog.people.you')}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {currentUserPubkey.slice(0, 12)}...
@@ -273,7 +276,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                 </div>
                 <Badge variant="secondary" className="bg-purple-100 text-purple-700">
                   <Shield className="h-3 w-3 mr-1" />
-                  Owner
+                  {t('shareDialog.permissions.owner')}
                 </Badge>
               </div>
 
@@ -302,10 +305,10 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="view">Viewer</SelectItem>
-                      <SelectItem value="comment">Commenter</SelectItem>
-                      <SelectItem value="edit">Editor</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="view">{t('shareDialog.permissions.view')}</SelectItem>
+                      <SelectItem value="comment">{t('shareDialog.permissions.comment')}</SelectItem>
+                      <SelectItem value="edit">{t('shareDialog.permissions.edit')}</SelectItem>
+                      <SelectItem value="admin">{t('shareDialog.permissions.admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button
@@ -321,7 +324,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
 
               {collaborators.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No collaborators yet. Invite people to collaborate.
+                  {t('shareDialog.people.noCollaborators')}
                 </p>
               )}
             </div>
@@ -339,7 +342,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                     <Lock className="h-4 w-4 text-orange-600" />
                   )}
                   <span className="text-sm font-medium">
-                    {linkIsPublic ? 'Public link' : 'Private link'}
+                    {linkIsPublic ? t('shareDialog.link.public') : t('shareDialog.link.private')}
                   </span>
                 </div>
                 <Switch
@@ -350,8 +353,8 @@ export const ShareDialog: FC<ShareDialogProps> = ({
 
               <p className="text-xs text-muted-foreground">
                 {linkIsPublic
-                  ? 'Anyone with the link can access this document'
-                  : 'Only people signed into BuildIt can access this link'}
+                  ? t('shareDialog.link.publicDesc')
+                  : t('shareDialog.link.privateDesc')}
               </p>
 
               <div className="grid grid-cols-2 gap-3">

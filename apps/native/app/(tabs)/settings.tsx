@@ -199,9 +199,13 @@ export default function SettingsTab() {
           icon="✏️"
           title="Edit Profile"
           subtitle="Change your display name"
-          onPress={() => {
-            // TODO: Navigate to edit profile
-          }}
+          onPress={() => router.push('/edit-profile')}
+        />
+        <SettingRow
+          icon="📤"
+          title="Share Profile"
+          subtitle="Show your QR code"
+          onPress={() => router.push('/share-profile')}
         />
       </View>
 

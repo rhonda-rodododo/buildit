@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   PUBLIC_KEY: 'buildit_public_key',
   RECOVERY_PHRASE: 'buildit_recovery_phrase',
   DISPLAY_NAME: 'buildit_display_name',
+  ABOUT: 'buildit_about',
   LINKED_DEVICES: 'buildit_linked_devices',
   RELAY_CONFIG: 'buildit_relay_config',
   LANGUAGE: 'buildit_language',

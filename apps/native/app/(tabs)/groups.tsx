@@ -127,7 +127,7 @@ export default function GroupsTab() {
               <View style={styles.connectedDot} />
             </View>
           )}
-          <Pressable style={styles.newButton}>
+          <Pressable style={styles.newButton} onPress={() => router.push('/create-group')}>
             <Text style={styles.newButtonText}>+</Text>
           </Pressable>
         </View>

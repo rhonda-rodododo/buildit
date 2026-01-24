@@ -45,6 +45,7 @@ export interface UserIdentity {
   publicKey: string
   privateKey: string
   displayName?: string
+  about?: string
   recoveryPhrase?: string
   createdAt: number
 }
@@ -73,6 +74,7 @@ interface AuthState {
   importFromPhrase: (phrase: string, displayName?: string) => Promise<StoredKeypair>
   importFromPrivateKey: (privateKey: string, displayName?: string) => Promise<StoredKeypair>
   updateDisplayName: (name: string) => Promise<void>
+  updateProfile: (profile: { displayName?: string; about?: string }) => Promise<void>
   logout: () => Promise<void>
   addLinkedDevice: (device: Omit<LinkedDevice, 'id' | 'linkedAt' | 'lastSeen'>) => Promise<void>
   removeLinkedDevice: (deviceId: string) => Promise<void>
@@ -108,10 +110,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (hasIdentity) {
         // Load stored identity
-        const [privateKey, publicKey, displayName, recoveryPhrase] = await Promise.all([
+        const [privateKey, publicKey, displayName, about, recoveryPhrase] = await Promise.all([
           getSecureItem(STORAGE_KEYS.PRIVATE_KEY),
           getSecureItem(STORAGE_KEYS.PUBLIC_KEY),
           getSecureItem(STORAGE_KEYS.DISPLAY_NAME),
+          getSecureItem(STORAGE_KEYS.ABOUT),
           getSecureItem(STORAGE_KEYS.RECOVERY_PHRASE),
         ])
 
@@ -130,6 +133,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               publicKey,
               privateKey,
               displayName: displayName || undefined,
+              about: about || undefined,
               recoveryPhrase: recoveryPhrase || undefined,
               createdAt: Date.now(), // Could store this separately
             },
@@ -274,6 +278,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     await setSecureItem(STORAGE_KEYS.DISPLAY_NAME, name)
     set({ identity: { ...identity, displayName: name } })
+  },
+
+  updateProfile: async (profile: { displayName?: string; about?: string }) => {
+    const { identity } = get()
+    if (!identity) return
+
+    const updates: Partial<UserIdentity> = {}
+
+    if (profile.displayName !== undefined) {
+      await setSecureItem(STORAGE_KEYS.DISPLAY_NAME, profile.displayName)
+      updates.displayName = profile.displayName
+    }
+
+    if (profile.about !== undefined) {
+      await setSecureItem(STORAGE_KEYS.ABOUT, profile.about)
+      updates.about = profile.about
+    }
+
+    set({ identity: { ...identity, ...updates } })
   },
 
   logout: async () => {

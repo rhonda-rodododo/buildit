@@ -93,7 +93,7 @@ export default function HomeTab() {
           <Text style={styles.actionArrow}>›</Text>
         </Pressable>
 
-        <Pressable style={styles.actionCard} onPress={() => (router.push as (href: string) => void)('/(tabs)/groups')}>
+        <Pressable style={styles.actionCard} onPress={() => router.push('/create-group')}>
           <Text style={styles.actionIcon}>➕</Text>
           <View style={styles.actionContent}>
             <Text style={styles.actionTitle}>Create Group</Text>
