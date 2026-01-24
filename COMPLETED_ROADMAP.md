@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 60 Offline Mode Enhancement completed)
+**Last Updated**: 2026-01-24 (Epic 59 Mobile-First UX completed)
 
 ---
 
@@ -80,6 +80,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 56 | v0.56.0 | ✅ | `v0.56.0-docs-advanced` | Advanced Document Features - @mentions in comments, page breaks, headers/footers, equations, diagrams |
 | 51 | v0.51.0 | ✅ | `v0.51.0-testing-complete` | Quality & Testing Completion - E2E Phase 4, Lighthouse audit, 1236 tests, code quality |
 | 60 | v0.60.0 | ✅ | `v0.60.0-offline-enhanced` | Offline Mode Enhancement - Queue processor, SyncStatusIndicator, cache management, background sync |
+| 59 | v0.59.0 | ✅ | `v0.59.0-mobile-ux` | Mobile-First UX - Bottom nav, swipe gestures, pull-to-refresh, infinite scroll, haptic feedback |
 
 ---
 
@@ -2262,5 +2263,60 @@ Enhanced PWA offline support with message queuing, background sync, and comprehe
 - `src/sw-custom.ts` - Background Sync API
 
 **Reference**: `src/core/offline/`, `src/components/offline/`
+
+---
+
+### Epic 59: Mobile-First UX ✅
+**Tag**: `v0.59.0-mobile-ux` | **Commits**: `git log v0.59.0-mobile-ux`
+
+Comprehensive mobile UX implementation with touch-optimized interactions and responsive design.
+
+**Responsive Layouts**:
+- MobileBottomNav: Fixed bottom navigation bar integrated into AppLayout
+- Touch-optimized tap targets (44x44px minimum via `.min-44` utility)
+- Mobile-friendly forms with responsive input sizing
+- Mobile tables with horizontal scroll
+- Full-screen modals on small devices via Dialog component
+
+**Mobile Interactions**:
+- SwipeableListItem: iOS Mail-style swipe-to-reveal actions
+- PullToRefresh: Pull-to-refresh with visual feedback and haptic response
+- InfiniteScroll: Intersection Observer-based infinite loading
+- Touch-friendly drag and drop in file manager
+- useHapticFeedback: Vibration API integration for tactile feedback
+
+**Mobile Performance**:
+- Route-based code splitting for faster initial load
+- ResponsiveImage: Lazy loading with blur placeholder
+- Intersection Observer-based lazy loading
+- Service worker caching with Workbox strategies
+- Tree shaking and dynamic imports
+
+**Mobile Hooks** (`src/hooks/useMobile.ts`):
+- `useIsMobile`: Viewport-based mobile detection
+- `useIsTouchDevice`: Touch capability detection
+- `useViewportSize`: Responsive dimension tracking
+- `useHapticFeedback`: Vibration API patterns
+- `usePullToRefresh`: Pull-to-refresh gesture handling
+- `useSwipeGesture`: Swipe direction detection
+- `useSafeAreaInsets`: Notch/safe area handling
+- `useKeyboardVisible`: Mobile keyboard detection
+- `useOrientation`: Portrait/landscape detection
+
+**Key Components**:
+- `src/components/navigation/MobileBottomNav.tsx` - Bottom navigation
+- `src/components/mobile/PullToRefresh.tsx` - Pull gesture container
+- `src/components/mobile/SwipeableListItem.tsx` - Swipe actions
+- `src/components/mobile/InfiniteScroll.tsx` - Infinite loading
+- `src/components/mobile/ResponsiveImage.tsx` - Optimized images
+- `src/layouts/AppLayout.tsx` - Mobile nav integration
+
+**CSS Utilities** (`src/index.css`):
+- Safe area insets (`.safe-area-top`, `.safe-area-bottom`, etc.)
+- Touch targets (`.min-44` for 44x44px)
+- Dynamic viewport height (`.h-screen-safe` using 100dvh)
+- Safe padding (`.px-safe`)
+
+**Reference**: `src/components/mobile/`, `src/hooks/useMobile.ts`
 
 ---
