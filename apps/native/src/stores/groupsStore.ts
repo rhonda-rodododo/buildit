@@ -9,6 +9,7 @@ import { create } from 'zustand'
 import type { Event, Filter } from 'nostr-tools'
 import { relayService, DEFAULT_RELAYS } from '../services/nostrRelay'
 import { setSecureItem, getSecureItem, STORAGE_KEYS } from '../storage/secureStorage'
+import { createEvent } from '@buildit/sdk'
 
 // NIP-29 Group event kinds
 const KIND_GROUP_METADATA = 39001
@@ -51,7 +52,7 @@ interface GroupsState {
   loadGroups: () => Promise<void>
   loadGroupMembers: (groupId: string) => Promise<void>
   setActiveGroup: (group: Group | null) => void
-  createGroup: (options: { name: string; description?: string; privacy: string }) => Promise<Group>
+  createGroup: (options: { name: string; description?: string; privacy: string; privateKey: string }) => Promise<Group>
   joinGroup: (groupId: string, relays?: string[]) => Promise<void>
   leaveGroup: (groupId: string) => Promise<void>
   markGroupAsRead: (groupId: string) => void
@@ -208,13 +209,13 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
     set({ activeGroup: group, error: null })
   },
 
-  createGroup: async (options: { name: string; description?: string; privacy: string }) => {
+  createGroup: async (options: { name: string; description?: string; privacy: string; privateKey: string }) => {
     if (!currentUserPubkey) {
       throw new Error('Not initialized')
     }
 
-    // Generate a unique group ID
-    const groupId = `group_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    // Generate a unique group ID (NIP-29 uses 'd' tag value)
+    const groupId = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
     // Create the new group
     const newGroup: Group = {
@@ -226,7 +227,7 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
       lastActivity: Date.now(),
       unreadCount: 0,
       createdAt: Date.now(),
-      relays: DEFAULT_RELAYS,
+      relays: DEFAULT_RELAYS.map((r) => r.url),
     }
 
     // Add to groups list
@@ -237,8 +238,44 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
     // Persist to cache
     await setSecureItem(STORAGE_KEYS.GROUPS_CACHE, JSON.stringify(updatedGroups))
 
-    // TODO: In a full implementation, publish group creation event to relays
-    // using NIP-29 format
+    // Publish NIP-29 group metadata event (kind 39001)
+    try {
+      const groupMetadata = {
+        name: options.name,
+        about: options.description || '',
+        picture: '',
+        access: options.privacy === 'public' ? 'open' : options.privacy === 'private' ? 'closed' : 'secret',
+      }
+
+      // Create group metadata event
+      const metadataEvent = createEvent(
+        KIND_GROUP_METADATA,
+        JSON.stringify(groupMetadata),
+        [
+          ['d', groupId], // Group identifier
+          ['p', currentUserPubkey, '', 'admin'], // Creator as admin
+        ],
+        options.privateKey
+      )
+
+      await relayService.publish(metadataEvent)
+
+      // Create group admins event (kind 39003)
+      const adminsEvent = createEvent(
+        KIND_GROUP_ADMINS,
+        '',
+        [
+          ['d', groupId],
+          ['p', currentUserPubkey], // Creator is admin
+        ],
+        options.privateKey
+      )
+
+      await relayService.publish(adminsEvent)
+    } catch (error) {
+      console.error('Failed to publish group creation event:', error)
+      // Group is still created locally, relay publish is optional
+    }
 
     return newGroup
   },

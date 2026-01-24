@@ -71,10 +71,15 @@ export default function CreateGroupScreen() {
     await haptics.light()
 
     try {
+      if (!identity?.privateKey) {
+        throw new Error('No private key available')
+      }
+
       await createGroup({
         name: name.trim(),
         description: description.trim() || undefined,
         privacy,
+        privateKey: identity.privateKey,
       })
 
       await haptics.success()
