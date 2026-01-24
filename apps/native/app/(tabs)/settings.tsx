@@ -283,6 +283,17 @@ export default function SettingsTab() {
         <LanguagePicker />
       </View>
 
+      {/* Network Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Network</Text>
+        <SettingRow
+          icon="🌐"
+          title="Relay Servers"
+          subtitle="Manage Nostr relays"
+          onPress={() => router.push('/relays')}
+        />
+      </View>
+
       {/* About Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
