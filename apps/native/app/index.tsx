@@ -10,11 +10,14 @@ import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { Link, useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../src/stores'
+import { useTranslation } from '../src/i18n'
+import { LanguagePicker } from '../src/components'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const router = useRouter()
+  const { t } = useTranslation()
   const { identity, isInitialized } = useAuthStore()
 
   // Redirect to tabs when logged in
@@ -28,7 +31,7 @@ export default function HomeScreen() {
   if (!isInitialized) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.logo}>BuildIt</Text>
+        <Text style={styles.logo}>{t('app.name')}</Text>
       </View>
     )
   }
@@ -37,7 +40,7 @@ export default function HomeScreen() {
   if (identity) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.logo}>BuildIt</Text>
+        <Text style={styles.logo}>{t('app.name')}</Text>
       </View>
     )
   }
@@ -45,28 +48,31 @@ export default function HomeScreen() {
   // User not logged in - show onboarding
   return (
     <View style={[styles.container, styles.centered]}>
+      {/* Language picker in top right */}
+      <View style={[styles.languagePickerContainer, { top: insets.top + spacing[2] }]}>
+        <LanguagePicker variant="compact" />
+      </View>
+
       <View style={styles.onboardContent}>
-        <Text style={styles.logo}>BuildIt</Text>
-        <Text style={styles.tagline}>
-          Privacy-first organizing for activists, co-ops & communities
-        </Text>
+        <Text style={styles.logo}>{t('app.name')}</Text>
+        <Text style={styles.tagline}>{t('app.tagline')}</Text>
 
         <View style={styles.buttonGroup}>
           <Link href="/login" asChild>
             <Pressable style={styles.primaryButton}>
-              <Text style={styles.primaryButtonText}>Create Identity</Text>
+              <Text style={styles.primaryButtonText}>{t('auth.createIdentity')}</Text>
             </Pressable>
           </Link>
 
           <Link href="/import" asChild>
             <Pressable style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>Import Existing</Text>
+              <Text style={styles.secondaryButtonText}>{t('auth.importKey')}</Text>
             </Pressable>
           </Link>
         </View>
 
         <Text style={styles.footnote}>
-          Your keys never leave your device. No account required.
+          {t('auth.login.securityNote')}
         </Text>
       </View>
     </View>
@@ -82,6 +88,11 @@ const styles = StyleSheet.create({
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  languagePickerContainer: {
+    position: 'absolute',
+    right: spacing[4],
+    zIndex: 10,
   },
   onboardContent: {
     width: '100%',

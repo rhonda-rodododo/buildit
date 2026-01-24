@@ -16,6 +16,8 @@
   "dependencies": {
     "@buildit/design-tokens": "workspace:*",
     "@buildit/sdk": "workspace:*",
+    "i18next": "^24.2.3",
+    "react-i18next": "^15.4.1",
     "@expo/cli": "^54.0.21",
     "@expo/metro-config": "^54.0.13",
     "@react-native/assets-registry": "^0.83.1",

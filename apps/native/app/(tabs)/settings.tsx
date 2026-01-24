@@ -19,7 +19,8 @@ import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../../src/stores'
 import type { LinkedDevice } from '../../src/stores'
-import { BiometricSettings } from '../../src/components'
+import { BiometricSettings, LanguagePicker } from '../../src/components'
+import { useTranslation } from '../../src/i18n'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
 interface SettingRowProps {
@@ -82,6 +83,7 @@ function formatRelativeTime(timestamp: number): string {
 export default function SettingsTab() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const { t } = useTranslation()
   const { identity, linkedDevices, removeLinkedDevice, logout } = useAuthStore()
   const [showRecoveryPhrase, setShowRecoveryPhrase] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
@@ -268,6 +270,12 @@ export default function SettingsTab() {
             />
           }
         />
+      </View>
+
+      {/* Preferences Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('meta.preferences')}</Text>
+        <LanguagePicker />
       </View>
 
       {/* About Section */}

@@ -16,6 +16,8 @@ export const STORAGE_KEYS = {
   DISPLAY_NAME: 'buildit_display_name',
   LINKED_DEVICES: 'buildit_linked_devices',
   RELAY_CONFIG: 'buildit_relay_config',
+  LANGUAGE: 'buildit_language',
+  THEME: 'buildit_theme',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
