@@ -19,6 +19,13 @@ export interface ModuleTranslations {
   es?: Record<string, unknown>;
   fr?: Record<string, unknown>;
   ar?: Record<string, unknown>;
+  'zh-CN'?: Record<string, unknown>;
+  vi?: Record<string, unknown>;
+  ko?: Record<string, unknown>;
+  ru?: Record<string, unknown>;
+  pt?: Record<string, unknown>;
+  ht?: Record<string, unknown>;
+  tl?: Record<string, unknown>;
 }
 
 /**
@@ -44,8 +51,8 @@ export function registerModuleTranslations(
     return;
   }
 
-  // Add translations for each locale
-  const locales = ['en', 'es', 'fr', 'ar'] as const;
+  // Add translations for each locale (all supported languages)
+  const locales = ['en', 'es', 'fr', 'ar', 'zh-CN', 'vi', 'ko', 'ru', 'pt', 'ht', 'tl'] as const;
 
   for (const locale of locales) {
     const localeTranslations = translations[locale];
@@ -109,6 +116,13 @@ export function defineModuleTranslations<T extends Record<string, unknown>>(
     es?: Partial<T>;
     fr?: Partial<T>;
     ar?: Partial<T>;
+    'zh-CN'?: Partial<T>;
+    vi?: Partial<T>;
+    ko?: Partial<T>;
+    ru?: Partial<T>;
+    pt?: Partial<T>;
+    ht?: Partial<T>;
+    tl?: Partial<T>;
   }
 ): ModuleTranslations {
   return translations as ModuleTranslations;

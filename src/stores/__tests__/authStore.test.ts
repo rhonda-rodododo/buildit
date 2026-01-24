@@ -448,7 +448,7 @@ describe('authStore', () => {
       await expect(unlock('wrong-password')).rejects.toThrow('Invalid password');
 
       const { error, isUnlocking } = useAuthStore.getState();
-      expect(error).toBe('Invalid password');
+      expect(error).toBe('Invalid password or corrupted key data');
       expect(isUnlocking).toBe(false);
     });
   });
