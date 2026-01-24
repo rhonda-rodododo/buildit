@@ -8,8 +8,7 @@
 import { create } from 'zustand'
 import type { Event, Filter } from 'nostr-tools'
 import { relayService, DEFAULT_RELAYS } from '../services/nostrRelay'
-import { encryptDM, decryptDM } from '@buildit/sdk'
-import { hexToBytes } from '@buildit/sdk/nostr'
+import { encryptDM, decryptDM, createEvent, hexToBytes } from '@buildit/sdk'
 
 // Nostr event kinds
 const KIND_DM = 4 // NIP-04 DMs (legacy)
@@ -146,22 +145,13 @@ export const useMessageStore = create<MessageState>((set, get) => ({
         recipientPubkey
       )
 
-      // Create the Nostr event
-      const event: Event = {
-        kind: KIND_DM,
-        pubkey: currentUserPubkey,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [['p', recipientPubkey]],
-        content: encrypted,
-        id: '', // Will be set by signing
-        sig: '', // Will be set by signing
-      }
-
-      // Sign the event
-      // Note: In production, this should use proper nostr-tools signing
-      // For now, we'll skip signing as it requires the full crypto setup
-      // event.id = getEventHash(event)
-      // event.sig = signEvent(event, currentUserPrivateKey)
+      // Create and sign the Nostr event using SDK
+      const event = createEvent(
+        KIND_DM,
+        encrypted,
+        [['p', recipientPubkey]],
+        currentUserPrivateKey
+      )
 
       // Publish to relays
       const result = await relayService.publish(event)

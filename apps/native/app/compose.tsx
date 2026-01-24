@@ -19,11 +19,16 @@ import {
 } from 'react-native'
 import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import * as Clipboard from 'expo-clipboard'
+import { nip19 } from 'nostr-tools'
 import { useAuthStore } from '../src/stores'
+import { useTranslation } from '../src/i18n'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
-// Basic npub/hex validation
-function isValidPubkey(input: string): { valid: boolean; hex?: string } {
+/**
+ * Validate and convert npub/hex to hex pubkey
+ */
+function isValidPubkey(input: string): { valid: boolean; hex?: string; error?: string } {
   const trimmed = input.trim()
 
   // Check if it's a valid hex pubkey (64 characters)
@@ -33,21 +38,37 @@ function isValidPubkey(input: string): { valid: boolean; hex?: string } {
 
   // Check if it starts with npub1 (Bech32 encoded)
   if (trimmed.startsWith('npub1')) {
-    // In a real app, we'd decode the bech32 here
-    // For MVP, we'll just validate the format and convert later
-    if (trimmed.length >= 59 && trimmed.length <= 90) {
-      // Would need nostr-tools nip19.decode here
-      // For now, return the input and handle conversion elsewhere
-      return { valid: true, hex: trimmed }
+    try {
+      const decoded = nip19.decode(trimmed)
+      if (decoded.type === 'npub') {
+        return { valid: true, hex: decoded.data }
+      }
+      return { valid: false, error: 'Invalid npub format' }
+    } catch (e) {
+      return { valid: false, error: 'Invalid npub encoding' }
     }
   }
 
-  return { valid: false }
+  // Check if it starts with nprofile1 (NIP-19 profile)
+  if (trimmed.startsWith('nprofile1')) {
+    try {
+      const decoded = nip19.decode(trimmed)
+      if (decoded.type === 'nprofile') {
+        return { valid: true, hex: decoded.data.pubkey }
+      }
+      return { valid: false, error: 'Invalid nprofile format' }
+    } catch (e) {
+      return { valid: false, error: 'Invalid nprofile encoding' }
+    }
+  }
+
+  return { valid: false, error: 'Invalid public key. Enter npub or hex format.' }
 }
 
 export default function ComposeScreen() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const { t } = useTranslation()
   const { identity } = useAuthStore()
   const [recipient, setRecipient] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -56,13 +77,13 @@ export default function ComposeScreen() {
     setError(null)
 
     if (!recipient.trim()) {
-      setError('Please enter a recipient address')
+      setError(t('messages.recipientPublicKey') + ' is required')
       return
     }
 
     const validation = isValidPubkey(recipient)
     if (!validation.valid) {
-      setError('Invalid public key format. Enter a hex key or npub address.')
+      setError(validation.error || t('messages.invalidPublicKey'))
       return
     }
 
@@ -72,21 +93,21 @@ export default function ComposeScreen() {
       return
     }
 
-    // Navigate to chat with the recipient
-    // If it's an npub, we'd need to decode it first
-    // For MVP with hex keys only:
+    // Navigate to chat with the validated hex pubkey
     if (validation.hex) {
       router.replace(`/chat/${validation.hex}`)
     }
-  }, [recipient, identity?.publicKey, router])
+  }, [recipient, identity?.publicKey, router, t])
 
   const handlePaste = useCallback(async () => {
     try {
-      // Note: Clipboard API requires expo-clipboard in production
-      // For now, just show a message
-      Alert.alert('Paste', 'Paste functionality requires expo-clipboard package')
-    } catch (error) {
-      console.error('Failed to paste:', error)
+      const text = await Clipboard.getStringAsync()
+      if (text) {
+        setRecipient(text.trim())
+        setError(null)
+      }
+    } catch (err) {
+      console.error('Failed to paste:', err)
     }
   }, [])
 
