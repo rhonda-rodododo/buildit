@@ -284,7 +284,16 @@
     "goToApp": "Go to App",
     "reloadPage": "Reload Page",
     "unknownError": "An unknown error occurred",
-    "anErrorOccurred": "An error occurred"
+    "anErrorOccurred": "An error occurred",
+    "theme": {
+      "toggle": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": {
+      "switch": "Switch language"
+    }
   },
   "media": {
     "sensitiveContent": "Sensitive Content",
@@ -701,6 +710,115 @@
         }
       }
     }
+  },
+  "polls": {
+    "create": "Create Poll",
+    "question": "Question",
+    "questionPlaceholder": "Ask a question...",
+    "options": "Options",
+    "optionPlaceholder": "Option {{n}}",
+    "addOption": "Add Option",
+    "removeOption": "Remove option",
+    "type": "Poll Type",
+    "singleChoice": "Single choice",
+    "multipleChoice": "Multiple choice",
+    "duration": "Duration",
+    "hideResults": "Hide results until poll ends",
+    "createPoll": "Create Poll",
+    "vote": "Vote",
+    "voting": "Voting...",
+    "votes": "votes",
+    "voters": "voters",
+    "totalVotes": "total votes",
+    "ended": "Poll ended",
+    "singleChoiceHint": "Select one option",
+    "multipleChoiceHint": "Select one or more options"
+  },
+  "stories": {
+    "create": "Create Story",
+    "yourStory": "Your story",
+    "addStory": "Add story",
+    "text": "Text",
+    "image": "Image",
+    "video": "Video",
+    "textPlaceholder": "Type your story...",
+    "captionPlaceholder": "Add a caption...",
+    "clickToUpload": "Click to upload",
+    "backgroundColor": "Background",
+    "textColor": "Text Color",
+    "font": "Font",
+    "share": "Share Story",
+    "delete": "Delete story",
+    "replyPlaceholder": "Send a reply...",
+    "views": "views"
+  },
+  "moderation": {
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "muting": "Muting...",
+    "muteUser": "Mute {{name}}?",
+    "muteDescription": "You won't see posts, comments, or stories from this user. They won't be notified that you've muted them."
+  },
+  "report": {
+    "title": "Report {{type}}",
+    "description": "Help us understand what's wrong with this content.",
+    "reason": "Why are you reporting this?",
+    "additionalInfo": "Additional information (optional)",
+    "additionalInfoPlaceholder": "Provide any additional context...",
+    "privacyNote": "Your report is confidential. The reported user will not know who reported them.",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "contentTypes": {
+      "post": "post",
+      "comment": "comment",
+      "user": "user",
+      "message": "message",
+      "story": "story"
+    },
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "hate_speech": "Hate Speech",
+      "violence": "Violence",
+      "illegal_content": "Illegal Content",
+      "misinformation": "Misinformation",
+      "impersonation": "Impersonation",
+      "copyright": "Copyright",
+      "other": "Other"
+    },
+    "reasonDescriptions": {
+      "spam": "Unsolicited or repetitive content",
+      "harassment": "Targeted harassment or bullying",
+      "hate_speech": "Content that promotes hatred based on identity",
+      "violence": "Threats or promotion of violence",
+      "illegal_content": "Content that violates laws",
+      "misinformation": "False or misleading information",
+      "impersonation": "Pretending to be someone else",
+      "copyright": "Content that infringes on copyrights",
+      "other": "Something else not listed above"
+    }
+  },
+  "lists": {
+    "title": "Your Lists",
+    "create": "New List",
+    "createTitle": "Create a new list",
+    "editTitle": "Edit list",
+    "deleteTitle": "Delete list?",
+    "deleteDescription": "This will permanently delete \"{{name}}\" and remove all members. This action cannot be undone.",
+    "name": "Name",
+    "namePlaceholder": "My List",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "What is this list about?",
+    "private": "Private",
+    "privateHint": "Only you can see this list",
+    "members": "members",
+    "empty": "No lists yet",
+    "emptyHint": "Create a list to organize users into groups"
+  },
+  "trending": {
+    "title": "Trending",
+    "posts": "posts",
+    "empty": "No trending topics yet"
   },
   "governanceTemplates": {
     "mediaCollective": {

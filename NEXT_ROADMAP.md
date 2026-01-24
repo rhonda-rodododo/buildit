@@ -725,7 +725,7 @@ buildit-network/
 ---
 
 ### Epic 61: Advanced Social Features 🎭
-**Status**: Not Started
+**Status**: Complete ✅
 **Priority**: P2 - Social Polish (TIER 5)
 **Effort**: 25-35 hours
 **Dependencies**: Epics 40, 50 complete
@@ -734,34 +734,34 @@ buildit-network/
 **Context**: Add advanced social features to match modern social platforms: polls, stories, better moderation.
 
 **Tasks**:
-- [ ] **Polls (6-8h)**
-  - [ ] Create poll composer
-  - [ ] Multiple choice polls
-  - [ ] Single choice polls
-  - [ ] Poll duration settings
-  - [ ] Vote on polls
-  - [ ] View poll results (live)
-  - [ ] Poll analytics
-- [ ] **Stories (8-12h)**
-  - [ ] Stories composer (image/video/text)
-  - [ ] Stories viewer (carousel)
-  - [ ] Stories expiration (24h)
-  - [ ] Stories analytics (views)
-  - [ ] Reply to stories
-  - [ ] Stories privacy settings
-- [ ] **Enhanced Moderation (6-8h)**
-  - [ ] Mute users (hide posts)
-  - [ ] Block users (prevent interaction)
-  - [ ] Report content (abuse, spam)
-  - [ ] Moderation queue for admins
-  - [ ] Auto-moderation rules (keyword filters)
-  - [ ] Moderation logs
-- [ ] **Additional Features (5-7h)**
-  - [ ] Bookmarks (save posts for later)
-  - [ ] Lists (curated user lists)
-  - [ ] Trending topics
-  - [ ] Suggested follows
-  - [ ] User mentions notifications
+- [x] **Polls (6-8h)**
+  - [x] Create poll composer
+  - [x] Multiple choice polls
+  - [x] Single choice polls
+  - [x] Poll duration settings
+  - [x] Vote on polls
+  - [x] View poll results (live)
+  - [x] Poll analytics
+- [x] **Stories (8-12h)**
+  - [x] Stories composer (image/video/text)
+  - [x] Stories viewer (carousel)
+  - [x] Stories expiration (24h)
+  - [x] Stories analytics (views)
+  - [x] Reply to stories
+  - [x] Stories privacy settings
+- [x] **Enhanced Moderation (6-8h)**
+  - [x] Mute users (hide posts)
+  - [x] Block users (prevent interaction) - already existed in friendsStore
+  - [x] Report content (abuse, spam)
+  - [x] Moderation queue for admins
+  - [x] Auto-moderation rules (keyword filters)
+  - [x] Moderation logs
+- [x] **Additional Features (5-7h)**
+  - [x] Bookmarks (save posts for later) - already existed
+  - [x] Lists (curated user lists)
+  - [x] Trending topics
+  - [ ] Suggested follows - deferred (requires recommendation algorithm)
+  - [ ] User mentions notifications - deferred (requires notification integration)
 
 **Acceptance Criteria**:
 - Polls can be created and voted on

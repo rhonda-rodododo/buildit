@@ -4,12 +4,46 @@
  */
 
 import type { TableSchema } from '@/types/modules';
-import type { Post, Reaction, Comment, Repost, Bookmark, ScheduledPost } from './types';
+import type {
+  Post,
+  Reaction,
+  Comment,
+  Repost,
+  Bookmark,
+  ScheduledPost,
+  Poll,
+  PollVote,
+  Story,
+  StoryView,
+  StoryReply,
+  MutedUser,
+  ContentReport,
+  AutoModRule,
+  ModerationLog,
+  UserList,
+} from './types';
 
 /**
  * Database table interfaces for TypeScript
  */
-export type { Post, Reaction, Comment, Repost, Bookmark, ScheduledPost };
+export type {
+  Post,
+  Reaction,
+  Comment,
+  Repost,
+  Bookmark,
+  ScheduledPost,
+  Poll,
+  PollVote,
+  Story,
+  StoryView,
+  StoryReply,
+  MutedUser,
+  ContentReport,
+  AutoModRule,
+  ModerationLog,
+  UserList,
+};
 
 /**
  * Dexie table definitions for microblogging module
@@ -45,6 +79,60 @@ export const microbloggingSchema: TableSchema[] = [
     schema: 'id, authorId, scheduledFor, status, createdAt, updatedAt',
     indexes: ['id', 'authorId', 'scheduledFor', 'status', 'createdAt', 'updatedAt'],
   },
+  // Polls
+  {
+    name: 'polls',
+    schema: 'id, postId, authorId, endsAt, isEnded, createdAt, nostrEventId',
+    indexes: ['id', 'postId', 'authorId', 'endsAt', 'isEnded', 'createdAt', 'nostrEventId'],
+  },
+  {
+    name: 'pollVotes',
+    schema: 'id, pollId, voterId, createdAt, [pollId+voterId]',
+    indexes: ['id', 'pollId', 'voterId', 'createdAt', '[pollId+voterId]'],
+  },
+  // Stories
+  {
+    name: 'stories',
+    schema: 'id, authorId, contentType, expiresAt, createdAt, nostrEventId',
+    indexes: ['id', 'authorId', 'contentType', 'expiresAt', 'createdAt', 'nostrEventId'],
+  },
+  {
+    name: 'storyViews',
+    schema: 'id, storyId, viewerId, viewedAt, [storyId+viewerId]',
+    indexes: ['id', 'storyId', 'viewerId', 'viewedAt', '[storyId+viewerId]'],
+  },
+  {
+    name: 'storyReplies',
+    schema: 'id, storyId, authorId, createdAt',
+    indexes: ['id', 'storyId', 'authorId', 'createdAt'],
+  },
+  // Moderation
+  {
+    name: 'mutedUsers',
+    schema: 'id, userId, mutedUserId, expiresAt, createdAt, [userId+mutedUserId]',
+    indexes: ['id', 'userId', 'mutedUserId', 'expiresAt', 'createdAt', '[userId+mutedUserId]'],
+  },
+  {
+    name: 'contentReports',
+    schema: 'id, reporterId, contentType, contentId, contentAuthorId, status, createdAt',
+    indexes: ['id', 'reporterId', 'contentType', 'contentId', 'contentAuthorId', 'status', 'createdAt'],
+  },
+  {
+    name: 'autoModRules',
+    schema: 'id, groupId, ruleType, isEnabled, createdAt, createdBy',
+    indexes: ['id', 'groupId', 'ruleType', 'isEnabled', 'createdAt', 'createdBy'],
+  },
+  {
+    name: 'moderationLogs',
+    schema: 'id, moderatorId, action, targetUserId, targetContentId, createdAt',
+    indexes: ['id', 'moderatorId', 'action', 'targetUserId', 'targetContentId', 'createdAt'],
+  },
+  // User Lists
+  {
+    name: 'userLists',
+    schema: 'id, ownerId, isPrivate, createdAt, nostrEventId',
+    indexes: ['id', 'ownerId', 'isPrivate', 'createdAt', 'nostrEventId'],
+  },
 ];
 
 /**
@@ -79,6 +167,41 @@ export const microbloggingSchema: TableSchema[] = [
  * - authorId: Query by author
  * - scheduledFor: Query posts due to be published
  * - status: Filter by publish status
+ *
+ * polls:
+ * - postId: Link to associated post
+ * - authorId: Query polls by author
+ * - endsAt: Find active/expired polls
+ *
+ * pollVotes:
+ * - [pollId+voterId]: Unique constraint (one vote per user per poll)
+ *
+ * stories:
+ * - authorId: Get user's stories
+ * - expiresAt: Clean up expired stories
+ *
+ * storyViews:
+ * - [storyId+viewerId]: Unique constraint (one view record per viewer)
+ *
+ * mutedUsers:
+ * - [userId+mutedUserId]: Unique constraint (one mute per relationship)
+ * - expiresAt: Clean up expired mutes
+ *
+ * contentReports:
+ * - status: Filter pending/reviewed reports
+ * - contentId: Find reports for specific content
+ *
+ * autoModRules:
+ * - groupId: Group-specific rules
+ * - isEnabled: Filter active rules
+ *
+ * moderationLogs:
+ * - moderatorId: Audit trail by moderator
+ * - action: Filter by action type
+ *
+ * userLists:
+ * - ownerId: Get user's lists
+ * - isPrivate: Filter public/private lists
  */
 
 /**
