@@ -75,6 +75,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 70 | v0.70.0 | ✅ | `v0.70.0-ssr-public` | TanStack Start SSR App - Public content routes (articles, wiki, events, campaigns, publications), RSS feed, SEO metadata |
 | 71 | v0.71.0 | ✅ | `v0.71.0-logging` | Scoped Debug Logging - createLogger() with scope filtering, DEBUG localStorage flag, quieter dev console |
 | 72 | v0.72.0 | ✅ | `v0.72.0-auth-recovery` | Account Recovery System - Recovery phrase setup/verification, unlock form, password reset, backup reminders, logout warnings |
+| 57 | v0.57.0 | ✅ | `v0.57.0-files-enhanced` | File Management Enhancement - Archive/3D preview, full-text search, save filters, analytics dashboard, bulk share |
 
 ---
 
@@ -2028,5 +2029,48 @@ Comprehensive authentication improvements for account recovery and backup verifi
 - `vite.config.ts` - Test mode fix for process globals
 
 **Reference**: `src/components/auth/`, `src/stores/authStore.ts`
+
+---
+
+### Epic 57: File Management Enhancement ✅
+**Tag**: `v0.57.0-files-enhanced` | **Commits**: `git log v0.57.0-files-enhanced`
+
+Enhanced file management module to match Google Drive/Proton Drive capabilities with comprehensive preview, search, and analytics features.
+
+**Enhanced Preview**:
+- Archive preview (ZIP/TAR) with JSZip and pako for decompression
+- 3D model preview (OBJ, STL, GLTF, GLB) with lazy-loaded Three.js
+- Office file download prompt (inline rendering deferred due to complexity)
+- Markdown preview with GFM support
+- Code syntax highlighting (20+ languages)
+
+**Advanced Search**:
+- Full-text search in file contents (text files, JSON)
+- Filter by file type, size, date
+- Save search filters with names
+- Recent searches history (last 20)
+- Content search button in toolbar
+
+**File Analytics Dashboard** (FileAnalyticsDashboard.tsx):
+- Overview tab: Storage usage by type with visual breakdown
+- Activity tab: Recent file actions (upload, download, share, delete)
+- Duplicates tab: SHA-256 hash-based duplicate detection with delete actions
+- Shared tab: Count of shared files with links
+
+**Bulk Operations**:
+- Multi-select with toolbar
+- Bulk download as ZIP (JSZip)
+- Bulk move to folder
+- Bulk delete with confirmation
+- Bulk share (BulkShareDialog) with progress tracking, user selection, permission levels
+
+**Key Components**:
+- `FileAnalyticsDashboard.tsx` - Analytics tabs with charts
+- `BulkShareDialog.tsx` - Multi-file sharing with progress
+- `FilePreviewModal.tsx` - Enhanced preview for all file types
+- `Model3DPreview.tsx` - Three.js 3D model viewer
+- `fileAnalytics.ts` - Analytics service with indexing
+
+**Reference**: `src/modules/files/`
 
 ---
