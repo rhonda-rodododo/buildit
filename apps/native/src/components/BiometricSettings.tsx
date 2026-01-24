@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { View, Text, Switch, StyleSheet, Alert, Platform, Pressable, Linking } from 'react-native'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 import { useAuthStore } from '../stores/authStore'
+import { haptics } from '../utils/platform'
 
 /**
  * Legal information about biometric compulsion by country/region
@@ -63,16 +64,23 @@ export function BiometricSettings() {
     if (isToggling) return
     setIsToggling(true)
 
+    // Provide haptic feedback on toggle
+    await haptics.selection()
+
     try {
       if (newValue) {
         const success = await enableBiometric()
-        if (!success) {
+        if (success) {
+          await haptics.success()
+        } else {
+          await haptics.error()
           Alert.alert(
             'Unable to Enable',
             `Could not enable ${biometricName}. Please ensure you have ${biometricName} set up on your device.`
           )
         }
       } else {
+        await haptics.warning()
         Alert.alert(
           `Disable ${biometricName}?`,
           `You will need to use your password to unlock the app.`,
@@ -86,6 +94,7 @@ export function BiometricSettings() {
               style: 'destructive',
               onPress: async () => {
                 await disableBiometric()
+                await haptics.medium()
               },
             },
           ]
