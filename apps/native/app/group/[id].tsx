@@ -5,7 +5,7 @@
  * Supports NIP-29 group messaging.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   View,
   Text,
@@ -16,12 +16,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useGroupsStore, type Group, useAuthStore } from '../../src/stores'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 import { haptics } from '../../src/utils/platform'
+import { relayService } from '../../src/services/nostrRelay'
+import { createEvent } from '@buildit/sdk'
 
 type Tab = 'chat' | 'members' | 'info'
 
@@ -58,7 +61,7 @@ export default function GroupDetailPage() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const { identity } = useAuthStore()
-  const { groups } = useGroupsStore()
+  const { groups, leaveGroup } = useGroupsStore()
 
   const [activeTab, setActiveTab] = useState<Tab>('chat')
   const [messageText, setMessageText] = useState('')
@@ -68,55 +71,152 @@ export default function GroupDetailPage() {
   // Find the current group
   const group = groups.find((g) => g.id === id)
 
-  // Load group messages (mock for now)
+  const subscriptionRef = useRef<string | null>(null)
+
+  // Load and subscribe to group messages
   useEffect(() => {
-    if (group) {
-      // Simulate loading messages
-      setTimeout(() => {
-        setMessages([
-          {
-            id: '1',
-            content: 'Welcome to the group! 👋',
-            pubkey: 'system',
-            createdAt: Date.now() / 1000 - 86400,
-            isOwn: false,
-          },
-          {
-            id: '2',
-            content: 'Thanks for having me!',
-            pubkey: identity?.publicKey || '',
-            createdAt: Date.now() / 1000 - 3600,
-            isOwn: true,
-          },
-        ])
+    if (!group || !identity?.publicKey) return
+
+    setIsLoading(true)
+
+    // Subscribe to NIP-29 group chat messages (kind 9) for this group
+    const subId = relayService.subscribe(
+      [
+        {
+          kinds: [9], // NIP-29 group chat message
+          '#h': [group.id], // Filter by group ID
+          limit: 50,
+        },
+      ],
+      (event) => {
+        // Handle incoming message
+        const newMessage: GroupMessage = {
+          id: event.id,
+          content: event.content,
+          pubkey: event.pubkey,
+          createdAt: event.created_at,
+          isOwn: event.pubkey === identity.publicKey,
+        }
+
+        setMessages((prev) => {
+          // Check if message already exists
+          if (prev.some((m) => m.id === event.id)) {
+            return prev
+          }
+          // Add and sort by timestamp
+          const updated = [...prev, newMessage]
+          return updated.sort((a, b) => a.createdAt - b.createdAt)
+        })
+      },
+      () => {
+        // End of stored events (EOSE)
         setIsLoading(false)
-      }, 500)
+
+        // Add welcome message if no messages yet
+        setMessages((prev) => {
+          if (prev.length === 0) {
+            return [
+              {
+                id: 'welcome',
+                content: 'Welcome to the group! 👋 Start the conversation.',
+                pubkey: 'system',
+                createdAt: Math.floor(Date.now() / 1000) - 1,
+                isOwn: false,
+              },
+            ]
+          }
+          return prev
+        })
+      }
+    )
+
+    subscriptionRef.current = subId
+
+    return () => {
+      if (subscriptionRef.current) {
+        relayService.unsubscribe(subscriptionRef.current)
+        subscriptionRef.current = null
+      }
     }
-  }, [group, identity?.publicKey])
+  }, [group?.id, identity?.publicKey])
 
   const handleSendMessage = useCallback(async () => {
-    if (!messageText.trim() || !identity?.publicKey) return
+    if (!messageText.trim() || !identity?.publicKey || !identity?.privateKey || !group) return
 
     await haptics.light()
 
+    const content = messageText.trim()
+    const timestamp = Math.floor(Date.now() / 1000)
+
+    // Optimistic update - add message immediately
     const newMessage: GroupMessage = {
       id: Date.now().toString(),
-      content: messageText.trim(),
+      content,
       pubkey: identity.publicKey,
-      createdAt: Date.now() / 1000,
+      createdAt: timestamp,
       isOwn: true,
     }
 
     setMessages((prev) => [...prev, newMessage])
     setMessageText('')
 
-    // TODO: Actually send to relay using NIP-29
-  }, [messageText, identity?.publicKey])
+    try {
+      // Create NIP-29 group chat message (kind 9)
+      // createEvent creates and signs the event in one step
+      const signedEvent = createEvent(
+        9, // NIP-29 group chat message kind
+        content,
+        [['h', group.id]], // Group ID tag (NIP-29)
+        identity.privateKey
+      )
+
+      // Publish to relays
+      const result = await relayService.publish(signedEvent)
+
+      if (!result.success) {
+        // Message wasn't sent - could show an error indicator
+        console.warn('Message may not have been delivered to any relay')
+        await haptics.warning()
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      // Could show error state on the message
+      await haptics.error()
+    }
+  }, [messageText, identity?.publicKey, identity?.privateKey, group])
 
   const handleTabChange = useCallback(async (tab: Tab) => {
     await haptics.selection()
     setActiveTab(tab)
   }, [])
+
+  const handleLeaveGroup = useCallback(async () => {
+    if (!group) return
+
+    await haptics.warning()
+
+    Alert.alert(
+      'Leave Group',
+      `Are you sure you want to leave "${group.name}"? You will need an invite to rejoin.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await leaveGroup(group.id)
+              await haptics.success()
+              router.replace('/(tabs)/groups')
+            } catch (error) {
+              await haptics.error()
+              Alert.alert('Error', 'Failed to leave group. Please try again.')
+            }
+          },
+        },
+      ]
+    )
+  }, [group, leaveGroup, router])
 
   if (!group) {
     return (
@@ -247,7 +347,7 @@ export default function GroupDetailPage() {
         ))}
       </View>
 
-      <Pressable style={styles.leaveButton}>
+      <Pressable style={styles.leaveButton} onPress={handleLeaveGroup}>
         <Text style={styles.leaveButtonText}>Leave Group</Text>
       </Pressable>
     </View>
