@@ -24,7 +24,7 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-24 (Epic 36 technical tasks, Epic 63 biometric auth completed)
+**Last Updated**: 2026-01-24 (Epic 63 device linking, typography fix)
 **Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 1274/1274 tests passing (100% pass rate, 63 test files)
@@ -672,21 +672,22 @@ buildit-network/
   - [x] Integrate expo-secure-store for key persistence
   - [x] Key encryption at rest
   - [x] Biometric unlock option (Face ID/Touch ID/fingerprint)
-- [ ] **Device Linking (8-12h)**
-  - [ ] QR code scanner for NIP-46
-  - [ ] Device transfer receive flow
-  - [ ] Connection approval UI
-  - [ ] Linked devices management
-- [ ] **Core Navigation (6-8h)**
-  - [ ] Tab navigation (Home, Messages, Groups, Settings)
+- [x] **Device Linking (8-12h)** ✅
+  - [x] QR code scanner for NIP-46
+  - [x] NIP-46 device linking service implementation
+  - [x] Connection approval UI
+  - [x] Linked devices management
+- [x] **Core Navigation (6-8h)** ✅ (Partial)
+  - [x] Tab navigation (Home, Messages, Groups, Settings)
   - [ ] Group list and detail screens
-  - [ ] Message thread screen
-  - [ ] Settings screen with multi-device
-- [ ] **Messaging MVP (10-15h)**
-  - [ ] DM list and compose
+  - [x] Message thread screen (chat/[pubkey].tsx)
+  - [x] Settings screen with multi-device
+- [x] **Messaging MVP (10-15h)** ✅ (Mostly Complete)
+  - [x] DM list and compose (messages.tsx, compose.tsx)
+  - [x] Message thread screen (chat/[pubkey].tsx)
+  - [x] Real-time message updates (relay subscriptions)
+  - [ ] Offline message queue persistence
   - [ ] Group message view
-  - [ ] Real-time message updates
-  - [ ] Offline message queue
 - [ ] **Platform Polish (6-8h)**
   - [ ] iOS-specific optimizations
   - [ ] Android-specific optimizations
