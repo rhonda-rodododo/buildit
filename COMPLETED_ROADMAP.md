@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 72 Account Recovery System completed)
+**Last Updated**: 2026-01-24 (Epic 58 Advanced Sharing & Permissions completed)
 
 ---
 
@@ -76,6 +76,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 71 | v0.71.0 | ✅ | `v0.71.0-logging` | Scoped Debug Logging - createLogger() with scope filtering, DEBUG localStorage flag, quieter dev console |
 | 72 | v0.72.0 | ✅ | `v0.72.0-auth-recovery` | Account Recovery System - Recovery phrase setup/verification, unlock form, password reset, backup reminders, logout warnings |
 | 57 | v0.57.0 | ✅ | `v0.57.0-files-enhanced` | File Management Enhancement - Archive/3D preview, full-text search, save filters, analytics dashboard, bulk share |
+| 58 | v0.58.0 | ✅ | `v0.58.0-sharing-advanced` | Advanced Sharing & Permissions - Public links, granular permissions, access requests, folder inheritance UI |
 
 ---
 
@@ -2072,5 +2073,55 @@ Enhanced file management module to match Google Drive/Proton Drive capabilities 
 - `fileAnalytics.ts` - Analytics service with indexing
 
 **Reference**: `src/modules/files/`
+
+---
+
+### Epic 58: Advanced Sharing & Permissions ✅
+**Tag**: `v0.58.0-sharing-advanced` | **Commits**: `git log v0.58.0-sharing-advanced`
+
+Implemented comprehensive sharing and permissions for documents and files to match Google Drive/Proton Drive capabilities.
+
+**Public Link Sharing**:
+- Generate encrypted public links with share tokens
+- Password-protected links with hashing
+- Expiring links (time-based with configurable durations)
+- Link analytics (views, downloads, accessCount tracking)
+- Revoke links functionality
+
+**Granular Permissions**:
+- Viewer (read-only) - view permission
+- Commenter (read + comment) - comment permission
+- Editor (read + write) - edit permission
+- Owner (full control) - admin/delete permissions
+- Permission inheritance from folders to child items
+
+**Access Requests**:
+- AccessRequestDialog for users to request access to restricted content
+- AccessRequestsPanel for admins to approve/deny pending requests
+- Support for both files and documents modules
+- Optional message with access requests
+
+**Folder Permissions UI**:
+- FolderPermissionsDialog (files) - Manage folder-level permissions with inheritance
+- FolderPermissionsPanel (documents) - Manage folder-level permissions with inheritance
+- Add/remove user permissions with granular control
+- Toggle inheritance per user permission
+- Visual indicators for inherited permissions
+
+**Sharing Dashboard**:
+- View all shared items
+- Filter by permission level
+- Revoke sharing in bulk
+- Export sharing report (CSV export in Files analytics and Documents header)
+
+**Key Components**:
+- `src/modules/files/components/FolderPermissionsDialog.tsx`
+- `src/modules/files/components/AccessRequestDialog.tsx`
+- `src/modules/files/components/AccessRequestsPanel.tsx`
+- `src/modules/documents/components/FolderPermissionsPanel.tsx`
+- `src/modules/documents/components/AccessRequestDialog.tsx`
+- `src/modules/documents/components/AccessRequestsPanel.tsx`
+
+**Reference**: `src/modules/files/`, `src/modules/documents/`
 
 ---
