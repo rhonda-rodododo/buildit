@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 51 Quality & Testing completed)
+**Last Updated**: 2026-01-24 (Epic 60 Offline Mode Enhancement completed)
 
 ---
 
@@ -79,6 +79,7 @@ Archive of completed epics. This document provides high-level summaries only.
 | 58 | v0.58.0 | ✅ | `v0.58.0-sharing-advanced` | Advanced Sharing & Permissions - Public links, granular permissions, access requests, folder inheritance UI |
 | 56 | v0.56.0 | ✅ | `v0.56.0-docs-advanced` | Advanced Document Features - @mentions in comments, page breaks, headers/footers, equations, diagrams |
 | 51 | v0.51.0 | ✅ | `v0.51.0-testing-complete` | Quality & Testing Completion - E2E Phase 4, Lighthouse audit, 1236 tests, code quality |
+| 60 | v0.60.0 | ✅ | `v0.60.0-offline-enhanced` | Offline Mode Enhancement - Queue processor, SyncStatusIndicator, cache management, background sync |
 
 ---
 
@@ -2215,5 +2216,51 @@ Completed E2E Phase 4 tests, Lighthouse audit, and code quality improvements for
 - SEO improvements (requires React 19 native metadata)
 
 **Reference**: `tests/e2e/`, `docs/audits/`, `src/lib/logger.ts`
+
+---
+
+### Epic 60: Offline Mode Enhancement ✅
+**Tag**: `v0.60.0-offline-enhanced` | **Commits**: `git log v0.60.0-offline-enhanced`
+
+Enhanced PWA offline support with message queuing, background sync, and comprehensive cache management.
+
+**Offline Composition**:
+- Queue processor initialized at app startup (main.tsx)
+- Messages automatically queued when offline
+- Proactive offline detection before network attempts
+- Retry logic with exponential backoff
+- Infrastructure ready for posts/file uploads queuing
+
+**Background Sync**:
+- Background Sync API in service worker (sw-custom.ts)
+- Automatic sync when network returns
+- Sync failure handling with retry
+- Service worker client messaging for queue processing
+
+**Sync Status UI**:
+- SyncStatusIndicator component in AppHeader
+- Shows pending/failed items with queue management
+- Retry individual items or retry all
+- Clear completed/failed items
+- Online/offline status display
+
+**Cache Management**:
+- CacheManagementPanel for settings
+- Configurable cache size limits (default 100MB)
+- LRU eviction for cache overflow
+- Age-based cache expiration
+- Data pruning for messages/posts/files
+- Offline data export as JSON backup
+
+**Key Components**:
+- `src/main.tsx` - Queue processor initialization
+- `src/components/offline/SyncStatusIndicator.tsx` - Status UI
+- `src/components/offline/CacheManagementPanel.tsx` - Cache settings
+- `src/core/messaging/conversationsStore.ts` - Offline queue integration
+- `src/core/offline/queueProcessor.ts` - Queue processing logic
+- `src/core/offline/cacheStore.ts` - Cache management
+- `src/sw-custom.ts` - Background Sync API
+
+**Reference**: `src/core/offline/`, `src/components/offline/`
 
 ---
