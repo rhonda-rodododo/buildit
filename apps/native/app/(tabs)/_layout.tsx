@@ -11,6 +11,8 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Slot, useRouter, usePathname } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useThemeColors } from '../../src/theme'
+import { useTranslation } from '../../src/i18n'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 
 interface TabItemProps {
@@ -19,13 +21,23 @@ interface TabItemProps {
   href: string
   isActive: boolean
   onPress: () => void
+  activeColor: string
+  inactiveColor: string
 }
 
-function TabItem({ label, icon, isActive, onPress }: TabItemProps) {
+function TabItem({ label, icon, isActive, onPress, activeColor, inactiveColor }: TabItemProps) {
   return (
     <Pressable style={styles.tabItem} onPress={onPress}>
-      <Text style={[styles.tabIcon, isActive && styles.tabIconActive]}>{icon}</Text>
-      <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{label}</Text>
+      <Text style={[styles.tabIcon, { opacity: isActive ? 1 : 0.5 }]}>{icon}</Text>
+      <Text
+        style={[
+          styles.tabLabel,
+          { color: isActive ? activeColor : inactiveColor },
+          isActive && styles.tabLabelActive,
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   )
 }
@@ -34,12 +46,14 @@ export default function TabsLayout() {
   const router = useRouter()
   const pathname = usePathname()
   const insets = useSafeAreaInsets()
+  const colors = useThemeColors()
+  const { t } = useTranslation()
 
   const tabs = [
-    { label: 'Home', icon: '🏠', href: '/(tabs)/home' },
-    { label: 'Messages', icon: '💬', href: '/(tabs)/messages' },
-    { label: 'Groups', icon: '👥', href: '/(tabs)/groups' },
-    { label: 'Settings', icon: '⚙️', href: '/(tabs)/settings' },
+    { label: t('nav.feed'), icon: '🏠', href: '/(tabs)/home' },
+    { label: t('nav.messages'), icon: '💬', href: '/(tabs)/messages' },
+    { label: t('nav.groups'), icon: '👥', href: '/(tabs)/groups' },
+    { label: t('nav.settings'), icon: '⚙️', href: '/(tabs)/settings' },
   ]
 
   const getIsActive = (href: string) => {
@@ -48,11 +62,20 @@ export default function TabsLayout() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <Slot />
       </View>
-      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, spacing[2]) }]}>
+      <View
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: colors.background,
+            borderTopColor: colors.border,
+            paddingBottom: Math.max(insets.bottom, spacing[2]),
+          },
+        ]}
+      >
         {tabs.map((tab) => (
           <TabItem
             key={tab.href}
@@ -60,6 +83,8 @@ export default function TabsLayout() {
             icon={tab.icon}
             href={tab.href}
             isActive={getIsActive(tab.href)}
+            activeColor={colors.foreground}
+            inactiveColor={colors.mutedForeground}
             onPress={() => (router.push as (href: string) => void)(tab.href)}
           />
         ))}
@@ -71,16 +96,13 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
     paddingTop: spacing[2],
   },
   tabItem: {
@@ -92,17 +114,11 @@ const styles = StyleSheet.create({
   tabIcon: {
     fontSize: 24,
     marginBottom: 2,
-    opacity: 0.5,
-  },
-  tabIconActive: {
-    opacity: 1,
   },
   tabLabel: {
     fontSize: fontSize.xs,
-    color: '#a3a3a3',
   },
   tabLabelActive: {
-    color: '#0a0a0a',
     fontWeight: String(fontWeight.medium) as '500',
   },
 })
