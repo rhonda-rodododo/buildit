@@ -65,6 +65,13 @@ async function doInitialize(): Promise<boolean> {
     await initializeDatabase();
     log.info("  Step 2: ✅ Database initialized");
 
+    // Step 2b: Start offline queue processor (requires database)
+    currentStep = 'starting queue processor';
+    log.info("  Step 2b: Starting offline queue processor...");
+    const { startQueueProcessor } = await import("@/core/offline/queueProcessor");
+    await startQueueProcessor();
+    log.info("  Step 2b: ✅ Queue processor started");
+
     // Step 3: Initialize store initializer (subscribes to unlock/lock events)
     currentStep = 'initializing store initializer';
     log.info("  Step 3: Initializing store initializer...");

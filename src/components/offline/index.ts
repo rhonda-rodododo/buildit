@@ -4,3 +4,5 @@
  */
 
 export { OfflineStatus } from './OfflineStatus';
+export { SyncStatusIndicator } from './SyncStatusIndicator';
+export { CacheManagementPanel } from './CacheManagementPanel';

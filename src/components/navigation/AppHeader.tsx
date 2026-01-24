@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { SyncStatusIndicator } from '@/components/offline/SyncStatusIndicator';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
@@ -97,6 +98,8 @@ export const AppHeader: FC = () => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
+            <SyncStatusIndicator showLabel className="hidden sm:flex" />
+            <SyncStatusIndicator className="sm:hidden" />
             <NotificationCenter />
             <LanguageSwitcher />
             <ModeToggle />

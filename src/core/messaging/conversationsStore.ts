@@ -13,6 +13,7 @@ import { db } from '@/core/storage/db';
 import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
 import { getNostrClient } from '@/core/nostr/client';
 import { secureRandomString } from '@/lib/utils';
+import { queueOfflineMessage } from '@/core/offline/queueProcessor';
 import type { GiftWrap } from '@/types/nostr';
 import type {
   DBConversation,
@@ -524,6 +525,29 @@ export const useConversationsStore = create<ConversationsState>()(
           ),
         }));
 
+        // Get recipients (all participants except self)
+        const recipients = conversation.participants.filter(
+          (p) => p !== currentIdentity.publicKey
+        );
+
+        if (recipients.length === 0) {
+          // Self-conversation or no recipients, skip relay publish
+          return message;
+        }
+
+        // If offline, queue immediately instead of attempting network
+        if (!navigator.onLine) {
+          await queueOfflineMessage(
+            conversationId,
+            content,
+            recipients,
+            conversation.type,
+            currentIdentity.publicKey,
+            replyTo
+          );
+          return message;
+        }
+
         // Create NIP-17 gift-wrapped events and publish to Nostr
         try {
           const client = getNostrClient();
@@ -534,16 +558,6 @@ export const useConversationsStore = create<ConversationsState>()(
           ];
           if (replyTo) {
             tags.push(['e', replyTo, '', 'reply']); // Reply tag
-          }
-
-          // Get recipients (all participants except self)
-          const recipients = conversation.participants.filter(
-            (p) => p !== currentIdentity.publicKey
-          );
-
-          if (recipients.length === 0) {
-            // Self-conversation or no recipients, skip relay publish
-            return message;
           }
 
           let giftWraps: GiftWrap[];
@@ -580,7 +594,15 @@ export const useConversationsStore = create<ConversationsState>()(
           }
         } catch (error) {
           console.error('Failed to publish message to Nostr:', error);
-          // Message is stored locally, queued via Epic 60 offline support
+          // Message is stored locally, queue for retry when online
+          await queueOfflineMessage(
+            conversationId,
+            content,
+            recipients,
+            conversation.type,
+            currentIdentity.publicKey,
+            replyTo
+          );
         }
 
         return message;
