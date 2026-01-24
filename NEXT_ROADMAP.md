@@ -24,7 +24,7 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-24 (Epic 63 device linking, typography fix)
+**Last Updated**: 2026-01-24 (Epic 63 device linking, groups store, notifications)
 **Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 1274/1274 tests passing (100% pass rate, 63 test files)
@@ -677,22 +677,24 @@ buildit-network/
   - [x] NIP-46 device linking service implementation
   - [x] Connection approval UI
   - [x] Linked devices management
-- [x] **Core Navigation (6-8h)** ✅ (Partial)
+- [x] **Core Navigation (6-8h)** ✅
   - [x] Tab navigation (Home, Messages, Groups, Settings)
-  - [ ] Group list and detail screens
+  - [x] Group list with store integration (groups.tsx, groupsStore.ts)
   - [x] Message thread screen (chat/[pubkey].tsx)
   - [x] Settings screen with multi-device
-- [x] **Messaging MVP (10-15h)** ✅ (Mostly Complete)
+- [x] **Messaging MVP (10-15h)** ✅
   - [x] DM list and compose (messages.tsx, compose.tsx)
   - [x] Message thread screen (chat/[pubkey].tsx)
   - [x] Real-time message updates (relay subscriptions)
-  - [ ] Offline message queue persistence
-  - [ ] Group message view
-- [ ] **Platform Polish (6-8h)**
+  - [x] Offline message queue persistence
+  - [ ] Group message view (pending group detail route)
+- [x] **Platform Polish (6-8h)** ✅ (Partial)
+  - [x] App configuration (app.json with iOS/Android settings)
+  - [x] Push notification service (expo-notifications)
+  - [x] App icon and splash screen placeholders
   - [ ] iOS-specific optimizations
   - [ ] Android-specific optimizations
-  - [ ] Push notification setup (Expo)
-  - [ ] App icon and splash screen
+  - [ ] Replace placeholder icons with production assets
 - [ ] **Testing & Release (4-6h)**
   - [ ] TestFlight build
   - [ ] Android internal testing track
