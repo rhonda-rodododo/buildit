@@ -4,7 +4,7 @@
  * Account management, security settings, linked devices, and preferences.
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import {
   Switch,
   Alert,
   Platform,
+  TextInput,
+  Modal,
 } from 'react-native'
 import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -22,6 +24,7 @@ import type { LinkedDevice } from '../../src/stores'
 import { BiometricSettings, LanguagePicker, ThemeToggle } from '../../src/components'
 import { useTranslation } from '../../src/i18n'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
+import { haptics } from '../../src/utils/platform'
 
 interface SettingRowProps {
   icon: string
@@ -80,13 +83,86 @@ function formatRelativeTime(timestamp: number): string {
   return `${days}d ago`
 }
 
+const PIN_LENGTH = 6
+
 export default function SettingsTab() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const { t } = useTranslation()
-  const { identity, linkedDevices, removeLinkedDevice, logout } = useAuthStore()
+  const { identity, linkedDevices, removeLinkedDevice, logout, hasPin, setPin, removePin } = useAuthStore()
   const [showRecoveryPhrase, setShowRecoveryPhrase] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [pinValue, setPinValue] = useState('')
+  const [confirmPinValue, setConfirmPinValue] = useState('')
+  const [pinStep, setPinStep] = useState<'enter' | 'confirm'>('enter')
+  const [pinError, setPinError] = useState<string | null>(null)
+
+  const pinEnabled = hasPin()
+
+  const handlePinToggle = useCallback(async () => {
+    if (pinEnabled) {
+      // Disable PIN
+      Alert.alert(
+        'Remove PIN',
+        'Are you sure you want to remove your PIN? You will need to set up biometric authentication or a new PIN to secure your account.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: async () => {
+              await removePin()
+              await haptics.success()
+            },
+          },
+        ]
+      )
+    } else {
+      // Set up PIN
+      setShowPinModal(true)
+      setPinValue('')
+      setConfirmPinValue('')
+      setPinStep('enter')
+      setPinError(null)
+    }
+  }, [pinEnabled, removePin])
+
+  const handlePinSubmit = useCallback(async () => {
+    if (pinStep === 'enter') {
+      if (pinValue.length !== PIN_LENGTH) {
+        setPinError(`PIN must be ${PIN_LENGTH} digits`)
+        await haptics.error()
+        return
+      }
+      setPinStep('confirm')
+      setPinError(null)
+    } else {
+      if (confirmPinValue !== pinValue) {
+        setPinError('PINs do not match. Please try again.')
+        setConfirmPinValue('')
+        await haptics.error()
+        return
+      }
+      try {
+        await setPin(pinValue)
+        await haptics.success()
+        setShowPinModal(false)
+        Alert.alert('Success', 'Your PIN has been set up successfully.')
+      } catch {
+        setPinError('Failed to set PIN. Please try again.')
+        await haptics.error()
+      }
+    }
+  }, [pinStep, pinValue, confirmPinValue, setPin])
+
+  const handlePinClose = useCallback(() => {
+    setShowPinModal(false)
+    setPinValue('')
+    setConfirmPinValue('')
+    setPinStep('enter')
+    setPinError(null)
+  }, [])
 
   const handleShowRecoveryPhrase = () => {
     if (showRecoveryPhrase) {
@@ -229,7 +305,95 @@ export default function SettingsTab() {
           </View>
         )}
         {Platform.OS !== 'web' && <BiometricSettings />}
+        <SettingRow
+          icon="🔢"
+          title="PIN Lock"
+          subtitle={pinEnabled ? 'PIN is enabled' : 'Set up a PIN to unlock'}
+          rightElement={
+            <Switch
+              value={pinEnabled}
+              onValueChange={handlePinToggle}
+              trackColor={{ false: '#e5e5e5', true: '#0a0a0a' }}
+              thumbColor="#ffffff"
+            />
+          }
+        />
       </View>
+
+      {/* PIN Setup Modal */}
+      <Modal
+        visible={showPinModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={handlePinClose}
+      >
+        <View style={[styles.modalContainer, { paddingTop: insets.top + spacing[4] }]}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={handlePinClose}>
+              <Text style={styles.modalCancel}>Cancel</Text>
+            </Pressable>
+            <Text style={styles.modalTitle}>
+              {pinStep === 'enter' ? 'Create PIN' : 'Confirm PIN'}
+            </Text>
+            <View style={styles.modalHeaderSpacer} />
+          </View>
+
+          <View style={styles.pinSetupContent}>
+            <Text style={styles.pinInstructions}>
+              {pinStep === 'enter'
+                ? `Enter a ${PIN_LENGTH}-digit PIN to secure your account`
+                : 'Enter your PIN again to confirm'}
+            </Text>
+
+            {/* PIN dots display */}
+            <View style={styles.pinDotsRow}>
+              {Array.from({ length: PIN_LENGTH }).map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.pinDot,
+                    index < (pinStep === 'enter' ? pinValue : confirmPinValue).length && styles.pinDotFilled,
+                  ]}
+                />
+              ))}
+            </View>
+
+            {pinError && (
+              <Text style={styles.pinErrorText}>{pinError}</Text>
+            )}
+
+            <TextInput
+              style={styles.hiddenPinInput}
+              value={pinStep === 'enter' ? pinValue : confirmPinValue}
+              onChangeText={(text) => {
+                const digitsOnly = text.replace(/\D/g, '').slice(0, PIN_LENGTH)
+                if (pinStep === 'enter') {
+                  setPinValue(digitsOnly)
+                } else {
+                  setConfirmPinValue(digitsOnly)
+                }
+                setPinError(null)
+              }}
+              keyboardType="number-pad"
+              maxLength={PIN_LENGTH}
+              autoFocus
+            />
+
+            <Pressable
+              style={[
+                styles.pinSubmitButton,
+                (pinStep === 'enter' ? pinValue : confirmPinValue).length !== PIN_LENGTH && styles.pinSubmitButtonDisabled,
+              ]}
+              onPress={handlePinSubmit}
+              disabled={(pinStep === 'enter' ? pinValue : confirmPinValue).length !== PIN_LENGTH}
+            >
+              <Text style={styles.pinSubmitButtonText}>
+                {pinStep === 'enter' ? 'Continue' : 'Set PIN'}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       {/* Devices Section */}
       <View style={styles.section}>
@@ -527,6 +691,90 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   primaryButtonText: {
+    color: '#ffffff',
+    fontSize: fontSize.base,
+    fontWeight: String(fontWeight.semibold) as '600',
+  },
+  // PIN Modal styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: String(fontWeight.semibold) as '600',
+    color: '#0a0a0a',
+  },
+  modalCancel: {
+    fontSize: fontSize.base,
+    color: '#0a0a0a',
+  },
+  modalHeaderSpacer: {
+    width: 50,
+  },
+  pinSetupContent: {
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: spacing[12],
+    paddingHorizontal: spacing[6],
+  },
+  pinInstructions: {
+    fontSize: fontSize.base,
+    color: '#737373',
+    textAlign: 'center',
+    marginBottom: spacing[8],
+  },
+  pinDotsRow: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginBottom: spacing[6],
+  },
+  pinDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#d4d4d4',
+    backgroundColor: 'transparent',
+  },
+  pinDotFilled: {
+    backgroundColor: '#0a0a0a',
+    borderColor: '#0a0a0a',
+  },
+  hiddenPinInput: {
+    position: 'absolute',
+    opacity: 0,
+    width: 1,
+    height: 1,
+  },
+  pinErrorText: {
+    fontSize: fontSize.sm,
+    color: '#dc2626',
+    textAlign: 'center',
+    marginBottom: spacing[4],
+  },
+  pinSubmitButton: {
+    backgroundColor: '#0a0a0a',
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[8],
+    borderRadius: 12,
+    minWidth: 200,
+    alignItems: 'center',
+    marginTop: spacing[4],
+  },
+  pinSubmitButtonDisabled: {
+    backgroundColor: '#d4d4d4',
+  },
+  pinSubmitButtonText: {
     color: '#ffffff',
     fontSize: fontSize.base,
     fontWeight: String(fontWeight.semibold) as '600',

@@ -127,6 +127,9 @@ export default function GroupsTab() {
               <View style={styles.connectedDot} />
             </View>
           )}
+          <Pressable style={styles.joinButton} onPress={() => router.push('/join-group')}>
+            <Text style={styles.joinButtonText}>Join</Text>
+          </Pressable>
           <Pressable style={styles.newButton} onPress={() => router.push('/create-group')}>
             <Text style={styles.newButtonText}>+</Text>
           </Pressable>
@@ -165,9 +168,14 @@ export default function GroupsTab() {
             <Text style={styles.emptySubtitle}>
               Create a group or join one to start organizing together
             </Text>
-            <Pressable style={styles.createButton}>
-              <Text style={styles.createButtonText}>Create Your First Group</Text>
-            </Pressable>
+            <View style={styles.emptyActions}>
+              <Pressable style={styles.createButton} onPress={() => router.push('/create-group')}>
+                <Text style={styles.createButtonText}>Create Group</Text>
+              </Pressable>
+              <Pressable style={styles.joinGroupButton} onPress={() => router.push('/join-group')}>
+                <Text style={styles.joinGroupButtonText}>Join Group</Text>
+              </Pressable>
+            </View>
           </View>
         }
       />
@@ -213,6 +221,17 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#22c55e',
+  },
+  joinButton: {
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  joinButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: String(fontWeight.medium) as '500',
+    color: '#0a0a0a',
   },
   newButton: {
     width: 36,
@@ -350,6 +369,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing[4],
   },
+  emptyActions: {
+    flexDirection: 'row',
+    gap: spacing[3],
+  },
   createButton: {
     backgroundColor: '#0a0a0a',
     paddingVertical: spacing[3],
@@ -358,6 +381,17 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#ffffff',
+    fontSize: fontSize.base,
+    fontWeight: String(fontWeight.semibold) as '600',
+  },
+  joinGroupButton: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[6],
+    borderRadius: 10,
+  },
+  joinGroupButtonText: {
+    color: '#0a0a0a',
     fontSize: fontSize.base,
     fontWeight: String(fontWeight.semibold) as '600',
   },

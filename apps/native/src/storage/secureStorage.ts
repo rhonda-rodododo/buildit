@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
   BUNKER_CONNECTIONS: 'buildit_bunker_connections',
   MESSAGE_QUEUE: 'buildit_message_queue',
   GROUPS_CACHE: 'buildit_groups_cache',
+  PIN_HASH: 'buildit_pin_hash',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

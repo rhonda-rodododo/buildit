@@ -67,6 +67,7 @@ interface AuthState {
   error: string | null
   isLocked: boolean
   biometricStatus: BiometricStatus | null
+  pinHash: string | null
 
   // Actions
   initialize: () => Promise<void>
@@ -85,11 +86,28 @@ interface AuthState {
   unlock: () => void
   attemptBiometricUnlock: () => Promise<boolean>
 
+  // PIN management
+  hasPin: () => boolean
+  setPin: (pin: string) => Promise<void>
+  verifyPin: (pin: string) => Promise<boolean>
+  removePin: () => Promise<void>
+
   // Biometric settings
   refreshBiometricStatus: () => Promise<void>
   enableBiometric: () => Promise<boolean>
   disableBiometric: () => Promise<void>
   getBiometricTypeName: () => string
+}
+
+// Simple hash function for PIN verification
+// In production, use a proper key derivation function like PBKDF2 or Argon2
+async function hashPin(pin: string): Promise<string> {
+  // Using simple hash for MVP - in production use proper KDF
+  const encoder = new TextEncoder()
+  const data = encoder.encode(pin + 'buildit-salt-v1')
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -100,6 +118,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   isLocked: true,
   biometricStatus: null,
+  pinHash: null,
 
   initialize: async () => {
     set({ isLoading: true, error: null })
@@ -125,6 +144,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             ? JSON.parse(linkedDevicesStr)
             : []
 
+          // Load PIN hash
+          const pinHash = await getSecureItem(STORAGE_KEYS.PIN_HASH)
+
           // Load biometric status
           const biometricStatus = await getBiometricStatus()
 
@@ -138,6 +160,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               createdAt: Date.now(), // Could store this separately
             },
             linkedDevices,
+            pinHash: pinHash || null,
             biometricStatus,
             isLoading: false,
             isInitialized: true,
@@ -420,5 +443,45 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { biometricStatus } = get()
     if (!biometricStatus) return 'Biometrics'
     return getBiometricTypeName(biometricStatus.biometricType)
+  },
+
+  // PIN management
+  hasPin: () => {
+    const { pinHash } = get()
+    return pinHash !== null && pinHash.length > 0
+  },
+
+  setPin: async (pin: string) => {
+    try {
+      const hash = await hashPin(pin)
+      await setSecureItem(STORAGE_KEYS.PIN_HASH, hash)
+      set({ pinHash: hash })
+    } catch (error) {
+      console.error('Failed to set PIN:', error)
+      throw error
+    }
+  },
+
+  verifyPin: async (pin: string) => {
+    const { pinHash } = get()
+    if (!pinHash) return false
+
+    try {
+      const inputHash = await hashPin(pin)
+      return inputHash === pinHash
+    } catch (error) {
+      console.error('Failed to verify PIN:', error)
+      return false
+    }
+  },
+
+  removePin: async () => {
+    try {
+      await setSecureItem(STORAGE_KEYS.PIN_HASH, '')
+      set({ pinHash: null })
+    } catch (error) {
+      console.error('Failed to remove PIN:', error)
+      throw error
+    }
   },
 }))

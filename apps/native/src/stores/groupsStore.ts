@@ -52,7 +52,7 @@ interface GroupsState {
   loadGroupMembers: (groupId: string) => Promise<void>
   setActiveGroup: (group: Group | null) => void
   createGroup: (options: { name: string; description?: string; privacy: string }) => Promise<Group>
-  joinGroup: (groupId: string, relays: string[]) => Promise<void>
+  joinGroup: (groupId: string, relays?: string[]) => Promise<void>
   leaveGroup: (groupId: string) => Promise<void>
   markGroupAsRead: (groupId: string) => void
   disconnect: () => void
@@ -243,7 +243,7 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
     return newGroup
   },
 
-  joinGroup: async (groupId: string, relays: string[]) => {
+  joinGroup: async (groupId: string, relays?: string[]) => {
     if (!currentUserPubkey) {
       throw new Error('Not initialized')
     }
@@ -252,15 +252,22 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
     // In a full implementation, this would send a join request event
     const { groups } = get()
 
+    // Check if already a member
+    if (groups.some((g) => g.id === groupId)) {
+      throw new Error('You are already a member of this group')
+    }
+
+    const groupRelays = relays && relays.length > 0 ? relays : DEFAULT_RELAYS
+
     const newGroup: Group = {
       id: groupId,
-      name: 'New Group',
+      name: 'New Group', // Will be updated from relay metadata
       memberCount: 1,
       myRole: 'member',
       lastActivity: Date.now(),
       unreadCount: 0,
       createdAt: Date.now(),
-      relays,
+      relays: groupRelays,
     }
 
     const updatedGroups = [...groups, newGroup]
