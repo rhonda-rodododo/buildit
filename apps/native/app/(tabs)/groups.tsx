@@ -4,25 +4,12 @@
  * Shows list of groups the user belongs to and allows creating new groups.
  */
 
-import { useState } from 'react'
-import { View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native'
+import { useState, useEffect, useMemo } from 'react'
+import { View, Text, StyleSheet, Pressable, FlatList, TextInput, ActivityIndicator } from 'react-native'
 import { useRouter } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAuthStore } from '../../src/stores'
+import { useAuthStore, useGroupsStore, type Group } from '../../src/stores'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
-
-interface GroupItem {
-  id: string
-  name: string
-  description?: string
-  memberCount: number
-  lastActivity: number
-  unreadCount: number
-  role: 'admin' | 'moderator' | 'member'
-}
-
-// Placeholder data - will be replaced with real data from group store
-const PLACEHOLDER_GROUPS: GroupItem[] = []
 
 function formatTime(timestamp: number): string {
   const now = Date.now() / 1000
@@ -34,7 +21,7 @@ function formatTime(timestamp: number): string {
   return `${Math.floor(diff / 86400)}d`
 }
 
-function getRoleBadge(role: GroupItem['role']) {
+function getRoleBadge(role: Group['myRole']) {
   switch (role) {
     case 'admin':
       return { label: 'Admin', color: '#7c3aed' }
@@ -49,23 +36,40 @@ export default function GroupsTab() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const { identity } = useAuthStore()
+  const { groups, isLoading, isConnected, initialize, disconnect } = useGroupsStore()
   const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredGroups = PLACEHOLDER_GROUPS.filter(
-    (g) =>
-      g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Initialize groups store when identity is available
+  useEffect(() => {
+    if (identity?.publicKey) {
+      initialize(identity.publicKey)
+    }
 
-  const renderGroup = ({ item }: { item: GroupItem }) => {
-    const roleBadge = getRoleBadge(item.role)
+    return () => {
+      disconnect()
+    }
+  }, [identity?.publicKey, initialize, disconnect])
+
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery) return groups
+
+    return groups.filter(
+      (g) =>
+        g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [groups, searchQuery])
+
+  const renderGroup = ({ item }: { item: Group }) => {
+    const roleBadge = getRoleBadge(item.myRole)
 
     return (
       <Pressable
         style={styles.groupItem}
         onPress={() => {
-          // TODO: Navigate to group detail
+          // TODO: Navigate to group detail when route exists
           // router.push(`/group/${item.id}`)
+          console.log('View group:', item.id)
         }}
       >
         <View style={styles.groupIcon}>
@@ -119,9 +123,16 @@ export default function GroupsTab() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Groups</Text>
-        <Pressable style={styles.newButton}>
-          <Text style={styles.newButtonText}>+</Text>
-        </Pressable>
+        <View style={styles.headerRight}>
+          {isConnected && (
+            <View style={styles.connectedBadge}>
+              <View style={styles.connectedDot} />
+            </View>
+          )}
+          <Pressable style={styles.newButton}>
+            <Text style={styles.newButtonText}>+</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Search */}
@@ -134,6 +145,14 @@ export default function GroupsTab() {
           onChangeText={setSearchQuery}
         />
       </View>
+
+      {/* Loading state */}
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#0a0a0a" />
+          <Text style={styles.loadingText}>Loading groups...</Text>
+        </View>
+      )}
 
       {/* Groups List */}
       <FlatList
@@ -182,6 +201,21 @@ const styles = StyleSheet.create({
     fontWeight: String(fontWeight.bold) as '700',
     color: '#0a0a0a',
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  connectedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  connectedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#22c55e',
+  },
   newButton: {
     width: 36,
     height: 36,
@@ -193,6 +227,17 @@ const styles = StyleSheet.create({
   newButtonText: {
     fontSize: fontSize.lg,
     color: '#ffffff',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing[3],
+    gap: spacing[2],
+  },
+  loadingText: {
+    fontSize: fontSize.sm,
+    color: '#737373',
   },
   searchContainer: {
     padding: spacing[4],
