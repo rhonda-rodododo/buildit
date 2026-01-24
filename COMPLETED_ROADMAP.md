@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-19 (Epic 70 SSR Public Content App completed)
+**Last Updated**: 2026-01-24 (Epic 72 Account Recovery System completed)
 
 ---
 
@@ -73,6 +73,8 @@ Archive of completed epics. This document provides high-level summaries only.
 | 68 | v0.68.0 | ✅ | `v0.68.0-e2e-tests` | E2E Test Suite Expansion - 54 new tests across auth, groups, events, microblogging, cross-module flows |
 | 69 | v0.69.0 | ✅ | `v0.69.0-shared-embeds` | Shared Embed Infrastructure - EmbedCard component, provider registry, click-to-load privacy, URL detection |
 | 70 | v0.70.0 | ✅ | `v0.70.0-ssr-public` | TanStack Start SSR App - Public content routes (articles, wiki, events, campaigns, publications), RSS feed, SEO metadata |
+| 71 | v0.71.0 | ✅ | `v0.71.0-logging` | Scoped Debug Logging - createLogger() with scope filtering, DEBUG localStorage flag, quieter dev console |
+| 72 | v0.72.0 | ✅ | `v0.72.0-auth-recovery` | Account Recovery System - Recovery phrase setup/verification, unlock form, password reset, backup reminders, logout warnings |
 
 ---
 
@@ -1961,5 +1963,70 @@ TanStack Start server-side rendering application for public, SEO-optimized conte
 - Custom domain not set up
 
 **Reference**: `packages/ssr/`, `packages/shared/`, Plan file: `.claude/plans/deep-roaming-jellyfish.md`
+
+---
+
+### Epic 71: Scoped Debug Logging ✅
+**Tag**: `v0.71.0-logging` | **Commits**: `git log v0.71.0-logging`
+
+Developer experience improvement for console logging. Implemented scoped debug system with `createLogger()` factory function. Developers can filter logs using `localStorage.setItem('DEBUG', 'transport')` to see only transport logs, or `DEBUG=*` for all logs. Default behavior is quiet console (warnings and errors only).
+
+**Implementation**:
+- Updated `src/lib/logger.ts` with scoped debug system
+- Migrated `src/main.tsx` to use `createLogger('init')`
+- Migrated transport layer to `createLogger('transport')`
+- Fixed emoji picker clipping bug
+
+**Reference**: `src/lib/logger.ts`
+
+---
+
+### Epic 72: Account Recovery & Backup Verification System ✅
+**Tag**: `v0.72.0-auth-recovery` | **Commits**: `git log v0.72.0-auth-recovery`
+
+Comprehensive authentication improvements for account recovery and backup verification. Security-focused features to prevent account loss.
+
+**New Components**:
+- **RecoveryPhraseSetup**: Mandatory 24-word recovery phrase display and verification during account creation. Users must verify 3 random words before proceeding.
+- **UnlockForm**: Password entry for returning users with identity selection, account switcher for multiple identities.
+- **RecoveryForm**: Password reset using 24-word recovery phrase. Validates phrase locally, re-encrypts private key with new password.
+- **BackupReminderBanner**: Persistent banner for users who imported via nsec without completing backup flow. Snoozable for 7 days.
+- **LogoutWarningDialog**: Warning before logout if no backup exists. Offers to show recovery phrase before proceeding.
+
+**Store Enhancements** (authStore.ts):
+- Added `updateBackupStatus()` for tracking recovery phrase confirmation and backup timestamps
+- Added `checkBackupStatus()` to query backup state
+- Added `logout()` function with session data clearing
+- Backup tracking fields: `recoveryPhraseShownAt`, `recoveryPhraseConfirmedAt`, `lastBackupAt`, `importedWithoutBackup`
+
+**UI Integration**:
+- LoginPage smart routing between unlock/login/recovery flows based on identity state
+- AppHeader logout flow checks backup status before allowing logout
+- i18n translations added for all auth flows (en, es, fr, ar)
+
+**Security Features**:
+- Recovery phrase never leaves device (local derivation only)
+- Mandatory verification before first app use
+- Logout warning prevents accidental data loss
+- Persistent reminders for unverified backups
+
+**Bug Fix**:
+- Fixed `vite.config.ts` to conditionally apply process globals only for browser build (was breaking vitest)
+
+**Files Created** (5 new files, ~1,400 lines):
+- `src/components/auth/RecoveryPhraseSetup.tsx` (363 lines)
+- `src/components/auth/UnlockForm.tsx` (275 lines)
+- `src/components/auth/RecoveryForm.tsx` (436 lines)
+- `src/components/auth/BackupReminderBanner.tsx` (340 lines)
+- `src/components/auth/LogoutWarningDialog.tsx` (310 lines)
+
+**Files Modified**:
+- `src/pages/LoginPage.tsx` - Smart routing between auth flows
+- `src/stores/authStore.ts` - Backup status tracking, logout function
+- `src/components/navigation/AppHeader.tsx` - Logout backup check
+- `src/i18n/locales/*.json` - New auth translations
+- `vite.config.ts` - Test mode fix for process globals
+
+**Reference**: `src/components/auth/`, `src/stores/authStore.ts`
 
 ---

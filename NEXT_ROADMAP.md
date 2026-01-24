@@ -24,10 +24,10 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-19 (Epic 70 TanStack Start SSR App complete)
+**Last Updated**: 2026-01-24 (Epic 72 Account Recovery System complete)
 **Active Phase**: Phase 1 Complete - Quality/Testing (Epic 51), Native App (Epic 63)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
-**Test Status**: ✅ 1088/1088 tests passing (100% pass rate, 57 test files)
+**Test Status**: ✅ 1236/1236 tests passing (100% pass rate, 62 test files)
 **E2E Coverage**: 85%+ of epics ✅ Epic 68 added 54 new tests (36 test files total)
 **Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
 **Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
@@ -42,37 +42,6 @@ When completing an epic:
 **Priority Focus**: Phase 1 client-side features → Evaluate backend need → Phase 3 backend services (optional)
 
 See [ARCHITECTURE_EVOLUTION.md](./ARCHITECTURE_EVOLUTION.md) for complete architectural analysis.
-
----
-
-## 🟡 Quick Fixes: Developer Experience
-
-### Epic 71: Scoped Debug Logging 🔧
-**Status**: ✅ Complete
-**Priority**: P1 - DX improvement
-**Effort**: 1-2 hours
-**Dependencies**: None
-**Assignable to subagent**: Yes
-
-**Context**: Console logging is too noisy - ~300 logger.info calls fire in dev mode with no way to filter. Need scoped debug flags so developers can focus on specific areas.
-
-**Tasks**:
-- [x] Update `src/lib/logger.ts` with scoped debug system
-- [x] Migrate `src/main.tsx` logging to use `createLogger('init')`
-- [x] Migrate transport layer logging to `createLogger('transport')`
-- [x] Fix emoji picker clipping bug
-- [x] Verify typecheck passes
-
-**Note**: The default `logger.info/debug` are now no-ops in dev (without DEBUG set), achieving the main goal. Additional files can be migrated to scoped loggers incrementally as needed.
-
-**Acceptance Criteria**:
-- ✅ `localStorage.setItem('DEBUG', 'transport')` only shows transport logs
-- ✅ `localStorage.setItem('DEBUG', '*')` shows all logs (previous behavior)
-- ✅ No DEBUG set = quiet console (warnings and errors only)
-- ✅ `bun run typecheck` passes
-
-**Git Commit Format**: `refactor: implement scoped debug logging (Epic 71)`
-**Git Tag**: `v0.71.0-logging`
 
 ---
 
@@ -1312,8 +1281,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2026-01-19 (Epic 70 TanStack Start SSR App complete)
-**Total Epics Pending**: ~14 (Epic 31, 36, 45, 49B, 51, 53B, 54-63)
+**Last Updated**: 2026-01-24 (Epic 72 Account Recovery System complete)
+**Total Epics Pending**: ~13 (Epic 31, 36, 45, 49B, 51, 53B, 54-63)
 **Total Backlog Items**: 5+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
 
 ---
