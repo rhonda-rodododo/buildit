@@ -3,6 +3,7 @@ import { Navigate, Outlet, useNavigate, useMatch } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
+import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
 import { RouteLoader } from '@/components/ui/page-loader';
 import { BackupReminderBanner } from '@/components/auth/BackupReminderBanner';
 
@@ -73,13 +74,16 @@ export const AppLayout: FC = () => {
         {/* Main content - this is the ONLY scrollable area */}
         <main
           id="main-content"
-          className="overflow-y-auto"
+          className="overflow-y-auto pb-20 md:pb-0"
         >
           <Suspense fallback={<RouteLoader />}>
             <Outlet />
           </Suspense>
         </main>
       </div>
+
+      {/* Mobile bottom navigation - fixed at bottom */}
+      <MobileBottomNav />
     </div>
   );
 };
