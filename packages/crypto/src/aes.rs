@@ -5,6 +5,7 @@ use aes_gcm::{
     aead::{Aead, KeyInit},
     Aes256Gcm, Nonce as AesNonce,
 };
+use rand::rngs::OsRng;
 use rand::RngCore;
 
 /// Encrypted data with nonce
@@ -23,9 +24,9 @@ pub fn aes_encrypt(key: Vec<u8>, plaintext: Vec<u8>) -> Result<EncryptedData, Cr
         return Err(CryptoError::InvalidKey);
     }
 
-    // Generate random nonce
+    // Generate random nonce using OS RNG (cryptographically secure)
     let mut nonce_bytes = [0u8; AES_GCM_NONCE_SIZE];
-    rand::thread_rng().fill_bytes(&mut nonce_bytes);
+    OsRng.fill_bytes(&mut nonce_bytes);
 
     // Create cipher
     let cipher = Aes256Gcm::new_from_slice(&key).map_err(|_| CryptoError::InvalidKey)?;

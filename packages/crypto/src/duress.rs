@@ -417,14 +417,15 @@ pub fn generate_decoy_contacts(count: u32) -> Vec<DecoyContact> {
     ];
 
     let count = count as usize;
-    let mut contacts = Vec::with_capacity(count.min(names.len()));
+    let count = count.min(names.len());
+    let mut contacts = Vec::with_capacity(count);
 
-    for i in 0..count.min(names.len()) {
+    for name in names.iter().take(count) {
         // Generate a random pubkey for each contact
         let contact_keypair = generate_keypair();
         contacts.push(DecoyContact {
             pubkey: contact_keypair.public_key.clone(),
-            display_name: names[i].to_string(),
+            display_name: name.to_string(),
         });
     }
 

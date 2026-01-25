@@ -119,14 +119,14 @@ pub fn create_gift_wrap(
 
     // Create and sign gift wrap with ephemeral key
     let unsigned = UnsignedEvent {
-        pubkey: ephemeral.public_key,
+        pubkey: ephemeral.public_key.clone(),
         created_at: randomized_time,
         kind: KIND_GIFT_WRAP,
         tags: vec![vec!["p".to_string(), recipient_pubkey]],
         content: encrypted_seal,
     };
 
-    sign_event(ephemeral.private_key, unsigned)
+    sign_event(ephemeral.private_key.clone(), unsigned)
 }
 
 /// Unwrap a gift-wrapped message

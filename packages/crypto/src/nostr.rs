@@ -69,9 +69,9 @@ pub fn sign_event(private_key: Vec<u8>, event: UnsignedEvent) -> Result<NostrEve
     // Create message from ID
     let message = Message::from_digest_slice(&id_bytes).map_err(|_| CryptoError::SigningFailed)?;
 
-    // Sign with Schnorr
+    // Sign with Schnorr using OS RNG (cryptographically secure)
     let keypair = secp256k1::Keypair::from_secret_key(&secp, &secret_key);
-    let signature = secp.sign_schnorr_with_rng(&message, &keypair, &mut rand::thread_rng());
+    let signature = secp.sign_schnorr_with_rng(&message, &keypair, &mut rand::rngs::OsRng);
 
     Ok(NostrEvent {
         id,

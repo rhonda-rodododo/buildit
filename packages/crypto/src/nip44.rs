@@ -4,6 +4,7 @@
 //! - ChaCha20-Poly1305 AEAD
 //! - HKDF-SHA256 key derivation
 //! - Power-of-2 padding
+//! - Constant-time padding verification (side-channel resistant)
 
 use crate::error::CryptoError;
 use crate::keys::derive_conversation_key;
@@ -14,8 +15,10 @@ use chacha20poly1305::{
 };
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
+use rand::rngs::OsRng;
 use rand::RngCore;
 use sha2::Sha256;
+use subtle::ConstantTimeEq;
 use zeroize::Zeroize;
 
 /// NIP-44 version byte
@@ -60,6 +63,9 @@ fn pad(plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
 }
 
 /// Unpad decrypted data according to NIP-44
+///
+/// SECURITY: Uses constant-time comparison for padding verification
+/// to prevent timing side-channel attacks.
 fn unpad(padded: &[u8]) -> Result<Vec<u8>, CryptoError> {
     if padded.len() < 2 {
         return Err(CryptoError::InvalidPadding);
@@ -75,13 +81,19 @@ fn unpad(padded: &[u8]) -> Result<Vec<u8>, CryptoError> {
         return Err(CryptoError::InvalidPadding);
     }
 
-    // Verify padding is all zeros
-    for &b in &padded[2 + unpadded_len..] {
-        if b != 0 {
-            return Err(CryptoError::InvalidPadding);
-        }
+    // Verify padding is all zeros using constant-time comparison
+    // This prevents timing attacks that could leak information about padding
+    let padding_slice = &padded[2 + unpadded_len..];
+    let zeros = vec![0u8; padding_slice.len()];
+    let is_valid_padding = padding_slice.ct_eq(&zeros);
+
+    if !bool::from(is_valid_padding) {
+        return Err(CryptoError::InvalidPadding);
     }
 
+    // Extract plaintext
+    // Note: The padded slice is borrowed, so we can't zeroize it directly.
+    // The caller should zeroize the original padded buffer after use.
     Ok(padded[2..2 + unpadded_len].to_vec())
 }
 
@@ -92,11 +104,11 @@ pub fn nip44_encrypt(
     plaintext: String,
 ) -> Result<String, CryptoError> {
     // Derive conversation key
-    let conversation_key = derive_conversation_key(private_key, recipient_pubkey)?;
+    let mut conversation_key = derive_conversation_key(private_key, recipient_pubkey)?;
 
-    // Generate random nonce (32 bytes for HKDF, we'll use 12 for ChaCha)
+    // Generate random nonce using OS RNG (cryptographically secure)
     let mut nonce_material = [0u8; 32];
-    rand::thread_rng().fill_bytes(&mut nonce_material);
+    OsRng.fill_bytes(&mut nonce_material);
 
     // Derive message keys using HKDF
     let hk = Hkdf::<Sha256>::new(Some(&nonce_material), &conversation_key);
@@ -135,6 +147,7 @@ pub fn nip44_encrypt(
 
     // Zeroize sensitive data
     key_material.zeroize();
+    conversation_key.zeroize();
 
     Ok(BASE64.encode(&payload))
 }
@@ -151,9 +164,9 @@ pub fn nip44_encrypt_with_key(
         return Err(CryptoError::InvalidKey);
     }
 
-    // Generate random nonce (32 bytes for HKDF, we'll use 12 for ChaCha)
+    // Generate random nonce using OS RNG (cryptographically secure)
     let mut nonce_material = [0u8; 32];
-    rand::thread_rng().fill_bytes(&mut nonce_material);
+    OsRng.fill_bytes(&mut nonce_material);
 
     // Derive message keys using HKDF
     let hk = Hkdf::<Sha256>::new(Some(&nonce_material), &conversation_key);
@@ -250,7 +263,7 @@ pub fn nip44_decrypt_with_key(
     let cipher =
         ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::DecryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
-    let padded = cipher
+    let mut padded = cipher
         .decrypt(nonce, encrypted)
         .map_err(|_| CryptoError::DecryptionFailed)?;
 
@@ -259,6 +272,7 @@ pub fn nip44_decrypt_with_key(
 
     // Zeroize sensitive data
     key_material.zeroize();
+    padded.zeroize();
 
     String::from_utf8(plaintext_bytes).map_err(|_| CryptoError::DecryptionFailed)
 }
@@ -289,7 +303,7 @@ pub fn nip44_decrypt(
     let received_mac = &payload[payload.len() - 32..];
 
     // Derive conversation key
-    let conversation_key = derive_conversation_key(private_key, sender_pubkey)?;
+    let mut conversation_key = derive_conversation_key(private_key, sender_pubkey)?;
 
     // Derive message keys
     let hk = Hkdf::<Sha256>::new(Some(nonce_material), &conversation_key);
@@ -314,7 +328,7 @@ pub fn nip44_decrypt(
     let cipher =
         ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::DecryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
-    let padded = cipher
+    let mut padded = cipher
         .decrypt(nonce, encrypted)
         .map_err(|_| CryptoError::DecryptionFailed)?;
 
@@ -323,6 +337,8 @@ pub fn nip44_decrypt(
 
     // Zeroize sensitive data
     key_material.zeroize();
+    conversation_key.zeroize();
+    padded.zeroize();
 
     String::from_utf8(plaintext_bytes).map_err(|_| CryptoError::DecryptionFailed)
 }
