@@ -31,5 +31,11 @@
   "license": "MIT",
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.4",
+    "json-schema-to-zod": "^2.7.0",
+    "quicktype": "^23.2.6",
+    "quicktype-core": "^23.2.6"
   }
 }
