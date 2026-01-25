@@ -1,7 +1,7 @@
 namespace buildit_crypto {
     // Key derivation
     [Throws=CryptoError]
-    sequence<u8> derive_master_key(string password, sequence<u8> salt);
+    sequence<u8> derive_master_key(sequence<u8> password, sequence<u8> salt);
 
     [Throws=CryptoError]
     sequence<u8> derive_database_key(sequence<u8> master_key);
@@ -75,6 +75,48 @@ namespace buildit_crypto {
     [Throws=CryptoError]
     sequence<u8> aes_decrypt(sequence<u8> key, EncryptedData encrypted);
 
+    // Duress password system (coercion resistance)
+    [Throws=CryptoError]
+    sequence<u8> hash_duress_password(sequence<u8> password, sequence<u8> salt);
+
+    [Throws=CryptoError]
+    DuressCheckResult check_duress_password(
+        sequence<u8> entered_password,
+        sequence<u8> salt,
+        sequence<u8> stored_duress_hash,
+        sequence<u8> stored_normal_hash
+    );
+
+    DecoyIdentity generate_decoy_identity(i64 created_at);
+
+    [Throws=CryptoError]
+    void secure_destroy_key(sequence<u8> key);
+
+    [Throws=CryptoError]
+    NostrEvent create_duress_alert(
+        sequence<u8> sender_private_key,
+        string recipient_pubkey,
+        i64 created_at,
+        string? custom_message
+    );
+
+    [Throws=CryptoError]
+    sequence<NostrEvent> create_duress_alerts(
+        sequence<u8> sender_private_key,
+        DuressAlertConfig config,
+        i64 created_at
+    );
+
+    [Throws=CryptoError]
+    boolean validate_duress_password(
+        sequence<u8> duress_password,
+        sequence<u8> normal_password
+    );
+
+    sequence<DecoyContact> generate_decoy_contacts(u32 count);
+
+    sequence<string> generate_decoy_messages();
+
     // Utilities
     sequence<u8> generate_salt(u32 length);
 
@@ -102,6 +144,10 @@ enum CryptoError {
     "SigningFailed",
     "KeyDerivationFailed",
     "RandomGenerationFailed",
+    "InvalidDuressPassword",
+    "DuressPasswordTooSimilar",
+    "KeyDestructionFailed",
+    "DuressAlertFailed",
 };
 
 dictionary KeyPair {
@@ -136,4 +182,28 @@ dictionary UnwrapResult {
 dictionary EncryptedData {
     sequence<u8> ciphertext;
     sequence<u8> nonce;
+};
+
+// Duress password system types
+dictionary DecoyIdentity {
+    KeyPair keypair;
+    string display_name;
+    string about;
+    i64 created_at;
+};
+
+dictionary DuressCheckResult {
+    boolean is_duress;
+    boolean password_valid;
+};
+
+dictionary DuressAlertConfig {
+    sequence<string> trusted_contact_pubkeys;
+    boolean include_location;
+    string? custom_message;
+};
+
+dictionary DecoyContact {
+    string pubkey;
+    string display_name;
 };

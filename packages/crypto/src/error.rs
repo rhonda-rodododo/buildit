@@ -46,4 +46,16 @@ pub enum CryptoError {
 
     #[error("Random number generation failed")]
     RandomGenerationFailed,
+
+    #[error("Invalid duress password")]
+    InvalidDuressPassword,
+
+    #[error("Duress password too similar to normal password")]
+    DuressPasswordTooSimilar,
+
+    #[error("Key destruction failed")]
+    KeyDestructionFailed,
+
+    #[error("Duress alert failed")]
+    DuressAlertFailed,
 }
