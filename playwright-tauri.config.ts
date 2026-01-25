@@ -57,8 +57,7 @@ export default defineConfig({
     /* Video on failure */
     video: 'retain-on-failure',
 
-    /* Permissions for BLE testing simulation */
-    permissions: ['bluetooth'],
+    /* BLE is mocked in tests, no browser permissions needed */
   },
 
   /* Configure projects */
