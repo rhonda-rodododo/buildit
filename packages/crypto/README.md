@@ -4,12 +4,15 @@ Shared cryptographic primitives for BuildIt Network - provides consistent crypto
 
 ## Features
 
-- **NIP-44 Encryption**: ChaCha20-Poly1305 with HKDF key derivation
-- **NIP-17 Gift Wrap**: Metadata protection for private messages
-- **Key Derivation**: PBKDF2 (600,000 iterations) and HKDF
-- **secp256k1**: Nostr identity key operations (Schnorr signatures)
-- **AES-256-GCM**: Key storage encryption
+- **NIP-44 Encryption**: ChaCha20-Poly1305 with HKDF key derivation and power-of-2 padding
+- **NIP-17 Gift Wrap**: Metadata protection for private messages (rumor → seal → gift wrap)
+- **Key Derivation**: PBKDF2 (600,000 iterations) and HKDF-SHA256
+- **secp256k1**: Keypair generation, Schnorr signatures (BIP-340), and ECDH
+- **Schnorr Signatures**: Standalone signing/verification for arbitrary messages
+- **Nostr Events**: NIP-01 compliant event signing and verification
+- **AES-256-GCM**: Key storage encryption with 12-byte nonces
 - **UniFFI Bindings**: Swift and Kotlin bindings for native apps
+- **Comprehensive Tests**: 86+ test cases including NIP-44/NIP-17 test vectors
 
 ## Installation
 
@@ -113,6 +116,27 @@ println!("From: {}", result.sender_pubkey);
 println!("Message: {}", result.rumor.content);
 ```
 
+### Schnorr Signatures (Standalone)
+
+```rust
+use buildit_crypto::{schnorr_sign, schnorr_verify};
+
+let keypair = generate_keypair();
+let message = b"Hello, World!";
+
+// Sign arbitrary message
+let signature = schnorr_sign(message.to_vec(), keypair.private_key)?;
+
+// Verify signature
+let pubkey_bytes = hex::decode(&keypair.public_key)?;
+let valid = schnorr_verify(
+    message.to_vec(),
+    signature,
+    pubkey_bytes
+)?;
+assert!(valid);
+```
+
 ### Nostr Events
 
 ```rust
@@ -131,6 +155,21 @@ let unsigned = UnsignedEvent {
 let signed = sign_event(keypair.private_key, unsigned)?;
 
 assert!(verify_event(signed));
+```
+
+### AES-GCM Encryption (Local Storage)
+
+```rust
+use buildit_crypto::{aes_encrypt, aes_decrypt, derive_database_key};
+
+let db_key = derive_database_key(master_key)?;
+let plaintext = b"Sensitive data".to_vec();
+
+// Encrypt with AES-256-GCM
+let encrypted = aes_encrypt(db_key.clone(), plaintext)?;
+
+// Decrypt
+let decrypted = aes_decrypt(db_key, encrypted)?;
 ```
 
 ## Building UniFFI Bindings
@@ -184,12 +223,34 @@ cargo ndk -t armeabi-v7a -t arm64-v8a -t x86_64 build --release
 ## Testing
 
 ```bash
-# Run all tests
+# Run all tests (86+ test cases)
 cargo test
 
 # Run with verbose output
 cargo test -- --nocapture
+
+# Run specific test suites
+cargo test --test nip44_vectors           # NIP-44 spec test vectors
+cargo test --test nip17_vectors           # NIP-17 spec test vectors
+cargo test --test key_derivation_vectors  # Key derivation tests
+cargo test --test protocol_conformance    # Protocol compliance
+cargo test --test tauri_integration       # Tauri integration tests
+
+# Run with clippy (strict mode)
+cargo clippy --all-targets --all-features -- -D warnings
+
+# Format code
+cargo fmt
 ```
+
+### Test Coverage
+
+- **Unit Tests**: 32 tests in library modules
+- **NIP-44 Vectors**: 8 comprehensive NIP-44 test cases
+- **NIP-17 Vectors**: 10 gift wrap test cases
+- **Key Derivation**: 16 key derivation test cases
+- **Protocol Conformance**: 9 cross-module integration tests
+- **Tauri Integration**: 11 Tauri-specific tests
 
 ## Protocol Conformance
 
