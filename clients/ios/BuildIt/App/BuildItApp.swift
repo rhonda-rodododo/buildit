@@ -28,6 +28,9 @@ struct BuildItApp: App {
     /// Transport router for message routing
     @StateObject private var transportRouter = TransportRouter.shared
 
+    /// Module registry for modular features
+    @StateObject private var moduleRegistry = ModuleRegistry.shared
+
     // MARK: - Scene
 
     var body: some Scene {
@@ -37,6 +40,7 @@ struct BuildItApp: App {
                 .environmentObject(cryptoManager)
                 .environmentObject(nostrClient)
                 .environmentObject(transportRouter)
+                .environmentObject(moduleRegistry)
                 .onAppear {
                     initializeServices()
                 }
@@ -50,6 +54,33 @@ struct BuildItApp: App {
         Task {
             // Initialize keychain and load existing keys
             await KeychainManager.shared.loadKeys()
+
+            // Initialize crypto manager
+            await cryptoManager.initialize()
+
+            // Register and initialize modules
+            do {
+                // Register modules
+                let eventsModule = try EventsModule()
+                let messagingModule = try MessagingModule()
+
+                moduleRegistry.registerModules([
+                    eventsModule,
+                    messagingModule
+                ])
+
+                // Initialize all modules
+                try await moduleRegistry.initializeAll()
+
+                // Setup Nostr event routing to modules
+                nostrClient.onEvent { event in
+                    Task {
+                        await moduleRegistry.routeEvent(event)
+                    }
+                }
+            } catch {
+                print("Failed to initialize modules: \(error)")
+            }
 
             // Start BLE scanning if authorized
             if bleManager.authorizationStatus == .authorizedAlways ||
@@ -68,10 +99,12 @@ struct BuildItApp: App {
 /// Root content view with tab-based navigation
 struct ContentView: View {
     @EnvironmentObject var bleManager: BLEManager
+    @EnvironmentObject var moduleRegistry: ModuleRegistry
     @State private var selectedTab: Tab = .chat
 
     enum Tab: String, CaseIterable {
         case chat = "Chat"
+        case events = "Events"
         case groups = "Groups"
         case devices = "Devices"
         case settings = "Settings"
@@ -84,6 +117,20 @@ struct ContentView: View {
                     Label("Chat", systemImage: "message.fill")
                 }
                 .tag(Tab.chat)
+
+            // Events tab from module
+            Group {
+                if let eventsModule = moduleRegistry.getModule(EventsModule.self),
+                   let eventsView = eventsModule.getViews().first {
+                    eventsView.view
+                } else {
+                    Text("Events module not available")
+                }
+            }
+            .tabItem {
+                Label("Events", systemImage: "calendar")
+            }
+            .tag(Tab.events)
 
             GroupsView()
                 .tabItem {

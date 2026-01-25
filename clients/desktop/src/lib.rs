@@ -6,14 +6,17 @@
 pub mod ble;
 pub mod commands;
 pub mod crypto;
+pub mod nostr;
 pub mod tray;
 
+use std::collections::HashMap;
 use std::sync::Arc;
 use parking_lot::RwLock;
 use tauri::Manager;
 
 use ble::manager::BleManager;
 use crypto::keyring::KeyringManager;
+use nostr::relay::NostrRelay;
 
 /// Application state shared across all Tauri commands
 pub struct AppState {
@@ -21,6 +24,8 @@ pub struct AppState {
     pub ble_manager: Arc<RwLock<BleManager>>,
     /// Keyring manager for secure credential storage
     pub keyring_manager: Arc<KeyringManager>,
+    /// Nostr relay connections
+    pub nostr_relays: Arc<RwLock<HashMap<String, Arc<NostrRelay>>>>,
 }
 
 impl AppState {
@@ -29,6 +34,7 @@ impl AppState {
         Self {
             ble_manager: Arc::new(RwLock::new(BleManager::new())),
             keyring_manager: Arc::new(KeyringManager::new("network.buildit.desktop")),
+            nostr_relays: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 }
@@ -92,6 +98,15 @@ pub fn run() {
             commands::crypto_commands::encrypt_nip44,
             commands::crypto_commands::decrypt_nip44,
             commands::crypto_commands::derive_conversation_key,
+            // Storage commands
+            commands::storage_commands::store_encrypted_key,
+            commands::storage_commands::retrieve_encrypted_key,
+            commands::storage_commands::delete_key,
+            // Nostr commands
+            commands::nostr_commands::sign_nostr_event,
+            commands::nostr_commands::verify_nostr_event,
+            commands::nostr_commands::gift_wrap_message,
+            commands::nostr_commands::unwrap_gift_message,
         ])
         .run(tauri::generate_context!())
         .expect("error while running BuildIt Network Desktop");

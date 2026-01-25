@@ -61,13 +61,15 @@ fn test_nip44_roundtrip() {
             sender.private_key.clone(),
             recipient.public_key.clone(),
             msg.to_string(),
-        ).unwrap();
+        )
+        .unwrap();
 
         let decrypted = nip44_decrypt(
             recipient.private_key.clone(),
             sender.public_key.clone(),
             encrypted,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(decrypted, msg);
     }
@@ -87,7 +89,8 @@ fn test_gift_wrap_roundtrip() {
         recipient.public_key.clone(),
         message.to_string(),
         now,
-    ).unwrap();
+    )
+    .unwrap();
 
     assert_eq!(rumor.kind, 14);
     assert!(rumor.sig.is_empty()); // Rumor should be unsigned
@@ -97,16 +100,13 @@ fn test_gift_wrap_roundtrip() {
         recipient.public_key.clone(),
         rumor,
         now,
-    ).unwrap();
+    )
+    .unwrap();
 
     assert_eq!(seal.kind, 13);
     assert!(!seal.sig.is_empty()); // Seal should be signed
 
-    let gift_wrap = create_gift_wrap(
-        recipient.public_key.clone(),
-        seal,
-        now,
-    ).unwrap();
+    let gift_wrap = create_gift_wrap(recipient.public_key.clone(), seal, now).unwrap();
 
     assert_eq!(gift_wrap.kind, 1059);
     assert!(!gift_wrap.sig.is_empty()); // Gift wrap should be signed
@@ -114,10 +114,7 @@ fn test_gift_wrap_roundtrip() {
     assert_eq!(gift_wrap.tags[0][0], "p");
 
     // Unwrap and verify
-    let result = unwrap_gift_wrap(
-        recipient.private_key.clone(),
-        gift_wrap,
-    ).unwrap();
+    let result = unwrap_gift_wrap(recipient.private_key.clone(), gift_wrap).unwrap();
 
     assert!(result.seal_verified);
     assert_eq!(result.sender_pubkey, sender.public_key);
@@ -132,9 +129,7 @@ fn test_nostr_event_signing() {
         pubkey: kp.public_key.clone(),
         created_at: 1700000000,
         kind: 1,
-        tags: vec![
-            vec!["p".to_string(), "deadbeef".to_string()],
-        ],
+        tags: vec![vec!["p".to_string(), "deadbeef".to_string()]],
         content: "Test message".to_string(),
     };
 

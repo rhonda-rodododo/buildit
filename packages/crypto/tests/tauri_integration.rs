@@ -38,9 +38,8 @@ fn test_hex_key_workflow() {
     assert_eq!(private_key_bytes, sender.private_key);
 
     // Derive conversation key
-    let conversation_key =
-        derive_conversation_key(private_key_bytes, recipient.public_key.clone())
-            .expect("Failed to derive key");
+    let conversation_key = derive_conversation_key(private_key_bytes, recipient.public_key.clone())
+        .expect("Failed to derive key");
     assert_eq!(conversation_key.len(), 32);
 
     // Convert conversation key to hex (for caching/storage)
@@ -74,8 +73,8 @@ fn test_nip44_with_key_for_tauri() {
     assert!(!ciphertext.is_empty());
 
     // Decrypt with same key
-    let decrypted = nip44_decrypt_with_key(conversation_key, ciphertext)
-        .expect("Decryption failed");
+    let decrypted =
+        nip44_decrypt_with_key(conversation_key, ciphertext).expect("Decryption failed");
 
     assert_eq!(decrypted, plaintext);
 }
@@ -88,14 +87,12 @@ fn test_derive_conversation_key_symmetry() {
     let bob = generate_keypair();
 
     // Alice derives key with Bob's public key
-    let alice_key =
-        derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
-            .expect("Alice failed to derive key");
+    let alice_key = derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
+        .expect("Alice failed to derive key");
 
     // Bob derives key with Alice's public key
-    let bob_key =
-        derive_conversation_key(bob.private_key.clone(), alice.public_key.clone())
-            .expect("Bob failed to derive key");
+    let bob_key = derive_conversation_key(bob.private_key.clone(), alice.public_key.clone())
+        .expect("Bob failed to derive key");
 
     // Both should get the same conversation key (ECDH property)
     assert_eq!(alice_key, bob_key);
@@ -110,21 +107,19 @@ fn test_cross_party_encryption() {
     let bob = generate_keypair();
 
     // Alice encrypts a message for Bob using pre-derived key
-    let alice_conv_key =
-        derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
-            .expect("Alice failed to derive key");
+    let alice_conv_key = derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
+        .expect("Alice failed to derive key");
 
     let plaintext = "Secret message from Alice to Bob!";
     let ciphertext = nip44_encrypt_with_key(alice_conv_key, plaintext.to_string())
         .expect("Alice encryption failed");
 
     // Bob decrypts the message using pre-derived key
-    let bob_conv_key =
-        derive_conversation_key(bob.private_key.clone(), alice.public_key.clone())
-            .expect("Bob failed to derive key");
+    let bob_conv_key = derive_conversation_key(bob.private_key.clone(), alice.public_key.clone())
+        .expect("Bob failed to derive key");
 
-    let decrypted = nip44_decrypt_with_key(bob_conv_key, ciphertext)
-        .expect("Bob decryption failed");
+    let decrypted =
+        nip44_decrypt_with_key(bob_conv_key, ciphertext).expect("Bob decryption failed");
 
     assert_eq!(decrypted, plaintext);
 }
@@ -138,18 +133,16 @@ fn test_wrong_key_fails_decryption() {
     let eve = generate_keypair();
 
     // Alice encrypts for Bob
-    let alice_conv_key =
-        derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
-            .expect("Alice failed to derive key");
+    let alice_conv_key = derive_conversation_key(alice.private_key.clone(), bob.public_key.clone())
+        .expect("Alice failed to derive key");
 
     let plaintext = "Secret message";
-    let ciphertext = nip44_encrypt_with_key(alice_conv_key, plaintext.to_string())
-        .expect("Encryption failed");
+    let ciphertext =
+        nip44_encrypt_with_key(alice_conv_key, plaintext.to_string()).expect("Encryption failed");
 
     // Eve tries to decrypt with wrong key
-    let eve_conv_key =
-        derive_conversation_key(eve.private_key.clone(), alice.public_key.clone())
-            .expect("Eve failed to derive key");
+    let eve_conv_key = derive_conversation_key(eve.private_key.clone(), alice.public_key.clone())
+        .expect("Eve failed to derive key");
 
     let result = nip44_decrypt_with_key(eve_conv_key, ciphertext);
 
@@ -179,8 +172,8 @@ fn test_multiple_messages_same_key() {
         let encrypted = nip44_encrypt_with_key(conversation_key.clone(), msg.to_string())
             .expect("Encryption failed");
 
-        let decrypted = nip44_decrypt_with_key(conversation_key.clone(), encrypted)
-            .expect("Decryption failed");
+        let decrypted =
+            nip44_decrypt_with_key(conversation_key.clone(), encrypted).expect("Decryption failed");
 
         assert_eq!(decrypted, msg);
     }
@@ -209,10 +202,10 @@ fn test_encryption_produces_different_ciphertexts() {
     assert_ne!(ciphertext1, ciphertext2);
 
     // But both should decrypt to the same plaintext
-    let decrypted1 = nip44_decrypt_with_key(conversation_key.clone(), ciphertext1)
-        .expect("Decryption 1 failed");
-    let decrypted2 = nip44_decrypt_with_key(conversation_key, ciphertext2)
-        .expect("Decryption 2 failed");
+    let decrypted1 =
+        nip44_decrypt_with_key(conversation_key.clone(), ciphertext1).expect("Decryption 1 failed");
+    let decrypted2 =
+        nip44_decrypt_with_key(conversation_key, ciphertext2).expect("Decryption 2 failed");
 
     assert_eq!(decrypted1, plaintext);
     assert_eq!(decrypted2, plaintext);
@@ -277,8 +270,8 @@ fn test_complete_tauri_workflow() {
 
     // 8. Bob decrypts message from Alice
     let bob_conv_key_bytes = hex::decode(&bob_conv_key_hex).expect("Failed to decode");
-    let decrypted = nip44_decrypt_with_key(bob_conv_key_bytes, encrypted)
-        .expect("Bob decryption failed");
+    let decrypted =
+        nip44_decrypt_with_key(bob_conv_key_bytes, encrypted).expect("Bob decryption failed");
 
     assert_eq!(decrypted, message);
 }

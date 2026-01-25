@@ -1,0 +1,276 @@
+{
+  "version": "1.0.0",
+  "description": "Nostr event signature verification test vectors",
+  "vectors": [
+    {
+      "id": "verify-001",
+      "description": "Valid signature verification",
+      "input": {
+        "note": "Sign an event, then verify it",
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test message"
+        }
+      },
+      "expected": {
+        "signature_valid": true
+      }
+    },
+    {
+      "id": "verify-002",
+      "description": "Tampered content fails verification",
+      "input": {
+        "note": "Sign event, then modify content",
+        "original_content": "Original message",
+        "tampered_content": "Tampered message",
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "expected": {
+        "signature_valid": false,
+        "note": "ID will not match, verification fails"
+      }
+    },
+    {
+      "id": "verify-003",
+      "description": "Tampered timestamp fails verification",
+      "input": {
+        "note": "Sign event, then modify timestamp",
+        "original_timestamp": 1704067200,
+        "tampered_timestamp": 1704067201,
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001"
+      },
+      "expected": {
+        "signature_valid": false
+      }
+    },
+    {
+      "id": "verify-004",
+      "description": "Wrong pubkey fails verification",
+      "input": {
+        "note": "Sign event, then change pubkey to different key",
+        "signer_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "claimed_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+      },
+      "expected": {
+        "signature_valid": false,
+        "note": "Pubkey doesn't match signer, verification fails"
+      }
+    },
+    {
+      "id": "verify-005",
+      "description": "Invalid signature format (wrong length)",
+      "input": {
+        "event": {
+          "id": "5c83da77af1dec6d7289834998ad7aafbd9e2191396d75ec3cc27f5a77226f36",
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test",
+          "sig": "invalid"
+        }
+      },
+      "expected": {
+        "signature_valid": false,
+        "error_type": "INVALID_SIGNATURE_FORMAT"
+      }
+    },
+    {
+      "id": "verify-006",
+      "description": "Invalid ID format (wrong length)",
+      "input": {
+        "event": {
+          "id": "invalid",
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test",
+          "sig": "validbutunrelatedsignaturevalidbutunrelatedsignaturevalidbutunrelatedsignaturevalidbutunrelatedsignature"
+        }
+      },
+      "expected": {
+        "signature_valid": false,
+        "error_type": "INVALID_ID_FORMAT"
+      }
+    },
+    {
+      "id": "verify-007",
+      "description": "ID doesn't match computed ID",
+      "input": {
+        "note": "Sign event correctly but provide wrong ID",
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test"
+        },
+        "use_wrong_id": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected": {
+        "signature_valid": false,
+        "note": "ID verification fails before signature check"
+      }
+    },
+    {
+      "id": "verify-008",
+      "description": "Event with tags verification",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [
+            ["e", "5c83da77af1dec6d7289834998ad7aafbd9e2191396d75ec3cc27f5a77226f36"],
+            ["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]
+          ],
+          "content": "Reply"
+        }
+      },
+      "expected": {
+        "signature_valid": true
+      }
+    },
+    {
+      "id": "verify-009",
+      "description": "Tampered tags fail verification",
+      "input": {
+        "note": "Sign event, then add/remove/modify tags",
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "original_tags": [["e", "abc123"]],
+        "tampered_tags": [["e", "abc123"], ["p", "def456"]]
+      },
+      "expected": {
+        "signature_valid": false
+      }
+    },
+    {
+      "id": "verify-010",
+      "description": "Kind 0 metadata event verification",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 0,
+          "tags": [],
+          "content": "{\"name\":\"Alice\"}"
+        }
+      },
+      "expected": {
+        "signature_valid": true
+      }
+    },
+    {
+      "id": "verify-011",
+      "description": "Kind 13 seal verification (NIP-17)",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 13,
+          "tags": [],
+          "content": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+        }
+      },
+      "expected": {
+        "signature_valid": true,
+        "tags_must_be_empty": true
+      }
+    },
+    {
+      "id": "verify-012",
+      "description": "Kind 1059 gift wrap verification (NIP-17)",
+      "input": {
+        "privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "event": {
+          "pubkey": "DERIVED_FROM_EPHEMERAL_PRIVKEY",
+          "created_at": 1704067200,
+          "kind": 1059,
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "content": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+        }
+      },
+      "expected": {
+        "signature_valid": true,
+        "must_have_p_tag": true
+      }
+    },
+    {
+      "id": "verify-013",
+      "description": "Empty signature fails",
+      "input": {
+        "event": {
+          "id": "5c83da77af1dec6d7289834998ad7aafbd9e2191396d75ec3cc27f5a77226f36",
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test",
+          "sig": ""
+        }
+      },
+      "expected": {
+        "signature_valid": false,
+        "note": "Empty signature is only valid for kind 14 rumor"
+      }
+    },
+    {
+      "id": "verify-014",
+      "description": "Kind 14 rumor has empty signature (special case)",
+      "input": {
+        "event": {
+          "id": "COMPUTED_ID",
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 14,
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "content": "Rumor content",
+          "sig": ""
+        }
+      },
+      "expected": {
+        "is_rumor": true,
+        "signature_empty_allowed": true,
+        "id_must_be_valid": true,
+        "note": "Rumor verification only checks ID, not signature"
+      }
+    }
+  ],
+  "verification_algorithm": {
+    "steps": [
+      "1. Validate event structure (all required fields present)",
+      "2. Reconstruct unsigned event from signed event",
+      "3. Compute expected ID from unsigned event",
+      "4. Compare computed ID to event.id",
+      "5. If IDs don't match, return false",
+      "6. Parse public key from event.pubkey (hex to point)",
+      "7. Parse signature from event.sig (hex to signature)",
+      "8. Parse event ID as 32-byte message",
+      "9. Verify Schnorr signature (sig, message, pubkey)",
+      "10. Return verification result"
+    ],
+    "special_cases": [
+      {
+        "kind": 14,
+        "name": "Rumor",
+        "verification": "Only verify ID computation, signature must be empty"
+      }
+    ]
+  },
+  "security_notes": [
+    "Always verify ID before verifying signature",
+    "Reject events where computed ID doesn't match event.id",
+    "Use constant-time comparison for signature verification if possible",
+    "Validate that pubkey is a valid secp256k1 point",
+    "Validate that signature is a valid Schnorr signature format"
+  ]
+}

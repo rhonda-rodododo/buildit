@@ -1,0 +1,306 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-17 complete DM flow test vectors - end-to-end messaging",
+  "vectors": [
+    {
+      "id": "fullflow-001",
+      "description": "Alice sends DM to Bob - complete flow",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "alice_pubkey": "DERIVED_FROM_ALICE_PRIVKEY",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bob_pubkey": "DERIVED_FROM_BOB_PRIVKEY",
+        "message": "Hello Bob, this is Alice!",
+        "timestamp": 1700000000
+      },
+      "alice_sends": {
+        "step1": "Create rumor (kind 14, unsigned)",
+        "step2": "Create seal (kind 13, signed by Alice)",
+        "step3": "Create gift wrap (kind 1059, signed by ephemeral)",
+        "step4": "Publish gift wrap to relay"
+      },
+      "bob_receives": {
+        "step1": "Receive gift wrap from relay",
+        "step2": "Decrypt gift wrap → seal",
+        "step3": "Verify seal signature",
+        "step4": "Decrypt seal → rumor",
+        "step5": "Extract sender from seal.pubkey",
+        "step6": "Display message to Bob"
+      },
+      "expected": {
+        "bob_sees_message": "Hello Bob, this is Alice!",
+        "bob_sees_sender": "ALICE_PUBKEY",
+        "seal_verified": true,
+        "timestamps_randomized": true
+      }
+    },
+    {
+      "id": "fullflow-002",
+      "description": "Bob replies to Alice - bidirectional messaging",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "alice_pubkey": "DERIVED_FROM_ALICE_PRIVKEY",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bob_pubkey": "DERIVED_FROM_BOB_PRIVKEY",
+        "alice_message": "Hi Bob!",
+        "bob_reply": "Hi Alice! Got your message.",
+        "timestamp": 1700000000
+      },
+      "flow": [
+        {
+          "sender": "Alice",
+          "recipient": "Bob",
+          "message": "Hi Bob!",
+          "result": "Bob receives and verifies"
+        },
+        {
+          "sender": "Bob",
+          "recipient": "Alice",
+          "message": "Hi Alice! Got your message.",
+          "result": "Alice receives and verifies"
+        }
+      ],
+      "expected": {
+        "alice_receives_reply": true,
+        "bob_receives_original": true,
+        "all_seals_verified": true,
+        "different_ephemeral_keys": true
+      }
+    },
+    {
+      "id": "fullflow-003",
+      "description": "Multi-message conversation",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "messages": [
+          { "from": "Alice", "to": "Bob", "text": "Message 1" },
+          { "from": "Bob", "to": "Alice", "text": "Message 2" },
+          { "from": "Alice", "to": "Bob", "text": "Message 3" },
+          { "from": "Bob", "to": "Alice", "text": "Message 4" },
+          { "from": "Alice", "to": "Bob", "text": "Message 5" }
+        ]
+      },
+      "expected": {
+        "all_messages_delivered": true,
+        "all_seals_verified": true,
+        "unique_ephemeral_keys_count": 5,
+        "conversation_order_preserved": true
+      }
+    },
+    {
+      "id": "fullflow-004",
+      "description": "Metadata protection - timestamps obscured",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "actual_send_time": 1700000000,
+        "message": "Sent at exact time"
+      },
+      "observer_sees": {
+        "giftwrap_timestamp": "RANDOMIZED_WITHIN_2_DAYS",
+        "giftwrap_pubkey": "EPHEMERAL_RANDOM",
+        "recipient_from_p_tag": "BOB_PUBKEY"
+      },
+      "observer_cannot_see": [
+        "actual_send_time",
+        "sender_identity",
+        "message_content",
+        "seal_timestamp",
+        "rumor_timestamp"
+      ],
+      "expected": {
+        "sender_privacy_protected": true,
+        "timestamp_privacy_protected": true,
+        "content_encrypted": true
+      }
+    },
+    {
+      "id": "fullflow-005",
+      "description": "Replay attack prevention",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "message": "Original message",
+        "timestamp": 1700000000
+      },
+      "attack": {
+        "attacker_captures_giftwrap": true,
+        "attacker_replays_to_bob": true
+      },
+      "expected": {
+        "bob_can_decrypt_both": true,
+        "bob_should_detect_duplicate": true,
+        "detection_method": "Track seen event IDs",
+        "note": "Client should track processed gift wrap IDs to detect replays"
+      }
+    },
+    {
+      "id": "fullflow-006",
+      "description": "Man-in-the-middle attack prevention",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "alice_pubkey": "ALICE_PUBKEY",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bob_pubkey": "BOB_PUBKEY",
+        "mallory_privkey": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "mallory_pubkey": "MALLORY_PUBKEY",
+        "message": "Alice to Bob"
+      },
+      "attack_1": {
+        "mallory_intercepts_and_reencrypts": true,
+        "mallory_changes_content": true
+      },
+      "result_1": {
+        "bob_sees_sender": "MALLORY_PUBKEY",
+        "bob_knows_not_from_alice": true,
+        "seal_signature_from_mallory": true,
+        "attack_detectable": true
+      },
+      "attack_2": {
+        "mallory_tries_to_forge_seal": true,
+        "mallory_claims_to_be_alice": true
+      },
+      "result_2": {
+        "signature_verification_fails": true,
+        "attack_prevented": true,
+        "note": "Mallory cannot sign as Alice without Alice's private key"
+      }
+    },
+    {
+      "id": "fullflow-007",
+      "description": "Forward secrecy - ephemeral key benefits",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "send_10_messages": true
+      },
+      "compromise_scenario": {
+        "attacker_captures_all_giftwraps": true,
+        "attacker_later_steals_bob_privkey": true
+      },
+      "expected": {
+        "attacker_can_decrypt_seals": true,
+        "attacker_learns_sender_alice": true,
+        "attacker_gets_message_contents": true,
+        "ephemeral_keys_provide_no_forward_secrecy": true,
+        "note": "NIP-17 provides metadata privacy but NOT forward secrecy"
+      }
+    },
+    {
+      "id": "fullflow-008",
+      "description": "Cross-client compatibility",
+      "scenario": {
+        "alice_client": "Desktop (Rust)",
+        "bob_client": "iOS (Swift)",
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "message": "Cross-platform test"
+      },
+      "expected": {
+        "alice_can_send": true,
+        "bob_can_receive": true,
+        "bob_can_reply": true,
+        "alice_can_receive_reply": true,
+        "all_signatures_verify": true,
+        "note": "All clients must implement same protocol"
+      }
+    },
+    {
+      "id": "fullflow-009",
+      "description": "Offline delivery via relay",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bob_pubkey": "BOB_PUBKEY",
+        "message": "Message while Bob offline"
+      },
+      "flow": [
+        { "time": "T0", "event": "Alice sends message" },
+        { "time": "T0", "event": "Relay stores gift wrap" },
+        { "time": "T0", "event": "Bob is offline" },
+        { "time": "T1", "event": "Bob comes online" },
+        { "time": "T1", "event": "Bob queries relay for kind 1059 with his pubkey in p tag" },
+        { "time": "T1", "event": "Bob receives and decrypts gift wrap" }
+      ],
+      "relay_query": {
+        "kind": 1059,
+        "tags": [["#p", "BOB_PUBKEY"]],
+        "since": "last_sync_timestamp"
+      },
+      "expected": {
+        "bob_receives_message": true,
+        "message_content_correct": true,
+        "sender_verified": true
+      }
+    },
+    {
+      "id": "fullflow-010",
+      "description": "Group messaging using NIP-17",
+      "scenario": {
+        "alice_privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bob_privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "charlie_privkey": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "group_message": "Meeting at 3pm"
+      },
+      "alice_sends_to_group": [
+        {
+          "recipient": "Bob",
+          "rumor_p_tags": ["BOB_PUBKEY", "CHARLIE_PUBKEY"],
+          "giftwrap_p_tag": "BOB_PUBKEY"
+        },
+        {
+          "recipient": "Charlie",
+          "rumor_p_tags": ["BOB_PUBKEY", "CHARLIE_PUBKEY"],
+          "giftwrap_p_tag": "CHARLIE_PUBKEY"
+        }
+      ],
+      "expected": {
+        "bob_receives_message": true,
+        "charlie_receives_message": true,
+        "both_see_group_context": true,
+        "rumor_p_tags_show_group": ["BOB_PUBKEY", "CHARLIE_PUBKEY"],
+        "note": "Rumor is identical for all recipients, only gift wrap changes"
+      }
+    }
+  ],
+  "protocol_flow_summary": {
+    "sending": [
+      "1. Create rumor (kind 14, unsigned, with recipient p tag)",
+      "2. Encrypt rumor with NIP-44 (sender privkey → recipient pubkey)",
+      "3. Create seal (kind 13, signed by sender, contains encrypted rumor)",
+      "4. Generate ephemeral keypair",
+      "5. Encrypt seal with NIP-44 (ephemeral privkey → recipient pubkey)",
+      "6. Create gift wrap (kind 1059, signed by ephemeral, contains encrypted seal)",
+      "7. Publish gift wrap to relay",
+      "8. Discard ephemeral private key"
+    ],
+    "receiving": [
+      "1. Query relay for kind 1059 events with own pubkey in p tag",
+      "2. Validate gift wrap signature",
+      "3. Decrypt gift wrap with NIP-44 (own privkey → ephemeral pubkey)",
+      "4. Parse seal from decrypted content",
+      "5. Verify seal signature",
+      "6. Decrypt seal with NIP-44 (own privkey → seal pubkey)",
+      "7. Parse rumor from decrypted content",
+      "8. Validate rumor structure",
+      "9. Extract sender identity from seal.pubkey",
+      "10. Display message to user"
+    ]
+  },
+  "security_properties": {
+    "confidentiality": "Message content encrypted end-to-end",
+    "authenticity": "Seal signature proves sender identity",
+    "integrity": "MAC in NIP-44 ensures content not tampered",
+    "metadata_privacy": {
+      "sender_hidden": "Ephemeral key hides sender from observer",
+      "timestamp_hidden": "Randomized timestamps obscure send time",
+      "recipient_visible": "p tag reveals recipient pubkey to relay/observer"
+    },
+    "limitations": {
+      "no_forward_secrecy": "Compromise of privkey reveals all past messages",
+      "no_recipient_privacy": "p tag reveals who is receiving",
+      "replay_attacks": "Client must track seen event IDs"
+    }
+  }
+}

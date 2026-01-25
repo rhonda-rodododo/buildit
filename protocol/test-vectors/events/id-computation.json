@@ -1,0 +1,261 @@
+{
+  "version": "1.0.0",
+  "description": "Nostr event ID computation test vectors - SHA256 hashing of serialized events",
+  "vectors": [
+    {
+      "id": "eventid-001",
+      "description": "Minimal event - kind 1 with empty tags and content",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 0,
+        "kind": 1,
+        "tags": [],
+        "content": ""
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",0,1,[],\"\"]",
+      "expected": {
+        "id": "DETERMINISTIC_HASH_OF_SERIALIZATION",
+        "id_length": 64,
+        "id_is_lowercase_hex": true
+      }
+    },
+    {
+      "id": "eventid-002",
+      "description": "Same event twice produces same ID",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 1704067200,
+        "kind": 1,
+        "tags": [],
+        "content": "Hello"
+      },
+      "expected": {
+        "id_deterministic": true,
+        "compute_twice_same_result": true
+      }
+    },
+    {
+      "id": "eventid-003",
+      "description": "Different content produces different ID",
+      "input": {
+        "event1": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Message A"
+        },
+        "event2": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Message B"
+        }
+      },
+      "expected": {
+        "ids_must_differ": true
+      }
+    },
+    {
+      "id": "eventid-004",
+      "description": "Different timestamp produces different ID",
+      "input": {
+        "event1": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Same content"
+        },
+        "event2": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067201,
+          "kind": 1,
+          "tags": [],
+          "content": "Same content"
+        }
+      },
+      "expected": {
+        "ids_must_differ": true
+      }
+    },
+    {
+      "id": "eventid-005",
+      "description": "Tag order affects ID",
+      "input": {
+        "event1": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [["e", "aaa"], ["p", "bbb"]],
+          "content": "Test"
+        },
+        "event2": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [["p", "bbb"], ["e", "aaa"]],
+          "content": "Test"
+        }
+      },
+      "expected": {
+        "ids_must_differ": true,
+        "note": "Tag order is significant"
+      }
+    },
+    {
+      "id": "eventid-006",
+      "description": "Tag value order within a tag affects ID",
+      "input": {
+        "event1": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [["p", "aaa", "bbb"]],
+          "content": "Test"
+        },
+        "event2": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [["p", "bbb", "aaa"]],
+          "content": "Test"
+        }
+      },
+      "expected": {
+        "ids_must_differ": true,
+        "note": "Order within a tag matters"
+      }
+    },
+    {
+      "id": "eventid-007",
+      "description": "Unicode content affects ID correctly",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 1704067200,
+        "kind": 1,
+        "tags": [],
+        "content": "Hello 世界! 🌍"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",1704067200,1,[],\"Hello 世界! 🌍\"]",
+      "expected": {
+        "utf8_bytes_hashed": true,
+        "id_length": 64
+      }
+    },
+    {
+      "id": "eventid-008",
+      "description": "JSON escaping in serialization",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 1704067200,
+        "kind": 1,
+        "tags": [],
+        "content": "Quote: \" Backslash: \\ Newline: \n"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",1704067200,1,[],\"Quote: \\\" Backslash: \\\\ Newline: \\n\"]",
+      "expected": {
+        "quotes_escaped": true,
+        "backslashes_escaped": true,
+        "newlines_escaped": true
+      }
+    },
+    {
+      "id": "eventid-009",
+      "description": "Empty tags array",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 1704067200,
+        "kind": 1,
+        "tags": [],
+        "content": "No tags"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",1704067200,1,[],\"No tags\"]",
+      "expected": {
+        "tags_represented_as_empty_array": true
+      }
+    },
+    {
+      "id": "eventid-010",
+      "description": "Complex tags array",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 1704067200,
+        "kind": 1,
+        "tags": [
+          ["e", "abc123", "wss://relay.com", "reply"],
+          ["p", "def456"],
+          ["t", "nostr"]
+        ],
+        "content": "Tagged post"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",1704067200,1,[[\"e\",\"abc123\",\"wss://relay.com\",\"reply\"],[\"p\",\"def456\"],[\"t\",\"nostr\"]],\"Tagged post\"]",
+      "expected": {
+        "tags_properly_nested": true,
+        "no_whitespace_in_serialization": true
+      }
+    },
+    {
+      "id": "eventid-011",
+      "description": "Negative timestamp (before Unix epoch)",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": -1,
+        "kind": 1,
+        "tags": [],
+        "content": "Before 1970"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",-1,1,[],\"Before 1970\"]",
+      "expected": {
+        "negative_timestamp_allowed": true,
+        "id_computes_correctly": true
+      }
+    },
+    {
+      "id": "eventid-012",
+      "description": "Very large timestamp",
+      "input": {
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "created_at": 9999999999,
+        "kind": 1,
+        "tags": [],
+        "content": "Far future"
+      },
+      "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",9999999999,1,[],\"Far future\"]",
+      "expected": {
+        "large_timestamp_handled": true
+      }
+    }
+  ],
+  "algorithm": {
+    "steps": [
+      "1. Construct JSON array: [0, pubkey, created_at, kind, tags, content]",
+      "2. Serialize to compact JSON (no whitespace)",
+      "3. Encode as UTF-8 bytes",
+      "4. Compute SHA256 hash",
+      "5. Encode hash as lowercase hex (64 characters)"
+    ],
+    "important_notes": [
+      "No whitespace in JSON serialization",
+      "pubkey is quoted hex string",
+      "created_at is integer (no quotes)",
+      "kind is integer (no quotes)",
+      "tags is nested array with proper JSON formatting",
+      "content is JSON-escaped string",
+      "Hash output must be lowercase hex"
+    ]
+  },
+  "test_procedure": {
+    "for_each_vector": [
+      "1. Construct event from input fields",
+      "2. Serialize event according to NIP-01",
+      "3. Verify serialization matches expected format (if provided)",
+      "4. Compute SHA256 of UTF-8 bytes",
+      "5. Encode as lowercase hex",
+      "6. Verify ID is 64 hex characters",
+      "7. For deterministic tests, verify ID matches expected value",
+      "8. For comparison tests, verify IDs differ as expected"
+    ]
+  }
+}

@@ -43,9 +43,14 @@ import javax.inject.Singleton
         GroupMemberEntity::class,
         LinkedDeviceEntity::class,
         ReactionEntity::class,
-        AttachmentEntity::class
+        AttachmentEntity::class,
+        network.buildit.modules.events.data.local.EventEntity::class,
+        network.buildit.modules.events.data.local.RsvpEntity::class,
+        network.buildit.modules.messaging.data.local.MessagingMetadataEntity::class,
+        network.buildit.modules.messaging.data.local.ReadReceiptEntity::class,
+        network.buildit.modules.messaging.data.local.MessageReactionEntity::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -57,6 +62,11 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun linkedDeviceDao(): LinkedDeviceDao
     abstract fun reactionDao(): ReactionDao
     abstract fun attachmentDao(): AttachmentDao
+    abstract fun eventsDao(): network.buildit.modules.events.data.local.EventsDao
+    abstract fun rsvpsDao(): network.buildit.modules.events.data.local.RsvpsDao
+    abstract fun messagingMetadataDao(): network.buildit.modules.messaging.data.local.MessagingMetadataDao
+    abstract fun messagingReadReceiptDao(): network.buildit.modules.messaging.data.local.MessagingReadReceiptDao
+    abstract fun messagingReactionDao(): network.buildit.modules.messaging.data.local.MessagingReactionDao
 }
 
 // ============== Entities ==============
@@ -590,4 +600,19 @@ object DatabaseModule {
 
     @Provides
     fun provideAttachmentDao(database: BuildItDatabase): AttachmentDao = database.attachmentDao()
+
+    @Provides
+    fun provideEventsDao(database: BuildItDatabase): network.buildit.modules.events.data.local.EventsDao = database.eventsDao()
+
+    @Provides
+    fun provideRsvpsDao(database: BuildItDatabase): network.buildit.modules.events.data.local.RsvpsDao = database.rsvpsDao()
+
+    @Provides
+    fun provideMessagingMetadataDao(database: BuildItDatabase): network.buildit.modules.messaging.data.local.MessagingMetadataDao = database.messagingMetadataDao()
+
+    @Provides
+    fun provideMessagingReadReceiptDao(database: BuildItDatabase): network.buildit.modules.messaging.data.local.MessagingReadReceiptDao = database.messagingReadReceiptDao()
+
+    @Provides
+    fun provideMessagingReactionDao(database: BuildItDatabase): network.buildit.modules.messaging.data.local.MessagingReactionDao = database.messagingReactionDao()
 }

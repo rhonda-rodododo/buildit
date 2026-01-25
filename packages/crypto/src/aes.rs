@@ -28,8 +28,7 @@ pub fn aes_encrypt(key: Vec<u8>, plaintext: Vec<u8>) -> Result<EncryptedData, Cr
     rand::thread_rng().fill_bytes(&mut nonce_bytes);
 
     // Create cipher
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|_| CryptoError::InvalidKey)?;
+    let cipher = Aes256Gcm::new_from_slice(&key).map_err(|_| CryptoError::InvalidKey)?;
     let nonce = AesNonce::from_slice(&nonce_bytes);
 
     // Encrypt
@@ -54,8 +53,7 @@ pub fn aes_decrypt(key: Vec<u8>, encrypted: EncryptedData) -> Result<Vec<u8>, Cr
     }
 
     // Create cipher
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|_| CryptoError::InvalidKey)?;
+    let cipher = Aes256Gcm::new_from_slice(&key).map_err(|_| CryptoError::InvalidKey)?;
     let nonce = AesNonce::from_slice(&encrypted.nonce);
 
     // Decrypt

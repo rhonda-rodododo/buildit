@@ -28,15 +28,19 @@ fn calc_padded_len(unpadded_len: usize) -> usize {
     }
 
     let next_power = (unpadded_len as u32).next_power_of_two() as usize;
-    let chunk = if next_power <= 256 { 32 } else { next_power / 8 };
-    chunk * ((unpadded_len + chunk - 1) / chunk)
+    let chunk = if next_power <= 256 {
+        32
+    } else {
+        next_power / 8
+    };
+    chunk * unpadded_len.div_ceil(chunk)
 }
 
 /// Pad plaintext according to NIP-44
 fn pad(plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
     let unpadded_len = plaintext.len();
 
-    if unpadded_len < 1 || unpadded_len > 65535 {
+    if !(1..=65535).contains(&unpadded_len) {
         return Err(CryptoError::InvalidPlaintextLength);
     }
 
@@ -63,7 +67,7 @@ fn unpad(padded: &[u8]) -> Result<Vec<u8>, CryptoError> {
 
     let unpadded_len = ((padded[0] as usize) << 8) | (padded[1] as usize);
 
-    if unpadded_len < 1 || unpadded_len > 65535 {
+    if !(1..=65535).contains(&unpadded_len) {
         return Err(CryptoError::InvalidPadding);
     }
 
@@ -108,8 +112,8 @@ pub fn nip44_encrypt(
     let padded = pad(plaintext.as_bytes())?;
 
     // Encrypt with ChaCha20-Poly1305
-    let cipher = ChaCha20Poly1305::new_from_slice(chacha_key)
-        .map_err(|_| CryptoError::EncryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::EncryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
     let ciphertext = cipher
         .encrypt(nonce, padded.as_slice())
@@ -130,7 +134,6 @@ pub fn nip44_encrypt(
     payload.extend_from_slice(&mac_bytes);
 
     // Zeroize sensitive data
-    let mut key_material = key_material;
     key_material.zeroize();
 
     Ok(BASE64.encode(&payload))
@@ -166,8 +169,8 @@ pub fn nip44_encrypt_with_key(
     let padded = pad(plaintext.as_bytes())?;
 
     // Encrypt with ChaCha20-Poly1305
-    let cipher = ChaCha20Poly1305::new_from_slice(chacha_key)
-        .map_err(|_| CryptoError::EncryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::EncryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
     let ciphertext = cipher
         .encrypt(nonce, padded.as_slice())
@@ -188,7 +191,6 @@ pub fn nip44_encrypt_with_key(
     payload.extend_from_slice(&mac_bytes);
 
     // Zeroize sensitive data
-    let mut key_material = key_material;
     key_material.zeroize();
 
     Ok(BASE64.encode(&payload))
@@ -245,8 +247,8 @@ pub fn nip44_decrypt_with_key(
         .map_err(|_| CryptoError::InvalidMac)?;
 
     // Decrypt
-    let cipher = ChaCha20Poly1305::new_from_slice(chacha_key)
-        .map_err(|_| CryptoError::DecryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::DecryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
     let padded = cipher
         .decrypt(nonce, encrypted)
@@ -256,7 +258,6 @@ pub fn nip44_decrypt_with_key(
     let plaintext_bytes = unpad(&padded)?;
 
     // Zeroize sensitive data
-    let mut key_material = key_material;
     key_material.zeroize();
 
     String::from_utf8(plaintext_bytes).map_err(|_| CryptoError::DecryptionFailed)
@@ -310,8 +311,8 @@ pub fn nip44_decrypt(
         .map_err(|_| CryptoError::InvalidMac)?;
 
     // Decrypt
-    let cipher = ChaCha20Poly1305::new_from_slice(chacha_key)
-        .map_err(|_| CryptoError::DecryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(chacha_key).map_err(|_| CryptoError::DecryptionFailed)?;
     let nonce = Nonce::from_slice(chacha_nonce);
     let padded = cipher
         .decrypt(nonce, encrypted)
@@ -321,7 +322,6 @@ pub fn nip44_decrypt(
     let plaintext_bytes = unpad(&padded)?;
 
     // Zeroize sensitive data
-    let mut key_material = key_material;
     key_material.zeroize();
 
     String::from_utf8(plaintext_bytes).map_err(|_| CryptoError::DecryptionFailed)
@@ -435,27 +435,17 @@ mod tests {
         let recipient = generate_keypair();
 
         // Derive conversation key (same for both parties)
-        let conv_key = derive_conversation_key(
-            sender.private_key.clone(),
-            recipient.public_key.clone(),
-        )
-        .unwrap();
+        let conv_key =
+            derive_conversation_key(sender.private_key.clone(), recipient.public_key.clone())
+                .unwrap();
 
         let plaintext = "Hello with pre-derived key!";
 
         // Encrypt with conversation key
-        let encrypted = nip44_encrypt_with_key(
-            conv_key.clone(),
-            plaintext.to_string(),
-        )
-        .unwrap();
+        let encrypted = nip44_encrypt_with_key(conv_key.clone(), plaintext.to_string()).unwrap();
 
         // Decrypt with same conversation key
-        let decrypted = nip44_decrypt_with_key(
-            conv_key,
-            encrypted,
-        )
-        .unwrap();
+        let decrypted = nip44_decrypt_with_key(conv_key, encrypted).unwrap();
 
         assert_eq!(decrypted, plaintext);
     }
@@ -468,36 +458,22 @@ mod tests {
         let bob = generate_keypair();
 
         // Alice derives conversation key
-        let alice_conv_key = derive_conversation_key(
-            alice.private_key.clone(),
-            bob.public_key.clone(),
-        )
-        .unwrap();
+        let alice_conv_key =
+            derive_conversation_key(alice.private_key.clone(), bob.public_key.clone()).unwrap();
 
         // Bob derives conversation key
-        let bob_conv_key = derive_conversation_key(
-            bob.private_key.clone(),
-            alice.public_key.clone(),
-        )
-        .unwrap();
+        let bob_conv_key =
+            derive_conversation_key(bob.private_key.clone(), alice.public_key.clone()).unwrap();
 
         // Keys should be equal (ECDH symmetry)
         assert_eq!(alice_conv_key, bob_conv_key);
 
         // Alice encrypts
         let plaintext = "Secret from Alice to Bob!";
-        let encrypted = nip44_encrypt_with_key(
-            alice_conv_key,
-            plaintext.to_string(),
-        )
-        .unwrap();
+        let encrypted = nip44_encrypt_with_key(alice_conv_key, plaintext.to_string()).unwrap();
 
         // Bob decrypts
-        let decrypted = nip44_decrypt_with_key(
-            bob_conv_key,
-            encrypted,
-        )
-        .unwrap();
+        let decrypted = nip44_decrypt_with_key(bob_conv_key, encrypted).unwrap();
 
         assert_eq!(decrypted, plaintext);
     }

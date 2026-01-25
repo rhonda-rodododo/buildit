@@ -1,0 +1,286 @@
+{
+  "version": "1.0.0",
+  "description": "Nostr event signing test vectors - Schnorr signatures and event ID computation",
+  "vectors": [
+    {
+      "id": "sign-001",
+      "description": "Basic event signing - kind 1 text note",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Hello Nostr!"
+        }
+      },
+      "expected": {
+        "id_length": 64,
+        "id_is_hex": true,
+        "sig_length": 128,
+        "sig_is_hex": true,
+        "signature_verifies": true,
+        "serialization": "[0,\"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798\",1704067200,1,[],\"Hello Nostr!\"]"
+      }
+    },
+    {
+      "id": "sign-002",
+      "description": "Event with tags",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [
+            ["e", "5c83da77af1dec6d7289834998ad7aafbd9e2191396d75ec3cc27f5a77226f36"],
+            ["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]
+          ],
+          "content": "Reply to event"
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "tags_preserved_in_id": true,
+        "tags_order_matters": true
+      }
+    },
+    {
+      "id": "sign-003",
+      "description": "Event with unicode content",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Hello 世界! 🌍 Привет"
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "utf8_preserved": true
+      }
+    },
+    {
+      "id": "sign-004",
+      "description": "Event with special characters requiring escaping",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Quote: \" Backslash: \\ Newline: \n Tab: \t"
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "json_escaping_correct": true,
+        "note": "Content must be JSON-escaped in serialization"
+      }
+    },
+    {
+      "id": "sign-005",
+      "description": "Kind 0 metadata event",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 0,
+          "tags": [],
+          "content": "{\"name\":\"Alice\",\"about\":\"BuildIt user\"}"
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "content_is_json_string": true,
+        "note": "Content is JSON-stringified object"
+      }
+    },
+    {
+      "id": "sign-006",
+      "description": "Kind 3 contact list",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 3,
+          "tags": [
+            ["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5", "wss://relay.example.com", "Alice"],
+            ["p", "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9", "wss://relay2.example.com", "Bob"]
+          ],
+          "content": ""
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "empty_content_allowed": true
+      }
+    },
+    {
+      "id": "sign-007",
+      "description": "Kind 13 seal (NIP-17)",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 13,
+          "tags": [],
+          "content": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMocRpqbhXo="
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "tags_must_be_empty": true
+      }
+    },
+    {
+      "id": "sign-008",
+      "description": "Kind 1059 gift wrap (NIP-17)",
+      "input": {
+        "privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "event": {
+          "pubkey": "DERIVED_FROM_EPHEMERAL_PRIVKEY",
+          "created_at": 1704067200,
+          "kind": 1059,
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "content": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMocRpqbhXo="
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "must_have_p_tag": true
+      }
+    },
+    {
+      "id": "sign-009",
+      "description": "Empty content is valid",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": ""
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "empty_content_allowed": true
+      }
+    },
+    {
+      "id": "sign-010",
+      "description": "Large content (10KB)",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content_length": 10240,
+          "content_pattern": "a"
+        }
+      },
+      "expected": {
+        "signature_verifies": true,
+        "note": "Generate 10KB of 'a' characters"
+      }
+    },
+    {
+      "id": "sign-011",
+      "description": "Invalid private key (wrong length)",
+      "input": {
+        "privkey": "00000000000000000000000000000000000000000000000000000000",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Test"
+        }
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KEY"
+      }
+    },
+    {
+      "id": "sign-012",
+      "description": "Deterministic signature with same aux_rand",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "event": {
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1704067200,
+          "kind": 1,
+          "tags": [],
+          "content": "Same event"
+        },
+        "use_deterministic_nonce": true
+      },
+      "expected": {
+        "note": "Signatures may vary due to random nonce in Schnorr",
+        "all_signatures_verify": true,
+        "id_always_same": true
+      }
+    }
+  ],
+  "serialization_format": {
+    "description": "NIP-01 event serialization for ID computation",
+    "format": "[0,<pubkey>,<created_at>,<kind>,<tags>,<content>]",
+    "examples": [
+      {
+        "event": {
+          "pubkey": "abc123",
+          "created_at": 1234567890,
+          "kind": 1,
+          "tags": [],
+          "content": "test"
+        },
+        "serialized": "[0,\"abc123\",1234567890,1,[],\"test\"]"
+      },
+      {
+        "event": {
+          "pubkey": "abc123",
+          "created_at": 1234567890,
+          "kind": 1,
+          "tags": [["e", "xyz"], ["p", "def"]],
+          "content": "test"
+        },
+        "serialized": "[0,\"abc123\",1234567890,1,[[\"e\",\"xyz\"],[\"p\",\"def\"]],\"test\"]"
+      }
+    ],
+    "notes": [
+      "Leading 0 indicates serialization version",
+      "Pubkey is unquoted hex string wrapped in quotes",
+      "Timestamp is Unix epoch seconds (integer)",
+      "Tags is JSON array of arrays",
+      "Content is JSON-escaped string"
+    ]
+  },
+  "id_computation": {
+    "steps": [
+      "1. Serialize event according to NIP-01 format",
+      "2. Compute SHA256 hash of UTF-8 bytes",
+      "3. Encode hash as lowercase hex string (64 chars)"
+    ]
+  },
+  "signature_generation": {
+    "steps": [
+      "1. Compute event ID",
+      "2. Parse event ID as 32-byte message hash",
+      "3. Sign hash with Schnorr signature (secp256k1)",
+      "4. Encode signature as lowercase hex string (128 chars)"
+    ]
+  }
+}

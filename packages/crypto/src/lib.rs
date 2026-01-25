@@ -7,19 +7,22 @@
 //! - secp256k1 signing/verification
 //! - UniFFI bindings for Swift/Kotlin
 
+// Allow clippy warnings in generated code
+#![allow(clippy::empty_line_after_doc_comments)]
+
+mod aes;
 mod error;
 mod keys;
-mod nip44;
 mod nip17;
+mod nip44;
 mod nostr;
-mod aes;
 
+pub use aes::*;
 pub use error::CryptoError;
 pub use keys::*;
-pub use nip44::*;
 pub use nip17::*;
+pub use nip44::*;
 pub use nostr::*;
-pub use aes::*;
 
 use rand::Rng;
 
@@ -47,6 +50,25 @@ pub fn randomize_timestamp(timestamp: i64, range_seconds: u32) -> i64 {
     let mut rng = rand::thread_rng();
     let offset = rng.gen_range(-(range_seconds as i64)..=(range_seconds as i64));
     timestamp + offset
+}
+
+/// Sign arbitrary message with Schnorr signature (BIP-340)
+///
+/// This is a wrapper that reorders parameters for UniFFI compatibility.
+/// The keys module has the main implementation.
+pub fn schnorr_sign(message: Vec<u8>, private_key: Vec<u8>) -> Result<Vec<u8>, CryptoError> {
+    keys::schnorr_sign(&message, private_key)
+}
+
+/// Verify Schnorr signature (BIP-340)
+///
+/// This is a wrapper for UniFFI compatibility.
+pub fn schnorr_verify(
+    message: Vec<u8>,
+    signature: Vec<u8>,
+    public_key: Vec<u8>,
+) -> Result<bool, CryptoError> {
+    keys::schnorr_verify(&message, signature, public_key)
 }
 
 #[cfg(test)]

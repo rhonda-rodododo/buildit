@@ -1,0 +1,212 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-44 v2 decryption test vectors - payload validation and error handling",
+  "vectors": [
+    {
+      "id": "nip44-decrypt-001",
+      "description": "Valid decryption with known ciphertext",
+      "input": {
+        "note": "Encrypt 'Test message' with these keys, then decrypt",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "plaintext_to_encrypt": "Test message"
+      },
+      "expected": {
+        "decrypted_plaintext": "Test message"
+      }
+    },
+    {
+      "id": "nip44-decrypt-002",
+      "description": "Invalid version byte",
+      "input": {
+        "ciphertext_base64": "CONSTRUCT_WITH_VERSION_BYTE_1",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_VERSION",
+        "note": "Only version 2 is supported"
+      }
+    },
+    {
+      "id": "nip44-decrypt-003",
+      "description": "Payload too short (missing components)",
+      "input": {
+        "ciphertext_base64": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_CIPHERTEXT",
+        "note": "Minimum length: 1 (version) + 32 (nonce) + 34 (min encrypted) + 32 (mac) = 99 bytes"
+      }
+    },
+    {
+      "id": "nip44-decrypt-004",
+      "description": "Invalid base64 encoding",
+      "input": {
+        "ciphertext_base64": "This is not valid base64!@#$",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_BASE64"
+      }
+    },
+    {
+      "id": "nip44-decrypt-005",
+      "description": "MAC verification failure (tampered ciphertext)",
+      "input": {
+        "note": "Encrypt a message, then flip one bit in the ciphertext",
+        "plaintext_to_encrypt": "Original message",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "tamper_ciphertext": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_MAC",
+        "note": "MAC verification must fail if ciphertext is modified"
+      }
+    },
+    {
+      "id": "nip44-decrypt-006",
+      "description": "MAC verification failure (tampered MAC)",
+      "input": {
+        "note": "Encrypt a message, then flip one bit in the MAC",
+        "plaintext_to_encrypt": "Original message",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "tamper_mac": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_MAC"
+      }
+    },
+    {
+      "id": "nip44-decrypt-007",
+      "description": "Wrong recipient key",
+      "input": {
+        "note": "Encrypt for Bob, try to decrypt with Charlie's key",
+        "plaintext_to_encrypt": "Secret for Bob",
+        "encrypt_for_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "decrypt_with_privkey": "0000000000000000000000000000000000000000000000000000000000000003",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "DECRYPTION_FAILED",
+        "note": "MAC verification should fail with wrong key"
+      }
+    },
+    {
+      "id": "nip44-decrypt-008",
+      "description": "Invalid padding - wrong length prefix",
+      "input": {
+        "note": "Manually construct payload with incorrect length prefix in padded data",
+        "construct_invalid_padding": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PADDING"
+      }
+    },
+    {
+      "id": "nip44-decrypt-009",
+      "description": "Invalid padding - non-zero padding bytes",
+      "input": {
+        "note": "Construct payload where padding bytes are not all zeros",
+        "construct_nonzero_padding": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PADDING"
+      }
+    },
+    {
+      "id": "nip44-decrypt-010",
+      "description": "Invalid padding - length exceeds padded data",
+      "input": {
+        "note": "Length prefix claims more bytes than available",
+        "construct_oversized_length": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PADDING"
+      }
+    },
+    {
+      "id": "nip44-decrypt-011",
+      "description": "Decryption with pre-derived conversation key",
+      "input": {
+        "note": "Test decrypt_with_key function using cached conversation key",
+        "plaintext_to_encrypt": "Message using cached key",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "use_cached_conversation_key": true
+      },
+      "expected": {
+        "decrypted_plaintext": "Message using cached key",
+        "note": "Should work identically to deriving key on-the-fly"
+      }
+    },
+    {
+      "id": "nip44-decrypt-012",
+      "description": "Invalid UTF-8 in decrypted plaintext",
+      "input": {
+        "note": "Construct ciphertext that decrypts to invalid UTF-8 bytes",
+        "construct_invalid_utf8": true
+      },
+      "expected": {
+        "error": true,
+        "error_type": "DECRYPTION_FAILED",
+        "note": "Must reject if plaintext is not valid UTF-8"
+      }
+    },
+    {
+      "id": "nip44-decrypt-013",
+      "description": "Constant-time MAC comparison",
+      "input": {
+        "note": "Verify MAC comparison does not leak timing information",
+        "correct_mac": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "incorrect_mac_1": "baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "incorrect_mac_2": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"
+      },
+      "expected": {
+        "timing_must_be_constant": true,
+        "note": "Time to reject both incorrect MACs must be equal (within margin)"
+      }
+    }
+  ],
+  "security_requirements": [
+    {
+      "requirement": "MAC verification before decryption",
+      "rationale": "Prevents padding oracle attacks",
+      "test_ids": ["nip44-decrypt-005", "nip44-decrypt-006"]
+    },
+    {
+      "requirement": "Constant-time MAC comparison",
+      "rationale": "Prevents timing attacks on MAC",
+      "test_ids": ["nip44-decrypt-013"]
+    },
+    {
+      "requirement": "Reject invalid padding",
+      "rationale": "Ensures data integrity",
+      "test_ids": ["nip44-decrypt-008", "nip44-decrypt-009", "nip44-decrypt-010"]
+    },
+    {
+      "requirement": "Validate UTF-8 encoding",
+      "rationale": "Ensures string safety",
+      "test_ids": ["nip44-decrypt-012"]
+    },
+    {
+      "requirement": "Clear sensitive data after use",
+      "rationale": "Prevents memory leaks",
+      "note": "Conversation keys and decrypted plaintext should be zeroized"
+    }
+  ]
+}

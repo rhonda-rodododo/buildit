@@ -42,42 +42,32 @@ pub fn compute_event_id(event: UnsignedEvent) -> Result<String, CryptoError> {
 /// Serialize event for hashing (NIP-01 format)
 fn serialize_event(event: &UnsignedEvent) -> Result<String, CryptoError> {
     // [0, pubkey, created_at, kind, tags, content]
-    let tags_json = serde_json::to_string(&event.tags)
-        .map_err(|_| CryptoError::InvalidJson)?;
+    let tags_json = serde_json::to_string(&event.tags).map_err(|_| CryptoError::InvalidJson)?;
 
-    let content_json = serde_json::to_string(&event.content)
-        .map_err(|_| CryptoError::InvalidJson)?;
+    let content_json =
+        serde_json::to_string(&event.content).map_err(|_| CryptoError::InvalidJson)?;
 
     Ok(format!(
         "[0,\"{}\",{},{},{},{}]",
-        event.pubkey,
-        event.created_at,
-        event.kind,
-        tags_json,
-        content_json
+        event.pubkey, event.created_at, event.kind, tags_json, content_json
     ))
 }
 
 /// Sign an unsigned event
-pub fn sign_event(
-    private_key: Vec<u8>,
-    event: UnsignedEvent,
-) -> Result<NostrEvent, CryptoError> {
+pub fn sign_event(private_key: Vec<u8>, event: UnsignedEvent) -> Result<NostrEvent, CryptoError> {
     if private_key.len() != 32 {
         return Err(CryptoError::InvalidKey);
     }
 
     let secp = Secp256k1::new();
-    let secret_key =
-        SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
+    let secret_key = SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
 
     // Compute event ID
     let id = compute_event_id(event.clone())?;
     let id_bytes = hex::decode(&id).map_err(|_| CryptoError::InvalidHex)?;
 
     // Create message from ID
-    let message = Message::from_digest_slice(&id_bytes)
-        .map_err(|_| CryptoError::SigningFailed)?;
+    let message = Message::from_digest_slice(&id_bytes).map_err(|_| CryptoError::SigningFailed)?;
 
     // Sign with Schnorr
     let keypair = secp256k1::Keypair::from_secret_key(&secp, &secret_key);

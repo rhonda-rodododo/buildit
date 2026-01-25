@@ -1,0 +1,303 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-17 gift wrap unwrapping test vectors - decryption and validation",
+  "vectors": [
+    {
+      "id": "giftwrap-unwrap-001",
+      "description": "Basic unwrap - complete flow",
+      "input": {
+        "note": "First create a gift wrap, then unwrap it",
+        "message": "Secret message",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "unwrap_successful": true,
+        "rumor": {
+          "kind": 14,
+          "content": "Secret message"
+        },
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "seal_verified": true
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-002",
+      "description": "Wrong recipient key",
+      "input": {
+        "note": "Create gift wrap for Bob, try to unwrap with Charlie's key",
+        "message": "For Bob only",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "encrypt_for_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "decrypt_with_privkey": "0000000000000000000000000000000000000000000000000000000000000003",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "error": true,
+        "error_type": "DECRYPTION_FAILED",
+        "note": "Gift wrap decryption should fail"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-003",
+      "description": "Invalid gift wrap kind",
+      "input": {
+        "gift_wrap": {
+          "kind": 1,
+          "pubkey": "ephemeral_key",
+          "content": "encrypted_content",
+          "tags": [["p", "recipient_pubkey"]],
+          "created_at": 1700000000
+        },
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KIND",
+        "note": "Must be kind 1059"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-004",
+      "description": "Invalid seal kind",
+      "input": {
+        "note": "Create gift wrap with seal of wrong kind",
+        "construct_seal_with_kind": 1,
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "gift_wrap_decrypts": true,
+        "seal_validation_fails": true,
+        "error_type": "INVALID_KIND"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-005",
+      "description": "Invalid rumor kind",
+      "input": {
+        "note": "Create gift wrap with rumor of wrong kind",
+        "construct_rumor_with_kind": 1,
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "gift_wrap_decrypts": true,
+        "seal_decrypts": true,
+        "rumor_validation_fails": true,
+        "error_type": "INVALID_KIND"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-006",
+      "description": "Tampered seal signature",
+      "input": {
+        "note": "Create valid gift wrap, then tamper with seal signature",
+        "message": "Original message",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "tamper_seal_signature": true,
+        "created_at": 1700000000
+      },
+      "expected": {
+        "gift_wrap_decrypts": true,
+        "seal_verified": false,
+        "action": "REJECT_MESSAGE",
+        "note": "Signature verification must fail"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-007",
+      "description": "Tampered gift wrap signature",
+      "input": {
+        "note": "Create valid gift wrap, then tamper with gift wrap signature",
+        "message": "Original message",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "tamper_giftwrap_signature": true,
+        "created_at": 1700000000
+      },
+      "expected": {
+        "gift_wrap_signature_verification_fails": true,
+        "action": "REJECT_MESSAGE",
+        "note": "Should validate gift wrap signature before attempting decryption"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-008",
+      "description": "Sender pubkey extraction",
+      "input": {
+        "message": "Test message",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "sender_pubkey_from_seal": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "not_from_giftwrap_pubkey": true,
+        "note": "MUST extract sender from seal.pubkey, NOT giftwrap.pubkey"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-009",
+      "description": "Prototype pollution prevention in JSON parsing",
+      "input": {
+        "malicious_seal_content": "{\"__proto__\": {\"isAdmin\": true}, \"kind\": 14, \"content\": \"bad\"}",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "parsing_rejects_proto": true,
+        "prototype_unmodified": true,
+        "note": "JSON parsing must reject __proto__, constructor, and prototype"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-010",
+      "description": "Unicode content preservation",
+      "input": {
+        "message": "Test 你好 🌍 مرحبا",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "unwrapped_content": "Test 你好 🌍 مرحبا",
+        "utf8_preserved": true
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-011",
+      "description": "Missing p tag in gift wrap",
+      "input": {
+        "gift_wrap": {
+          "kind": 1059,
+          "pubkey": "ephemeral_key",
+          "content": "encrypted_content",
+          "tags": [],
+          "created_at": 1700000000
+        },
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "validation_warning": true,
+        "note": "Gift wrap should have p tag, but decryption can proceed"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-012",
+      "description": "Rumor with non-empty signature",
+      "input": {
+        "note": "Construct rumor with a signature (invalid)",
+        "construct_signed_rumor": true,
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "validation_fails": true,
+        "error_type": "INVALID_RUMOR",
+        "note": "Rumor signature MUST be empty string"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-013",
+      "description": "Seal with non-empty tags",
+      "input": {
+        "note": "Construct seal with tags (should be empty)",
+        "construct_seal_with_tags": [["e", "some_id"]],
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "validation_warning": true,
+        "note": "Seal tags should be empty, but can proceed if signature valid"
+      }
+    },
+    {
+      "id": "giftwrap-unwrap-014",
+      "description": "Large message unwrapping",
+      "input": {
+        "message_length": 65000,
+        "message_pattern": "b",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "unwrap_successful": true,
+        "content_length": 65000,
+        "content_matches_pattern": true
+      }
+    }
+  ],
+  "unwrap_procedure": {
+    "steps": [
+      {
+        "step": 1,
+        "action": "Validate gift wrap event",
+        "checks": ["kind == 1059", "has p tag", "signature valid"]
+      },
+      {
+        "step": 2,
+        "action": "Decrypt gift wrap content",
+        "method": "NIP-44 using recipient privkey and ephemeral pubkey"
+      },
+      {
+        "step": 3,
+        "action": "Parse and validate seal",
+        "checks": ["kind == 13", "tags empty", "signature present"]
+      },
+      {
+        "step": 4,
+        "action": "Verify seal signature",
+        "method": "Schnorr verification using seal.pubkey"
+      },
+      {
+        "step": 5,
+        "action": "Decrypt seal content",
+        "method": "NIP-44 using recipient privkey and seal.pubkey"
+      },
+      {
+        "step": 6,
+        "action": "Parse and validate rumor",
+        "checks": ["kind == 14", "has p tag", "signature empty"]
+      },
+      {
+        "step": 7,
+        "action": "Extract sender identity",
+        "source": "seal.pubkey (NOT giftwrap.pubkey)"
+      },
+      {
+        "step": 8,
+        "action": "Return unwrap result",
+        "data": ["rumor", "sender_pubkey", "seal_verified"]
+      }
+    ]
+  },
+  "security_requirements": [
+    {
+      "requirement": "Verify seal signature",
+      "rationale": "Ensures message authenticity from sender",
+      "test_ids": ["giftwrap-unwrap-006"]
+    },
+    {
+      "requirement": "Extract sender from seal.pubkey",
+      "rationale": "Giftwrap pubkey is ephemeral and reveals nothing",
+      "test_ids": ["giftwrap-unwrap-008"]
+    },
+    {
+      "requirement": "Validate event kinds",
+      "rationale": "Prevents protocol confusion attacks",
+      "test_ids": ["giftwrap-unwrap-003", "giftwrap-unwrap-004", "giftwrap-unwrap-005"]
+    },
+    {
+      "requirement": "Prevent prototype pollution",
+      "rationale": "Secures JSON parsing against injection",
+      "test_ids": ["giftwrap-unwrap-009"]
+    },
+    {
+      "requirement": "Verify rumor is unsigned",
+      "rationale": "Enforces NIP-17 rumor specification",
+      "test_ids": ["giftwrap-unwrap-012"]
+    }
+  ]
+}

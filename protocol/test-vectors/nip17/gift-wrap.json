@@ -1,0 +1,292 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-17 gift wrap creation test vectors - rumor, seal, and gift wrap structure",
+  "vectors": [
+    {
+      "id": "giftwrap-create-001",
+      "description": "Basic gift wrap creation - complete flow",
+      "input": {
+        "message": "Hello, this is a private message!",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "rumor": {
+          "kind": 14,
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "content": "Hello, this is a private message!",
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "sig": "",
+          "created_at_range": {
+            "min": 1699827200,
+            "max": 1700172800,
+            "note": "±2 days (172800 seconds) from 1700000000"
+          }
+        },
+        "seal": {
+          "kind": 13,
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "tags": [],
+          "content_encrypted": true,
+          "content_decrypts_to_rumor": true,
+          "sig_present": true,
+          "sig_valid": true,
+          "created_at_randomized": true
+        },
+        "gift_wrap": {
+          "kind": 1059,
+          "pubkey_is_ephemeral": true,
+          "pubkey_unique_each_time": true,
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "content_encrypted": true,
+          "content_decrypts_to_seal": true,
+          "sig_present": true,
+          "sig_valid": true,
+          "created_at_randomized": true
+        }
+      }
+    },
+    {
+      "id": "giftwrap-create-002",
+      "description": "Rumor structure validation",
+      "input": {
+        "message": "Test rumor",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "kind": 14,
+        "has_id": true,
+        "id_format": "64_hex_chars",
+        "has_signature": false,
+        "signature_is_empty_string": true,
+        "has_p_tag": true,
+        "p_tag_value": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+      }
+    },
+    {
+      "id": "giftwrap-create-003",
+      "description": "Seal structure validation",
+      "input": {
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "rumor": {
+          "kind": 14,
+          "content": "Test message"
+        },
+        "created_at": 1700000000
+      },
+      "expected": {
+        "kind": 13,
+        "has_id": true,
+        "has_signature": true,
+        "signature_length": 128,
+        "tags_empty": true,
+        "content_is_base64": true,
+        "content_is_encrypted_rumor": true,
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      }
+    },
+    {
+      "id": "giftwrap-create-004",
+      "description": "Gift wrap structure validation",
+      "input": {
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "seal": {
+          "kind": 13,
+          "content": "encrypted_seal_data"
+        },
+        "created_at": 1700000000
+      },
+      "expected": {
+        "kind": 1059,
+        "has_id": true,
+        "has_signature": true,
+        "pubkey_is_random": true,
+        "pubkey_length": 64,
+        "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+        "content_is_base64": true,
+        "content_is_encrypted_seal": true
+      }
+    },
+    {
+      "id": "giftwrap-create-005",
+      "description": "Timestamp randomization - rumor",
+      "input": {
+        "message": "Test",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000,
+        "iterations": 100
+      },
+      "expected": {
+        "all_timestamps_within_range": true,
+        "min_timestamp": 1699827200,
+        "max_timestamp": 1700172800,
+        "timestamps_vary": true,
+        "note": "Not all 100 timestamps should be identical"
+      }
+    },
+    {
+      "id": "giftwrap-create-006",
+      "description": "Timestamp randomization - seal",
+      "input": {
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "rumor": { "kind": 14, "content": "Test" },
+        "created_at": 1700000000,
+        "iterations": 100
+      },
+      "expected": {
+        "all_timestamps_within_range": true,
+        "min_timestamp": 1699827200,
+        "max_timestamp": 1700172800,
+        "timestamps_vary": true
+      }
+    },
+    {
+      "id": "giftwrap-create-007",
+      "description": "Timestamp randomization - gift wrap",
+      "input": {
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "seal": { "kind": 13, "content": "encrypted" },
+        "created_at": 1700000000,
+        "iterations": 100
+      },
+      "expected": {
+        "all_timestamps_within_range": true,
+        "min_timestamp": 1699827200,
+        "max_timestamp": 1700172800,
+        "timestamps_vary": true
+      }
+    },
+    {
+      "id": "giftwrap-create-008",
+      "description": "Ephemeral key uniqueness",
+      "input": {
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "seal": { "kind": 13, "content": "encrypted" },
+        "created_at": 1700000000,
+        "create_count": 50
+      },
+      "expected": {
+        "all_pubkeys_unique": true,
+        "all_pubkeys_valid": true,
+        "all_signatures_valid": true,
+        "note": "Each gift wrap must use a fresh ephemeral keypair"
+      }
+    },
+    {
+      "id": "giftwrap-create-009",
+      "description": "Unicode content in rumor",
+      "input": {
+        "message": "Hello 世界! 🌍 مرحبا Привет",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "rumor_content": "Hello 世界! 🌍 مرحبا Привет",
+        "content_preserved_in_seal": true,
+        "content_preserved_in_gift_wrap": true
+      }
+    },
+    {
+      "id": "giftwrap-create-010",
+      "description": "Long message (near max length)",
+      "input": {
+        "message_length": 65000,
+        "message_pattern": "a",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "gift_wrap_created": true,
+        "all_layers_valid": true,
+        "note": "Large messages should be handled correctly"
+      }
+    },
+    {
+      "id": "giftwrap-create-011",
+      "description": "Empty message content",
+      "input": {
+        "message": "",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "created_at": 1700000000
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PLAINTEXT_LENGTH",
+        "note": "NIP-44 rejects empty plaintext"
+      }
+    },
+    {
+      "id": "giftwrap-create-012",
+      "description": "Multiple p tags in rumor (group message simulation)",
+      "input": {
+        "message": "Group message",
+        "sender_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient_pubkeys": [
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+          "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        ],
+        "created_at": 1700000000
+      },
+      "expected": {
+        "rumor_tags": [
+          ["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"],
+          ["p", "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"]
+        ],
+        "note": "Rumor can have multiple p tags for group context"
+      }
+    }
+  ],
+  "structure_requirements": [
+    {
+      "layer": "rumor",
+      "requirements": {
+        "kind": 14,
+        "signature": "empty string",
+        "tags": "must include p tag with recipient pubkey",
+        "timestamp": "randomized within ±2 days",
+        "id": "computed from event data"
+      }
+    },
+    {
+      "layer": "seal",
+      "requirements": {
+        "kind": 13,
+        "signature": "valid schnorr signature from sender",
+        "tags": "empty array",
+        "content": "NIP-44 encrypted rumor JSON",
+        "timestamp": "randomized within ±2 days",
+        "pubkey": "sender's real public key"
+      }
+    },
+    {
+      "layer": "gift_wrap",
+      "requirements": {
+        "kind": 1059,
+        "signature": "valid schnorr signature from ephemeral key",
+        "tags": "must include p tag with recipient pubkey",
+        "content": "NIP-44 encrypted seal JSON",
+        "timestamp": "randomized within ±2 days",
+        "pubkey": "freshly generated ephemeral public key"
+      }
+    }
+  ],
+  "security_notes": [
+    "Ephemeral private keys must be generated securely and discarded after signing",
+    "Timestamps must be randomized to prevent correlation attacks",
+    "Seal pubkey reveals sender identity - gift wrap pubkey does not",
+    "Each gift wrap must use a unique ephemeral keypair",
+    "Rumor must NOT be signed (empty signature string)"
+  ]
+}

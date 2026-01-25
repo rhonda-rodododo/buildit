@@ -1,0 +1,137 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-44 conversation key derivation test vectors - ECDH shared secret",
+  "vectors": [
+    {
+      "id": "convkey-001",
+      "description": "Basic conversation key derivation (Alice -> Bob)",
+      "input": {
+        "alice_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "bob_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+      },
+      "expected": {
+        "note": "Conversation key is implementation-specific but must be deterministic and symmetric"
+      }
+    },
+    {
+      "id": "convkey-002",
+      "description": "Symmetric key derivation (Bob -> Alice produces same key)",
+      "input": {
+        "bob_privkey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "alice_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "note": "Must equal conversation key from Alice -> Bob with same keypairs",
+        "must_equal_reverse": true
+      }
+    },
+    {
+      "id": "convkey-003",
+      "description": "Conversation key symmetry property",
+      "input": {
+        "party_a": {
+          "privkey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "pubkey": "DERIVED_FROM_PRIVKEY_A"
+        },
+        "party_b": {
+          "privkey": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "pubkey": "DERIVED_FROM_PRIVKEY_B"
+        }
+      },
+      "expected": {
+        "derive_a_to_b": "USE_PRIVKEY_A_AND_PUBKEY_B",
+        "derive_b_to_a": "USE_PRIVKEY_B_AND_PUBKEY_A",
+        "keys_must_equal": true,
+        "note": "ECDH guarantees conv_key(a->b) == conv_key(b->a)"
+      }
+    },
+    {
+      "id": "convkey-004",
+      "description": "Different keypairs produce different conversation keys",
+      "input": {
+        "scenario_1": {
+          "alice_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+          "bob_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+        },
+        "scenario_2": {
+          "alice_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+          "charlie_pubkey": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        }
+      },
+      "expected": {
+        "keys_must_differ": true,
+        "note": "Conversation keys must be unique per keypair combination"
+      }
+    },
+    {
+      "id": "convkey-005",
+      "description": "Conversation key must be 32 bytes",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "key_length_bytes": 32,
+        "key_length_hex": 64
+      }
+    },
+    {
+      "id": "convkey-006",
+      "description": "Invalid private key (not on curve)",
+      "input": {
+        "privkey": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+        "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KEY",
+        "note": "Value exceeds secp256k1 curve order"
+      }
+    },
+    {
+      "id": "convkey-007",
+      "description": "Invalid public key (not on curve)",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "pubkey": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KEY",
+        "note": "Point at infinity is not a valid public key"
+      }
+    },
+    {
+      "id": "convkey-008",
+      "description": "Deterministic derivation (same inputs always produce same output)",
+      "input": {
+        "privkey": "0000000000000000000000000000000000000000000000000000000000000003",
+        "pubkey": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "iterations": 100
+      },
+      "expected": {
+        "all_outputs_identical": true,
+        "note": "Must be deterministic - no randomness in derivation"
+      }
+    }
+  ],
+  "reference_values": {
+    "note": "These are example reference values - actual values depend on HKDF implementation",
+    "examples": [
+      {
+        "description": "Known keypair combination",
+        "privkey_1": "0000000000000000000000000000000000000000000000000000000000000001",
+        "pubkey_2": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "ecdh_shared_secret": "IMPLEMENTATION_SPECIFIC",
+        "conversation_key_after_hkdf": "IMPLEMENTATION_SPECIFIC"
+      }
+    ]
+  },
+  "security_notes": [
+    "Conversation keys must be derived using ECDH with HKDF-SHA256",
+    "Keys must be cleared from memory after use (zeroized)",
+    "Derivation must be constant-time to prevent timing attacks",
+    "Public keys must be validated to be on the curve",
+    "Private keys must be within secp256k1 curve order"
+  ]
+}

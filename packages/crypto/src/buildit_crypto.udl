@@ -15,6 +15,13 @@ namespace buildit_crypto {
     [Throws=CryptoError]
     string get_public_key(sequence<u8> private_key);
 
+    // Schnorr signatures
+    [Throws=CryptoError]
+    sequence<u8> schnorr_sign(sequence<u8> message, sequence<u8> private_key);
+
+    [Throws=CryptoError]
+    boolean schnorr_verify(sequence<u8> message, sequence<u8> signature, sequence<u8> public_key);
+
     // NIP-44 encryption
     [Throws=CryptoError]
     string nip44_encrypt(sequence<u8> private_key, string recipient_pubkey, string plaintext);

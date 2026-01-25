@@ -1,6 +1,13 @@
-# BuildIt Web Client
+# BuildIt Web Client (Tauri UI Layer)
 
-> React + TypeScript + Vite web application (also serves as UI for Tauri desktop)
+> React + TypeScript + Vite **UI layer for the Tauri desktop application**
+
+**IMPORTANT: This is NOT a standalone web app.** This codebase provides the UI that runs inside Tauri desktop. The "web client" naming is historical - it refers to the web technologies (React, TypeScript) used to build the UI, not a deployment target.
+
+**Deployment architecture:**
+- **Desktop app** → Tauri wraps this UI with native Rust backend (BLE, crypto, keyring)
+- **Mobile apps** → iOS (Swift) and Android (Kotlin) are separate native implementations
+- **Web presence** → Simple Cloudflare Workers for logged-out users (marketing, docs)
 
 **Parent instructions**: See `/CLAUDE.md` for monorepo-wide context.
 
@@ -253,19 +260,31 @@ Agent: Completes step 1 → commits → completes step 2 → commits → ... →
 - Ask user for clarification if needed
 
 ## Project Overview
-A privacy-first organizing platform built on Nostr protocol and NIP-17 encryption layer for activist groups, co-ops, unions, and community organizers.
+
+**UI layer for the BuildIt desktop application** - a privacy-first organizing platform for activist groups, co-ops, unions, and community organizers.
+
+This code runs inside Tauri desktop (`clients/desktop/`), which provides the native Rust backend for:
+- **BLE mesh networking** (btleplug)
+- **Cryptographic operations** (buildit-crypto)
+- **Secure key storage** (OS keyring)
+- **Local database** (SQLite)
 
 ## Core Technologies
-- **Protocol**: Nostr (decentralized social protocol)
-- **Encryption**:
-  - NIP-17 (gift-wrapped NIP-44) for DMs and small groups - Best metadata protection
-  - Noise Protocol for large groups (Phase 2) - Forward secrecy
-  - Future: BLE mesh with Noise for offline (BitChat-inspired)
+
+**UI Layer (this codebase):**
 - **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui (design tokens for React Native prep)
+- **Styling**: Tailwind CSS + shadcn/ui
 - **State**: Zustand
-- **Storage**: Dexie (IndexedDB wrapper)
-- **Crypto**: @noble/secp256k1, nostr-tools (NIP-17/44/59)
+- **Storage**: Dexie (IndexedDB wrapper) - for UI state caching
+
+**Native Backend (provided by Tauri desktop):**
+- **BLE Mesh**: btleplug (Rust)
+- **Crypto**: buildit-crypto via Tauri commands
+- **Secure Storage**: SQLite + OS keyring
+
+**Protocol:**
+- **Nostr**: Decentralized social protocol
+- **Encryption**: NIP-17 (gift-wrapped NIP-44) for DMs and small groups
 
 ## Architecture
 See ARCHITECTURE.md for detailed system design.

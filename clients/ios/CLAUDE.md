@@ -13,17 +13,25 @@
 - **Storage**: SwiftData / Keychain
 - **Nostr**: Native Swift implementation
 
-## Commands
+## Build System
+
+**Primary**: Swift Package Manager (SPM) via `Package.swift`
+
+The Xcode project exists as a shell for IDE support. SPM is the source of truth for build configuration.
 
 ```bash
-# Xcode build
-xcodebuild -scheme BuildIt -configuration Debug build
+# Build with SPM
+swift build
 
-# Run tests
-xcodebuild test -scheme BuildIt -destination 'platform=iOS Simulator,name=iPhone 15'
+# Run tests with SPM
+swift test
 
-# Archive for distribution
-xcodebuild archive -scheme BuildIt -archivePath build/BuildIt.xcarchive
+# Open in Xcode (creates workspace from Package.swift)
+open Package.swift
+
+# Or via xcodebuild with SPM scheme
+xcodebuild -scheme BuildItCore -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -scheme BuildItCore -destination 'platform=iOS Simulator,name=iPhone 15' test
 ```
 
 ## Directory Structure

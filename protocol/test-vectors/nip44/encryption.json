@@ -1,0 +1,228 @@
+{
+  "version": "1.0.0",
+  "description": "NIP-44 v2 encryption test vectors - ChaCha20-Poly1305 with HKDF-SHA256",
+  "vectors": [
+    {
+      "id": "nip44-encrypt-001",
+      "description": "Basic encryption/decryption with known keys",
+      "input": {
+        "plaintext": "Hello, World!",
+        "plaintext_hex": "48656c6c6f2c20576f726c6421",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "note": "Ciphertext varies due to random nonce - test by decrypting",
+        "decrypted_plaintext": "Hello, World!",
+        "min_ciphertext_length": 99,
+        "payload_structure": {
+          "version_byte": 2,
+          "nonce_bytes": 32,
+          "min_encrypted_bytes": 34,
+          "mac_bytes": 32
+        }
+      }
+    },
+    {
+      "id": "nip44-encrypt-002",
+      "description": "Single character message",
+      "input": {
+        "plaintext": "A",
+        "plaintext_hex": "41",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+      },
+      "expected": {
+        "decrypted_plaintext": "A",
+        "padded_length": 32,
+        "note": "1 byte plaintext pads to 32 bytes (minimum)"
+      }
+    },
+    {
+      "id": "nip44-encrypt-003",
+      "description": "Empty string should fail",
+      "input": {
+        "plaintext": "",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PLAINTEXT_LENGTH"
+      }
+    },
+    {
+      "id": "nip44-encrypt-004",
+      "description": "Unicode characters (emoji and non-Latin scripts)",
+      "input": {
+        "plaintext": "Hello 世界! 🌍 Привет مرحبا",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_plaintext": "Hello 世界! 🌍 Привет مرحبا",
+        "note": "UTF-8 encoding must be preserved"
+      }
+    },
+    {
+      "id": "nip44-encrypt-005",
+      "description": "Maximum allowed plaintext (65535 bytes)",
+      "input": {
+        "plaintext_length": 65535,
+        "plaintext_pattern": "a",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_length": 65535,
+        "note": "Generate 65535 'a' characters as plaintext"
+      }
+    },
+    {
+      "id": "nip44-encrypt-006",
+      "description": "Plaintext exceeding maximum should fail",
+      "input": {
+        "plaintext_length": 65536,
+        "plaintext_pattern": "b",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_PLAINTEXT_LENGTH"
+      }
+    },
+    {
+      "id": "nip44-encrypt-007",
+      "description": "Padding boundary - 32 bytes (no padding needed)",
+      "input": {
+        "plaintext": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "plaintext_length": 32,
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_plaintext": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "padded_length": 32
+      }
+    },
+    {
+      "id": "nip44-encrypt-008",
+      "description": "Padding boundary - 33 bytes (pads to 64)",
+      "input": {
+        "plaintext": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "plaintext_length": 33,
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_plaintext": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "padded_length": 64
+      }
+    },
+    {
+      "id": "nip44-encrypt-009",
+      "description": "Padding boundary - 256 bytes (no padding needed)",
+      "input": {
+        "plaintext_length": 256,
+        "plaintext_pattern": "x",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_length": 256,
+        "padded_length": 256
+      }
+    },
+    {
+      "id": "nip44-encrypt-010",
+      "description": "Padding boundary - 257 bytes (pads to 320)",
+      "input": {
+        "plaintext_length": 257,
+        "plaintext_pattern": "y",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_length": 257,
+        "padded_length": 320
+      }
+    },
+    {
+      "id": "nip44-encrypt-011",
+      "description": "Special characters and escaping",
+      "input": {
+        "plaintext": "Quote: \" Backslash: \\ Newline: \\n Tab: \\t Null: \\u0000",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "decrypted_plaintext": "Quote: \" Backslash: \\ Newline: \\n Tab: \\t Null: \\u0000",
+        "note": "Special characters must be preserved exactly"
+      }
+    },
+    {
+      "id": "nip44-encrypt-012",
+      "description": "Invalid private key (wrong length)",
+      "input": {
+        "plaintext": "Test",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KEY"
+      }
+    },
+    {
+      "id": "nip44-encrypt-013",
+      "description": "Invalid public key (wrong length)",
+      "input": {
+        "plaintext": "Test",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_KEY"
+      }
+    },
+    {
+      "id": "nip44-encrypt-014",
+      "description": "Multiple encryptions produce different ciphertexts",
+      "input": {
+        "plaintext": "Same message encrypted twice",
+        "sender_privkey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "recipient_pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "iterations": 2
+      },
+      "expected": {
+        "ciphertexts_different": true,
+        "both_decrypt_correctly": true,
+        "note": "Random nonces ensure different ciphertexts"
+      }
+    }
+  ],
+  "padding_test_cases": [
+    {
+      "id": "padding-001",
+      "description": "Padding calculation for various lengths",
+      "test_cases": [
+        { "input_length": 1, "expected_padded_length": 32 },
+        { "input_length": 16, "expected_padded_length": 32 },
+        { "input_length": 32, "expected_padded_length": 32 },
+        { "input_length": 33, "expected_padded_length": 64 },
+        { "input_length": 64, "expected_padded_length": 64 },
+        { "input_length": 65, "expected_padded_length": 96 },
+        { "input_length": 100, "expected_padded_length": 128 },
+        { "input_length": 128, "expected_padded_length": 128 },
+        { "input_length": 200, "expected_padded_length": 224 },
+        { "input_length": 256, "expected_padded_length": 256 },
+        { "input_length": 257, "expected_padded_length": 320 },
+        { "input_length": 500, "expected_padded_length": 512 },
+        { "input_length": 1000, "expected_padded_length": 1024 },
+        { "input_length": 65535, "expected_padded_length": 65536 }
+      ]
+    }
+  ]
+}

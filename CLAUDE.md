@@ -2,15 +2,41 @@
 
 > Privacy-first organizing platform for activist groups, co-ops, unions, and community organizers.
 
+## Application Architecture
+
+**There are 3 native applications** - the web client is NOT a standalone app:
+
+| Application | Tech Stack | Notes |
+|-------------|------------|-------|
+| **Desktop** | Tauri (Rust) + Web UI | Main desktop app - uses `clients/web/` as UI layer |
+| **iOS** | Swift + SwiftUI | Native mobile app |
+| **Android** | Kotlin + Compose | Native mobile app |
+
+**Web presence for logged-out users**: Simple Cloudflare Workers (not a full app)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        APPLICATIONS                              │
+├─────────────────────┬─────────────────┬─────────────────────────┤
+│   Desktop (Tauri)   │      iOS        │       Android           │
+│   ┌───────────────┐ │   Swift/SwiftUI │   Kotlin/Compose        │
+│   │ clients/web/  │ │   Native App    │   Native App            │
+│   │ (UI layer)    │ │                 │                         │
+│   └───────────────┘ │                 │                         │
+│   Rust backend      │   Core BT       │   Android BLE           │
+│   btleplug BLE      │                 │                         │
+└─────────────────────┴─────────────────┴─────────────────────────┘
+```
+
 ## Repository Structure
 
 ```
 buildit/
 ├── clients/
-│   ├── web/          # React + Vite (web UI, also used by desktop)
-│   ├── desktop/      # Tauri (Rust backend with native BLE)
-│   ├── ios/          # Swift + SwiftUI + Core Bluetooth
-│   └── android/      # Kotlin + Jetpack Compose + Android BLE
+│   ├── web/          # React + Vite UI layer (embedded in Tauri desktop)
+│   ├── desktop/      # Tauri (Rust backend wrapping web UI, native BLE)
+│   ├── ios/          # Swift + SwiftUI + Core Bluetooth (standalone)
+│   └── android/      # Kotlin + Jetpack Compose + Android BLE (standalone)
 ├── packages/
 │   └── crypto/       # Rust crypto library + UniFFI bindings
 ├── protocol/
@@ -21,7 +47,7 @@ buildit/
 │   ├── architecture/   # System design docs
 │   └── guides/         # Implementation guides
 └── tools/
-    └── codegen/      # Schema → TypeScript/Swift/Kotlin generators
+    └── codegen/      # Schema → TypeScript/Swift/Kotlin generators (quicktype)
 ```
 
 ## For Claude Code Agents

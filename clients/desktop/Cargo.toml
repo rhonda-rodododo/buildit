@@ -58,6 +58,13 @@ hex = "0.4"
 # Async mutex for shared state
 parking_lot = "0.12"
 
+# WebSocket for Nostr relays
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+url = "2.5"
+
+# Compression for BLE chunking
+flate2 = "1.0"
+
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

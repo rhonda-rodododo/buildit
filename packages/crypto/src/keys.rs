@@ -5,7 +5,7 @@ use hkdf::Hkdf;
 use pbkdf2::pbkdf2_hmac;
 use rand::rngs::OsRng;
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 use zeroize::Zeroize;
 
 /// Key pair containing private and public keys
@@ -29,7 +29,7 @@ pub fn generate_keypair() -> KeyPair {
 
     KeyPair {
         private_key: secret_key.secret_bytes().to_vec(),
-        public_key: hex::encode(public_key.serialize()[1..].to_vec()), // x-only pubkey
+        public_key: hex::encode(&public_key.serialize()[1..]), // x-only pubkey
     }
 }
 
@@ -40,8 +40,7 @@ pub fn get_public_key(private_key: Vec<u8>) -> Result<String, CryptoError> {
     }
 
     let secp = Secp256k1::new();
-    let secret_key =
-        SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
+    let secret_key = SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
     let public_key = PublicKey::from_secret_key(&secp, &secret_key);
 
     // Return x-only public key (32 bytes hex)
@@ -94,8 +93,7 @@ pub fn derive_conversation_key(
     compressed.extend_from_slice(&pubkey_bytes);
 
     let _secp = Secp256k1::new();
-    let secret_key =
-        SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
+    let secret_key = SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
     let public_key =
         PublicKey::from_slice(&compressed).map_err(|_| CryptoError::InvalidPublicKey)?;
 
@@ -111,6 +109,65 @@ pub fn derive_conversation_key(
         .map_err(|_| CryptoError::KeyDerivationFailed)?;
 
     Ok(conversation_key)
+}
+
+/// Sign arbitrary message with Schnorr signature (BIP-340)
+pub fn schnorr_sign(message: &[u8], private_key: Vec<u8>) -> Result<Vec<u8>, CryptoError> {
+    if private_key.len() != 32 {
+        return Err(CryptoError::InvalidKey);
+    }
+
+    let secp = Secp256k1::new();
+    let secret_key = SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
+
+    // Create message hash
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(message);
+    let message_hash = hasher.finalize();
+
+    let msg = secp256k1::Message::from_digest_slice(&message_hash)
+        .map_err(|_| CryptoError::SigningFailed)?;
+
+    // Sign with Schnorr
+    let keypair = secp256k1::Keypair::from_secret_key(&secp, &secret_key);
+    let signature = secp.sign_schnorr_with_rng(&msg, &keypair, &mut rand::rngs::OsRng);
+
+    Ok(signature.serialize().to_vec())
+}
+
+/// Verify Schnorr signature (BIP-340)
+pub fn schnorr_verify(
+    message: &[u8],
+    signature: Vec<u8>,
+    public_key: Vec<u8>,
+) -> Result<bool, CryptoError> {
+    if signature.len() != 64 {
+        return Err(CryptoError::InvalidSignature);
+    }
+    if public_key.len() != 32 {
+        return Err(CryptoError::InvalidPublicKey);
+    }
+
+    let secp = Secp256k1::new();
+
+    // Parse x-only public key
+    let xonly_pubkey = secp256k1::XOnlyPublicKey::from_slice(&public_key)
+        .map_err(|_| CryptoError::InvalidPublicKey)?;
+
+    // Parse signature
+    let sig = secp256k1::schnorr::Signature::from_slice(&signature)
+        .map_err(|_| CryptoError::InvalidSignature)?;
+
+    // Create message hash
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(message);
+    let message_hash = hasher.finalize();
+
+    let msg = secp256k1::Message::from_digest_slice(&message_hash)
+        .map_err(|_| CryptoError::SigningFailed)?;
+
+    // Verify
+    Ok(secp.verify_schnorr(&sig, &msg, &xonly_pubkey).is_ok())
 }
 
 /// Securely zeroize a key
@@ -165,10 +222,62 @@ mod tests {
         let kp2 = generate_keypair();
 
         // Both parties should derive the same conversation key
-        let key1 = derive_conversation_key(kp1.private_key.clone(), kp2.public_key.clone()).unwrap();
-        let key2 = derive_conversation_key(kp2.private_key.clone(), kp1.public_key.clone()).unwrap();
+        let key1 =
+            derive_conversation_key(kp1.private_key.clone(), kp2.public_key.clone()).unwrap();
+        let key2 =
+            derive_conversation_key(kp2.private_key.clone(), kp1.public_key.clone()).unwrap();
 
         assert_eq!(key1, key2);
         assert_eq!(key1.len(), 32);
+    }
+
+    #[test]
+    fn test_schnorr_sign_verify() {
+        let kp = generate_keypair();
+        let message = b"Hello, World!";
+
+        // Sign message
+        let signature = schnorr_sign(message, kp.private_key.clone()).unwrap();
+        assert_eq!(signature.len(), 64);
+
+        // Parse public key hex to bytes
+        let pubkey_bytes = hex::decode(&kp.public_key).unwrap();
+
+        // Verify signature
+        let valid = schnorr_verify(message, signature.clone(), pubkey_bytes.clone()).unwrap();
+        assert!(valid);
+
+        // Wrong message should fail
+        let wrong_message = b"Wrong message";
+        let invalid =
+            schnorr_verify(wrong_message, signature.clone(), pubkey_bytes.clone()).unwrap();
+        assert!(!invalid);
+
+        // Wrong public key should fail
+        let wrong_kp = generate_keypair();
+        let wrong_pubkey_bytes = hex::decode(&wrong_kp.public_key).unwrap();
+        let invalid = schnorr_verify(message, signature, wrong_pubkey_bytes).unwrap();
+        assert!(!invalid);
+    }
+
+    #[test]
+    fn test_schnorr_invalid_signature_length() {
+        let kp = generate_keypair();
+        let message = b"Test";
+        let pubkey_bytes = hex::decode(&kp.public_key).unwrap();
+
+        // Too short signature
+        let result = schnorr_verify(message, vec![0u8; 32], pubkey_bytes);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_schnorr_invalid_pubkey_length() {
+        let message = b"Test";
+        let signature = vec![0u8; 64];
+
+        // Too short public key
+        let result = schnorr_verify(message, signature, vec![0u8; 16]);
+        assert!(result.is_err());
     }
 }

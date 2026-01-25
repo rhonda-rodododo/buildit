@@ -161,11 +161,7 @@ pub fn unwrap_gift_wrap(
     let sender_pubkey = seal.pubkey.clone();
 
     // Decrypt seal to get rumor
-    let rumor_json = nip44_decrypt(
-        recipient_private_key,
-        sender_pubkey.clone(),
-        seal.content,
-    )?;
+    let rumor_json = nip44_decrypt(recipient_private_key, sender_pubkey.clone(), seal.content)?;
 
     // Parse rumor
     let rumor = deserialize_event(&rumor_json)?;
@@ -277,12 +273,7 @@ mod tests {
         assert!(!seal.sig.is_empty()); // Seal is signed
 
         // Step 3: Create gift wrap
-        let gift_wrap = create_gift_wrap(
-            recipient.public_key.clone(),
-            seal.clone(),
-            now,
-        )
-        .unwrap();
+        let gift_wrap = create_gift_wrap(recipient.public_key.clone(), seal.clone(), now).unwrap();
 
         assert_eq!(gift_wrap.kind, KIND_GIFT_WRAP);
         assert!(!gift_wrap.sig.is_empty()); // Gift wrap is signed

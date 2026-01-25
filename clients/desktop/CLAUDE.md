@@ -1,17 +1,42 @@
 # BuildIt Desktop Client (Tauri)
 
-> Rust-based desktop application with native BLE support
+> **The main desktop application** - Rust backend with native BLE, wrapping the React UI
 
 **Parent instructions**: See `/CLAUDE.md` for monorepo-wide context.
+
+## Architecture Overview
+
+This is the **primary desktop application**. It combines:
+- **UI Layer**: `clients/web/` - React/TypeScript/Vite (embedded via Tauri)
+- **Native Backend**: Rust - provides BLE mesh, secure storage, crypto
+
+```
+┌───────────────────────────────────────┐
+│         Tauri Desktop App             │
+├───────────────────────────────────────┤
+│   ┌─────────────────────────────────┐ │
+│   │      clients/web/ (UI)          │ │
+│   │   React + TypeScript + Vite     │ │
+│   └───────────────┬─────────────────┘ │
+│                   │ invoke()          │
+│   ┌───────────────▼─────────────────┐ │
+│   │    Rust Backend (this dir)      │ │
+│   │  • btleplug BLE mesh            │ │
+│   │  • buildit-crypto               │ │
+│   │  • Secure keyring               │ │
+│   │  • SQLite storage               │ │
+│   └─────────────────────────────────┘ │
+└───────────────────────────────────────┘
+```
 
 ## Tech Stack
 
 - **Framework**: Tauri 2.x
 - **Backend**: Rust
-- **Frontend**: Web client (`clients/web/`)
+- **UI Layer**: Web client (`clients/web/`) - embedded, not deployed separately
 - **BLE**: btleplug (native Bluetooth)
 - **Storage**: SQLite via Tauri plugins
-- **Crypto**: Rust native (secp256k1, chacha20poly1305)
+- **Crypto**: buildit-crypto (packages/crypto) + Rust native
 
 ## Commands
 
