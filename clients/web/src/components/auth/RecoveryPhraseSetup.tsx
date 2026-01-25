@@ -29,7 +29,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
+import { cn, secureRandomInt } from '@/lib/utils';
 
 interface RecoveryPhraseSetupProps {
   /** The recovery phrase to display (derived from private key) */
@@ -47,11 +47,12 @@ type SetupStep = 'display' | 'verify';
 /**
  * Generates 3 random word indices for verification
  * Returns indices in sorted order for consistent display
+ * SECURITY: Uses crypto.getRandomValues() to prevent predictable word selection
  */
 function getRandomVerificationIndices(wordCount: number = 24): number[] {
   const indices = new Set<number>();
   while (indices.size < 3) {
-    const randomIndex = Math.floor(Math.random() * wordCount);
+    const randomIndex = secureRandomInt(wordCount);
     indices.add(randomIndex);
   }
   return Array.from(indices).sort((a, b) => a - b);

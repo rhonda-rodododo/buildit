@@ -75,8 +75,8 @@ export function useTauriEvents() {
         return () => {};
       }
 
-      // Create unique key for this subscription
-      const key = `${eventName}-${Date.now()}-${Math.random()}`;
+      // Create unique key for this subscription using crypto.randomUUID()
+      const key = `${eventName}-${crypto.randomUUID()}`;
 
       // Subscribe and store unlistener
       subscribeToEvent<T>(eventName, callback).then((unlisten) => {
