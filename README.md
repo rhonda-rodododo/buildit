@@ -37,17 +37,25 @@ This project is designed for autonomous execution by Claude Code.
 
 ## 🏗️ Tech Stack
 
+### Web/Desktop (Tauri)
 - **Frontend**: React 18 + TypeScript + Vite
 - **UI**: shadcn/ui (Radix primitives) + Tailwind CSS
 - **State**: Zustand with persistence
 - **Storage**: Dexie.js (IndexedDB)
+- **Desktop**: Tauri (Rust backend with native BLE)
 - **Protocol**: Nostr (nostr-tools)
 - **Encryption**:
   - NIP-17 (gift-wrapped NIP-44) for DMs and small groups
   - Noise Protocol for large groups (Phase 2)
-  - Future: BLE mesh for offline
+  - BLE mesh for offline communication
 - **i18n**: react-i18next (English, Spanish, French, Arabic with RTL)
 - **Testing**: Vitest + React Testing Library + Playwright
+
+### Native Mobile Apps
+- **iOS**: Swift + SwiftUI + Core Bluetooth (see [buildit-ios](../buildit-ios))
+- **Android**: Kotlin + Jetpack Compose + Android BLE (see [buildit-android](../buildit-android))
+- **Shared Crypto**: Rust library with UniFFI bindings (see [buildit-crypto](../buildit-crypto))
+- **Protocol Spec**: Canonical reference (see [buildit-protocol](../buildit-protocol))
 
 ## 🎯 Current Status
 
@@ -109,7 +117,23 @@ bun run dev        # Development server
 bun run build      # Production build
 bun run test       # Run tests
 bun run typecheck  # Type checking
+
+# Tauri Desktop
+bun run tauri:dev  # Development with Tauri
+bun run tauri:build # Build desktop app
 ```
+
+## 📱 Native Apps
+
+BuildIt Network now has native iOS and Android apps with full BLE mesh support. See [NATIVE_APPS.md](./NATIVE_APPS.md) for details.
+
+| Platform | Repository | Tech Stack |
+|----------|------------|------------|
+| iOS | [buildit-ios](../buildit-ios) | Swift, SwiftUI, Core Bluetooth |
+| Android | [buildit-android](../buildit-android) | Kotlin, Jetpack Compose |
+| Desktop | `src-tauri/` (this repo) | Rust, Tauri, btleplug |
+| Protocol | [buildit-protocol](../buildit-protocol) | Specification docs |
+| Crypto | [buildit-crypto](../buildit-crypto) | Rust with UniFFI |
 
 ## 🚀 Deployment
 

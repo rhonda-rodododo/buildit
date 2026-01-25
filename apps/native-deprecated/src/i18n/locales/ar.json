@@ -1,0 +1,4973 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "شبكة العمل الاجتماعي"
+  },
+  "meta": {
+    "defaultDescription": "منصة تنظيم تركز على الخصوصية، مبنية على بروتوكول Nostr للمجموعات الناشطة والتعاونيات والنقابات والمنظمين المجتمعيين.",
+    "home": "موجز نشاطك مع المنشورات والأحداث والتحديثات من مجموعاتك.",
+    "messages": "رسائل آمنة مشفرة من طرف إلى طرف للمحادثات الخاصة.",
+    "groups": "أنشئ وأدر مجموعات للتنظيم والمساعدة المتبادلة وبناء المجتمع.",
+    "events": "نسق الأحداث والتجمعات وورش العمل والاجتماعات المجتمعية.",
+    "mutualAid": "شارك الموارد وقدم المساعدة ونسق الدعم المجتمعي.",
+    "governance": "اتخاذ القرارات الديمقراطية مع المقترحات والتصويت وبناء الإجماع.",
+    "wiki": "قاعدة معرفة تعاونية للتوثيق وموارد التنظيم.",
+    "crm": "إدارة جهات الاتصال وتتبع التواصل وتنسيق جهود الحملات.",
+    "settings": "إدارة ملفك الشخصي والخصوصية والأمان وتفضيلات الإشعارات.",
+    "login": "سجل الدخول إلى حسابك أو أنشئ هوية جديدة.",
+    "unlock": "افتح حسابك للمتابعة.",
+    "recovery": "استعد حسابك باستخدام عبارة الاسترداد.",
+    "notFound": "الصفحة التي تبحث عنها غير موجودة.",
+    "security": "إعدادات الأمان وإدارة مفاتيح التشفير.",
+    "notifications": "اضبط كيفية تلقي التنبيهات والتحديثات.",
+    "privacy": "تحكم في رؤية بياناتك وإعدادات الخصوصية.",
+    "preferences": "خصص تجربتك مع إعدادات العرض واللغة.",
+    "analytics": "عرض مقاييس المشاركة وإحصائيات نشاط المجموعة.",
+    "files": "تخزين آمن للملفات ومشاركتها لمجموعاتك.",
+    "documents": "أنشئ وتعاون على مستندات نصية غنية.",
+    "database": "قواعد بيانات مخصصة وإدارة البيانات المهيكلة.",
+    "fundraising": "نظم حملات جمع التبرعات وتتبع التبرعات.",
+    "newsletters": "أنشئ وأرسل النشرات الإخبارية لمجتمعك.",
+    "forms": "أنشئ نماذج مخصصة للاستطلاعات والتسجيلات وجمع البيانات.",
+    "pages": "انشر صفحات عامة لمجموعتك أو حملتك.",
+    "bookmarks": "منشوراتك وأحداثك ومحتوياتك المحفوظة."
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "createIdentity": "إنشاء هوية",
+    "importKey": "استيراد مفتاح",
+    "name": "الاسم",
+    "privateKey": "المفتاح الخاص",
+    "generateNew": "إنشاء هوية جديدة",
+    "hidePassword": "إخفاء كلمة المرور",
+    "showPassword": "إظهار كلمة المرور",
+    "login": {
+      "tabCreate": "إنشاء جديد",
+      "tabImport": "استيراد",
+      "displayName": "اسم العرض",
+      "namePlaceholder": "أدخل اسمك",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أنشئ كلمة مرور قوية",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPlaceholder": "أكد كلمة المرور",
+      "passwordHint": "8 أحرف كحد أدنى. تشفر كلمة المرور هذه مفاتيحك الخاصة.",
+      "importPasswordHint": "ستشفر كلمة المرور هذه مفتاحك المستورد محلياً.",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "passwordMismatch": "كلمات المرور غير متطابقة",
+      "securityNote": "سيتم تشفير مفتاحك الخاص بكلمة المرور هذه. لن يغادر جهازك بدون تشفير أبداً.",
+      "privateKey": "المفتاح الخاص (nsec)",
+      "creating": "جاري الإنشاء...",
+      "createButton": "إنشاء هوية",
+      "importing": "جاري الاستيراد...",
+      "importButton": "استيراد هوية",
+      "createFailed": "فشل إنشاء الهوية",
+      "importFailed": "فشل استيراد الهوية"
+    },
+    "unlock": {
+      "title": "مرحباً بعودتك",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "passwordRequired": "يرجى إدخال كلمة المرور",
+      "button": "فتح",
+      "unlocking": "جاري الفتح...",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "addAccount": "إضافة حساب آخر",
+      "importKey": "استيراد مفتاح",
+      "newAccount": "حساب جديد",
+      "selectAccount": "اختر حساباً لفتحه"
+    },
+    "recovery": {
+      "title": "تأمين حسابك",
+      "description": "قبل أن تتمكن من استخدام BuildIt، تحتاج إلى حفظ عبارة الاسترداد الخاصة بك.",
+      "descriptionWithName": "مرحباً {{name}}! قبل أن تتمكن من استخدام BuildIt، تحتاج إلى حفظ عبارة الاسترداد الخاصة بك.",
+      "warningTitle": "خطوة أمان حرجة",
+      "warningDescription": "هذه العبارة المكونة من 24 كلمة هي الطريقة الوحيدة لاستعادة حسابك إذا نسيت كلمة المرور أو فقدت الوصول إلى جهازك. لا يوجد إعادة تعيين لكلمة المرور. اكتبها واحفظها بأمان بعيداً عن الإنترنت.",
+      "phraseLabel": "عبارة الاسترداد الخاصة بك",
+      "hide": "إخفاء",
+      "show": "إظهار",
+      "copied": "تم النسخ!",
+      "copyPhrase": "نسخ إلى الحافظة",
+      "confirmWrittenDown": "لقد كتبت عبارة الاسترداد الخاصة بي وحفظتها في مكان آمن. أفهم أنني إذا فقدت هذه العبارة، سأفقد الوصول إلى حسابي بشكل دائم.",
+      "verifyPhrase": "التحقق من عبارة الاسترداد",
+      "verifyTitle": "تحقق من عبارة الاسترداد",
+      "verifyDescription": "أدخل الكلمات المطلوبة من عبارة الاسترداد للتأكد من حفظها بشكل صحيح.",
+      "enterWord": "أدخل الكلمة رقم {{number}}",
+      "wordPlaceholder": "أدخل الكلمة",
+      "verificationFailed": "كلمة أو أكثر غير صحيحة. يرجى التحقق من عبارة الاسترداد والمحاولة مرة أخرى.",
+      "verifyHint": "لا تتذكر؟ عد لعرض عبارة الاسترداد مرة أخرى، لكن تأكد من كتابتها هذه المرة!",
+      "newWords": "جرب كلمات مختلفة",
+      "verifying": "جاري التحقق...",
+      "confirm": "تأكيد ومتابعة",
+      "recoverTitle": "استعادة حسابك",
+      "recoverDesc": "أدخل عبارة الاسترداد المكونة من 24 كلمة لإعادة تعيين كلمة المرور واستعادة الوصول إلى حسابك.",
+      "recoverDescWithName": "أدخل عبارة الاسترداد المكونة من 24 كلمة لـ \"{{name}}\" لتعيين كلمة مرور جديدة.",
+      "secureTitle": "استعادة آمنة",
+      "secureDesc": "لا يتم إرسال عبارة الاسترداد الخاصة بك إلى أي خادم أبداً. تُستخدم محلياً فقط لاشتقاق مفتاحك الخاص.",
+      "phraseValid": "عبارة استرداد صالحة",
+      "invalidPhrase": "يرجى إدخال عبارة استرداد صالحة مكونة من 24 كلمة.",
+      "invalidWords": "كلمات غير صالحة: {{words}}",
+      "wrongWordCount": "متوقع 24 كلمة، وجدت {{count}}",
+      "newPasswordTitle": "تعيين كلمة مرور جديدة",
+      "newPasswordDesc": "أنشئ كلمة مرور جديدة لحماية حسابك على هذا الجهاز.",
+      "passwordWarning": "تشفر كلمة المرور هذه مفتاحك الخاص على هذا الجهاز. إذا نسيتها، ستحتاج إلى عبارة الاسترداد مرة أخرى.",
+      "newPassword": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "أدخل كلمة مرور قوية",
+      "passwordHint": "8 أحرف كحد أدنى",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أكد كلمة المرور",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "passwordMismatch": "كلمات المرور غير متطابقة",
+      "recovering": "جاري الاستعادة...",
+      "recoverButton": "استعادة الحساب",
+      "successTitle": "تم استعادة الحساب!",
+      "successDesc": "تم استعادة حسابك وأنت الآن مسجل الدخول.",
+      "recoveredIdentity": "الهوية المستعادة",
+      "failed": "فشلت الاستعادة. يرجى التحقق من عبارة الاسترداد."
+    },
+    "logout": {
+      "button": "تسجيل الخروج",
+      "warningTitle": "لم يتم العثور على نسخة احتياطية",
+      "warningDescription": "لم تنشئ نسخة احتياطية لهذا الحساب. إذا سجلت الخروج ونسيت كلمة المرور، قد تفقد الوصول بشكل دائم.",
+      "noRecoveryTitle": "لا يوجد إعادة تعيين لكلمة المرور",
+      "noRecoveryDescription": "BuildIt ليس لديه استعادة كلمة مرور من جانب الخادم. عبارة الاسترداد الخاصة بك هي الطريقة الوحيدة لاستعادة حسابك إذا نسيت كلمة المرور.",
+      "identityLocked": "الهوية مقفلة. يرجى فتحها أولاً لعرض عبارة الاسترداد.",
+      "phraseFailed": "فشل الحصول على عبارة الاسترداد",
+      "createBackupNow": "إنشاء نسخة احتياطية الآن",
+      "logoutAnyway": "تسجيل الخروج على أي حال",
+      "saveBackupTitle": "احفظ عبارة الاسترداد الخاصة بك",
+      "saveBackupDescription": "اكتب هذه الكلمات الـ 24 واحفظها بأمان. هذه هي طريقتك الوحيدة لاستعادة حسابك.",
+      "phraseWarning": "أي شخص لديه هذه العبارة يمكنه الوصول إلى حسابك. احفظها بأمان بعيداً عن الإنترنت ولا تشاركها أبداً.",
+      "phraseLabel": "عبارة الاسترداد المكونة من 24 كلمة",
+      "iveSavedIt": "لقد حفظت العبارة"
+    },
+    "backup": {
+      "reminderTitle": "احمِ حسابك",
+      "reminderDescription": "حسابك غير محفوظ احتياطياً. احفظ عبارة الاسترداد لمنع فقدان الوصول.",
+      "backupNow": "النسخ الاحتياطي الآن",
+      "snooze": "ذكرني لاحقاً",
+      "identityLocked": "يرجى فتح هويتك أولاً.",
+      "phraseFailed": "فشل الحصول على عبارة الاسترداد",
+      "dialogTitle": "احفظ عبارة الاسترداد الخاصة بك",
+      "dialogDescription": "هذه العبارة المكونة من 24 كلمة هي الطريقة الوحيدة لاستعادة حسابك إذا نسيت كلمة المرور أو فقدت الوصول إلى هذا الجهاز.",
+      "phraseWarning": "اكتب هذه الكلمات واحفظها بأمان بعيداً عن الإنترنت. أي شخص لديه هذه العبارة يمكنه الوصول إلى حسابك.",
+      "phraseLabel": "عبارة الاسترداد المكونة من 24 كلمة",
+      "iveSavedIt": "لقد حفظت العبارة"
+    }
+  },
+  "autoModerationSettings": {
+    "title": "قواعد الإشراف التلقائي",
+    "description": "اكتشاف ومعالجة المحتوى الإشكالي تلقائياً",
+    "newRule": "قاعدة جديدة",
+    "createRule": "إنشاء قاعدة إشراف تلقائي",
+    "createRuleDescription": "إعداد الكشف والمعالجة التلقائية للمحتوى",
+    "editRule": "تعديل قاعدة الإشراف التلقائي",
+    "noRulesTitle": "لا توجد قواعد مُعدّة",
+    "noRulesDescription": "أنشئ قواعد إشراف تلقائي لمعالجة المحتوى تلقائياً.",
+    "createFirstRule": "إنشاء القاعدة الأولى",
+    "triggeredTimes": "تم تفعيلها {{count}} مرة",
+    "more": "+{{count}} المزيد",
+    "deleteRuleTitle": "حذف القاعدة؟",
+    "deleteRuleDescription": "سيتم حذف قاعدة الإشراف التلقائي هذه نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "creating": "جارٍ الإنشاء...",
+    "saving": "جارٍ الحفظ...",
+    "saveChanges": "حفظ التغييرات",
+    "ruleName": "اسم القاعدة",
+    "ruleNamePlaceholder": "مثال: حظر الإساءات، تصفية روابط السبام",
+    "ruleType": "نوع القاعدة",
+    "ruleTypes": {
+      "keyword": "تصفية الكلمات المفتاحية",
+      "keywordDesc": "مطابقة كلمات أو عبارات محددة",
+      "regex": "نمط التعبير النمطي",
+      "regexDesc": "استخدام التعبيرات النمطية للمطابقة المتقدمة",
+      "spamDetection": "كشف السبام",
+      "spamDetectionDesc": "كشف المحتوى المشابه للسبام تلقائياً",
+      "linkFilter": "تصفية الروابط",
+      "linkFilterDesc": "تصفية المنشورات التي تحتوي على روابط معينة"
+    },
+    "patterns": "الأنماط",
+    "patternPlaceholders": {
+      "regex": "أدخل نمط التعبير النمطي",
+      "link": "أدخل النطاق أو نمط الرابط",
+      "keyword": "أدخل الكلمة المفتاحية أو العبارة"
+    },
+    "add": "إضافة",
+    "action": "الإجراء",
+    "actions": {
+      "flag": "وضع علامة للمراجعة",
+      "flagDesc": "إضافة إلى قائمة الإشراف",
+      "hide": "إخفاء المحتوى",
+      "hideDesc": "إخفاء دون حذف",
+      "delete": "حذف",
+      "deleteDesc": "إزالة المحتوى فوراً",
+      "warn": "تحذير المستخدم",
+      "warnDesc": "إرسال تحذير للمستخدم"
+    },
+    "notifyModerators": "إشعار المشرفين",
+    "toasts": {
+      "created": "تم إنشاء قاعدة الإشراف التلقائي",
+      "updated": "تم تحديث القاعدة",
+      "deleted": "تم حذف القاعدة",
+      "enabled": "تم تفعيل القاعدة",
+      "disabled": "تم تعطيل القاعدة",
+      "createFailed": "فشل في إنشاء القاعدة",
+      "updateFailed": "فشل في تحديث القاعدة",
+      "deleteFailed": "فشل في حذف القاعدة",
+      "toggleFailed": "فشل في تبديل القاعدة",
+      "enterName": "الرجاء إدخال اسم القاعدة",
+      "addPattern": "الرجاء إضافة نمط واحد على الأقل"
+    }
+  },
+  "nav": {
+    "feed": "الموجز",
+    "messages": "الرسائل",
+    "groups": "المجموعات",
+    "events": "الأحداث",
+    "mutualAid": "المساعدة المتبادلة",
+    "tools": "الأدوات",
+    "settings": "الإعدادات",
+    "openMenu": "افتح قائمة التنقل"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "newConversation": "محادثة جديدة",
+    "startNewConversation": "بدء محادثة جديدة",
+    "startConversation": "بدء محادثة",
+    "selectConversation": "اختر محادثة أو ابدأ واحدة جديدة",
+    "recipientPublicKey": "المفتاح العام للمستلم",
+    "recipientPlaceholder": "أدخل مفتاحاً عاماً سداسياً من 64 حرفاً...",
+    "invalidPublicKey": "مفتاح عام غير صالح. يجب أن يكون 64 حرفاً سداسياً عشرياً.",
+    "conversations": "المحادثات",
+    "noMessages": "لا توجد رسائل بعد",
+    "typeMessage": "اكتب رسالة...",
+    "send": "إرسال"
+  },
+  "groups": {
+    "title": "المجموعات",
+    "createGroup": "إنشاء مجموعة",
+    "noGroups": "لا توجد مجموعات بعد",
+    "groupName": "اسم المجموعة",
+    "description": "الوصف",
+    "privacy": "الخصوصية",
+    "public": "عام",
+    "private": "خاص",
+    "secret": "سري",
+    "enabledModules": "الوحدات المفعلة",
+    "settings": "الإعدادات",
+    "members": "عضو",
+    "pendingInvitations": "لديك دعوات مجموعة معلقة"
+  },
+  "events": {
+    "title": "الأحداث",
+    "groupDescription": "أحداث وتجمعات المجموعة",
+    "publicDescription": "الأحداث والتجمعات العامة",
+    "createEvent": "إنشاء حدث",
+    "noEvents": "لا توجد أحداث بعد",
+    "eventName": "اسم الحدث",
+    "location": "الموقع",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "capacity": "السعة",
+    "rsvp": "تأكيد الحضور",
+    "going": "سأحضر",
+    "maybe": "ربما",
+    "notGoing": "لن أحضر",
+    "exportCalendar": "تصدير إلى التقويم",
+    "upcoming": "القادمة",
+    "allEvents": "جميع الأحداث",
+    "calendar": "التقويم"
+  },
+  "mutualAid": {
+    "title": "المساعدة المتبادلة",
+    "description": "دعم المجتمع من خلال مشاركة الموارد والتضامن",
+    "createRequest": "إنشاء طلب/عرض",
+    "requests": "الطلبات النشطة",
+    "requestsDesc": "أعضاء المجتمع بحاجة إلى مساعدتك",
+    "offers": "العروض المتاحة",
+    "offersDesc": "موارد متاحة للمساعدة",
+    "noRequests": "لا توجد طلبات نشطة",
+    "noOffers": "لا توجد عروض متاحة",
+    "rideShare": "مشاركة الرحلات التضامنية",
+    "solidarityRideShare": "مشاركة الرحلات التضامنية",
+    "rideShareDesc": "تنسيق النقل مع أعضاء المجتمع",
+    "noRideShares": "لا توجد رحلات مشتركة متاحة",
+    "browse": "تصفح",
+    "myItems": "عناصري",
+    "noMyItems": "لم تنشئ أي طلبات أو عروض بعد",
+    "matches": "التطابقات",
+    "noMatches": "لم يتم العثور على تطابقات. أنشئ طلبًا أو عرضًا للبدء."
+  },
+  "governance": {
+    "title": "الحوكمة",
+    "description": "اتخاذ القرارات الديمقراطية والحوكمة الجماعية",
+    "createProposal": "إنشاء مقترح",
+    "activeProposals": "المقترحات النشطة",
+    "voting": "التصويت",
+    "history": "السجل",
+    "noProposals": "لا توجد مقترحات بعد",
+    "draftProposals": "مسودات المقترحات",
+    "draftProposalsDesc": "مقترحات قيد النقاش",
+    "noDraftProposals": "لا توجد مسودات مقترحات",
+    "openForVoting": "مفتوح للتصويت",
+    "castYourVote": "أدلِ بصوتك",
+    "noActiveVotes": "لا توجد تصويتات نشطة",
+    "ends": "ينتهي",
+    "decisionHistory": "سجل القرارات",
+    "auditTrail": "سجل مراجعة جميع القرارات",
+    "noDecisionHistory": "لا يوجد سجل قرارات بعد",
+    "decidedOn": "تم اتخاذ القرار في",
+    "votingMethods": "طرق التصويت المتاحة",
+    "votingMethodsDesc": "أنظمة تصويت ديمقراطية متعددة مدعومة",
+    "simpleMajority": "الأغلبية البسيطة",
+    "simpleMajorityDesc": "التصويت التقليدي بنعم/لا/امتناع",
+    "rankedChoice": "التصويت الترتيبي",
+    "rankedChoiceDesc": "رتب التفضيلات لخيارات متعددة",
+    "quadraticVoting": "التصويت التربيعي",
+    "quadraticVotingDesc": "عبّر عن شدة التفضيل من خلال تخصيص الرموز",
+    "consensus": "الإجماع",
+    "consensusDesc": "اتخاذ القرارات على أساس عتبة الإجماع"
+  },
+  "wiki": {
+    "title": "قاعدة المعرفة",
+    "newPage": "صفحة جديدة",
+    "search": "البحث في الويكي...",
+    "noPages": "لا توجد صفحات بعد",
+    "gettingStarted": "البداية",
+    "organizingResources": "موارد التنظيم",
+    "legalSafety": "القانون والسلامة"
+  },
+  "crm": {
+    "title": "قاعدة بيانات جهات الاتصال",
+    "addContact": "إضافة جهة اتصال",
+    "noContacts": "لا توجد جهات اتصال بعد",
+    "tableView": "عرض الجدول",
+    "boardView": "عرض اللوحة",
+    "calendarView": "عرض التقويم",
+    "templates": "القوالب المتاحة",
+    "unionOrganizing": "التنظيم النقابي",
+    "fundraising": "جمع التبرعات",
+    "legalTracking": "التتبع القانوني"
+  },
+  "common": {
+    "create": "إنشاء",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "continue": "متابعة",
+    "submit": "إرسال",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "done": "تم",
+    "join": "انضمام",
+    "select": "اختر...",
+    "previous": "السابق",
+    "show": "إظهار",
+    "hide": "إخفاء",
+    "sending": "جاري الإرسال...",
+    "somethingWentWrong": "حدث خطأ ما",
+    "goToApp": "الذهاب للتطبيق",
+    "reloadPage": "إعادة تحميل الصفحة",
+    "unknownError": "حدث خطأ غير معروف",
+    "anErrorOccurred": "حدث خطأ",
+    "theme": {
+      "toggle": "تبديل المظهر",
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "النظام"
+    },
+    "language": {
+      "switch": "تغيير اللغة"
+    }
+  },
+  "media": {
+    "sensitiveContent": "محتوى حساس",
+    "showContent": "إظهار المحتوى",
+    "hideContent": "إخفاء المحتوى",
+    "downloadImage": "تحميل الصورة",
+    "closeGallery": "إغلاق المعرض",
+    "viewFullscreen": "عرض ملء الشاشة",
+    "imageEncrypted": "هذه الصورة مشفرة",
+    "decryptAndView": "فك التشفير والعرض"
+  },
+  "memberInviteDialog": {
+    "inviteMembers": "دعوة أعضاء",
+    "inviteTo": "دعوة إلى {{name}}",
+    "inviteDescription": "ادعُ أعضاء جدد للانضمام إلى هذه المجموعة",
+    "directTab": "مباشر",
+    "linkTab": "رابط",
+    "publicKeyLabel": "المفتاح العام أو npub",
+    "publicKeyPlaceholder": "npub1... أو المفتاح العام بصيغة hex",
+    "roleLabel": "الدور",
+    "roles": {
+      "member": "عضو",
+      "moderator": "مشرف",
+      "admin": "مسؤول",
+      "readOnly": "قراءة فقط"
+    },
+    "messageLabel": "رسالة (اختياري)",
+    "messagePlaceholder": "أضف رسالة شخصية...",
+    "sending": "جارٍ الإرسال...",
+    "sendInvitation": "إرسال الدعوة",
+    "defaultRole": "الدور الافتراضي",
+    "roleDescription": "الدور المخصص لأي شخص ينضم عبر هذا الرابط",
+    "expiresIn": "تنتهي الصلاحية خلال",
+    "expiryOptions": {
+      "1day": "يوم واحد",
+      "7days": "7 أيام",
+      "30days": "30 يوماً",
+      "90days": "90 يوماً"
+    },
+    "generating": "جارٍ الإنشاء...",
+    "generateInviteLink": "إنشاء رابط الدعوة",
+    "inviteLink": "رابط الدعوة",
+    "shareLink": "شارك هذا الرابط مع الأشخاص الذين تريد دعوتهم",
+    "generateNewLink": "إنشاء رابط جديد",
+    "failedToSend": "فشل في إرسال الدعوة",
+    "failedToGenerate": "فشل في إنشاء رابط الدعوة"
+  },
+  "security": {
+    "deviceManagement": "إدارة الأجهزة",
+    "signOutAllDevices": "تسجيل الخروج من جميع الأجهزة",
+    "noDevicesFound": "لم يتم العثور على أجهزة",
+    "removeDevice": "إزالة الجهاز",
+    "confirmSignOutAll": "هل أنت متأكد أنك تريد تسجيل الخروج من جميع الأجهزة؟ ستحتاج إلى تسجيل الدخول مرة أخرى على كل جهاز.",
+    "activityHistory": "سجل النشاط",
+    "noActivityFound": "لم يتم العثور على نشاط",
+    "biometricAvailable": "المصادقة البيومترية متاحة!",
+    "securityKeyRequired": "مفتاح الأمان مطلوب",
+    "webauthnBenefits": {
+      "noPassword": "لا حاجة لتذكر كلمة المرور",
+      "phishingResistant": "مقاوم للتصيد",
+      "fastSecure": "سريع وآمن",
+      "worksAcrossDevices": "يعمل عبر الأجهزة"
+    },
+    "nameThisDevice": "تسمية هذا الجهاز",
+    "deviceName": "اسم الجهاز",
+    "registeringCredential": "تسجيل بيانات الاعتماد",
+    "important": "مهم:",
+    "troubleshooting": {
+      "checkBiometric": "تحقق من تفعيل البيومترية على جهازك",
+      "trySecurityKey": "جرب استخدام مفتاح أمان بدلاً من ذلك",
+      "updateBrowser": "حدث متصفحك إلى أحدث إصدار"
+    }
+  },
+  "contacts": {
+    "addContact": "إضافة جهة اتصال",
+    "publicKeyLabel": "المفتاح العام (npub أو hex)",
+    "petnameLabel": "الاسم المستعار (اختياري)"
+  },
+  "friends": {
+    "title": "الأصدقاء وجهات الاتصال",
+    "subtitle": "إدارة اتصالاتك وطلبات الصداقة",
+    "addFriend": "إضافة صديق",
+    "friends": "الأصدقاء",
+    "verified": "موثق",
+    "favorites": "المفضلة",
+    "pendingRequests": "الطلبات المعلقة",
+    "allTrustLevels": "جميع مستويات الثقة",
+    "trustLevel": "مستوى الثقة",
+    "friend": "صديق",
+    "trusted": "موثوق",
+    "allFriends": "جميع الأصدقاء",
+    "noFriendsFound": "لم يتم العثور على أصدقاء",
+    "noFriendsHint": "جرب تعديل الفلاتر أو أضف بعض الأصدقاء!",
+    "noIncomingRequests": "لا توجد طلبات واردة",
+    "noSentRequests": "لا توجد طلبات مرسلة",
+    "chooseHowConnect": "اختر كيف تريد التواصل مع صديقك",
+    "sendFriendRequest": "إرسال طلب صداقة",
+    "incomingRequests": "الطلبات الواردة",
+    "sentRequests": "الطلبات المرسلة",
+    "requests": "الطلبات",
+    "searchFriends": "البحث عن أصدقاء..."
+  },
+  "hotlines": {
+    "title": "الخطوط الساخنة",
+    "subtitle": "إدارة خطوط الاتصال والإرسال والتنسيق",
+    "createHotline": "إنشاء خط ساخن",
+    "totalCalls": "إجمالي المكالمات",
+    "activeCalls": "المكالمات النشطة",
+    "avgDuration": "متوسط المدة",
+    "operatorsOnDuty": "العاملون في الخدمة",
+    "selectHotline": "اختر خطاً ساخناً لعرض المكالمات",
+    "selectHotlineToView": "اختر خطاً ساخناً لعرض المكالمات والعاملين",
+    "callHistory": "سجل المكالمات",
+    "operators": "العاملون",
+    "operatorManagementSoon": "إدارة العاملين قريباً",
+    "startNewCall": "بدء مكالمة جديدة",
+    "callerName": "اسم المتصل",
+    "phoneNumber": "رقم الهاتف",
+    "priority": "الأولوية",
+    "priorityLow": "منخفضة",
+    "priorityMedium": "متوسطة",
+    "priorityHigh": "عالية",
+    "priorityUrgent": "عاجلة",
+    "noActiveCalls": "لا توجد مكالمات نشطة",
+    "active": "نشط"
+  },
+  "customFields": {
+    "fieldName": "اسم الحقل",
+    "label": "التسمية",
+    "fieldType": "نوع الحقل",
+    "required": "حقل مطلوب",
+    "placeholder": "نص العنصر النائب",
+    "helpText": "نص المساعدة",
+    "optionsJson": "الخيارات (JSON)",
+    "minLength": "الحد الأدنى للطول",
+    "maxLength": "الحد الأقصى للطول",
+    "pattern": "النمط (regex)",
+    "minimum": "الحد الأدنى",
+    "maximum": "الحد الأقصى",
+    "applyTemplate": "تطبيق القالب:",
+    "deleteCustomField": "حذف الحقل المخصص"
+  },
+  "onboarding": {
+    "availability": {
+      "weekdays": "أيام الأسبوع",
+      "weekends": "عطلة نهاية الأسبوع",
+      "flexible": "مرن"
+    }
+  },
+  "tasks": {
+    "automatedFollowup": "متابعة آلية",
+    "editTask": "تعديل المهمة",
+    "reassign": "إعادة التعيين"
+  },
+  "pages": {
+    "groupMembers": "أعضاء المجموعة",
+    "groupNotFound": "لم يتم العثور على المجموعة",
+    "basicInformation": "المعلومات الأساسية",
+    "privacyLevel": "مستوى الخصوصية",
+    "userDirectory": "دليل المستخدمين",
+    "allUsers": "جميع المستخدمين",
+    "verifiedOnly": "الموثقون فقط",
+    "unverifiedOnly": "غير الموثقين فقط",
+    "usernameAZ": "اسم المستخدم (أ-ي)",
+    "nameAZ": "الاسم (أ-ي)",
+    "recentlyActive": "النشطون مؤخراً",
+    "members": "الأعضاء",
+    "membersCount": "{{count}} عضو",
+    "membersCount_plural": "{{count}} أعضاء",
+    "memberIn": "في {{name}}",
+    "inviteMembers": "دعوة أعضاء",
+    "noMembersFound": "لم يتم العثور على أعضاء",
+    "joined": "انضم {{date}}",
+    "groupSettings": "إعدادات المجموعة",
+    "configureSettings": "تكوين إعدادات {{name}} والميزات",
+    "updateNameDescription": "تحديث اسم ووصف مجموعتك",
+    "enterGroupName": "أدخل اسم المجموعة",
+    "enterGroupDescription": "أدخل وصف المجموعة",
+    "saving": "جاري الحفظ...",
+    "saveChanges": "حفظ التغييرات",
+    "chooseModules": "اختر الوحدات المتاحة لهذه المجموعة",
+    "enabled": "مفعل",
+    "disabled": "معطل",
+    "managePrivacy": "إدارة خصوصية ورؤية المجموعة",
+    "publicAccess": "يمكن لأي شخص رؤية هذه المجموعة والانضمام",
+    "privateAccess": "بدعوة فقط - محتوى مشفر"
+  },
+  "posts": {
+    "placeholder": "ما الذي يدور في ذهنك؟ شارك التحديثات، نظم الإجراءات، ابنِ التضامن...",
+    "postCreated": "تم إنشاء المنشور بنجاح",
+    "postFailed": "فشل إنشاء المنشور",
+    "postScheduled": "تم جدولة المنشور بنجاح",
+    "scheduleFailed": "فشل جدولة المنشور",
+    "selectFutureDate": "يرجى اختيار تاريخ ووقت في المستقبل",
+    "addEmoji": "إضافة رمز تعبيري",
+    "disableLinkPreviews": "تعطيل معاينات الروابط",
+    "enableLinkPreviews": "تفعيل معاينات الروابط",
+    "linkPreviewsOn": "معاينات الروابط مفعلة",
+    "linkPreviewsOff": "معاينات الروابط معطلة",
+    "postPrivacy": "مستوى خصوصية المنشور",
+    "privacy": "الخصوصية",
+    "groupOnly": "المجموعة فقط",
+    "public": "عام",
+    "followers": "المتابعون",
+    "encrypted": "مشفر",
+    "groupOnlyDesc": "فقط أعضاء مجموعاتك يمكنهم رؤية هذا",
+    "publicDesc": "مرئي لأي شخص، مشارك على المرحلات العامة",
+    "followersDesc": "فقط من يتابعونك يمكنهم رؤية هذا",
+    "encryptedDesc": "مشفر من طرف إلى طرف، فقط أشخاص محددون يمكنهم فك التشفير",
+    "post": "نشر",
+    "schedulePost": "جدولة المنشور",
+    "schedule": "جدولة",
+    "makePublicTitle": "هل تريد جعل هذا المنشور عاماً؟",
+    "makePublicWarning": "المنشورات العامة مرئية لأي شخص على الإنترنت وستُشارك على مرحلات Nostr العامة.",
+    "publicActivistWarning": "للتنظيم الناشط، فكر فيما إذا كان هذا المحتوى يجب أن يبقى خاصاً لحماية مجتمعك.",
+    "keepPrivate": "إبقاء خاص",
+    "makePublic": "جعل عام"
+  },
+  "templates": {
+    "title": "اختر قالباً",
+    "subtitle": "اختر قالباً للبدء سريعاً بوحدات مُعدة مسبقاً.",
+    "manualMode": "الإعداد اليدوي",
+    "customize": "تخصيص",
+    "continue": "متابعة",
+    "createGroup": "إنشاء المجموعة",
+    "creating": "جاري الإنشاء...",
+    "modules": "وحدات",
+    "modulesEnabled": "وحدات سيتم تفعيلها",
+    "modulesToEnable": "الوحدات للتفعيل",
+    "includeSampleData": "تضمين بيانات تجريبية",
+    "sampleDataDescription": "ملء المجموعة بمحتوى تجريبي لمساعدتك على البدء",
+    "optionalEnhancements": "تحسينات اختيارية",
+    "summary": "ملخص",
+    "template": "القالب",
+    "enhancementsAdded": "تحسينات مضافة",
+    "demoDataWillBeLoaded": "سيتم تحميل البيانات التجريبية",
+    "manualModeDescription": "الوضع اليدوي: ستختار الوحدات الفردية في الخطوة التالية.",
+    "complexity": {
+      "1": "بسيط",
+      "2": "أساسي",
+      "3": "قياسي",
+      "4": "متقدم",
+      "5": "خبير"
+    },
+    "categories": {
+      "community": "المجتمع",
+      "mutual-aid": "المساعدة المتبادلة",
+      "organizing": "التنظيم",
+      "civic": "العمل المدني",
+      "governance": "الحوكمة",
+      "movement-defense": "دفاع الحركة"
+    },
+    "simpleGroup": {
+      "name": "مجموعة بسيطة",
+      "description": "مجموعة أساسية مع الرسائل فقط. مثالية للبدء السريع."
+    },
+    "mutualAidNetwork": {
+      "name": "شبكة المساعدة المتبادلة",
+      "description": "شارك الموارد ونسق الدعم المجتمعي. مثالية لشبكات الأحياء.",
+      "enhancements": {
+        "governance": {
+          "name": "القرارات الديمقراطية",
+          "description": "أضف المقترحات والتصويت للقرارات الجماعية"
+        },
+        "events": {
+          "name": "الأحداث والتجمعات",
+          "description": "نسق اللقاءات والأحداث المجتمعية"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "فرع نقابي",
+      "description": "أدوات شاملة للتنظيم العمالي: الحملات وجهات الاتصال والحوكمة الديمقراطية.",
+      "enhancements": {
+        "publicPresence": {
+          "name": "الحضور العام",
+          "description": "أنشئ صفحة عامة لفرعك"
+        },
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية للعقود والشكاوى والملاحظات"
+        },
+        "files": {
+          "name": "تخزين الملفات",
+          "description": "تخزين آمن للعقود والصور والأدلة"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "حملة انتخابات النقابة",
+      "description": "نظّم انتخابات نقابية مع تتبع العمال وزيارات المنازل وبطاقات التفويض والتنسيق مع NLRB.",
+      "enhancements": {
+        "wiki": {
+          "name": "قاعدة المعرفة",
+          "description": "وثّق قواعد NLRB والتكتيكات المعادية للنقابات وموارد التنظيم"
+        },
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية للتخطيط وتوثيق الممارسات العمالية غير العادلة"
+        },
+        "publicPresence": {
+          "name": "الحملة العامة",
+          "description": "أضف صفحات عامة للتواصل مع العمال (استخدم بحذر)"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "تجمع ناشط",
+      "description": "نسق الحملات وابنِ المعرفة وحشد مجتمعك بفعالية.",
+      "enhancements": {
+        "crm": {
+          "name": "إدارة جهات الاتصال",
+          "description": "تتبع المؤيدين والمتطوعين وجهود التواصل"
+        },
+        "database": {
+          "name": "قواعد بيانات مخصصة",
+          "description": "أنشئ أنظمة تتبع مخصصة لحملاتك"
+        },
+        "files": {
+          "name": "مكتبة الوسائط",
+          "description": "خزّن ونظّم مواد الحملة"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "مركز مجتمعي",
+      "description": "مساحة متعددة الأغراض للتنظيم والتواصل المجتمعي. مثالية للأحياء والمجموعات الاجتماعية.",
+      "enhancements": {
+        "governance": {
+          "name": "القرارات الجماعية",
+          "description": "أضف المقترحات والتصويت للقرارات المجتمعية"
+        },
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية لملاحظات الاجتماعات والتخطيط"
+        },
+        "files": {
+          "name": "مشاركة الملفات",
+          "description": "تخزين مشترك للموارد المجتمعية"
+        },
+        "crm": {
+          "name": "دليل جهات الاتصال",
+          "description": "إدارة جهات الاتصال المجتمعية والأعمال المحلية"
+        }
+      }
+    },
+    "mediaCollective": {
+      "name": "تجمع إعلامي",
+      "description": "صحافة مجتمعية مع حوكمة ذاتية ديمقراطية. انشر المقالات وشاركها عبر الشبكات واتخذ القرارات معاً.",
+      "channels": {
+        "general": "عام",
+        "editorial": "التحرير",
+        "pitches": "مقترحات القصص",
+        "governance": "الحوكمة",
+        "announcements": "الإعلانات"
+      },
+      "roles": {
+        "editor": "محرر",
+        "writer": "كاتب",
+        "copyEditor": "مدقق لغوي",
+        "publisher": "ناشر",
+        "newsletterEditor": "محرر النشرة الإخبارية"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "غرفة أخبار مفتوحة",
+          "description": "قبول المقالات العامة من المجتمع"
+        },
+        "wireService": {
+          "name": "وضع خدمة الأخبار",
+          "description": "تجميع وإعادة نشر القصص من التجمعات الأخرى"
+        },
+        "events": {
+          "name": "الأحداث والمؤتمرات الصحفية",
+          "description": "تنظيم الأحداث الصحفية والاجتماعات المجتمعية وتنسيق التغطية"
+        },
+        "mutualAid": {
+          "name": "الموارد المجتمعية",
+          "description": "ربط القراء بالموارد المجتمعية والمساعدة المتبادلة"
+        },
+        "microblogging": {
+          "name": "تحديثات الأخبار العاجلة",
+          "description": "نشر تحديثات سريعة وأخبار عاجلة ومحتوى بأسلوب وسائل التواصل"
+        },
+        "fundraising": {
+          "name": "جمع التبرعات والعضوية",
+          "description": "قبول التبرعات وإدارة العضويات"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "تجمع الدفاع القانوني للحركة",
+      "description": "تنسيق دفاع جماعي شامل مع إدارة القضايا وجداول المحاكم وتنسيق المحامين وخطوط دعم السجناء.",
+      "enhancements": {
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية للملفات القانونية والقوالب وملاحظات القضايا"
+        },
+        "wiki": {
+          "name": "قاعدة المعرفة",
+          "description": "وثّق أدلة اعرف حقوقك والإجراءات القانونية والموارد"
+        },
+        "publicPresence": {
+          "name": "الموارد العامة",
+          "description": "أضف صفحات عامة بمعلومات عن حقوقك وكيفية الحصول على المساعدة"
+        },
+        "fundraising": {
+          "name": "صندوق الكفالة والتبرعات",
+          "description": "أضف إدارة صندوق الكفالة وتتبع التبرعات"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "تجمع مسعفي الشوارع",
+      "description": "درّب وحشد مسعفي الشوارع للاحتجاجات والأحداث المجتمعية. تتبع الشهادات ونسق الانتشار وأدر الإمدادات الطبية.",
+      "enhancements": {
+        "governance": {
+          "name": "الحوكمة الجماعية",
+          "description": "أضف المقترحات والتصويت للقرارات الجماعية"
+        },
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية للبروتوكولات ومواد التدريب وجلسات المراجعة"
+        },
+        "hotlines": {
+          "name": "إرسال طبي",
+          "description": "أضف خط إرسال للتنسيق الطبي الطارئ"
+        },
+        "fundraising": {
+          "name": "صندوق الإمدادات",
+          "description": "تتبع التبرعات للإمدادات والمعدات الطبية"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "تجمع الدفاع الذاتي المجتمعي",
+      "description": "درّب ونسق حراس السلامة وفرق تهدئة التوتر للمظاهرات والأحداث المجتمعية.",
+      "enhancements": {
+        "governance": {
+          "name": "الحوكمة الجماعية",
+          "description": "أضف المقترحات والتصويت للقرارات الجماعية"
+        },
+        "documents": {
+          "name": "مجموعة المستندات",
+          "description": "مستندات تعاونية للبروتوكولات وتقارير الحوادث ومواد التدريب"
+        },
+        "hotlines": {
+          "name": "إرسال أمني",
+          "description": "أضف خط إرسال لتنسيق الأمن"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "تغيير السياسة التحريرية",
+        "description": "اقتراح تغييرات على الإرشادات أو المعايير أو السياسات التحريرية"
+      },
+      "coveragePriority": {
+        "title": "أولوية التغطية",
+        "description": "تحديد أو تغيير أولويات التغطية للتجمع"
+      },
+      "styleGuideUpdate": {
+        "title": "تحديث دليل الأسلوب",
+        "description": "اقتراح تحديثات لدليل أسلوب التجمع"
+      },
+      "newMemberApproval": {
+        "title": "الموافقة على عضو جديد",
+        "description": "التصويت على قبول عضو جديد في التجمع"
+      },
+      "roleAssignment": {
+        "title": "تعيين الدور",
+        "description": "تعيين عضو في دور محدد"
+      },
+      "electEditorialBoard": {
+        "title": "انتخاب هيئة التحرير",
+        "description": "انتخاب الأعضاء للعمل في هيئة التحرير"
+      },
+      "joinCoalition": {
+        "title": "الانضمام إلى تحالف",
+        "description": "التصويت على الانضمام إلى تحالف إعلامي إقليمي أو عالمي"
+      },
+      "leaveCoalition": {
+        "title": "مغادرة التحالف",
+        "description": "التصويت على مغادرة تحالف ينتمي إليه التجمع حالياً"
+      },
+      "partnershipAgreement": {
+        "title": "اتفاقية شراكة",
+        "description": "إنشاء شراكة مع منظمة أخرى"
+      },
+      "budgetAllocation": {
+        "title": "تخصيص الميزانية",
+        "description": "تخصيص أموال التجمع لأغراض محددة"
+      },
+      "contentDispute": {
+        "title": "حل نزاع المحتوى",
+        "description": "حل النزاعات حول المحتوى المنشور أو المعلق"
+      },
+      "retractionRequest": {
+        "title": "سحب أو تصحيح",
+        "description": "التصويت على سحب أو تصحيح المحتوى المنشور"
+      },
+      "syndicationApproval": {
+        "title": "الموافقة على المشاركة",
+        "description": "الموافقة على مشاركة مقال معين مع تحالف أو أكثر"
+      }
+    },
+    "categories": {
+      "editorial": "الحوكمة التحريرية",
+      "membership": "العضوية والأدوار",
+      "operations": "العمليات والمالية",
+      "content": "قرارات المحتوى",
+      "coalition": "عضوية التحالف"
+    }
+  },
+  "modules": {
+    "title": "إعدادات الوحدات",
+    "description": "تمكين وتكوين الوحدات لمجموعتك. كل وحدة توفر ميزات وقدرات مختلفة.",
+    "noPermission": "ليس لديك صلاحية لإدارة وحدات هذه المجموعة.",
+    "noPermissionAlert": "ليس لديك صلاحية لإدارة الوحدات",
+    "failedToToggle": "فشل في تبديل الوحدة",
+    "failedToUpdateConfig": "فشل في تحديث الإعدادات",
+    "cannotDisable": "لا يمكن التعطيل: {{modules}} يعتمد على هذا",
+    "required": "مطلوب:",
+    "isRequired": "{{module}} مطلوب",
+    "enhancedBy": "محسّن بواسطة:",
+    "enhancedByModule": "محسّن بواسطة {{module}}",
+    "enableForFeatures": "فعّل {{module}} للمزيد من الميزات",
+    "recommended": "موصى به:",
+    "worksWellWith": "{{module}} يعمل جيداً مع هذه الوحدة",
+    "enableFirst": "فعّل {{modules}} أولاً",
+    "requiredBy": "مطلوب من قبل:",
+    "capabilities": "القدرات:",
+    "configure": "تكوين",
+    "configureModule": "تكوين {{module}}",
+    "saveConfiguration": "حفظ الإعدادات",
+    "error": "خطأ: {{message}}"
+  },
+  "notifications": {
+    "title": "إعدادات الإشعارات",
+    "description": "إدارة كيفية استلامك للإشعارات",
+    "comingSoon": "إعدادات الإشعارات قريباً..."
+  },
+  "preferences": {
+    "title": "التفضيلات",
+    "description": "إدارة تفضيلات التطبيق والمظهر",
+    "language": "اللغة",
+    "colorMode": "وضع الألوان",
+    "theme": "السمة"
+  },
+  "securityPage": {
+    "title": "الأمان والأجهزة",
+    "description": "إدارة أجهزتك وجلساتك وإعدادات الأمان",
+    "webauthnProtection": "حماية WebAuthn",
+    "active": "نشط",
+    "keysProtected": "مفاتيحك محمية بـ WebAuthn",
+    "setupBiometric": "قم بإعداد المصادقة البيومترية أو مفاتيح الأمان",
+    "setupWebauthn": "إعداد WebAuthn",
+    "registeredCredentials": "بيانات الاعتماد المسجلة",
+    "thisDevice": "هذا الجهاز",
+    "lastUsed": "آخر استخدام:",
+    "webauthnNotSupported": "WebAuthn غير مدعوم",
+    "webauthnNotSupportedDesc": "متصفحك لا يدعم WebAuthn. يرجى استخدام متصفح حديث (Chrome أو Firefox أو Safari أو Edge) لتفعيل المصادقة البيومترية ومفاتيح الأمان.",
+    "tabDevices": "الأجهزة",
+    "tabSession": "الجلسة",
+    "tabActivity": "النشاط",
+    "tabPrivacy": "الخصوصية",
+    "tabTor": "Tor",
+    "tabBackup": "النسخ الاحتياطي",
+    "tabBackupTooltip": "النسخ الاحتياطي والأجهزة المتعددة",
+    "unlockForMultiDevice": "يرجى فتح هويتك للوصول إلى ميزات الأجهزة المتعددة."
+  },
+  "profile": {
+    "pleaseLogin": "يرجى تسجيل الدخول لإدارة ملفك الشخصي",
+    "usernameAndDisplayName": "اسم المستخدم والاسم المعروض",
+    "usernameDescription": "حدد اسم مستخدم سهل القراءة لتسهيل عثور الآخرين عليك والإشارة إليك",
+    "username": "اسم المستخدم",
+    "usernameTaken": "اسم المستخدم مستخدم بالفعل",
+    "usernameAvailable": "اسم المستخدم متاح",
+    "usernameHint": "3-20 حرفاً، أحرف صغيرة وأرقام وشرطات فقط",
+    "displayName": "الاسم المعروض (اختياري)",
+    "displayNameHint": "اسمك الكامل أو اسم العرض المفضل",
+    "saving": "جاري الحفظ...",
+    "saveUsername": "حفظ اسم المستخدم",
+    "usernameSaved": "تم حفظ اسم المستخدم بنجاح",
+    "usernameSaveFailed": "فشل في حفظ اسم المستخدم",
+    "nip05Verification": "التحقق من NIP-05",
+    "verified": "موثق",
+    "nip05Description": "تحقق من هويتك باستخدام اسم نطاق (username@domain.com)",
+    "nip05Identifier": "معرف NIP-05",
+    "nip05Hint": "أدخل معرف NIP-05 الخاص بك للتحقق من هويتك",
+    "verifying": "جاري التحقق...",
+    "verifyNip05": "التحقق من NIP-05",
+    "verifiedAs": "موثق كـ",
+    "nip05Verified": "تم التحقق من NIP-05 بنجاح",
+    "nip05Failed": "فشل التحقق من NIP-05",
+    "privacySettings": "إعدادات الخصوصية",
+    "privacyDescription": "تحكم في من يمكنه العثور عليك ورؤية ملفك الشخصي",
+    "loadingSettings": "جاري تحميل الإعدادات...",
+    "usernameSearch": "البحث بواسطة اسم المستخدم",
+    "usernameSearchHint": "السماح للآخرين بالعثور عليك من خلال اسم المستخدم",
+    "showInDirectory": "الظهور في الدليل",
+    "showInDirectoryHint": "الظهور في دليل المستخدمين العام",
+    "profileVisibility": "رؤية الملف الشخصي",
+    "visibilityPublic": "عام (يمكن للجميع رؤيته)",
+    "visibilityGroups": "المجموعات فقط",
+    "visibilityFriends": "الأصدقاء فقط",
+    "visibilityPrivate": "خاص (مخفي)",
+    "visibilityHint": "من يمكنه عرض ملفك الشخصي ومنشوراتك",
+    "publicKey": "المفتاح العام",
+    "publicKeyDescription": "مفتاحك العام في Nostr (npub)",
+    "npub": "npub",
+    "npubHint": "معرفك الفريد على شبكة Nostr",
+    "privacyUpdated": "تم تحديث إعدادات الخصوصية",
+    "privacyUpdateFailed": "فشل في تحديث الإعدادات"
+  },
+  "fundraising": {
+    "title": "جمع التبرعات",
+    "description": "أنشئ وأدر حملات جمع التبرعات لمنظمتك",
+    "viewTemplates": "عرض القوالب",
+    "newCampaign": "حملة جديدة",
+    "createCampaign": "إنشاء حملة",
+    "browseTemplates": "تصفح القوالب",
+    "noCampaigns": "لا توجد حملات بعد",
+    "noCampaignsDescription": "أنشئ أول حملة جمع تبرعات لدعم صناديق الإضراب وصناديق الكفالة والمساعدة المتبادلة والمزيد.",
+    "backToCampaigns": "العودة إلى الحملات",
+    "deleteCampaign": "حذف الحملة",
+    "deleteCampaignConfirm": "هل أنت متأكد من أنك تريد حذف \"{{title}}\"؟ سيؤدي هذا أيضاً إلى حذف جميع التبرعات والتحديثات. لا يمكن التراجع عن هذا الإجراء.",
+    "edit": "تعديل",
+    "preview": "معاينة",
+    "donors": "المتبرعون",
+    "analytics": "التحليلات",
+    "copyLink": "نسخ الرابط",
+    "pause": "إيقاف مؤقت",
+    "publish": "نشر",
+    "of": "من",
+    "funded": "تم جمعه"
+  },
+  "forms": {
+    "title": "النماذج",
+    "description": "أنشئ وأدر نماذج عامة لجمع البيانات",
+    "viewTemplates": "عرض القوالب",
+    "newForm": "نموذج جديد",
+    "createForm": "إنشاء نموذج",
+    "browseTemplates": "تصفح القوالب",
+    "noForms": "لا توجد نماذج بعد",
+    "noFormsDescription": "أنشئ أول نموذج لبدء جمع البيانات من المتطوعين وتسجيلات الأحداث والاستطلاعات والمزيد.",
+    "backToForms": "العودة إلى النماذج",
+    "deleteForm": "حذف النموذج",
+    "deleteFormConfirm": "هل أنت متأكد من أنك تريد حذف \"{{title}}\"؟ سيؤدي هذا أيضاً إلى حذف جميع الإرسالات. لا يمكن التراجع عن هذا الإجراء.",
+    "edit": "تعديل",
+    "preview": "معاينة",
+    "submissions": "الإرسالات",
+    "analytics": "التحليلات",
+    "copyLink": "نسخ الرابط",
+    "unpublish": "إلغاء النشر",
+    "publish": "نشر",
+    "fields": "حقول"
+  },
+  "files": {
+    "title": "الملفات",
+    "analytics": "التحليلات",
+    "select": "تحديد",
+    "newFolder": "مجلد جديد",
+    "uploadFiles": "رفع ملفات",
+    "selectFiles": "اختيار ملفات",
+    "filesSelected": "{{count}} ملف محدد",
+    "filesSelected_plural": "{{count}} ملفات محددة",
+    "downloadZip": "تحميل ZIP",
+    "download": "تحميل",
+    "move": "نقل",
+    "share": "مشاركة",
+    "searchPlaceholder": "البحث عن ملفات بالاسم أو المحتوى...",
+    "searching": "جاري البحث...",
+    "searchContents": "البحث في المحتويات",
+    "recentSearches": "عمليات البحث الأخيرة",
+    "clear": "مسح",
+    "savedFilters": "الفلاتر المحفوظة",
+    "filters": "الفلاتر",
+    "filterFiles": "تصفية الملفات",
+    "fileType": "نوع الملف",
+    "allTypes": "جميع الأنواع",
+    "images": "الصور",
+    "documents": "المستندات",
+    "videos": "الفيديوهات",
+    "audio": "الصوت",
+    "archives": "الأرشيفات",
+    "other": "أخرى",
+    "fileSize": "حجم الملف",
+    "allSizes": "جميع الأحجام",
+    "sizeSmall": "صغير (< 1 ميجابايت)",
+    "sizeMedium": "متوسط (1-100 ميجابايت)",
+    "sizeLarge": "كبير (> 100 ميجابايت)",
+    "modified": "معدل",
+    "anyTime": "أي وقت",
+    "today": "اليوم",
+    "pastWeek": "الأسبوع الماضي",
+    "pastMonth": "الشهر الماضي",
+    "pastYear": "السنة الماضية",
+    "saveFilter": "حفظ الفلتر",
+    "activeFilters": "الفلاتر النشطة:",
+    "type": "النوع",
+    "size": "الحجم",
+    "contentMatches": "تطابقات المحتوى",
+    "deleteFilesTitle": "حذف {{count}} ملف؟",
+    "deleteFilesTitle_plural": "حذف {{count}} ملفات؟",
+    "deleteFilesDesc": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف الملفات المحددة نهائياً.",
+    "deleting": "جاري الحذف...",
+    "saveSearchFilter": "حفظ فلتر البحث",
+    "filterName": "اسم الفلتر",
+    "filterNamePlaceholder": "مثال: 'فيديوهات كبيرة هذا الشهر'",
+    "filterWillSave": "هذا الفلتر سيحفظ:",
+    "search": "بحث",
+    "analyticsTitle": "تحليلات الملفات",
+    "refresh": "تحديث",
+    "overview": "نظرة عامة",
+    "activity": "النشاط",
+    "duplicates": "الملفات المكررة",
+    "shared": "المشترك",
+    "storageUsage": "استخدام التخزين",
+    "ofUsed": "من {{total}} مستخدم",
+    "totalFiles": "إجمالي الملفات",
+    "filesInGroup": "ملفات في هذه المجموعة",
+    "sharedFiles": "الملفات المشتركة",
+    "filesSharedWithOthers": "ملفات مشتركة مع الآخرين",
+    "storageByType": "التخزين حسب نوع الملف",
+    "filesCount": "{{count}} ملفات ({{size}})",
+    "noFilesUploaded": "لم يتم رفع أي ملفات بعد",
+    "mostAccessedFiles": "الملفات الأكثر وصولاً",
+    "filesWithMostAccess": "الملفات ذات أكبر عدد من المشاركات",
+    "accesses": "{{count}} وصول",
+    "noActivityYet": "لا يوجد نشاط مسجل بعد",
+    "loadingAnalytics": "جاري تحميل التحليلات...",
+    "actions": {
+      "uploaded": "تم الرفع",
+      "downloaded": "تم التحميل",
+      "shared": "تمت المشاركة",
+      "deleted": "تم الحذف",
+      "moved": "تم النقل",
+      "renamed": "تمت إعادة التسمية",
+      "viewed": "تم العرض"
+    },
+    "time": {
+      "justNow": "الآن",
+      "minutesAgo": "منذ {{count}} دقيقة",
+      "hoursAgo": "منذ {{count}} ساعة",
+      "daysAgo": "منذ {{count}} يوم"
+    },
+    "duplicatesFound": "تم العثور على {{count}} مجموعات ملفات مكررة. فكر في حذف المكررات لتحرير مساحة التخزين.",
+    "duplicateGroup": "مجموعة المكررات #{{index}}",
+    "identicalFiles": "{{count}} ملفات متطابقة ({{size}} لكل منها)",
+    "created": "أنشئ {{date}}",
+    "keep": "احتفظ",
+    "noDuplicates": "لم يتم العثور على ملفات مكررة",
+    "storageOptimized": "تخزينك محسّن!",
+    "filesShared": "ملفات مشتركة",
+    "viewFileShares": "عرض مشاركات الملفات الفردية في قائمة الملفات.",
+    "exportSharingReport": "تصدير تقرير المشاركة",
+    "exporting": "جاري التصدير...",
+    "noFilesShared": "لم يتم مشاركة أي ملفات بعد",
+    "shareToSee": "شارك الملفات لرؤيتها هنا",
+    "deleteDuplicate": "حذف هذا الملف المكرر؟",
+    "failedExport": "فشل تصدير تقرير المشاركة",
+    "bulkShare": {
+      "title": "مشاركة {{count}} ملفات",
+      "description": "مشاركة ملفات متعددة بنفس الإعدادات",
+      "complete": "اكتملت المشاركة الجماعية",
+      "filesSharedSuccessfully": "ملفات تمت مشاركتها بنجاح",
+      "failedToShare": "{{count}} ملف(ات) فشلت مشاركتها:",
+      "done": "تم",
+      "sharingFiles": "جاري مشاركة الملفات...",
+      "pleaseWait": "يرجى الانتظار بينما نشارك ملفاتك",
+      "percentComplete": "{{percent}}% مكتمل",
+      "shareWithUsers": "مشاركة مع المستخدمين",
+      "createLinks": "إنشاء روابط",
+      "selectUsers": "اختيار المستخدمين",
+      "member": "عضو",
+      "noGroupMembers": "لم يتم العثور على أعضاء في المجموعة",
+      "permissionLevel": "مستوى الصلاحية",
+      "viewOnly": "عرض فقط",
+      "viewDownload": "عرض وتحميل",
+      "viewDownloadEdit": "عرض وتحميل وتعديل",
+      "generateLinks": "إنشاء روابط عامة لجميع الملفات",
+      "passwordOptional": "كلمة المرور (اختيارية، نفسها للجميع)",
+      "passwordPlaceholder": "اتركه فارغاً بدون كلمة مرور",
+      "expiresIn": "تنتهي الصلاحية خلال (أيام)",
+      "never": "أبداً",
+      "day": "يوم واحد",
+      "days7": "7 أيام",
+      "days30": "30 يوماً",
+      "days90": "90 يوماً",
+      "more": "+{{count}} المزيد"
+    },
+    "storageUsed": "من {{size}} مستخدم"
+  },
+  "cache": {
+    "storageUsage": "استخدام التخزين",
+    "storageDesc": "البيانات المخزنة مؤقتاً للوصول بدون إنترنت",
+    "used": "مستخدم",
+    "limit": "الحد",
+    "cachedItems": "عناصر مخزنة مؤقتاً",
+    "oldest": "الأقدم",
+    "ago": "منذ",
+    "imagesMedia": "الصور والوسائط",
+    "documents": "المستندات",
+    "appData": "بيانات التطبيق",
+    "offlineQueue": "قائمة الانتظار بدون إنترنت",
+    "refresh": "تحديث",
+    "freeSpace": "تحرير المساحة",
+    "exportData": "تصدير البيانات",
+    "cacheSettings": "إعدادات التخزين المؤقت",
+    "cacheSettingsDesc": "تكوين مدة الاحتفاظ بالبيانات بدون إنترنت",
+    "maxCacheSize": "الحد الأقصى لحجم التخزين المؤقت",
+    "maxCacheSizeDesc": "الحد الأقصى للملفات والصور المخزنة مؤقتاً",
+    "cacheExpiration": "انتهاء صلاحية التخزين المؤقت",
+    "cacheExpirationDesc": "حذف العناصر المخزنة مؤقتاً الأقدم من تلقائياً",
+    "days": "أيام",
+    "dataRetention": "الاحتفاظ بالبيانات",
+    "dataRetentionDesc": "تكوين مدة الاحتفاظ بالرسائل والمنشورات محلياً",
+    "messages": "الرسائل",
+    "keepMessages": "الاحتفاظ بالرسائل المحلية لمدة",
+    "posts": "المنشورات",
+    "keepPosts": "الاحتفاظ بالمنشورات المحلية لمدة",
+    "keepFiles": "الاحتفاظ بالملفات المخزنة مؤقتاً لمدة",
+    "lastCleanup": "آخر تنظيف",
+    "noCleanupYet": "لم يتم إجراء تنظيف بعد",
+    "cleanUpNow": "التنظيف الآن",
+    "dangerZone": "منطقة الخطر",
+    "clearAllCache": "مسح كل التخزين المؤقت",
+    "clearCacheDesc": "إزالة جميع البيانات المخزنة مؤقتاً. ستحتاج إلى إعادة تحميل المحتوى.",
+    "clearCache": "مسح التخزين المؤقت",
+    "clearCacheTitle": "مسح كل التخزين المؤقت؟",
+    "clearCacheDialogDesc": "سيؤدي هذا إلى إزالة جميع الملفات والصور والبيانات المؤقتة المخزنة. لن تتأثر رسائلك ومنشوراتك وبيانات حسابك. سيحتاج المحتوى إلى إعادة التحميل عند الوصول إليه مرة أخرى.",
+    "cleanUpTitle": "تنظيف البيانات القديمة؟",
+    "cleanUpDialogDesc": "سيؤدي هذا إلى إزالة الرسائل والمنشورات والملفات المخزنة مؤقتاً القديمة بناءً على إعدادات الاحتفاظ الخاصة بك. يساعد هذا في تحرير مساحة التخزين مع الحفاظ على البيانات الحديثة.",
+    "cleanUp": "تنظيف"
+  },
+  "publishing": {
+    "settings": "إعدادات النشر",
+    "saveChanges": "حفظ التغييرات",
+    "settingsSaved": "تم حفظ الإعدادات",
+    "tabs": {
+      "general": "عام",
+      "theme": "المظهر",
+      "content": "المحتوى",
+      "subscriptions": "الاشتراكات",
+      "social": "التواصل الاجتماعي"
+    },
+    "general": {
+      "title": "الإعدادات العامة",
+      "description": "المعلومات الأساسية عن منشورك",
+      "name": "اسم المنشور",
+      "namePlaceholder": "منشوري",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "ما موضوع منشورك؟",
+      "logoUrl": "رابط الشعار",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoPreview": "معاينة الشعار",
+      "coverImageUrl": "رابط صورة الغلاف",
+      "coverImagePlaceholder": "https://example.com/cover.jpg",
+      "coverPreview": "معاينة الغلاف"
+    },
+    "theme": {
+      "title": "المظهر والتصميم",
+      "description": "خصص مظهر منشورك",
+      "primaryColor": "اللون الرئيسي",
+      "fontFamily": "عائلة الخط",
+      "fontSans": "بدون زوائد (عصري)",
+      "fontSerif": "مذنب (كلاسيكي)",
+      "fontMono": "أحادي المسافة (تقني)",
+      "layout": "نمط التخطيط",
+      "layoutDefault": "افتراضي",
+      "layoutMagazine": "مجلة",
+      "layoutMinimal": "بسيط",
+      "darkMode": "الوضع الداكن",
+      "darkModeDesc": "تفعيل الوضع الداكن لمنشورك"
+    },
+    "content": {
+      "title": "إعدادات المحتوى",
+      "description": "تحكم في كيفية نشر وعرض المحتوى",
+      "defaultVisibility": "الرؤية الافتراضية للمقالات",
+      "visibilityPublic": "عام",
+      "visibilitySubscribers": "للمشتركين فقط",
+      "visibilityPaid": "للمشتركين المدفوعين فقط",
+      "allowComments": "السماح بالتعليقات",
+      "allowCommentsDesc": "السماح للقراء بالتعليق على المقالات",
+      "enableRss": "تفعيل خلاصة RSS",
+      "enableRssDesc": "إنشاء خلاصة RSS لمنشورك",
+      "fullRss": "محتوى كامل في RSS",
+      "fullRssDesc": "تضمين محتوى المقال الكامل في RSS (مقابل الملخص فقط)"
+    },
+    "subscriptions": {
+      "title": "إعدادات الاشتراك",
+      "description": "تكوين ميزات الاشتراك والتحقيق",
+      "emailNotifications": "إشعارات البريد الإلكتروني",
+      "emailNotificationsDesc": "إرسال إشعارات بريد إلكتروني للمشتركين (يتطلب إعداد البريد)",
+      "paidSubscriptions": "الاشتراكات المدفوعة",
+      "paidSubscriptionsDesc": "تفعيل مستوى الاشتراك المدفوع للمحتوى المميز",
+      "monthlyPrice": "السعر الشهري (دولار)",
+      "perMonth": "/ شهر"
+    },
+    "social": {
+      "title": "روابط التواصل الاجتماعي",
+      "description": "أضف روابط وسائل التواصل الاجتماعي لمنشورك",
+      "twitter": "تويتر / X",
+      "twitterPlaceholder": "@username",
+      "nostr": "Nostr",
+      "nostrPlaceholder": "npub...",
+      "website": "الموقع الإلكتروني",
+      "websitePlaceholder": "https://example.com"
+    }
+  },
+  "tor": {
+    "title": "تكامل Tor",
+    "description": "الاتصال بمرحلات Nostr عبر Tor لخصوصية معززة ومقاومة الرقابة",
+    "enableRouting": "تفعيل توجيه Tor",
+    "enableRoutingDesc": "توجيه اتصالات Nostr عبر مرحلات .onion",
+    "connectionMethod": "طريقة الاتصال",
+    "methodAuto": "اكتشاف تلقائي (موصى به)",
+    "methodTorBrowser": "متصفح Tor",
+    "methodManualProxy": "بروكسي SOCKS5 يدوي",
+    "methodAutoDesc": "اكتشاف متصفح Tor أو بروكسي SOCKS5 تلقائياً",
+    "methodTorBrowserDesc": "استخدام متصفح Tor للاتصال بمرحلات .onion",
+    "methodManualProxyDesc": "تكوين بروكسي SOCKS5 مخصص (يتطلب daemon Tor محلي)",
+    "proxyConfig": "تكوين بروكسي SOCKS5",
+    "proxyHost": "مضيف البروكسي",
+    "proxyPort": "منفذ البروكسي",
+    "proxyHint": "Tor قياسي: 9050، متصفح Tor: 9150",
+    "onionRelays": "مرحلات Onion",
+    "onionRelaysDesc": "إدارة مرحلات Nostr .onion لاتصالات Tor",
+    "healthCheck": "فحص الحالة",
+    "onionOnlyMode": "وضع Onion فقط",
+    "onionOnlyModeDesc": "استخدام مرحلات .onion فقط (بدون احتياطي clearnet)",
+    "fallbackClearnet": "احتياطي Clearnet",
+    "fallbackClearnetDesc": "استخدام مرحلات clearnet إذا كانت مرحلات .onion غير متاحة",
+    "addCustomRelay": "إضافة مرحل مخصص",
+    "onionAddress": "عنوان .onion",
+    "nameOptional": "الاسم (اختياري)",
+    "add": "إضافة",
+    "tableRelay": "المرحل",
+    "tableUrl": "الرابط",
+    "tableStatus": "الحالة",
+    "tableLatency": "زمن الاستجابة",
+    "noRelaysConfigured": "لم يتم تكوين مرحلات .onion",
+    "customRelay": "مرحل مخصص",
+    "statusUnknown": "غير معروف",
+    "statusHealthy": "سليم",
+    "statusDown": "معطل",
+    "enhancedSecurity": "أمان معزز",
+    "enhancedSecurityDesc": "حمايات إضافية عند استخدام Tor",
+    "blockWebRTC": "حظر WebRTC",
+    "blockWebRTCDesc": "منع تسرب IP عبر WebRTC (يتطلب إضافة متصفح)",
+    "blockGeolocation": "حظر تحديد الموقع",
+    "blockGeolocationDesc": "رفض جميع طلبات واجهة تحديد الموقع الجغرافي",
+    "fingerprintProtection": "حماية البصمة",
+    "fingerprintProtectionDesc": "حماية معززة ضد تتبع بصمة المتصفح",
+    "securityWarnings": "تحذيرات الأمان",
+    "howToUse": "كيفية استخدام Tor مع BuildIt Network",
+    "recommendedNote": "استخدم متصفح Tor للحصول على أفضل خصوصية وأمان. سيكتشف BuildIt ويستخدم مرحلات .onion تلقائياً.",
+    "advancedNote": "شغل daemon Tor محلي (المنفذ 9050) وفعل وضع البروكسي اليدوي لتكامل سطح المكتب.",
+    "noteNote": "يتطلب حظر WebRTC وتحديد الموقع تكوين المتصفح أو الإضافات. يتضمن متصفح Tor هذه الحمايات افتراضياً.",
+    "recommended": "موصى به:",
+    "advanced": "متقدم:",
+    "note": "ملاحظة:",
+    "invalidOnionAddress": "يرجى إدخال عنوان .onion صالح"
+  },
+  "subscribers": {
+    "title": "المشتركون",
+    "stats": "{{active}} نشط، {{pending}} معلق، {{unsubscribed}} ملغي الاشتراك",
+    "import": "استيراد",
+    "export": "تصدير",
+    "addSubscriber": "إضافة مشترك",
+    "active": "نشط",
+    "pending": "معلق",
+    "unsubscribed": "ملغي الاشتراك",
+    "searchPlaceholder": "البحث بالمفتاح العام...",
+    "all": "الكل",
+    "noSubscribers": "لا يوجد مشتركون",
+    "addFirstSubscriber": "أضف أول مشترك للبدء.",
+    "noStatusSubscribers": "لم يتم العثور على مشتركين بحالة {{status}}.",
+    "tablePubkey": "المفتاح العام",
+    "tableStatus": "الحالة",
+    "tableSource": "المصدر",
+    "tableSubscribed": "مشترك",
+    "tableActions": "الإجراءات",
+    "unsubscribe": "إلغاء الاشتراك",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "sourceManual": "يدوي",
+    "sourceImport": "استيراد",
+    "sourceSelf": "ذاتي",
+    "sourceContacts": "جهات الاتصال",
+    "addDialogTitle": "إضافة مشترك",
+    "addDialogDesc": "أضف مشتركاً جديداً بمفتاحه العام في Nostr.",
+    "nostrPubkey": "المفتاح العام في Nostr",
+    "pubkeyPlaceholder": "npub... أو المفتاح العام hex",
+    "skipConfirmation": "تخطي التأكيد",
+    "skipConfirmationDesc": "التفعيل فوراً بدون تأكيد",
+    "importDialogTitle": "استيراد مشتركين",
+    "importDialogDesc": "الصق المفاتيح العامة في Nostr (واحد لكل سطر أو مفصولة بفواصل).",
+    "pubkeys": "المفاتيح العامة",
+    "importPlaceholder": "npub1abc...\nnpub1def...\nأو مفصولة بفواصل",
+    "toastEnterPubkey": "يرجى إدخال مفتاح عام",
+    "toastInvalidPubkey": "تنسيق مفتاح عام غير صالح",
+    "toastSubscriberAdded": "تمت إضافة المشترك",
+    "toastNoValidPubkeys": "لم يتم العثور على مفاتيح عامة صالحة",
+    "toastImported": "تم استيراد {{count}} مشترك(ين)",
+    "toastExported": "تم تصدير المشتركين",
+    "toastRemoved": "تمت إزالة المشترك",
+    "toastDeleted": "تم حذف المشترك",
+    "toastConfirmed": "تم تأكيد الاشتراك"
+  },
+  "webauthn": {
+    "setup": {
+      "title": "إعداد حماية WebAuthn",
+      "description": "احمِ مفاتيحك بالمصادقة البيومترية أو مفتاح أمان مادي",
+      "biometricAvailable": "المصادقة البيومترية متاحة!",
+      "biometricDetails": "يمكنك استخدام Touch ID أو Face ID أو Windows Hello أو المصادقة المدمجة في جهازك.",
+      "securityKeyRequired": "مطلوب مفتاح أمان",
+      "securityKeyDetails": "هذا الجهاز لا يدعم المصادقة البيومترية. ستحتاج إلى مفتاح أمان مادي (مثل YubiKey) للمتابعة.",
+      "benefits": "المزايا:",
+      "benefitBiometric": "احمِ مفاتيحك بالبيومترية أو أمان الأجهزة",
+      "benefitUnauthorized": "امنع الوصول غير المصرح به حتى لو تم اختراق كلمة المرور",
+      "benefitDevices": "يعمل عبر جميع أجهزتك",
+      "benefitStandard": "أمان قياسي صناعي FIDO2/WebAuthn",
+      "getStarted": "ابدأ",
+      "nameDevice": "تسمية هذا الجهاز",
+      "nameDeviceDesc": "أعطِ هذا الجهاز اسماً لتتعرف عليه لاحقاً",
+      "deviceName": "اسم الجهاز",
+      "deviceNamePlaceholder": "هاتفي الآيفون، حاسوب العمل المحمول، إلخ.",
+      "enterDeviceName": "يرجى إدخال اسم الجهاز",
+      "registering": "جارٍ تسجيل بيانات الاعتماد",
+      "registeringDesc": "اتبع التعليمات على جهازك لإكمال التسجيل",
+      "useBiometric": "استخدم بصمة إصبعك أو وجهك أو رمز PIN للمتابعة...",
+      "insertKey": "أدخل والمس مفتاح الأمان الخاص بك...",
+      "success": "تم إعداد WebAuthn بنجاح",
+      "successDescBiometric": "مفاتيحك محمية الآن بالمصادقة البيومترية",
+      "successDescKey": "مفاتيحك محمية الآن بمفتاح الأمان الخاص بك",
+      "successImportant": "مهم:",
+      "successWarning": "ستحتاج الآن للمصادقة باستخدام WebAuthn عند كل وصول لمفاتيحك. تأكد من أنك تستطيع دائماً الوصول لهذا الجهاز أو لديك طريقة مصادقة احتياطية.",
+      "credentialDetails": "تفاصيل بيانات الاعتماد:",
+      "device": "الجهاز:",
+      "failed": "فشل التسجيل",
+      "failedDesc": "لم نتمكن من تسجيل بيانات اعتماد WebAuthn الخاصة بك",
+      "troubleshooting": "استكشاف الأخطاء:",
+      "troubleshootBrowser": "تأكد من أن متصفحك يدعم WebAuthn",
+      "troubleshootAuthenticator": "جرب استخدام مصادق مختلف",
+      "troubleshootAlreadyRegistered": "تحقق من أنك لم تسجل هذا الجهاز مسبقاً",
+      "troubleshootInserted": "تأكد من أن مفتاح الأمان مدخل بشكل صحيح",
+      "tryAgain": "حاول مرة أخرى"
+    }
+  },
+  "shareDialog": {
+    "title": "مشاركة \"{{title}}\"",
+    "description": "ادعُ أشخاصاً أو أنشئ رابطاً قابلاً للمشاركة",
+    "share": "مشاركة",
+    "tabs": {
+      "people": "الأشخاص",
+      "link": "الرابط"
+    },
+    "permissions": {
+      "view": "مشاهد",
+      "comment": "معلق",
+      "edit": "محرر",
+      "admin": "مسؤول",
+      "owner": "مالك"
+    },
+    "people": {
+      "placeholder": "أضف أشخاصاً بواسطة npub أو البريد الإلكتروني...",
+      "invite": "دعوة",
+      "you": "أنت",
+      "noCollaborators": "لا يوجد متعاونون بعد. ادعُ أشخاصاً للتعاون.",
+      "added": "أُضيف {{time}}"
+    },
+    "link": {
+      "public": "رابط عام",
+      "private": "رابط خاص",
+      "publicDesc": "أي شخص لديه الرابط يمكنه الوصول لهذا المستند",
+      "privateDesc": "فقط الأشخاص المسجلون في BuildIt يمكنهم الوصول لهذا الرابط",
+      "permission": "الصلاحية",
+      "viewOnly": "مشاهدة فقط",
+      "canComment": "يمكنه التعليق",
+      "canEdit": "يمكنه التحرير",
+      "expires": "ينتهي",
+      "never": "أبداً",
+      "day1": "يوم واحد",
+      "days7": "7 أيام",
+      "days30": "30 يوماً",
+      "days90": "90 يوماً",
+      "createLink": "إنشاء رابط",
+      "activeLinks": "الروابط النشطة",
+      "views": "{{count}} مشاهدة",
+      "expiresIn": "ينتهي {{time}}",
+      "expired": "انتهى {{time}}",
+      "expiredLinks": "الروابط المنتهية",
+      "noLinks": "لم يتم إنشاء روابط مشاركة بعد"
+    }
+  },
+  "templateBuilder": {
+    "templateName": "اسم القالب",
+    "templateNamePlaceholder": "مثال: قاعدة بيانات جهات اتصال CRM، متتبع المشاريع",
+    "description": "الوصف",
+    "descriptionPlaceholder": "صف الغرض من هذا القالب وما يتضمنه...",
+    "category": "الفئة",
+    "categories": {
+      "general": "عام",
+      "crm": "إدارة علاقات العملاء",
+      "project": "إدارة المشاريع",
+      "inventory": "المخزون",
+      "custom": "مخصص"
+    },
+    "tables": "الجداول",
+    "tablesCount": "الجداول ({{count}})",
+    "relationships": "العلاقات",
+    "relationshipsCount": "العلاقات ({{count}})",
+    "tablesDesc": "حدد الجداول والحقول في قالب قاعدة البيانات هذا",
+    "addTable": "إضافة جدول",
+    "noTables": "لا توجد جداول بعد. أضف جدولك الأول للبدء.",
+    "field": "حقل",
+    "fields": "حقول",
+    "view": "عرض",
+    "views": "عروض",
+    "more": "+{{count}} المزيد",
+    "deleteTable": "هل أنت متأكد من حذف هذا الجدول؟",
+    "relationshipsDesc": "حدد العلاقات بين الجداول",
+    "addRelationship": "إضافة علاقة",
+    "noRelationships": "لا توجد علاقات بعد.",
+    "noRelationshipsNeedTables": "أضف جدولين على الأقل أولاً.",
+    "noRelationshipsConnect": "أضف علاقة لربط جداولك.",
+    "updateTemplate": "تحديث القالب",
+    "createTemplate": "إنشاء قالب",
+    "enterName": "يرجى إدخال اسم القالب",
+    "addTableFirst": "يرجى إضافة جدول واحد على الأقل",
+    "relationship": {
+      "edit": "تعديل",
+      "add": "إضافة",
+      "title": "العلاقة",
+      "desc": "حدد كيفية ارتباط الجداول ببعضها البعض",
+      "sourceTable": "الجدول المصدر",
+      "sourceField": "الحقل المصدر",
+      "targetTable": "الجدول الهدف",
+      "targetField": "الحقل الهدف",
+      "type": "نوع العلاقة",
+      "oneToMany": "واحد إلى متعدد",
+      "manyToOne": "متعدد إلى واحد",
+      "manyToMany": "متعدد إلى متعدد",
+      "onDelete": "عند الحذف",
+      "cascade": "تتالي (حذف السجلات المرتبطة)",
+      "setNull": "تعيين فارغ (مسح العلاقة)",
+      "restrict": "تقييد (منع الحذف)",
+      "selectTable": "اختر جدولاً",
+      "selectField": "اختر حقلاً",
+      "fillFields": "يرجى ملء جميع الحقول",
+      "save": "حفظ العلاقة"
+    }
+  },
+  "privacyDashboard": {
+    "covertMode": "وضع الداعم السري",
+    "covertModeDesc": "أقصى درجات الخصوصية لمن يحتاجون إخفاء مشاركتهم",
+    "covertActive": "الوضع السري مفعّل",
+    "covertActiveDesc": "جميع إعدادات الخصوصية مفعّلة. نشاطك مخفي عن العرض العام بينما لا يزال بإمكانك دعم الحركة.",
+    "highRiskDetected": "تم اكتشاف خطر عالٍ",
+    "highRiskAdvice": "فكر في تفعيل الوضع السري للحماية القصوى.",
+    "riskLevel": "مستوى الخطر الحالي",
+    "riskLevelDesc": "بناءً على موقعك وحملتك",
+    "riskLow": "خطر منخفض",
+    "riskMedium": "خطر متوسط",
+    "riskHigh": "خطر عالٍ - استخدم الوضع السري",
+    "privacyControls": "عناصر التحكم في الخصوصية",
+    "settings": {
+      "anonymousVoting": "التصويت المجهول",
+      "anonymousVotingDesc": "أدلِ بصوتك دون الكشف عن هويتك",
+      "anonymousReactions": "التفاعلات المجهولة",
+      "anonymousReactionsDesc": "تفاعل مع المنشورات بشكل مجهول",
+      "hideFromDirectory": "الإخفاء من دليل الأعضاء",
+      "hideFromDirectoryDesc": "عدم الظهور في قوائم الأعضاء العامة",
+      "encryptedMessagesOnly": "الرسائل المشفرة فقط",
+      "encryptedMessagesOnlyDesc": "طلب التشفير من طرف إلى طرف",
+      "disableReadReceipts": "تعطيل إيصالات القراءة",
+      "disableReadReceiptsDesc": "عدم إظهار متى قرأت الرسائل",
+      "hideActivityStatus": "إخفاء حالة النشاط",
+      "hideActivityStatusDesc": "عدم إظهار متى تكون متصلاً",
+      "restrictProfileVisibility": "تقييد ظهور الملف الشخصي",
+      "restrictProfileVisibilityDesc": "يمكن للأعضاء فقط رؤية ملفك الشخصي"
+    },
+    "aboutTitle": "حول عناصر التحكم في الخصوصية",
+    "aboutDesc": "هذه الإعدادات تحميك في سياقات التنظيم عالية الخطورة حيث قد تؤدي الظهور إلى انتقام.",
+    "aboutCovert": "الوضع السري:",
+    "aboutCovertDesc": "أقصى خصوصية - يفعّل جميع وسائل الحماية",
+    "aboutAnonymous": "الإجراءات المجهولة:",
+    "aboutAnonymousDesc": "شارك دون الكشف عن هويتك",
+    "aboutHidden": "الحضور المخفي:",
+    "aboutHiddenDesc": "ادعم الحركة بشكل غير مرئي",
+    "aboutEncryption": "التشفير من طرف إلى طرف:",
+    "aboutEncryptionDesc": "جميع الاتصالات مؤمّنة بالتشفير"
+  },
+  "memberVerification": {
+    "title": "التحقق من الأعضاء",
+    "description": "تحقق من الأعضاء شخصياً لبناء الثقة ومنع التسلل",
+    "howItWorks": "كيف يعمل التحقق",
+    "inPerson": "التحقق الشخصي:",
+    "inPersonDesc": "امسح رمز QR الخاص بالعضو عند اللقاء وجهاً لوجه",
+    "vouching": "التزكية:",
+    "vouchingDesc": "زكِّ الأعضاء الذين تثق بهم لزيادة درجة ثقتهم",
+    "trustScoreInfo": "درجة الثقة:",
+    "trustScoreDesc": "تُحسب بناءً على التحقق والتزكيات والنشاط",
+    "verifiedBadge": "شارة التحقق:",
+    "verifiedBadgeDesc": "تُظهر أن العضو تم التحقق منه شخصياً",
+    "qrVerification": "التحقق برمز QR",
+    "closeScanner": "إغلاق الماسح",
+    "scanQR": "مسح رمز QR",
+    "qrScannerPlaceholder": "سيظهر ماسح QR هنا في الإنتاج",
+    "cameraRequired": "الوصول للكاميرا مطلوب للتحقق الشخصي",
+    "enterMemberId": "أو أدخل معرف العضو يدوياً...",
+    "verify": "تحقق",
+    "members": "الأعضاء",
+    "verified": "موثق",
+    "admin": "مسؤول",
+    "organizer": "منظم",
+    "joined": "انضم {{date}}",
+    "vouch": "تزكية",
+    "vouches": "تزكيات",
+    "verifyInPerson": "التحقق شخصياً",
+    "vouchForMember": "تزكية العضو",
+    "youVouched": "لقد زكّيت",
+    "trustScore": "درجة الثقة",
+    "lowTrustWarning": "درجة ثقة منخفضة.",
+    "lowTrustAdvice": "فكر في التحقق الشخصي قبل مشاركة معلومات حساسة.",
+    "trustLevels": "مستويات درجة الثقة",
+    "trusted": "موثوق (80+)",
+    "trustedDesc": "موثق + تزكيات متعددة",
+    "verifiedLevel": "موثق (60-79)",
+    "verifiedLevelDesc": "تم التحقق منه شخصياً",
+    "newLevel": "جديد (40-59)",
+    "newLevelDesc": "نشط لكن غير موثق",
+    "unverified": "غير موثق (<40)",
+    "unverifiedDesc": "يتطلب التحقق"
+  },
+  "anomaly": {
+    "title": "اكتشاف الشذوذ",
+    "description": "مراقبة أنماط السلوك المشبوهة لتحديد المتسللين المحتملين",
+    "adminRequired": "مطلوب وصول المسؤول لعرض حالات الشذوذ الأمنية",
+    "criticalDetected": "تم اكتشاف {{count}} شذوذ حرج",
+    "criticalDetected_plural": "تم اكتشاف {{count}} شذوذ حرج",
+    "immediateAction": "مطلوب تحقيق فوري. تشير هذه الأنماط إلى تسلل محتمل أو استخراج بيانات.",
+    "reviewNow": "مراجعة الآن",
+    "activeAnomalies": "حالات الشذوذ النشطة",
+    "critical": "حرجة",
+    "investigating": "قيد التحقيق",
+    "resolved": "محلولة",
+    "detectionSystemsActive": "أنظمة الاكتشاف نشطة",
+    "recentAnomalies": "حالات الشذوذ الأخيرة",
+    "resourcesAffected": "{{count}} موارد متأثرة",
+    "userId": "معرف المستخدم:",
+    "startInvestigation": "بدء التحقيق",
+    "markFalsePositive": "تحديد كإنذار كاذب",
+    "suspendUser": "تعليق المستخدم",
+    "markResolved": "تحديد كمحلول",
+    "falsePositive": "إنذار كاذب",
+    "honeypotTrapsActive": "فخاخ Honeypot نشطة",
+    "honeypotDesc": "Honeypots هي مستندات أو ميزات مخفية لن يصل إليها سوى المتسللين أو الجهات الخبيثة. تظهر كمعلومات \"حساسة\" لجذب المستخدمين المشبوهين.",
+    "honeypotFakeDocs": "مستندات حساسة مزيفة:",
+    "honeypotFakeDocsDesc": "3 فخاخ honeypot نشطة منتشرة",
+    "honeypotHiddenContacts": "قوائم جهات اتصال مخفية:",
+    "honeypotHiddenContactsDesc": "اكتشاف استخراج البيانات غير المصرح به",
+    "honeypotTrapQuestions": "أسئلة فخ:",
+    "honeypotTrapQuestionsDesc": "أسئلة استطلاع تحدد الجهات الخبيثة",
+    "types": {
+      "massAccess": "وصول جماعي للبيانات",
+      "unusualPosting": "نشر غير عادي",
+      "rapidFollowing": "متابعة سريعة",
+      "honeypotTrigger": "تفعيل Honeypot",
+      "dataExport": "تصدير البيانات"
+    },
+    "typeDesc": {
+      "massAccess": "اكتشاف المشاهدة السريعة لملفات الأعضاء أو المستندات",
+      "unusualPosting": "تحديد أنماط النشر الشبيهة بالرسائل غير المرغوبة أو المثيرة للانقسام",
+      "rapidFollowing": "الإشارة إلى المستخدمين الذين يبنون رسومات اجتماعية بسرعة كبيرة",
+      "honeypotTrigger": "مستندات حساسة مخفية يصل إليها المتسللون فقط",
+      "dataExport": "مراقبة التحميلات والتصديرات الجماعية للبيانات"
+    },
+    "status": {
+      "active": "نشط",
+      "investigating": "قيد التحقيق",
+      "resolved": "محلول",
+      "falsePositive": "إنذار كاذب"
+    },
+    "severity": {
+      "critical": "حرج",
+      "high": "عالي",
+      "medium": "متوسط",
+      "low": "منخفض"
+    }
+  },
+  "publicWiki": {
+    "pageNotFound": "الصفحة غير موجودة",
+    "pageNotFoundDesc": "صفحة الويكي التي تبحث عنها غير موجودة أو غير عامة.",
+    "browseWiki": "تصفح الويكي",
+    "backToWiki": "العودة إلى الويكي",
+    "updated": "تم التحديث {{date}}",
+    "version": "الإصدار {{number}}",
+    "maintainedByComm": "يتم الحفاظ على هذه الصفحة من قبل المجتمع",
+    "editPage": "تعديل الصفحة",
+    "popularPages": "الصفحات الشائعة",
+    "categories": "التصنيفات",
+    "joinMovement": "انضم إلى الحركة",
+    "joinMovementDesc": "احصل على أدوات التنظيم الخاصة وتواصل مع المنظمين.",
+    "signUp": "التسجيل",
+    "searchWiki": "البحث في الويكي...",
+    "campaigns": "الحملات",
+    "login": "تسجيل الدخول",
+    "builditWiki": "ويكي BuildIt",
+    "builditNetwork": "شبكة BuildIt",
+    "builditDesc": "منصة تنظيم تضع الخصوصية أولاً للناشطين والنقابات والمجموعات المجتمعية.",
+    "resources": "الموارد",
+    "knowledgeBase": "قاعدة المعرفة",
+    "about": "حول",
+    "privacyPolicy": "سياسة الخصوصية",
+    "contact": "اتصل بنا",
+    "builtWithPrivacy": "مبني بالخصوصية والأمان أولاً",
+    "poweredByNostr": "مدعوم ببروتوكول Nostr",
+    "freeOpenSource": "مجاني ومفتوح المصدر"
+  },
+  "publicCampaign": {
+    "campaignNotFound": "الحملة غير موجودة",
+    "campaignNotFoundDesc": "الحملة التي تبحث عنها غير موجودة أو غير عامة.",
+    "goHome": "الذهاب إلى الصفحة الرئيسية",
+    "joinCampaign": "انضم إلى الحملة",
+    "contactUs": "اتصل بنا",
+    "share": "مشاركة",
+    "members": "{{count}} عضو",
+    "ourMission": "مهمتنا",
+    "ourDemands": "مطالبنا",
+    "recentUpdates": "التحديثات الأخيرة",
+    "upcomingEvents": "الفعاليات القادمة",
+    "learnMore": "معرفة المزيد",
+    "knowledgeBase": "قاعدة المعرفة",
+    "aboutUs": "من نحن",
+    "contact": "اتصل بنا",
+    "getInTouch": "تواصل معنا",
+    "getInTouchDesc": "لديك أسئلة أو تريد المشاركة؟ أرسل لنا رسالة!",
+    "name": "الاسم",
+    "yourName": "اسمك",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "بريدك@الإلكتروني.com",
+    "message": "الرسالة",
+    "messagePlaceholder": "رسالتك...",
+    "sendMessage": "إرسال الرسالة",
+    "wiki": "الويكي"
+  },
+  "campaignAnalytics": {
+    "title": "تحليلات الحملة",
+    "description": "تتبع أداء الحملة واتجاهات المشاركة",
+    "exportCSV": "تصدير CSV",
+    "totalMembers": "إجمالي الأعضاء",
+    "thisMonth": "هذا الشهر",
+    "avgEventAttendance": "متوسط حضور الفعاليات",
+    "showUpRate": "معدل الحضور",
+    "voteTurnout": "نسبة المشاركة في التصويت",
+    "activeVotes": "تصويتات نشطة",
+    "engagementRate": "معدل المشاركة",
+    "reactions": "تفاعلات",
+    "membershipGrowth": "نمو العضوية",
+    "lastMonth": "الشهر الماضي",
+    "growth": "النمو",
+    "eventAttendance": "حضور الفعاليات",
+    "rsvp": "المؤكدون",
+    "actual": "الفعلي",
+    "rsvpRate": "معدل التأكيد",
+    "showUpRateLabel": "معدل الحضور",
+    "governanceParticipation": "المشاركة في الحوكمة",
+    "turnout": "نسبة المشاركة",
+    "avgTurnout": "متوسط المشاركة",
+    "consensusRate": "معدل التوافق",
+    "engagementTrends": "اتجاهات المشاركة",
+    "posts": "المنشورات",
+    "comments": "التعليقات",
+    "topContributors": "أفضل المساهمين",
+    "postsReactions": "{{posts}} منشور • {{reactions}} تفاعل",
+    "campaignWins": "انتصارات الحملة",
+    "majorImpact": "تأثير كبير",
+    "moderateImpact": "تأثير متوسط",
+    "passed": "تم الموافقة",
+    "discussion": "نقاش"
+  },
+  "editor": {
+    "connected": "متصل",
+    "connecting": "جاري الاتصال...",
+    "synced": "متزامن",
+    "suggesting": "اقتراح",
+    "active": "{{count}} نشط",
+    "bold": "غامق (Ctrl+B)",
+    "italic": "مائل (Ctrl+I)",
+    "strikethrough": "يتوسطه خط",
+    "inlineCode": "كود مضمن",
+    "heading1": "عنوان 1",
+    "heading2": "عنوان 2",
+    "heading3": "عنوان 3",
+    "bulletList": "قائمة نقطية",
+    "numberedList": "قائمة مرقمة",
+    "blockquote": "اقتباس",
+    "insertImage": "إدراج صورة",
+    "insertLink": "إدراج رابط",
+    "insertTable": "إدراج جدول",
+    "insertBlock": "إدراج كتلة",
+    "mathEquation": "معادلة رياضية",
+    "diagram": "مخطط (Mermaid)",
+    "tableOfContents": "جدول المحتويات",
+    "footnote": "حاشية سفلية",
+    "pageBreak": "فاصل صفحات",
+    "documentHeader": "ترويسة المستند",
+    "documentFooter": "تذييل المستند",
+    "addComment": "إضافة تعليق",
+    "writeComment": "اكتب تعليقك...",
+    "cancel": "إلغاء",
+    "comment": "تعليق",
+    "suggestionModeActive": "وضع الاقتراحات نشط",
+    "suggestionModeTrack": "وضع الاقتراحات (تتبع التغييرات)",
+    "undo": "تراجع (Ctrl+Z)",
+    "redo": "إعادة (Ctrl+Y)",
+    "enterImageUrl": "أدخل رابط الصورة:",
+    "enterUrl": "أدخل الرابط:",
+    "addFootnote": "إضافة حاشية سفلية"
+  },
+  "subscriberList": {
+    "title": "المشتركون",
+    "description": "إدارة مشتركي منشورك",
+    "exportCSV": "تصدير CSV",
+    "totalActive": "إجمالي النشطين",
+    "freeSubscribers": "المشتركون المجانيون",
+    "paidSubscribers": "المشتركون المدفوعون",
+    "searchPlaceholder": "البحث بالمفتاح العام أو البريد الإلكتروني...",
+    "tierPlaceholder": "المستوى",
+    "allTiers": "جميع المستويات",
+    "free": "مجاني",
+    "paid": "مدفوع",
+    "statusPlaceholder": "الحالة",
+    "allStatus": "جميع الحالات",
+    "active": "نشط",
+    "cancelled": "ملغى",
+    "expired": "منتهي الصلاحية",
+    "noSubscribers": "لا يوجد مشتركون بعد",
+    "noSubscribersDesc": "عندما يشترك القراء في منشورك، سيظهرون هنا.",
+    "subscriber": "مشترك",
+    "tier": "المستوى",
+    "status": "الحالة",
+    "notifications": "الإشعارات",
+    "subscribed": "مشترك",
+    "actions": "الإجراءات",
+    "nostr": "نوستر",
+    "email": "البريد الإلكتروني",
+    "none": "لا شيء",
+    "sendEmail": "إرسال بريد إلكتروني",
+    "removeSubscriber": "إزالة المشترك",
+    "exportedToast": "تم تصدير المشتركين",
+    "removedToast": "تمت إزالة المشترك"
+  },
+  "articleList": {
+    "title": "المقالات",
+    "articleCount": "{{count}} مقال",
+    "articleCountPlural": "{{count}} مقالات",
+    "newArticle": "مقال جديد",
+    "searchPlaceholder": "البحث في المقالات...",
+    "filterByStatus": "تصفية حسب الحالة",
+    "allStatus": "جميع الحالات",
+    "draft": "مسودة",
+    "published": "منشور",
+    "scheduled": "مجدول",
+    "archived": "مؤرشف",
+    "sortBy": "ترتيب حسب",
+    "lastUpdated": "آخر تحديث",
+    "publishedDate": "تاريخ النشر",
+    "titleSort": "العنوان",
+    "noArticles": "لا توجد مقالات بعد",
+    "noArticlesDesc": "ابدأ بإنشاء مقالك الأول.",
+    "createArticle": "إنشاء مقال",
+    "tableTitle": "العنوان",
+    "tableStatus": "الحالة",
+    "tableVisibility": "الرؤية",
+    "tableUpdated": "التحديث",
+    "tableActions": "الإجراءات",
+    "untitled": "بدون عنوان",
+    "public": "عام",
+    "subscribers": "المشتركون",
+    "paidOnly": "مدفوع",
+    "edit": "تعديل",
+    "preview": "معاينة",
+    "publish": "نشر",
+    "unpublish": "إلغاء النشر",
+    "delete": "حذف"
+  },
+  "filePreview": {
+    "share": "مشاركة",
+    "download": "تنزيل",
+    "loadingPreview": "جارٍ تحميل المعاينة...",
+    "failedToLoad": "فشل تحميل المعاينة",
+    "videoNotSupported": "متصفحك لا يدعم وسم الفيديو.",
+    "audioNotSupported": "متصفحك لا يدعم وسم الصوت.",
+    "officeDocument": "مستند أوفيس",
+    "officeDesc": "يمكن عرض مستندات أوفيس عن طريق تنزيل الملف.",
+    "officeApps": "فتح في Microsoft Office أو Google Docs أو LibreOffice.",
+    "downloadToView": "تنزيل للعرض",
+    "archiveContents": "محتويات الأرشيف",
+    "itemsCount": "{{count}} عناصر",
+    "emptyArchive": "أرشيف فارغ أو تعذر قراءة المحتويات",
+    "loading3D": "جارٍ تحميل عارض ثلاثي الأبعاد...",
+    "noPreview": "المعاينة غير متاحة لهذا النوع من الملفات",
+    "downloadToViewShort": "تنزيل للعرض",
+    "detailsTab": "التفاصيل",
+    "activityTab": "النشاط",
+    "versionsTab": "الإصدارات",
+    "fileType": "نوع الملف",
+    "size": "الحجم",
+    "uploaded": "تم الرفع",
+    "modified": "تم التعديل",
+    "encryption": "التشفير",
+    "e2eEncrypted": "مشفر من طرف إلى طرف",
+    "fileUploaded": "تم رفع الملف",
+    "fileModified": "تم تعديل الملف",
+    "loadingVersions": "جارٍ تحميل الإصدارات...",
+    "noVersionHistory": "لا يتوفر سجل إصدارات",
+    "versionHistory": "سجل الإصدارات",
+    "version": "الإصدار {{number}}",
+    "current": "الحالي",
+    "restore": "استعادة",
+    "restoreConfirm": "استعادة الملف إلى الإصدار {{number}}؟",
+    "restoreSuccess": "تمت استعادة الإصدار بنجاح",
+    "restoreFailed": "فشلت استعادة الإصدار"
+  },
+  "auditLogs": {
+    "adminRequired": "مطلوب صلاحية المسؤول لعرض سجلات التدقيق",
+    "title": "سجلات التدقيق",
+    "description": "تتبع جميع الإجراءات الحساسة للتحقيق الأمني",
+    "exportLogs": "تصدير السجلات",
+    "whatGetsLogged": "ما يتم تسجيله",
+    "securityActions": "إجراءات الأمان:",
+    "securityActionsDesc": "التحققات، التعليقات، تغييرات الصلاحيات",
+    "dataAccess": "الوصول إلى البيانات:",
+    "dataAccessDesc": "عرض الملفات الشخصية، الوصول إلى المستندات، التصديرات",
+    "contentChanges": "تغييرات المحتوى:",
+    "contentChangesDesc": "الإنشاءات، التحديثات، حذف المحتوى الحساس",
+    "failedAttempts": "المحاولات الفاشلة:",
+    "failedAttemptsDesc": "الوصول غير المصرح به، فشل تسجيل الدخول",
+    "metadata": "البيانات الوصفية:",
+    "metadataDesc": "عنوان IP، وكيل المستخدم، الطابع الزمني للتحقيق",
+    "searchPlaceholder": "البحث في السجلات حسب المستخدم أو الإجراء أو المورد...",
+    "allTypes": "جميع الأنواع",
+    "create": "إنشاء",
+    "read": "قراءة",
+    "update": "تحديث",
+    "deleteType": "حذف",
+    "permission": "الصلاحية",
+    "security": "الأمان",
+    "export": "تصدير",
+    "totalLogs": "إجمالي السجلات",
+    "critical": "حرج",
+    "failedActions": "الإجراءات الفاشلة",
+    "last24h": "آخر 24 ساعة",
+    "recentActivity": "النشاط الأخير",
+    "logCount": "{{count}} سجل",
+    "logsCount": "{{count}} سجلات",
+    "noLogsMatch": "لا توجد سجلات تدقيق تطابق معايير البحث",
+    "target": "الهدف:",
+    "ip": "IP:"
+  },
+  "moderationQueue": {
+    "title": "قائمة الإشراف",
+    "description": "مراجعة واتخاذ إجراء بشأن المحتوى المبلغ عنه",
+    "pending": "معلق",
+    "pendingTab": "المعلقة",
+    "reviewedTab": "المراجعة",
+    "activityLog": "سجل النشاط",
+    "allCaughtUp": "كل شيء محدث!",
+    "noPendingReports": "لا توجد بلاغات معلقة للمراجعة.",
+    "noReviewedReports": "لا توجد بلاغات مراجعة",
+    "reviewedAppear": "ستظهر البلاغات المراجعة هنا.",
+    "noActivity": "لا يوجد نشاط بعد",
+    "actionsLogged": "سيتم تسجيل إجراءات الإشراف هنا.",
+    "user": "المستخدم:",
+    "content": "المحتوى:",
+    "systemAction": "إجراء النظام",
+    "reviewReport": "مراجعة البلاغ",
+    "takeAction": "اتخذ إجراء بشأن هذا المحتوى المبلغ عنه",
+    "report": "بلاغ",
+    "reason": "السبب:",
+    "reportedBy": "أبلغ عنه:",
+    "reportedUser": "المستخدم المبلغ عنه:",
+    "submitted": "تم الإرسال:",
+    "additionalDetails": "تفاصيل إضافية:",
+    "notes": "ملاحظات (اختياري)",
+    "notesPlaceholder": "أضف ملاحظات حول قرارك...",
+    "dismiss": "رفض",
+    "markReviewed": "تحديد كمراجع",
+    "blockUser": "حظر المستخدم",
+    "dismissedToast": "تم رفض البلاغ",
+    "actionedToast": "تم اتخاذ الإجراء وحظر المستخدم",
+    "reviewedToast": "تمت مراجعة البلاغ",
+    "failedToast": "فشل في معالجة البلاغ",
+    "from": "من:",
+    "against": "ضد:",
+    "action": "الإجراء:",
+    "pendingReview": "في انتظار المراجعة",
+    "reviewed": "تمت المراجعة",
+    "actionTaken": "تم اتخاذ الإجراء",
+    "dismissed": "مرفوض",
+    "reviewReportButton": "مراجعة البلاغ",
+    "contentTypes": {
+      "post": "منشور",
+      "comment": "تعليق",
+      "story": "قصة",
+      "user": "مستخدم",
+      "message": "رسالة"
+    },
+    "reasons": {
+      "spam": "بريد مزعج",
+      "harassment": "تحرش",
+      "hate-speech": "خطاب كراهية",
+      "violence": "عنف",
+      "misinformation": "معلومات مضللة",
+      "illegal-content": "محتوى غير قانوني",
+      "impersonation": "انتحال شخصية",
+      "self-harm": "إيذاء النفس",
+      "other": "أخرى"
+    }
+  },
+  "seoControls": {
+    "indexability": "إمكانية الفهرسة",
+    "indexabilityDesc": "تحكم في كيفية وصول محركات البحث وأنظمة الذكاء الاصطناعي إلى هذا المحتوى.",
+    "searchEngine": "فهرسة محركات البحث",
+    "searchEngineDesc": "السماح لـ Google و Bing و DuckDuckGo ومحركات البحث الأخرى بفهرسة هذه الصفحة",
+    "aiTraining": "تدريب / فهرسة الذكاء الاصطناعي",
+    "aiTrainingDesc": "السماح لروبوتات الذكاء الاصطناعي (GPTBot، Claude، إلخ) باستخدام هذا المحتوى للتدريب",
+    "preventArchiving": "منع الأرشفة",
+    "preventArchivingDesc": "منع archive.org والخدمات المماثلة من تخزين هذه الصفحة",
+    "aiDisabledNote": "ملاحظة: يتم تعطيل فهرسة الذكاء الاصطناعي تلقائياً عند إيقاف فهرسة محركات البحث.",
+    "basicSeo": "تحسين محركات البحث الأساسي",
+    "pageTitle": "عنوان الصفحة",
+    "pageTitlePlaceholder": "عنوان الصفحة لمحركات البحث",
+    "characters": "{{count}}/{{max}} حرف (الأمثل: {{optimal}})",
+    "metaDescription": "الوصف التعريفي",
+    "metaDescPlaceholder": "وصف موجز لنتائج البحث",
+    "robots": "الروبوتات",
+    "indexFollow": "فهرسة، متابعة (افتراضي)",
+    "noIndexFollow": "عدم الفهرسة، متابعة",
+    "indexNoFollow": "فهرسة، عدم المتابعة",
+    "noIndexNoFollow": "عدم الفهرسة، عدم المتابعة",
+    "openGraph": "Open Graph (المشاركة على وسائل التواصل)",
+    "ogTitle": "عنوان OG",
+    "ogTitlePlaceholder": "العنوان للمشاركة على وسائل التواصل الاجتماعي",
+    "ogDescription": "وصف OG",
+    "ogDescPlaceholder": "الوصف للمشاركة على وسائل التواصل الاجتماعي",
+    "ogImage": "رابط صورة OG",
+    "recommended": "موصى به: {{size}}",
+    "twitterCard": "بطاقة تويتر",
+    "cardType": "نوع البطاقة",
+    "summary": "ملخص",
+    "summaryLargeImage": "ملخص مع صورة كبيرة",
+    "twitterSite": "معرف تويتر للموقع"
+  },
+  "fileShareDialog": {
+    "shareTitle": "مشاركة \"{{name}}\"",
+    "shareLinkCreated": "تم إنشاء رابط المشاركة!",
+    "copied": "تم النسخ!",
+    "copy": "نسخ",
+    "password": "كلمة المرور",
+    "expiresIn": "ينتهي خلال {{days}} أيام",
+    "done": "تم",
+    "shareWithUsers": "مشاركة مع المستخدمين",
+    "createLink": "إنشاء رابط",
+    "selectUsers": "اختيار المستخدمين",
+    "member": "عضو",
+    "noMembersFound": "لم يتم العثور على أعضاء في المجموعة",
+    "permissionLevel": "مستوى الصلاحية",
+    "viewOnly": "عرض فقط",
+    "viewDownload": "عرض وتحميل",
+    "viewDownloadEdit": "عرض وتحميل وتعديل",
+    "generatePublicLink": "إنشاء رابط عام",
+    "passwordOptional": "كلمة المرور (اختياري)",
+    "passwordPlaceholder": "اتركه فارغاً بدون كلمة مرور",
+    "expiresInDays": "ينتهي خلال (أيام)",
+    "never": "أبداً",
+    "oneDay": "يوم واحد",
+    "sevenDays": "7 أيام",
+    "thirtyDays": "30 يوماً",
+    "ninetyDays": "90 يوماً",
+    "cancel": "إلغاء",
+    "creating": "جارٍ الإنشاء...",
+    "createShare": "إنشاء مشاركة",
+    "failedToast": "فشل في إنشاء المشاركة"
+  },
+  "publishingPage": {
+    "selectGroupLogin": "يرجى اختيار مجموعة وتسجيل الدخول لإدارة المنشورات.",
+    "startPublishing": "ابدأ النشر",
+    "startPublishingDescription": "أنشئ أول منشور لك لتبدأ الكتابة ومشاركة المحتوى الطويل مع جمهورك.",
+    "createPublication": "إنشاء منشور",
+    "createPublicationDescription": "قم بإعداد منشورك لبدء كتابة المقالات.",
+    "publicationName": "اسم المنشور",
+    "publicationNamePlaceholder": "منشوري الرائع",
+    "description": "الوصف",
+    "descriptionPlaceholder": "عن ماذا ستكتب؟",
+    "cancel": "إلغاء",
+    "enterPublicationName": "يرجى إدخال اسم المنشور",
+    "publicationCreated": "تم إنشاء المنشور",
+    "untitledArticle": "مقال بدون عنوان",
+    "articlePublished": "تم نشر المقال",
+    "articleDeleted": "تم حذف المقال",
+    "rssFeed": "خلاصة RSS",
+    "settings": "الإعدادات",
+    "newArticle": "مقال جديد",
+    "published": "المنشورة",
+    "drafts": "المسودات",
+    "subscribers": "المشتركون",
+    "totalArticles": "إجمالي المقالات",
+    "articles": "المقالات",
+    "analytics": "التحليلات",
+    "publicationAnalytics": "تحليلات المنشور",
+    "analyticsDescription": "عرض مقاييس أداء منشورك",
+    "analyticsComingSoon": "التحليلات قريباً",
+    "analyticsComingSoonDescription": "عرض أداء المقالات ونمو المشتركين والمزيد.",
+    "deleteArticle": "حذف المقال",
+    "deleteArticleConfirm": "هل أنت متأكد أنك تريد حذف هذا المقال؟ لا يمكن التراجع عن هذا الإجراء.",
+    "delete": "حذف"
+  },
+  "sharedItemsDashboard": {
+    "title": "العناصر المشتركة",
+    "description": "إدارة جميع مستنداتك وملفاتك المشتركة في مكان واحد",
+    "totalShares": "إجمالي المشاركات",
+    "publicLinks": "الروابط العامة",
+    "expiringSoon": "تنتهي قريباً",
+    "totalViews": "إجمالي المشاهدات",
+    "filters": "الفلاتر:",
+    "type": "النوع",
+    "allTypes": "جميع الأنواع",
+    "documents": "المستندات",
+    "files": "الملفات",
+    "permission": "الإذن",
+    "allPermissions": "جميع الأذونات",
+    "viewOnly": "عرض فقط",
+    "comment": "تعليق",
+    "edit": "تعديل",
+    "tableHeaders": {
+      "name": "الاسم",
+      "type": "النوع",
+      "permission": "الإذن",
+      "sharedVia": "مشترك عبر",
+      "views": "المشاهدات",
+      "expires": "ينتهي"
+    },
+    "noSharedItems": "لم يتم العثور على عناصر مشتركة",
+    "permissions": {
+      "view": "عرض",
+      "comment": "تعليق",
+      "edit": "تعديل",
+      "download": "تنزيل",
+      "admin": "مسؤول"
+    },
+    "sharedVia": {
+      "publicLink": "رابط عام",
+      "privateLink": "رابط خاص",
+      "direct": "مباشر"
+    },
+    "expired": "منتهي الصلاحية",
+    "never": "أبداً",
+    "open": "فتح",
+    "revokeShare": "إلغاء المشاركة",
+    "confirmRevoke": "هل أنت متأكد أنك تريد إلغاء هذه المشاركة؟"
+  },
+  "userModeration": {
+    "unmute": "إلغاء الكتم",
+    "mute": "كتم",
+    "unblock": "إلغاء الحظر",
+    "block": "حظر",
+    "report": "إبلاغ",
+    "muteTitle": "كتم {{name}}",
+    "muteDescription": "سيتم إخفاء محتواهم من خلاصتك. لن يتم إشعارهم.",
+    "duration": "المدة",
+    "durations": {
+      "1hour": "ساعة واحدة",
+      "1day": "يوم واحد",
+      "1week": "أسبوع واحد",
+      "1month": "شهر واحد",
+      "indefinitely": "إلى أجل غير مسمى"
+    },
+    "whatToMute": "ما الذي يجب كتمه",
+    "muteScopes": {
+      "all": "كل المحتوى (المنشورات، التعليقات، الرسائل المباشرة)",
+      "posts": "المنشورات فقط",
+      "comments": "التعليقات فقط",
+      "dms": "الرسائل المباشرة فقط"
+    },
+    "reasonOptional": "السبب (اختياري)",
+    "mutePlaceholder": "لماذا تقوم بكتم هذا المستخدم؟",
+    "cancel": "إلغاء",
+    "muting": "جارٍ الكتم...",
+    "muteUser": "كتم المستخدم",
+    "blockTitle": "حظر {{name}}؟",
+    "blockDescription": "سيؤدي الحظر إلى:",
+    "blockEffects": {
+      "hideContent": "إخفاء كل محتواهم عنك",
+      "preventSeeYou": "منعهم من رؤية محتواك",
+      "preventMessage": "منعهم من مراسلتك",
+      "removeFollower": "إزالتهم من متابعيك"
+    },
+    "noNotification": "لن يتم إشعارهم بأنك قمت بحظرهم.",
+    "blocking": "جارٍ الحظر...",
+    "reportTitle": "الإبلاغ عن {{name}}",
+    "reportDescription": "ساعدنا في فهم المشكلة. بلاغك سري.",
+    "reasonForReporting": "سبب الإبلاغ",
+    "reportReasons": {
+      "spam": "رسائل غير مرغوب فيها",
+      "spamDesc": "محتوى متكرر أو غير مرغوب فيه",
+      "harassment": "تحرش",
+      "harassmentDesc": "سلوك استهدافي أو تخويفي",
+      "hateSpeech": "خطاب كراهية",
+      "hateSpeechDesc": "محتوى يروج للتمييز",
+      "violence": "عنف",
+      "violenceDesc": "محتوى يروج للعنف أو الأذى",
+      "misinformation": "معلومات مضللة",
+      "misinformationDesc": "معلومات كاذبة أو مضللة",
+      "illegalContent": "محتوى غير قانوني",
+      "illegalContentDesc": "محتوى قد يكون غير قانوني",
+      "impersonation": "انتحال هوية",
+      "impersonationDesc": "التظاهر بأنك شخص آخر",
+      "selfHarm": "إيذاء النفس",
+      "selfHarmDesc": "محتوى يروج لإيذاء النفس",
+      "other": "أخرى",
+      "otherDesc": "شيء آخر"
+    },
+    "additionalDetails": "تفاصيل إضافية (اختياري)",
+    "reportPlaceholder": "قدم المزيد من السياق حول سبب إبلاغك عن هذا المستخدم...",
+    "submitting": "جارٍ الإرسال...",
+    "submitReport": "إرسال البلاغ",
+    "toasts": {
+      "muted": "تم كتم {{name}}",
+      "unmuted": "تم إلغاء كتم {{name}}",
+      "blocked": "تم حظر {{name}}",
+      "unblocked": "تم إلغاء حظر {{name}}",
+      "reported": "تم إرسال البلاغ. شكراً لمساعدتك في الحفاظ على أمان المجتمع.",
+      "muteFailed": "فشل في كتم المستخدم",
+      "unmuteFailed": "فشل في إلغاء كتم المستخدم",
+      "blockFailed": "فشل في حظر المستخدم",
+      "unblockFailed": "فشل في إلغاء حظر المستخدم",
+      "reportFailed": "فشل في إرسال البلاغ"
+    }
+  },
+  "newsletterEditor": {
+    "editIssue": "تعديل العدد",
+    "newIssue": "عدد جديد",
+    "unsavedChanges": "تغييرات غير محفوظة",
+    "saveDraft": "حفظ المسودة",
+    "preview": "معاينة",
+    "schedule": "جدولة",
+    "send": "إرسال ({{count}})",
+    "draftSaved": "تم حفظ المسودة",
+    "tabs": {
+      "compose": "كتابة",
+      "settings": "الإعدادات"
+    },
+    "compose": {
+      "subjectLine": "سطر الموضوع",
+      "subjectPlaceholder": "موضوع نشرتك الإخبارية...",
+      "previewText": "نص المعاينة (اختياري)",
+      "previewPlaceholder": "السطر الأول المعروض في المعاينات...",
+      "previewHint": "يظهر هذا في معاينة الإشعار",
+      "content": "المحتوى",
+      "editorPlaceholder": "ابدأ بكتابة نشرتك الإخبارية..."
+    },
+    "settings": {
+      "theme": "قالب النشرة الإخبارية",
+      "headerImage": "رابط صورة الترويسة",
+      "headerPlaceholder": "https://example.com/header.png",
+      "footerText": "نص التذييل",
+      "footerPlaceholder": "نص التذييل...",
+      "editInSettings": "تعديل في إعدادات النشرة الإخبارية"
+    },
+    "scheduleDialog": {
+      "title": "جدولة النشرة الإخبارية",
+      "description": "اختر موعد إرسال هذه النشرة الإخبارية إلى {{count}} مشترك{{plural}}.",
+      "date": "التاريخ",
+      "time": "الوقت"
+    },
+    "toasts": {
+      "draftSaved": "تم حفظ المسودة",
+      "scheduled": "تمت جدولة النشرة الإخبارية",
+      "selectDate": "يرجى اختيار تاريخ",
+      "futureDateRequired": "يجب أن يكون الوقت المجدول في المستقبل",
+      "enterSubject": "يرجى إدخال موضوع",
+      "addContent": "يرجى إضافة محتوى",
+      "noSubscribers": "لا يوجد مشتركون نشطون للإرسال إليهم"
+    },
+    "cancel": "إلغاء"
+  },
+  "privacyDemo": {
+    "title": "الخصوصية والمشاركة المجهولة",
+    "description": "مشاركة آمنة لسياقات التنظيم عالية المخاطر",
+    "tabs": {
+      "dashboard": "لوحة الخصوصية",
+      "reactions": "ردود الفعل المجهولة",
+      "voting": "التصويت المجهول"
+    },
+    "reactions": {
+      "samplePost": "منشور نموذجي",
+      "sampleContent": "\"نحن ننظم عملاً مباشراً الأسبوع القادم للاحتجاج على عمليات الإخلاء. الجميع مرحب بهم للانضمام - سيتم توفير بروتوكولات السلامة.\"",
+      "howItWorks": "كيف تعمل ردود الفعل المجهولة",
+      "tips": {
+        "enableAnonymous": "فعّل الوضع المجهول لإخفاء هويتك مع إظهار دعمك",
+        "aggregateCounts": "لا تزال الأعداد الإجمالية معروضة لإظهار دعم المجتمع",
+        "critical": "حاسم للحملات عالية المخاطر حيث يمكن أن يؤدي الدعم العلني إلى انتقام",
+        "cryptoSecured": "مؤمن تشفيرياً لمنع كشف الهوية"
+      }
+    },
+    "voting": {
+      "howItWorks": "كيف يعمل التصويت المجهول",
+      "tips": {
+        "zeroKnowledge": "يضمن التشفير بدون معرفة خصوصية التصويت",
+        "noTrace": "لا يمكن تتبع الأصوات الفردية إلى المصوتين",
+        "verifiable": "النتائج دقيقة ويمكن التحقق منها رغم المجهولية",
+        "essential": "ضروري للقرارات الحساسة في التنظيم عالي المخاطر",
+        "preventIntimidation": "يمنع التخويف ويتيح المشاركة الصادقة"
+      }
+    },
+    "whyMatters": {
+      "title": "لماذا تهم المشاركة المجهولة",
+      "intro": "في سياقات التنظيم عالية المخاطر (دول المراقبة، التنظيم العمالي، نقابات المستأجرين التي تواجه انتقاماً)، يمكن أن يكون للدعم المرئي عواقب وخيمة:",
+      "consequences": {
+        "workers": "قد يواجه العمال المنظمون لنقابة الفصل من العمل",
+        "tenants": "قد يُدرج المستأجرون المحاربون للإخلاء في القوائم السوداء",
+        "activists": "يخاطر الناشطون في الدول الاستبدادية بالاعتقال",
+        "marginalized": "تواجه المجتمعات المهمشة مراقبة غير متناسبة"
+      },
+      "conclusion": "تتيح أدوات المشاركة المجهولة لهؤلاء المؤيدين المشاركة بأمان مع بناء القوة الجماعية."
+    }
+  },
+  "onboardingDemo": {
+    "title": "التهيئة المخصصة",
+    "description": "مسارات مختلفة بناءً على كيفية اكتشاف المستخدمين للمنصة",
+    "entryPointLabel": "نقطة الدخول: {{entry}}",
+    "simulateEntryPoint": "محاكاة نقطة الدخول",
+    "entryPoints": {
+      "campaign": "صفحة الحملة",
+      "event": "تأكيد الحضور للفعالية",
+      "friend-invite": "دعوة من صديق",
+      "website": "الموقع الرئيسي",
+      "social-media": "رابط وسائل التواصل الاجتماعي"
+    },
+    "complete": {
+      "title": "اكتملت التهيئة!",
+      "description": "سيتم الآن توجيه المستخدم إلى لوحة التحكم المخصصة له",
+      "tryAnother": "جرب نقطة دخول أخرى"
+    },
+    "about": {
+      "title": "حول التهيئة المخصصة",
+      "intro": "تؤدي نقاط الدخول المختلفة إلى مسارات تهيئة مختلفة محسّنة لسياق المستخدم:",
+      "campaign": "الحملة:",
+      "campaignDesc": "التركيز على قضية محددة، ثم التوسع إلى المنصة الكاملة",
+      "event": "الفعالية:",
+      "eventDesc": "إعداد سريع للتأكيد على الحضور، ثم استكشاف مجموعات العمل",
+      "friendInvite": "دعوة صديق:",
+      "friendInviteDesc": "الاتصال الاجتماعي أولاً، ثم بناء المجتمع",
+      "website": "الموقع الإلكتروني:",
+      "websiteDesc": "نظرة شاملة على جميع أعمال التنظيم",
+      "socialMedia": "وسائل التواصل الاجتماعي:",
+      "socialMediaDesc": "مسار سريع للعمل للوافدين الجدد ذوي الطاقة العالية"
+    }
+  },
+  "activeCallsPanel": {
+    "startNewCall": "بدء مكالمة جديدة",
+    "newCallTitle": "بدء مكالمة جديدة",
+    "newCallDescription": "تسجيل مكالمة واردة جديدة على خط المساعدة",
+    "callerName": "اسم المتصل",
+    "callerNamePlaceholder": "أدخل اسم المتصل",
+    "phoneNumber": "رقم الهاتف",
+    "phonePlaceholder": "أدخل رقم الهاتف",
+    "priority": "الأولوية",
+    "priorities": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    },
+    "cancel": "إلغاء",
+    "startCall": "بدء المكالمة",
+    "noActiveCalls": "لا توجد مكالمات نشطة",
+    "unknownCaller": "متصل غير معروف",
+    "onHold": "في الانتظار",
+    "resume": "استئناف",
+    "hold": "انتظار",
+    "end": "إنهاء",
+    "endCallTitle": "إنهاء المكالمة",
+    "endCallDescription": "قدم ملخصاً للمكالمة قبل الإنهاء",
+    "callSummary": "ملخص المكالمة",
+    "summaryPlaceholder": "أدخل ملخصاً للمكالمة...",
+    "endCallButton": "إنهاء المكالمة"
+  },
+  "newslettersPage": {
+    "selectGroupLogin": "يرجى اختيار مجموعة وتسجيل الدخول لإدارة النشرات الإخبارية.",
+    "startNewsletter": "بدء نشرة إخبارية",
+    "startDescription": "أنشئ نشرة إخبارية لإرسال التحديثات إلى مشتركيك عبر رسائل Nostr المباشرة المشفرة.",
+    "createNewsletter": "إنشاء نشرة إخبارية",
+    "createNewsletterTitle": "إنشاء نشرة إخبارية",
+    "createDescription": "قم بإعداد نشرتك الإخبارية للبدء في إرسال التحديثات.",
+    "newsletterName": "اسم النشرة الإخبارية",
+    "namePlaceholder": "نشرتي الإخبارية الرائعة",
+    "description": "الوصف",
+    "descriptionPlaceholder": "ماذا ستشارك مع مشتركيك؟",
+    "cancel": "إلغاء",
+    "enterName": "يرجى إدخال اسم النشرة الإخبارية",
+    "created": "تم إنشاء النشرة الإخبارية",
+    "untitledIssue": "عدد بدون عنوان",
+    "sent": "تم إرسال النشرة الإخبارية بنجاح",
+    "deleted": "تم حذف العدد",
+    "previewComingSoon": "المعاينة قادمة قريباً",
+    "settings": "الإعدادات",
+    "newIssue": "عدد جديد",
+    "stats": {
+      "subscribers": "المشتركون",
+      "issuesSent": "الأعداد المرسلة",
+      "drafts": "المسودات",
+      "totalIssues": "إجمالي الأعداد"
+    },
+    "tabs": {
+      "issues": "الأعداد",
+      "subscribers": "المشتركون"
+    },
+    "deleteIssue": "حذف العدد",
+    "deleteConfirm": "هل أنت متأكد من رغبتك في حذف هذا العدد؟ لا يمكن التراجع عن هذا الإجراء.",
+    "delete": "حذف"
+  },
+  "postCard": {
+    "pinnedPost": "منشور مثبت",
+    "contentWarning": "تحذير المحتوى:",
+    "moreOptions": "المزيد من الخيارات",
+    "unpinFromProfile": "إلغاء التثبيت من الملف الشخصي",
+    "pinToProfile": "تثبيت في الملف الشخصي",
+    "copyLink": "نسخ الرابط",
+    "editPost": "تعديل المنشور",
+    "deletePost": "حذف المنشور",
+    "reportPost": "الإبلاغ عن المنشور",
+    "reactions": "التفاعلات",
+    "reactionCount": "{{count}} تفاعل",
+    "reactionCount_plural": "{{count}} تفاعلات",
+    "commentCount": "{{count}} تعليق",
+    "commentCount_plural": "{{count}} تعليقات",
+    "repostCount": "{{count}} إعادة نشر",
+    "repostCount_plural": "{{count}} إعادات نشر",
+    "react": "تفاعل",
+    "comment": "تعليق",
+    "repost": "إعادة النشر",
+    "undoRepost": "التراجع عن إعادة النشر",
+    "quotePost": "اقتباس المنشور",
+    "bookmark": "حفظ",
+    "removeBookmark": "إزالة من المحفوظات",
+    "share": "مشاركة",
+    "quoteDialog": {
+      "title": "اقتباس المنشور",
+      "description": "أضف أفكارك إلى هذا المنشور",
+      "yourComment": "تعليقك",
+      "placeholder": "ما رأيك في هذا؟",
+      "cancel": "إلغاء",
+      "submit": "اقتباس المنشور"
+    }
+  },
+  "tableBuilder": {
+    "editTable": "تعديل الجدول",
+    "createTable": "إنشاء جدول",
+    "subtitle": "حدد هيكل وحقول هذا الجدول",
+    "tableName": "اسم الجدول",
+    "tableNamePlaceholder": "مثال: جهات الاتصال، المشاريع، المهام",
+    "descriptionOptional": "الوصف (اختياري)",
+    "descriptionPlaceholder": "ما الغرض من هذا الجدول؟",
+    "fields": "الحقول",
+    "addField": "إضافة حقل",
+    "noFields": "لا توجد حقول بعد. أضف حقلك الأول لتحديد هيكل الجدول.",
+    "required": "مطلوب",
+    "cancel": "إلغاء",
+    "saveTable": "حفظ الجدول",
+    "alerts": {
+      "enterTableName": "يرجى إدخال اسم الجدول",
+      "addAtLeastOneField": "يرجى إضافة حقل واحد على الأقل"
+    },
+    "fieldEditor": {
+      "editField": "تعديل الحقل",
+      "addField": "إضافة حقل",
+      "subtitle": "قم بتكوين خصائص الحقل والتحقق منه",
+      "label": "التسمية *",
+      "labelPlaceholder": "مثال: الاسم الكامل، البريد الإلكتروني",
+      "fieldName": "اسم الحقل * (يُستخدم في الكود)",
+      "fieldNamePlaceholder": "مثال: full_name، email_address",
+      "fieldNameHelp": "أحرف صغيرة وأرقام وشرطات سفلية فقط",
+      "fieldType": "نوع الحقل *",
+      "requiredField": "حقل مطلوب",
+      "placeholder": "نص توضيحي (اختياري)",
+      "placeholderPlaceholder": "نص توضيحي",
+      "helpText": "نص المساعدة (اختياري)",
+      "helpTextPlaceholder": "إرشادات إضافية للمستخدمين",
+      "options": "الخيارات *",
+      "addOption": "إضافة خيار",
+      "optionLabel": "التسمية",
+      "optionValue": "القيمة",
+      "saveField": "حفظ الحقل",
+      "alerts": {
+        "enterLabel": "يرجى إدخال تسمية للحقل",
+        "enterName": "يرجى إدخال اسم للحقل",
+        "invalidName": "اسم الحقل يمكن أن يحتوي فقط على أحرف صغيرة وأرقام وشرطات سفلية",
+        "duplicateName": "يوجد حقل بهذا الاسم بالفعل",
+        "addOption": "يرجى إضافة خيار واحد على الأقل"
+      }
+    }
+  },
+  "groupMembersTab": {
+    "loading": "جارٍ تحميل الأعضاء...",
+    "title": "الأعضاء",
+    "memberCount": "{{count}} عضو في هذه المجموعة",
+    "memberCount_plural": "{{count}} أعضاء في هذه المجموعة",
+    "pendingInvitations": "الدعوات المعلقة ({{count}})",
+    "inviteLink": "رابط الدعوة: {{code}}",
+    "unknown": "غير معروف",
+    "expires": "تنتهي صلاحيته {{time}}",
+    "you": "أنت",
+    "joined": "انضم {{time}}",
+    "noMembers": "لم يتم العثور على أعضاء. كن أول من يدعو شخصاً!",
+    "roles": {
+      "admin": "مسؤول",
+      "moderator": "مشرف",
+      "member": "عضو",
+      "read-only": "للقراءة فقط"
+    },
+    "removeDialog": {
+      "title": "إزالة العضو",
+      "description": "هل أنت متأكد أنك تريد إزالة هذا العضو من المجموعة؟ سيحتاج إلى دعوة جديدة للانضمام مرة أخرى.",
+      "cancel": "إلغاء",
+      "remove": "إزالة"
+    },
+    "revokeDialog": {
+      "title": "إلغاء الدعوة",
+      "description": "هل أنت متأكد أنك تريد إلغاء هذه الدعوة؟ لن يعمل رابط الدعوة أو الدعوة المباشرة بعد الآن.",
+      "cancel": "إلغاء",
+      "revoke": "إلغاء الدعوة"
+    },
+    "alerts": {
+      "failedToUpdateRole": "فشل في تحديث دور العضو",
+      "failedToRemoveMember": "فشل في إزالة العضو",
+      "failedToRevokeInvite": "فشل في إلغاء الدعوة"
+    }
+  },
+  "publicPageList": {
+    "title": "الصفحات العامة",
+    "subtitle": "إنشاء وإدارة صفحات عامة محسنة لمحركات البحث",
+    "newPage": "صفحة جديدة",
+    "noPages": "لا توجد صفحات عامة بعد",
+    "noPagesDescription": "أنشئ صفحتك العامة الأولى لمشاركتها مع العالم",
+    "createFirstPage": "إنشاء الصفحة الأولى",
+    "url": "الرابط:",
+    "type": "النوع:",
+    "created": "أُنشئت {{date}}",
+    "published": "نُشرت {{date}}",
+    "actions": {
+      "edit": "تعديل",
+      "view": "عرض",
+      "unpublish": "إلغاء النشر",
+      "publish": "نشر",
+      "copyLink": "نسخ الرابط",
+      "delete": "حذف"
+    },
+    "deleteDialog": {
+      "title": "حذف الصفحة",
+      "description": "هل أنت متأكد أنك تريد حذف \"{{title}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "delete": "حذف"
+    }
+  },
+  "publicPageEditor": {
+    "editPage": "تعديل الصفحة",
+    "createPage": "إنشاء صفحة",
+    "subtitle": "إنشاء صفحات عامة محسنة لمحركات البحث",
+    "edit": "تعديل",
+    "preview": "معاينة",
+    "cancel": "إلغاء",
+    "saveDraft": "حفظ كمسودة",
+    "publish": "نشر",
+    "tabs": {
+      "content": "المحتوى",
+      "seo": "تحسين محركات البحث",
+      "settings": "الإعدادات"
+    },
+    "pageTitle": "عنوان الصفحة",
+    "titlePlaceholder": "أدخل عنوان الصفحة",
+    "urlSlug": "معرف الرابط",
+    "slugPlaceholder": "معرف-الصفحة",
+    "slugHelp": "أحرف صغيرة وأرقام وشرطات فقط",
+    "pageType": "نوع الصفحة",
+    "pageTypes": {
+      "landing": "صفحة رئيسية",
+      "about": "صفحة من نحن",
+      "events": "تقويم الفعاليات",
+      "contact": "صفحة اتصل بنا",
+      "custom": "مخصصة"
+    },
+    "placeholderText": "اكتب محتوى صفحتك هنا...",
+    "pageStatus": "حالة الصفحة",
+    "statuses": {
+      "draft": "مسودة",
+      "published": "منشورة"
+    },
+    "draftVisibility": "الصفحات المسودة مرئية فقط لمسؤولي المجموعة",
+    "publishedDate": "تاريخ النشر: {{date}}"
+  },
+  "crmAnalytics": {
+    "title": "تحليلات إدارة العلاقات",
+    "subtitle": "مقاييس إدارة جهات الاتصال والتنظيم",
+    "exportCsv": "تصدير CSV",
+    "totalContacts": "إجمالي جهات الاتصال",
+    "contactRate": "معدل التواصل",
+    "pipelineConversions": "تحويلات المسار",
+    "thisMonth": "هذا الشهر",
+    "avgDaysToConvert": "متوسط أيام التحويل",
+    "days": "أيام",
+    "supportLevelDistribution": "توزيع مستوى الدعم",
+    "pipelineMovement": "حركة المسار (هذا الشهر)",
+    "organizerPerformance": "أداء المنظمين",
+    "departmentAnalysis": "تحليل الأقسام",
+    "table": {
+      "organizer": "المنظم",
+      "contacts": "جهات الاتصال",
+      "conversions": "التحويلات",
+      "rate": "المعدل",
+      "active": "نشط"
+    },
+    "movements": {
+      "neutralToPassive": "محايد ← سلبي",
+      "passiveToActive": "سلبي ← نشط",
+      "activeToCore": "نشط ← أساسي"
+    }
+  },
+  "engagementPage": {
+    "title": "رحلتك",
+    "subtitle": "تتبع مشاركتك، أكمل المراحل، وتطور كمنظم",
+    "demoSwitchLevel": "عرض: تغيير المستوى",
+    "viewAs": "عرض كـ...",
+    "levelOptions": {
+      "neutral": "محايد (30%)",
+      "passive": "دعم سلبي (40%)",
+      "active": "دعم نشط (70%)",
+      "core": "منظم أساسي (100%)"
+    },
+    "tabs": {
+      "engagement": "رحلة المشاركة",
+      "notifications": "إشعارات ذكية"
+    },
+    "aboutLadder": {
+      "title": "حول سلم المشاركة",
+      "description": "يستند سلم المشاركة إلى منهجية طيف الدعم المستخدمة من قبل حركات التنظيم الناجحة. يمثل كل مستوى انخراطاً أعمق في الحركة:",
+      "levels": {
+        "neutral": "محايد (30%) - التعلم والاستكشاف",
+        "passive": "دعم سلبي (40%) - الدعم من الخطوط الجانبية",
+        "active": "دعم نشط (70%) - المشاركة الفعالة في الأنشطة",
+        "core": "منظم أساسي (100%) - القيادة وتطوير الآخرين"
+      },
+      "footer": "أكمل المراحل في مستواك الحالي لفتح المرحلة التالية من رحلتك التنظيمية."
+    }
+  },
+  "eventFeedCard": {
+    "createdEvent": "أنشأ حدثاً",
+    "privacy": {
+      "public": "حدث عام",
+      "group": "حدث مجموعة",
+      "private": "حدث خاص",
+      "directAction": "عمل مباشر"
+    },
+    "time": {
+      "todayAt": "اليوم الساعة {{time}}",
+      "tomorrowAt": "غداً الساعة {{time}}"
+    },
+    "locationReveal": "يُكشف الموقع قبل {{time}} من الحدث",
+    "capacity": "{{current}} / {{max}} مشارك",
+    "rsvp": {
+      "going": "تأكيد الحضور",
+      "goingConfirmed": "سأحضر",
+      "maybe": "ربما",
+      "maybeConfirmed": "ربما"
+    },
+    "details": "التفاصيل"
+  },
+  "groupFeedPage": {
+    "loading": "جارٍ التحميل...",
+    "notFound": "المجموعة غير موجودة",
+    "feedSuffix": "موجز",
+    "subtitle": "النشاط والتحديثات من هذه المجموعة",
+    "shareUpdate": "مشاركة تحديث"
+  },
+  "analyticsPage": {
+    "title": "لوحة التحليلات",
+    "subtitle": "تتبع مقاييس التنظيم وأداء الحملات واتخذ قرارات مبنية على البيانات",
+    "tabs": {
+      "crm": "تحليلات إدارة العلاقات",
+      "campaign": "تحليلات الحملة"
+    }
+  },
+  "wikiView": {
+    "title": "قاعدة المعرفة",
+    "subtitle": "توثيق تعاوني وموارد",
+    "newPage": "صفحة جديدة",
+    "searchPlaceholder": "البحث في الويكي...",
+    "noResults": "لم يتم العثور على صفحات تطابق بحثك",
+    "empty": "لا توجد صفحات ويكي بعد. أنشئ صفحتك الأولى للبدء!",
+    "updated": "تم التحديث {{date}}"
+  },
+  "pollCard": {
+    "status": {
+      "active": "نشط",
+      "ended": "انتهى"
+    },
+    "voteCount": "{{count}} صوت",
+    "voteCount_other": "{{count}} أصوات",
+    "anonymous": "مجهول",
+    "public": "عام",
+    "yourVote": "صوتك",
+    "resultsHidden": "ستُكشف النتائج عند انتهاء الاستطلاع",
+    "voting": "جارٍ التصويت...",
+    "vote": "صوّت"
+  },
+  "publicFormView": {
+    "notPublished": "هذا النموذج غير منشور حالياً.",
+    "thankYou": "شكراً لك!",
+    "defaultConfirmation": "تم استلام إرسالك.",
+    "continue": "متابعة",
+    "submitting": "جارٍ الإرسال...",
+    "submit": "إرسال",
+    "submitFailed": "فشل في إرسال النموذج",
+    "poweredBy": "مدعوم من BuildIt Network"
+  },
+  "model3DPreview": {
+    "failedToLoad": "فشل في تحميل النموذج ثلاثي الأبعاد",
+    "downloadModel": "تحميل النموذج",
+    "loading": "جارٍ تحميل النموذج ثلاثي الأبعاد...",
+    "badge": "نموذج ثلاثي الأبعاد",
+    "instructions": "اسحب للتدوير | مرر للتكبير | Shift+سحب للتحريك"
+  },
+  "createFolderDialog": {
+    "title": "إنشاء مجلد",
+    "folderName": "اسم المجلد",
+    "placeholder": "أدخل اسم المجلد",
+    "cancel": "إلغاء",
+    "create": "إنشاء"
+  },
+  "eventsCalendarView": {
+    "title": "التقويم",
+    "exportAll": "تصدير الكل",
+    "eventsOn": "الأحداث في {{date}}",
+    "noEvents": "لا توجد أحداث في هذا التاريخ"
+  },
+  "groupView": {
+    "selectGroup": "اختر مجموعة لعرض التفاصيل",
+    "privacyLabel": "مجموعة {{privacy}}",
+    "memberCount": "{{count}} عضو",
+    "memberCount_other": "{{count}} أعضاء",
+    "modulesEnabled": "{{count}} وحدة مفعّلة",
+    "modulesEnabled_other": "{{count}} وحدات مفعّلة"
+  },
+  "filesAccessRequestsPanel": {
+    "title": "طلبات الوصول المعلقة",
+    "noPending": "لا توجد طلبات معلقة",
+    "requestsWillAppear": "ستظهر طلبات الوصول هنا",
+    "requested": "مطلوب {{time}}",
+    "permissions": {
+      "view": "عرض",
+      "download": "تحميل",
+      "edit": "تعديل",
+      "delete": "حذف"
+    }
+  },
+  "documentsAccessRequestsPanel": {
+    "title": "طلبات الوصول المعلقة",
+    "noPending": "لا توجد طلبات معلقة",
+    "requestsWillAppear": "ستظهر طلبات الوصول هنا",
+    "requested": "مطلوب {{time}}",
+    "permissions": {
+      "view": "عرض",
+      "comment": "تعليق",
+      "edit": "تعديل",
+      "admin": "مسؤول"
+    }
+  },
+  "mathBlock": {
+    "instructions": "أدخل معادلة LaTeX (Shift+Enter للحفظ، Escape للإلغاء)",
+    "placeholder": "E = mc^2",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "clickToAdd": "انقر لإضافة معادلة"
+  },
+  "errors": {
+    "invalidPassword": "كلمة مرور غير صالحة أو بيانات مفتاح تالفة",
+    "invalidNsec": "تنسيق nsec غير صالح",
+    "invalidNpub": "تنسيق npub غير صالح",
+    "invalidWordCount": "عدد كلمات غير صالح. يجب أن يكون 12 أو 15 أو 18 أو 24.",
+    "identityAlreadyExists": "الهوية موجودة بالفعل",
+    "identityNotFound": "الهوية غير موجودة",
+    "noIdentitySelected": "لم يتم اختيار هوية",
+    "webauthnNotEnabled": "WebAuthn غير مفعل لهذه الهوية",
+    "webauthnFailed": "فشلت مصادقة WebAuthn",
+    "webauthnNotSupported": "WebAuthn غير مدعوم على هذا الجهاز",
+    "failedToCreateIdentity": "فشل في إنشاء الهوية",
+    "failedToImportIdentity": "فشل في استيراد الهوية",
+    "failedToLoadIdentities": "فشل في تحميل الهويات",
+    "failedToRemoveIdentity": "فشل في حذف الهوية",
+    "failedToUnlock": "فشل في فتح القفل",
+    "failedToChangePassword": "فشل في تغيير كلمة المرور",
+    "failedToEnableWebauthn": "فشل في تفعيل WebAuthn",
+    "failedToDisableWebauthn": "فشل في تعطيل WebAuthn",
+    "migrationRequired": "هذه الهوية تحتاج إلى ترحيل. يرجى استخدام أداة الترحيل في الإعدادات.",
+    "rateLimited": "محاولات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "unknownError": "حدث خطأ غير معروف"
+  },
+  "securityDemo": {
+    "title": "إجراءات مكافحة الاختراق",
+    "description": "حماية الحملات عالية المخاطر من الاختراق وجمع البيانات",
+    "whyMatters": "لماذا تهم إجراءات مكافحة الاختراق",
+    "whyMattersDesc": "تواجه حملات التنظيم عالية المخاطر تهديدات مستمرة من المخترقين والجهات الخبيثة والمراقبة. تساعد ميزات الأمان هذه في تحديد ومنع النشاط الخبيث مع الحفاظ على الثقة داخل المجتمع.",
+    "memberVerification": "التحقق من الأعضاء",
+    "memberVerificationDesc": "التحقق الشخصي برمز QR ودرجات الثقة تمنع الحسابات المزيفة والمخترقين",
+    "anomalyDetection": "كشف الشذوذ",
+    "anomalyDetectionDesc": "الكشف الآلي عن أنماط السلوك المشبوهة مثل الوصول الجماعي للبيانات",
+    "auditLogs": "سجلات التدقيق",
+    "auditLogsDesc": "تتبع كامل للإجراءات الحساسة للتحقيق والمساءلة",
+    "tabs": {
+      "verification": "التحقق من الأعضاء",
+      "anomalies": "كشف الشذوذ",
+      "audit": "سجلات التدقيق"
+    },
+    "useCases": {
+      "title": "حالات استخدام واقعية",
+      "intro": "هذه الميزات الأمنية ضرورية لـ:",
+      "unionOrganizing": "التنظيم النقابي:",
+      "unionOrganizingDesc": "منع اختراق صاحب العمل أثناء حملات التنظيم",
+      "directAction": "حملات العمل المباشر:",
+      "directActionDesc": "تحديد عملاء سريين أو مخبرين",
+      "tenantUnions": "نقابات المستأجرين:",
+      "tenantUnionsDesc": "كشف الجهات الخبيثة الممولة من الملاك الذين يحاولون تعطيل التنظيم",
+      "whistleblower": "شبكات المبلغين عن المخالفات:",
+      "whistleblowerDesc": "حماية المصادر من مراقبة الشركات أو الحكومة",
+      "activist": "تحالفات الناشطين:",
+      "activistDesc": "منع العملاء المحرضين من تعطيل عمل الحركة",
+      "keyInsight": "نقطة أساسية:",
+      "keyInsightDesc": "الاختراق ليس جنون الارتياب - إنه تكتيك موثق يُستخدم ضد جهود التنظيم عبر التاريخ. توفر هذه الأدوات دفاعاً منهجياً دون خلق ثقافة الشك."
+    }
+  },
+  "issuesList": {
+    "title": "الأعداد",
+    "noIssuesYet": "لا توجد أعداد بعد",
+    "noIssuesDescription": "أنشئ أول عدد من نشرتك الإخبارية للبدء في التفاعل مع مشتركيك.",
+    "createIssue": "إنشاء عدد",
+    "newIssue": "عدد جديد",
+    "stats": "{{drafts}} مسودة، {{scheduled}} مجدول، {{sent}} مُرسل",
+    "tabs": {
+      "all": "الكل ({{count}})",
+      "drafts": "المسودات ({{count}})",
+      "scheduled": "المجدولة ({{count}})",
+      "sent": "المُرسلة ({{count}})"
+    },
+    "tableHeaders": {
+      "subject": "الموضوع",
+      "status": "الحالة",
+      "recipients": "المستلمون",
+      "created": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "statuses": {
+      "draft": "مسودة",
+      "scheduled": "مجدول",
+      "sending": "جارٍ الإرسال",
+      "sent": "مُرسل",
+      "failed": "فشل"
+    },
+    "untitled": "بدون عنوان",
+    "actions": {
+      "edit": "تحرير",
+      "sendNow": "إرسال الآن",
+      "view": "عرض",
+      "delete": "حذف"
+    }
+  },
+  "cryptoDonation": {
+    "title": "تبرع بالعملات المشفرة",
+    "mainnet": "الشبكة الرئيسية",
+    "testnet": "شبكة الاختبار",
+    "paymentConfirmed": "تم تأكيد الدفع",
+    "thankYou": "شكرا لتبرعك بمبلغ {{amount}}",
+    "viewOnExplorer": "عرض على مستكشف البلوكتشين",
+    "paymentPending": "الدفع قيد الانتظار",
+    "detected": "تم اكتشاف {{amount}}",
+    "confirmations": "التأكيدات:",
+    "trackOnBlockchain": "تتبع على البلوكتشين",
+    "donationAmount": "مبلغ التبرع (دولار أمريكي)",
+    "custom": "مخصص",
+    "calculating": "جارٍ الحساب...",
+    "currentPrice": "السعر الحالي: ${{price}} دولار أمريكي",
+    "generatingAddress": "جارٍ إنشاء العنوان...",
+    "generateAddress": "إنشاء عنوان {{crypto}}",
+    "paymentAddress": "عنوان الدفع",
+    "monitoring": "جارٍ المراقبة...",
+    "startMonitoring": "بدء المراقبة",
+    "checkNow": "تحقق الآن",
+    "howToDonate": "كيفية التبرع:",
+    "steps": {
+      "scan": "امسح رمز QR أو انسخ العنوان",
+      "send": "أرسل {{amount}} إلى هذا العنوان",
+      "monitor": "انقر على \"بدء المراقبة\" لتتبع دفعتك",
+      "wait": "انتظر {{confirmations}} تأكيدات"
+    },
+    "toasts": {
+      "addressGenerated": "تم إنشاء عنوان الدفع",
+      "addressCopied": "تم نسخ العنوان إلى الحافظة",
+      "paymentConfirmed": "تم تأكيد الدفع",
+      "paymentDetected": "تم اكتشاف الدفع! في انتظار التأكيدات...",
+      "failedToGenerate": "فشل في إنشاء العنوان"
+    },
+    "errors": {
+      "failedToGenerate": "فشل في إنشاء عنوان الدفع. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "campaignBuilder": {
+    "editCampaign": "تعديل الحملة",
+    "createCampaign": "إنشاء حملة",
+    "subtitle": "قم بإعداد حملة جمع تبرعات لمجموعتك",
+    "cancel": "إلغاء",
+    "saveCampaign": "حفظ الحملة",
+    "basicInfo": "المعلومات الأساسية",
+    "campaignTitle": "عنوان الحملة *",
+    "titlePlaceholder": "صندوق دعم الإضراب",
+    "urlSlug": "معرف الرابط *",
+    "slugPlaceholder": "صندوق-دعم-الاضراب",
+    "urlPreview": "الرابط: /campaigns/{{slug}}",
+    "category": "الفئة",
+    "categories": {
+      "general": "عام",
+      "bail": "صندوق الكفالة",
+      "strike": "صندوق الإضراب",
+      "mutual-aid": "المساعدة المتبادلة",
+      "legal": "الدفاع القانوني",
+      "emergency": "طوارئ"
+    },
+    "description": "الوصف",
+    "descriptionPlaceholder": "صف حملة جمع التبرعات الخاصة بك...",
+    "fundraisingGoal": "هدف جمع التبرعات",
+    "goalAmount": "المبلغ المستهدف *",
+    "currency": "العملة",
+    "currencies": {
+      "usd": "USD ($)",
+      "eur": "EUR (\u20ac)",
+      "gbp": "GBP (\u00a3)",
+      "cad": "CAD ($)"
+    }
+  },
+  "documentsPage": {
+    "folders": "المجلدات",
+    "starred": "المفضلة",
+    "newDocument": "مستند جديد",
+    "createNewDocument": "انشاء مستند جديد",
+    "documentTitle": "عنوان المستند",
+    "documentTitlePlaceholder": "عنوان المستند",
+    "chooseTemplate": "اختر قالبا (اختياري)",
+    "creating": "جاري الانشاء...",
+    "createDocument": "انشاء المستند",
+    "searchDocuments": "البحث في المستندات...",
+    "sort": {
+      "lastUpdated": "اخر تحديث",
+      "dateCreated": "تاريخ الانشاء",
+      "name": "الاسم"
+    },
+    "exportSharing": "تصدير المشاركة",
+    "exporting": "جاري التصدير...",
+    "exportTooltip": "تصدير تقرير CSV لجميع اذونات مشاركة المستندات",
+    "emptyState": {
+      "noDocuments": "لا توجد مستندات بعد",
+      "noDocumentsHint": "انشئ مستندا جديدا للبدء",
+      "noSearchResults": "لا توجد مستندات تطابق بحثك",
+      "noStarred": "لا توجد مستندات مفضلة"
+    },
+    "listItem": {
+      "edit": "تعديل",
+      "addToStarred": "اضافة الى المفضلة",
+      "removeFromStarred": "ازالة من المفضلة",
+      "duplicate": "نسخ"
+    },
+    "editor": {
+      "suggesting": "اقتراح",
+      "editing": "تعديل",
+      "suggestionModeTooltip": "يتم تسجيل التغييرات كاقتراحات",
+      "editModeTooltip": "وضع التعديل المباشر",
+      "collaborationEnabled": "التعاون في الوقت الفعلي مفعل",
+      "enableCollaboration": "تفعيل التعاون",
+      "hideComments": "اخفاء التعليقات",
+      "showComments": "اظهار التعليقات",
+      "autoSaving": "حفظ تلقائي مع التعاون",
+      "saveDocument": "حفظ المستند"
+    },
+    "actions": {
+      "duplicate": "نسخ",
+      "versionHistory": "سجل الاصدارات",
+      "exportHtml": "تصدير HTML",
+      "exportMarkdown": "تصدير Markdown",
+      "exportPdf": "تصدير PDF",
+      "delete": "حذف"
+    },
+    "tags": {
+      "addTag": "اضافة وسم",
+      "addTagPlaceholder": "اضافة وسم...",
+      "clear": "مسح",
+      "moreCount": "+{{count}} اخرى"
+    },
+    "deleteConfirm": "هل انت متاكد من حذف \"{{title}}\"؟",
+    "failedToExport": "فشل في تصدير تقرير المشاركة"
+  },
+  "donorsList": {
+    "title": "المتبرعون والتبرعات",
+    "subtitle": "ادارة التبرعات لـ {{campaign}}",
+    "stats": {
+      "totalRaised": "اجمالي المبلغ المجموع",
+      "totalDonations": "اجمالي التبرعات",
+      "completedDonations": "التبرعات المكتملة"
+    },
+    "searchPlaceholder": "البحث بالاسم او البريد الالكتروني...",
+    "filters": {
+      "all": "الكل",
+      "completed": "مكتملة",
+      "pending": "معلقة"
+    },
+    "exportCsv": "تصدير CSV",
+    "table": {
+      "date": "التاريخ",
+      "donor": "المتبرع",
+      "amount": "المبلغ",
+      "status": "الحالة",
+      "paymentMethod": "طريقة الدفع",
+      "message": "الرسالة",
+      "anonymous": "مجهول",
+      "na": "غير متوفر",
+      "recurring": "متكرر"
+    },
+    "emptyState": {
+      "noDonations": "لا توجد تبرعات بعد",
+      "adjustFilters": "حاول تعديل معايير البحث"
+    }
+  },
+  "scheduledPostsView": {
+    "loading": "جاري تحميل المنشورات المجدولة...",
+    "noScheduledPosts": "لا توجد منشورات مجدولة",
+    "noScheduledPostsDescription": "قم بجدولة المنشورات ليتم نشرها في وقت محدد باستخدام خيار الجدولة في محرر المنشورات.",
+    "moreOptions": "المزيد من الخيارات",
+    "statuses": {
+      "published": "تم النشر",
+      "cancelled": "ملغى",
+      "failed": "فشل",
+      "due": "مستحق",
+      "scheduled": "مجدول"
+    },
+    "actions": {
+      "publishNow": "نشر الآن",
+      "edit": "تعديل",
+      "cancel": "إلغاء"
+    },
+    "editDialog": {
+      "title": "تعديل المنشور المجدول",
+      "description": "قم بتحديث المحتوى أو إعادة جدولة هذا المنشور.",
+      "contentLabel": "المحتوى",
+      "contentPlaceholder": "ما الذي يدور في ذهنك؟",
+      "scheduledForLabel": "مجدول لـ",
+      "cancelButton": "إلغاء",
+      "saveButton": "حفظ التغييرات"
+    },
+    "deleteDialog": {
+      "title": "إلغاء المنشور المجدول؟",
+      "description": "سيؤدي هذا إلى إلغاء المنشور المجدول. لا يمكن التراجع عن هذا الإجراء.",
+      "keepPost": "الاحتفاظ بالمنشور",
+      "cancelPost": "إلغاء المنشور"
+    }
+  },
+  "addFriendDialog": {
+    "title": "إضافة صديق",
+    "description": "اختر الطريقة التي تريد بها التواصل مع صديقك",
+    "tabs": {
+      "username": "اسم المستخدم",
+      "qr": "رمز QR",
+      "email": "البريد الإلكتروني",
+      "link": "رابط"
+    },
+    "username": {
+      "label": "اسم المستخدم أو المفتاح العام",
+      "placeholder": "أدخل اسم المستخدم أو المفتاح العام...",
+      "messageLabel": "رسالة اختيارية",
+      "messagePlaceholder": "قل مرحبا...",
+      "sendRequest": "إرسال طلب صداقة",
+      "sending": "جاري الإرسال..."
+    },
+    "qr": {
+      "yourQrCode": "رمز QR الخاص بك",
+      "scanFriendQr": "مسح رمز QR الصديق",
+      "letFriendScan": "دع صديقك يمسح هذا الرمز",
+      "startScanning": "بدء المسح",
+      "scannedSuccessfully": "تم المسح بنجاح!"
+    },
+    "email": {
+      "friendEmail": "البريد الإلكتروني للصديق",
+      "emailPlaceholder": "صديق@مثال.com",
+      "invitationMessage": "رسالة الدعوة",
+      "invitationPlaceholder": "أود التواصل معك على BuildIt Network...",
+      "sendEmailInvite": "إرسال دعوة بالبريد الإلكتروني"
+    },
+    "link": {
+      "description": "أنشئ رابطا قابلا للمشاركة يمكن لأي شخص استخدامه لإرسال طلب صداقة إليك. تنتهي صلاحية الرابط خلال 7 أيام ويمكن استخدامه حتى 10 مرات.",
+      "generateLink": "إنشاء رابط دعوة",
+      "yourInviteLink": "رابط الدعوة الخاص بك",
+      "copyLink": "نسخ الرابط",
+      "expiresInfo": "شارك هذا الرابط مع الأصدقاء. تنتهي صلاحيته خلال 7 أيام أو بعد 10 استخدامات."
+    },
+    "toasts": {
+      "enterUsername": "يرجى إدخال اسم مستخدم",
+      "requestSent": "تم إرسال طلب الصداقة!",
+      "enterEmail": "يرجى إدخال عنوان بريد إلكتروني",
+      "emailComingSoon": "دعوات البريد الإلكتروني قريبا!",
+      "inviteLinkCreated": "تم إنشاء رابط الدعوة!",
+      "linkCopied": "تم نسخ الرابط إلى الحافظة!",
+      "failedToAccessCamera": "فشل الوصول إلى الكاميرا",
+      "invalidQrCode": "رمز QR غير صالح"
+    }
+  },
+  "mediaUploader": {
+    "dropzone": "انقر لتحديد {{type}} او اسحب وافلت",
+    "files": "ملفات",
+    "aFile": "ملف",
+    "settings": {
+      "title": "اعدادات الرفع",
+      "privacyLevel": "مستوى الخصوصية",
+      "storageProvider": "مزود التخزين",
+      "stripExif": "ازالة بيانات EXIF (الخصوصية)",
+      "encryptMedia": "تشفير الوسائط",
+      "contentWarning": "تحذير المحتوى"
+    },
+    "privacy": {
+      "public": "عام",
+      "group": "المجموعة فقط",
+      "private": "خاص",
+      "encrypted": "مشفر"
+    },
+    "storage": {
+      "nip96": "NIP-96 (تخزين HTTP)",
+      "nip94": "NIP-94 (بيانات الملف الوصفية)",
+      "blossom": "Blossom (لامركزي)",
+      "ipfs": "IPFS",
+      "local": "محلي (تطوير)"
+    },
+    "caption": "وصف (اختياري)",
+    "altText": "نص بديل لامكانية الوصول",
+    "contentWarningPlaceholder": "صف المحتوى الحساس...",
+    "uploadFile": "رفع الملف",
+    "uploadFiles": "رفع {{count}} ملفات",
+    "cancel": "الغاء",
+    "status": {
+      "complete": "مكتمل",
+      "error": "خطا: {{message}}"
+    },
+    "alerts": {
+      "fileTooLarge": "الملف {{filename}} يتجاوز الحجم الاقصى لـ {{type}}",
+      "loginFirst": "يرجى تسجيل الدخول اولا"
+    }
+  },
+  "notificationsDemoPage": {
+    "title": "الاشعارات الذكية",
+    "subtitle": "اشعارات سياقية بناء على مستوى المشاركة",
+    "demoSwitchLevel": "عرض توضيحي: تغيير المستوى",
+    "viewAs": "عرض كـ...",
+    "explanation": {
+      "title": "كيف تعمل الاشعارات الذكية",
+      "description": "تتغير الاشعارات بناء على مستوى مشاركتك:",
+      "levels": {
+        "neutral": "فعاليات للمبتدئين، محتوى تعليمي",
+        "passive": "تشجيع على حضور الفعاليات، تحديثات التقدم",
+        "active": "فرص التطوع، التعبئة العاجلة",
+        "core": "اجتماعات القيادة، الارشاد، تنبيهات الامان"
+      },
+      "footer": "يتضمن كل اشعار درجة صلة توضح سبب رؤيتك له."
+    }
+  },
+  "crmView": {
+    "title": "قاعدة بيانات جهات الاتصال",
+    "subtitle": "تنظيم وإدارة العلاقات المجتمعية",
+    "addContact": "إضافة جهة اتصال",
+    "views": {
+      "table": "عرض الجدول",
+      "board": "عرض اللوحة",
+      "calendar": "عرض التقويم"
+    },
+    "contacts": {
+      "title": "جهات الاتصال",
+      "description": "إدارة جهات الاتصال مع حقول مخصصة وضوابط الخصوصية",
+      "emptyState": "لا توجد جهات اتصال بعد. أضف جهة الاتصال الأولى للبدء."
+    },
+    "emptyStates": {
+      "board": "عرض اللوحة - تنظيم جهات الاتصال حسب الحالة أو الفئة",
+      "calendar": "عرض التقويم - عرض جهات الاتصال حسب حقول التاريخ"
+    },
+    "templates": {
+      "title": "القوالب المتاحة",
+      "description": "حقول مُعدة مسبقاً لحالات الاستخدام الشائعة",
+      "unionOrganizing": {
+        "title": "التنظيم النقابي",
+        "description": "تتبع محادثات التنظيم والالتزامات"
+      },
+      "fundraising": {
+        "title": "جمع التبرعات",
+        "description": "إدارة المتبرعين وتتبع الحملات"
+      },
+      "legalTracking": {
+        "title": "التتبع القانوني",
+        "description": "إدارة القضايا لأعمال الدعم القانوني"
+      }
+    }
+  },
+  "deviceManager": {
+    "title": "إدارة الأجهزة",
+    "description": "إدارة الأجهزة والجلسات التي لديها حق الوصول إلى حسابك",
+    "signOutAll": "تسجيل الخروج من جميع الأجهزة",
+    "noDevices": "لم يتم العثور على أجهزة",
+    "currentDevice": "الجهاز الحالي",
+    "trusted": "موثوق",
+    "activeSessions": "الجلسات النشطة",
+    "noActiveSessions": "لا توجد جلسات نشطة",
+    "lastSeen": "آخر ظهور: {{time}}",
+    "firstSeen": "أول ظهور: {{time}}",
+    "timeAgo": {
+      "justNow": "الآن",
+      "minutesAgo": "منذ {{count}} دقائق",
+      "hoursAgo": "منذ {{count}} ساعات"
+    },
+    "removeDeviceDialog": {
+      "title": "إزالة الجهاز",
+      "description": "هل أنت متأكد من رغبتك في إزالة هذا الجهاز؟ سيتم إلغاء جميع الجلسات لهذا الجهاز وستحتاج إلى إعادة تفويضه للوصول إلى حسابك.",
+      "cancel": "إلغاء",
+      "remove": "إزالة الجهاز"
+    },
+    "signOutAllDialog": {
+      "title": "تسجيل الخروج من جميع الأجهزة",
+      "description": "سيؤدي هذا إلى تسجيل خروجك من جميع الأجهزة الأخرى باستثناء هذا الجهاز. ستحتاج إلى تسجيل الدخول مرة أخرى على تلك الأجهزة.",
+      "cancel": "إلغاء",
+      "signOut": "تسجيل الخروج من الكل"
+    }
+  },
+  "bulkOperationsPage": {
+    "title": "العمليات المجمعة",
+    "subtitle": "وسّع تنظيمك من خلال الإجراءات المجمعة والتحديد المتعدد وإدارة المهام الآلية",
+    "tabs": {
+      "bulkActions": "الإجراءات المجمعة",
+      "taskManager": "مدير المهام"
+    },
+    "table": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "supportLevel": "مستوى الدعم",
+      "tags": "الوسوم",
+      "lastContact": "آخر تواصل",
+      "noTags": "لا توجد وسوم",
+      "daysAgo": "منذ {{count}} أيام"
+    },
+    "supportLevels": {
+      "coreOrganizer": "منظم أساسي",
+      "activeSupport": "دعم نشط",
+      "passiveSupport": "دعم سلبي",
+      "neutral": "محايد"
+    },
+    "features": {
+      "title": "ميزات العمليات المجمعة",
+      "selectMultiple": "حدد جهات اتصال متعددة باستخدام مربعات الاختيار",
+      "sendBulk": "أرسل رسائل جماعية إلى جهات الاتصال المحددة",
+      "addTags": "أضف وسوماً لجهات اتصال متعددة في وقت واحد",
+      "updateFields": "حدّث الحقول المخصصة بشكل مجمع",
+      "assignTasks": "عيّن مهاماً للمنظمين للمتابعات",
+      "exportCSV": "صدّر جهات الاتصال المحددة إلى CSV"
+    },
+    "alerts": {
+      "sendingMessage": "جارٍ إرسال الرسالة إلى {{count}} جهات اتصال",
+      "addingTag": "جارٍ إضافة الوسم إلى {{count}} جهات اتصال",
+      "updatingField": "جارٍ تحديث الحقل لـ {{count}} جهات اتصال",
+      "creatingTask": "جارٍ إنشاء مهمة لـ {{count}} جهات اتصال",
+      "exportingCSV": "جارٍ تصدير {{count}} جهات اتصال إلى CSV",
+      "confirmDelete": "حذف {{count}} جهات اتصال؟ لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "folderPermissionsDialog": {
+    "title": "صلاحيات المجلد",
+    "description": "إدارة من يمكنه الوصول إلى \"{{name}}\" ومحتوياته",
+    "usersWithAccess": "المستخدمون ذوو الصلاحية",
+    "addUser": "إضافة مستخدم",
+    "emptyState": {
+      "title": "لم يتم تعيين صلاحيات محددة",
+      "description": "المجلد متاح لجميع أعضاء المجموعة"
+    },
+    "permissions": {
+      "view": "عرض",
+      "download": "تنزيل",
+      "edit": "تحرير",
+      "delete": "حذف"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "عرض فقط",
+      "viewDownload": "عرض وتنزيل",
+      "viewDownloadEdit": "عرض وتنزيل وتحرير",
+      "fullAccess": "صلاحية كاملة (تشمل الحذف)"
+    },
+    "inherited": "موروث",
+    "disableInheritance": "انقر لتعطيل التوارث",
+    "addPermission": {
+      "title": "إضافة صلاحية مستخدم",
+      "selectUser": "اختر مستخدماً",
+      "selectUserPlaceholder": "اختر مستخدماً...",
+      "permissionLevel": "مستوى الصلاحية",
+      "applyToSubfolders": "تطبيق على المجلدات الفرعية",
+      "cascadeDescription": "تنتشر الصلاحية إلى المجلدات والملفات الفرعية",
+      "adding": "جارٍ الإضافة...",
+      "addButton": "إضافة صلاحية"
+    },
+    "inheritanceInfo": "تُطبّق الصلاحيات الموروثة تلقائياً على جميع الملفات والمجلدات الفرعية داخل هذا المجلد. انقر على شارة \"موروث\" في صلاحية لتعطيل التوارث لذلك المستخدم.",
+    "errors": {
+      "addFailed": "فشل في إضافة الصلاحية",
+      "removeFailed": "فشل في إزالة الصلاحية"
+    }
+  },
+  "secureEmbed": {
+    "untrusted": {
+      "title": "مصدر تضمين غير موثوق",
+      "description": "هذا المحتوى من مصدر غير موثوق ولا يمكن تضمينه بشكل آمن.",
+      "openInNewTab": "فتح في علامة تبويب جديدة"
+    },
+    "loadEmbed": "تحميل {{provider}}",
+    "openExternally": "فتح خارجيًا",
+    "embedName": "تضمين {{provider}}",
+    "dialog": {
+      "title": "تضمين وسائط",
+      "placeholder": "الصق الرابط (YouTube، Vimeo، SoundCloud، Spotify...)",
+      "detected": "تم الكشف: {{provider}}",
+      "supportedProviders": "المزودون المدعومون:",
+      "providers": {
+        "youtube": "YouTube (وضع الخصوصية المحسّن)",
+        "vimeo": "Vimeo (وضع عدم التتبع)",
+        "peertube": "PeerTube (أي خادم)",
+        "soundcloud": "SoundCloud",
+        "spotify": "Spotify",
+        "codepen": "CodePen",
+        "codesandbox": "CodeSandbox"
+      },
+      "cancel": "إلغاء",
+      "embed": "تضمين"
+    },
+    "errors": {
+      "enterUrl": "الرجاء إدخال رابط",
+      "unsupportedProvider": "مزود غير مدعوم. المدعومون: {{providers}}"
+    }
+  },
+  "folderPermissionsPanel": {
+    "title": "أذونات المجلد",
+    "description": "إدارة من يمكنه الوصول إلى \"{{name}}\" ومستنداته",
+    "usersWithAccess": "المستخدمون الذين لديهم صلاحية الوصول",
+    "addUser": "إضافة مستخدم",
+    "emptyState": {
+      "title": "لم يتم تعيين أذونات محددة",
+      "description": "المجلد متاح لجميع أعضاء المجموعة"
+    },
+    "permissions": {
+      "view": "عرض",
+      "comment": "تعليق",
+      "edit": "تحرير",
+      "admin": "مسؤول"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "عرض فقط",
+      "viewComment": "عرض وتعليق",
+      "edit": "تحرير",
+      "adminFull": "مسؤول (تحكم كامل)"
+    },
+    "inherited": "موروث",
+    "disableInheritance": "انقر لتعطيل التوارث",
+    "addPermission": {
+      "title": "إضافة إذن مستخدم",
+      "selectUser": "اختر مستخدم",
+      "selectUserPlaceholder": "اختر مستخدمًا...",
+      "permissionLevel": "مستوى الإذن",
+      "applyToSubfolders": "تطبيق على المجلدات الفرعية",
+      "cascadeDescription": "ينتشر الإذن إلى المجلدات والمستندات الفرعية",
+      "adding": "جارٍ الإضافة...",
+      "addButton": "إضافة إذن"
+    },
+    "inheritanceInfo": "تُطبق الأذونات الموروثة تلقائيًا على جميع المستندات والمجلدات الفرعية داخل هذا المجلد. انقر على شارة \"موروث\" على إذن لتعطيل التوارث لذلك المستخدم.",
+    "errors": {
+      "addFailed": "فشل في إضافة الإذن",
+      "removeFailed": "فشل في إزالة الإذن"
+    }
+  },
+  "privacySettings": {
+    "title": "إعدادات الخصوصية والأمان",
+    "description": "تكوين تتبع الجهاز وإدارة الجلسات",
+    "anonymizeIp": {
+      "label": "إخفاء هوية عناوين IP",
+      "description": "إخفاء أو تشفير عناوين IP في سجلات الجلسات لمزيد من الخصوصية"
+    },
+    "limitFingerprinting": {
+      "label": "تقليل بصمة الجهاز",
+      "description": "تقليل التفاصيل المجمعة أثناء تحديد بصمة الجهاز"
+    },
+    "autoExpireSessions": {
+      "label": "انتهاء صلاحية الجلسات غير النشطة تلقائياً",
+      "description": "إنهاء الجلسات التي لم يتم استخدامها تلقائياً"
+    },
+    "sessionTimeout": {
+      "label": "مهلة الجلسة (بالدقائق)",
+      "days": "({{count}} أيام)"
+    },
+    "requireAuthNewDevice": {
+      "label": "طلب التفويض للأجهزة الجديدة",
+      "description": "الموافقة يدوياً على الأجهزة الجديدة قبل أن تتمكن من الوصول إلى حسابك"
+    },
+    "locationTracking": {
+      "label": "تفعيل تتبع الموقع",
+      "description": "تتبع الموقع التقريبي (المدينة/البلد) للجلسات",
+      "warning": "قد يضر تتبع الموقع بخصوصيتك. قم بتفعيله فقط إذا كنت تفهم المخاطر."
+    },
+    "activityLogs": {
+      "label": "تسجيل نشاط الجهاز",
+      "description": "الاحتفاظ بسجل لأنشطة الجهاز وأحداث الأمان",
+      "warning": "تعطيل سجلات النشاط سيجعل من الصعب اكتشاف الوصول غير المصرح به أو النشاط المشبوه."
+    }
+  },
+  "proposalFeedCard": {
+    "createdProposal": "أنشأ مقترحاً",
+    "governanceProposal": "مقترح حوكمة",
+    "statuses": {
+      "draft": "مسودة",
+      "discussion": "نقاش",
+      "voting": "تصويت",
+      "decided": "تم البت فيه",
+      "cancelled": "ملغى"
+    },
+    "votingMethods": {
+      "simple": "الأغلبية البسيطة",
+      "rankedChoice": "التصويت بالترتيب",
+      "quadratic": "التصويت التربيعي",
+      "dhondt": "طريقة دوندت",
+      "consensus": "الإجماع"
+    },
+    "votingEnded": "انتهى التصويت",
+    "deadline": "الموعد النهائي:",
+    "votingEnds": "ينتهي التصويت:",
+    "actions": {
+      "review": "مراجعة",
+      "edit": "تعديل",
+      "joinDiscussion": "الانضمام للنقاش",
+      "viewDetails": "عرض التفاصيل",
+      "castVote": "الإدلاء بالصوت",
+      "viewProposal": "عرض المقترح",
+      "viewResults": "عرض النتائج",
+      "details": "التفاصيل"
+    }
+  },
+  "articleEditor": {
+    "close": "إغلاق",
+    "saving": "جارٍ الحفظ...",
+    "lastSaved": "آخر حفظ {{time}}",
+    "notSaved": "غير محفوظ",
+    "saveDraft": "حفظ المسودة",
+    "preview": "معاينة",
+    "schedule": "جدولة",
+    "publish": "نشر",
+    "scheduleFor": "جدولة لـ {{date}}",
+    "articleSaved": "تم حفظ المقال",
+    "selectDateTime": "يرجى اختيار التاريخ والوقت",
+    "articleScheduled": "تمت جدولة المقال لـ {{date}}",
+    "titlePlaceholder": "عنوان المقال",
+    "subtitlePlaceholder": "أضف عنوانًا فرعيًا (اختياري)",
+    "addCoverImage": "إضافة صورة الغلاف",
+    "coverImagePrompt": "أدخل رابط صورة الغلاف:",
+    "addTags": "إضافة وسوم (اضغط Enter)",
+    "visibility": "الظهور:",
+    "visibilityOptions": {
+      "public": "عام",
+      "subscribers": "المشتركون فقط",
+      "paid": "المشتركون المدفوعون فقط"
+    },
+    "showSeoSettings": "عرض إعدادات SEO",
+    "hideSeoSettings": "إخفاء إعدادات SEO",
+    "seoSettings": "إعدادات SEO",
+    "metaTitle": "العنوان الوصفي",
+    "metaDescription": "الوصف الوصفي",
+    "metaDescriptionPlaceholder": "وصف مختصر لمحركات البحث (150-160 حرفًا)",
+    "ogImage": "رابط صورة OG",
+    "ogImagePlaceholder": "رابط الصورة للمشاركة على وسائل التواصل",
+    "editorPlaceholder": "ابدأ كتابة مقالك...",
+    "imageUrlPrompt": "أدخل رابط الصورة:",
+    "linkUrlPrompt": "أدخل الرابط:"
+  },
+  "torStatusIndicator": {
+    "status": {
+      "disabled": "Tor معطل",
+      "detecting": "جاري الكشف",
+      "enabled": "Tor مفعل",
+      "connecting": "جاري الاتصال",
+      "connected": "Tor نشط",
+      "error": "خطأ في Tor",
+      "unknown": "غير معروف"
+    },
+    "description": {
+      "disabled": "غير متصل عبر Tor",
+      "detecting": "جاري كشف متصفح Tor...",
+      "enabled": "تم تفعيل توجيه Tor",
+      "connecting": "جاري الاتصال بمرحلات .onion...",
+      "connected": "متصل بـ {{count}} مرحلات .onion",
+      "error": "خطأ في الاتصال",
+      "unknown": "حالة غير معروفة"
+    },
+    "stats": {
+      "connectedRelays": "المرحلات المتصلة: {{connected}}/{{total}}",
+      "avgLatency": "متوسط زمن الاستجابة: {{latency}}مللي ثانية",
+      "onionRelays": "مرحلات Onion",
+      "latency": "متوسط زمن الاستجابة",
+      "uptime": "وقت التشغيل",
+      "uptimeValue": "{{minutes}} دقيقة",
+      "data": "البيانات"
+    },
+    "warnings": {
+      "title": "تحذيرات:",
+      "securityWarnings": "تحذيرات أمنية:"
+    }
+  },
+  "anonymousVoting": {
+    "privacy": {
+      "cryptographic": "مجهول الهوية بالتشفير",
+      "eligibleVoters": "{{count}} ناخبين مؤهلين",
+      "anonymous": "{{count}} مجهولين"
+    },
+    "mode": {
+      "title": "الإدلاء بصوت مجهول",
+      "description": "سيتم ختم صوتك بالتشفير",
+      "anonymous": "مجهول",
+      "public": "علني"
+    },
+    "options": {
+      "yes": "نعم",
+      "no": "لا",
+      "abstain": "امتناع",
+      "yourVote": "صوتك"
+    },
+    "results": {
+      "votes": "{{count}} أصوات ({{percent}}%)",
+      "anonymousVotes": "{{count}} مجهولين",
+      "hide": "إخفاء النتائج",
+      "show": "عرض النتائج"
+    },
+    "status": {
+      "recorded": "تم تسجيل الصوت",
+      "recordedAnonymous": "تم ختم صوتك المجهول بالتشفير وتسجيله.",
+      "recordedPublic": "تم ختم صوتك العلني بالتشفير وتسجيله.",
+      "canChange": "يمكنك تغيير صوتك حتى إغلاق الاقتراح.",
+      "identityProtected": "هويتك محمية بتشفير المعرفة الصفرية"
+    }
+  },
+  "activityFeed": {
+    "feedType": "نوع الخلاصة",
+    "types": {
+      "all": "كل النشاط",
+      "following": "المتابَعون",
+      "group": "منشورات المجموعة",
+      "mentions": "الإشارات",
+      "bookmarks": "الإشارات المرجعية",
+      "scheduled": "مجدولة",
+      "pinned": "مثبتة"
+    },
+    "filters": "المرشحات",
+    "refresh": "تحديث",
+    "contentType": "نوع المحتوى",
+    "contentTypes": {
+      "text": "نص",
+      "eventShare": "أحداث",
+      "documentShare": "مستندات"
+    },
+    "privacyLevel": "مستوى الخصوصية",
+    "privacyLevels": {
+      "public": "عام",
+      "group": "مجموعة",
+      "followers": "المتابعون",
+      "encrypted": "مشفر"
+    },
+    "dateRange": "نطاق التاريخ",
+    "from": "من",
+    "to": "إلى",
+    "clear": "مسح",
+    "clearFilters": "مسح المرشحات",
+    "noPosts": {
+      "title": "لا توجد منشورات بعد",
+      "beFirst": "كن أول من يشارك شيئًا!",
+      "noActivity": "لا يوجد نشاط للعرض مع المرشحات الحالية."
+    },
+    "loadMore": "تحميل المزيد",
+    "loading": "جارٍ التحميل...",
+    "loadingFeed": "جارٍ تحميل الخلاصة...",
+    "tabs": {
+      "all": "كل النشاط",
+      "myGroups": "مجموعاتي",
+      "mentions": "الإشارات"
+    },
+    "actions": {
+      "refresh": "تحديث",
+      "filter": "تصفية",
+      "loadMore": "تحميل المزيد",
+      "loading": "جارٍ التحميل..."
+    },
+    "contentTypesExtended": {
+      "title": "أنواع المحتوى",
+      "posts": "المنشورات",
+      "events": "الأحداث",
+      "mutualAid": "المساعدة المتبادلة",
+      "proposals": "المقترحات",
+      "wikiUpdates": "تحديثات الويكي"
+    },
+    "empty": {
+      "title": "لا يوجد نشاط بعد",
+      "all": "كن أول من يشارك تحديثًا!",
+      "myGroups": "انضم إلى مجموعات لرؤية نشاطها",
+      "mentions": "لم يذكرك أحد بعد"
+    }
+  },
+  "createEventDialog": {
+    "triggerButton": "إنشاء حدث",
+    "title": "إنشاء حدث جديد",
+    "fields": {
+      "titleLabel": "عنوان الحدث *",
+      "titlePlaceholder": "أدخل عنوان الحدث",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "وصف الحدث",
+      "locationLabel": "الموقع",
+      "locationPlaceholder": "موقع الحدث",
+      "startDateLabel": "تاريخ ووقت البدء *",
+      "endDateLabel": "تاريخ ووقت الانتهاء (اختياري)",
+      "privacyLabel": "مستوى الخصوصية",
+      "capacityLabel": "السعة (اختياري)",
+      "capacityPlaceholder": "الحد الأقصى للحضور",
+      "revealTimeLabel": "وقت الكشف عن الموقع",
+      "revealTimeHelp": "سيتم الكشف عن الموقع في هذا الوقت"
+    },
+    "privacy": {
+      "public": "عام - يمكن للجميع الرؤية",
+      "group": "مجموعة - أعضاء المجموعة فقط",
+      "private": "خاص - بالدعوة فقط",
+      "directAction": "عمل مباشر - كشف الموقع مؤجل"
+    },
+    "customFields": {
+      "title": "معلومات إضافية",
+      "selectPlaceholder": "اختر خياراً"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "create": "إنشاء الحدث",
+      "creating": "جارٍ الإنشاء..."
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء الحدث"
+    }
+  },
+  "commentSidebar": {
+    "title": "التعليقات",
+    "openCount": "{{count}} مفتوحة",
+    "resolved": "تم الحل",
+    "showResolved": "إظهار {{count}} محلولة",
+    "hideResolved": "إخفاء {{count}} محلولة",
+    "empty": {
+      "title": "لا توجد تعليقات بعد",
+      "description": "حدد نصاً لإضافة تعليق"
+    },
+    "actions": {
+      "resolve": "حل",
+      "reply": "رد",
+      "delete": "حذف"
+    },
+    "reply": {
+      "placeholder": "اكتب رداً... استخدم @ للإشارة إلى المستخدمين",
+      "mentionHint": "اكتب @ للإشارة",
+      "cancel": "إلغاء",
+      "submit": "رد"
+    },
+    "replies": {
+      "one": "رد واحد",
+      "other": "{{count}} ردود"
+    },
+    "mentioned": "{{count}} مذكورين",
+    "mentionSuggestions": "اقتراحات الإشارة"
+  },
+  "taskManager": {
+    "title": "قائمة المهام",
+    "activeCount": "{{count}} مهام نشطة",
+    "filter": {
+      "label": "تصفية:",
+      "all": "الكل",
+      "allTasks": "جميع المهام",
+      "pending": "قيد الانتظار",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة"
+    },
+    "newTask": "مهمة جديدة",
+    "empty": "لم يتم العثور على مهام",
+    "actions": {
+      "edit": "تعديل المهمة",
+      "reassign": "إعادة التعيين",
+      "delete": "حذف"
+    },
+    "metadata": {
+      "contact": "جهة الاتصال: {{name}}",
+      "priority": {
+        "high": "أولوية عالية",
+        "medium": "أولوية متوسطة",
+        "low": "أولوية منخفضة"
+      }
+    },
+    "automatedFollowUp": {
+      "label": "متابعة آلية",
+      "title": "المتابعات الآلية",
+      "description": "المهام المميزة بأيقونة الجرس يتم إنشاؤها تلقائياً عندما لا يستجيب جهات الاتصال خلال 3 أيام. يمكنك تكوين قواعد الأتمتة في الإعدادات."
+    }
+  },
+  "conditionalLogicEditor": {
+    "title": "المنطق الشرطي",
+    "addRule": "إضافة قاعدة",
+    "whenField": "عندما يكون الحقل",
+    "is": "هو",
+    "value": "القيمة",
+    "valuePlaceholder": "أدخل قيمة",
+    "then": "إذاً",
+    "operators": {
+      "equals": "يساوي",
+      "notEquals": "لا يساوي",
+      "contains": "يحتوي على",
+      "greaterThan": "أكبر من",
+      "lessThan": "أصغر من"
+    },
+    "actions": {
+      "show": "إظهار هذا الحقل",
+      "hide": "إخفاء هذا الحقل",
+      "require": "جعل هذا الحقل مطلوباً"
+    },
+    "noLogic": "لا يوجد منطق شرطي محدد",
+    "note": "ملاحظة: يستخدم المنطق الشرطي صيغة if/then/else من JSON Schema"
+  },
+  "eventDetail": {
+    "rsvpStatus": "حالة التأكيد",
+    "rsvpCounts": {
+      "going": "{{count}} سيحضرون",
+      "maybe": "{{count}} ربما",
+      "notGoing": "{{count}} لن يحضروا"
+    },
+    "capacity": "{{current}} / {{max}} السعة",
+    "tabs": {
+      "details": "التفاصيل",
+      "attendees": "الحضور"
+    },
+    "description": "الوصف",
+    "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء",
+    "location": "الموقع",
+    "locationReveals": "يُكشف في {{time}}",
+    "tags": "العلامات",
+    "privacy": {
+      "public": "حدث عام",
+      "group": "للمجموعة فقط",
+      "private": "حدث خاص",
+      "directAction": "عمل مباشر"
+    },
+    "actions": {
+      "close": "إغلاق",
+      "edit": "تعديل"
+    }
+  },
+  "editEventDialog": {
+    "title": "تعديل الحدث",
+    "fields": {
+      "titleLabel": "عنوان الحدث *",
+      "titlePlaceholder": "أدخل عنوان الحدث",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "وصف الحدث",
+      "locationLabel": "الموقع",
+      "locationPlaceholder": "موقع الحدث",
+      "startDateLabel": "تاريخ ووقت البدء *",
+      "endDateLabel": "تاريخ ووقت الانتهاء (اختياري)",
+      "privacyLabel": "مستوى الخصوصية",
+      "capacityLabel": "السعة (اختياري)",
+      "capacityPlaceholder": "الحد الأقصى للحضور",
+      "revealTimeLabel": "وقت الكشف عن الموقع",
+      "revealTimeHelp": "سيتم الكشف عن الموقع في هذا الوقت"
+    },
+    "privacy": {
+      "public": "عام - يمكن للجميع الرؤية",
+      "group": "مجموعة - أعضاء المجموعة فقط",
+      "private": "خاص - بدعوة فقط",
+      "directAction": "عمل مباشر - كشف الموقع مؤجل"
+    },
+    "customFields": {
+      "title": "معلومات إضافية",
+      "selectPlaceholder": "اختر خياراً"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "save": "حفظ التغييرات",
+      "saving": "جاري الحفظ..."
+    },
+    "errors": {
+      "updateFailed": "فشل تحديث الحدث"
+    }
+  },
+  "channelManager": {
+    "title": "القنوات",
+    "description": "قنوات مبنية على الأدوار للتواصل المنظم",
+    "newChannel": "قناة جديدة",
+    "createDialog": {
+      "title": "إنشاء قناة",
+      "description": "أنشئ قناة مبنية على الأدوار للتواصل المركز",
+      "nameLabel": "اسم القناة",
+      "namePlaceholder": "مثال: القيادة، المتطوعين",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "ما الغرض من هذه القناة؟",
+      "typeLabel": "نوع القناة"
+    },
+    "types": {
+      "public": "عام (الجميع)",
+      "member": "الأعضاء فقط",
+      "adminOnly": "المشرفون فقط",
+      "roleBased": "حسب الدور"
+    },
+    "typeDescriptions": {
+      "public": "يمكن للجميع القراءة والنشر",
+      "member": "جميع أعضاء المجموعة يمكنهم المشاركة",
+      "adminOnly": "المشرفون فقط يمكنهم القراءة والنشر",
+      "roleBased": "صلاحيات مخصصة لكل دور"
+    },
+    "typeLabels": {
+      "public": "عام",
+      "member": "أعضاء",
+      "adminOnly": "مشرفون",
+      "roleBased": "حسب الدور"
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "create": "إنشاء القناة"
+    },
+    "empty": {
+      "title": "لا توجد قنوات بعد",
+      "description": "أنشئ قنوات لتنظيم المحادثات حسب الدور أو الموضوع"
+    },
+    "confirmDelete": "هل أنت متأكد من حذف هذه القناة؟"
+  },
+  "submissionsList": {
+    "title": "تقديمات النماذج",
+    "totalCount": "{{count}} تقديم إجمالي",
+    "totalCount_plural": "{{count}} تقديمات إجمالي",
+    "export": "تصدير",
+    "searchPlaceholder": "البحث بالاسم أو البريد الإلكتروني...",
+    "filters": {
+      "all": "الكل",
+      "unprocessed": "غير معالج",
+      "spam": "بريد مزعج"
+    },
+    "tableHeaders": {
+      "submitted": "تم التقديم",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "spam": "بريد مزعج",
+      "processed": "تمت المعالجة",
+      "new": "جديد"
+    },
+    "anonymous": "مجهول",
+    "noSubmissions": "لم يتم العثور على تقديمات",
+    "actions": {
+      "flagSpam": "تحديد كبريد مزعج",
+      "markProcessed": "تحديد كمعالج"
+    }
+  },
+  "analyticsDashboard": {
+    "title": "الاحصائيات",
+    "description": "احصائيات تحافظ على الخصوصية (بدون تتبع المستخدمين)",
+    "empty": {
+      "title": "لا توجد بيانات احصائية بعد",
+      "description": "ستظهر الاحصائيات هنا بمجرد ان تبدا في استقبال الزيارات"
+    },
+    "timeframes": {
+      "day": "اخر 24 ساعة",
+      "week": "اخر 7 ايام",
+      "month": "اخر 30 يوما",
+      "year": "السنة الماضية",
+      "all": "كل الوقت"
+    },
+    "stats": {
+      "totalViews": "اجمالي المشاهدات",
+      "submissions": "التقديمات",
+      "donations": "التبرعات",
+      "totalRaised": "اجمالي المبلغ المجمع",
+      "clicks": "النقرات",
+      "shares": "المشاركات",
+      "conversionRate": "معدل التحويل"
+    },
+    "topReferrers": {
+      "title": "اهم مصادر الزيارات",
+      "privacyNote": "(الخصوصية: النطاق فقط، بدون روابط كاملة)",
+      "direct": "مباشر"
+    },
+    "privacyNotice": {
+      "title": "احصائيات تحترم الخصوصية:",
+      "description": "نجمع فقط بيانات مجمعة ومجهولة الهوية. لا عناوين IP، لا ملفات تعريف ارتباط، لا تتبع للمستخدمين. معرفات الجلسات عشوائية وغير مرتبطة بالافراد. بيانات الاحالة تعرض النطاقات فقط، وليس الروابط الكاملة."
+    },
+    "lastUpdated": "اخر تحديث: {{date}}"
+  },
+  "createProposalDialog": {
+    "title": "انشاء مقترح",
+    "description": "انشئ مقترحا جديدا لصنع القرار الديمقراطي",
+    "errors": {
+      "noIdentity": "لا توجد هوية نشطة او التطبيق مقفل. الرجاء تسجيل الدخول.",
+      "createFailed": "فشل في انشاء المقترح"
+    },
+    "fields": {
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "عنوان المقترح...",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "وصف تفصيلي للمقترح...",
+      "votingMethodLabel": "طريقة التصويت",
+      "optionsLabel": "الخيارات (واحد في كل سطر)",
+      "optionsPlaceholder": "الخيار 1\nالخيار 2\nالخيار 3",
+      "quorumLabel": "النصاب (%)",
+      "thresholdLabel": "الحد الادنى (%)",
+      "durationLabel": "مدة التصويت (ايام)"
+    },
+    "votingMethods": {
+      "simple": "الاغلبية البسيطة (نعم/لا/امتناع)",
+      "rankedChoice": "التصويت بالترتيب التفضيلي",
+      "quadratic": "التصويت التربيعي",
+      "consensus": "الاجماع"
+    },
+    "buttons": {
+      "cancel": "الغاء",
+      "create": "انشاء المقترح",
+      "creating": "جاري الانشاء..."
+    }
+  },
+  "mutualAidFeedCard": {
+    "typeLabels": {
+      "requesting": "يطلب المساعدة",
+      "offering": "يقدم المساعدة"
+    },
+    "status": {
+      "open": "مفتوح",
+      "matched": "تم التطابق",
+      "inProgress": "قيد التنفيذ",
+      "fulfilled": "مكتمل",
+      "closed": "مغلق"
+    },
+    "expires": "ينتهي {{time}}",
+    "expired": "منتهي الصلاحية",
+    "actions": {
+      "offerHelp": "تقديم المساعدة",
+      "message": "رسالة",
+      "requestThis": "طلب هذا",
+      "details": "التفاصيل",
+      "viewDetails": "عرض التفاصيل"
+    }
+  },
+  "conversationHistory": {
+    "title": "محادثة مع {{name}}",
+    "messageCount": "{{count}} رسائل",
+    "messageTypes": {
+      "direct": "رسالة مباشرة",
+      "group": "رسالة جماعية",
+      "mention": "تم الاشارة"
+    },
+    "filters": {
+      "label": "تصفية الرسائل",
+      "all": "جميع الرسائل",
+      "direct": "الرسائل المباشرة",
+      "group": "رسائل المجموعة",
+      "mentions": "الاشارات"
+    },
+    "searchPlaceholder": "البحث في المحادثة...",
+    "noMessages": "لم يتم العثور على رسائل",
+    "sendPlaceholder": "ارسل رسالة الى {{name}}...",
+    "sendHint": "اضغط Enter للارسال، Shift+Enter لسطر جديد",
+    "send": "ارسال",
+    "summary": {
+      "title": "ملخص المحادثة",
+      "directMessages": "الرسائل المباشرة",
+      "groupInteractions": "تفاعلات المجموعة",
+      "daysSinceContact": "الايام منذ اول اتصال"
+    }
+  },
+  "onboardingFlow": {
+    "stepCount": "الخطوة {{current}} من {{total}}",
+    "navigation": {
+      "back": "رجوع",
+      "continue": "متابعة",
+      "getStarted": "ابدا الان"
+    },
+    "profile": {
+      "nameLabel": "الاسم",
+      "namePlaceholder": "اسمك",
+      "locationLabel": "الموقع (اختياري)",
+      "locationPlaceholder": "المدينة، الولاية",
+      "availabilityLabel": "التوفر",
+      "selectPlaceholder": "اختر...",
+      "weekdays": "ايام الاسبوع",
+      "weekends": "عطلات نهاية الاسبوع",
+      "flexible": "مرن"
+    },
+    "groups": {
+      "members": "{{count}} اعضاء",
+      "join": "انضمام"
+    },
+    "events": {
+      "going": "{{count}} مشاركون",
+      "rsvp": "تاكيد الحضور"
+    },
+    "complete": {
+      "selectedInterests": "اهتماماتك المختارة:"
+    }
+  },
+  "smartNotifications": {
+    "title": "الاشعارات الذكية",
+    "personalized": "مخصص لـ {{level}}",
+    "filters": {
+      "unread": "غير مقروءة ({{count}})",
+      "all": "الكل",
+      "markAllRead": "تحديد الكل كمقروء"
+    },
+    "empty": {
+      "allCaughtUp": "كل شيء محدث! لا توجد اشعارات غير مقروءة.",
+      "noNotifications": "لا توجد اشعارات بعد"
+    },
+    "actions": {
+      "markRead": "تحديد كمقروء",
+      "dismiss": "تجاهل"
+    },
+    "relevance": "{{percent}}% ذو صلة",
+    "features": {
+      "title": "ميزات الاشعارات الذكية",
+      "personalized": "اشعارات مخصصة بناء على مستوى مشاركتك",
+      "priority": "تصفية الاولوية تضع العناصر العاجلة اولا",
+      "relevance": "درجة الصلة توضح سبب رؤيتك لكل اشعار",
+      "contextAware": "واعية بالسياق: ما تراه يتغير مع نموك كمنظم"
+    }
+  },
+  "pollComposer": {
+    "title": "إنشاء استطلاع",
+    "question": {
+      "label": "السؤال",
+      "placeholder": "ماذا تريد أن تسأل؟",
+      "charCount": "{{current}}/{{max}}"
+    },
+    "options": {
+      "label": "الخيارات",
+      "placeholder": "الخيار {{number}}",
+      "removeAriaLabel": "إزالة الخيار {{number}}",
+      "addOption": "إضافة خيار"
+    },
+    "settings": {
+      "choiceType": {
+        "label": "نوع الاختيار",
+        "single": "اختيار واحد",
+        "multiple": "اختيار متعدد"
+      },
+      "duration": {
+        "label": "المدة",
+        "1hour": "ساعة واحدة",
+        "6hours": "6 ساعات",
+        "12hours": "12 ساعة",
+        "1day": "يوم واحد",
+        "2days": "يومان",
+        "3days": "3 أيام",
+        "1week": "أسبوع واحد"
+      }
+    },
+    "privacy": {
+      "anonymous": {
+        "label": "تصويت مجهول",
+        "descriptionOn": "سيظل المصوتون مجهولين",
+        "descriptionOff": "سيكون المصوتون مرئيين لمنشئ الاستطلاع"
+      },
+      "showResults": {
+        "label": "عرض النتائج قبل الانتهاء",
+        "descriptionOn": "النتائج مرئية أثناء فتح التصويت",
+        "descriptionOff": "النتائج مخفية حتى انتهاء الاستطلاع"
+      }
+    },
+    "actions": {
+      "cancel": "إلغاء",
+      "create": "إنشاء الاستطلاع",
+      "creating": "جارٍ الإنشاء..."
+    },
+    "toast": {
+      "emptyQuestion": "يرجى إدخال سؤال",
+      "minOptions": "يرجى إضافة خيارين على الأقل",
+      "success": "تم إنشاء الاستطلاع بنجاح",
+      "error": "فشل في إنشاء الاستطلاع"
+    }
+  },
+  "contactDetailPage": {
+    "title": "تفاصيل جهة الاتصال",
+    "description": "السجل الكامل والتواصل مع جهة الاتصال هذه",
+    "notFound": "جهة الاتصال غير موجودة",
+    "backToContacts": "العودة إلى جهات الاتصال",
+    "actions": {
+      "edit": "تعديل",
+      "sendMessage": "إرسال رسالة"
+    },
+    "info": {
+      "joined": "انضم في {{date}}",
+      "lastContact": "آخر تواصل {{date}}",
+      "latestNote": "أحدث ملاحظة:"
+    },
+    "customFields": {
+      "title": "معلومات إضافية"
+    },
+    "tabs": {
+      "activity": "الجدول الزمني للنشاط",
+      "conversation": "سجل المحادثات"
+    }
+  },
+  "pendingInvitations": {
+    "title": "الدعوات المعلقة",
+    "description": "ستظهر دعوات الانضمام إلى المجموعات هنا",
+    "reviewDescription": "راجع واستجب لدعوات المجموعات",
+    "empty": {
+      "title": "لا توجد دعوات معلقة",
+      "description": "عندما يدعوك شخص ما إلى مجموعة، ستظهر هنا"
+    },
+    "invitation": {
+      "unknownGroup": "مجموعة غير معروفة",
+      "invitedBy": "تمت الدعوة بواسطة",
+      "expires": "تنتهي {{time}}"
+    },
+    "actions": {
+      "accept": "قبول",
+      "decline": "رفض"
+    },
+    "errors": {
+      "acceptFailed": "فشل في قبول الدعوة. يرجى المحاولة مرة أخرى.",
+      "declineFailed": "فشل في رفض الدعوة. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "formFieldEditor": {
+    "title": "خصائص الحقل",
+    "basic": {
+      "label": "التسمية",
+      "labelPlaceholder": "تسمية الحقل",
+      "placeholder": "نص توضيحي",
+      "placeholderPlaceholder": "نص توضيحي",
+      "helpText": "نص المساعدة",
+      "helpTextPlaceholder": "إرشادات إضافية للمستخدمين",
+      "required": "مطلوب"
+    },
+    "options": {
+      "title": "الخيارات",
+      "placeholder": "الخيار {{number}}",
+      "addOption": "إضافة خيار"
+    },
+    "validation": {
+      "title": "التحقق",
+      "minLength": "الحد الأدنى للطول",
+      "minLengthPlaceholder": "الحد الأدنى لعدد الأحرف",
+      "maxLength": "الحد الأقصى للطول",
+      "maxLengthPlaceholder": "الحد الأقصى لعدد الأحرف",
+      "min": "القيمة الدنيا",
+      "minPlaceholder": "القيمة الدنيا",
+      "max": "القيمة القصوى",
+      "maxPlaceholder": "القيمة القصوى",
+      "pattern": "النمط (Regex)",
+      "patternPlaceholder": "^[A-Za-z]+$"
+    }
+  },
+  "customFieldEditor": {
+    "title": {
+      "create": "إنشاء حقل مخصص",
+      "edit": "تعديل الحقل"
+    },
+    "fields": {
+      "name": "اسم الحقل",
+      "namePlaceholder": "مثال: التفضيلات_الغذائية",
+      "label": "التسمية",
+      "labelPlaceholder": "مثال: التفضيلات الغذائية",
+      "fieldType": "نوع الحقل",
+      "required": "حقل مطلوب",
+      "placeholder": "نص توضيحي",
+      "helpText": "نص المساعدة",
+      "options": "الخيارات (JSON)",
+      "optionsPlaceholder": "[{\"value\": \"نباتي\", \"label\": \"نباتي\"}, {\"value\": \"نباتي_صرف\", \"label\": \"نباتي صرف\"}]",
+      "minLength": "الحد الأدنى للطول",
+      "maxLength": "الحد الأقصى للطول",
+      "pattern": "النمط (regex)",
+      "minimum": "الحد الأدنى",
+      "maximum": "الحد الأقصى"
+    },
+    "actions": {
+      "cancel": "إلغاء",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "saving": "جارٍ الحفظ..."
+    }
+  },
+  "bulkActionsToolbar": {
+    "selection": {
+      "selectAll": "تحديد الكل",
+      "deselectAll": "إلغاء تحديد الكل",
+      "selected": "{{count}} محدد"
+    },
+    "actions": {
+      "sendMessage": "إرسال رسالة",
+      "moreActions": "المزيد من الإجراءات",
+      "bulkActions": "إجراءات جماعية",
+      "addTag": "إضافة وسم",
+      "updateField": "تحديث الحقل",
+      "assignTask": "تعيين مهمة",
+      "exportSelected": "تصدير المحدد",
+      "deleteSelected": "حذف المحدد"
+    }
+  },
+  "contactActivityLog": {
+    "title": "الجدول الزمني للنشاط",
+    "description": "جميع التفاعلات مع {{name}}",
+    "addNote": "إضافة ملاحظة",
+    "searchPlaceholder": "البحث في النشاط...",
+    "noteForm": {
+      "title": "إضافة ملاحظة",
+      "placeholder": "أضف ملاحظة حول جهة الاتصال هذه...",
+      "save": "حفظ الملاحظة",
+      "cancel": "إلغاء"
+    },
+    "empty": "لم يتم العثور على أنشطة",
+    "summary": {
+      "title": "ملخص النشاط",
+      "messages": "الرسائل",
+      "events": "الأحداث",
+      "notes": "الملاحظات"
+    }
+  },
+  "bookmarksView": {
+    "title": "العلامات المرجعية",
+    "newCollection": "مجموعة جديدة",
+    "searchPlaceholder": "البحث في العلامات المرجعية...",
+    "collections": {
+      "all": "جميع المجموعات",
+      "uncategorized": "غير مصنف"
+    },
+    "empty": {
+      "title": "لم يتم العثور على علامات مرجعية",
+      "filtered": "جرب تعديل الفلاتر",
+      "default": "ابدأ بحفظ المنشورات لمراجعتها لاحقاً"
+    },
+    "dialog": {
+      "title": "إنشاء مجموعة",
+      "description": "نظم علاماتك المرجعية في مجموعات",
+      "nameLabel": "اسم المجموعة",
+      "namePlaceholder": "مثال: قائمة القراءة، منشورات مهمة",
+      "cancel": "إلغاء",
+      "create": "إنشاء"
+    }
+  },
+  "templateGallery": {
+    "title": "اختر قالب نموذج",
+    "description": "ابدأ بقالب جاهز أو أنشئ نموذجاً من الصفر",
+    "searchPlaceholder": "البحث في القوالب...",
+    "blank": {
+      "title": "البدء من الصفر",
+      "description": "أنشئ نموذجاً مخصصاً بحقولك الخاصة"
+    },
+    "fields": "{{count}} حقول",
+    "preview": {
+      "includedFields": "الحقول المتضمنة:",
+      "required": "مطلوب",
+      "requiredCount": "{{count}} حقل مطلوب",
+      "requiredCountPlural": "{{count}} حقول مطلوبة"
+    },
+    "actions": {
+      "cancel": "إلغاء",
+      "useTemplate": "استخدم هذا القالب"
+    }
+  },
+  "folderTree": {
+    "allDocuments": "جميع المستندات",
+    "starred": "المميزة بنجمة",
+    "folders": "المجلدات",
+    "noFolders": "لا توجد مجلدات بعد",
+    "contextMenu": {
+      "rename": "إعادة تسمية",
+      "delete": "حذف"
+    },
+    "dialog": {
+      "title": "إنشاء مجلد جديد",
+      "namePlaceholder": "اسم المجلد",
+      "colorLabel": "اللون",
+      "cancel": "إلغاء",
+      "create": "إنشاء المجلد"
+    }
+  },
+  "customFieldsManagement": {
+    "title": "الحقول المخصصة لـ {{entityType}}",
+    "applyTemplate": "تطبيق قالب:",
+    "selectTemplate": "اختر قالب",
+    "addField": "إضافة حقل",
+    "empty": "لا توجد حقول مخصصة بعد. أنشئ حقلاً أو طبّق قالباً للبدء.",
+    "type": "النوع: {{widget}}",
+    "required": "مطلوب",
+    "deleteDialog": {
+      "title": "حذف الحقل المخصص",
+      "description": "هل أنت متأكد من حذف \"{{label}}\"؟ سيتم حذف تعريف الحقل، لكن البيانات الموجودة ستُحفظ.",
+      "cancel": "إلغاء",
+      "delete": "حذف"
+    }
+  },
+  "publicCampaignView": {
+    "goal": "من هدف {{goal}}",
+    "funded": "تم تمويل {{percent}}%",
+    "supportCampaign": "ادعم هذه الحملة",
+    "donate": "تبرع",
+    "claimed": "{{current}} / {{max}} تم المطالبة بها",
+    "customAmount": {
+      "title": "مبلغ مخصص",
+      "description": "أدخل مبلغ تبرع مخصص",
+      "button": "تبرع بمبلغ مخصص"
+    }
+  },
+  "formBuilder": {
+    "titlePlaceholder": "عنوان النموذج",
+    "descriptionPlaceholder": "وصف النموذج (اختياري)",
+    "cancel": "إلغاء",
+    "saveForm": "حفظ النموذج",
+    "tabs": {
+      "build": "بناء",
+      "preview": "معاينة",
+      "settings": "الإعدادات"
+    },
+    "noFieldSelected": "اختر حقلاً لتعديل خصائصه",
+    "settings": {
+      "multiPage": "نموذج متعدد الصفحات",
+      "enableMultiPage": "تفعيل النموذج متعدد الصفحات",
+      "currentPage": "الصفحة الحالية"
+    }
+  },
+  "moveFolderDialog": {
+    "title": "نقل {{count}} ملف",
+    "title_plural": "نقل {{count}} ملفات",
+    "description": "اختر مجلد الوجهة للملفات المحددة.",
+    "root": "الجذر (بدون مجلد)",
+    "current": "(الحالي)",
+    "noFolders": "لا توجد مجلدات متاحة",
+    "cancel": "إلغاء",
+    "moveHere": "نقل إلى هنا"
+  },
+  "mermaidBlock": {
+    "instructions": "أدخل مخطط Mermaid (Ctrl/Cmd+Enter للحفظ، Escape للإلغاء)",
+    "examples": {
+      "flowchart": "مخطط انسيابي",
+      "sequence": "تسلسلي",
+      "gantt": "جانت",
+      "pie": "دائري"
+    },
+    "docs": "وثائق Mermaid",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "clickToAdd": "انقر لإضافة مخطط"
+  },
+  "conversationsPage": {
+    "title": "الرسائل",
+    "newChat": "محادثة جديدة",
+    "searchPlaceholder": "البحث في المحادثات...",
+    "tabs": {
+      "all": "الكل",
+      "dms": "الرسائل الخاصة",
+      "groups": "المجموعات",
+      "unread": "غير مقروءة",
+      "archived": "المؤرشفة"
+    },
+    "empty": {
+      "title": "لا توجد محادثات حتى الآن",
+      "description": "ابدأ محادثة جديدة للبدء"
+    },
+    "conversation": "محادثة",
+    "noMessages": "لا توجد رسائل حتى الآن"
+  },
+  "engagementLadder": {
+    "title": "مستوى مشاركتك",
+    "progressTo": "التقدم نحو {{level}}",
+    "milestones": "{{completed}}/{{total}} معالم",
+    "maxLevel": "أنت في أعلى مستوى مشاركة! واصل بناء الحركة.",
+    "nextSteps": "الخطوات التالية المقترحة",
+    "milestonesFor": "معالم {{level}}",
+    "ladderTitle": "سلم المشاركة",
+    "youAreHere": "أنت هنا",
+    "points": "+{{points}} نقطة"
+  },
+  "notificationsDemoLevels": {
+    "neutral": "محايد (30%)",
+    "passiveSupport": "دعم سلبي (40%)",
+    "activeSupport": "دعم نشط (70%)",
+    "coreOrganizer": "منظم رئيسي (100%)"
+  },
+  "createPageDialog": {
+    "title": "إنشاء صفحة ويكي",
+    "description": "أنشئ توثيقاً تعاونياً لمجتمعك",
+    "titleLabel": "العنوان",
+    "titlePlaceholder": "عنوان الصفحة...",
+    "categoryLabel": "التصنيف (اختياري)",
+    "categoryPlaceholder": "مثال: البدء، التنظيم، القانوني",
+    "tagsLabel": "الوسوم (مفصولة بفواصل)",
+    "tagsPlaceholder": "تنظيم، أمان، موارد",
+    "contentLabel": "المحتوى (Markdown)",
+    "cancel": "إلغاء",
+    "createPage": "إنشاء الصفحة"
+  },
+  "deliveryProgress": {
+    "sending": "جاري إرسال النشرة الإخبارية...",
+    "complete": "اكتمل التسليم",
+    "readyToSend": "جاهز للإرسال",
+    "cancel": "إلغاء",
+    "untitled": "نشرة إخبارية بدون عنوان",
+    "progress": "التقدم",
+    "stats": {
+      "delivered": "تم التسليم",
+      "pending": "قيد الانتظار",
+      "failed": "فشل"
+    },
+    "sendingTo": "الإرسال إلى",
+    "totalRecipients": "إجمالي المستلمين: {{count}}",
+    "close": "إغلاق"
+  },
+  "tiersEditor": {
+    "title": "مستويات التبرع",
+    "description": "أنشئ مبالغ تبرع محددة مسبقاً مع مزايا",
+    "addTier": "إضافة مستوى",
+    "empty": {
+      "title": "لا توجد مستويات تبرع بعد",
+      "description": "أضف مستويات لاقتراح مبالغ التبرع"
+    },
+    "tierName": "اسم المستوى",
+    "tierNamePlaceholder": "داعم",
+    "amount": "المبلغ ({{currency}})",
+    "amountPlaceholder": "25.00",
+    "descriptionLabel": "الوصف (اختياري)",
+    "descriptionPlaceholder": "ما يحصل عليه الداعمون في هذا المستوى"
+  },
+  "fileList": {
+    "delete": "حذف",
+    "download": "تحميل",
+    "share": "مشاركة",
+    "confirmDeleteFile": "هل تريد حذف هذا الملف؟",
+    "confirmDeleteFolder": "هل تريد حذف هذا المجلد وجميع محتوياته؟"
+  },
+  "filesAccessRequestDialog": {
+    "title": "طلب الوصول",
+    "description": "طلب الوصول إلى \"{{resourceName}}\"",
+    "accessLevel": "مستوى الوصول",
+    "viewOnly": "عرض فقط",
+    "viewDownload": "عرض وتحميل",
+    "edit": "تعديل",
+    "messageLabel": "رسالة (اختياري)",
+    "messagePlaceholder": "لماذا تحتاج الوصول إلى هذا الملف؟",
+    "cancel": "إلغاء",
+    "sending": "جاري الإرسال...",
+    "sendRequest": "إرسال الطلب",
+    "error": "فشل في إرسال طلب الوصول"
+  },
+  "documentsAccessRequestDialog": {
+    "title": "طلب الوصول",
+    "description": "طلب الوصول إلى \"{{resourceTitle}}\"",
+    "accessLevel": "مستوى الوصول",
+    "viewOnly": "عرض فقط",
+    "viewComment": "عرض وتعليق",
+    "edit": "تعديل",
+    "messageLabel": "رسالة (اختياري)",
+    "messagePlaceholder": "لماذا تحتاج الوصول إلى هذه الوثيقة؟",
+    "cancel": "إلغاء",
+    "sending": "جاري الإرسال...",
+    "sendRequest": "إرسال الطلب",
+    "error": "فشل في إرسال طلب الوصول"
+  },
+  "groupSettingsDialog": {
+    "settings": "الإعدادات",
+    "title": "إعدادات {{groupName}}",
+    "description": "إدارة إعدادات المجموعة والوحدات والأعضاء",
+    "tabs": {
+      "modules": "الوحدات",
+      "general": "عام",
+      "members": "الأعضاء"
+    },
+    "general": {
+      "title": "الإعدادات العامة",
+      "description": "تكوين الإعدادات العامة للمجموعة",
+      "comingSoon": "الإعدادات العامة قريباً..."
+    }
+  },
+  "publicWikiPage": {
+    "categories": {
+      "security": "الأمان",
+      "strategy": "الاستراتيجية",
+      "governance": "الحوكمة",
+      "legal": "القانون"
+    },
+    "popularPages": {
+      "securityBestPractices": "أفضل ممارسات الأمان",
+      "powerMappingGuide": "دليل رسم خريطة القوى",
+      "consensusDecisionMaking": "اتخاذ القرارات بالإجماع"
+    }
+  },
+  "pollList": {
+    "title": "الاستطلاعات",
+    "createPoll": "إنشاء استطلاع",
+    "tabs": {
+      "active": "نشطة",
+      "myPolls": "استطلاعاتي",
+      "ended": "منتهية"
+    },
+    "empty": {
+      "active": {
+        "title": "لا توجد استطلاعات نشطة",
+        "description": "كن أول من ينشئ استطلاعاً ويجمع آراء المجتمع."
+      },
+      "myPolls": {
+        "title": "لا توجد استطلاعات بعد",
+        "description": "لم تنشئ أي استطلاعات بعد. ابدأ بجمع آراء مجتمعك!",
+        "createFirst": "أنشئ استطلاعك الأول"
+      },
+      "ended": {
+        "title": "لا توجد استطلاعات منتهية",
+        "description": "ستظهر الاستطلاعات المكتملة هنا."
+      }
+    }
+  },
+  "articleView": {
+    "backTo": "العودة إلى {{publicationName}}",
+    "minRead": "{{minutes}} دقيقة للقراءة",
+    "visibility": {
+      "subscribers": "هذا المقال للمشتركين فقط",
+      "paid": "هذا المقال للمشتركين المدفوعين فقط"
+    },
+    "share": {
+      "title": "مشاركة هذا المقال",
+      "helpSpread": "ساعد في نشر الكلمة",
+      "copyLink": "نسخ الرابط",
+      "twitter": "تويتر",
+      "linkCopied": "تم نسخ الرابط إلى الحافظة"
+    },
+    "subscribe": "اشترك"
+  },
+  "campaignTemplateGallery": {
+    "title": "قوالب الحملات",
+    "description": "ابدأ بقالب جاهز أو أنشئ حملة من الصفر",
+    "blank": {
+      "title": "حملة فارغة",
+      "description": "ابدأ من الصفر وابنِ حملتك المخصصة"
+    },
+    "includesTiers": "يتضمن {{count}} مستويات تبرع",
+    "useTemplate": "استخدام القالب"
+  },
+  "editableTableView": {
+    "filterPlaceholder": "تصفية {{label}}...",
+    "selected": "{{count}} محدد",
+    "delete": "حذف",
+    "addRecord": "إضافة سجل",
+    "noRecords": "لم يتم العثور على سجلات.",
+    "showing": "عرض {{showing}} من {{total}} سجل",
+    "showingSelected": "عرض {{showing}} من {{total}} سجل - {{selected}} محدد",
+    "selectAll": "تحديد الكل",
+    "selectRow": "تحديد الصف"
+  },
+  "embedCard": {
+    "error": {
+      "title": "فشل تحميل المحتوى المضمن",
+      "openExternally": "فتح خارجياً"
+    },
+    "openOn": "فتح على {{provider}}",
+    "providerEmbed": "محتوى {{provider}} المضمن",
+    "loading": "جارٍ التحميل...",
+    "loadProvider": "تحميل {{provider}}",
+    "openExternally": "فتح خارجياً",
+    "privacyNote": "انقر لتحميل المحتوى الخارجي. سيتم الاتصال بـ {{domain}}."
+  },
+  "commentThread": {
+    "reply": "رد",
+    "replies": "{{count}} رد",
+    "replies_plural": "{{count}} ردود",
+    "mute": "كتم",
+    "unmute": "إلغاء الكتم",
+    "delete": "حذف",
+    "confirmDelete": "هل تريد حذف هذا التعليق؟",
+    "threadCollapsed": "سلسلة مطوية ({{count}} رد)",
+    "threadCollapsed_plural": "سلسلة مطوية ({{count}} ردود)",
+    "noComments": "لا توجد تعليقات بعد. كن أول من يعلق!",
+    "replyTo": "الرد على {{author}}..."
+  },
+  "formPreview": {
+    "title": "معاينة النموذج",
+    "description": "هكذا سيظهر نموذجك للمستخدمين",
+    "addFields": "أضف حقولاً لمشاهدة المعاينة",
+    "submitPreview": "إرسال المعاينة",
+    "reset": "إعادة تعيين",
+    "currentFormData": "بيانات النموذج الحالية:"
+  },
+  "fileUploadZone": {
+    "title": "رفع الملفات",
+    "dragDrop": "اسحب وأفلت الملفات هنا، أو انقر للتصفح",
+    "encrypted": "سيتم تشفير الملفات قبل الرفع",
+    "selectedFiles": "الملفات المحددة:",
+    "cancel": "إلغاء",
+    "upload": "رفع",
+    "uploadCount": "رفع ({{count}})",
+    "groupNotFound": "المجموعة غير موجودة",
+    "success": "تم رفع {{count}} ملف(ات) بنجاح",
+    "error": "فشل في رفع الملفات"
+  },
+  "tableView": {
+    "filterPlaceholder": "تصفية {{label}}...",
+    "noRecords": "لم يتم العثور على سجلات.",
+    "showing": "عرض {{from}}-{{to}} من {{total}} سجل",
+    "page": "صفحة {{current}} من {{total}}"
+  },
+  "editableCell": {
+    "empty": "فارغ",
+    "noTargetTable": "لم يتم تكوين جدول الهدف",
+    "notSupported": "التحرير المباشر غير مدعوم لـ {{widget}}",
+    "linked": "مرتبط",
+    "linkedCount": "{{count}} مرتبط"
+  },
+  "deviceActivityHistory": {
+    "title": "سجل النشاط",
+    "description": "أحداث الأمان وأنشطة الأجهزة الأخيرة",
+    "clearOld": "مسح القديم (+30 يوم)",
+    "all": "الكل",
+    "noActivity": "لم يتم العثور على نشاط",
+    "viewMetadata": "عرض البيانات الوصفية",
+    "unknownDevice": "جهاز غير معروف"
+  },
+  "autoModerationRuleForm": {
+    "ruleName": "اسم القاعدة",
+    "ruleNamePlaceholder": "مثال: حظر الشتائم، تصفية روابط البريد العشوائي",
+    "ruleType": "نوع القاعدة",
+    "patterns": "الانماط",
+    "patternPlaceholderRegex": "ادخل نمط التعبير النمطي",
+    "patternPlaceholderLink": "ادخل النطاق او نمط الرابط",
+    "patternPlaceholderKeyword": "ادخل كلمة مفتاحية او عبارة",
+    "add": "اضافة",
+    "action": "الاجراء",
+    "notifyModerators": "اشعار المشرفين",
+    "ruleTypes": {
+      "keyword": "مرشح الكلمات المفتاحية",
+      "keywordDescription": "مطابقة كلمات مفتاحية او عبارات محددة",
+      "regex": "نمط التعبير النمطي",
+      "regexDescription": "استخدام التعبيرات النمطية للمطابقة المتقدمة",
+      "spamDetection": "كشف البريد العشوائي",
+      "spamDetectionDescription": "الكشف التلقائي عن المحتوى المشابه للبريد العشوائي",
+      "linkFilter": "مرشح الروابط",
+      "linkFilterDescription": "تصفية المنشورات التي تحتوي على روابط معينة"
+    },
+    "actions": {
+      "flag": "وضع علامة للمراجعة",
+      "flagDescription": "اضافة الى قائمة الاشراف",
+      "hide": "اخفاء المحتوى",
+      "hideDescription": "اخفاء دون حذف",
+      "delete": "حذف",
+      "deleteDescription": "ازالة المحتوى فورا",
+      "warn": "تحذير المستخدم",
+      "warnDescription": "ارسال تحذير للمستخدم"
+    }
+  },
+  "publicPageRenderer": {
+    "status": "الحالة",
+    "type": "النوع",
+    "url": "الرابط",
+    "created": "تم الانشاء",
+    "published": "تم النشر",
+    "updated": "تم التحديث"
+  },
+  "syncStatusIndicator": {
+    "offline": "غير متصل",
+    "online": "متصل",
+    "syncing": "جاري المزامنة...",
+    "synced": "تمت المزامنة",
+    "failed": "{{count}} فشل",
+    "pending": "{{count}} قيد الانتظار",
+    "pendingLabel": "قيد الانتظار",
+    "failedLabel": "فشل",
+    "everythingSynced": "تمت مزامنة كل شيء",
+    "retryAll": "اعادة المحاولة للكل",
+    "clearAll": "مسح الكل",
+    "retry": "اعادة المحاولة",
+    "remove": "ازالة",
+    "retriesFailed": "({{retryCount}}/{{maxRetries}} محاولات)",
+    "itemTypes": {
+      "message": "رسالة",
+      "post": "منشور",
+      "fileUpload": "رفع ملف",
+      "reaction": "تفاعل",
+      "comment": "تعليق"
+    },
+    "itemDescriptions": {
+      "messageTo": "رسالة الى {{conversationId}}...",
+      "post": "منشور: {{content}}...",
+      "file": "ملف: {{fileName}}",
+      "reaction": "تفاعل: {{reactionType}}",
+      "commentOnPost": "تعليق على المنشور"
+    }
+  },
+  "notificationCenter": {
+    "title": "الاشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "enableBrowser": {
+      "title": "تفعيل اشعارات المتصفح",
+      "description": "احصل على اشعارات حتى عندما يكون التطبيق في الخلفية",
+      "button": "تفعيل"
+    },
+    "empty": "لا توجد اشعارات بعد",
+    "markAsRead": "تحديد كمقروء",
+    "removeNotification": "ازالة الاشعار",
+    "timeAgo": {
+      "justNow": "الان",
+      "minutesAgo": "منذ {{count}} دقيقة",
+      "hoursAgo": "منذ {{count}} ساعة",
+      "daysAgo": "منذ {{count}} يوم"
+    }
+  },
+  "groupThreadList": {
+    "noThreadsTitle": "لا توجد مواضيع بعد",
+    "noThreadsDescription": "ابدا محادثة بانشاء اول موضوع",
+    "createThread": "انشاء موضوع",
+    "threads": "المواضيع",
+    "newThread": "موضوع جديد",
+    "messageCount": "{{count}} رسائل"
+  },
+  "wikiUpdateFeedCard": {
+    "createdPage": "انشا صفحة ويكي",
+    "updatedPage": "حدث صفحة ويكي",
+    "wikiPage": "صفحة ويكي",
+    "moreTags": "+{{count}} اخرى",
+    "readPage": "قراءة الصفحة",
+    "edit": "تعديل",
+    "history": "السجل"
+  },
+  "contactsList": {
+    "following": "المتابعون ({{count}})",
+    "followers": "المتابعين ({{count}})",
+    "friends": "الاصدقاء ({{count}})",
+    "emptyFollowing": "انت لا تتابع اي شخص بعد",
+    "emptyFollowers": "لا يوجد متابعين بعد",
+    "emptyFriends": "لا يوجد اصدقاء مشتركين بعد"
+  },
+  "addContactDialog": {
+    "trigger": "اضافة جهة اتصال",
+    "title": "اضافة جهة اتصال",
+    "description": "ادخل مفتاح Nostr العام (npub او hex) لاضافته الى جهات الاتصال",
+    "pubkeyLabel": "المفتاح العام (npub او hex)",
+    "pubkeyPlaceholder": "npub1... او المفتاح العام hex",
+    "petnameLabel": "اسم مستعار (اختياري)",
+    "petnamePlaceholder": "علي",
+    "invalidPubkey": "صيغة المفتاح العام غير صالحة. استخدم صيغة npub او hex.",
+    "submit": "اضافة جهة الاتصال"
+  },
+  "contactCard": {
+    "trustTiers": {
+      "stranger": "غريب",
+      "contact": "جهة اتصال",
+      "friend": "صديق",
+      "verified": "موثق",
+      "trusted": "موثوق"
+    },
+    "verifiedInPerson": "تم التحقق شخصيا",
+    "sendMessage": "ارسال رسالة",
+    "viewProfile": "عرض الملف الشخصي",
+    "addToFavorites": "اضافة الى المفضلة",
+    "removeFromFavorites": "ازالة من المفضلة",
+    "blockContact": "حظر جهة الاتصال",
+    "removeContact": "ازالة جهة الاتصال",
+    "confirmRemove": "ازالة {{name}} من جهات الاتصال؟",
+    "confirmBlock": "حظر {{name}}؟ لن ترى محتواه بعد الان."
+  },
+  "formCanvas": {
+    "required": "مطلوب",
+    "placeholder": "نص توضيحي: {{value}}",
+    "options": "الخيارات: {{value}}",
+    "emptyTitle": "اسحب الحقول هنا لبناء النموذج",
+    "emptyDescription": "اختر انواع الحقول من اللوحة على اليسار"
+  },
+  "footnote": {
+    "title": "حاشية {{number}}",
+    "clickToAdd": "انقر للاضافة",
+    "enterContent": "ادخل محتوى الحاشية...",
+    "ctrlEnterToSave": "Ctrl+Enter للحفظ",
+    "cancel": "الغاء",
+    "save": "حفظ",
+    "deleteFootnote": "حذف الحاشية"
+  },
+  "databaseDashboard": {
+    "noTablesTitle": "لا توجد جداول بعد",
+    "noTablesDescription": "انشئ جدولك الاول للبدء",
+    "createTable": "انشاء جدول",
+    "loading": "جاري التحميل...",
+    "newTable": "جدول جديد",
+    "newRecord": "سجل جديد",
+    "tableNamePrompt": "اسم الجدول:"
+  },
+  "calendarView": {
+    "noDateField": "لم يتم تكوين حقل تاريخ لهذا العرض",
+    "previous": "السابق",
+    "today": "اليوم",
+    "next": "التالي",
+    "days": {
+      "sun": "احد",
+      "mon": "اثن",
+      "tue": "ثلا",
+      "wed": "اربع",
+      "thu": "خمس",
+      "fri": "جمع",
+      "sat": "سبت"
+    },
+    "untitled": "بدون عنوان",
+    "more": "+{{count}} المزيد"
+  },
+  "groupSidebar": {
+    "groupNotFound": "المجموعة غير موجودة",
+    "backToNetwork": "العودة الى الشبكة",
+    "dashboard": "لوحة التحكم",
+    "feed": "الخلاصة",
+    "members": "الاعضاء",
+    "settings": "الاعدادات"
+  },
+  "createThreadDialog": {
+    "title": "انشاء موضوع جديد",
+    "description": "ابدا محادثة جديدة في هذه المجموعة",
+    "titleLabel": "العنوان",
+    "titlePlaceholder": "مثال: ملاحظات الاجتماع، افكار، اعلانات",
+    "categoryLabel": "الفئة (اختياري)",
+    "categoryPlaceholder": "مثال: عام، تخطيط، موارد",
+    "cancel": "الغاء",
+    "creating": "جاري الانشاء...",
+    "create": "انشاء الموضوع"
+  },
+  "groupList": {
+    "loginRequired": "يرجى تسجيل الدخول لعرض المجموعات",
+    "loading": "جاري تحميل المجموعات...",
+    "title": "مجموعاتك",
+    "empty": "لا توجد مجموعات بعد. انشئ واحدة للبدء!",
+    "private": "خاص",
+    "memberCount": "{{count}} عضو",
+    "memberCount_other": "{{count}} اعضاء",
+    "moduleCount": "{{count}} وحدة",
+    "moduleCount_other": "{{count}} وحدات"
+  },
+  "transportStatus": {
+    "mesh": "شبكة محلية",
+    "meshPeers": "{{count}} شبكة",
+    "relays": "{{count}} مرحلات",
+    "offline": "غير متصل",
+    "cloud": "سحابة"
+  },
+  "anonymousReactions": {
+    "anonymousMode": "الوضع المجهول",
+    "anonymousModeDesc": "لن تكون تفاعلاتك مرئية للآخرين",
+    "anonymous": "مجهول",
+    "public": "عام",
+    "anonymousCount": "{{count}} تفاعل مجهول",
+    "anonymousCount_plural": "{{count}} تفاعلات مجهولة",
+    "yourReactionAnonymous": "تفاعلك مجهول",
+    "reactions": {
+      "support": "دعم",
+      "solidarity": "تضامن",
+      "greatIdea": "فكرة رائعة",
+      "concern": "قلق"
+    }
+  },
+  "storyViewer": {
+    "deleteStory": "حذف القصة",
+    "views": "{{count}} مشاهدات",
+    "replies": "{{count}} ردود",
+    "replyPlaceholder": "رد..."
+  },
+  "rsvpButton": {
+    "going": "سأحضر",
+    "maybe": "ربما",
+    "notGoing": "لن أحضر",
+    "failedUpdate": "فشل في تحديث الرد"
+  },
+  "groupMessagesPage": {
+    "loading": "جاري التحميل...",
+    "notFound": "المجموعة غير موجودة",
+    "title": "الرسائل",
+    "subtitle": "محادثات ومواضيع المجموعة"
+  },
+  "groupDashboard": {
+    "title": "لوحة تحكم المجموعة",
+    "groupId": "معرف المجموعة: {{id}}",
+    "welcome": "مرحبا بك في مجموعتك! استخدم الشريط الجانبي للتنقل بين الوحدات."
+  },
+  "eventCard": {
+    "privacyLabels": {
+      "public": "عام",
+      "group": "المجموعة فقط",
+      "private": "خاص",
+      "directAction": "عمل مباشر"
+    },
+    "locationReveals": "يظهر الموقع في: {{date}}",
+    "maxAttendees": "الحد الأقصى {{count}} مشارك"
+  },
+  "messageThread": {
+    "newMessage": "رسالة جديدة",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "invalidConversation": "محادثة غير صالحة",
+    "noMessages": "لا توجد رسائل بعد. ابدأ المحادثة!",
+    "placeholder": "اكتب رسالة... (استخدم @ للإشارة)",
+    "send": "إرسال"
+  },
+  "formAnalyticsDashboard": {
+    "title": "التحليلات",
+    "subtitle": "تحليلات النماذج مع الحفاظ على الخصوصية",
+    "totalViews": "إجمالي المشاهدات",
+    "submissions": "عمليات الإرسال",
+    "conversionRate": "معدل التحويل",
+    "topReferrers": "أهم المُحيلين",
+    "direct": "مباشر"
+  },
+  "filesPage": {
+    "downloadFailed": "فشل تنزيل الملفات. يرجى المحاولة مرة أخرى.",
+    "deleteFailed": "فشل حذف بعض الملفات. يرجى المحاولة مرة أخرى.",
+    "moveFailed": "فشل نقل بعض الملفات. يرجى المحاولة مرة أخرى."
+  },
+  "headerFooter": {
+    "documentHeader": "رأس المستند",
+    "documentFooter": "تذييل المستند",
+    "alignLeft": "محاذاة لليمين",
+    "alignCenter": "محاذاة للوسط",
+    "alignRight": "محاذاة لليسار",
+    "showPageNumber": "إظهار رقم الصفحة",
+    "pageNumberNote": "صفحة {{page}} (تظهر أرقام الصفحات عند الطباعة)"
+  },
+  "conversationList": {
+    "title": "المحادثات",
+    "loginRequired": "يرجى تسجيل الدخول لعرض المحادثات",
+    "noConversations": "لا توجد محادثات بعد. ابدأ محادثة جديدة!",
+    "unknown": "غير معروف",
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}} د",
+    "hoursAgo": "منذ {{count}} س",
+    "daysAgo": "منذ {{count}} ي"
+  },
+  "mainApp": {
+    "initError": "خطأ في التهيئة",
+    "initFailed": "فشل تهيئة التطبيق. يرجى تحديث الصفحة.",
+    "retry": "إعادة المحاولة",
+    "initializing": "جارٍ التهيئة..."
+  },
+  "mobileNav": {
+    "menu": "القائمة",
+    "home": "الرئيسية",
+    "messages": "الرسائل",
+    "groups": "المجموعات",
+    "modules": "الوحدات",
+    "settings": "الإعدادات"
+  },
+  "contactDetailInfo": {
+    "joined": "انضم في {{date}}",
+    "lastContact": "آخر تواصل {{date}}"
+  },
+  "friendRequestCard": {
+    "sent": "مُرسَلة",
+    "acceptRequest": "قبول الطلب",
+    "accept": "قبول",
+    "declineRequest": "رفض الطلب",
+    "methods": {
+      "qr": "رمز QR",
+      "username": "البحث بالاسم المستعار",
+      "email": "دعوة بالبريد الإلكتروني",
+      "inviteLink": "رابط الدعوة"
+    }
+  }
+}
