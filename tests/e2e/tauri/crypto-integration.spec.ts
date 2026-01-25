@@ -466,7 +466,7 @@ test.describe('Crypto Integration - Cross-Keypair Encryption', () => {
 
     expect(bobKeyResult.success).toBe(true);
 
-    // With mocks, conversation keys are the same mock value
+    // With mocks, conversation keys should be the same (ECDH symmetry)
     // Bob decrypts message
     const decryptResult = await invokeCommand<string>(page, 'decrypt_nip44', {
       conversation_key_hex: bobKeyResult.data!,

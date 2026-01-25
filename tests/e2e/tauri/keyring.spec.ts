@@ -430,8 +430,22 @@ test.describe('Tauri Keyring - Crypto Operations', () => {
   test('should decrypt with NIP-44', async ({ page }) => {
     const conversationKey = 'c'.repeat(64);
     const plaintext = 'Original message';
-    const ciphertext = btoa(plaintext); // Mock encryption is base64
 
+    // First encrypt to get proper ciphertext format
+    const encryptResult = await page.evaluate(
+      async ({ key, text }) => {
+        const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke: (cmd: string, args?: Record<string, unknown>) => Promise<{ success: boolean; data: string }> } }).__TAURI_INTERNALS__;
+        return await internals.invoke('encrypt_nip44', {
+          conversation_key_hex: key,
+          plaintext: text,
+        });
+      },
+      { key: conversationKey, text: plaintext }
+    );
+
+    expect(encryptResult.success).toBe(true);
+
+    // Now decrypt
     const result = await page.evaluate(
       async ({ key, cipher }) => {
         const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke: (cmd: string, args?: Record<string, unknown>) => Promise<{ success: boolean; data: string }> } }).__TAURI_INTERNALS__;
@@ -440,7 +454,7 @@ test.describe('Tauri Keyring - Crypto Operations', () => {
           ciphertext: cipher,
         });
       },
-      { key: conversationKey, cipher: ciphertext }
+      { key: conversationKey, cipher: encryptResult.data }
     );
 
     expect(result.success).toBe(true);

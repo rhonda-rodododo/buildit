@@ -158,6 +158,9 @@ export async function setupTauriMocks(
           }
 
           case 'stop_ble_scan': {
+            if (!mockState.ble.isScanning) {
+              return err('Scan not in progress');
+            }
             mockState.ble.isScanning = false;
             return ok(undefined);
           }
@@ -183,6 +186,13 @@ export async function setupTauriMocks(
 
           case 'disconnect_device': {
             const address = args?.address as string;
+            if (!address) {
+              return err('Address required');
+            }
+            // Check if device is actually connected
+            if (!mockState.ble.connectedDevices.includes(address)) {
+              return err(`Device not found: ${address}`);
+            }
             mockState.ble.connectedDevices = mockState.ble.connectedDevices.filter(
               (a) => a !== address
             );
@@ -195,8 +205,15 @@ export async function setupTauriMocks(
             if (!data || data.length === 0) {
               return err('Message data required');
             }
-            const count = address ? 1 : mockState.ble.connectedDevices.length;
-            return ok(count);
+            // If targeting a specific address, verify it's connected
+            if (address) {
+              if (!mockState.ble.connectedDevices.includes(address)) {
+                return err(`Device not connected: ${address}`);
+              }
+              return ok(1);
+            }
+            // Broadcast to all connected devices
+            return ok(mockState.ble.connectedDevices.length);
           }
 
           case 'get_ble_status': {
@@ -222,7 +239,8 @@ export async function setupTauriMocks(
             const secretType = args?.secret_type as string | { custom: string };
             const key = buildSecretKey(user, secretType);
             const value = mockState.keyring.secrets.get(key);
-            if (!value) {
+            // Check for undefined specifically, not falsy (empty string is valid)
+            if (value === undefined) {
               return err(`Secret not found: ${key}`);
             }
             return ok(value);
@@ -244,32 +262,130 @@ export async function setupTauriMocks(
           }
 
           case 'generate_keypair': {
-            const keypair = mockKeypair;
+            // Generate unique random keypairs each time
+            const randomHex = (len: number) => {
+              const chars = '0123456789abcdef';
+              let result = '';
+              for (let i = 0; i < len; i++) {
+                result += chars[Math.floor(Math.random() * chars.length)];
+              }
+              return result;
+            };
+            const keypair = {
+              private_key: randomHex(64),
+              public_key: randomHex(64),
+            };
             mockState.crypto.generatedKeypairs.push(keypair);
             return ok(keypair);
           }
 
           case 'encrypt_nip44': {
+            // Support both naming conventions: conversation_key and conversation_key_hex
+            const conversationKey = (args?.conversation_key ?? args?.conversation_key_hex) as string;
             const plaintext = args?.plaintext as string;
-            // Simple mock encryption - just base64 encode
-            const ciphertext = btoa(plaintext);
+
+            // Validate conversation key
+            if (!conversationKey || conversationKey.length !== 64) {
+              return err('Invalid conversation key length');
+            }
+            if (!/^[0-9a-fA-F]+$/.test(conversationKey)) {
+              return err('Invalid conversation key format');
+            }
+
+            // Simulate nonce randomization - prefix with random bytes
+            // Include a simple key hash so decryption with wrong key fails
+            const randomNonce = Math.random().toString(36).substring(2, 10);
+            const keyHash = conversationKey.slice(0, 8); // Simple key fingerprint
+            const ciphertext = randomNonce + ':' + keyHash + ':' + btoa(plaintext);
             return ok(ciphertext);
           }
 
           case 'decrypt_nip44': {
+            // Support both naming conventions: conversation_key and conversation_key_hex
+            const conversationKey = (args?.conversation_key ?? args?.conversation_key_hex) as string;
             const ciphertext = args?.ciphertext as string;
+
+            // Validate conversation key
+            if (!conversationKey || conversationKey.length !== 64) {
+              return err('Invalid conversation key length');
+            }
+            if (!/^[0-9a-fA-F]+$/.test(conversationKey)) {
+              return err('Invalid conversation key format');
+            }
+
+            // Validate ciphertext
+            if (!ciphertext || ciphertext.length === 0) {
+              return err('Decryption failed: empty ciphertext');
+            }
+
             try {
-              // Simple mock decryption - just base64 decode
-              const plaintext = atob(ciphertext);
+              // Handle our mock ciphertext format (nonce:keyHash:base64)
+              const parts = ciphertext.split(':');
+              if (parts.length !== 3) {
+                return err('Decryption failed: invalid ciphertext format');
+              }
+
+              const [, keyHash, b64Content] = parts;
+
+              // Verify key hash matches (simulates key verification)
+              const expectedKeyHash = conversationKey.slice(0, 8);
+              if (keyHash !== expectedKeyHash) {
+                return err('Decryption failed: wrong key');
+              }
+
+              const plaintext = atob(b64Content);
               return ok(plaintext);
             } catch {
-              return err('Decryption failed');
+              return err('Decryption failed: invalid base64');
             }
           }
 
           case 'derive_conversation_key': {
-            // Return a mock conversation key
-            return ok('c'.repeat(64));
+            // Support both naming conventions
+            const privateKey = (args?.private_key ?? args?.private_key_hex) as string;
+            const publicKey = (args?.public_key ?? args?.recipient_pubkey_hex) as string;
+
+            // Validate inputs
+            if (!privateKey || privateKey.length !== 64) {
+              return err('Invalid private key length');
+            }
+            if (!/^[0-9a-fA-F]+$/.test(privateKey)) {
+              return err('Invalid private key format');
+            }
+            if (!publicKey || publicKey.length !== 64) {
+              return err('Invalid public key length');
+            }
+            if (!/^[0-9a-fA-F]+$/.test(publicKey)) {
+              return err('Invalid public key format');
+            }
+
+            // Known keypair mapping for test vectors (simulates ECDH symmetry)
+            // Maps private key -> corresponding public key
+            const knownKeypairs: Record<string, string> = {
+              '67dde7da0c07cb67af5045bf4f5d7d3537aaaf8405b0b6cf965d272d6c934ff4':
+                '9c87e5c0c6b7f4e5c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4', // RANDOM_KEYPAIR_1
+              'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2':
+                '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b', // RANDOM_KEYPAIR_2
+              '0000000000000000000000000000000000000000000000000000000000000001':
+                '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', // ALICE
+              '0000000000000000000000000000000000000000000000000000000000000002':
+                'c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5', // BOB
+              '0000000000000000000000000000000000000000000000000000000000000003':
+                'f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9', // CHARLIE
+            };
+
+            // Get sender's public key (either from known mapping or use private key as proxy)
+            const senderPubKey = knownKeypairs[privateKey] || privateKey;
+
+            // Sort both public keys and XOR them to simulate ECDH (commutative)
+            const keys = [senderPubKey, publicKey].sort();
+            let result = '';
+            for (let i = 0; i < 64; i++) {
+              const a = parseInt(keys[0][i], 16);
+              const b = parseInt(keys[1][i], 16);
+              result += (a ^ b).toString(16);
+            }
+            return ok(result);
           }
 
           default:

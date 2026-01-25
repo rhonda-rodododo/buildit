@@ -5,9 +5,9 @@
  * It builds the Tauri app and starts the tauri-driver process.
  */
 
-import { spawn, spawnSync, ChildProcess } from 'child_process';
-import os from 'os';
-import path from 'path';
+import { spawn, spawnSync, ChildProcess } from 'node:child_process';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 let tauriDriverProcess: ChildProcess | null = null;
 

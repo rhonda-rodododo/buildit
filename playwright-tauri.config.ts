@@ -13,8 +13,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e/tauri',
 
-  /* Run tests in files in parallel */
-  fullyParallel: false, // Tauri tests should run sequentially
+  /* Run tests in files in parallel - each spec file runs its tests sequentially
+   * but different spec files run in parallel (safer for tests with shared state within a file) */
+  fullyParallel: false,
 
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -22,8 +23,9 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 1,
 
-  /* Opt out of parallel tests for Tauri */
-  workers: 1,
+  /* Run spec files in parallel for faster execution
+   * Each worker handles one spec file at a time, running tests within it sequentially */
+  workers: process.env.CI ? 2 : 4,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
