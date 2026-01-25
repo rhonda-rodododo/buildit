@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppSidebar } from './AppSidebar';
 import { LogoutWarningDialog } from '@/components/auth/LogoutWarningDialog';
+import { WindowControls } from '@/components/desktop';
 import { APP_CONFIG } from '@/config/app';
 import { db } from '@/core/storage/db';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +110,8 @@ export const AppHeader: FC = () => {
             <Button variant="outline" size="sm" onClick={handleLogoutClick} className="text-xs sm:text-sm">
               {t('auth.logout.button', 'Logout')}
             </Button>
+            {/* Desktop window controls (only visible in Tauri) */}
+            <WindowControls className="hidden lg:flex ml-2" />
           </div>
         </div>
       </header>
