@@ -19,7 +19,7 @@ import { useRouter, Stack } from 'one'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 import { haptics } from '../src/utils/platform'
-import { relayService, DEFAULT_RELAYS } from '../src/services/nostrRelay'
+import { relayService, DEFAULT_RELAYS, type RelayConfig } from '../src/services/nostrRelay'
 import { setSecureItem, getSecureItem, STORAGE_KEYS } from '../src/storage/secureStorage'
 
 interface RelayInfo {
@@ -49,16 +49,20 @@ export default function RelaysScreen() {
       const savedRelaysJson = await getSecureItem(STORAGE_KEYS.RELAY_CONFIG)
       const savedRelays: string[] = savedRelaysJson ? JSON.parse(savedRelaysJson) : []
 
-      // Combine with default relays
-      const allRelayUrls = [...new Set([...DEFAULT_RELAYS, ...savedRelays])]
+      // Get default relay URLs
+      const defaultRelayUrls = DEFAULT_RELAYS.map((r) => r.url)
 
-      // Get connection status
-      const connectedRelays = relayService.getConnectedRelays()
+      // Combine with custom relays (deduped)
+      const allRelayUrls = [...new Set([...defaultRelayUrls, ...savedRelays])]
+
+      // Get connection status from relay service
+      const statuses = relayService.getStatuses()
+      const connectedUrls = statuses.filter((s) => s.connected).map((s) => s.url)
 
       const relayInfos: RelayInfo[] = allRelayUrls.map((url) => ({
         url,
-        status: connectedRelays.includes(url) ? 'connected' : 'disconnected',
-        isDefault: DEFAULT_RELAYS.includes(url),
+        status: connectedUrls.includes(url) ? 'connected' : 'disconnected',
+        isDefault: defaultRelayUrls.includes(url),
       }))
 
       setRelays(relayInfos)
@@ -112,7 +116,7 @@ export default function RelaysScreen() {
       await setSecureItem(STORAGE_KEYS.RELAY_CONFIG, JSON.stringify([...savedRelays, url]))
 
       // Try to connect
-      await relayService.connect([url])
+      await relayService.connect([{ url, read: true, write: true }])
 
       // Update status
       setRelays((prev) =>
@@ -163,8 +167,8 @@ export default function RelaysScreen() {
               JSON.stringify(savedRelays.filter((r) => r !== url))
             )
 
-            // Disconnect from relay
-            relayService.disconnect(url)
+            // Note: Individual relay disconnect not supported yet
+            // relayService.disconnect() disconnects all relays
           },
         },
       ])
@@ -180,7 +184,7 @@ export default function RelaysScreen() {
     )
 
     try {
-      await relayService.connect([url])
+      await relayService.connect([{ url, read: true, write: true }])
       setRelays((prev) =>
         prev.map((r) => (r.url === url ? { ...r, status: 'connected' } : r))
       )

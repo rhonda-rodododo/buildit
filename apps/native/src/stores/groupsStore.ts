@@ -294,7 +294,7 @@ export const useGroupsStore = create<GroupsState>((set, get) => ({
       throw new Error('You are already a member of this group')
     }
 
-    const groupRelays = relays && relays.length > 0 ? relays : DEFAULT_RELAYS
+    const groupRelays = relays && relays.length > 0 ? relays : DEFAULT_RELAYS.map((r) => r.url)
 
     const newGroup: Group = {
       id: groupId,
