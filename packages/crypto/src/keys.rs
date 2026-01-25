@@ -1,22 +1,45 @@
 //! Key generation and derivation for BuildIt Network
 
 use crate::error::CryptoError;
+use argon2::{Algorithm, Argon2, Params, Version};
 use hkdf::Hkdf;
-use pbkdf2::pbkdf2_hmac;
 use rand::rngs::OsRng;
 use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use sha2::{Digest, Sha256};
+use std::fmt;
 use zeroize::Zeroize;
 
 /// Key pair containing private and public keys
-#[derive(Debug, Clone)]
+///
+/// SECURITY NOTES:
+/// - Debug is manually implemented to redact the private key in logs/debug output
+/// - Clone is derived for UniFFI compatibility, but cloning should be minimized
+/// - Callers MUST call `zeroize_key(keypair.private_key)` when done with the key
+///   to ensure secure erasure from memory
+///
+/// UniFFI requires Clone + no Drop for Record types, so automatic zeroization
+/// via Drop is not possible here. Use the `zeroize_key()` function explicitly.
+#[derive(Clone)]
 pub struct KeyPair {
     pub private_key: Vec<u8>,
     pub public_key: String,
 }
 
-/// PBKDF2 configuration (OWASP 2023 recommended)
-const PBKDF2_ITERATIONS: u32 = 600_000;
+impl fmt::Debug for KeyPair {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("KeyPair")
+            .field("private_key", &"[REDACTED]")
+            .field("public_key", &self.public_key)
+            .finish()
+    }
+}
+
+/// Argon2id configuration (OWASP 2023 recommended)
+/// Memory-hard KDF resistant to GPU/ASIC attacks
+const ARGON2_MEMORY_KB: u32 = 65536; // 64 MB
+const ARGON2_TIME_COST: u32 = 3; // 3 iterations
+const ARGON2_PARALLELISM: u32 = 4; // 4 lanes
+const ARGON2_OUTPUT_LEN: usize = 32; // 256-bit key
 
 /// HKDF salt for database key derivation
 const DATABASE_KEY_SALT: &[u8] = b"BuildItNetwork-DEK-v1";
@@ -47,15 +70,42 @@ pub fn get_public_key(private_key: Vec<u8>) -> Result<String, CryptoError> {
     Ok(hex::encode(&public_key.serialize()[1..]))
 }
 
-/// Derive master encryption key from password using PBKDF2
-pub fn derive_master_key(password: String, salt: Vec<u8>) -> Result<Vec<u8>, CryptoError> {
+/// Derive master encryption key from password using Argon2id
+///
+/// Argon2id is a memory-hard KDF that is resistant to GPU/ASIC attacks.
+/// It combines Argon2i (side-channel resistant) and Argon2d (GPU resistant).
+///
+/// Parameters (OWASP 2023 recommended):
+/// - Memory: 64 MB (65536 KB)
+/// - Time cost: 3 iterations
+/// - Parallelism: 4 lanes
+/// - Output: 32 bytes (256-bit key)
+///
+/// SECURITY: The password bytes are zeroized after use.
+/// Callers should ensure they zeroize any copies of the password they hold.
+pub fn derive_master_key(mut password: Vec<u8>, salt: Vec<u8>) -> Result<Vec<u8>, CryptoError> {
     if salt.len() < 16 {
         return Err(CryptoError::KeyDerivationFailed);
     }
 
-    let mut key = vec![0u8; 32];
-    pbkdf2_hmac::<Sha256>(password.as_bytes(), &salt, PBKDF2_ITERATIONS, &mut key);
+    let params = Params::new(
+        ARGON2_MEMORY_KB,
+        ARGON2_TIME_COST,
+        ARGON2_PARALLELISM,
+        Some(ARGON2_OUTPUT_LEN),
+    )
+    .map_err(|_| CryptoError::KeyDerivationFailed)?;
 
+    let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+
+    let mut key = vec![0u8; ARGON2_OUTPUT_LEN];
+
+    let result = argon2.hash_password_into(&password, &salt, &mut key);
+
+    // Zeroize password after use
+    password.zeroize();
+
+    result.map_err(|_| CryptoError::KeyDerivationFailed)?;
     Ok(key)
 }
 
@@ -75,6 +125,10 @@ pub fn derive_database_key(master_key: Vec<u8>) -> Result<Vec<u8>, CryptoError> 
 }
 
 /// Derive NIP-44 conversation key from ECDH shared secret
+///
+/// SECURITY: This function properly handles both even (0x02) and odd (0x03) y-coordinates
+/// by trying both prefixes when constructing the public key. The shared secret is
+/// zeroized after the conversation key is derived.
 pub fn derive_conversation_key(
     private_key: Vec<u8>,
     recipient_pubkey: String,
@@ -88,26 +142,43 @@ pub fn derive_conversation_key(
         return Err(CryptoError::InvalidPublicKey);
     }
 
-    // Construct compressed public key (02 prefix + x-coordinate)
-    let mut compressed = vec![0x02u8];
-    compressed.extend_from_slice(&pubkey_bytes);
-
     let _secp = Secp256k1::new();
     let secret_key = SecretKey::from_slice(&private_key).map_err(|_| CryptoError::InvalidKey)?;
-    let public_key =
-        PublicKey::from_slice(&compressed).map_err(|_| CryptoError::InvalidPublicKey)?;
+
+    // Try both possible y-coordinate parities (0x02 for even, 0x03 for odd)
+    // NIP-44 specifies x-only public keys, so we need to try both
+    let public_key = {
+        // First try 0x02 (even y-coordinate)
+        let mut compressed_even = vec![0x02u8];
+        compressed_even.extend_from_slice(&pubkey_bytes);
+
+        match PublicKey::from_slice(&compressed_even) {
+            Ok(pk) => pk,
+            Err(_) => {
+                // Try 0x03 (odd y-coordinate)
+                let mut compressed_odd = vec![0x03u8];
+                compressed_odd.extend_from_slice(&pubkey_bytes);
+                PublicKey::from_slice(&compressed_odd).map_err(|_| CryptoError::InvalidPublicKey)?
+            }
+        }
+    };
 
     // ECDH shared secret
-    let shared_point = secp256k1::ecdh::shared_secret_point(&public_key, &secret_key);
+    let mut shared_point = secp256k1::ecdh::shared_secret_point(&public_key, &secret_key);
     let shared_x = &shared_point[0..32]; // x-coordinate only (shared_point is [x, y])
 
     // HKDF to derive conversation key
     let hk = Hkdf::<Sha256>::new(Some(b"nip44-v2"), shared_x);
     let mut conversation_key = vec![0u8; 32];
 
-    hk.expand(&[], &mut conversation_key)
-        .map_err(|_| CryptoError::KeyDerivationFailed)?;
+    let result = hk
+        .expand(&[], &mut conversation_key)
+        .map_err(|_| CryptoError::KeyDerivationFailed);
 
+    // Zeroize shared secret after use
+    shared_point.zeroize();
+
+    result?;
     Ok(conversation_key)
 }
 
@@ -195,7 +266,7 @@ mod tests {
 
     #[test]
     fn test_derive_master_key() {
-        let password = "correct horse battery staple".to_string();
+        let password = b"correct horse battery staple".to_vec();
         let salt = vec![0u8; 32];
 
         let key = derive_master_key(password.clone(), salt.clone()).unwrap();

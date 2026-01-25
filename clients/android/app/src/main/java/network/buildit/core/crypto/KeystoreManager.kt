@@ -9,21 +9,28 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.bouncycastle.crypto.generators.Argon2BytesGenerator
+import org.bouncycastle.crypto.params.Argon2Parameters
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
+import java.security.SecureRandom
 import java.security.Signature
 import java.security.spec.ECGenParameterSpec
+import java.util.Arrays
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -52,6 +59,33 @@ class KeystoreManager @Inject constructor(
     val biometricEnabled: StateFlow<Boolean> = _biometricEnabled.asStateFlow()
 
     private var strongBoxAvailable: Boolean = false
+
+    private val secureRandom = SecureRandom()
+
+    /**
+     * SecureKeyWrapper for encrypting the secp256k1 private key.
+     * The wrapper key is stored in Android Keystore (hardware-backed when available).
+     */
+    private val secureKeyWrapper: SecureKeyWrapper by lazy {
+        SecureKeyWrapper(keyStore, context, strongBoxAvailable)
+    }
+
+    /**
+     * Encrypted shared preferences for storing wrapped keys.
+     */
+    private val encryptedPrefs by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        EncryptedSharedPreferences.create(
+            context,
+            ENCRYPTED_PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     init {
         checkStrongBoxAvailability()
@@ -199,6 +233,7 @@ class KeystoreManager @Inject constructor(
 
     /**
      * Gets the public key bytes for the identity key.
+     * Returns a copy to prevent external modification.
      */
     fun getPublicKeyBytes(): ByteArray? {
         return try {
@@ -207,26 +242,92 @@ class KeystoreManager @Inject constructor(
 
             // Return the EC point in compressed format (33 bytes) or raw X coordinate (32 bytes)
             // For simplicity, returning the full encoded form
-            publicKey.encoded
+            publicKey.encoded.copyOf()
         } catch (e: Exception) {
             null
         }
     }
 
     /**
-     * Gets the private key bytes (wrapped/encrypted).
-     * The actual private key never leaves the Keystore.
-     * This returns a representation that can be used internally.
+     * Gets the secp256k1 private key bytes for signing operations.
+     *
+     * Security: The private key is stored encrypted with a Keystore-backed AES key.
+     * This allows the secp256k1 key to be used for Nostr signing while keeping it
+     * protected by hardware-backed encryption.
+     *
+     * IMPORTANT: Caller MUST zero the returned array after use:
+     * ```
+     * val key = keystoreManager.getPrivateKeyBytes()
+     * try {
+     *     // use key
+     * } finally {
+     *     key?.let { Arrays.fill(it, 0.toByte()) }
+     * }
+     * ```
+     *
+     * @return Decrypted private key bytes, or null if not available
      */
     fun getPrivateKeyBytes(): ByteArray? {
         return try {
-            // For Keystore-backed keys, we can't export the raw private key
-            // Return a hash that can be used for non-crypto purposes
-            val publicKey = getPublicKeyBytes() ?: return null
-            java.security.MessageDigest.getInstance("SHA-256").digest(publicKey)
+            // Check if we have a wrapped secp256k1 key stored
+            val wrappedKeyBase64 = encryptedPrefs.getString(KEY_WRAPPED_PRIVATE_KEY, null)
+                ?: return null
+
+            val wrappedKey = android.util.Base64.decode(wrappedKeyBase64, android.util.Base64.NO_WRAP)
+            val ivBase64 = encryptedPrefs.getString(KEY_WRAPPED_PRIVATE_KEY_IV, null)
+                ?: return null
+
+            val iv = android.util.Base64.decode(ivBase64, android.util.Base64.NO_WRAP)
+
+            // Unwrap the key using the Keystore-backed wrapper key
+            secureKeyWrapper.unwrapKey(wrappedKey, iv)
         } catch (e: Exception) {
             null
         }
+    }
+
+    /**
+     * Stores a secp256k1 private key securely.
+     *
+     * The key is encrypted using a Keystore-backed AES key and stored in
+     * EncryptedSharedPreferences for double encryption.
+     *
+     * @param privateKey The raw secp256k1 private key (32 bytes)
+     * @return True if storage succeeded
+     */
+    fun storeSecp256k1PrivateKey(privateKey: ByteArray): Boolean {
+        if (privateKey.size != 32) return false
+
+        var wrappedKey: ByteArray? = null
+        var iv: ByteArray? = null
+
+        try {
+            // Wrap the key using the Keystore-backed wrapper key
+            val wrapResult = secureKeyWrapper.wrapKey(privateKey)
+            wrappedKey = wrapResult.first
+            iv = wrapResult.second
+
+            // Store in encrypted preferences
+            encryptedPrefs.edit()
+                .putString(KEY_WRAPPED_PRIVATE_KEY, android.util.Base64.encodeToString(wrappedKey, android.util.Base64.NO_WRAP))
+                .putString(KEY_WRAPPED_PRIVATE_KEY_IV, android.util.Base64.encodeToString(iv, android.util.Base64.NO_WRAP))
+                .apply()
+
+            return true
+        } catch (e: Exception) {
+            return false
+        } finally {
+            // Clear sensitive data
+            wrappedKey?.let { Arrays.fill(it, 0.toByte()) }
+            iv?.let { Arrays.fill(it, 0.toByte()) }
+        }
+    }
+
+    /**
+     * Checks if a secp256k1 private key is stored.
+     */
+    fun hasStoredSecp256k1Key(): Boolean {
+        return encryptedPrefs.contains(KEY_WRAPPED_PRIVATE_KEY)
     }
 
     /**
@@ -347,34 +448,44 @@ class KeystoreManager @Inject constructor(
      * Exports identity for device sync with double encryption.
      *
      * Encryption layers:
-     * 1. Passphrase encryption: PBKDF2 (310k iterations) + AES-256-GCM
+     * 1. Passphrase encryption: Argon2id (64MB, 3 iterations, 4 parallelism) + AES-256-GCM
      * 2. Transfer encryption: ECDH-derived key + AES-256-GCM
+     *
+     * Memory protection: All sensitive intermediate values are zeroed after use.
      *
      * @param passphrase User-provided passphrase for key protection
      * @param transferKey ECDH-derived key for channel encryption
      * @return Encrypted bundle, or null on failure
      */
     fun exportIdentityBundle(passphrase: String, transferKey: ByteArray): ExportedBundle? {
-        return try {
-            val publicKeyBytes = getPublicKeyBytes() ?: return null
+        var publicKeyBytes: ByteArray? = null
+        var serialized: ByteArray? = null
+        var passphraseKey: ByteArray? = null
+        var passphraseEncrypted: ByteArray? = null
+        var layer1Serialized: ByteArray? = null
+        var attestation: ByteArray? = null
+
+        try {
+            publicKeyBytes = getPublicKeyBytes() ?: return null
 
             // Note: For Android Keystore-backed keys, we cannot export the raw private key.
             // Instead, we export a signed attestation that can be used to verify identity
             // and allow the new device to generate its own key pair while maintaining
             // a cryptographic link to the original identity.
 
+            attestation = createIdentityAttestation(publicKeyBytes)
             val identityData = IdentityExportData(
                 publicKey = publicKeyBytes,
-                attestation = createIdentityAttestation(publicKeyBytes),
+                attestation = attestation,
                 exportedAt = System.currentTimeMillis()
             )
-            val serialized = identityData.serialize()
+            serialized = identityData.serialize()
 
-            // Layer 1: Passphrase encryption (PBKDF2 + AES-GCM)
+            // Layer 1: Passphrase encryption (Argon2id + AES-GCM)
             val passphraseSalt = generateRandomBytes(32)
-            val passphraseKey = deriveKeyFromPassphrase(passphrase, passphraseSalt)
+            passphraseKey = deriveKeyFromPassphrase(passphrase, passphraseSalt)
             val passphraseNonce = generateRandomBytes(12)
-            val passphraseEncrypted = aesGcmEncrypt(serialized, passphraseKey, passphraseNonce)
+            passphraseEncrypted = aesGcmEncrypt(serialized, passphraseKey, passphraseNonce)
                 ?: return null
 
             val layer1 = PassphraseEncryptedData(
@@ -385,22 +496,32 @@ class KeystoreManager @Inject constructor(
 
             // Layer 2: Transfer encryption (AES-GCM with ECDH-derived key)
             val transferNonce = generateRandomBytes(12)
-            val layer1Serialized = layer1.serialize()
+            layer1Serialized = layer1.serialize()
             val transferEncrypted = aesGcmEncrypt(layer1Serialized, transferKey, transferNonce)
                 ?: return null
 
-            ExportedBundle(
+            return ExportedBundle(
                 version = EXPORT_VERSION,
                 payload = transferEncrypted,
                 nonce = transferNonce
             )
         } catch (e: Exception) {
-            null
+            return null
+        } finally {
+            // Securely clear all sensitive intermediate data
+            publicKeyBytes?.let { Arrays.fill(it, 0.toByte()) }
+            serialized?.let { Arrays.fill(it, 0.toByte()) }
+            passphraseKey?.let { Arrays.fill(it, 0.toByte()) }
+            passphraseEncrypted?.let { Arrays.fill(it, 0.toByte()) }
+            layer1Serialized?.let { Arrays.fill(it, 0.toByte()) }
+            attestation?.let { Arrays.fill(it, 0.toByte()) }
         }
     }
 
     /**
      * Imports an identity bundle from another device.
+     *
+     * Memory protection: All sensitive intermediate values are zeroed after use.
      *
      * @param bundle The encrypted bundle from exportIdentityBundle
      * @param passphrase User-provided passphrase
@@ -408,21 +529,25 @@ class KeystoreManager @Inject constructor(
      * @return True if import succeeded
      */
     fun importIdentityBundle(bundle: ExportedBundle, passphrase: String, transferKey: ByteArray): Boolean {
-        return try {
+        var layer1Serialized: ByteArray? = null
+        var passphraseKey: ByteArray? = null
+        var serialized: ByteArray? = null
+
+        try {
             if (bundle.version != EXPORT_VERSION) {
                 return false
             }
 
             // Layer 2: Decrypt transfer layer
-            val layer1Serialized = aesGcmDecrypt(bundle.payload, transferKey, bundle.nonce)
+            layer1Serialized = aesGcmDecrypt(bundle.payload, transferKey, bundle.nonce)
                 ?: return false
 
             val layer1 = PassphraseEncryptedData.deserialize(layer1Serialized)
                 ?: return false
 
             // Layer 1: Decrypt passphrase layer
-            val passphraseKey = deriveKeyFromPassphrase(passphrase, layer1.salt)
-            val serialized = aesGcmDecrypt(layer1.ciphertext, passphraseKey, layer1.nonce)
+            passphraseKey = deriveKeyFromPassphrase(passphrase, layer1.salt)
+            serialized = aesGcmDecrypt(layer1.ciphertext, passphraseKey, layer1.nonce)
                 ?: return false
 
             val identityData = IdentityExportData.deserialize(serialized)
@@ -438,34 +563,62 @@ class KeystoreManager @Inject constructor(
             // link to the original identity through the attestation
             storeLinkedIdentity(identityData)
 
-            true
+            return true
         } catch (e: Exception) {
-            false
+            return false
+        } finally {
+            // Securely clear all sensitive intermediate data
+            layer1Serialized?.let { Arrays.fill(it, 0.toByte()) }
+            passphraseKey?.let { Arrays.fill(it, 0.toByte()) }
+            serialized?.let { Arrays.fill(it, 0.toByte()) }
         }
     }
 
     /**
-     * Derives a key from passphrase using PBKDF2 with SHA-256.
-     * Uses 310,000 iterations per OWASP 2023 recommendations.
+     * Derives a key from passphrase using Argon2id.
+     *
+     * Argon2id is a memory-hard KDF that is resistant to GPU/ASIC attacks.
+     * It combines Argon2i (side-channel resistant) and Argon2d (GPU resistant).
+     *
+     * Parameters (OWASP 2023 recommended):
+     * - Memory: 64 MB (65536 KB)
+     * - Time cost: 3 iterations
+     * - Parallelism: 4 lanes
+     * - Output: 32 bytes (256-bit key)
+     *
+     * IMPORTANT: Caller MUST zero the returned array after use.
      */
     private fun deriveKeyFromPassphrase(passphrase: String, salt: ByteArray): ByteArray {
-        val factory = javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = javax.crypto.spec.PBEKeySpec(
-            passphrase.toCharArray(),
-            salt,
-            PBKDF2_ITERATIONS,
-            256
-        )
-        return factory.generateSecret(spec).encoded
+        val passwordBytes = passphrase.toByteArray(Charsets.UTF_8)
+        try {
+            val params = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+                .withSalt(salt)
+                .withMemoryAsKB(ARGON2_MEMORY_KB)
+                .withIterations(ARGON2_TIME_COST)
+                .withParallelism(ARGON2_PARALLELISM)
+                .build()
+
+            val generator = Argon2BytesGenerator()
+            generator.init(params)
+
+            val derivedKey = ByteArray(ARGON2_OUTPUT_LENGTH)
+            generator.generateBytes(passwordBytes, derivedKey)
+
+            return derivedKey
+        } finally {
+            // Clear the password bytes
+            Arrays.fill(passwordBytes, 0.toByte())
+        }
     }
 
     /**
      * Encrypts data using AES-256-GCM.
+     * Note: The key parameter is NOT zeroed here - caller is responsible for key management.
      */
     private fun aesGcmEncrypt(plaintext: ByteArray, key: ByteArray, nonce: ByteArray): ByteArray? {
         return try {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            val keySpec = javax.crypto.spec.SecretKeySpec(key, "AES")
+            val keySpec = SecretKeySpec(key, "AES")
             val gcmSpec = GCMParameterSpec(128, nonce)
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
             cipher.doFinal(plaintext)
@@ -476,11 +629,12 @@ class KeystoreManager @Inject constructor(
 
     /**
      * Decrypts data using AES-256-GCM.
+     * Note: The key parameter is NOT zeroed here - caller is responsible for key management.
      */
     private fun aesGcmDecrypt(ciphertext: ByteArray, key: ByteArray, nonce: ByteArray): ByteArray? {
         return try {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            val keySpec = javax.crypto.spec.SecretKeySpec(key, "AES")
+            val keySpec = SecretKeySpec(key, "AES")
             val gcmSpec = GCMParameterSpec(128, nonce)
             cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec)
             cipher.doFinal(ciphertext)
@@ -561,10 +715,150 @@ class KeystoreManager @Inject constructor(
         private const val AUTHENTICATION_VALIDITY_SECONDS = 30
 
         // Device sync constants
-        private const val EXPORT_VERSION = 1
-        private const val PBKDF2_ITERATIONS = 310000  // OWASP 2023 minimum
+        private const val EXPORT_VERSION = 2  // Bumped for Argon2id migration
         private const val PREFS_NAME = "buildit_keystore"
         private const val KEY_LINKED_IDENTITIES = "linked_identities"
+
+        // Argon2id parameters (OWASP 2023 recommended)
+        // Memory-hard KDF resistant to GPU/ASIC attacks
+        private const val ARGON2_MEMORY_KB = 65536  // 64 MB
+        private const val ARGON2_TIME_COST = 3      // 3 iterations
+        private const val ARGON2_PARALLELISM = 4    // 4 lanes
+        private const val ARGON2_OUTPUT_LENGTH = 32 // 256-bit key
+
+        // Secure key storage constants
+        private const val ENCRYPTED_PREFS_NAME = "buildit_secure_keys"
+        private const val KEY_WRAPPED_PRIVATE_KEY = "wrapped_secp256k1_key"
+        private const val KEY_WRAPPED_PRIVATE_KEY_IV = "wrapped_secp256k1_key_iv"
+    }
+}
+
+/**
+ * Secure wrapper for encrypting sensitive keys using a Keystore-backed AES key.
+ *
+ * This implements the key wrapping pattern:
+ * 1. An AES-256 key is generated and stored in Android Keystore (hardware-backed when available)
+ * 2. This key is used to encrypt/decrypt other sensitive keys (like secp256k1 private keys)
+ * 3. The wrapped keys are then stored in EncryptedSharedPreferences
+ *
+ * This provides two layers of protection:
+ * - Hardware-backed encryption via Keystore
+ * - Software encryption via EncryptedSharedPreferences
+ */
+class SecureKeyWrapper(
+    private val keyStore: KeyStore,
+    private val context: Context,
+    private val useStrongBox: Boolean
+) {
+    companion object {
+        private const val WRAPPER_KEY_ALIAS = "buildit_key_wrapper"
+        private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+    }
+
+    init {
+        ensureWrapperKeyExists()
+    }
+
+    /**
+     * Ensures the wrapper key exists in the Keystore.
+     */
+    private fun ensureWrapperKeyExists() {
+        if (!keyStore.containsAlias(WRAPPER_KEY_ALIAS)) {
+            generateWrapperKey()
+        }
+    }
+
+    /**
+     * Generates the AES wrapper key in the Keystore.
+     */
+    private fun generateWrapperKey() {
+        val keyGenerator = KeyGenerator.getInstance(
+            KeyProperties.KEY_ALGORITHM_AES,
+            ANDROID_KEYSTORE
+        )
+
+        val builder = KeyGenParameterSpec.Builder(
+            WRAPPER_KEY_ALIAS,
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        )
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .setKeySize(256)
+            .setRandomizedEncryptionRequired(true)
+
+        // Try StrongBox first if available
+        if (useStrongBox && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setIsStrongBoxBacked(true)
+            try {
+                keyGenerator.init(builder.build())
+                keyGenerator.generateKey()
+                return
+            } catch (e: StrongBoxUnavailableException) {
+                // Fall back to TEE
+                builder.setIsStrongBoxBacked(false)
+            }
+        }
+
+        keyGenerator.init(builder.build())
+        keyGenerator.generateKey()
+    }
+
+    /**
+     * Gets the wrapper key from Keystore.
+     */
+    private fun getWrapperKey(): SecretKey? {
+        return try {
+            keyStore.getKey(WRAPPER_KEY_ALIAS, null) as? SecretKey
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Wraps (encrypts) a key using the Keystore-backed wrapper key.
+     *
+     * @param keyToWrap The raw key bytes to wrap
+     * @return Pair of (wrapped key, IV used for encryption)
+     */
+    fun wrapKey(keyToWrap: ByteArray): Pair<ByteArray, ByteArray> {
+        val wrapperKey = getWrapperKey()
+            ?: throw IllegalStateException("Wrapper key not available")
+
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, wrapperKey)
+
+        val wrappedKey = cipher.doFinal(keyToWrap)
+        val iv = cipher.iv
+
+        return Pair(wrappedKey, iv)
+    }
+
+    /**
+     * Unwraps (decrypts) a key using the Keystore-backed wrapper key.
+     *
+     * IMPORTANT: Caller MUST zero the returned array after use.
+     *
+     * @param wrappedKey The wrapped key bytes
+     * @param iv The IV used during wrapping
+     * @return The unwrapped key bytes
+     */
+    fun unwrapKey(wrappedKey: ByteArray, iv: ByteArray): ByteArray {
+        val wrapperKey = getWrapperKey()
+            ?: throw IllegalStateException("Wrapper key not available")
+
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        val gcmSpec = GCMParameterSpec(128, iv)
+        cipher.init(Cipher.DECRYPT_MODE, wrapperKey, gcmSpec)
+
+        return cipher.doFinal(wrappedKey)
+    }
+
+    /**
+     * Deletes the wrapper key from Keystore.
+     * WARNING: This will make all wrapped keys unrecoverable.
+     */
+    fun deleteWrapperKey() {
+        keyStore.deleteEntry(WRAPPER_KEY_ALIAS)
     }
 }
 

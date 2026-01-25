@@ -189,5 +189,5 @@ Before marking any task complete:
 ### Encryption
 - NIP-44: ChaCha20-Poly1305 (content encryption)
 - NIP-17: Gift wrap (metadata protection)
-- PBKDF2: 600,000 iterations, SHA-256
+- Argon2id: 64MB memory, 3 iterations, 4 parallelism (password-based KDF)
 - Key derivation: HKDF-SHA256

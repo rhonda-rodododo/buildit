@@ -19,7 +19,7 @@ fn test_keypair_format() {
 
 #[test]
 fn test_master_key_derivation() {
-    let password = "correct horse battery staple".to_string();
+    let password = b"correct horse battery staple".to_vec();
     let salt = generate_salt(32);
 
     let key = derive_master_key(password.clone(), salt.clone()).unwrap();

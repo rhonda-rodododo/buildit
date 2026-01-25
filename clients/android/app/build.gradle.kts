@@ -144,10 +144,12 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Room Database
+    // Room Database with SQLCipher encryption
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    implementation(libs.sqlcipher)
+    implementation(libs.sqlite)
 
     // OkHttp
     implementation(libs.okhttp)
@@ -159,8 +161,14 @@ dependencies {
     // Biometric
     implementation(libs.biometric)
 
+    // Security (EncryptedSharedPreferences)
+    implementation(libs.security.crypto)
+
     // QR Code
     implementation(libs.zxing.core)
+
+    // Cryptography (Argon2id via BouncyCastle)
+    implementation(libs.bouncycastle)
 
     // Permissions
     implementation(libs.accompanist.permissions)

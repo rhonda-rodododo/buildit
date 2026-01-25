@@ -22,7 +22,7 @@ chacha20poly1305 = "0.10"
 aes-gcm = "0.10"
 hkdf = "0.12"
 hmac = "0.12"
-pbkdf2 = { version = "0.12", features = ["sha2"] }
+argon2 = "0.5"
 sha2 = "0.10"
 
 # secp256k1 for Nostr
@@ -48,6 +48,9 @@ uniffi = { version = "0.28", features = ["cli"] }
 
 # Zeroize sensitive data
 zeroize = { version = "1.8", features = ["derive"] }
+
+# Constant-time operations for cryptographic comparisons
+subtle = "2.5"
 
 [dev-dependencies]
 # Testing

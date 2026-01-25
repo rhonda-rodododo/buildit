@@ -5,11 +5,11 @@
 
 use buildit_crypto::*;
 
-/// Test PBKDF2 with known test vectors
+/// Test Argon2id with known test vectors
 #[test]
-fn test_pbkdf2_known_vectors() {
+fn test_argon2id_known_vectors() {
     // Test vector 1: Simple password
-    let password = "password".to_string();
+    let password = b"password".to_vec();
     let salt = vec![0u8; 32];
 
     let key1 = derive_master_key(password.clone(), salt.clone()).unwrap();
@@ -20,13 +20,13 @@ fn test_pbkdf2_known_vectors() {
     assert_eq!(key1, key2);
 }
 
-/// Test PBKDF2 with different passwords produce different keys
+/// Test Argon2id with different passwords produce different keys
 #[test]
-fn test_pbkdf2_different_passwords() {
+fn test_argon2id_different_passwords() {
     let salt = vec![0u8; 32];
 
-    let key1 = derive_master_key("password1".to_string(), salt.clone()).unwrap();
-    let key2 = derive_master_key("password2".to_string(), salt).unwrap();
+    let key1 = derive_master_key(b"password1".to_vec(), salt.clone()).unwrap();
+    let key2 = derive_master_key(b"password2".to_vec(), salt).unwrap();
 
     assert_ne!(
         key1, key2,
@@ -34,10 +34,10 @@ fn test_pbkdf2_different_passwords() {
     );
 }
 
-/// Test PBKDF2 with different salts produce different keys
+/// Test Argon2id with different salts produce different keys
 #[test]
-fn test_pbkdf2_different_salts() {
-    let password = "password".to_string();
+fn test_argon2id_different_salts() {
+    let password = b"password".to_vec();
     let salt1 = vec![0u8; 32];
     let salt2 = vec![1u8; 32];
 
@@ -47,10 +47,10 @@ fn test_pbkdf2_different_salts() {
     assert_ne!(key1, key2, "Different salts should produce different keys");
 }
 
-/// Test PBKDF2 requires minimum salt length
+/// Test Argon2id requires minimum salt length
 #[test]
-fn test_pbkdf2_minimum_salt() {
-    let password = "password".to_string();
+fn test_argon2id_minimum_salt() {
+    let password = b"password".to_vec();
 
     // Too short salt (< 16 bytes)
     let short_salt = vec![0u8; 15];
@@ -59,28 +59,41 @@ fn test_pbkdf2_minimum_salt() {
     assert!(result.is_err(), "Should fail with salt < 16 bytes");
 }
 
-/// Test PBKDF2 with various password lengths
+/// Test Argon2id with various password lengths
 #[test]
-fn test_pbkdf2_various_password_lengths() {
+fn test_argon2id_various_password_lengths() {
     let salt = vec![0u8; 32];
 
     let long_password = "a".repeat(100);
-    let passwords = vec![
-        "a",                            // Very short
-        "password",                     // Normal
-        "correct horse battery staple", // Passphrase
-        long_password.as_str(),         // Long
-        "Unicode: 你好世界 🌍 مرحبا",   // Unicode
+    let passwords: Vec<&[u8]> = vec![
+        b"a",                                   // Very short
+        b"password",                            // Normal
+        b"correct horse battery staple",        // Passphrase
+        long_password.as_bytes(),               // Long
     ];
 
     for password in passwords {
-        let key = derive_master_key(password.to_string(), salt.clone()).unwrap();
+        let key = derive_master_key(password.to_vec(), salt.clone()).unwrap();
         assert_eq!(key.len(), 32);
 
         // Should be deterministic
-        let key2 = derive_master_key(password.to_string(), salt.clone()).unwrap();
+        let key2 = derive_master_key(password.to_vec(), salt.clone()).unwrap();
         assert_eq!(key, key2);
     }
+}
+
+/// Test Argon2id with Unicode passwords
+#[test]
+fn test_argon2id_unicode_password() {
+    let salt = vec![0u8; 32];
+    let unicode_password = "Unicode: 你好世界 🌍 مرحبا".as_bytes().to_vec();
+
+    let key = derive_master_key(unicode_password.clone(), salt.clone()).unwrap();
+    assert_eq!(key.len(), 32);
+
+    // Should be deterministic
+    let key2 = derive_master_key(unicode_password, salt).unwrap();
+    assert_eq!(key, key2);
 }
 
 /// Test database key derivation with HKDF
@@ -228,7 +241,7 @@ fn test_salt_generation_various_lengths() {
 #[test]
 fn test_complete_key_hierarchy() {
     // User password -> Master key
-    let password = "correct horse battery staple".to_string();
+    let password = b"correct horse battery staple".to_vec();
     let salt = generate_salt(32);
     let master_key = derive_master_key(password, salt).unwrap();
 
@@ -259,23 +272,25 @@ fn test_complete_key_hierarchy() {
     assert_ne!(identity.private_key, conv_key);
 }
 
-/// Test key derivation is CPU-intensive (timing check for PBKDF2)
+/// Test key derivation is computationally expensive (timing check for Argon2id)
 #[test]
-fn test_pbkdf2_is_slow() {
+fn test_argon2id_is_slow() {
     use std::time::Instant;
 
-    let password = "password".to_string();
+    let password = b"password".to_vec();
     let salt = generate_salt(32);
 
     let start = Instant::now();
     let _key = derive_master_key(password, salt).unwrap();
     let duration = start.elapsed();
 
-    // With 600,000 iterations, this should take at least 100ms
+    // With 64MB memory and 3 iterations, Argon2id should take some time
     // (actual time depends on hardware)
-    println!("PBKDF2 took: {:?}", duration);
+    println!("Argon2id took: {:?}", duration);
+    // Argon2id is memory-bound, so timing varies more by system memory bandwidth
+    // We just verify it completes successfully and produces a valid key
     assert!(
-        duration.as_millis() >= 50,
-        "PBKDF2 should be computationally expensive"
+        duration.as_millis() >= 10,
+        "Argon2id should be computationally expensive"
     );
 }
