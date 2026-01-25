@@ -13,6 +13,8 @@ import {
   Bell,
   Shield,
   Newspaper,
+  Plus,
+  PanelLeft,
 } from 'lucide-react';
 import type { CommandAction } from '../types';
 
@@ -21,6 +23,48 @@ import type { CommandAction } from '../types';
  */
 export function createNavigationActions(navigate: NavigateFunction): CommandAction[] {
   return [
+    // Quick actions (higher priority for frequent use)
+    {
+      id: 'action-new',
+      label: 'New...',
+      category: 'actions',
+      icon: Plus,
+      keywords: ['create', 'add', 'compose'],
+      shortcut: 'Mod+N',
+      priority: 110,
+      requiresAuth: true,
+      onSelect: () => {
+        // Context-aware new - opens command palette filtered to "new" actions
+        // For now, navigate to messages as the most common "new" action
+        navigate('/app/messages?new=true');
+      },
+    },
+    {
+      id: 'action-new-group',
+      label: 'Create New Group',
+      category: 'actions',
+      icon: Users,
+      keywords: ['new group', 'create community', 'start organization'],
+      shortcut: 'Mod+Shift+N',
+      priority: 105,
+      requiresAuth: true,
+      onSelect: () => navigate('/app/groups/new'),
+    },
+    {
+      id: 'action-toggle-sidebar',
+      label: 'Toggle Sidebar',
+      category: 'actions',
+      icon: PanelLeft,
+      keywords: ['sidebar', 'panel', 'navigation', 'collapse', 'expand'],
+      shortcut: 'Mod+B',
+      priority: 50,
+      requiresAuth: true,
+      tauriOnly: false, // Works in both web and desktop
+      onSelect: () => {
+        // Dispatch custom event that AppSidebar listens for
+        window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+      },
+    },
     {
       id: 'nav-feed',
       label: 'Go to Feed',

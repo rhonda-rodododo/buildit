@@ -9,6 +9,7 @@ import type { LucideIcon } from 'lucide-react';
  */
 export type CommandCategory =
   | 'navigation'
+  | 'actions'
   | 'groups'
   | 'messages'
   | 'search'
@@ -106,6 +107,7 @@ export interface CommandPaletteContextValue {
  * Category display configuration
  */
 export const CATEGORY_CONFIG: Record<CommandCategory, { heading: string; priority: number }> = {
+  actions: { heading: 'Actions', priority: 110 },
   navigation: { heading: 'Navigation', priority: 100 },
   search: { heading: 'Search', priority: 90 },
   create: { heading: 'Create', priority: 80 },

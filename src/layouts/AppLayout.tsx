@@ -1,12 +1,14 @@
-import { FC, Suspense } from 'react';
+import { FC, Suspense, useEffect } from 'react';
 import { Navigate, Outlet, useMatch } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { AppSidebar } from '@/components/navigation/AppSidebar';
 import { MobileBottomNav } from '@/components/navigation/MobileBottomNav';
 import { RouteLoader } from '@/components/ui/page-loader';
 import { BackupReminderBanner } from '@/components/auth/BackupReminderBanner';
 import { CommandPaletteProvider } from '@/components/command-palette';
+import { DesktopStatusBar } from '@/components/desktop';
 
 /**
  * App layout - wraps authenticated app pages
@@ -15,9 +17,17 @@ import { CommandPaletteProvider } from '@/components/command-palette';
  */
 export const AppLayout: FC = () => {
   const { currentIdentity } = useAuthStore();
+  const { sidebarCollapsed, toggleSidebar } = useUIStore();
 
   // Detect if we're in a group route (to hide main sidebar)
   const isGroupRoute = useMatch('/app/groups/:groupId/*');
+
+  // Listen for toggle-sidebar custom event from keyboard shortcut
+  useEffect(() => {
+    const handleToggleSidebar = () => toggleSidebar();
+    window.addEventListener('toggle-sidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggle-sidebar', handleToggleSidebar);
+  }, [toggleSidebar]);
 
   if (!currentIdentity) {
     return <Navigate to="/login" replace />;
@@ -41,9 +51,9 @@ export const AppLayout: FC = () => {
         </div>
 
         {/* Content row - sidebar + main */}
-        <div className={`grid ${!isGroupRoute ? 'lg:grid-cols-[auto_1fr]' : ''} overflow-hidden`}>
-          {/* Desktop sidebar - hidden when viewing a group (GroupSidebar takes over) */}
-          {!isGroupRoute && <AppSidebar className="hidden lg:flex" />}
+        <div className={`grid ${!isGroupRoute && !sidebarCollapsed ? 'lg:grid-cols-[auto_1fr]' : ''} overflow-hidden`}>
+          {/* Desktop sidebar - hidden when viewing a group (GroupSidebar takes over) or collapsed */}
+          {!isGroupRoute && !sidebarCollapsed && <AppSidebar className="hidden lg:flex" />}
 
           {/* Main content - this is the ONLY scrollable area */}
           <main
@@ -58,6 +68,9 @@ export const AppLayout: FC = () => {
 
         {/* Mobile bottom navigation - fixed at bottom */}
         <MobileBottomNav />
+
+        {/* Desktop status bar (only visible in Tauri) */}
+        <DesktopStatusBar />
       </div>
     </CommandPaletteProvider>
   );
