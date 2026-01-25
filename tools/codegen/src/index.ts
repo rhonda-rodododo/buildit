@@ -93,12 +93,10 @@ async function main() {
       console.log(`  ✅ ${moduleName}${target.fileExtension}`);
     }
 
-    // Generate index file for TypeScript
+    // Generate index file for TypeScript with explicit exports to avoid conflicts
     if (target.name === 'typescript') {
       const modules = schemaFiles.map(f => basename(dirname(f)));
-      const indexContent = modules
-        .map(m => `export * from './${m}';`)
-        .join('\n') + '\n';
+      const indexContent = await generateTypeScriptIndex(modules, schemaFiles);
       await writeFile(join(target.outputDir, 'index.ts'), indexContent);
       console.log('  ✅ index.ts');
     }
@@ -162,7 +160,7 @@ function generateZodSchema(name: string, def: any): string {
       } else if (prop.type === 'array') {
         zodType = 'z.array(z.unknown())';
       } else if (prop.type === 'object') {
-        zodType = 'z.record(z.unknown())';
+        zodType = 'z.record(z.string(), z.unknown())';
       }
 
       if (!isRequired) zodType += '.optional()';
@@ -174,6 +172,82 @@ function generateZodSchema(name: string, def: any): string {
 
   schema += `}).passthrough(); // Preserve unknown fields for relay\n`;
   return schema;
+}
+
+async function generateTypeScriptIndex(modules: string[], schemaFiles: string[]): Promise<string> {
+  // Track all exports across modules to detect conflicts
+  const allExports: Map<string, string[]> = new Map(); // export name -> module names
+
+  for (let i = 0; i < modules.length; i++) {
+    const moduleName = modules[i];
+    const content = await readFile(schemaFiles[i], 'utf-8');
+    const schema = JSON.parse(content);
+
+    if (schema.$defs) {
+      for (const name of Object.keys(schema.$defs)) {
+        // Each def generates: NameSchema, Name (type)
+        const exports = [`${name}Schema`, name];
+        for (const exp of exports) {
+          if (!allExports.has(exp)) {
+            allExports.set(exp, []);
+          }
+          allExports.get(exp)!.push(moduleName);
+        }
+      }
+    }
+
+    // Version constants
+    const constPrefix = moduleName.toUpperCase().replace(/-/g, '_');
+    allExports.set(`${constPrefix}_VERSION`, [moduleName]);
+    allExports.set(`${constPrefix}_MIN_READER_VERSION`, [moduleName]);
+  }
+
+  // Find conflicts (exports that appear in multiple modules)
+  const conflicts = new Set<string>();
+  for (const [exp, mods] of allExports) {
+    if (mods.length > 1) {
+      conflicts.add(exp);
+    }
+  }
+
+  // Generate explicit exports for each module
+  let code = '// Auto-generated index file with conflict-aware exports\n\n';
+
+  for (let i = 0; i < modules.length; i++) {
+    const moduleName = modules[i];
+    const content = await readFile(schemaFiles[i], 'utf-8');
+    const schema = JSON.parse(content);
+    const pascalModule = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
+
+    code += `// ${pascalModule} module exports\n`;
+    code += `export {\n`;
+
+    // Add version constants
+    const constPrefix = moduleName.toUpperCase().replace(/-/g, '_');
+    code += `  ${constPrefix}_VERSION,\n`;
+    code += `  ${constPrefix}_MIN_READER_VERSION,\n`;
+
+    if (schema.$defs) {
+      for (const name of Object.keys(schema.$defs)) {
+        const schemaName = `${name}Schema`;
+        if (conflicts.has(schemaName)) {
+          code += `  ${schemaName} as ${pascalModule}${schemaName},\n`;
+        } else {
+          code += `  ${schemaName},\n`;
+        }
+
+        if (conflicts.has(name)) {
+          code += `  type ${name} as ${pascalModule}${name},\n`;
+        } else {
+          code += `  type ${name},\n`;
+        }
+      }
+    }
+
+    code += `} from './${moduleName}';\n\n`;
+  }
+
+  return code;
 }
 
 function generateSwift(schema: any, moduleName: string): string {
