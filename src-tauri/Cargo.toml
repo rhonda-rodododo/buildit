@@ -1,0 +1,77 @@
+[package]
+name = "buildit-network-desktop"
+version = "0.1.0"
+description = "BuildIt Network Desktop - Privacy-first organizing platform"
+authors = ["BuildIt Network"]
+license = "MIT"
+repository = "https://github.com/buildit-network/buildit-network"
+edition = "2021"
+rust-version = "1.70"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Tauri core
+tauri = { version = "2", features = ["tray-icon", "protocol-asset"] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-deep-link = "2"
+
+# Async runtime
+tokio = { version = "1", features = ["full", "sync"] }
+
+# BLE support (btleplug)
+btleplug = "0.11"
+
+# System keyring for secure credential storage
+keyring = "3"
+
+# Local buildit-crypto crate
+buildit-crypto = { path = "../../buildit-crypto" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Futures utilities
+futures = "0.3"
+
+# UUID generation
+uuid = { version = "1.0", features = ["v4"] }
+
+# Async mutex for shared state
+parking_lot = "0.12"
+
+[features]
+# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "z"
+strip = true
+panic = "abort"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Linux-specific dependencies for BLE
+dbus = "0.9"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# macOS-specific dependencies (if needed)
+
+[target.'cfg(windows)'.dependencies]
+# Windows-specific dependencies (if needed)

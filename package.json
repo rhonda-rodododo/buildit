@@ -38,7 +38,11 @@
     "native:android": "cd apps/native && bun run android",
     "sdk:typecheck": "cd packages/sdk && bun run typecheck",
     "tokens:typecheck": "cd packages/design-tokens && bun run typecheck",
-    "shared:typecheck": "cd packages/shared && bun run typecheck"
+    "shared:typecheck": "cd packages/shared && bun run typecheck",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:icon": "tauri icon"
   },
   "keywords": [
     "nostr",
@@ -50,6 +54,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@tauri-apps/cli": "^2.4.0",
+    "@tauri-apps/api": "^2.4.0",
     "@axe-core/playwright": "^4.11.0",
     "@cloudflare/workers-types": "^4.20260118.0",
     "@eslint/js": "^9.39.2",
