@@ -94,4 +94,4 @@ Only additive changes allowed:
 
 ## Full Workflow
 
-See `protocol/spec/12-migration-guide.md` for complete migration procedures.
+See `docs/protocol-spec/12-migration-guide.md` for complete migration procedures.

@@ -52,10 +52,10 @@ This project is designed for autonomous execution by Claude Code.
 - **Testing**: Vitest + React Testing Library + Playwright
 
 ### Native Mobile Apps
-- **iOS**: Swift + SwiftUI + Core Bluetooth (see [buildit-ios](../buildit-ios))
-- **Android**: Kotlin + Jetpack Compose + Android BLE (see [buildit-android](../buildit-android))
-- **Shared Crypto**: Rust library with UniFFI bindings (see [buildit-crypto](../buildit-crypto))
-- **Protocol Spec**: Canonical reference (see [buildit-protocol](../buildit-protocol))
+- **iOS**: Swift + SwiftUI + Core Bluetooth (see [clients/ios](../ios))
+- **Android**: Kotlin + Jetpack Compose + Android BLE (see [clients/android](../android))
+- **Shared Crypto**: Rust library with UniFFI bindings (see [packages/crypto](../../packages/crypto))
+- **Protocol Spec**: Canonical reference (see [docs/protocol-spec](../../docs/protocol-spec))
 
 ## 🎯 Current Status
 
@@ -127,13 +127,13 @@ bun run tauri:build # Build desktop app
 
 **BuildIt Network is distributed exclusively as native applications** - no standalone web app is published.
 
-| Platform | Repository | Tech Stack | Distribution |
-|----------|------------|------------|--------------|
-| iOS | [buildit-ios](../buildit-ios) | Swift, SwiftUI, Core Bluetooth | App Store / TestFlight |
-| Android | [buildit-android](../buildit-android) | Kotlin, Jetpack Compose | Google Play |
-| Desktop | `src-tauri/` (this repo) | Rust, Tauri, btleplug | macOS, Windows, Linux binaries |
-| Protocol | [buildit-protocol](../buildit-protocol) | Specification docs | - |
-| Crypto | [buildit-crypto](../buildit-crypto) | Rust with UniFFI | - |
+| Platform | Location | Tech Stack | Distribution |
+|----------|----------|------------|--------------|
+| iOS | [clients/ios](../ios) | Swift, SwiftUI, Core Bluetooth | App Store / TestFlight |
+| Android | [clients/android](../android) | Kotlin, Jetpack Compose | Google Play |
+| Desktop | [clients/desktop](../desktop) | Rust, Tauri, btleplug | macOS, Windows, Linux binaries |
+| Protocol | [docs/protocol-spec](../../docs/protocol-spec) | Specification docs | - |
+| Crypto | [packages/crypto](../../packages/crypto) | Rust with UniFFI | - |
 
 The webapp source in `src/` is used only as the UI layer for the Tauri desktop application.
 

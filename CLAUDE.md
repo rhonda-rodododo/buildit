@@ -15,9 +15,11 @@ buildit/
 │   └── crypto/       # Rust crypto library + UniFFI bindings
 ├── protocol/
 │   ├── schemas/      # JSON Schema (SOURCE OF TRUTH for all types)
-│   ├── spec/         # Protocol specifications
 │   └── test-vectors/ # Cross-client validation tests
-├── docs/             # Unified documentation
+├── docs/
+│   ├── protocol-spec/  # Protocol specifications
+│   ├── architecture/   # System design docs
+│   └── guides/         # Implementation guides
 └── tools/
     └── codegen/      # Schema → TypeScript/Swift/Kotlin generators
 ```
@@ -98,8 +100,9 @@ Each client has a `CLAUDE.md` with platform-specific instructions:
 | Active Roadmap | `clients/web/NEXT_ROADMAP.md` |
 | Completed Work | `clients/web/COMPLETED_ROADMAP.md` |
 | Architecture | `docs/architecture/` |
-| Protocol Specs | `protocol/spec/` |
-| Schema Docs | `protocol/schemas/` |
+| Protocol Specs | `docs/protocol-spec/` |
+| Schema Definitions | `protocol/schemas/` |
+| Test Vectors | `protocol/test-vectors/` |
 | Implementation Guides | `docs/guides/` |
 
 ### Key Architectural Decisions

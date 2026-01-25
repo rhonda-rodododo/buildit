@@ -9,7 +9,7 @@
 - **Language**: Swift 5.9+
 - **UI**: SwiftUI
 - **BLE**: Core Bluetooth (Central + Peripheral)
-- **Crypto**: CryptoKit + buildit-crypto (UniFFI)
+- **Crypto**: CryptoKit + packages/crypto (UniFFI)
 - **Storage**: SwiftData / Keychain
 - **Nostr**: Native Swift implementation
 
@@ -65,7 +65,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
 
 ## Crypto via UniFFI
 
-The app uses `buildit-crypto` (Rust) via UniFFI bindings:
+The app uses `packages/crypto` (Rust) via UniFFI bindings:
 
 ```swift
 import BuildItCrypto

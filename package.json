@@ -5,6 +5,8 @@
   "description": "Privacy-first organizing platform for activist groups",
   "workspaces": [
     "clients/web",
+    "clients/web/packages/*",
+    "clients/web/apps/*",
     "tools/*"
   ],
   "scripts": {

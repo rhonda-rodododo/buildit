@@ -19,12 +19,12 @@ BuildIt Network has migrated from React Native + Expo to fully native implementa
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PROTOCOL SPECIFICATION                        │
-│  (buildit-protocol/ - canonical reference for all platforms)    │
+│  (docs/protocol-spec/ - canonical reference for all platforms)  │
 └─────────────────────────────────────────────────────────────────┘
                               │
 ┌─────────────────────────────┼─────────────────────────────────┐
 │                   RUST CRYPTO CORE                              │
-│  (buildit-crypto/ - UniFFI bindings for Swift/Kotlin)          │
+│  (packages/crypto/ - UniFFI bindings for Swift/Kotlin)         │
 │  - NIP-44 ChaCha20-Poly1305 encryption                         │
 │  - NIP-17 gift wrap/unwrap                                     │
 │  - Key derivation (PBKDF2, HKDF)                               │
@@ -35,8 +35,8 @@ BuildIt Network has migrated from React Native + Expo to fully native implementa
         ▼                     ▼                     ▼
 ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
 │  iOS Native   │    │Android Native │    │ Tauri Desktop │
-│  (buildit-ios)│    │(buildit-      │    │  (src-tauri/) │
-│               │    │ android)      │    │               │
+│ (clients/ios) │    │ (clients/     │    │ (clients/     │
+│               │    │  android)     │    │  desktop)     │
 │  SwiftUI      │    │ Jetpack       │    │ Rust + Web    │
 │  Core Bluetooth│    │ Compose       │    │ btleplug     │
 │  Keychain     │    │ Android BLE   │    │ libsecret    │
@@ -115,13 +115,13 @@ npm run tauri:dev
 
 ## Protocol Specification
 
-All native implementations follow the canonical protocol specification in `../buildit-protocol/`:
+All native implementations follow the canonical protocol specification in `../../docs/protocol-spec/`:
 
-- `spec/02-ble-mesh.md` - BLE mesh protocol
-- `spec/03-transport.md` - Transport layer
-- `spec/04-cryptography.md` - Encryption
-- `spec/05-nostr-extensions.md` - Nostr NIPs
-- `spec/06-device-sync.md` - Device sync
+- `08-schema-versioning.md` - Schema versioning
+- `09-schema-codegen.md` - Code generation
+- `10-version-negotiation.md` - Version negotiation
+- `11-client-implementation-guide.md` - Client implementation
+- `12-migration-guide.md` - Migration guide
 
 ## Cross-Platform Compatibility
 
@@ -130,18 +130,18 @@ All platforms must:
 2. Implement identical message chunking (21-byte header)
 3. Use NIP-44 v2 encryption with same parameters
 4. Support NIP-17 gift wrap format
-5. Pass the same test vectors in `buildit-protocol/test-vectors/`
+5. Pass the same test vectors in `protocol/test-vectors/`
 
 ## Development Workflow
 
-1. **Protocol changes**: Update `buildit-protocol/` first
-2. **Crypto changes**: Update `buildit-crypto/`, rebuild UniFFI bindings
+1. **Protocol changes**: Update `docs/protocol-spec/` first
+2. **Crypto changes**: Update `packages/crypto/`, rebuild UniFFI bindings
 3. **Platform updates**: Update each native app independently
 4. **Testing**: Run conformance tests on all platforms
 
 ## Related Documentation
 
-- [Protocol Specification](../buildit-protocol/README.md)
-- [Rust Crypto Library](../buildit-crypto/README.md)
-- [iOS App](../buildit-ios/README.md)
-- [Android App](../buildit-android/README.md)
+- [Protocol Specification](../../docs/protocol-spec/)
+- [Rust Crypto Library](../../packages/crypto/README.md)
+- [iOS App](../ios/README.md)
+- [Android App](../android/README.md)

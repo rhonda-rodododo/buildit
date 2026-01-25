@@ -122,22 +122,22 @@ Before making any schema change:
 Run codegen to update all clients:
 
 ```bash
-cd buildit-protocol
+cd protocol
 bun run codegen
 ```
 
 This generates:
-- TypeScript types in `buildit-network/src/generated/`
-- Swift types in `buildit-ios/Sources/Generated/`
-- Kotlin types in `buildit-android/app/.../generated/`
-- Rust types in `buildit-crypto/src/generated/`
+- TypeScript types in `clients/web/src/generated/`
+- Swift types in `clients/ios/Sources/Generated/`
+- Kotlin types in `clients/android/app/.../generated/`
+- Rust types in `packages/crypto/src/generated/`
 
 ### Step 5: Implement Migration Logic
 
 Each client needs migration code:
 
 ```typescript
-// buildit-network/src/core/schema/migrations/events.ts
+// clients/web/src/core/schema/migrations/events.ts
 
 import { EventV1, EventV2 } from '@/generated/schemas';
 

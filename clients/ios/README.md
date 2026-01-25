@@ -51,10 +51,10 @@ BuildIt/
 
 ## Building
 
-1. Clone the repository:
+1. Clone the monorepo and navigate to iOS client:
 ```bash
-git clone https://github.com/buildit/buildit-ios.git
-cd buildit-ios
+git clone https://github.com/buildit/buildit.git
+cd buildit/clients/ios
 ```
 
 2. Open in Xcode:

@@ -193,7 +193,7 @@ cargo test -- --nocapture
 
 ## Protocol Conformance
 
-This library implements the [BuildIt Protocol Specification](../buildit-protocol/). All implementations must pass the same test vectors.
+This library implements the [BuildIt Protocol Specification](../../docs/protocol-spec/). All implementations must pass the same test vectors in `../../protocol/test-vectors/`.
 
 ## License
 

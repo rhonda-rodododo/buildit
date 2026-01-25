@@ -2,13 +2,13 @@
 
 ## Overview
 
-This specification defines how JSON Schema definitions in `buildit-protocol/schemas/` are transformed into native type definitions for each client platform.
+This specification defines how JSON Schema definitions in `protocol/schemas/` are transformed into native type definitions for each client platform.
 
 ## Code Generation Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ buildit-protocol/schemas/                                        │
+│ protocol/schemas/                                        │
 │  ├── modules/events/v1.json                                      │
 │  ├── modules/messaging/v1.json                                   │
 │  └── ...                                                         │
@@ -31,7 +31,7 @@ This specification defines how JSON Schema definitions in `buildit-protocol/sche
         │                │                │                │
         ▼                ▼                ▼                ▼
 ┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
-│ buildit-      │ │ buildit-ios/  │ │ buildit-      │ │ buildit-      │
+│ buildit-      │ │ clients/ios/  │ │ buildit-      │ │ buildit-      │
 │ network/src/  │ │ Sources/      │ │ android/app/  │ │ crypto/src/   │
 │ generated/    │ │ Generated/    │ │ src/.../      │ │ generated/    │
 │               │ │               │ │ generated/    │ │               │
@@ -42,7 +42,7 @@ This specification defines how JSON Schema definitions in `buildit-protocol/sche
 
 ### TypeScript (Web/Desktop)
 
-**Output Path**: `buildit-network/src/generated/schemas/`
+**Output Path**: `clients/web/src/generated/schemas/`
 
 ```typescript
 // src/generated/schemas/index.ts
@@ -53,7 +53,7 @@ export * from './types';
 
 // src/generated/schemas/events.ts
 /**
- * @generated from buildit-protocol/schemas/modules/events/v1.json
+ * @generated from protocol/schemas/modules/events/v1.json
  * @version 1.0.0
  * @minReaderVersion 1.0.0
  */
@@ -126,12 +126,12 @@ export function parseEvent(data: unknown): ParseResult<Event> {
 
 ### Swift (iOS)
 
-**Output Path**: `buildit-ios/Sources/Generated/`
+**Output Path**: `clients/ios/Sources/Generated/`
 
 ```swift
 // Sources/Generated/Schemas/Events.swift
 /**
- * @generated from buildit-protocol/schemas/modules/events/v1.json
+ * @generated from protocol/schemas/modules/events/v1.json
  * @version 1.0.0
  * @minReaderVersion 1.0.0
  */
@@ -297,12 +297,12 @@ public enum EventsSchema {
 
 ### Kotlin (Android)
 
-**Output Path**: `buildit-android/app/src/main/java/network/buildit/generated/`
+**Output Path**: `clients/android/app/src/main/java/network/buildit/generated/`
 
 ```kotlin
 // generated/schemas/Events.kt
 /**
- * @generated from buildit-protocol/schemas/modules/events/v1.json
+ * @generated from protocol/schemas/modules/events/v1.json
  * @version 1.0.0
  * @minReaderVersion 1.0.0
  */
@@ -430,11 +430,11 @@ object EventsSchema {
 
 ### Rust (Crypto Library)
 
-**Output Path**: `buildit-crypto/src/generated/`
+**Output Path**: `packages/crypto/src/generated/`
 
 ```rust
 // src/generated/schemas/events.rs
-//! @generated from buildit-protocol/schemas/modules/events/v1.json
+//! @generated from protocol/schemas/modules/events/v1.json
 //! @version 1.0.0
 //! @minReaderVersion 1.0.0
 
@@ -541,7 +541,7 @@ pub mod events_schema {
 ### Installation
 
 ```bash
-# In buildit-protocol/
+# In tools/codegen/
 bun install
 ```
 
@@ -566,7 +566,7 @@ bun run codegen --watch
 
 ### Configuration
 
-**`buildit-protocol/codegen.config.ts`**:
+**`tools/codegen.config.ts`**:
 
 ```typescript
 import { defineConfig } from './codegen/config';
@@ -578,24 +578,24 @@ export default defineConfig({
   targets: {
     typescript: {
       enabled: true,
-      outputPath: '../buildit-network/src/generated/schemas',
+      outputPath: '../clients/web/src/generated/schemas',
       runtime: 'zod', // 'zod' | 'io-ts' | 'none'
       style: 'interface', // 'interface' | 'type'
     },
     swift: {
       enabled: true,
-      outputPath: '../buildit-ios/Sources/Generated',
+      outputPath: '../clients/ios/Sources/Generated',
       codable: true,
       sendable: true,
     },
     kotlin: {
       enabled: true,
-      outputPath: '../buildit-android/app/src/main/java/network/buildit/generated',
+      outputPath: '../clients/android/app/src/main/java/network/buildit/generated',
       serialization: 'kotlinx', // 'kotlinx' | 'gson' | 'moshi'
     },
     rust: {
       enabled: true,
-      outputPath: '../buildit-crypto/src/generated',
+      outputPath: '../packages/crypto/src/generated',
       serde: true,
     },
   },
@@ -632,10 +632,10 @@ name: Schema Validation
 on:
   push:
     paths:
-      - 'buildit-protocol/schemas/**'
+      - 'protocol/schemas/**'
   pull_request:
     paths:
-      - 'buildit-protocol/schemas/**'
+      - 'protocol/schemas/**'
 
 jobs:
   validate:
@@ -646,15 +646,15 @@ jobs:
       - uses: oven-sh/setup-bun@v1
 
       - name: Install dependencies
-        working-directory: buildit-protocol
+        working-directory: tools/codegen
         run: bun install
 
       - name: Validate schemas
-        working-directory: buildit-protocol
+        working-directory: tools/codegen
         run: bun run codegen --validate
 
       - name: Generate code
-        working-directory: buildit-protocol
+        working-directory: tools/codegen
         run: bun run codegen
 
       - name: Check for uncommitted changes

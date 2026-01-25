@@ -41,7 +41,7 @@ Module schemas maintain backward compatibility for 6 months after a breaking cha
 
 ### Module Schema Structure
 
-All module schemas live in `buildit-protocol/schemas/modules/{module}/`:
+All module schemas live in `protocol/schemas/modules/{module}/`:
 
 ```json
 {
@@ -412,14 +412,14 @@ enum SchemaSyncType {
 
 ### Generated Artifacts
 
-From `buildit-protocol/schemas/modules/`:
+From `protocol/schemas/modules/`:
 
 | Target | Output | Location |
 |--------|--------|----------|
-| TypeScript | interfaces + validators | `buildit-network/src/generated/` |
-| Swift | Codable structs | `buildit-ios/Sources/Generated/` |
-| Kotlin | data classes | `buildit-android/app/src/.../generated/` |
-| Rust | serde structs | `buildit-crypto/src/generated/` |
+| TypeScript | interfaces + validators | `clients/web/src/generated/` |
+| Swift | Codable structs | `clients/ios/Sources/Generated/` |
+| Kotlin | data classes | `clients/android/app/src/.../generated/` |
+| Rust | serde structs | `packages/crypto/src/generated/` |
 
 ### CI Validation
 

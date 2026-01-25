@@ -427,7 +427,7 @@ Client → Receive stats, update analytics dashboard
 
 **Context**: BuildIt operates in crisis scenarios (disasters, repression) where users may have limited/no internet access and mixed client versions. This epic establishes schema versioning that guarantees interoperability across all clients (web, iOS, Android, desktop) while supporting offline schema distribution.
 
-**Specification**: See `buildit-protocol/spec/08-schema-versioning.md`
+**Specification**: See `docs/protocol-spec/08-schema-versioning.md`
 
 **Key Decisions** (User Confirmed):
 - **Support Window**: 6 months for module schemas (indefinite for core messaging)
@@ -437,7 +437,7 @@ Client → Receive stats, update analytics dashboard
 **Architecture**:
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ buildit-protocol/schemas/modules/                           │
+│ protocol/schemas/modules/                                   │
 │  ├── _registry.json        (module manifest + versions)     │
 │  ├── messaging/v1.json     (CORE - indefinite support)      │
 │  ├── events/v1.json        (6-month support window)         │
@@ -456,8 +456,8 @@ Client → Receive stats, update analytics dashboard
 **Tasks**:
 
 - [ ] **Phase 1: Schema Infrastructure (8-10h)**
-  - [x] Create `buildit-protocol/spec/08-schema-versioning.md` (complete)
-  - [x] Create `buildit-protocol/schemas/modules/_registry.json` (complete)
+  - [x] Create `docs/protocol-spec/08-schema-versioning.md` (complete)
+  - [x] Create `protocol/schemas/modules/_registry.json` (complete)
   - [x] Create sample module schemas (messaging, events) (complete)
   - [x] Define schema bundle format (complete)
   - [ ] Add remaining module schemas (governance, mutual-aid, wiki, etc.)
@@ -497,9 +497,9 @@ Client → Receive stats, update analytics dashboard
 - `bun run test && bun run typecheck` passes
 
 **Reference Docs**:
-- [buildit-protocol/spec/08-schema-versioning.md](../buildit-protocol/spec/08-schema-versioning.md)
-- [buildit-protocol/schemas/modules/](../buildit-protocol/schemas/modules/)
-- [buildit-protocol/schemas/bundle-format.json](../buildit-protocol/schemas/bundle-format.json)
+- [docs/protocol-spec/08-schema-versioning.md](../../docs/protocol-spec/08-schema-versioning.md)
+- [protocol/schemas/modules/](../../protocol/schemas/modules/)
+- [protocol/schemas/bundle-format.json](../../protocol/schemas/bundle-format.json)
 
 **Git Commit Format**: `feat(protocol): implement schema versioning and cross-client compatibility (Epic 73)`
 

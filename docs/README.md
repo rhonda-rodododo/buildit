@@ -7,7 +7,7 @@
 | **Start here** | `/CLAUDE.md` |
 | **Active roadmap** | `clients/web/NEXT_ROADMAP.md` |
 | **Completed work** | `clients/web/COMPLETED_ROADMAP.md` |
-| **Protocol specs** | `protocol/spec/` |
+| **Protocol specs** | `docs/protocol-spec/` |
 | **Schema definitions** | `protocol/schemas/` |
 | **Test vectors** | `protocol/test-vectors/` |
 
@@ -23,6 +23,12 @@ docs/
 │   ├── adding-module.md
 │   ├── schema-changes.md
 │   └── testing.md
+├── protocol-spec/      # Protocol specifications
+│   ├── 08-schema-versioning.md
+│   ├── 09-schema-codegen.md
+│   ├── 10-version-negotiation.md
+│   ├── 11-client-implementation-guide.md
+│   └── 12-migration-guide.md
 └── roadmap/            # Planning docs
     └── archive/        # Historical planning docs
 ```
@@ -30,11 +36,11 @@ docs/
 ## Quick Links
 
 ### Protocol
-- [Schema Versioning](../protocol/spec/08-schema-versioning.md) - Version policy, graceful degradation
-- [Code Generation](../protocol/spec/09-schema-codegen.md) - Schema → native types
-- [Version Negotiation](../protocol/spec/10-version-negotiation.md) - Cross-client compatibility
-- [Client Implementation](../protocol/spec/11-client-implementation-guide.md) - Platform guides
-- [Migration Guide](../protocol/spec/12-migration-guide.md) - Schema evolution
+- [Schema Versioning](./protocol-spec/08-schema-versioning.md) - Version policy, graceful degradation
+- [Code Generation](./protocol-spec/09-schema-codegen.md) - Schema → native types
+- [Version Negotiation](./protocol-spec/10-version-negotiation.md) - Cross-client compatibility
+- [Client Implementation](./protocol-spec/11-client-implementation-guide.md) - Platform guides
+- [Migration Guide](./protocol-spec/12-migration-guide.md) - Schema evolution
 
 ### Architecture
 - [Web/Desktop Architecture](../clients/web/ARCHITECTURE.md)

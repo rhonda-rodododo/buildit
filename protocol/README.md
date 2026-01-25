@@ -49,15 +49,16 @@ All BuildIt Network implementations MUST:
 4. Pass all test vectors
 5. Be interoperable with other BuildIt implementations
 
-## Related Repositories
+## Monorepo Locations
 
-| Repository | Description |
-|------------|-------------|
-| [buildit-crypto](../buildit-crypto) | Rust crypto core with UniFFI bindings |
-| [buildit-ios](../buildit-ios) | Native iOS app (SwiftUI) |
-| [buildit-android](../buildit-android) | Native Android app (Jetpack Compose) |
-| [buildit-desktop](../buildit-desktop) | Tauri desktop app |
-| [buildit-network](../buildit-network) | Original web app and SDK |
+| Path | Description |
+|------|-------------|
+| [packages/crypto](../packages/crypto) | Rust crypto core with UniFFI bindings |
+| [clients/ios](../clients/ios) | Native iOS app (SwiftUI) |
+| [clients/android](../clients/android) | Native Android app (Jetpack Compose) |
+| [clients/desktop](../clients/desktop) | Tauri desktop app |
+| [clients/web](../clients/web) | Web app and SDK |
+| [docs/protocol-spec](../docs/protocol-spec) | Protocol specifications |
 
 ## License
 

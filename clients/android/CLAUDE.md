@@ -9,7 +9,7 @@
 - **Language**: Kotlin 1.9+
 - **UI**: Jetpack Compose
 - **BLE**: Android Bluetooth LE API
-- **Crypto**: Android Keystore + buildit-crypto (UniFFI)
+- **Crypto**: Android Keystore + packages/crypto (UniFFI)
 - **Storage**: Room Database
 - **Nostr**: OkHttp WebSocket
 - **Serialization**: kotlinx.serialization

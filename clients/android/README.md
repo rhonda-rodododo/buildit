@@ -17,7 +17,7 @@ Native Android application for the BuildIt decentralized, censorship-resistant m
 app/
 ├── core/
 │   ├── ble/          # Bluetooth Low Energy mesh networking
-│   ├── crypto/       # Cryptographic operations (wraps buildit-crypto)
+│   ├── crypto/       # Cryptographic operations (wraps packages/crypto)
 │   ├── nostr/        # Nostr protocol implementation
 │   ├── transport/    # Multi-transport message routing
 │   └── storage/      # Local database (Room)
@@ -57,9 +57,9 @@ app/
 - JDK 17
 - Android SDK 34
 - Android NDK 25.2.9519653
-- Rust toolchain (for buildit-crypto)
+- Rust toolchain (for packages/crypto)
 
-### Setup buildit-crypto Native Library
+### Setup packages/crypto Native Library
 
 The cryptographic operations are handled by a Rust library via JNI. To build:
 

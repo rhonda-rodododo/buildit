@@ -1028,10 +1028,10 @@ Every client MUST include tests for:
 
 ### Test Vectors
 
-Use test vectors from `buildit-protocol/test-vectors/`:
+Use test vectors from `protocol/test-vectors/`:
 
 ```typescript
-import { testVectors } from 'buildit-protocol/test-vectors/schema-versioning.json';
+import { testVectors } from 'protocol/test-vectors/schema-versioning.json';
 
 describe('Schema Versioning', () => {
   for (const vector of testVectors) {
