@@ -24,7 +24,7 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-24 (Epic 63 Native MVP feature-complete)
+**Last Updated**: 2026-01-25 (Epic 73 Schema Versioning spec complete)
 **Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63 ✅ MVP Complete)
 **Build Status**: ✅ Successful (285.33KB brotli initial load)
 **Test Status**: ✅ 1274/1274 tests passing (100% pass rate, 63 test files)
@@ -412,6 +412,98 @@ Client → Receive stats, update analytics dashboard
 **Git Commit Format**: `feat: add email delivery option for newsletters with SendGrid/Mailgun (Epic 53B)`
 
 **Git Tag**: `v0.53b.0-newsletters-email`
+
+---
+
+## 🔧 Protocol Infrastructure
+
+### Epic 73: Schema Versioning & Cross-Client Compatibility 📜
+**Status**: Spec Complete, Implementation Not Started
+**Priority**: P1 - Crisis Resilience Critical
+**Effort**: 25-35 hours
+**Dependencies**: None (foundation for multi-client architecture)
+**Assignable to subagent**: Yes (`protocol-engineer`, `feature-implementer`)
+**Backend Required**: ❌ No (distributed via BLE mesh)
+
+**Context**: BuildIt operates in crisis scenarios (disasters, repression) where users may have limited/no internet access and mixed client versions. This epic establishes schema versioning that guarantees interoperability across all clients (web, iOS, Android, desktop) while supporting offline schema distribution.
+
+**Specification**: See `buildit-protocol/spec/08-schema-versioning.md`
+
+**Key Decisions** (User Confirmed):
+- **Support Window**: 6 months for module schemas (indefinite for core messaging)
+- **Update Policy**: Core messaging NEVER blocks - DMs, groups, BLE mesh always work regardless of version
+- **Offline Distribution**: Schema bundles propagate via BLE mesh as priority feature
+
+**Architecture**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│ buildit-protocol/schemas/modules/                           │
+│  ├── _registry.json        (module manifest + versions)     │
+│  ├── messaging/v1.json     (CORE - indefinite support)      │
+│  ├── events/v1.json        (6-month support window)         │
+│  └── governance/v1.json    (6-month support window)         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+┌─────────────────┐ ┌─────────────┐ ┌─────────────────┐
+│   TypeScript    │ │    Swift    │ │     Kotlin      │
+│   (Web/Tauri)   │ │    (iOS)    │ │    (Android)    │
+│   codegen       │ │   codegen   │ │    codegen      │
+└─────────────────┘ └─────────────┘ └─────────────────┘
+```
+
+**Tasks**:
+
+- [ ] **Phase 1: Schema Infrastructure (8-10h)**
+  - [x] Create `buildit-protocol/spec/08-schema-versioning.md` (complete)
+  - [x] Create `buildit-protocol/schemas/modules/_registry.json` (complete)
+  - [x] Create sample module schemas (messaging, events) (complete)
+  - [x] Define schema bundle format (complete)
+  - [ ] Add remaining module schemas (governance, mutual-aid, wiki, etc.)
+  - [ ] Create JSON Schema validation CI job
+
+- [ ] **Phase 2: Web Client Integration (6-8h)**
+  - [ ] Add `_v` field to all module message types
+  - [ ] Implement graceful degradation parser
+  - [ ] Create "update available" UI components
+  - [ ] Implement unknown field preservation for relay
+  - [ ] Add schema version to DeviceInfo (BLE discovery)
+
+- [ ] **Phase 3: Offline Schema Distribution (8-12h)**
+  - [ ] Implement schema bundle generation script
+  - [ ] Implement bundle signature verification
+  - [ ] Add BLE schema sync protocol (request/chunk/complete)
+  - [ ] Implement QR code schema transfer
+  - [ ] Create schema import from file
+
+- [ ] **Phase 4: Codegen & Validation (3-5h)**
+  - [ ] JSON Schema → TypeScript generator
+  - [ ] CI validation: schemas match client types
+  - [ ] Test vectors for cross-version parsing
+
+**Acceptance Criteria**:
+- Core messaging (DMs, groups, BLE) works across ANY client version
+- Module content degrades gracefully on older clients
+- Unknown fields preserved for mesh relay forwarding
+- Schema bundles can propagate via BLE (no internet required)
+- All clients can validate schemas before applying
+
+**Testing Requirements**:
+- Unit tests for graceful degradation parser
+- Integration tests for schema bundle verification
+- E2E tests for BLE schema sync
+- Cross-version parsing test vectors
+- `bun run test && bun run typecheck` passes
+
+**Reference Docs**:
+- [buildit-protocol/spec/08-schema-versioning.md](../buildit-protocol/spec/08-schema-versioning.md)
+- [buildit-protocol/schemas/modules/](../buildit-protocol/schemas/modules/)
+- [buildit-protocol/schemas/bundle-format.json](../buildit-protocol/schemas/bundle-format.json)
+
+**Git Commit Format**: `feat(protocol): implement schema versioning and cross-client compatibility (Epic 73)`
+
+**Git Tag**: `v0.73.0-schema-versioning`
 
 ---
 
@@ -879,8 +971,8 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2026-01-24 (Epic 72 Account Recovery System complete)
-**Total Epics Pending**: ~13 (Epic 31, 36, 45, 49B, 51, 53B, 54-63)
+**Last Updated**: 2026-01-25 (Epic 73 Schema Versioning spec complete)
+**Total Epics Pending**: ~14 (Epic 31, 36, 45, 49B, 51, 53B, 54-63, 73)
 **Total Backlog Items**: 5+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
 
 ---
@@ -1028,8 +1120,15 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
     - Design joyful organizing UX
     - Informs Epic 46 (Joyful UX Patterns)
 
+### **Phase 4: Multi-Client Resilience (P1)** - 2-3 weeks
+15. **Epic 73: Schema Versioning & Cross-Client Compatibility** (25-35h) ⭐ **NEW**
+    - Guarantees interoperability across all client versions
+    - Offline schema distribution via BLE mesh
+    - Core messaging NEVER blocks on updates
+    - Crisis resilience critical
+
 ### **Pre-Launch (P0)** - 1 week
-15. **Epic 31: Legal & Compliance** (5-10h)
+16. **Epic 31: Legal & Compliance** (5-10h)
     - Terms of Service, Privacy Policy
     - Before public launch
 
