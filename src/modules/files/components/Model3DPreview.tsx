@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useTauriShell } from '@/lib/tauri'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RotateCcw, ZoomIn, ZoomOut, Move3D, Box, Download } from 'lucide-react'
@@ -16,6 +17,7 @@ interface Model3DPreviewProps {
 
 export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
   const { t } = useTranslation()
+  const { openUrl } = useTauriShell()
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -221,7 +223,7 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
         <Box className="h-16 w-16 text-red-500 mb-4" />
         <h3 className="text-lg font-medium mb-2">{t('model3DPreview.failedToLoad')}</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center">{error}</p>
-        <Button variant="outline" onClick={() => window.open(url, '_blank')}>
+        <Button variant="outline" onClick={() => openUrl(url)}>
           <Download className="h-4 w-4 mr-2" />
           {t('model3DPreview.downloadModel')}
         </Button>

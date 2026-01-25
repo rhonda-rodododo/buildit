@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { useTauriShell } from '@/lib/tauri';
 
 interface ContactProfileProps {
   recordId: string;
@@ -74,6 +75,7 @@ export function ContactProfile({
   onClose,
 }: ContactProfileProps) {
   const { t } = useTranslation();
+  const { openUrl, openEmail } = useTauriShell();
   const [activeTab, setActiveTab] = useState<'details' | 'related' | 'timeline'>('details');
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -250,7 +252,7 @@ export function ContactProfile({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`mailto:${contactInfo.email}`, '_blank')}
+                        onClick={() => openEmail(contactInfo.email!)}
                       >
                         <Mail className="h-4 w-4 mr-1" />
                         {t('common.email', 'Email')}
@@ -267,7 +269,7 @@ export function ContactProfile({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`tel:${contactInfo.phone}`, '_blank')}
+                        onClick={() => openUrl(`tel:${contactInfo.phone}`)}
                       >
                         <Phone className="h-4 w-4 mr-1" />
                         {t('common.call', 'Call')}
@@ -284,7 +286,7 @@ export function ContactProfile({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`https://njump.me/${contactInfo.pubkey}`, '_blank')}
+                        onClick={() => openUrl(`https://njump.me/${contactInfo.pubkey}`)}
                       >
                         <ExternalLink className="h-4 w-4 mr-1" />
                         {t('common.nostrProfile', 'Nostr')}

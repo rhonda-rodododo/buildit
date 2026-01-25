@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { secureRandomString } from '@/lib/utils';
 import { toast } from 'sonner';
 import { sanitizeHtml } from '@/lib/security/sanitize';
+import { useTauriShell } from '@/lib/tauri';
 
 interface ArticleViewProps {
   article: Article;
@@ -39,6 +40,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
   className,
 }) => {
   const { t } = useTranslation();
+  const { openUrl } = useTauriShell();
 
   // Record view on mount
   useEffect(() => {
@@ -59,9 +61,8 @@ export const ArticleView: FC<ArticleViewProps> = ({
   const handleShareTwitter = () => {
     const url = `${window.location.origin}/p/${publication.slug}/${article.slug}`;
     const text = `${article.title} by ${publication.name}`;
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-      '_blank'
+    openUrl(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
     );
   };
 

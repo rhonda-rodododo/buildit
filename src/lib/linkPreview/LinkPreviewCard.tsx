@@ -13,10 +13,11 @@
  * - Accessible and mobile-friendly
  */
 
-import { FC, useMemo } from 'react'
+import { FC, useMemo, useCallback } from 'react'
 import type { LinkPreview } from './types'
 import { ExternalLink, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useTauriShell } from '@/lib/tauri'
 
 interface LinkPreviewCardProps {
   /** Link preview data */
@@ -82,11 +83,12 @@ export const LinkPreviewCard: FC<LinkPreviewCardProps> = ({
     () => getImageSrc(preview.faviconData, preview.faviconType),
     [preview.faviconData, preview.faviconType]
   )
+  const { openUrl } = useTauriShell()
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     onClick?.()
-    window.open(preview.url, '_blank', 'noopener,noreferrer')
-  }
+    openUrl(preview.url)
+  }, [onClick, openUrl, preview.url])
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
