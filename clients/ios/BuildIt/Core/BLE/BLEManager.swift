@@ -3,27 +3,96 @@
 //
 // Central manager for Bluetooth Low Energy operations.
 // Coordinates scanning, advertising, and mesh routing.
+//
+// SECURITY FEATURES:
+// - Dynamic service UUID rotation (daily) to prevent tracking
+// - Commitment-based identity (H(pubkey || nonce)) instead of exposing public keys
+// - No public key in advertisements
 
 import Foundation
 import CoreBluetooth
+import CryptoKit
 import Combine
 import os.log
 
-/// Service and Characteristic UUIDs for BuildIt mesh protocol
+/// Service UUID rotation interval in seconds (24 hours)
+private let uuidRotationIntervalSecs: UInt64 = 86400
+
+/// Well-known seed for UUID derivation (all BuildIt nodes use this)
+private let uuidDerivationSeed = "BuildItNetwork-BLE-UUID-Seed-v1".data(using: .utf8)!
+
+/// Generate the current service UUID based on daily rotation
+///
+/// SECURITY: All BuildIt nodes derive the same UUID for a given day, allowing
+/// discovery while preventing long-term device tracking via static UUIDs.
+func getCurrentServiceUUID() -> CBUUID {
+    // Get current day (UTC) as the rotation epoch
+    let now = UInt64(Date().timeIntervalSince1970)
+    let dayEpoch = now / uuidRotationIntervalSecs
+
+    // Derive UUID from seed and day
+    var hasher = SHA256()
+    hasher.update(data: uuidDerivationSeed)
+    withUnsafeBytes(of: dayEpoch.littleEndian) { hasher.update(bufferPointer: $0) }
+    let hash = hasher.finalize()
+
+    // Use first 16 bytes of hash as UUID, but keep the version/variant bits valid
+    var uuidBytes = Array(hash.prefix(16))
+
+    // Set version 4 (random) and variant 1 (RFC 4122)
+    uuidBytes[6] = (uuidBytes[6] & 0x0f) | 0x40 // Version 4
+    uuidBytes[8] = (uuidBytes[8] & 0x3f) | 0x80 // Variant 1
+
+    let uuidString = uuidBytes.enumerated().map { index, byte -> String in
+        let hex = String(format: "%02x", byte)
+        switch index {
+        case 4, 6, 8, 10: return "-" + hex
+        default: return hex
+        }
+    }.joined()
+
+    return CBUUID(string: uuidString)
+}
+
+/// Get characteristic UUIDs based on current service UUID
+func getMessageCharacteristicUUID() -> CBUUID {
+    // Derive from service UUID with offset
+    let service = getCurrentServiceUUID()
+    // For simplicity, use a static offset pattern
+    return CBUUID(string: service.uuidString.replacingOccurrences(of: "-0000-", with: "-0001-"))
+}
+
+func getIdentityCharacteristicUUID() -> CBUUID {
+    let service = getCurrentServiceUUID()
+    return CBUUID(string: service.uuidString.replacingOccurrences(of: "-0000-", with: "-0002-"))
+}
+
+func getHandshakeCharacteristicUUID() -> CBUUID {
+    let service = getCurrentServiceUUID()
+    return CBUUID(string: service.uuidString.replacingOccurrences(of: "-0000-", with: "-0003-"))
+}
+
+func getRoutingCharacteristicUUID() -> CBUUID {
+    let service = getCurrentServiceUUID()
+    return CBUUID(string: service.uuidString.replacingOccurrences(of: "-0000-", with: "-0004-"))
+}
+
+/// DEPRECATED: Legacy static UUIDs - DO NOT USE
+/// These expose users to long-term tracking
 enum BuildItBLEConstants {
-    /// Main service UUID for BuildIt mesh communication
+    @available(*, deprecated, message: "Use getCurrentServiceUUID() for rotating UUIDs")
     static let serviceUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef0")
 
-    /// Characteristic for sending/receiving mesh messages
+    @available(*, deprecated, message: "Use getMessageCharacteristicUUID() for rotating UUIDs")
     static let messageCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef1")
 
-    /// Characteristic for device identification
+    @available(*, deprecated, message: "Use getIdentityCharacteristicUUID() for rotating UUIDs")
     static let identityCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef2")
 
-    /// Characteristic for mesh routing information
+    @available(*, deprecated, message: "Use getRoutingCharacteristicUUID() for rotating UUIDs")
     static let routingCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef3")
 
-    /// Characteristic for connection handshake
+    @available(*, deprecated, message: "Use getHandshakeCharacteristicUUID() for rotating UUIDs")
     static let handshakeCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef4")
 
     /// Maximum message size for BLE transfer (negotiated MTU - 3)
@@ -36,6 +105,47 @@ enum BuildItBLEConstants {
     static let scanDuration: TimeInterval = 5.0
 }
 
+/// Identity commitment for BLE advertisement
+///
+/// SECURITY: We advertise H(pubkey || nonce) instead of the actual pubkey.
+/// The nonce is revealed after connection establishment.
+struct IdentityCommitment {
+    /// SHA256(pubkey || nonce), first 20 bytes (fits in BLE advertisement)
+    let commitment: Data
+    /// Nonce used in commitment (revealed after connection)
+    let nonce: Data
+    /// Our actual public key (never transmitted in advertisements)
+    let pubkey: String
+
+    init(pubkey: String) {
+        var nonceBytes = [UInt8](repeating: 0, count: 16)
+        _ = SecRandomCopyBytes(kSecRandomDefault, 16, &nonceBytes)
+        self.nonce = Data(nonceBytes)
+
+        var hasher = SHA256()
+        hasher.update(data: Data(pubkey.utf8))
+        hasher.update(data: nonce)
+        let hash = hasher.finalize()
+
+        self.commitment = Data(hash.prefix(20))
+        self.pubkey = pubkey
+    }
+
+    /// Verify a commitment against a pubkey and nonce
+    static func verify(commitment: Data, pubkey: String, nonce: Data) -> Bool {
+        var hasher = SHA256()
+        hasher.update(data: Data(pubkey.utf8))
+        hasher.update(data: nonce)
+        let hash = hasher.finalize()
+        return Data(hash.prefix(commitment.count)) == commitment
+    }
+
+    /// Get the commitment bytes for advertisement (max 20 bytes)
+    var advertisementData: Data {
+        commitment
+    }
+}
+
 /// Represents a discovered peer device
 struct DiscoveredPeer: Identifiable, Hashable {
     let id: UUID
@@ -44,6 +154,10 @@ struct DiscoveredPeer: Identifiable, Hashable {
     var lastSeen: Date
     var isConnected: Bool
     var peripheral: CBPeripheral?
+    /// Identity commitment from advertisement (NOT the actual pubkey)
+    var identityCommitment: Data?
+    /// Verified public key (only after successful handshake)
+    var verifiedPubkey: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -61,6 +175,8 @@ enum BLEConnectionState {
     case connecting
     case connected
     case advertising
+    case handshaking
+    case authenticated
 }
 
 /// BLEManager coordinates all Bluetooth Low Energy operations
@@ -79,6 +195,7 @@ class BLEManager: NSObject, ObservableObject {
     @Published private(set) var authorizationStatus: CBManagerAuthorization = .notDetermined
     @Published private(set) var isBluetoothEnabled: Bool = false
     @Published private(set) var lastError: String?
+    @Published private(set) var currentServiceUUID: CBUUID
 
     // MARK: - Private Properties
 
@@ -90,9 +207,16 @@ class BLEManager: NSObject, ObservableObject {
 
     private var scanTimer: Timer?
     private var cleanupTimer: Timer?
+    private var uuidRotationTimer: Timer?
     private let logger = Logger(subsystem: "com.buildit", category: "BLEManager")
 
     private var cancellables = Set<AnyCancellable>()
+
+    /// Our identity commitment for advertisement
+    private var ourCommitment: IdentityCommitment?
+
+    /// Last known service UUID (for rotation detection)
+    private var lastServiceUUID: CBUUID
 
     // MARK: - Initialization
 
@@ -100,12 +224,15 @@ class BLEManager: NSObject, ObservableObject {
         self.bleCentral = BLECentral()
         self.blePeripheral = BLEPeripheral()
         self.meshRouter = MeshRouter.shared
+        self.currentServiceUUID = getCurrentServiceUUID()
+        self.lastServiceUUID = self.currentServiceUUID
 
         super.init()
 
         setupManagers()
         setupBindings()
         startCleanupTimer()
+        startUUIDRotationTimer()
     }
 
     // MARK: - Setup
@@ -160,6 +287,53 @@ class BLEManager: NSObject, ObservableObject {
         }
     }
 
+    private func startUUIDRotationTimer() {
+        // Check for UUID rotation every hour
+        uuidRotationTimer = Timer.scheduledTimer(withTimeInterval: 3600.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkUUIDRotation()
+            }
+        }
+    }
+
+    private func checkUUIDRotation() {
+        let current = getCurrentServiceUUID()
+        if current != lastServiceUUID {
+            lastServiceUUID = current
+            currentServiceUUID = current
+            logger.info("Service UUID rotated to: \(current.uuidString)")
+
+            // Restart scanning and advertising with new UUID
+            if connectionState == .scanning {
+                stopScanning()
+                startScanning()
+            }
+            if connectionState == .advertising {
+                stopAdvertising()
+                startAdvertising()
+            }
+        }
+    }
+
+    // MARK: - Identity Management
+
+    /// Set our identity for commitment-based advertisement
+    func setIdentity(pubkey: String) {
+        ourCommitment = IdentityCommitment(pubkey: pubkey)
+        logger.info("Identity commitment created for BLE")
+
+        // Update advertising if active
+        if connectionState == .advertising {
+            stopAdvertising()
+            startAdvertising()
+        }
+    }
+
+    /// Get our identity commitment for advertisement
+    func getAdvertisementData() -> Data? {
+        ourCommitment?.advertisementData
+    }
+
     // MARK: - Public Methods
 
     /// Start scanning for nearby BuildIt devices
@@ -170,10 +344,11 @@ class BLEManager: NSObject, ObservableObject {
         }
 
         connectionState = .scanning
-        bleCentral.startScanning()
+        let serviceUUID = getCurrentServiceUUID()
+        bleCentral.startScanning(forService: serviceUUID)
         startScanTimer()
 
-        logger.info("Started BLE scanning")
+        logger.info("Started BLE scanning for service: \(serviceUUID.uuidString)")
     }
 
     /// Stop scanning for devices
@@ -196,10 +371,18 @@ class BLEManager: NSObject, ObservableObject {
             return
         }
 
-        blePeripheral.startAdvertising()
+        let serviceUUID = getCurrentServiceUUID()
+
+        // Use commitment data instead of raw public key
+        let advertisementData = ourCommitment?.advertisementData
+
+        blePeripheral.startAdvertising(
+            serviceUUID: serviceUUID,
+            commitmentData: advertisementData
+        )
         connectionState = .advertising
 
-        logger.info("Started BLE advertising")
+        logger.info("Started BLE advertising with service: \(serviceUUID.uuidString)")
     }
 
     /// Stop advertising
@@ -224,6 +407,49 @@ class BLEManager: NSObject, ObservableObject {
         bleCentral.connect(to: peripheral)
 
         logger.info("Connecting to peer: \(peer.identifier)")
+    }
+
+    /// Perform handshake to verify identity commitment
+    func performHandshake(with peer: DiscoveredPeer) async throws -> String {
+        guard let peripheral = peer.peripheral,
+              let theirCommitment = peer.identityCommitment else {
+            throw BLEError.peerNotConnected
+        }
+
+        connectionState = .handshaking
+
+        // Read their handshake data (pubkey + nonce)
+        let handshakeData = try await bleCentral.readHandshake(from: peripheral)
+
+        // Parse handshake data
+        guard handshakeData.count >= 80 else { // 64 hex chars for pubkey + 16 bytes nonce
+            throw BLEError.handshakeFailed
+        }
+
+        let theirPubkeyHex = String(data: handshakeData.prefix(64), encoding: .utf8) ?? ""
+        let theirNonce = handshakeData.suffix(from: 64)
+
+        // Verify commitment
+        guard IdentityCommitment.verify(
+            commitment: theirCommitment,
+            pubkey: theirPubkeyHex,
+            nonce: theirNonce
+        ) else {
+            connectionState = .connected
+            throw BLEError.commitmentVerificationFailed
+        }
+
+        // Send our handshake data
+        if let ourCommitment = ourCommitment {
+            var ourHandshake = Data(ourCommitment.pubkey.utf8)
+            ourHandshake.append(ourCommitment.nonce)
+            try await bleCentral.writeHandshake(ourHandshake, to: peripheral)
+        }
+
+        connectionState = .authenticated
+        logger.info("Handshake completed with peer: \(theirPubkeyHex.prefix(16))...")
+
+        return theirPubkeyHex
     }
 
     /// Disconnect from a peer
@@ -301,6 +527,7 @@ class BLEManager: NSObject, ObservableObject {
         stopAdvertising()
         scanTimer?.invalidate()
         cleanupTimer?.invalidate()
+        uuidRotationTimer?.invalidate()
 
         for peer in connectedPeers {
             disconnect(from: peer)
@@ -327,7 +554,9 @@ class BLEManager: NSObject, ObservableObject {
         bleCentral.stopScanning()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.bleCentral.startScanning()
+            guard let self = self else { return }
+            let serviceUUID = getCurrentServiceUUID()
+            self.bleCentral.startScanning(forService: serviceUUID)
         }
     }
 
@@ -342,7 +571,9 @@ class BLEManager: NSObject, ObservableObject {
                     rssi: -50, // Will be updated
                     lastSeen: Date(),
                     isConnected: false,
-                    peripheral: peripheral
+                    peripheral: peripheral,
+                    identityCommitment: nil, // Will be extracted from service data
+                    verifiedPubkey: nil
                 )
                 discoveredPeers.append(peer)
             }
@@ -357,7 +588,9 @@ class BLEManager: NSObject, ObservableObject {
                 rssi: -50,
                 lastSeen: Date(),
                 isConnected: true,
-                peripheral: peripheral
+                peripheral: peripheral,
+                identityCommitment: nil,
+                verifiedPubkey: nil
             )
         }
 
@@ -410,10 +643,15 @@ extension BLEManager: CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
+        // Extract identity commitment from service data
+        let serviceUUID = getCurrentServiceUUID()
+        let commitmentData = (advertisementData[CBAdvertisementDataServiceDataKey] as? [CBUUID: Data])?[serviceUUID]
+
         bleCentral.handleDiscoveredPeripheral(
             peripheral,
             advertisementData: advertisementData,
-            rssi: RSSI.intValue
+            rssi: RSSI.intValue,
+            commitmentData: commitmentData
         )
     }
 
@@ -463,7 +701,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
             switch peripheral.state {
             case .poweredOn:
                 logger.info("Peripheral manager powered on")
-                blePeripheral.setupServices()
+                blePeripheral.setupServices(serviceUUID: getCurrentServiceUUID())
             case .poweredOff:
                 logger.warning("Peripheral manager powered off")
             default:
@@ -523,6 +761,8 @@ enum BLEError: LocalizedError {
     case messageTooLarge
     case sendFailed
     case characteristicNotFound
+    case handshakeFailed
+    case commitmentVerificationFailed
 
     var errorDescription: String? {
         switch self {
@@ -536,6 +776,10 @@ enum BLEError: LocalizedError {
             return "Failed to send message"
         case .characteristicNotFound:
             return "Required characteristic not found"
+        case .handshakeFailed:
+            return "Handshake failed - invalid data"
+        case .commitmentVerificationFailed:
+            return "Identity commitment verification failed"
         }
     }
 }

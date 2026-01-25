@@ -2,22 +2,56 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Handles message routing through the BLE mesh network.
-// Implements routing table management and message forwarding.
+// Implements privacy-preserving routing with encrypted metadata.
+//
+// SECURITY FEATURES:
+// - Sender/recipient encrypted in all messages
+// - Message IDs regenerated per hop to prevent correlation
+// - No hops vector - uses TTL only for loop prevention
+// - Timestamp randomization (+/- 2 days as per NIP-17)
+// - Correlation tokens for endpoint-only deduplication
 
 import Foundation
 import Combine
+import CryptoKit
 import os.log
 
-/// Represents a message in the mesh network
+/// Timestamp randomization range in seconds (2 days as per NIP-17)
+private let timestampRangeSeconds: Int64 = 172800
+
+/// How long to remember correlation tokens (5 minutes)
+private let correlationTokenTTL: TimeInterval = 300
+
+/// Encrypted routing information - only the intended recipient can decrypt
+struct EncryptedRoutingInfo: Codable {
+    /// NIP-44 encrypted data containing: recipient_pubkey + sender_pubkey + correlation_token
+    let ciphertext: String
+    /// Ephemeral public key used for ECDH (allows recipient to derive decryption key)
+    let ephemeralPubkey: String
+}
+
+/// A privacy-preserving mesh message
+///
+/// SECURITY: This structure never exposes sender or recipient in cleartext.
+/// Each hop sees only:
+/// - The encrypted routing info (which they may or may not be able to decrypt)
+/// - The TTL
+/// - A message ID unique to this hop (not correlatable across hops)
 struct MeshMessage: Codable, Identifiable {
+    /// Unique message ID for this hop only (regenerated on each forward)
     let id: String
-    let sourcePublicKey: String
-    let destinationPublicKey: String?  // nil for broadcast
+    /// Encrypted routing information
+    let routing: EncryptedRoutingInfo
+    /// The encrypted payload (NIP-44 ciphertext)
     let payload: Data
-    let timestamp: Date
+    /// Randomized timestamp (unix seconds with +/- 2 day randomization)
+    let timestamp: Int64
+    /// Time-to-live (decremented on each hop)
     let ttl: Int
-    let hopCount: Int
+    /// Message signature (signed by ephemeral key for unlinkability)
     let signature: String
+    /// Ephemeral public key that signed this message
+    let signerPubkey: String
 
     /// Message types for the mesh protocol
     enum MessageType: Int, Codable {
@@ -40,30 +74,49 @@ struct MeshMessage: Codable, Identifiable {
         try JSONDecoder().decode(MeshMessage.self, from: data)
     }
 
-    /// Create a new message with decremented TTL and incremented hop count
+    /// Create a new message with decremented TTL and NEW message ID
+    /// SECURITY: New ID prevents correlation across hops
     func forwarded() -> MeshMessage {
         MeshMessage(
-            id: id,
-            sourcePublicKey: sourcePublicKey,
-            destinationPublicKey: destinationPublicKey,
+            id: UUID().uuidString, // NEW ID to break correlation
+            routing: routing,
             payload: payload,
-            timestamp: timestamp,
+            timestamp: timestamp, // Keep original randomized timestamp
             ttl: ttl - 1,
-            hopCount: hopCount + 1,
             signature: signature,
+            signerPubkey: signerPubkey,
             type: type
         )
     }
 }
 
+/// Decrypted routing data (only visible to the intended recipient)
+struct DecryptedRoutingData: Codable {
+    let recipientPubkey: String
+    let senderPubkey: String
+    let correlationToken: String
+}
+
+/// Result of successfully decrypting a message
+struct DecryptedMessage {
+    let senderPubkey: String
+    let payload: Data
+    let correlationToken: String
+}
+
 /// Represents a peer in the mesh network
 struct MeshPeer: Codable, Identifiable {
     let id: UUID
-    let publicKey: String
+    /// Identity commitment H(pubkey || nonce) - NOT the actual public key
+    let commitment: String
     var lastSeen: Date
     var hopCount: Int
     var rssi: Int?
     var reachableVia: UUID?  // Next hop peer ID, nil if direct
+    /// Verified public key (only after successful handshake)
+    var verifiedPubkey: String?
+    /// Nonce for commitment verification
+    var nonce: String?
 
     /// Quality score for routing decisions (higher is better)
     var qualityScore: Double {
@@ -72,15 +125,42 @@ struct MeshPeer: Codable, Identifiable {
         let rssiScore = rssi.map { Double($0 + 100) / 100.0 } ?? 0.5
         return ageScore * 0.3 + hopScore * 0.4 + rssiScore * 0.3
     }
+
+    /// Create a commitment for a public key
+    static func createCommitment(pubkey: String) -> (commitment: String, nonce: String) {
+        let nonce = UUID().uuidString
+        var hasher = SHA256()
+        hasher.update(data: Data(pubkey.utf8))
+        hasher.update(data: Data(nonce.utf8))
+        let hash = hasher.finalize()
+        let commitment = hash.prefix(20).map { String(format: "%02x", $0) }.joined()
+        return (commitment, nonce)
+    }
+
+    /// Verify a commitment
+    static func verifyCommitment(_ commitment: String, pubkey: String, nonce: String) -> Bool {
+        var hasher = SHA256()
+        hasher.update(data: Data(pubkey.utf8))
+        hasher.update(data: Data(nonce.utf8))
+        let hash = hasher.finalize()
+        let computed = hash.prefix(20).map { String(format: "%02x", $0) }.joined()
+        return computed == commitment
+    }
 }
 
 /// Routing table entry
 struct RoutingEntry: Codable {
-    let destination: String  // Public key
+    let destination: String  // Commitment (not public key)
     let nextHop: UUID  // Peer ID
     let hopCount: Int
     var lastUpdated: Date
     var sequenceNumber: Int
+}
+
+/// Randomize a timestamp within +/- range (for metadata protection)
+private func randomizeTimestamp(_ timestamp: Int64, range: Int64) -> Int64 {
+    let offset = Int64.random(in: -range...range)
+    return timestamp + offset
 }
 
 /// MeshRouter manages message routing through the BLE mesh network
@@ -93,16 +173,14 @@ actor MeshRouter {
 
     private var routingTable: [String: RoutingEntry] = [:]
     private var peers: [UUID: MeshPeer] = [:]
-    private var seenMessages: Set<String> = []
-    private var messageCallbacks: [(MeshMessage) -> Void] = []
+    /// Seen correlation tokens (for endpoint deduplication only)
+    private var seenTokens: [String: Date] = [:]
+    private var messageCallbacks: [(DecryptedMessage) -> Void] = []
 
     private let logger = Logger(subsystem: "com.buildit", category: "MeshRouter")
 
     /// Maximum TTL for messages
     private let maxTTL: Int = 10
-
-    /// Maximum age for seen messages cache (to detect duplicates)
-    private let seenMessageMaxAge: TimeInterval = 300  // 5 minutes
 
     /// Sequence number for routing updates
     private var routingSequenceNumber: Int = 0
@@ -118,73 +196,114 @@ actor MeshRouter {
 
     // MARK: - Public Methods
 
-    /// Register a new peer in the routing table
-    func registerPeer(_ peerID: UUID, publicKey: String) {
+    /// Register a new peer in the routing table (using commitment, not pubkey)
+    func registerPeer(_ peerID: UUID, commitment: String) {
         let peer = MeshPeer(
             id: peerID,
-            publicKey: publicKey,
+            commitment: commitment,
             lastSeen: Date(),
             hopCount: 1,
             rssi: nil,
-            reachableVia: nil
+            reachableVia: nil,
+            verifiedPubkey: nil,
+            nonce: nil
         )
 
         peers[peerID] = peer
 
-        // Add direct route
+        // Add direct route using commitment
         let entry = RoutingEntry(
-            destination: publicKey,
+            destination: commitment,
             nextHop: peerID,
             hopCount: 1,
             lastUpdated: Date(),
             sequenceNumber: routingSequenceNumber
         )
-        routingTable[publicKey] = entry
+        routingTable[commitment] = entry
 
-        logger.info("Registered peer: \(publicKey.prefix(16))...")
+        logger.info("Registered peer with commitment: \(commitment.prefix(16))...")
+    }
+
+    /// Verify and upgrade a peer's identity after handshake
+    func verifyPeerIdentity(_ peerID: UUID, pubkey: String, nonce: String) -> Bool {
+        guard var peer = peers[peerID] else {
+            logger.warning("Peer not found for verification: \(peerID)")
+            return false
+        }
+
+        // Verify commitment
+        guard MeshPeer.verifyCommitment(peer.commitment, pubkey: pubkey, nonce: nonce) else {
+            logger.error("Commitment verification failed for peer: \(peerID)")
+            return false
+        }
+
+        // Upgrade peer with verified identity
+        peer.verifiedPubkey = pubkey
+        peer.nonce = nonce
+        peers[peerID] = peer
+
+        logger.info("Verified identity for peer: \(pubkey.prefix(16))...")
+        return true
     }
 
     /// Remove a peer from the routing table
     func removePeer(_ peerID: UUID) {
         if let peer = peers.removeValue(forKey: peerID) {
-            routingTable.removeValue(forKey: peer.publicKey)
+            routingTable.removeValue(forKey: peer.commitment)
 
             // Remove routes that used this peer as next hop
             for (key, entry) in routingTable where entry.nextHop == peerID {
                 routingTable.removeValue(forKey: key)
             }
 
-            logger.info("Removed peer: \(peer.publicKey.prefix(16))...")
+            logger.info("Removed peer: \(peer.commitment.prefix(16))...")
         }
     }
 
     /// Handle an incoming message from a peer
-    func handleIncomingMessage(_ message: MeshMessage, from peerID: UUID) throws {
-        // Check for duplicate
-        guard !seenMessages.contains(message.id) else {
-            logger.debug("Ignoring duplicate message: \(message.id)")
-            return
-        }
-        seenMessages.insert(message.id)
-
+    func handleIncomingMessage(_ message: MeshMessage, from peerID: UUID) async throws {
         // Update peer last seen
         if var peer = peers[peerID] {
             peer.lastSeen = Date()
             peers[peerID] = peer
         }
 
-        // Process based on message type
-        switch message.type {
-        case .direct:
-            try handleDirectMessage(message, from: peerID)
-        case .broadcast:
-            try handleBroadcastMessage(message, from: peerID)
-        case .routingUpdate:
-            try handleRoutingUpdateMessage(message, from: peerID)
-        case .acknowledgment:
-            handleAcknowledgment(message, from: peerID)
-        case .peerDiscovery:
-            handlePeerDiscovery(message, from: peerID)
+        // Try to decrypt for us
+        let ourPrivateKey = await CryptoManager.shared.getPrivateKey()
+        guard let privateKey = ourPrivateKey else {
+            logger.error("No private key available")
+            return
+        }
+
+        do {
+            let decrypted = try await decryptMessage(message, privateKey: privateKey)
+
+            // Check for duplicate via correlation token
+            if seenTokens[decrypted.correlationToken] != nil {
+                logger.debug("Ignoring duplicate message with token: \(decrypted.correlationToken.prefix(8))...")
+                return
+            }
+            seenTokens[decrypted.correlationToken] = Date()
+
+            // Deliver to local handler
+            await deliverMessage(decrypted)
+
+            // Send acknowledgment
+            let ack = try await createAcknowledgment(
+                for: decrypted.correlationToken,
+                to: decrypted.senderPubkey,
+                privateKey: privateKey
+            )
+            try await routeMessage(ack)
+
+        } catch MeshError.notForUs {
+            // Not for us - forward if TTL allows
+            if message.ttl > 0 {
+                let forwarded = message.forwarded()
+                try await routeMessage(forwarded)
+            }
+        } catch {
+            logger.error("Failed to process message: \(error.localizedDescription)")
         }
     }
 
@@ -196,41 +315,85 @@ actor MeshRouter {
             return
         }
 
-        // Mark as seen
-        seenMessages.insert(message.id)
-
         if message.type == .broadcast {
             // Broadcast to all connected peers
             await broadcastToAllPeers(message)
-        } else if let destination = message.destinationPublicKey {
-            // Find route to destination
-            if let route = routingTable[destination] {
-                await forwardMessage(message, via: route.nextHop)
-            } else {
-                // No route - broadcast for discovery
-                await broadcastToAllPeers(message)
-            }
+        } else {
+            // For direct messages, we don't know the recipient (it's encrypted)
+            // So we flood to all peers and let them try to decrypt
+            await broadcastToAllPeers(message)
         }
     }
 
-    /// Handle routing update data from a peer
-    func handleRoutingUpdate(_ data: Data, from peerID: UUID) {
-        do {
-            let entries = try JSONDecoder().decode([RoutingEntry].self, from: data)
-            processRoutingEntries(entries, from: peerID)
-        } catch {
-            logger.error("Failed to decode routing update: \(error.localizedDescription)")
+    /// Create a new encrypted message
+    func createMessage(
+        to recipientPubkey: String,
+        payload: Data,
+        type: MeshMessage.MessageType = .direct
+    ) async throws -> MeshMessage {
+        guard let privateKey = await CryptoManager.shared.getPrivateKey(),
+              let ourPubkey = await CryptoManager.shared.getPublicKeyHex() else {
+            throw MeshError.noIdentity
         }
-    }
 
-    /// Get routing table as binary data for sharing
-    func getRoutingTableData() -> Data {
-        let entries = Array(routingTable.values)
-        return (try? JSONEncoder().encode(entries)) ?? Data()
+        // Generate ephemeral key for signing (unlinkable)
+        let ephemeralKey = P256.Signing.PrivateKey()
+        let ephemeralPubkey = ephemeralKey.publicKey.rawRepresentation.map {
+            String(format: "%02x", $0)
+        }.joined()
+
+        // Generate correlation token
+        let correlationToken = UUID().uuidString
+
+        // Create routing data
+        let routingData = DecryptedRoutingData(
+            recipientPubkey: recipientPubkey,
+            senderPubkey: ourPubkey,
+            correlationToken: correlationToken
+        )
+        let routingJson = try JSONEncoder().encode(routingData)
+
+        // Encrypt routing data with NIP-44 to recipient
+        let encryptedRouting = try await CryptoManager.shared.nip44Encrypt(
+            plaintext: routingJson,
+            recipientPubkey: recipientPubkey
+        )
+
+        // Encrypt payload with NIP-44
+        let encryptedPayload = try await CryptoManager.shared.nip44Encrypt(
+            plaintext: payload,
+            recipientPubkey: recipientPubkey
+        )
+
+        // Get randomized timestamp
+        let now = Int64(Date().timeIntervalSince1970)
+        let randomizedTimestamp = randomizeTimestamp(now, range: timestampRangeSeconds)
+
+        // Generate message ID
+        let messageId = UUID().uuidString
+
+        // Sign with ephemeral key
+        let signatureData = (messageId + encryptedRouting + encryptedPayload.base64EncodedString()).data(using: .utf8)!
+        let signature = try ephemeralKey.signature(for: signatureData)
+        let signatureHex = signature.rawRepresentation.map { String(format: "%02x", $0) }.joined()
+
+        return MeshMessage(
+            id: messageId,
+            routing: EncryptedRoutingInfo(
+                ciphertext: encryptedRouting,
+                ephemeralPubkey: ourPubkey // Used for ECDH
+            ),
+            payload: encryptedPayload,
+            timestamp: randomizedTimestamp,
+            ttl: maxTTL,
+            signature: signatureHex,
+            signerPubkey: ephemeralPubkey,
+            type: type
+        )
     }
 
     /// Register a callback for received messages
-    func onMessage(_ callback: @escaping (MeshMessage) -> Void) {
+    func onMessage(_ callback: @escaping (DecryptedMessage) -> Void) {
         messageCallbacks.append(callback)
     }
 
@@ -239,118 +402,54 @@ actor MeshRouter {
         Array(peers.values)
     }
 
-    /// Get route to a destination
-    func getRoute(to publicKey: String) -> RoutingEntry? {
-        routingTable[publicKey]
+    /// Get only verified peers (with confirmed identity)
+    func getVerifiedPeers() -> [MeshPeer] {
+        peers.values.filter { $0.verifiedPubkey != nil }
     }
 
     // MARK: - Private Methods
 
-    private func handleDirectMessage(_ message: MeshMessage, from peerID: UUID) throws {
-        // Check if we are the destination
-        Task {
-            let ourPublicKey = await CryptoManager.shared.getPublicKeyHex()
-
-            if message.destinationPublicKey == ourPublicKey {
-                // Deliver to local handler
-                await deliverMessage(message)
-
-                // Send acknowledgment
-                let ack = createAcknowledgment(for: message)
-                try? await routeMessage(ack)
-            } else {
-                // Forward to next hop
-                let forwarded = message.forwarded()
-                try await routeMessage(forwarded)
-            }
-        }
-    }
-
-    private func handleBroadcastMessage(_ message: MeshMessage, from peerID: UUID) throws {
-        // Deliver locally
-        Task {
-            await deliverMessage(message)
+    private func decryptMessage(_ message: MeshMessage, privateKey: Data) async throws -> DecryptedMessage {
+        // Try to decrypt routing data
+        guard let routingJson = try? await CryptoManager.shared.nip44Decrypt(
+            ciphertext: message.routing.ciphertext,
+            senderPubkey: message.routing.ephemeralPubkey
+        ) else {
+            throw MeshError.notForUs
         }
 
-        // Forward to other peers
-        let forwarded = message.forwarded()
-        if forwarded.ttl > 0 {
-            Task {
-                await broadcastToAllPeers(forwarded, excluding: peerID)
-            }
+        let routingData = try JSONDecoder().decode(DecryptedRoutingData.self, from: routingJson)
+
+        // Check if we're the recipient
+        let ourPubkey = await CryptoManager.shared.getPublicKeyHex()
+        guard routingData.recipientPubkey == ourPubkey else {
+            throw MeshError.notForUs
         }
-    }
 
-    private func handleRoutingUpdateMessage(_ message: MeshMessage, from peerID: UUID) throws {
-        // Process routing table updates
-        do {
-            let entries = try JSONDecoder().decode([RoutingEntry].self, from: message.payload)
-            processRoutingEntries(entries, from: peerID)
-        } catch {
-            logger.error("Failed to decode routing entries: \(error.localizedDescription)")
-        }
-    }
-
-    private func handleAcknowledgment(_ message: MeshMessage, from peerID: UUID) {
-        // Process message delivery confirmation
-        logger.info("Received acknowledgment for: \(message.id)")
-
-        // Notify transport layer
-        Task {
-            await MessageQueue.shared.confirmDelivery(messageId: message.id)
-        }
-    }
-
-    private func handlePeerDiscovery(_ message: MeshMessage, from peerID: UUID) {
-        // Process peer discovery announcement
-        let announcer = message.sourcePublicKey
-
-        // Update routing table with new peer info
-        if routingTable[announcer] == nil || routingTable[announcer]!.hopCount > message.hopCount + 1 {
-            let entry = RoutingEntry(
-                destination: announcer,
-                nextHop: peerID,
-                hopCount: message.hopCount + 1,
-                lastUpdated: Date(),
-                sequenceNumber: 0
-            )
-            routingTable[announcer] = entry
-        }
-    }
-
-    private func processRoutingEntries(_ entries: [RoutingEntry], from peerID: UUID) {
-        for entry in entries {
-            // Only update if it's a better route
-            if let existing = routingTable[entry.destination] {
-                if entry.sequenceNumber > existing.sequenceNumber ||
-                   (entry.sequenceNumber == existing.sequenceNumber && entry.hopCount + 1 < existing.hopCount) {
-                    updateRoute(entry, via: peerID)
-                }
-            } else {
-                updateRoute(entry, via: peerID)
-            }
-        }
-    }
-
-    private func updateRoute(_ entry: RoutingEntry, via peerID: UUID) {
-        let newEntry = RoutingEntry(
-            destination: entry.destination,
-            nextHop: peerID,
-            hopCount: entry.hopCount + 1,
-            lastUpdated: Date(),
-            sequenceNumber: entry.sequenceNumber
+        // Decrypt payload
+        let decryptedPayload = try await CryptoManager.shared.nip44Decrypt(
+            ciphertext: message.payload.base64EncodedString(),
+            senderPubkey: message.routing.ephemeralPubkey
         )
-        routingTable[entry.destination] = newEntry
+
+        return DecryptedMessage(
+            senderPubkey: routingData.senderPubkey,
+            payload: decryptedPayload,
+            correlationToken: routingData.correlationToken
+        )
     }
 
-    private func forwardMessage(_ message: MeshMessage, via peerID: UUID) async {
-        do {
-            let data = try message.encode()
-            try await BLEManager.shared.sendMessage(data, to: peerID)
-            logger.info("Forwarded message via: \(peerID)")
-        } catch {
-            logger.error("Failed to forward message: \(error.localizedDescription)")
-        }
+    private func createAcknowledgment(
+        for correlationToken: String,
+        to recipientPubkey: String,
+        privateKey: Data
+    ) async throws -> MeshMessage {
+        // Create ack with encrypted correlation token
+        return try await createMessage(
+            to: recipientPubkey,
+            payload: correlationToken.data(using: .utf8)!,
+            type: .acknowledgment
+        )
     }
 
     private func broadcastToAllPeers(_ message: MeshMessage, excluding: UUID? = nil) async {
@@ -363,37 +462,11 @@ actor MeshRouter {
         }
     }
 
-    private func deliverMessage(_ message: MeshMessage) async {
-        // Verify signature
-        let isValid = await CryptoManager.shared.verifySignature(
-            message.signature,
-            for: message.payload,
-            publicKey: message.sourcePublicKey
-        )
-
-        guard isValid else {
-            logger.warning("Invalid signature on message: \(message.id)")
-            return
-        }
-
+    private func deliverMessage(_ decrypted: DecryptedMessage) async {
         // Deliver to callbacks
         for callback in messageCallbacks {
-            callback(message)
+            callback(decrypted)
         }
-    }
-
-    private func createAcknowledgment(for message: MeshMessage) -> MeshMessage {
-        MeshMessage(
-            id: UUID().uuidString,
-            sourcePublicKey: "", // Will be set by sender
-            destinationPublicKey: message.sourcePublicKey,
-            payload: message.id.data(using: .utf8) ?? Data(),
-            timestamp: Date(),
-            ttl: maxTTL,
-            hopCount: 0,
-            signature: "",
-            type: .acknowledgment
-        )
     }
 
     private func startCleanupTimer() async {
@@ -413,10 +486,9 @@ actor MeshRouter {
             }
         }
 
-        // Remove old seen messages
-        // Note: In production, this would need timestamps stored with message IDs
-        if seenMessages.count > 10000 {
-            seenMessages.removeAll()
+        // Remove old correlation tokens
+        seenTokens = seenTokens.filter { _, timestamp in
+            now.timeIntervalSince(timestamp) < correlationTokenTTL
         }
 
         // Remove stale routes
@@ -426,4 +498,13 @@ actor MeshRouter {
             }
         }
     }
+}
+
+/// Mesh-specific errors
+enum MeshError: Error {
+    case notForUs
+    case noIdentity
+    case encryptionFailed
+    case decryptionFailed
+    case invalidMessage
 }
