@@ -15,6 +15,9 @@ import filesTranslations from './i18n'
 const FilesPage = lazy(() =>
   import('./components/FilesPage').then(m => ({ default: m.FilesPage }))
 )
+const FilePreviewPage = lazy(() =>
+  import('./components/FilePreviewPage').then(m => ({ default: m.FilePreviewPage }))
+)
 
 /**
  * Files Module Plugin
@@ -104,6 +107,12 @@ export const filesModule: ModulePlugin = {
       path: 'files',
       component: FilesPage,
       requiresEnabled: true,
+    },
+    {
+      path: 'files/:fileId',
+      component: FilePreviewPage,
+      requiresEnabled: true,
+      label: 'File Preview',
     },
   ],
 

@@ -13,8 +13,10 @@ import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
 import eventsTranslations from './i18n';
 
-// Lazy load EventsView to reduce initial bundle size
+// Lazy load components to reduce initial bundle size
 const EventsView = lazy(() => import('./components/EventsView').then(m => ({ default: m.EventsView })));
+const CreateEventPage = lazy(() => import('./components/CreateEventPage').then(m => ({ default: m.CreateEventPage })));
+const EditEventPage = lazy(() => import('./components/EditEventPage').then(m => ({ default: m.EditEventPage })));
 
 /**
  * Events Module Plugin
@@ -128,6 +130,20 @@ export const eventsModule: ModulePlugin = {
       scope: 'group',
       requiresEnabled: true,
       label: 'Events',
+    },
+    {
+      path: 'events/new',
+      component: CreateEventPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Create Event',
+    },
+    {
+      path: 'events/:eventId/edit',
+      component: EditEventPage,
+      scope: 'group',
+      requiresEnabled: true,
+      label: 'Edit Event',
     },
   ],
 
