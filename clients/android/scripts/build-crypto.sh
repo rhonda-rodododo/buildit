@@ -11,7 +11,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ANDROID_PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-CRYPTO_PROJECT_DIR="$ANDROID_PROJECT_DIR/../buildit-crypto"
+CRYPTO_PROJECT_DIR="$ANDROID_PROJECT_DIR/../../packages/crypto"
 
 # Output directories
 KOTLIN_OUTPUT_DIR="$ANDROID_PROJECT_DIR/app/src/main/java"

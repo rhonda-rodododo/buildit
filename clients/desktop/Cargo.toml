@@ -32,7 +32,7 @@ btleplug = "0.11"
 keyring = "3"
 
 # Local buildit-crypto crate
-buildit-crypto = { path = "../../buildit-crypto" }
+buildit-crypto = { path = "../../packages/crypto" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

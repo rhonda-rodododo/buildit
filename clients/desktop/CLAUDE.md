@@ -28,7 +28,7 @@ cargo tauri build    # Production build
 ## Directory Structure
 
 ```
-src-tauri/
+clients/desktop/
 ├── src/
 │   ├── main.rs          # Entry point
 │   ├── lib.rs           # Library exports
