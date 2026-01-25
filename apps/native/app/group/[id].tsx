@@ -18,7 +18,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native'
-import { useLocalSearchParams, useRouter, Stack } from 'one'
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useGroupsStore, type Group, useAuthStore } from '../../src/stores'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'

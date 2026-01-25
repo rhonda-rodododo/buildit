@@ -6,7 +6,7 @@
 
 import { useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput, Alert } from 'react-native'
-import { Link, useRouter } from 'one'
+import { Link, useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { validateRecoveryPhrase, isValidPrivateKey } from '@buildit/sdk'
 import { useAuthStore } from '../src/stores'

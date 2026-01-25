@@ -1,0 +1,4973 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "社会行动网络"
+  },
+  "meta": {
+    "defaultDescription": "基于 Nostr 协议的隐私优先组织平台，专为活动团体、合作社、工会和社区组织者设计。",
+    "home": "您的活动动态，包含来自您所在群组的帖子、活动和社区更新。",
+    "messages": "安全的端到端加密消息，用于私密对话。",
+    "groups": "创建和管理用于组织、互助和社区建设的群组。",
+    "events": "协调活动、集会、工作坊和社区聚会。",
+    "mutualAid": "共享资源、提供帮助、协调社区支持。",
+    "governance": "通过提案、投票和共识建立进行民主决策。",
+    "wiki": "协作知识库，用于文档和组织资源。",
+    "crm": "管理联系人、跟踪外联活动、协调运动工作。",
+    "settings": "管理您的个人资料、隐私、安全和通知偏好设置。",
+    "login": "登录您的账户或创建新身份。",
+    "unlock": "解锁您的账户以继续。",
+    "recovery": "使用恢复短语恢复您的账户。",
+    "notFound": "您查找的页面不存在。",
+    "security": "安全设置和加密密钥管理。",
+    "notifications": "配置您接收提醒和更新的方式。",
+    "privacy": "控制您的数据可见性和隐私设置。",
+    "preferences": "通过显示和语言设置自定义您的体验。",
+    "analytics": "查看互动指标和群组活动统计。",
+    "files": "为您的群组提供安全的文件存储和共享。",
+    "documents": "创建和协作编辑富文本文档。",
+    "database": "自定义数据库和结构化数据管理。",
+    "fundraising": "组织筹款活动并跟踪捐款。",
+    "newsletters": "创建并向您的社区发送通讯。",
+    "forms": "构建用于调查、注册和数据收集的自定义表单。",
+    "pages": "为您的群组或运动发布公开页面。",
+    "bookmarks": "您保存的帖子、活动和内容。"
+  },
+  "auth": {
+    "login": "登录",
+    "createIdentity": "创建身份",
+    "importKey": "导入密钥",
+    "name": "姓名",
+    "privateKey": "私钥",
+    "generateNew": "生成新身份",
+    "hidePassword": "隐藏密码",
+    "showPassword": "显示密码",
+    "login": {
+      "tabCreate": "创建新账户",
+      "tabImport": "导入",
+      "displayName": "显示名称",
+      "namePlaceholder": "输入您的姓名",
+      "password": "密码",
+      "passwordPlaceholder": "创建一个强密码",
+      "confirmPassword": "确认密码",
+      "confirmPlaceholder": "确认您的密码",
+      "passwordHint": "至少8个字符。此密码用于加密您的私钥。",
+      "importPasswordHint": "此密码将在本地加密您导入的密钥。",
+      "passwordTooShort": "密码必须至少8个字符",
+      "passwordMismatch": "密码不匹配",
+      "securityNote": "您的私钥将使用此密码加密。它永远不会以未加密形式离开您的设备。",
+      "privateKey": "私钥 (nsec)",
+      "creating": "正在创建...",
+      "createButton": "创建身份",
+      "importing": "正在导入...",
+      "importButton": "导入身份",
+      "createFailed": "创建身份失败",
+      "importFailed": "导入身份失败"
+    },
+    "unlock": {
+      "title": "欢迎回来",
+      "password": "密码",
+      "passwordPlaceholder": "输入您的密码",
+      "passwordRequired": "请输入您的密码",
+      "button": "解锁",
+      "unlocking": "正在解锁...",
+      "forgotPassword": "忘记密码？",
+      "addAccount": "添加其他账户",
+      "importKey": "导入密钥",
+      "newAccount": "新账户",
+      "selectAccount": "选择要解锁的账户"
+    },
+    "recovery": {
+      "title": "保护您的账户",
+      "description": "在使用 BuildIt 之前，您需要保存您的恢复短语。",
+      "descriptionWithName": "欢迎，{{name}}！在使用 BuildIt 之前，您需要保存您的恢复短语。",
+      "warningTitle": "关键安全步骤",
+      "warningDescription": "这24个单词的短语是在您忘记密码或无法访问设备时恢复账户的唯一方式。没有密码重置功能。请将其写下来并安全地离线存储。",
+      "phraseLabel": "您的恢复短语",
+      "hide": "隐藏",
+      "show": "显示",
+      "copied": "已复制！",
+      "copyPhrase": "复制到剪贴板",
+      "confirmWrittenDown": "我已经写下我的恢复短语并将其存储在安全的位置。我理解如果丢失此短语，我将永久失去对账户的访问权限。",
+      "verifyPhrase": "验证恢复短语",
+      "verifyTitle": "验证您的恢复短语",
+      "verifyDescription": "输入恢复短语中要求的单词以确认您已正确保存。",
+      "enterWord": "输入第 {{number}} 个单词",
+      "wordPlaceholder": "输入单词",
+      "verificationFailed": "一个或多个单词不正确。请检查您的恢复短语并重试。",
+      "verifyHint": "记不住了？返回查看您的恢复短语，但这次一定要写下来！",
+      "newWords": "尝试不同的单词",
+      "verifying": "正在验证...",
+      "confirm": "确认并继续",
+      "recoverTitle": "恢复您的账户",
+      "recoverDesc": "输入您的24个单词的恢复短语以重置密码并恢复对账户的访问。",
+      "recoverDescWithName": "输入「{{name}}」的24个单词的恢复短语以设置新密码。",
+      "secureTitle": "安全恢复",
+      "secureDesc": "您的恢复短语永远不会发送到任何服务器。它仅在本地用于派生您的私钥。",
+      "phraseValid": "有效的恢复短语",
+      "invalidPhrase": "请输入有效的24个单词的恢复短语。",
+      "invalidWords": "无效的单词：{{words}}",
+      "wrongWordCount": "预期24个单词，实际 {{count}} 个",
+      "newPasswordTitle": "设置新密码",
+      "newPasswordDesc": "创建新密码以保护此设备上的账户。",
+      "passwordWarning": "此密码在此设备上加密您的私钥。如果您忘记它，将需要再次使用恢复短语。",
+      "newPassword": "新密码",
+      "newPasswordPlaceholder": "输入一个强密码",
+      "passwordHint": "至少8个字符",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "确认您的密码",
+      "passwordTooShort": "密码必须至少8个字符",
+      "passwordMismatch": "密码不匹配",
+      "recovering": "正在恢复...",
+      "recoverButton": "恢复账户",
+      "successTitle": "账户已恢复！",
+      "successDesc": "您的账户已恢复，您现在已登录。",
+      "recoveredIdentity": "已恢复的身份",
+      "failed": "恢复失败。请检查您的恢复短语。"
+    },
+    "logout": {
+      "button": "退出登录",
+      "warningTitle": "未找到备份",
+      "warningDescription": "您尚未为此账户创建备份。如果您退出登录并忘记密码，可能会永久失去访问权限。",
+      "noRecoveryTitle": "无法重置密码",
+      "noRecoveryDescription": "BuildIt 没有服务器端密码恢复功能。您的恢复短语是在忘记密码时恢复账户的唯一方式。",
+      "identityLocked": "身份已锁定。请先解锁以查看您的恢复短语。",
+      "phraseFailed": "获取恢复短语失败",
+      "createBackupNow": "立即创建备份",
+      "logoutAnyway": "仍然退出",
+      "saveBackupTitle": "保存您的恢复短语",
+      "saveBackupDescription": "写下这24个单词并安全存储。这是恢复账户的唯一方式。",
+      "phraseWarning": "任何拥有此短语的人都可以访问您的账户。请安全地离线存储，切勿分享。",
+      "phraseLabel": "24个单词的恢复短语",
+      "iveSavedIt": "我已保存短语"
+    },
+    "backup": {
+      "reminderTitle": "保护您的账户",
+      "reminderDescription": "您的账户尚未备份。保存您的恢复短语以防止失去访问权限。",
+      "backupNow": "立即备份",
+      "snooze": "稍后提醒我",
+      "identityLocked": "请先解锁您的身份。",
+      "phraseFailed": "获取恢复短语失败",
+      "dialogTitle": "保存您的恢复短语",
+      "dialogDescription": "这24个单词的短语是在您忘记密码或无法访问此设备时恢复账户的唯一方式。",
+      "phraseWarning": "写下这些单词并安全地离线存储。任何拥有此短语的人都可以访问您的账户。",
+      "phraseLabel": "24个单词的恢复短语",
+      "iveSavedIt": "我已保存短语"
+    }
+  },
+  "autoModerationSettings": {
+    "title": "自动审核规则",
+    "description": "自动检测和处理问题内容",
+    "newRule": "新建规则",
+    "createRule": "创建自动审核规则",
+    "createRuleDescription": "设置内容的自动检测和处理",
+    "editRule": "编辑自动审核规则",
+    "noRulesTitle": "暂无规则",
+    "noRulesDescription": "创建自动审核规则以自动处理内容。",
+    "createFirstRule": "创建第一条规则",
+    "triggeredTimes": "已触发 {{count}} 次",
+    "more": "还有 {{count}} 条",
+    "deleteRuleTitle": "删除规则？",
+    "deleteRuleDescription": "这将永久删除此自动审核规则。此操作无法撤销。",
+    "cancel": "取消",
+    "delete": "删除",
+    "creating": "创建中...",
+    "saving": "保存中...",
+    "saveChanges": "保存更改",
+    "ruleName": "规则名称",
+    "ruleNamePlaceholder": "例如：屏蔽脏话、过滤垃圾链接",
+    "ruleType": "规则类型",
+    "ruleTypes": {
+      "keyword": "关键词过滤",
+      "keywordDesc": "匹配特定关键词或短语",
+      "regex": "正则表达式",
+      "regexDesc": "使用正则表达式进行高级匹配",
+      "spamDetection": "垃圾内容检测",
+      "spamDetectionDesc": "自动检测类似垃圾信息的内容",
+      "linkFilter": "链接过滤",
+      "linkFilterDesc": "过滤包含特定链接的帖子"
+    },
+    "patterns": "匹配模式",
+    "patternPlaceholders": {
+      "regex": "输入正则表达式",
+      "link": "输入域名或链接模式",
+      "keyword": "输入关键词或短语"
+    },
+    "add": "添加",
+    "action": "操作",
+    "actions": {
+      "flag": "标记待审",
+      "flagDesc": "添加到审核队列",
+      "hide": "隐藏内容",
+      "hideDesc": "隐藏但不删除",
+      "delete": "删除",
+      "deleteDesc": "立即删除内容",
+      "warn": "警告用户",
+      "warnDesc": "向用户发送警告"
+    },
+    "notifyModerators": "通知管理员",
+    "toasts": {
+      "created": "自动审核规则已创建",
+      "updated": "规则已更新",
+      "deleted": "规则已删除",
+      "enabled": "规则已启用",
+      "disabled": "规则已禁用",
+      "createFailed": "创建规则失败",
+      "updateFailed": "更新规则失败",
+      "deleteFailed": "删除规则失败",
+      "toggleFailed": "切换规则状态失败",
+      "enterName": "请输入规则名称",
+      "addPattern": "请至少添加一个匹配模式"
+    }
+  },
+  "nav": {
+    "feed": "动态",
+    "messages": "消息",
+    "groups": "群组",
+    "events": "活动",
+    "mutualAid": "互助",
+    "tools": "工具",
+    "settings": "设置",
+    "openMenu": "打开导航菜单"
+  },
+  "messages": {
+    "title": "消息",
+    "newConversation": "新建对话",
+    "startNewConversation": "开始新对话",
+    "startConversation": "开始对话",
+    "selectConversation": "选择一个对话或开始新对话",
+    "recipientPublicKey": "接收者公钥",
+    "recipientPlaceholder": "输入64个字符的十六进制公钥...",
+    "invalidPublicKey": "无效的公钥。必须是64个十六进制字符。",
+    "conversations": "对话",
+    "noMessages": "暂无消息",
+    "typeMessage": "输入消息...",
+    "send": "发送"
+  },
+  "groups": {
+    "title": "群组",
+    "createGroup": "创建群组",
+    "noGroups": "暂无群组",
+    "groupName": "群组名称",
+    "description": "描述",
+    "privacy": "隐私",
+    "public": "公开",
+    "private": "私密",
+    "secret": "秘密",
+    "enabledModules": "已启用模块",
+    "settings": "设置",
+    "members": "成员",
+    "pendingInvitations": "您有待处理的群组邀请"
+  },
+  "events": {
+    "title": "活动",
+    "groupDescription": "群组活动和聚会",
+    "publicDescription": "公开活动和聚会",
+    "createEvent": "创建活动",
+    "noEvents": "暂无活动",
+    "eventName": "活动名称",
+    "location": "地点",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "capacity": "容量",
+    "rsvp": "回复",
+    "going": "参加",
+    "maybe": "可能参加",
+    "notGoing": "不参加",
+    "exportCalendar": "导出到日历",
+    "upcoming": "即将举行",
+    "allEvents": "所有活动",
+    "calendar": "日历"
+  },
+  "mutualAid": {
+    "title": "互助",
+    "description": "通过资源共享和团结互助的社区支持",
+    "createRequest": "创建请求/提供",
+    "requests": "活跃请求",
+    "requestsDesc": "社区成员需要您的帮助",
+    "offers": "可用资源",
+    "offersDesc": "可提供帮助的资源",
+    "noRequests": "暂无活跃请求",
+    "noOffers": "暂无可用资源",
+    "rideShare": "互助顺风车",
+    "solidarityRideShare": "互助顺风车",
+    "rideShareDesc": "与社区成员协调出行",
+    "noRideShares": "暂无可用顺风车",
+    "browse": "浏览",
+    "myItems": "我的项目",
+    "noMyItems": "您还没有创建任何请求或提供",
+    "matches": "匹配",
+    "noMatches": "未找到匹配。创建一个请求或提供来开始吧。"
+  },
+  "governance": {
+    "title": "治理",
+    "description": "民主决策和集体治理",
+    "createProposal": "创建提案",
+    "activeProposals": "活跃提案",
+    "voting": "投票",
+    "history": "历史记录",
+    "noProposals": "暂无提案",
+    "draftProposals": "草案提案",
+    "draftProposalsDesc": "正在讨论的提案",
+    "noDraftProposals": "暂无草案提案",
+    "openForVoting": "开放投票",
+    "castYourVote": "投出你的一票",
+    "noActiveVotes": "暂无活跃投票",
+    "ends": "截止",
+    "decisionHistory": "决策历史",
+    "auditTrail": "所有决策的审计记录",
+    "noDecisionHistory": "暂无决策历史",
+    "decidedOn": "决定于",
+    "votingMethods": "可用投票方式",
+    "votingMethodsDesc": "支持多种民主投票系统",
+    "simpleMajority": "简单多数",
+    "simpleMajorityDesc": "传统的赞成/反对/弃权投票",
+    "rankedChoice": "排序复选制",
+    "rankedChoiceDesc": "为多个选项排序偏好",
+    "quadraticVoting": "二次方投票",
+    "quadraticVotingDesc": "通过代币分配表达偏好强度",
+    "consensus": "共识",
+    "consensusDesc": "基于阈值的共识决策"
+  },
+  "wiki": {
+    "title": "知识库",
+    "newPage": "新建页面",
+    "search": "搜索知识库...",
+    "noPages": "暂无页面",
+    "gettingStarted": "入门指南",
+    "organizingResources": "组织资源",
+    "legalSafety": "法律与安全"
+  },
+  "crm": {
+    "title": "联系人数据库",
+    "addContact": "添加联系人",
+    "noContacts": "暂无联系人",
+    "tableView": "表格视图",
+    "boardView": "看板视图",
+    "calendarView": "日历视图",
+    "templates": "可用模板",
+    "unionOrganizing": "工会组织",
+    "fundraising": "筹款",
+    "legalTracking": "法律跟踪"
+  },
+  "common": {
+    "create": "创建",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "continue": "继续",
+    "submit": "提交",
+    "search": "搜索",
+    "filter": "筛选",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "done": "完成",
+    "join": "加入",
+    "select": "选择...",
+    "previous": "上一步",
+    "show": "显示",
+    "hide": "隐藏",
+    "sending": "发送中...",
+    "somethingWentWrong": "出了点问题",
+    "goToApp": "进入应用",
+    "reloadPage": "刷新页面",
+    "unknownError": "发生未知错误",
+    "anErrorOccurred": "发生错误",
+    "theme": {
+      "toggle": "切换主题",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统"
+    },
+    "language": {
+      "switch": "切换语言"
+    }
+  },
+  "media": {
+    "sensitiveContent": "敏感内容",
+    "showContent": "显示内容",
+    "hideContent": "隐藏内容",
+    "downloadImage": "下载图片",
+    "closeGallery": "关闭图库",
+    "viewFullscreen": "全屏查看",
+    "imageEncrypted": "此图片已加密",
+    "decryptAndView": "解密并查看"
+  },
+  "memberInviteDialog": {
+    "inviteMembers": "邀请成员",
+    "inviteTo": "邀请加入 {{name}}",
+    "inviteDescription": "邀请新成员加入此群组",
+    "directTab": "直接邀请",
+    "linkTab": "链接邀请",
+    "publicKeyLabel": "公钥或 npub",
+    "publicKeyPlaceholder": "npub1... 或十六进制公钥",
+    "roleLabel": "角色",
+    "roles": {
+      "member": "成员",
+      "moderator": "版主",
+      "admin": "管理员",
+      "readOnly": "只读"
+    },
+    "messageLabel": "附言（可选）",
+    "messagePlaceholder": "添加个人留言...",
+    "sending": "发送中...",
+    "sendInvitation": "发送邀请",
+    "defaultRole": "默认角色",
+    "roleDescription": "通过此链接加入的用户将被分配此角色",
+    "expiresIn": "有效期",
+    "expiryOptions": {
+      "1day": "1 天",
+      "7days": "7 天",
+      "30days": "30 天",
+      "90days": "90 天"
+    },
+    "generating": "生成中...",
+    "generateInviteLink": "生成邀请链接",
+    "inviteLink": "邀请链接",
+    "shareLink": "将此链接分享给您想邀请的人",
+    "generateNewLink": "生成新链接",
+    "failedToSend": "发送邀请失败",
+    "failedToGenerate": "生成邀请链接失败"
+  },
+  "security": {
+    "deviceManagement": "设备管理",
+    "signOutAllDevices": "登出所有设备",
+    "noDevicesFound": "未找到设备",
+    "removeDevice": "移除设备",
+    "confirmSignOutAll": "您确定要从所有设备登出吗？您需要在每台设备上重新登录。",
+    "activityHistory": "活动历史",
+    "noActivityFound": "未找到活动记录",
+    "biometricAvailable": "生物识别认证可用！",
+    "securityKeyRequired": "需要安全密钥",
+    "webauthnBenefits": {
+      "noPassword": "无需记住密码",
+      "phishingResistant": "防钓鱼",
+      "fastSecure": "快速且安全",
+      "worksAcrossDevices": "跨设备使用"
+    },
+    "nameThisDevice": "命名此设备",
+    "deviceName": "设备名称",
+    "registeringCredential": "正在注册凭证",
+    "important": "重要：",
+    "troubleshooting": {
+      "checkBiometric": "检查您的设备是否已启用生物识别",
+      "trySecurityKey": "尝试使用安全密钥",
+      "updateBrowser": "将浏览器更新到最新版本"
+    }
+  },
+  "contacts": {
+    "addContact": "添加联系人",
+    "publicKeyLabel": "公钥 (npub 或十六进制)",
+    "petnameLabel": "昵称（可选）"
+  },
+  "friends": {
+    "title": "好友与联系人",
+    "subtitle": "管理您的联系人和好友请求",
+    "addFriend": "添加好友",
+    "friends": "好友",
+    "verified": "已验证",
+    "favorites": "收藏",
+    "pendingRequests": "待处理请求",
+    "allTrustLevels": "所有信任级别",
+    "trustLevel": "信任级别",
+    "friend": "好友",
+    "trusted": "信任",
+    "allFriends": "所有好友",
+    "noFriendsFound": "未找到好友",
+    "noFriendsHint": "尝试调整筛选条件或添加一些好友！",
+    "noIncomingRequests": "没有收到的请求",
+    "noSentRequests": "没有发出的请求",
+    "chooseHowConnect": "选择您想要与好友联系的方式",
+    "sendFriendRequest": "发送好友请求",
+    "incomingRequests": "收到的请求",
+    "sentRequests": "发出的请求",
+    "requests": "请求",
+    "searchFriends": "搜索好友..."
+  },
+  "hotlines": {
+    "title": "热线",
+    "subtitle": "管理呼叫线路、调度和协调",
+    "createHotline": "创建热线",
+    "totalCalls": "总呼叫数",
+    "activeCalls": "活跃呼叫",
+    "avgDuration": "平均时长",
+    "operatorsOnDuty": "值班接线员",
+    "selectHotline": "选择一条热线以查看呼叫",
+    "selectHotlineToView": "选择一条热线以查看呼叫和接线员",
+    "callHistory": "呼叫历史",
+    "operators": "接线员",
+    "operatorManagementSoon": "接线员管理即将推出",
+    "startNewCall": "开始新呼叫",
+    "callerName": "来电者姓名",
+    "phoneNumber": "电话号码",
+    "priority": "优先级",
+    "priorityLow": "低",
+    "priorityMedium": "中",
+    "priorityHigh": "高",
+    "priorityUrgent": "紧急",
+    "noActiveCalls": "没有活跃呼叫",
+    "active": "活跃"
+  },
+  "customFields": {
+    "fieldName": "字段名称",
+    "label": "标签",
+    "fieldType": "字段类型",
+    "required": "必填字段",
+    "placeholder": "占位符",
+    "helpText": "帮助文本",
+    "optionsJson": "选项 (JSON)",
+    "minLength": "最小长度",
+    "maxLength": "最大长度",
+    "pattern": "模式（正则表达式）",
+    "minimum": "最小值",
+    "maximum": "最大值",
+    "applyTemplate": "应用模板：",
+    "deleteCustomField": "删除自定义字段"
+  },
+  "onboarding": {
+    "availability": {
+      "weekdays": "工作日",
+      "weekends": "周末",
+      "flexible": "灵活"
+    }
+  },
+  "tasks": {
+    "automatedFollowup": "自动跟进",
+    "editTask": "编辑任务",
+    "reassign": "重新分配"
+  },
+  "pages": {
+    "groupMembers": "群组成员",
+    "groupNotFound": "未找到群组",
+    "basicInformation": "基本信息",
+    "privacyLevel": "隐私级别",
+    "userDirectory": "用户目录",
+    "allUsers": "所有用户",
+    "verifiedOnly": "仅已验证",
+    "unverifiedOnly": "仅未验证",
+    "usernameAZ": "用户名 (A-Z)",
+    "nameAZ": "姓名 (A-Z)",
+    "recentlyActive": "最近活跃",
+    "members": "成员",
+    "membersCount": "{{count}} 位成员",
+    "membersCount_plural": "{{count}} 位成员",
+    "memberIn": "在 {{name}}",
+    "inviteMembers": "邀请成员",
+    "noMembersFound": "未找到成员",
+    "joined": "加入于 {{date}}",
+    "groupSettings": "群组设置",
+    "configureSettings": "配置 {{name}} 的设置和功能",
+    "updateNameDescription": "更新群组名称和描述",
+    "enterGroupName": "输入群组名称",
+    "enterGroupDescription": "输入群组描述",
+    "saving": "保存中...",
+    "saveChanges": "保存更改",
+    "chooseModules": "选择此群组可用的模块",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "managePrivacy": "管理群组隐私和可见性",
+    "publicAccess": "任何人都可以查看此群组并加入",
+    "privateAccess": "仅限邀请 - 内容加密"
+  },
+  "posts": {
+    "placeholder": "您在想什么？分享更新、组织行动、建立团结...",
+    "postCreated": "帖子创建成功",
+    "postFailed": "帖子创建失败",
+    "postScheduled": "帖子已定时发布",
+    "scheduleFailed": "定时发布失败",
+    "selectFutureDate": "请选择一个未来的日期和时间",
+    "addEmoji": "添加表情",
+    "disableLinkPreviews": "禁用链接预览",
+    "enableLinkPreviews": "启用链接预览",
+    "linkPreviewsOn": "链接预览已开启",
+    "linkPreviewsOff": "链接预览已关闭",
+    "postPrivacy": "帖子隐私级别",
+    "privacy": "隐私",
+    "groupOnly": "仅群组",
+    "public": "公开",
+    "followers": "关注者",
+    "encrypted": "加密的",
+    "groupOnlyDesc": "仅您所在群组的成员可以看到",
+    "publicDesc": "对任何人可见，在公共中继服务器上共享",
+    "followersDesc": "仅关注您的人可以看到",
+    "encryptedDesc": "端到端加密，仅特定人员可以解密",
+    "post": "发布",
+    "schedulePost": "定时发布",
+    "schedule": "定时",
+    "makePublicTitle": "公开发布此帖子？",
+    "makePublicWarning": "公开帖子对互联网上的任何人可见，并将在公共 Nostr 中继服务器上共享。",
+    "publicActivistWarning": "对于活动组织，请考虑此内容是否应保持私密以保护您的社区。",
+    "keepPrivate": "保持私密",
+    "makePublic": "公开发布"
+  },
+  "templates": {
+    "title": "选择模板",
+    "subtitle": "选择一个模板以快速开始使用预配置的模块。",
+    "manualMode": "手动设置",
+    "customize": "自定义",
+    "continue": "继续",
+    "createGroup": "创建群组",
+    "creating": "创建中...",
+    "modules": "模块",
+    "modulesEnabled": "将启用的模块",
+    "modulesToEnable": "要启用的模块",
+    "includeSampleData": "包含示例数据",
+    "sampleDataDescription": "用示例内容填充群组以帮助您入门",
+    "optionalEnhancements": "可选增强功能",
+    "summary": "摘要",
+    "template": "模板",
+    "enhancementsAdded": "已添加增强功能",
+    "demoDataWillBeLoaded": "将加载演示数据",
+    "manualModeDescription": "手动模式：您将在下一步中选择各个模块。",
+    "complexity": {
+      "1": "简单",
+      "2": "基础",
+      "3": "标准",
+      "4": "高级",
+      "5": "专业"
+    },
+    "categories": {
+      "community": "社区",
+      "mutual-aid": "互助",
+      "organizing": "组织",
+      "civic": "公民行动",
+      "governance": "治理",
+      "movement-defense": "运动防御"
+    },
+    "simpleGroup": {
+      "name": "简单群组",
+      "description": "只有消息功能的最小群组。非常适合快速入门。"
+    },
+    "mutualAidNetwork": {
+      "name": "互助网络",
+      "description": "共享资源并协调社区支持。非常适合社区网络。",
+      "enhancements": {
+        "governance": {
+          "name": "民主决策",
+          "description": "添加提案和投票功能用于集体决策"
+        },
+        "events": {
+          "name": "活动与聚会",
+          "description": "协调聚会和社区活动"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "工会分会",
+      "description": "完整的工作场所组织工具：运动、联系人和民主治理。",
+      "enhancements": {
+        "publicPresence": {
+          "name": "公共形象",
+          "description": "为您的分会创建公开页面"
+        },
+        "documents": {
+          "name": "文档套件",
+          "description": "用于合同、申诉和笔记的协作文档"
+        },
+        "files": {
+          "name": "文件存储",
+          "description": "安全存储合同、照片和证据"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "工会选举运动",
+      "description": "组织工会选举，包括工人跟踪、家访、授权卡和 NLRB 协调。",
+      "enhancements": {
+        "wiki": {
+          "name": "知识库",
+          "description": "记录 NLRB 规则、反工会策略和组织资源"
+        },
+        "documents": {
+          "name": "文档套件",
+          "description": "用于规划和 ULP 文档的协作文档"
+        },
+        "publicPresence": {
+          "name": "公开运动",
+          "description": "添加工人外联的公开页面（谨慎使用）"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "活动家集体",
+      "description": "协调运动、建立知识并有效动员您的社区。",
+      "enhancements": {
+        "crm": {
+          "name": "联系人管理",
+          "description": "跟踪支持者、志愿者和外联工作"
+        },
+        "database": {
+          "name": "自定义数据库",
+          "description": "为您的运动创建自定义跟踪系统"
+        },
+        "files": {
+          "name": "媒体库",
+          "description": "存储和组织运动材料"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "社区中心",
+      "description": "用于社区组织和联系的通用空间。非常适合社区和社交群组。",
+      "enhancements": {
+        "governance": {
+          "name": "集体决策",
+          "description": "添加提案和投票功能用于社区决策"
+        },
+        "documents": {
+          "name": "文档套件",
+          "description": "用于会议记录和规划的协作文档"
+        },
+        "files": {
+          "name": "文件共享",
+          "description": "社区资源的共享文件存储"
+        },
+        "crm": {
+          "name": "联系人目录",
+          "description": "管理社区联系人和本地商家"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "运动法律辩护集体",
+      "description": "全功能大规模辩护协调，包括案件管理、法庭日历、律师协调和监狱支持热线。",
+      "enhancements": {
+        "documents": {
+          "name": "文档套件",
+          "description": "用于法律简报、模板和案件笔记的协作文档"
+        },
+        "wiki": {
+          "name": "知识库",
+          "description": "记录了解您的权利指南、法律程序和资源"
+        },
+        "publicPresence": {
+          "name": "公共资源",
+          "description": "添加了解您的权利信息和如何获得帮助的公开页面"
+        },
+        "fundraising": {
+          "name": "保释基金与捐款",
+          "description": "添加保释基金管理和捐款跟踪"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "街头医疗集体",
+      "description": "为抗议活动和社区活动培训和动员街头医疗人员。跟踪认证、协调部署和管理医疗用品。",
+      "enhancements": {
+        "governance": {
+          "name": "集体治理",
+          "description": "添加提案和投票功能用于集体决策"
+        },
+        "documents": {
+          "name": "文档套件",
+          "description": "用于协议、培训材料和总结的协作文档"
+        },
+        "hotlines": {
+          "name": "医疗调度",
+          "description": "添加用于紧急医疗协调的调度热线"
+        },
+        "fundraising": {
+          "name": "物资基金",
+          "description": "跟踪医疗用品和设备的捐款"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "社区自卫集体",
+      "description": "为示威和社区活动培训和协调安全人员和调解团队。",
+      "enhancements": {
+        "governance": {
+          "name": "集体治理",
+          "description": "添加提案和投票功能用于集体决策"
+        },
+        "documents": {
+          "name": "文档套件",
+          "description": "用于协议、事件报告和培训材料的协作文档"
+        },
+        "hotlines": {
+          "name": "安全调度",
+          "description": "添加用于安全协调的调度热线"
+        }
+      }
+    },
+    "mediaCollective": {
+      "name": "媒体集体",
+      "description": "具有民主自治的社区新闻。发布文章、联合网络并共同做出决策。",
+      "channels": {
+        "general": "综合",
+        "editorial": "编辑",
+        "pitches": "选题",
+        "governance": "治理",
+        "announcements": "公告"
+      },
+      "roles": {
+        "editor": "编辑",
+        "writer": "作者",
+        "copyEditor": "校对编辑",
+        "publisher": "出版人",
+        "newsletterEditor": "通讯编辑"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "开放编辑部",
+          "description": "接受社区公开投稿"
+        },
+        "wireService": {
+          "name": "通讯社模式",
+          "description": "汇集并转发其他集体的报道"
+        },
+        "events": {
+          "name": "活动与新闻发布会",
+          "description": "组织新闻活动、社区会议和报道协调"
+        },
+        "mutualAid": {
+          "name": "社区资源",
+          "description": "将读者与社区资源和互助联系起来"
+        },
+        "microblogging": {
+          "name": "即时新闻更新",
+          "description": "发布快速更新、突发新闻和社交媒体风格的内容"
+        },
+        "fundraising": {
+          "name": "筹款与会员",
+          "description": "接受捐款并管理会员"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "编辑政策变更",
+        "description": "提议更改编辑指南、标准或政策"
+      },
+      "coveragePriority": {
+        "title": "报道优先级",
+        "description": "设置或更改集体的报道优先级"
+      },
+      "styleGuideUpdate": {
+        "title": "风格指南更新",
+        "description": "提议更新集体的风格指南"
+      },
+      "newMemberApproval": {
+        "title": "新成员批准",
+        "description": "投票决定是否接受新成员加入集体"
+      },
+      "roleAssignment": {
+        "title": "角色分配",
+        "description": "将成员分配到特定角色"
+      },
+      "electEditorialBoard": {
+        "title": "选举编委会",
+        "description": "选举成员担任编委会职务"
+      },
+      "joinCoalition": {
+        "title": "加入联盟",
+        "description": "投票决定是否加入区域或全球媒体联盟"
+      },
+      "leaveCoalition": {
+        "title": "退出联盟",
+        "description": "投票决定是否退出集体当前所属的联盟"
+      },
+      "partnershipAgreement": {
+        "title": "合作协议",
+        "description": "与另一个组织建立合作关系"
+      },
+      "budgetAllocation": {
+        "title": "预算分配",
+        "description": "将集体资金分配给特定用途"
+      },
+      "contentDispute": {
+        "title": "内容争议解决",
+        "description": "解决已发布或待发布内容的争议"
+      },
+      "retractionRequest": {
+        "title": "撤回或更正",
+        "description": "投票决定是否撤回或更正已发布的内容"
+      },
+      "syndicationApproval": {
+        "title": "联合发布批准",
+        "description": "批准将特定文章联合发布到联盟"
+      }
+    },
+    "categories": {
+      "editorial": "编辑治理",
+      "membership": "成员与角色",
+      "operations": "运营与财务",
+      "content": "内容决策",
+      "coalition": "联盟成员"
+    }
+  },
+  "modules": {
+    "title": "模块设置",
+    "description": "为您的群组启用和配置模块。每个模块提供不同的功能和能力。",
+    "noPermission": "您没有权限管理此群组的模块。",
+    "noPermissionAlert": "您没有权限管理模块",
+    "failedToToggle": "切换模块失败",
+    "failedToUpdateConfig": "更新配置失败",
+    "cannotDisable": "无法禁用：{{modules}}依赖此模块",
+    "required": "必需：",
+    "isRequired": "{{module}}是必需的",
+    "enhancedBy": "由以下增强：",
+    "enhancedByModule": "由{{module}}增强",
+    "enableForFeatures": "启用{{module}}以获得更多功能",
+    "recommended": "推荐：",
+    "worksWellWith": "{{module}}与此模块配合良好",
+    "enableFirst": "请先启用{{modules}}",
+    "requiredBy": "被以下需要：",
+    "capabilities": "功能：",
+    "configure": "配置",
+    "configureModule": "配置{{module}}",
+    "saveConfiguration": "保存配置",
+    "error": "错误：{{message}}"
+  },
+  "notifications": {
+    "title": "通知设置",
+    "description": "管理您接收通知的方式",
+    "comingSoon": "通知设置即将推出..."
+  },
+  "preferences": {
+    "title": "偏好设置",
+    "description": "管理您的应用偏好和外观",
+    "language": "语言",
+    "colorMode": "颜色模式",
+    "theme": "主题"
+  },
+  "securityPage": {
+    "title": "安全与设备",
+    "description": "管理您的设备、会话和安全设置",
+    "webauthnProtection": "WebAuthn 保护",
+    "active": "已激活",
+    "keysProtected": "您的密钥已通过 WebAuthn 保护",
+    "setupBiometric": "设置生物识别认证或硬件安全密钥",
+    "setupWebauthn": "设置 WebAuthn",
+    "registeredCredentials": "已注册凭证",
+    "thisDevice": "此设备",
+    "lastUsed": "上次使用：",
+    "webauthnNotSupported": "不支持 WebAuthn",
+    "webauthnNotSupportedDesc": "您的浏览器不支持 WebAuthn。请使用现代浏览器（Chrome、Firefox、Safari、Edge）以启用生物识别认证和硬件安全密钥。",
+    "tabDevices": "设备",
+    "tabSession": "会话",
+    "tabActivity": "活动",
+    "tabPrivacy": "隐私",
+    "tabTor": "Tor",
+    "tabBackup": "备份",
+    "tabBackupTooltip": "备份与多设备",
+    "unlockForMultiDevice": "请解锁您的身份以访问多设备功能。"
+  },
+  "profile": {
+    "pleaseLogin": "请登录以管理您的个人资料",
+    "usernameAndDisplayName": "用户名和显示名称",
+    "usernameDescription": "设置一个易读的用户名，方便他人找到和提及您",
+    "username": "用户名",
+    "usernameTaken": "用户名已被占用",
+    "usernameAvailable": "用户名可用",
+    "usernameHint": "3-20个字符，仅限小写字母、数字和连字符",
+    "displayName": "显示名称（可选）",
+    "displayNameHint": "您的全名或首选显示名称",
+    "saving": "保存中...",
+    "saveUsername": "保存用户名",
+    "usernameSaved": "用户名保存成功",
+    "usernameSaveFailed": "用户名保存失败",
+    "nip05Verification": "NIP-05 验证",
+    "verified": "已验证",
+    "nip05Description": "使用域名验证您的身份（用户名@域名.com）",
+    "nip05Identifier": "NIP-05 标识符",
+    "nip05Hint": "输入您的 NIP-05 标识符以验证身份",
+    "verifying": "验证中...",
+    "verifyNip05": "验证 NIP-05",
+    "verifiedAs": "已验证为",
+    "nip05Verified": "NIP-05 验证成功",
+    "nip05Failed": "NIP-05 验证失败",
+    "privacySettings": "隐私设置",
+    "privacyDescription": "控制谁可以找到您并查看您的个人资料",
+    "loadingSettings": "加载设置中...",
+    "usernameSearch": "用户名搜索",
+    "usernameSearchHint": "允许他人通过用户名找到您",
+    "showInDirectory": "在目录中显示",
+    "showInDirectoryHint": "出现在公共用户目录中",
+    "profileVisibility": "个人资料可见性",
+    "visibilityPublic": "公开（任何人可见）",
+    "visibilityGroups": "仅群组可见",
+    "visibilityFriends": "仅好友可见",
+    "visibilityPrivate": "私密（隐藏）",
+    "visibilityHint": "谁可以查看您的个人资料和帖子",
+    "publicKey": "公钥",
+    "publicKeyDescription": "您的 Nostr 公钥 (npub)",
+    "npub": "npub",
+    "npubHint": "您在 Nostr 网络上的唯一标识符",
+    "privacyUpdated": "隐私设置已更新",
+    "privacyUpdateFailed": "更新设置失败"
+  },
+  "fundraising": {
+    "title": "筹款",
+    "description": "为您的组织创建和管理筹款活动",
+    "viewTemplates": "查看模板",
+    "newCampaign": "新建活动",
+    "createCampaign": "创建活动",
+    "browseTemplates": "浏览模板",
+    "noCampaigns": "暂无活动",
+    "noCampaignsDescription": "创建您的第一个筹款活动，支持罢工基金、保释基金、互助等。",
+    "backToCampaigns": "返回活动列表",
+    "deleteCampaign": "删除活动",
+    "deleteCampaignConfirm": "您确定要删除\"{{title}}\"吗？这也将删除所有捐款和更新。此操作无法撤销。",
+    "edit": "编辑",
+    "preview": "预览",
+    "donors": "捐赠者",
+    "analytics": "数据分析",
+    "copyLink": "复制链接",
+    "pause": "暂停",
+    "publish": "发布",
+    "of": "/",
+    "funded": "已筹集"
+  },
+  "forms": {
+    "title": "表单",
+    "description": "创建和管理用于数据收集的公开表单",
+    "viewTemplates": "查看模板",
+    "newForm": "新建表单",
+    "createForm": "创建表单",
+    "browseTemplates": "浏览模板",
+    "noForms": "暂无表单",
+    "noFormsDescription": "创建您的第一个表单，开始收集志愿者、活动报名、调查问卷等数据。",
+    "backToForms": "返回表单列表",
+    "deleteForm": "删除表单",
+    "deleteFormConfirm": "您确定要删除\"{{title}}\"吗？这也将删除所有提交内容。此操作无法撤销。",
+    "edit": "编辑",
+    "preview": "预览",
+    "submissions": "提交内容",
+    "analytics": "数据分析",
+    "copyLink": "复制链接",
+    "unpublish": "取消发布",
+    "publish": "发布",
+    "fields": "字段"
+  },
+  "files": {
+    "title": "文件",
+    "analytics": "分析",
+    "select": "选择",
+    "newFolder": "新建文件夹",
+    "uploadFiles": "上传文件",
+    "selectFiles": "选择文件",
+    "filesSelected": "已选择 {{count}} 个文件",
+    "filesSelected_plural": "已选择 {{count}} 个文件",
+    "downloadZip": "下载 ZIP",
+    "download": "下载",
+    "move": "移动",
+    "share": "分享",
+    "searchPlaceholder": "按名称或内容搜索文件...",
+    "searching": "搜索中...",
+    "searchContents": "搜索内容",
+    "recentSearches": "最近搜索",
+    "clear": "清除",
+    "savedFilters": "已保存的筛选器",
+    "filters": "筛选器",
+    "filterFiles": "筛选文件",
+    "fileType": "文件类型",
+    "allTypes": "所有类型",
+    "images": "图片",
+    "documents": "文档",
+    "videos": "视频",
+    "audio": "音频",
+    "archives": "压缩文件",
+    "other": "其他",
+    "fileSize": "文件大小",
+    "allSizes": "所有大小",
+    "sizeSmall": "小 (< 1 MB)",
+    "sizeMedium": "中 (1-100 MB)",
+    "sizeLarge": "大 (> 100 MB)",
+    "modified": "修改时间",
+    "anyTime": "任何时间",
+    "today": "今天",
+    "pastWeek": "过去一周",
+    "pastMonth": "过去一个月",
+    "pastYear": "过去一年",
+    "saveFilter": "保存筛选器",
+    "activeFilters": "活动筛选器：",
+    "type": "类型",
+    "size": "大小",
+    "contentMatches": "内容匹配",
+    "deleteFilesTitle": "删除 {{count}} 个文件？",
+    "deleteFilesTitle_plural": "删除 {{count}} 个文件？",
+    "deleteFilesDesc": "此操作无法撤销。所选文件将被永久删除。",
+    "deleting": "删除中...",
+    "saveSearchFilter": "保存搜索筛选器",
+    "filterName": "筛选器名称",
+    "filterNamePlaceholder": "例如：'本月的大视频'",
+    "filterWillSave": "此筛选器将保存：",
+    "search": "搜索",
+    "analyticsTitle": "文件分析",
+    "refresh": "刷新",
+    "overview": "概览",
+    "activity": "活动",
+    "duplicates": "重复文件",
+    "shared": "已分享",
+    "storageUsage": "存储使用情况",
+    "ofUsed": "已使用 {{total}} 中的",
+    "totalFiles": "文件总数",
+    "filesInGroup": "此群组中的文件",
+    "sharedFiles": "已分享的文件",
+    "filesSharedWithOthers": "与他人分享的文件",
+    "storageByType": "按文件类型的存储",
+    "filesCount": "{{count}} 个文件 ({{size}})",
+    "noFilesUploaded": "尚未上传任何文件",
+    "mostAccessedFiles": "访问最多的文件",
+    "filesWithMostAccess": "分享访问次数最多的文件",
+    "accesses": "{{count}} 次访问",
+    "noActivityYet": "尚无记录的活动",
+    "loadingAnalytics": "正在加载分析...",
+    "actions": {
+      "uploaded": "已上传",
+      "downloaded": "已下载",
+      "shared": "已分享",
+      "deleted": "已删除",
+      "moved": "已移动",
+      "renamed": "已重命名",
+      "viewed": "已查看"
+    },
+    "time": {
+      "justNow": "刚刚",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前",
+      "daysAgo": "{{count}}天前"
+    },
+    "duplicatesFound": "发现 {{count}} 组重复文件。考虑删除重复文件以释放存储空间。",
+    "duplicateGroup": "重复组 #{{index}}",
+    "identicalFiles": "{{count}} 个相同文件（每个 {{size}}）",
+    "created": "创建于 {{date}}",
+    "keep": "保留",
+    "noDuplicates": "未找到重复文件",
+    "storageOptimized": "您的存储已优化！",
+    "filesShared": "个文件已分享",
+    "viewFileShares": "在文件列表中查看单个文件的分享情况。",
+    "exportSharingReport": "导出分享报告",
+    "exporting": "正在导出...",
+    "noFilesShared": "尚未分享任何文件",
+    "shareToSee": "分享文件后可在此查看",
+    "deleteDuplicate": "删除此重复文件？",
+    "failedExport": "导出分享报告失败",
+    "bulkShare": {
+      "title": "分享 {{count}} 个文件",
+      "description": "使用相同设置分享多个文件",
+      "complete": "批量分享完成",
+      "filesSharedSuccessfully": "个文件分享成功",
+      "failedToShare": "{{count}} 个文件分享失败：",
+      "done": "完成",
+      "sharingFiles": "正在分享文件...",
+      "pleaseWait": "请稍候，正在分享您的文件",
+      "percentComplete": "{{percent}}% 已完成",
+      "shareWithUsers": "与用户分享",
+      "createLinks": "创建链接",
+      "selectUsers": "选择用户",
+      "member": "成员",
+      "noGroupMembers": "未找到群组成员",
+      "permissionLevel": "权限级别",
+      "viewOnly": "仅查看",
+      "viewDownload": "查看和下载",
+      "viewDownloadEdit": "查看、下载和编辑",
+      "generateLinks": "为所有文件生成公开链接",
+      "passwordOptional": "密码（可选，所有文件相同）",
+      "passwordPlaceholder": "留空表示无密码",
+      "expiresIn": "过期时间（天）",
+      "never": "永不",
+      "day": "1 天",
+      "days7": "7 天",
+      "days30": "30 天",
+      "days90": "90 天",
+      "more": "+{{count}} 更多"
+    },
+    "storageUsed": "已使用 {{size}}"
+  },
+  "cache": {
+    "storageUsage": "存储使用情况",
+    "storageDesc": "用于离线访问的缓存数据",
+    "used": "已使用",
+    "limit": "限制",
+    "cachedItems": "缓存项目",
+    "oldest": "最旧",
+    "ago": "前",
+    "imagesMedia": "图片和媒体",
+    "documents": "文档",
+    "appData": "应用数据",
+    "offlineQueue": "离线队列",
+    "refresh": "刷新",
+    "freeSpace": "释放空间",
+    "exportData": "导出数据",
+    "cacheSettings": "缓存设置",
+    "cacheSettingsDesc": "配置离线数据保留时间",
+    "maxCacheSize": "最大缓存大小",
+    "maxCacheSizeDesc": "缓存文件和图片的限制",
+    "cacheExpiration": "缓存过期时间",
+    "cacheExpirationDesc": "自动删除超过以下时间的缓存项目",
+    "days": "天",
+    "dataRetention": "数据保留",
+    "dataRetentionDesc": "配置消息和帖子的本地保留时间",
+    "messages": "消息",
+    "keepMessages": "保留本地消息",
+    "posts": "帖子",
+    "keepPosts": "保留本地帖子",
+    "keepFiles": "保留缓存文件",
+    "lastCleanup": "上次清理",
+    "noCleanupYet": "尚未执行清理",
+    "cleanUpNow": "立即清理",
+    "dangerZone": "危险区域",
+    "clearAllCache": "清除所有缓存",
+    "clearCacheDesc": "删除所有缓存数据。您需要重新下载内容。",
+    "clearCache": "清除缓存",
+    "clearCacheTitle": "清除所有缓存？",
+    "clearCacheDialogDesc": "这将删除所有缓存的文件、图片和临时数据。您的消息、帖子和账户数据不会受到影响。再次访问内容时需要重新下载。",
+    "cleanUpTitle": "清理旧数据？",
+    "cleanUpDialogDesc": "这将根据您的保留设置删除旧消息、帖子和缓存文件。这有助于释放存储空间，同时保留最近的数据。",
+    "cleanUp": "清理"
+  },
+  "publishing": {
+    "settings": "发布设置",
+    "saveChanges": "保存更改",
+    "settingsSaved": "设置已保存",
+    "tabs": {
+      "general": "通用",
+      "theme": "主题",
+      "content": "内容",
+      "subscriptions": "订阅",
+      "social": "社交"
+    },
+    "general": {
+      "title": "通用设置",
+      "description": "关于您的出版物的基本信息",
+      "name": "出版物名称",
+      "namePlaceholder": "我的出版物",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "您的出版物是关于什么的？",
+      "logoUrl": "徽标 URL",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoPreview": "徽标预览",
+      "coverImageUrl": "封面图片 URL",
+      "coverImagePlaceholder": "https://example.com/cover.jpg",
+      "coverPreview": "封面预览"
+    },
+    "theme": {
+      "title": "主题与外观",
+      "description": "自定义出版物的外观",
+      "primaryColor": "主色调",
+      "fontFamily": "字体系列",
+      "fontSans": "无衬线体（现代）",
+      "fontSerif": "衬线体（经典）",
+      "fontMono": "等宽字体（技术）",
+      "layout": "布局样式",
+      "layoutDefault": "默认",
+      "layoutMagazine": "杂志",
+      "layoutMinimal": "极简",
+      "darkMode": "深色模式",
+      "darkModeDesc": "为您的出版物启用深色模式"
+    },
+    "content": {
+      "title": "内容设置",
+      "description": "控制内容的发布和显示方式",
+      "defaultVisibility": "文章默认可见性",
+      "visibilityPublic": "公开",
+      "visibilitySubscribers": "仅订阅者",
+      "visibilityPaid": "仅付费订阅者",
+      "allowComments": "允许评论",
+      "allowCommentsDesc": "允许读者在文章下评论",
+      "enableRss": "启用 RSS 订阅源",
+      "enableRssDesc": "为您的出版物生成 RSS 订阅源",
+      "fullRss": "RSS 中的完整内容",
+      "fullRssDesc": "在 RSS 中包含完整文章内容（而非仅摘要）"
+    },
+    "subscriptions": {
+      "title": "订阅设置",
+      "description": "配置订阅者功能和变现方式",
+      "emailNotifications": "邮件通知",
+      "emailNotificationsDesc": "向订阅者发送邮件通知（需要邮件配置）",
+      "paidSubscriptions": "付费订阅",
+      "paidSubscriptionsDesc": "为高级内容启用付费订阅层级",
+      "monthlyPrice": "月价格（美元）",
+      "perMonth": "/ 月"
+    },
+    "social": {
+      "title": "社交链接",
+      "description": "为您的出版物添加社交媒体链接",
+      "twitter": "Twitter / X",
+      "twitterPlaceholder": "@用户名",
+      "nostr": "Nostr",
+      "nostrPlaceholder": "npub...",
+      "website": "网站",
+      "websitePlaceholder": "https://example.com"
+    }
+  },
+  "tor": {
+    "title": "Tor 集成",
+    "description": "通过 Tor 连接到 Nostr 中继服务器，以增强隐私和抗审查能力",
+    "enableRouting": "启用 Tor 路由",
+    "enableRoutingDesc": "通过 .onion 中继服务器路由 Nostr 连接",
+    "connectionMethod": "连接方式",
+    "methodAuto": "自动检测（推荐）",
+    "methodTorBrowser": "Tor 浏览器",
+    "methodManualProxy": "手动 SOCKS5 代理",
+    "methodAutoDesc": "自动检测 Tor 浏览器或 SOCKS5 代理",
+    "methodTorBrowserDesc": "使用 Tor 浏览器连接 .onion 中继服务器",
+    "methodManualProxyDesc": "配置自定义 SOCKS5 代理（需要本地 Tor 守护进程）",
+    "proxyConfig": "SOCKS5 代理配置",
+    "proxyHost": "代理主机",
+    "proxyPort": "代理端口",
+    "proxyHint": "标准 Tor：9050，Tor 浏览器：9150",
+    "onionRelays": "Onion 中继服务器",
+    "onionRelaysDesc": "管理用于 Tor 连接的 Nostr .onion 中继服务器",
+    "healthCheck": "健康检查",
+    "onionOnlyMode": "仅 Onion 模式",
+    "onionOnlyModeDesc": "仅使用 .onion 中继服务器（无明网回退）",
+    "fallbackClearnet": "明网回退",
+    "fallbackClearnetDesc": "当 .onion 中继服务器不可用时使用明网中继服务器",
+    "addCustomRelay": "添加自定义中继服务器",
+    "onionAddress": ".onion 地址",
+    "nameOptional": "名称（可选）",
+    "add": "添加",
+    "tableRelay": "中继服务器",
+    "tableUrl": "URL",
+    "tableStatus": "状态",
+    "tableLatency": "延迟",
+    "noRelaysConfigured": "未配置 .onion 中继服务器",
+    "customRelay": "自定义中继服务器",
+    "statusUnknown": "未知",
+    "statusHealthy": "健康",
+    "statusDown": "离线",
+    "enhancedSecurity": "增强安全性",
+    "enhancedSecurityDesc": "使用 Tor 时的额外保护",
+    "blockWebRTC": "阻止 WebRTC",
+    "blockWebRTCDesc": "防止 WebRTC IP 泄露（需要浏览器扩展）",
+    "blockGeolocation": "阻止地理定位",
+    "blockGeolocationDesc": "拒绝所有地理定位 API 请求",
+    "fingerprintProtection": "指纹保护",
+    "fingerprintProtectionDesc": "增强浏览器指纹跟踪保护",
+    "securityWarnings": "安全警告",
+    "howToUse": "如何在 BuildIt Network 中使用 Tor",
+    "recommendedNote": "使用 Tor 浏览器可获得最佳隐私和安全性。BuildIt 将自动检测并使用 .onion 中继服务器。",
+    "advancedNote": "运行本地 Tor 守护进程（端口 9050）并启用手动代理模式以进行桌面集成。",
+    "noteNote": "WebRTC 和地理定位阻止需要浏览器配置或扩展。Tor 浏览器默认包含这些保护。",
+    "recommended": "推荐：",
+    "advanced": "高级：",
+    "note": "注意：",
+    "invalidOnionAddress": "请输入有效的 .onion 地址"
+  },
+  "subscribers": {
+    "title": "订阅者",
+    "stats": "{{active}} 活跃，{{pending}} 待确认，{{unsubscribed}} 已取消订阅",
+    "import": "导入",
+    "export": "导出",
+    "addSubscriber": "添加订阅者",
+    "active": "活跃",
+    "pending": "待确认",
+    "unsubscribed": "已取消订阅",
+    "searchPlaceholder": "按公钥搜索...",
+    "all": "全部",
+    "noSubscribers": "暂无订阅者",
+    "addFirstSubscriber": "添加您的第一个订阅者以开始。",
+    "noStatusSubscribers": "未找到状态为 {{status}} 的订阅者。",
+    "tablePubkey": "公钥",
+    "tableStatus": "状态",
+    "tableSource": "来源",
+    "tableSubscribed": "订阅于",
+    "tableActions": "操作",
+    "unsubscribe": "取消订阅",
+    "confirm": "确认",
+    "delete": "删除",
+    "sourceManual": "手动",
+    "sourceImport": "导入",
+    "sourceSelf": "自己",
+    "sourceContacts": "联系人",
+    "addDialogTitle": "添加订阅者",
+    "addDialogDesc": "通过 Nostr 公钥添加新订阅者。",
+    "nostrPubkey": "Nostr 公钥",
+    "pubkeyPlaceholder": "npub... 或十六进制公钥",
+    "skipConfirmation": "跳过确认",
+    "skipConfirmationDesc": "无需确认立即激活",
+    "importDialogTitle": "导入订阅者",
+    "importDialogDesc": "粘贴 Nostr 公钥（每行一个或用逗号分隔）。",
+    "pubkeys": "公钥",
+    "importPlaceholder": "npub1abc...\nnpub1def...\n或用逗号分隔",
+    "toastEnterPubkey": "请输入公钥",
+    "toastInvalidPubkey": "公钥格式无效",
+    "toastSubscriberAdded": "订阅者已添加",
+    "toastNoValidPubkeys": "未找到有效的公钥",
+    "toastImported": "已导入 {{count}} 个订阅者",
+    "toastExported": "订阅者已导出",
+    "toastRemoved": "订阅者已移除",
+    "toastDeleted": "订阅者已删除",
+    "toastConfirmed": "订阅已确认"
+  },
+  "webauthn": {
+    "setup": {
+      "title": "设置 WebAuthn 保护",
+      "description": "使用生物识别认证或硬件安全密钥保护您的密钥",
+      "biometricAvailable": "生物识别认证可用！",
+      "biometricDetails": "您可以使用 Touch ID、Face ID、Windows Hello 或设备内置的认证方式。",
+      "securityKeyRequired": "需要安全密钥",
+      "securityKeyDetails": "此设备不支持生物识别认证。您需要一个硬件安全密钥（如 YubiKey）才能继续。",
+      "benefits": "优势：",
+      "benefitBiometric": "使用生物识别或硬件安全保护您的密钥",
+      "benefitUnauthorized": "即使密码泄露也能防止未经授权的访问",
+      "benefitDevices": "可在您的所有设备上使用",
+      "benefitStandard": "行业标准 FIDO2/WebAuthn 安全性",
+      "getStarted": "开始",
+      "nameDevice": "命名此设备",
+      "nameDeviceDesc": "给此设备起一个名称以便之后识别",
+      "deviceName": "设备名称",
+      "deviceNamePlaceholder": "我的 iPhone、工作笔记本等",
+      "enterDeviceName": "请输入设备名称",
+      "registering": "正在注册凭证",
+      "registeringDesc": "按照设备上的提示完成注册",
+      "useBiometric": "使用您的指纹、面部或 PIN 继续...",
+      "insertKey": "插入并触碰您的安全密钥...",
+      "success": "WebAuthn 设置成功",
+      "successDescBiometric": "您的密钥现已通过生物识别认证保护",
+      "successDescKey": "您的密钥现已通过安全密钥保护",
+      "successImportant": "重要：",
+      "successWarning": "现在每次访问密钥时都需要通过 WebAuthn 进行认证。请确保您始终可以访问此设备或有备用认证方式。",
+      "credentialDetails": "凭证详情：",
+      "device": "设备：",
+      "failed": "注册失败",
+      "failedDesc": "我们无法注册您的 WebAuthn 凭证",
+      "troubleshooting": "故障排除：",
+      "troubleshootBrowser": "确保您的浏览器支持 WebAuthn",
+      "troubleshootAuthenticator": "尝试使用其他认证器",
+      "troubleshootAlreadyRegistered": "检查您是否已经注册过此设备",
+      "troubleshootInserted": "确保您的安全密钥已正确插入",
+      "tryAgain": "重试"
+    }
+  },
+  "shareDialog": {
+    "title": "分享「{{title}}」",
+    "description": "邀请他人或创建可分享链接",
+    "share": "分享",
+    "tabs": {
+      "people": "人员",
+      "link": "链接"
+    },
+    "permissions": {
+      "view": "查看者",
+      "comment": "评论者",
+      "edit": "编辑者",
+      "admin": "管理员",
+      "owner": "所有者"
+    },
+    "people": {
+      "placeholder": "通过 npub 或邮箱添加人员...",
+      "invite": "邀请",
+      "you": "您",
+      "noCollaborators": "暂无协作者。邀请他人一起协作。",
+      "added": "添加于 {{time}}"
+    },
+    "link": {
+      "public": "公开链接",
+      "private": "私密链接",
+      "publicDesc": "任何有此链接的人都可以访问此文档",
+      "privateDesc": "只有登录 BuildIt 的用户才能访问此链接",
+      "permission": "权限",
+      "viewOnly": "仅查看",
+      "canComment": "可评论",
+      "canEdit": "可编辑",
+      "expires": "过期时间",
+      "never": "永不",
+      "day1": "1 天",
+      "days7": "7 天",
+      "days30": "30 天",
+      "days90": "90 天",
+      "createLink": "创建链接",
+      "activeLinks": "活跃链接",
+      "views": "{{count}} 次查看",
+      "expiresIn": "{{time}}后过期",
+      "expired": "已于{{time}}过期",
+      "expiredLinks": "已过期链接",
+      "noLinks": "尚未创建分享链接"
+    }
+  },
+  "templateBuilder": {
+    "templateName": "模板名称",
+    "templateNamePlaceholder": "例如：CRM联系人数据库、项目跟踪器",
+    "description": "描述",
+    "descriptionPlaceholder": "描述此模板的用途及包含内容...",
+    "category": "类别",
+    "categories": {
+      "general": "通用",
+      "crm": "客户关系管理",
+      "project": "项目管理",
+      "inventory": "库存",
+      "custom": "自定义"
+    },
+    "tables": "表格",
+    "tablesCount": "表格 ({{count}})",
+    "relationships": "关系",
+    "relationshipsCount": "关系 ({{count}})",
+    "tablesDesc": "定义此数据库模板中的表格和字段",
+    "addTable": "添加表格",
+    "noTables": "暂无表格。添加您的第一个表格以开始。",
+    "field": "字段",
+    "fields": "字段",
+    "view": "视图",
+    "views": "视图",
+    "more": "+{{count}} 更多",
+    "deleteTable": "您确定要删除此表格吗？",
+    "relationshipsDesc": "定义表格之间的关系",
+    "addRelationship": "添加关系",
+    "noRelationships": "暂无关系。",
+    "noRelationshipsNeedTables": "请先添加至少2个表格。",
+    "noRelationshipsConnect": "添加关系以连接您的表格。",
+    "updateTemplate": "更新模板",
+    "createTemplate": "创建模板",
+    "enterName": "请输入模板名称",
+    "addTableFirst": "请添加至少一个表格",
+    "relationship": {
+      "edit": "编辑",
+      "add": "添加",
+      "title": "关系",
+      "desc": "定义表格之间如何相互关联",
+      "sourceTable": "源表格",
+      "sourceField": "源字段",
+      "targetTable": "目标表格",
+      "targetField": "目标字段",
+      "type": "关系类型",
+      "oneToMany": "一对多",
+      "manyToOne": "多对一",
+      "manyToMany": "多对多",
+      "onDelete": "删除时",
+      "cascade": "级联（删除相关记录）",
+      "setNull": "设为空（清除关系）",
+      "restrict": "限制（阻止删除）",
+      "selectTable": "选择表格",
+      "selectField": "选择字段",
+      "fillFields": "请填写所有字段",
+      "save": "保存关系"
+    }
+  },
+  "privacyDashboard": {
+    "covertMode": "隐蔽支持者模式",
+    "covertModeDesc": "为需要隐藏参与的人提供最高隐私保护",
+    "covertActive": "隐蔽模式已激活",
+    "covertActiveDesc": "所有隐私设置已启用。您的活动对公众视图隐藏，同时您仍可支持运动。",
+    "highRiskDetected": "检测到高风险",
+    "highRiskAdvice": "考虑启用隐蔽模式以获得最大保护。",
+    "riskLevel": "当前风险级别",
+    "riskLevelDesc": "基于您的位置和活动",
+    "riskLow": "低风险",
+    "riskMedium": "中等风险",
+    "riskHigh": "高风险 - 使用隐蔽模式",
+    "privacyControls": "隐私控制",
+    "settings": {
+      "anonymousVoting": "匿名投票",
+      "anonymousVotingDesc": "投票时不透露身份",
+      "anonymousReactions": "匿名反应",
+      "anonymousReactionsDesc": "匿名对帖子做出反应",
+      "hideFromDirectory": "从成员目录中隐藏",
+      "hideFromDirectoryDesc": "不出现在公开成员列表中",
+      "encryptedMessagesOnly": "仅限加密消息",
+      "encryptedMessagesOnlyDesc": "要求端到端加密",
+      "disableReadReceipts": "禁用已读回执",
+      "disableReadReceiptsDesc": "不显示您何时阅读了消息",
+      "hideActivityStatus": "隐藏活动状态",
+      "hideActivityStatusDesc": "不显示您何时在线",
+      "restrictProfileVisibility": "限制个人资料可见性",
+      "restrictProfileVisibilityDesc": "只有成员可以查看您的个人资料"
+    },
+    "aboutTitle": "关于隐私控制",
+    "aboutDesc": "这些设置在高风险组织环境中保护您，在这些环境中曝光可能导致报复。",
+    "aboutCovert": "隐蔽模式：",
+    "aboutCovertDesc": "最高隐私 - 启用所有保护",
+    "aboutAnonymous": "匿名操作：",
+    "aboutAnonymousDesc": "参与而不透露身份",
+    "aboutHidden": "隐藏存在：",
+    "aboutHiddenDesc": "隐形支持运动",
+    "aboutEncryption": "端到端加密：",
+    "aboutEncryptionDesc": "所有通信均经过加密保护"
+  },
+  "memberVerification": {
+    "title": "成员验证",
+    "description": "当面验证成员以建立信任并防止渗透",
+    "howItWorks": "验证如何运作",
+    "inPerson": "当面验证：",
+    "inPersonDesc": "在面对面会面时扫描成员的二维码",
+    "vouching": "担保：",
+    "vouchingDesc": "为您信任的成员担保以提高他们的信任分数",
+    "trustScoreInfo": "信任分数：",
+    "trustScoreDesc": "根据验证、担保和活动计算",
+    "verifiedBadge": "已验证徽章：",
+    "verifiedBadgeDesc": "表示成员已当面验证",
+    "qrVerification": "二维码验证",
+    "closeScanner": "关闭扫描器",
+    "scanQR": "扫描二维码",
+    "qrScannerPlaceholder": "二维码扫描器将在生产环境中显示",
+    "cameraRequired": "当面验证需要相机访问权限",
+    "enterMemberId": "或手动输入成员 ID...",
+    "verify": "验证",
+    "members": "成员",
+    "verified": "已验证",
+    "admin": "管理员",
+    "organizer": "组织者",
+    "joined": "加入于 {{date}}",
+    "vouch": "担保",
+    "vouches": "担保",
+    "verifyInPerson": "当面验证",
+    "vouchForMember": "为成员担保",
+    "youVouched": "您已担保",
+    "trustScore": "信任分数",
+    "lowTrustWarning": "信任分数较低。",
+    "lowTrustAdvice": "在分享敏感信息前考虑进行当面验证。",
+    "trustLevels": "信任分数等级",
+    "trusted": "可信任 (80+)",
+    "trustedDesc": "已验证 + 多次担保",
+    "verifiedLevel": "已验证 (60-79)",
+    "verifiedLevelDesc": "已当面验证",
+    "newLevel": "新成员 (40-59)",
+    "newLevelDesc": "活跃但未验证",
+    "unverified": "未验证 (<40)",
+    "unverifiedDesc": "需要验证"
+  },
+  "anomaly": {
+    "title": "异常检测",
+    "description": "监控可疑行为模式以识别潜在的渗透者",
+    "adminRequired": "需要管理员权限才能查看安全异常",
+    "criticalDetected": "检测到 {{count}} 个严重异常",
+    "criticalDetected_plural": "检测到 {{count}} 个严重异常",
+    "immediateAction": "需要立即调查。这些模式表明可能存在渗透或数据提取。",
+    "reviewNow": "立即审查",
+    "activeAnomalies": "活跃异常",
+    "critical": "严重",
+    "investigating": "调查中",
+    "resolved": "已解决",
+    "detectionSystemsActive": "检测系统已激活",
+    "recentAnomalies": "最近的异常",
+    "resourcesAffected": "{{count}} 个资源受影响",
+    "userId": "用户 ID：",
+    "startInvestigation": "开始调查",
+    "markFalsePositive": "标记为误报",
+    "suspendUser": "暂停用户",
+    "markResolved": "标记为已解决",
+    "falsePositive": "误报",
+    "honeypotTrapsActive": "蜜罐陷阱已激活",
+    "honeypotDesc": "蜜罐是只有渗透者或恶意行为者才会访问的隐藏文档或功能。它们显示为\"敏感\"信息以吸引可疑用户。",
+    "honeypotFakeDocs": "伪造敏感文档：",
+    "honeypotFakeDocsDesc": "已部署 3 个活跃蜜罐",
+    "honeypotHiddenContacts": "隐藏联系人列表：",
+    "honeypotHiddenContactsDesc": "检测未经授权的数据提取",
+    "honeypotTrapQuestions": "陷阱问题：",
+    "honeypotTrapQuestionsDesc": "识别恶意行为者的调查问题",
+    "types": {
+      "massAccess": "大规模数据访问",
+      "unusualPosting": "异常发帖",
+      "rapidFollowing": "快速关注",
+      "honeypotTrigger": "蜜罐触发",
+      "dataExport": "数据导出"
+    },
+    "typeDesc": {
+      "massAccess": "检测对成员资料或文档的快速查看",
+      "unusualPosting": "识别类似垃圾邮件或制造分裂的发帖模式",
+      "rapidFollowing": "标记过快构建社交图谱的用户",
+      "honeypotTrigger": "只有渗透者才会访问的隐藏敏感文档",
+      "dataExport": "监控大规模数据下载和导出"
+    },
+    "status": {
+      "active": "活跃",
+      "investigating": "调查中",
+      "resolved": "已解决",
+      "falsePositive": "误报"
+    },
+    "severity": {
+      "critical": "严重",
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    }
+  },
+  "publicWiki": {
+    "pageNotFound": "页面未找到",
+    "pageNotFoundDesc": "您查找的维基页面不存在或非公开。",
+    "browseWiki": "浏览维基",
+    "backToWiki": "返回维基",
+    "updated": "更新于 {{date}}",
+    "version": "版本 {{number}}",
+    "maintainedByComm": "此页面由社区维护",
+    "editPage": "编辑页面",
+    "popularPages": "热门页面",
+    "categories": "分类",
+    "joinMovement": "加入运动",
+    "joinMovementDesc": "获取私密组织工具并与组织者联系。",
+    "signUp": "注册",
+    "searchWiki": "搜索维基...",
+    "campaigns": "运动",
+    "login": "登录",
+    "builditWiki": "BuildIt 维基",
+    "builditNetwork": "BuildIt 网络",
+    "builditDesc": "面向活动人士、工会和社区团体的隐私优先组织平台。",
+    "resources": "资源",
+    "knowledgeBase": "知识库",
+    "about": "关于",
+    "privacyPolicy": "隐私政策",
+    "contact": "联系我们",
+    "builtWithPrivacy": "隐私与安全优先构建",
+    "poweredByNostr": "由 Nostr 协议驱动",
+    "freeOpenSource": "免费且开源"
+  },
+  "publicCampaign": {
+    "campaignNotFound": "运动未找到",
+    "campaignNotFoundDesc": "您查找的运动不存在或非公开。",
+    "goHome": "返回首页",
+    "joinCampaign": "加入运动",
+    "contactUs": "联系我们",
+    "share": "分享",
+    "members": "{{count}} 位成员",
+    "ourMission": "我们的使命",
+    "ourDemands": "我们的诉求",
+    "recentUpdates": "最新动态",
+    "upcomingEvents": "即将举行的活动",
+    "learnMore": "了解更多",
+    "knowledgeBase": "知识库",
+    "aboutUs": "关于我们",
+    "contact": "联系方式",
+    "getInTouch": "联系我们",
+    "getInTouchDesc": "有问题或想参与？给我们发送消息！",
+    "name": "姓名",
+    "yourName": "您的姓名",
+    "email": "电子邮箱",
+    "emailPlaceholder": "您的@邮箱.com",
+    "message": "留言",
+    "messagePlaceholder": "您的留言...",
+    "sendMessage": "发送消息",
+    "wiki": "维基"
+  },
+  "campaignAnalytics": {
+    "title": "运动分析",
+    "description": "追踪运动表现和参与趋势",
+    "exportCSV": "导出 CSV",
+    "totalMembers": "总成员数",
+    "thisMonth": "本月",
+    "avgEventAttendance": "平均活动出席率",
+    "showUpRate": "到场率",
+    "voteTurnout": "投票参与率",
+    "activeVotes": "进行中的投票",
+    "engagementRate": "参与率",
+    "reactions": "互动",
+    "membershipGrowth": "成员增长",
+    "lastMonth": "上月",
+    "growth": "增长",
+    "eventAttendance": "活动出席",
+    "rsvp": "已确认",
+    "actual": "实际",
+    "rsvpRate": "确认率",
+    "showUpRateLabel": "到场率",
+    "governanceParticipation": "治理参与",
+    "turnout": "参与率",
+    "avgTurnout": "平均参与率",
+    "consensusRate": "共识率",
+    "engagementTrends": "参与趋势",
+    "posts": "帖子",
+    "comments": "评论",
+    "topContributors": "优秀贡献者",
+    "postsReactions": "{{posts}} 篇帖子 • {{reactions}} 次互动",
+    "campaignWins": "运动成果",
+    "majorImpact": "重大影响",
+    "moderateImpact": "中等影响",
+    "passed": "已通过",
+    "discussion": "讨论"
+  },
+  "editor": {
+    "connected": "已连接",
+    "connecting": "连接中...",
+    "synced": "已同步",
+    "suggesting": "建议中",
+    "active": "{{count}} 人在线",
+    "bold": "粗体 (Ctrl+B)",
+    "italic": "斜体 (Ctrl+I)",
+    "strikethrough": "删除线",
+    "inlineCode": "行内代码",
+    "heading1": "标题 1",
+    "heading2": "标题 2",
+    "heading3": "标题 3",
+    "bulletList": "项目符号列表",
+    "numberedList": "编号列表",
+    "blockquote": "引用块",
+    "insertImage": "插入图片",
+    "insertLink": "插入链接",
+    "insertTable": "插入表格",
+    "insertBlock": "插入块",
+    "mathEquation": "数学公式",
+    "diagram": "图表 (Mermaid)",
+    "tableOfContents": "目录",
+    "footnote": "脚注",
+    "pageBreak": "分页符",
+    "documentHeader": "文档页眉",
+    "documentFooter": "文档页脚",
+    "addComment": "添加评论",
+    "writeComment": "写下您的评论...",
+    "cancel": "取消",
+    "comment": "评论",
+    "suggestionModeActive": "建议模式已启用",
+    "suggestionModeTrack": "建议模式（修订追踪）",
+    "undo": "撤销 (Ctrl+Z)",
+    "redo": "重做 (Ctrl+Y)",
+    "enterImageUrl": "请输入图片链接：",
+    "enterUrl": "请输入链接：",
+    "addFootnote": "添加脚注"
+  },
+  "subscriberList": {
+    "title": "订阅者",
+    "description": "管理您的出版物订阅者",
+    "exportCSV": "导出CSV",
+    "totalActive": "活跃总数",
+    "freeSubscribers": "免费订阅者",
+    "paidSubscribers": "付费订阅者",
+    "searchPlaceholder": "按公钥或邮箱搜索...",
+    "tierPlaceholder": "等级",
+    "allTiers": "所有等级",
+    "free": "免费",
+    "paid": "付费",
+    "statusPlaceholder": "状态",
+    "allStatus": "所有状态",
+    "active": "活跃",
+    "cancelled": "已取消",
+    "expired": "已过期",
+    "noSubscribers": "暂无订阅者",
+    "noSubscribersDesc": "当读者订阅您的出版物时，他们将显示在这里。",
+    "subscriber": "订阅者",
+    "tier": "等级",
+    "status": "状态",
+    "notifications": "通知",
+    "subscribed": "已订阅",
+    "actions": "操作",
+    "nostr": "Nostr",
+    "email": "邮箱",
+    "none": "无",
+    "sendEmail": "发送邮件",
+    "removeSubscriber": "移除订阅者",
+    "exportedToast": "订阅者已导出",
+    "removedToast": "订阅者已移除"
+  },
+  "articleList": {
+    "title": "文章",
+    "articleCount": "{{count}} 篇文章",
+    "articleCountPlural": "{{count}} 篇文章",
+    "newArticle": "新建文章",
+    "searchPlaceholder": "搜索文章...",
+    "filterByStatus": "按状态筛选",
+    "allStatus": "所有状态",
+    "draft": "草稿",
+    "published": "已发布",
+    "scheduled": "已计划",
+    "archived": "已归档",
+    "sortBy": "排序方式",
+    "lastUpdated": "最后更新",
+    "publishedDate": "发布日期",
+    "titleSort": "标题",
+    "noArticles": "暂无文章",
+    "noArticlesDesc": "开始创建您的第一篇文章。",
+    "createArticle": "创建文章",
+    "tableTitle": "标题",
+    "tableStatus": "状态",
+    "tableVisibility": "可见性",
+    "tableUpdated": "更新时间",
+    "tableActions": "操作",
+    "untitled": "无标题",
+    "public": "公开",
+    "subscribers": "订阅者",
+    "paidOnly": "付费",
+    "edit": "编辑",
+    "preview": "预览",
+    "publish": "发布",
+    "unpublish": "取消发布",
+    "delete": "删除"
+  },
+  "filePreview": {
+    "share": "分享",
+    "download": "下载",
+    "loadingPreview": "正在加载预览...",
+    "failedToLoad": "加载预览失败",
+    "videoNotSupported": "您的浏览器不支持视频标签。",
+    "audioNotSupported": "您的浏览器不支持音频标签。",
+    "officeDocument": "Office文档",
+    "officeDesc": "Office文档可以通过下载文件查看。",
+    "officeApps": "在Microsoft Office、Google Docs或LibreOffice中打开。",
+    "downloadToView": "下载查看",
+    "archiveContents": "压缩包内容",
+    "itemsCount": "{{count}} 个项目",
+    "emptyArchive": "空压缩包或无法读取内容",
+    "loading3D": "正在加载3D查看器...",
+    "noPreview": "此文件类型不支持预览",
+    "downloadToViewShort": "下载查看",
+    "detailsTab": "详情",
+    "activityTab": "活动",
+    "versionsTab": "版本",
+    "fileType": "文件类型",
+    "size": "大小",
+    "uploaded": "上传时间",
+    "modified": "修改时间",
+    "encryption": "加密",
+    "e2eEncrypted": "端到端加密",
+    "fileUploaded": "文件已上传",
+    "fileModified": "文件已修改",
+    "loadingVersions": "正在加载版本...",
+    "noVersionHistory": "暂无版本历史",
+    "versionHistory": "版本历史",
+    "version": "版本 {{number}}",
+    "current": "当前",
+    "restore": "恢复",
+    "restoreConfirm": "确定恢复到版本 {{number}}？",
+    "restoreSuccess": "版本恢复成功",
+    "restoreFailed": "版本恢复失败"
+  },
+  "auditLogs": {
+    "adminRequired": "需要管理员权限才能查看审计日志",
+    "title": "审计日志",
+    "description": "跟踪所有敏感操作以进行安全调查",
+    "exportLogs": "导出日志",
+    "whatGetsLogged": "记录的内容",
+    "securityActions": "安全操作：",
+    "securityActionsDesc": "验证、暂停、权限更改",
+    "dataAccess": "数据访问：",
+    "dataAccessDesc": "个人资料查看、文档访问、导出",
+    "contentChanges": "内容更改：",
+    "contentChangesDesc": "敏感内容的创建、更新、删除",
+    "failedAttempts": "失败尝试：",
+    "failedAttemptsDesc": "未授权访问、登录失败",
+    "metadata": "元数据：",
+    "metadataDesc": "IP地址、用户代理、时间戳用于调查",
+    "searchPlaceholder": "按用户、操作或资源搜索日志...",
+    "allTypes": "所有类型",
+    "create": "创建",
+    "read": "读取",
+    "update": "更新",
+    "deleteType": "删除",
+    "permission": "权限",
+    "security": "安全",
+    "export": "导出",
+    "totalLogs": "日志总数",
+    "critical": "严重",
+    "failedActions": "失败操作",
+    "last24h": "最近24小时",
+    "recentActivity": "最近活动",
+    "logCount": "{{count}} 条日志",
+    "logsCount": "{{count}} 条日志",
+    "noLogsMatch": "没有符合搜索条件的审计日志",
+    "target": "目标：",
+    "ip": "IP："
+  },
+  "moderationQueue": {
+    "title": "审核队列",
+    "description": "审查并处理被举报的内容",
+    "pending": "待处理",
+    "pendingTab": "待处理",
+    "reviewedTab": "已审核",
+    "activityLog": "活动日志",
+    "allCaughtUp": "全部处理完毕！",
+    "noPendingReports": "没有待审核的举报。",
+    "noReviewedReports": "没有已审核的举报",
+    "reviewedAppear": "已审核的举报将显示在这里。",
+    "noActivity": "暂无活动",
+    "actionsLogged": "审核操作将记录在这里。",
+    "user": "用户：",
+    "content": "内容：",
+    "systemAction": "系统操作",
+    "reviewReport": "审核举报",
+    "takeAction": "对此举报内容采取措施",
+    "report": "举报",
+    "reason": "原因：",
+    "reportedBy": "举报人：",
+    "reportedUser": "被举报用户：",
+    "submitted": "提交时间：",
+    "additionalDetails": "补充详情：",
+    "notes": "备注（可选）",
+    "notesPlaceholder": "添加关于您决定的备注...",
+    "dismiss": "驳回",
+    "markReviewed": "标记为已审核",
+    "blockUser": "封禁用户",
+    "dismissedToast": "举报已驳回",
+    "actionedToast": "已采取措施并封禁用户",
+    "reviewedToast": "举报已审核",
+    "failedToast": "处理举报失败",
+    "from": "来自：",
+    "against": "针对：",
+    "action": "操作：",
+    "pendingReview": "待审核",
+    "reviewed": "已审核",
+    "actionTaken": "已采取措施",
+    "dismissed": "已驳回",
+    "reviewReportButton": "审核举报",
+    "contentTypes": {
+      "post": "帖子",
+      "comment": "评论",
+      "story": "动态",
+      "user": "用户",
+      "message": "消息"
+    },
+    "reasons": {
+      "spam": "垃圾信息",
+      "harassment": "骚扰",
+      "hate-speech": "仇恨言论",
+      "violence": "暴力内容",
+      "misinformation": "虚假信息",
+      "illegal-content": "违法内容",
+      "impersonation": "冒充他人",
+      "self-harm": "自我伤害",
+      "other": "其他"
+    }
+  },
+  "seoControls": {
+    "indexability": "可索引性",
+    "indexabilityDesc": "控制搜索引擎和AI系统如何访问此内容。",
+    "searchEngine": "搜索引擎索引",
+    "searchEngineDesc": "允许Google、Bing、DuckDuckGo等搜索引擎索引此页面",
+    "aiTraining": "AI训练/索引",
+    "aiTrainingDesc": "允许AI爬虫（GPTBot、Claude等）使用此内容进行训练",
+    "preventArchiving": "阻止存档",
+    "preventArchivingDesc": "阻止archive.org等类似服务缓存此页面",
+    "aiDisabledNote": "注意：当搜索引擎索引关闭时，AI索引会自动禁用。",
+    "basicSeo": "基础SEO",
+    "pageTitle": "页面标题",
+    "pageTitlePlaceholder": "搜索引擎的页面标题",
+    "characters": "{{count}}/{{max}} 字符（最佳：{{optimal}}）",
+    "metaDescription": "元描述",
+    "metaDescPlaceholder": "搜索结果的简短描述",
+    "robots": "机器人指令",
+    "indexFollow": "索引，跟随（默认）",
+    "noIndexFollow": "不索引，跟随",
+    "indexNoFollow": "索引，不跟随",
+    "noIndexNoFollow": "不索引，不跟随",
+    "openGraph": "Open Graph（社交分享）",
+    "ogTitle": "OG标题",
+    "ogTitlePlaceholder": "社交媒体分享标题",
+    "ogDescription": "OG描述",
+    "ogDescPlaceholder": "社交媒体分享描述",
+    "ogImage": "OG图片链接",
+    "recommended": "推荐：{{size}}",
+    "twitterCard": "Twitter卡片",
+    "cardType": "卡片类型",
+    "summary": "摘要",
+    "summaryLargeImage": "大图摘要",
+    "twitterSite": "Twitter网站账号"
+  },
+  "fileShareDialog": {
+    "shareTitle": "分享 \"{{name}}\"",
+    "shareLinkCreated": "分享链接已创建！",
+    "copied": "已复制！",
+    "copy": "复制",
+    "password": "密码",
+    "expiresIn": "{{days}} 天后过期",
+    "done": "完成",
+    "shareWithUsers": "分享给用户",
+    "createLink": "创建链接",
+    "selectUsers": "选择用户",
+    "member": "成员",
+    "noMembersFound": "未找到群组成员",
+    "permissionLevel": "权限级别",
+    "viewOnly": "仅查看",
+    "viewDownload": "查看和下载",
+    "viewDownloadEdit": "查看、下载和编辑",
+    "generatePublicLink": "生成公开链接",
+    "passwordOptional": "密码（可选）",
+    "passwordPlaceholder": "留空表示无密码",
+    "expiresInDays": "过期时间（天）",
+    "never": "永不",
+    "oneDay": "1 天",
+    "sevenDays": "7 天",
+    "thirtyDays": "30 天",
+    "ninetyDays": "90 天",
+    "cancel": "取消",
+    "creating": "创建中...",
+    "createShare": "创建分享",
+    "failedToast": "创建分享失败"
+  },
+  "publishingPage": {
+    "selectGroupLogin": "请选择一个群组并登录以管理出版物。",
+    "startPublishing": "开始发布",
+    "startPublishingDescription": "创建您的第一个出版物，开始撰写并与您的受众分享长篇内容。",
+    "createPublication": "创建出版物",
+    "createPublicationDescription": "设置您的出版物以开始撰写文章。",
+    "publicationName": "出版物名称",
+    "publicationNamePlaceholder": "我的精彩出版物",
+    "description": "描述",
+    "descriptionPlaceholder": "您将写些什么？",
+    "cancel": "取消",
+    "enterPublicationName": "请输入出版物名称",
+    "publicationCreated": "出版物已创建",
+    "untitledArticle": "无标题文章",
+    "articlePublished": "文章已发布",
+    "articleDeleted": "文章已删除",
+    "rssFeed": "RSS订阅",
+    "settings": "设置",
+    "newArticle": "新文章",
+    "published": "已发布",
+    "drafts": "草稿",
+    "subscribers": "订阅者",
+    "totalArticles": "文章总数",
+    "articles": "文章",
+    "analytics": "分析",
+    "publicationAnalytics": "出版物分析",
+    "analyticsDescription": "查看您出版物的性能指标",
+    "analyticsComingSoon": "分析功能即将推出",
+    "analyticsComingSoonDescription": "查看文章表现、订阅者增长等。",
+    "deleteArticle": "删除文章",
+    "deleteArticleConfirm": "您确定要删除这篇文章吗？此操作无法撤销。",
+    "delete": "删除"
+  },
+  "sharedItemsDashboard": {
+    "title": "共享项目",
+    "description": "在一个地方管理您所有的共享文档和文件",
+    "totalShares": "总共享数",
+    "publicLinks": "公开链接",
+    "expiringSoon": "即将过期",
+    "totalViews": "总查看次数",
+    "filters": "筛选：",
+    "type": "类型",
+    "allTypes": "所有类型",
+    "documents": "文档",
+    "files": "文件",
+    "permission": "权限",
+    "allPermissions": "所有权限",
+    "viewOnly": "仅查看",
+    "comment": "评论",
+    "edit": "编辑",
+    "tableHeaders": {
+      "name": "名称",
+      "type": "类型",
+      "permission": "权限",
+      "sharedVia": "共享方式",
+      "views": "查看次数",
+      "expires": "过期时间"
+    },
+    "noSharedItems": "未找到共享项目",
+    "permissions": {
+      "view": "查看",
+      "comment": "评论",
+      "edit": "编辑",
+      "download": "下载",
+      "admin": "管理员"
+    },
+    "sharedVia": {
+      "publicLink": "公开链接",
+      "privateLink": "私密链接",
+      "direct": "直接"
+    },
+    "expired": "已过期",
+    "never": "永不",
+    "open": "打开",
+    "revokeShare": "撤销共享",
+    "confirmRevoke": "您确定要撤销此共享吗？"
+  },
+  "userModeration": {
+    "unmute": "取消静音",
+    "mute": "静音",
+    "unblock": "取消屏蔽",
+    "block": "屏蔽",
+    "report": "举报",
+    "muteTitle": "静音 {{name}}",
+    "muteDescription": "他们的内容将从您的动态中隐藏。他们不会收到通知。",
+    "duration": "时长",
+    "durations": {
+      "1hour": "1小时",
+      "1day": "1天",
+      "1week": "1周",
+      "1month": "1个月",
+      "indefinitely": "永久"
+    },
+    "whatToMute": "静音内容",
+    "muteScopes": {
+      "all": "所有内容（帖子、评论、私信）",
+      "posts": "仅帖子",
+      "comments": "仅评论",
+      "dms": "仅私信"
+    },
+    "reasonOptional": "原因（可选）",
+    "mutePlaceholder": "您为什么要静音此用户？",
+    "cancel": "取消",
+    "muting": "正在静音...",
+    "muteUser": "静音用户",
+    "blockTitle": "屏蔽 {{name}}？",
+    "blockDescription": "屏蔽将会：",
+    "blockEffects": {
+      "hideContent": "对您隐藏他们的所有内容",
+      "preventSeeYou": "阻止他们查看您的内容",
+      "preventMessage": "阻止他们给您发消息",
+      "removeFollower": "将他们从您的关注者中移除"
+    },
+    "noNotification": "他们不会收到您屏蔽了他们的通知。",
+    "blocking": "正在屏蔽...",
+    "reportTitle": "举报 {{name}}",
+    "reportDescription": "帮助我们了解问题所在。您的举报将保密。",
+    "reasonForReporting": "举报原因",
+    "reportReasons": {
+      "spam": "垃圾信息",
+      "spamDesc": "重复或不需要的内容",
+      "harassment": "骚扰",
+      "harassmentDesc": "针对性或恐吓行为",
+      "hateSpeech": "仇恨言论",
+      "hateSpeechDesc": "宣扬歧视的内容",
+      "violence": "暴力",
+      "violenceDesc": "宣扬暴力或伤害的内容",
+      "misinformation": "虚假信息",
+      "misinformationDesc": "虚假或误导性信息",
+      "illegalContent": "违法内容",
+      "illegalContentDesc": "可能违法的内容",
+      "impersonation": "冒充",
+      "impersonationDesc": "冒充他人",
+      "selfHarm": "自我伤害",
+      "selfHarmDesc": "宣扬自我伤害的内容",
+      "other": "其他",
+      "otherDesc": "其他问题"
+    },
+    "additionalDetails": "补充说明（可选）",
+    "reportPlaceholder": "请提供更多关于您举报此用户的原因...",
+    "submitting": "正在提交...",
+    "submitReport": "提交举报",
+    "toasts": {
+      "muted": "已静音 {{name}}",
+      "unmuted": "已取消静音 {{name}}",
+      "blocked": "已屏蔽 {{name}}",
+      "unblocked": "已取消屏蔽 {{name}}",
+      "reported": "举报已提交。感谢您帮助维护社区安全。",
+      "muteFailed": "静音用户失败",
+      "unmuteFailed": "取消静音失败",
+      "blockFailed": "屏蔽用户失败",
+      "unblockFailed": "取消屏蔽失败",
+      "reportFailed": "提交举报失败"
+    }
+  },
+  "newsletterEditor": {
+    "editIssue": "编辑期刊",
+    "newIssue": "新建期刊",
+    "unsavedChanges": "未保存的更改",
+    "saveDraft": "保存草稿",
+    "preview": "预览",
+    "schedule": "定时发送",
+    "send": "发送 ({{count}})",
+    "draftSaved": "草稿已保存",
+    "tabs": {
+      "compose": "撰写",
+      "settings": "设置"
+    },
+    "compose": {
+      "subjectLine": "主题行",
+      "subjectPlaceholder": "您的通讯主题...",
+      "previewText": "预览文本（可选）",
+      "previewPlaceholder": "预览中显示的第一行...",
+      "previewHint": "这将显示在通知预览中",
+      "content": "内容",
+      "editorPlaceholder": "开始撰写您的通讯..."
+    },
+    "settings": {
+      "theme": "通讯主题样式",
+      "headerImage": "头图链接",
+      "headerPlaceholder": "https://example.com/header.png",
+      "footerText": "页脚文本",
+      "footerPlaceholder": "页脚文本...",
+      "editInSettings": "在通讯设置中编辑"
+    },
+    "scheduleDialog": {
+      "title": "定时发送通讯",
+      "description": "选择向 {{count}} 位订阅者{{plural}}发送此通讯的时间。",
+      "date": "日期",
+      "time": "时间"
+    },
+    "toasts": {
+      "draftSaved": "草稿已保存",
+      "scheduled": "通讯已定时",
+      "selectDate": "请选择日期",
+      "futureDateRequired": "定时时间必须在未来",
+      "enterSubject": "请输入主题",
+      "addContent": "请添加内容",
+      "noSubscribers": "没有活跃的订阅者可发送"
+    },
+    "cancel": "取消"
+  },
+  "privacyDemo": {
+    "title": "隐私与匿名参与",
+    "description": "为高风险组织环境提供安全参与方式",
+    "tabs": {
+      "dashboard": "隐私仪表板",
+      "reactions": "匿名反应",
+      "voting": "匿名投票"
+    },
+    "reactions": {
+      "samplePost": "示例帖子",
+      "sampleContent": "\"我们正在组织下周的直接行动，抗议驱逐事件。欢迎所有人参加——届时将提供安全协议。\"",
+      "howItWorks": "匿名反应的工作原理",
+      "tips": {
+        "enableAnonymous": "启用匿名模式，在表达支持的同时隐藏您的身份",
+        "aggregateCounts": "汇总计数仍会显示，以展示社区支持",
+        "critical": "对于公开支持可能导致报复的高风险活动至关重要",
+        "cryptoSecured": "通过加密技术保护，防止去匿名化"
+      }
+    },
+    "voting": {
+      "howItWorks": "匿名投票的工作原理",
+      "tips": {
+        "zeroKnowledge": "零知识密码学确保投票隐私",
+        "noTrace": "单个投票无法追溯到投票者",
+        "verifiable": "尽管匿名，结果仍可验证准确",
+        "essential": "对于高风险组织中的敏感决策至关重要",
+        "preventIntimidation": "防止恐吓，促进诚实参与"
+      }
+    },
+    "whyMatters": {
+      "title": "为什么匿名参与很重要",
+      "intro": "在高风险组织环境中（监控国家、工会组织、面临报复的租户工会），公开支持可能产生严重后果：",
+      "consequences": {
+        "workers": "组织工会的工人可能面临解雇",
+        "tenants": "抗争驱逐的租户可能被列入黑名单",
+        "activists": "专制国家的活动人士面临被捕风险",
+        "marginalized": "边缘化社区面临不成比例的监控"
+      },
+      "conclusion": "匿名参与工具使这些支持者能够安全参与，同时建立集体力量。"
+    }
+  },
+  "onboardingDemo": {
+    "title": "个性化引导",
+    "description": "根据用户如何发现平台提供不同的流程",
+    "entryPointLabel": "入口点：{{entry}}",
+    "simulateEntryPoint": "模拟入口点",
+    "entryPoints": {
+      "campaign": "活动页面",
+      "event": "活动报名",
+      "friend-invite": "朋友邀请",
+      "website": "主网站",
+      "social-media": "社交媒体链接"
+    },
+    "complete": {
+      "title": "引导完成！",
+      "description": "用户现在将被重定向到其个性化仪表板",
+      "tryAnother": "尝试另一个入口点"
+    },
+    "about": {
+      "title": "关于个性化引导",
+      "intro": "不同的入口点会引导至针对用户情境优化的不同引导流程：",
+      "campaign": "活动：",
+      "campaignDesc": "先关注特定议题，然后扩展到整个平台",
+      "event": "活动：",
+      "eventDesc": "快速设置以完成报名，然后探索工作组",
+      "friendInvite": "朋友邀请：",
+      "friendInviteDesc": "先建立社交联系，然后构建社区",
+      "website": "网站：",
+      "websiteDesc": "全面了解所有组织工作",
+      "socialMedia": "社交媒体：",
+      "socialMediaDesc": "为精力充沛的新用户提供快速行动路径"
+    }
+  },
+  "activeCallsPanel": {
+    "startNewCall": "开始新通话",
+    "newCallTitle": "开始新通话",
+    "newCallDescription": "记录热线的新来电",
+    "callerName": "来电者姓名",
+    "callerNamePlaceholder": "输入来电者姓名",
+    "phoneNumber": "电话号码",
+    "phonePlaceholder": "输入电话号码",
+    "priority": "优先级",
+    "priorities": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    },
+    "cancel": "取消",
+    "startCall": "开始通话",
+    "noActiveCalls": "没有活跃通话",
+    "unknownCaller": "未知来电者",
+    "onHold": "保持中",
+    "resume": "恢复",
+    "hold": "保持",
+    "end": "结束",
+    "endCallTitle": "结束通话",
+    "endCallDescription": "结束前请提供通话摘要",
+    "callSummary": "通话摘要",
+    "summaryPlaceholder": "输入通话摘要...",
+    "endCallButton": "结束通话"
+  },
+  "newslettersPage": {
+    "selectGroupLogin": "请选择一个群组并登录以管理通讯。",
+    "startNewsletter": "创建通讯",
+    "startDescription": "创建通讯，通过加密的Nostr私信向您的订阅者发送更新。",
+    "createNewsletter": "创建通讯",
+    "createNewsletterTitle": "创建通讯",
+    "createDescription": "设置您的通讯以开始发送更新。",
+    "newsletterName": "通讯名称",
+    "namePlaceholder": "我的精彩通讯",
+    "description": "描述",
+    "descriptionPlaceholder": "您将与订阅者分享什么？",
+    "cancel": "取消",
+    "enterName": "请输入通讯名称",
+    "created": "通讯已创建",
+    "untitledIssue": "无标题期刊",
+    "sent": "通讯发送成功",
+    "deleted": "期刊已删除",
+    "previewComingSoon": "预览即将推出",
+    "settings": "设置",
+    "newIssue": "新期刊",
+    "stats": {
+      "subscribers": "订阅者",
+      "issuesSent": "已发送期刊",
+      "drafts": "草稿",
+      "totalIssues": "期刊总数"
+    },
+    "tabs": {
+      "issues": "期刊",
+      "subscribers": "订阅者"
+    },
+    "deleteIssue": "删除期刊",
+    "deleteConfirm": "您确定要删除此期刊吗？此操作无法撤销。",
+    "delete": "删除"
+  },
+  "postCard": {
+    "pinnedPost": "置顶帖子",
+    "contentWarning": "内容警告：",
+    "moreOptions": "更多选项",
+    "unpinFromProfile": "从个人资料取消置顶",
+    "pinToProfile": "置顶到个人资料",
+    "copyLink": "复制链接",
+    "editPost": "编辑帖子",
+    "deletePost": "删除帖子",
+    "reportPost": "举报帖子",
+    "reactions": "反应",
+    "reactionCount": "{{count}} 个反应",
+    "reactionCount_plural": "{{count}} 个反应",
+    "commentCount": "{{count}} 条评论",
+    "commentCount_plural": "{{count}} 条评论",
+    "repostCount": "{{count}} 次转发",
+    "repostCount_plural": "{{count}} 次转发",
+    "react": "反应",
+    "comment": "评论",
+    "repost": "转发",
+    "undoRepost": "撤销转发",
+    "quotePost": "引用帖子",
+    "bookmark": "收藏",
+    "removeBookmark": "取消收藏",
+    "share": "分享",
+    "quoteDialog": {
+      "title": "引用帖子",
+      "description": "添加您对此帖子的看法",
+      "yourComment": "您的评论",
+      "placeholder": "您对此有何看法？",
+      "cancel": "取消",
+      "submit": "引用帖子"
+    }
+  },
+  "tableBuilder": {
+    "editTable": "编辑表格",
+    "createTable": "创建表格",
+    "subtitle": "定义此表格的结构和字段",
+    "tableName": "表格名称",
+    "tableNamePlaceholder": "例如：联系人、项目、任务",
+    "descriptionOptional": "描述（可选）",
+    "descriptionPlaceholder": "这个表格用于什么？",
+    "fields": "字段",
+    "addField": "添加字段",
+    "noFields": "暂无字段。添加您的第一个字段来定义表格结构。",
+    "required": "必填",
+    "cancel": "取消",
+    "saveTable": "保存表格",
+    "alerts": {
+      "enterTableName": "请输入表格名称",
+      "addAtLeastOneField": "请至少添加一个字段"
+    },
+    "fieldEditor": {
+      "editField": "编辑字段",
+      "addField": "添加字段",
+      "subtitle": "配置字段属性和验证规则",
+      "label": "标签 *",
+      "labelPlaceholder": "例如：全名、电子邮件地址",
+      "fieldName": "字段名称 *（用于代码）",
+      "fieldNamePlaceholder": "例如：full_name、email_address",
+      "fieldNameHelp": "仅限小写字母、数字和下划线",
+      "fieldType": "字段类型 *",
+      "requiredField": "必填字段",
+      "placeholder": "占位符文本（可选）",
+      "placeholderPlaceholder": "占位符文本",
+      "helpText": "帮助文本（可选）",
+      "helpTextPlaceholder": "为用户提供额外指导",
+      "options": "选项 *",
+      "addOption": "添加选项",
+      "optionLabel": "标签",
+      "optionValue": "值",
+      "saveField": "保存字段",
+      "alerts": {
+        "enterLabel": "请输入字段标签",
+        "enterName": "请输入字段名称",
+        "invalidName": "字段名称只能包含小写字母、数字和下划线",
+        "duplicateName": "已存在同名字段",
+        "addOption": "请至少添加一个选项"
+      }
+    }
+  },
+  "groupMembersTab": {
+    "loading": "正在加载成员...",
+    "title": "成员",
+    "memberCount": "此群组有 {{count}} 名成员",
+    "memberCount_plural": "此群组有 {{count}} 名成员",
+    "pendingInvitations": "待处理邀请（{{count}}）",
+    "inviteLink": "邀请链接：{{code}}",
+    "unknown": "未知",
+    "expires": "{{time}}过期",
+    "you": "您",
+    "joined": "{{time}}加入",
+    "noMembers": "未找到成员。成为第一个邀请他人的人吧！",
+    "roles": {
+      "admin": "管理员",
+      "moderator": "版主",
+      "member": "成员",
+      "read-only": "只读"
+    },
+    "removeDialog": {
+      "title": "移除成员",
+      "description": "您确定要将此成员从群组中移除吗？他们需要重新被邀请才能再次加入。",
+      "cancel": "取消",
+      "remove": "移除"
+    },
+    "revokeDialog": {
+      "title": "撤销邀请",
+      "description": "您确定要撤销此邀请吗？邀请链接或直接邀请将不再有效。",
+      "cancel": "取消",
+      "revoke": "撤销"
+    },
+    "alerts": {
+      "failedToUpdateRole": "更新成员角色失败",
+      "failedToRemoveMember": "移除成员失败",
+      "failedToRevokeInvite": "撤销邀请失败"
+    }
+  },
+  "publicPageList": {
+    "title": "公开页面",
+    "subtitle": "创建和管理 SEO 优化的公开页面",
+    "newPage": "新建页面",
+    "noPages": "暂无公开页面",
+    "noPagesDescription": "创建您的第一个公开页面与世界分享",
+    "createFirstPage": "创建第一个页面",
+    "url": "链接：",
+    "type": "类型：",
+    "created": "创建于 {{date}}",
+    "published": "发布于 {{date}}",
+    "actions": {
+      "edit": "编辑",
+      "view": "查看",
+      "unpublish": "取消发布",
+      "publish": "发布",
+      "copyLink": "复制链接",
+      "delete": "删除"
+    },
+    "deleteDialog": {
+      "title": "删除页面",
+      "description": "您确定要删除 \"{{title}}\" 吗？此操作无法撤销。",
+      "cancel": "取消",
+      "delete": "删除"
+    }
+  },
+  "publicPageEditor": {
+    "editPage": "编辑页面",
+    "createPage": "创建页面",
+    "subtitle": "创建 SEO 优化的公开页面",
+    "edit": "编辑",
+    "preview": "预览",
+    "cancel": "取消",
+    "saveDraft": "保存草稿",
+    "publish": "发布",
+    "tabs": {
+      "content": "内容",
+      "seo": "SEO",
+      "settings": "设置"
+    },
+    "pageTitle": "页面标题",
+    "titlePlaceholder": "输入页面标题",
+    "urlSlug": "URL 别名",
+    "slugPlaceholder": "page-slug",
+    "slugHelp": "仅限小写字母、数字和连字符",
+    "pageType": "页面类型",
+    "pageTypes": {
+      "landing": "着陆页",
+      "about": "关于页面",
+      "events": "活动日历",
+      "contact": "联系页面",
+      "custom": "自定义"
+    },
+    "placeholderText": "在此编写页面内容...",
+    "pageStatus": "页面状态",
+    "statuses": {
+      "draft": "草稿",
+      "published": "已发布"
+    },
+    "draftVisibility": "草稿页面仅对群组管理员可见",
+    "publishedDate": "发布时间：{{date}}"
+  },
+  "crmAnalytics": {
+    "title": "CRM分析",
+    "subtitle": "联系人管理和组织指标",
+    "exportCsv": "导出CSV",
+    "totalContacts": "总联系人数",
+    "contactRate": "联系率",
+    "pipelineConversions": "渠道转化",
+    "thisMonth": "本月",
+    "avgDaysToConvert": "平均转化天数",
+    "days": "天",
+    "supportLevelDistribution": "支持级别分布",
+    "pipelineMovement": "渠道流动（本月）",
+    "organizerPerformance": "组织者绩效",
+    "departmentAnalysis": "部门分析",
+    "table": {
+      "organizer": "组织者",
+      "contacts": "联系人",
+      "conversions": "转化",
+      "rate": "比率",
+      "active": "活跃"
+    },
+    "movements": {
+      "neutralToPassive": "中立 → 被动",
+      "passiveToActive": "被动 → 主动",
+      "activeToCore": "主动 → 核心"
+    }
+  },
+  "engagementPage": {
+    "title": "你的旅程",
+    "subtitle": "追踪你的参与度，完成里程碑，成长为组织者",
+    "demoSwitchLevel": "演示：切换级别",
+    "viewAs": "查看为...",
+    "levelOptions": {
+      "neutral": "中立 (30%)",
+      "passive": "被动支持 (40%)",
+      "active": "主动支持 (70%)",
+      "core": "核心组织者 (100%)"
+    },
+    "tabs": {
+      "engagement": "参与旅程",
+      "notifications": "智能通知"
+    },
+    "aboutLadder": {
+      "title": "关于参与阶梯",
+      "description": "参与阶梯基于成功组织运动所使用的支持光谱方法论。每个级别代表对运动的更深入参与：",
+      "levels": {
+        "neutral": "中立（30%）- 学习和探索",
+        "passive": "被动支持（40%）- 从旁支持",
+        "active": "主动支持（70%）- 积极参与行动",
+        "core": "核心组织者（100%）- 领导和培养他人"
+      },
+      "footer": "完成当前级别的里程碑，解锁你组织旅程的下一阶段。"
+    }
+  },
+  "eventFeedCard": {
+    "createdEvent": "创建了一个活动",
+    "privacy": {
+      "public": "公开活动",
+      "group": "群组活动",
+      "private": "私密活动",
+      "directAction": "直接行动"
+    },
+    "time": {
+      "todayAt": "今天 {{time}}",
+      "tomorrowAt": "明天 {{time}}"
+    },
+    "locationReveal": "活动前 {{time}} 公布地点",
+    "capacity": "{{current}} / {{max}} 人参加",
+    "rsvp": {
+      "going": "确认参加",
+      "goingConfirmed": "将参加",
+      "maybe": "可能参加",
+      "maybeConfirmed": "可能参加"
+    },
+    "details": "详情"
+  },
+  "groupFeedPage": {
+    "loading": "加载中...",
+    "notFound": "未找到群组",
+    "feedSuffix": "动态",
+    "subtitle": "此群组的活动和更新",
+    "shareUpdate": "分享动态"
+  },
+  "analyticsPage": {
+    "title": "数据分析仪表板",
+    "subtitle": "追踪组织指标、活动绩效，做出数据驱动的决策",
+    "tabs": {
+      "crm": "客户关系分析",
+      "campaign": "活动分析"
+    }
+  },
+  "wikiView": {
+    "title": "知识库",
+    "subtitle": "协作文档和资源",
+    "newPage": "新建页面",
+    "searchPlaceholder": "搜索知识库...",
+    "noResults": "未找到与搜索匹配的页面",
+    "empty": "暂无知识库页面。创建您的第一个页面以开始使用！",
+    "updated": "更新于 {{date}}"
+  },
+  "pollCard": {
+    "status": {
+      "active": "进行中",
+      "ended": "已结束"
+    },
+    "voteCount": "{{count}} 票",
+    "voteCount_other": "{{count}} 票",
+    "anonymous": "匿名",
+    "public": "公开",
+    "yourVote": "您的投票",
+    "resultsHidden": "投票结束后将公布结果",
+    "voting": "投票中...",
+    "vote": "投票"
+  },
+  "publicFormView": {
+    "notPublished": "此表单当前未发布。",
+    "thankYou": "谢谢！",
+    "defaultConfirmation": "您的提交已收到。",
+    "continue": "继续",
+    "submitting": "提交中...",
+    "submit": "提交",
+    "submitFailed": "表单提交失败",
+    "poweredBy": "由 BuildIt Network 提供支持"
+  },
+  "model3DPreview": {
+    "failedToLoad": "加载3D模型失败",
+    "downloadModel": "下载模型",
+    "loading": "正在加载3D模型...",
+    "badge": "3D模型",
+    "instructions": "拖动旋转 | 滚动缩放 | Shift+拖动平移"
+  },
+  "createFolderDialog": {
+    "title": "创建文件夹",
+    "folderName": "文件夹名称",
+    "placeholder": "输入文件夹名称",
+    "cancel": "取消",
+    "create": "创建"
+  },
+  "eventsCalendarView": {
+    "title": "日历",
+    "exportAll": "全部导出",
+    "eventsOn": "{{date}}的活动",
+    "noEvents": "此日期没有活动"
+  },
+  "groupView": {
+    "selectGroup": "选择一个群组查看详情",
+    "privacyLabel": "{{privacy}}群组",
+    "memberCount": "{{count}} 位成员",
+    "memberCount_other": "{{count}} 位成员",
+    "modulesEnabled": "{{count}} 个模块已启用",
+    "modulesEnabled_other": "{{count}} 个模块已启用"
+  },
+  "filesAccessRequestsPanel": {
+    "title": "待处理的访问请求",
+    "noPending": "没有待处理的请求",
+    "requestsWillAppear": "访问请求将显示在这里",
+    "requested": "请求于 {{time}}",
+    "permissions": {
+      "view": "查看",
+      "download": "下载",
+      "edit": "编辑",
+      "delete": "删除"
+    }
+  },
+  "documentsAccessRequestsPanel": {
+    "title": "待处理的访问请求",
+    "noPending": "没有待处理的请求",
+    "requestsWillAppear": "访问请求将显示在这里",
+    "requested": "请求于 {{time}}",
+    "permissions": {
+      "view": "查看",
+      "comment": "评论",
+      "edit": "编辑",
+      "admin": "管理员"
+    }
+  },
+  "mathBlock": {
+    "instructions": "输入 LaTeX 公式（Shift+Enter 保存，Escape 取消）",
+    "placeholder": "E = mc^2",
+    "cancel": "取消",
+    "save": "保存",
+    "clickToAdd": "点击添加公式"
+  },
+  "errors": {
+    "invalidPassword": "密码无效或密钥数据损坏",
+    "invalidNsec": "nsec格式无效",
+    "invalidNpub": "npub格式无效",
+    "invalidWordCount": "单词数量无效。必须是12、15、18或24。",
+    "identityAlreadyExists": "身份已存在",
+    "identityNotFound": "未找到身份",
+    "noIdentitySelected": "未选择身份",
+    "webauthnNotEnabled": "此身份未启用WebAuthn",
+    "webauthnFailed": "WebAuthn认证失败",
+    "webauthnNotSupported": "此设备不支持WebAuthn",
+    "failedToCreateIdentity": "创建身份失败",
+    "failedToImportIdentity": "导入身份失败",
+    "failedToLoadIdentities": "加载身份失败",
+    "failedToRemoveIdentity": "删除身份失败",
+    "failedToUnlock": "解锁失败",
+    "failedToChangePassword": "更改密码失败",
+    "failedToEnableWebauthn": "启用WebAuthn失败",
+    "failedToDisableWebauthn": "禁用WebAuthn失败",
+    "migrationRequired": "此身份需要迁移。请使用设置中的迁移工具。",
+    "rateLimited": "尝试次数过多。请稍后重试。",
+    "networkError": "网络错误。请检查您的连接。",
+    "unknownError": "发生未知错误"
+  },
+  "securityDemo": {
+    "title": "反渗透措施",
+    "description": "保护高风险活动免受渗透和数据收集",
+    "whyMatters": "为什么反渗透措施很重要",
+    "whyMattersDesc": "高风险组织活动面临着来自渗透者、恶意行为者和监控的持续威胁。这些安全功能有助于识别和防止恶意活动，同时维护社区内部的信任。",
+    "memberVerification": "成员验证",
+    "memberVerificationDesc": "面对面二维码验证和信任评分可防止虚假账户和渗透者",
+    "anomalyDetection": "异常检测",
+    "anomalyDetectionDesc": "自动检测可疑行为模式，如批量数据访问",
+    "auditLogs": "审计日志",
+    "auditLogsDesc": "完整跟踪敏感操作，用于调查和问责",
+    "tabs": {
+      "verification": "成员验证",
+      "anomalies": "异常检测",
+      "audit": "审计日志"
+    },
+    "useCases": {
+      "title": "实际使用案例",
+      "intro": "这些安全功能对以下场景至关重要：",
+      "unionOrganizing": "工会组织：",
+      "unionOrganizingDesc": "在组织活动期间防止雇主渗透",
+      "directAction": "直接行动活动：",
+      "directActionDesc": "识别卧底执法人员或线人",
+      "tenantUnions": "租户工会：",
+      "tenantUnionsDesc": "发现房东资助的恶意行为者试图破坏组织活动",
+      "whistleblower": "举报人网络：",
+      "whistleblowerDesc": "保护消息来源免受企业或政府监控",
+      "activist": "活动家联盟：",
+      "activistDesc": "防止卧底煽动者破坏运动工作",
+      "keyInsight": "关键洞察：",
+      "keyInsightDesc": "渗透不是偏执——这是历史上用来对付组织活动的有据可查的策略。这些工具提供系统性防御，而不会制造猜疑文化。"
+    }
+  },
+  "issuesList": {
+    "title": "期刊",
+    "noIssuesYet": "暂无期刊",
+    "noIssuesDescription": "创建您的第一期通讯，开始与订阅者互动。",
+    "createIssue": "创建期刊",
+    "newIssue": "新期刊",
+    "stats": "{{drafts}} 份草稿，{{scheduled}} 份已排期，{{sent}} 份已发送",
+    "tabs": {
+      "all": "全部 ({{count}})",
+      "drafts": "草稿 ({{count}})",
+      "scheduled": "已排期 ({{count}})",
+      "sent": "已发送 ({{count}})"
+    },
+    "tableHeaders": {
+      "subject": "主题",
+      "status": "状态",
+      "recipients": "收件人",
+      "created": "创建时间",
+      "actions": "操作"
+    },
+    "statuses": {
+      "draft": "草稿",
+      "scheduled": "已排期",
+      "sending": "发送中",
+      "sent": "已发送",
+      "failed": "失败"
+    },
+    "untitled": "无标题",
+    "actions": {
+      "edit": "编辑",
+      "sendNow": "立即发送",
+      "view": "查看",
+      "delete": "删除"
+    }
+  },
+  "cryptoDonation": {
+    "title": "加密货币捐款",
+    "mainnet": "主网",
+    "testnet": "测试网",
+    "paymentConfirmed": "支付已确认",
+    "thankYou": "感谢您捐款 {{amount}}",
+    "viewOnExplorer": "在区块链浏览器中查看",
+    "paymentPending": "支付待确认",
+    "detected": "已检测到 {{amount}}",
+    "confirmations": "确认数:",
+    "trackOnBlockchain": "在区块链上追踪",
+    "donationAmount": "捐款金额 (美元)",
+    "custom": "自定义",
+    "calculating": "计算中...",
+    "currentPrice": "当前价格: ${{price}} 美元",
+    "generatingAddress": "正在生成地址...",
+    "generateAddress": "生成 {{crypto}} 地址",
+    "paymentAddress": "支付地址",
+    "monitoring": "监控中...",
+    "startMonitoring": "开始监控",
+    "checkNow": "立即检查",
+    "howToDonate": "如何捐款:",
+    "steps": {
+      "scan": "扫描二维码或复制地址",
+      "send": "发送 {{amount}} 到此地址",
+      "monitor": "点击\"开始监控\"追踪您的付款",
+      "wait": "等待 {{confirmations}} 次确认"
+    },
+    "toasts": {
+      "addressGenerated": "支付地址已生成",
+      "addressCopied": "地址已复制到剪贴板",
+      "paymentConfirmed": "支付已确认",
+      "paymentDetected": "检测到付款! 正在等待确认...",
+      "failedToGenerate": "生成地址失败"
+    },
+    "errors": {
+      "failedToGenerate": "生成支付地址失败。请重试。"
+    }
+  },
+  "campaignBuilder": {
+    "editCampaign": "编辑活动",
+    "createCampaign": "创建活动",
+    "subtitle": "为您的组织设置筹款活动",
+    "cancel": "取消",
+    "saveCampaign": "保存活动",
+    "basicInfo": "基本信息",
+    "campaignTitle": "活动标题 *",
+    "titlePlaceholder": "罢工支持基金",
+    "urlSlug": "URL标识 *",
+    "slugPlaceholder": "strike-support-fund",
+    "urlPreview": "URL: /campaigns/{{slug}}",
+    "category": "类别",
+    "categories": {
+      "general": "通用",
+      "bail": "保释金",
+      "strike": "罢工基金",
+      "mutual-aid": "互助",
+      "legal": "法律援助",
+      "emergency": "紧急"
+    },
+    "description": "描述",
+    "descriptionPlaceholder": "描述您的筹款活动...",
+    "fundraisingGoal": "筹款目标",
+    "goalAmount": "目标金额 *",
+    "currency": "货币",
+    "currencies": {
+      "usd": "USD ($)",
+      "eur": "EUR (\u20ac)",
+      "gbp": "GBP (\u00a3)",
+      "cad": "CAD ($)"
+    }
+  },
+  "documentsPage": {
+    "folders": "文件夹",
+    "starred": "收藏",
+    "newDocument": "新建文档",
+    "createNewDocument": "创建新文档",
+    "documentTitle": "文档标题",
+    "documentTitlePlaceholder": "文档标题",
+    "chooseTemplate": "选择模板(可选)",
+    "creating": "创建中...",
+    "createDocument": "创建文档",
+    "searchDocuments": "搜索文档...",
+    "sort": {
+      "lastUpdated": "最后更新",
+      "dateCreated": "创建日期",
+      "name": "名称"
+    },
+    "exportSharing": "导出共享",
+    "exporting": "导出中...",
+    "exportTooltip": "导出所有文档共享权限的CSV报告",
+    "emptyState": {
+      "noDocuments": "暂无文档",
+      "noDocumentsHint": "创建新文档以开始使用",
+      "noSearchResults": "没有符合搜索条件的文档",
+      "noStarred": "暂无收藏的文档"
+    },
+    "listItem": {
+      "edit": "编辑",
+      "addToStarred": "添加到收藏",
+      "removeFromStarred": "从收藏中移除",
+      "duplicate": "复制"
+    },
+    "editor": {
+      "suggesting": "建议模式",
+      "editing": "编辑模式",
+      "suggestionModeTooltip": "更改将被记录为建议",
+      "editModeTooltip": "直接编辑模式",
+      "collaborationEnabled": "实时协作已启用",
+      "enableCollaboration": "启用协作",
+      "hideComments": "隐藏评论",
+      "showComments": "显示评论",
+      "autoSaving": "协作模式下自动保存",
+      "saveDocument": "保存文档"
+    },
+    "actions": {
+      "duplicate": "复制",
+      "versionHistory": "版本历史",
+      "exportHtml": "导出HTML",
+      "exportMarkdown": "导出Markdown",
+      "exportPdf": "导出PDF",
+      "delete": "删除"
+    },
+    "tags": {
+      "addTag": "添加标签",
+      "addTagPlaceholder": "添加标签...",
+      "clear": "清除",
+      "moreCount": "+{{count}}个更多"
+    },
+    "deleteConfirm": "确定要删除\"{{title}}\"吗?",
+    "failedToExport": "导出共享报告失败"
+  },
+  "donorsList": {
+    "title": "捐赠者与捐款",
+    "subtitle": "管理{{campaign}}的捐款",
+    "stats": {
+      "totalRaised": "筹集总额",
+      "totalDonations": "捐款总数",
+      "completedDonations": "已完成捐款"
+    },
+    "searchPlaceholder": "按姓名或邮箱搜索...",
+    "filters": {
+      "all": "全部",
+      "completed": "已完成",
+      "pending": "待处理"
+    },
+    "exportCsv": "导出CSV",
+    "table": {
+      "date": "日期",
+      "donor": "捐赠者",
+      "amount": "金额",
+      "status": "状态",
+      "paymentMethod": "支付方式",
+      "message": "留言",
+      "anonymous": "匿名",
+      "na": "不适用",
+      "recurring": "定期捐款"
+    },
+    "emptyState": {
+      "noDonations": "暂无捐款",
+      "adjustFilters": "请尝试调整搜索筛选条件"
+    }
+  },
+  "scheduledPostsView": {
+    "loading": "正在加载定时发布...",
+    "noScheduledPosts": "没有定时发布",
+    "noScheduledPostsDescription": "使用发布编辑器中的定时选项来安排帖子在特定时间发布。",
+    "moreOptions": "更多选项",
+    "statuses": {
+      "published": "已发布",
+      "cancelled": "已取消",
+      "failed": "失败",
+      "due": "待发布",
+      "scheduled": "已定时"
+    },
+    "actions": {
+      "publishNow": "立即发布",
+      "edit": "编辑",
+      "cancel": "取消"
+    },
+    "editDialog": {
+      "title": "编辑定时发布",
+      "description": "更新内容或重新安排此帖子的发布时间。",
+      "contentLabel": "内容",
+      "contentPlaceholder": "你在想什么?",
+      "scheduledForLabel": "定时发布于",
+      "cancelButton": "取消",
+      "saveButton": "保存更改"
+    },
+    "deleteDialog": {
+      "title": "取消定时发布?",
+      "description": "这将取消定时发布。此操作无法撤销。",
+      "keepPost": "保留帖子",
+      "cancelPost": "取消帖子"
+    }
+  },
+  "addFriendDialog": {
+    "title": "添加好友",
+    "description": "选择您想要与好友连接的方式",
+    "tabs": {
+      "username": "用户名",
+      "qr": "二维码",
+      "email": "电子邮件",
+      "link": "链接"
+    },
+    "username": {
+      "label": "用户名或公钥",
+      "placeholder": "输入用户名或公钥...",
+      "messageLabel": "可选消息",
+      "messagePlaceholder": "打个招呼...",
+      "sendRequest": "发送好友请求",
+      "sending": "发送中..."
+    },
+    "qr": {
+      "yourQrCode": "您的二维码",
+      "scanFriendQr": "扫描好友的二维码",
+      "letFriendScan": "让您的好友扫描此码",
+      "startScanning": "开始扫描",
+      "scannedSuccessfully": "扫描成功!"
+    },
+    "email": {
+      "friendEmail": "好友的电子邮件",
+      "emailPlaceholder": "friend@example.com",
+      "invitationMessage": "邀请消息",
+      "invitationPlaceholder": "我想在 BuildIt Network 上与您联系...",
+      "sendEmailInvite": "发送电子邮件邀请"
+    },
+    "link": {
+      "description": "生成一个可分享的链接,任何人都可以用它向您发送好友请求。链接在7天后过期,最多可使用10次。",
+      "generateLink": "生成邀请链接",
+      "yourInviteLink": "您的邀请链接",
+      "copyLink": "复制链接",
+      "expiresInfo": "与好友分享此链接。7天后或使用10次后过期。"
+    },
+    "toasts": {
+      "enterUsername": "请输入用户名",
+      "requestSent": "好友请求已发送!",
+      "enterEmail": "请输入电子邮件地址",
+      "emailComingSoon": "电子邮件邀请即将推出!",
+      "inviteLinkCreated": "邀请链接已创建!",
+      "linkCopied": "链接已复制到剪贴板!",
+      "failedToAccessCamera": "无法访问摄像头",
+      "invalidQrCode": "无效的二维码"
+    }
+  },
+  "mediaUploader": {
+    "dropzone": "点击选择{{type}}或拖放",
+    "files": "文件",
+    "aFile": "一个文件",
+    "settings": {
+      "title": "上传设置",
+      "privacyLevel": "隐私级别",
+      "storageProvider": "存储提供商",
+      "stripExif": "删除EXIF数据(隐私)",
+      "encryptMedia": "加密媒体",
+      "contentWarning": "内容警告"
+    },
+    "privacy": {
+      "public": "公开",
+      "group": "仅群组",
+      "private": "私密",
+      "encrypted": "加密"
+    },
+    "storage": {
+      "nip96": "NIP-96 (HTTP存储)",
+      "nip94": "NIP-94 (文件元数据)",
+      "blossom": "Blossom (去中心化)",
+      "ipfs": "IPFS",
+      "local": "本地 (开发)"
+    },
+    "caption": "说明 (可选)",
+    "altText": "无障碍替代文本",
+    "contentWarningPlaceholder": "描述敏感内容...",
+    "uploadFile": "上传文件",
+    "uploadFiles": "上传 {{count}} 个文件",
+    "cancel": "取消",
+    "status": {
+      "complete": "完成",
+      "error": "错误: {{message}}"
+    },
+    "alerts": {
+      "fileTooLarge": "文件 {{filename}} 超出 {{type}} 的最大大小",
+      "loginFirst": "请先登录"
+    }
+  },
+  "notificationsDemoPage": {
+    "title": "智能通知",
+    "subtitle": "基于参与度的情境感知通知",
+    "demoSwitchLevel": "演示: 切换级别",
+    "viewAs": "查看为...",
+    "explanation": {
+      "title": "智能通知如何工作",
+      "description": "通知会根据您的参与度而变化:",
+      "levels": {
+        "neutral": "新手友好活动、教育内容",
+        "passive": "参与活动的鼓励、进度更新",
+        "active": "志愿者机会、紧急动员",
+        "core": "领导层会议、指导、安全警报"
+      },
+      "footer": "每个通知都包含相关性评分,说明为什么您会看到它。"
+    }
+  },
+  "crmView": {
+    "title": "联系人数据库",
+    "subtitle": "组织和管理社区关系",
+    "addContact": "添加联系人",
+    "views": {
+      "table": "表格视图",
+      "board": "看板视图",
+      "calendar": "日历视图"
+    },
+    "contacts": {
+      "title": "联系人",
+      "description": "使用自定义字段和隐私控制管理联系人",
+      "emptyState": "暂无联系人。添加您的第一个联系人开始使用。"
+    },
+    "emptyStates": {
+      "board": "看板视图 - 按状态或类别组织联系人",
+      "calendar": "日历视图 - 按日期字段查看联系人"
+    },
+    "templates": {
+      "title": "可用模板",
+      "description": "常见用例的预配置字段",
+      "unionOrganizing": {
+        "title": "工会组织",
+        "description": "跟踪组织对话和承诺"
+      },
+      "fundraising": {
+        "title": "筹款",
+        "description": "捐赠者管理和活动跟踪"
+      },
+      "legalTracking": {
+        "title": "法律跟踪",
+        "description": "法律支持工作的案件管理"
+      }
+    }
+  },
+  "deviceManager": {
+    "title": "设备管理",
+    "description": "管理有权访问您账户的设备和会话",
+    "signOutAll": "退出所有设备",
+    "noDevices": "未找到设备",
+    "currentDevice": "当前设备",
+    "trusted": "已信任",
+    "activeSessions": "活跃会话",
+    "noActiveSessions": "无活跃会话",
+    "lastSeen": "最后在线: {{time}}",
+    "firstSeen": "首次在线: {{time}}",
+    "timeAgo": {
+      "justNow": "刚刚",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前"
+    },
+    "removeDeviceDialog": {
+      "title": "移除设备",
+      "description": "您确定要移除此设备吗？此设备的所有会话将被撤销，您需要重新授权才能访问您的账户。",
+      "cancel": "取消",
+      "remove": "移除设备"
+    },
+    "signOutAllDialog": {
+      "title": "退出所有设备",
+      "description": "这将使您退出除此设备外的所有其他设备。您需要在那些设备上重新登录。",
+      "cancel": "取消",
+      "signOut": "全部退出"
+    }
+  },
+  "bulkOperationsPage": {
+    "title": "批量操作",
+    "subtitle": "通过批量操作、多选和自动化任务管理来扩展您的组织能力",
+    "tabs": {
+      "bulkActions": "批量操作",
+      "taskManager": "任务管理器"
+    },
+    "table": {
+      "name": "姓名",
+      "email": "电子邮件",
+      "supportLevel": "支持程度",
+      "tags": "标签",
+      "lastContact": "最后联系",
+      "noTags": "无标签",
+      "daysAgo": "{{count}}天前"
+    },
+    "supportLevels": {
+      "coreOrganizer": "核心组织者",
+      "activeSupport": "积极支持者",
+      "passiveSupport": "被动支持者",
+      "neutral": "中立"
+    },
+    "features": {
+      "title": "批量操作功能",
+      "selectMultiple": "使用复选框选择多个联系人",
+      "sendBulk": "向选定的联系人发送批量消息",
+      "addTags": "一次性为多个联系人添加标签",
+      "updateFields": "批量更新自定义字段",
+      "assignTasks": "为组织者分配后续跟进任务",
+      "exportCSV": "将选定的联系人导出为CSV"
+    },
+    "alerts": {
+      "sendingMessage": "正在向{{count}}个联系人发送消息",
+      "addingTag": "正在为{{count}}个联系人添加标签",
+      "updatingField": "正在为{{count}}个联系人更新字段",
+      "creatingTask": "正在为{{count}}个联系人创建任务",
+      "exportingCSV": "正在将{{count}}个联系人导出为CSV",
+      "confirmDelete": "删除{{count}}个联系人？此操作无法撤销。"
+    }
+  },
+  "folderPermissionsDialog": {
+    "title": "文件夹权限",
+    "description": "管理谁可以访问\"{{name}}\"及其内容",
+    "usersWithAccess": "有权访问的用户",
+    "addUser": "添加用户",
+    "emptyState": {
+      "title": "未设置特定权限",
+      "description": "文件夹对所有群组成员开放"
+    },
+    "permissions": {
+      "view": "查看",
+      "download": "下载",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "仅查看",
+      "viewDownload": "查看和下载",
+      "viewDownloadEdit": "查看、下载和编辑",
+      "fullAccess": "完全访问（包括删除）"
+    },
+    "inherited": "继承的",
+    "disableInheritance": "点击禁用继承",
+    "addPermission": {
+      "title": "添加用户权限",
+      "selectUser": "选择用户",
+      "selectUserPlaceholder": "选择一个用户...",
+      "permissionLevel": "权限级别",
+      "applyToSubfolders": "应用到子文件夹",
+      "cascadeDescription": "权限将级联到子文件夹和文件",
+      "adding": "正在添加...",
+      "addButton": "添加权限"
+    },
+    "inheritanceInfo": "继承的权限会自动应用到此文件夹内的所有文件和子文件夹。点击权限上的\"继承的\"标签可禁用该用户的继承。",
+    "errors": {
+      "addFailed": "添加权限失败",
+      "removeFailed": "移除权限失败"
+    }
+  },
+  "secureEmbed": {
+    "untrusted": {
+      "title": "不受信任的嵌入来源",
+      "description": "此内容来自不受信任的来源，无法安全嵌入。",
+      "openInNewTab": "在新标签页中打开"
+    },
+    "loadEmbed": "加载 {{provider}}",
+    "openExternally": "在外部打开",
+    "embedName": "{{provider}} 嵌入",
+    "dialog": {
+      "title": "嵌入媒体",
+      "placeholder": "粘贴链接（YouTube、Vimeo、SoundCloud、Spotify...）",
+      "detected": "已检测到：{{provider}}",
+      "supportedProviders": "支持的提供商：",
+      "providers": {
+        "youtube": "YouTube（隐私增强模式）",
+        "vimeo": "Vimeo（禁止追踪模式）",
+        "peertube": "PeerTube（任何实例）",
+        "soundcloud": "SoundCloud",
+        "spotify": "Spotify",
+        "codepen": "CodePen",
+        "codesandbox": "CodeSandbox"
+      },
+      "cancel": "取消",
+      "embed": "嵌入"
+    },
+    "errors": {
+      "enterUrl": "请输入链接",
+      "unsupportedProvider": "不支持的提供商。支持的：{{providers}}"
+    }
+  },
+  "folderPermissionsPanel": {
+    "title": "文件夹权限",
+    "description": "管理谁可以访问\"{{name}}\"及其文档",
+    "usersWithAccess": "有访问权限的用户",
+    "addUser": "添加用户",
+    "emptyState": {
+      "title": "未设置特定权限",
+      "description": "所有群组成员均可访问此文件夹"
+    },
+    "permissions": {
+      "view": "查看",
+      "comment": "评论",
+      "edit": "编辑",
+      "admin": "管理员"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "仅查看",
+      "viewComment": "查看和评论",
+      "edit": "编辑",
+      "adminFull": "管理员（完全控制）"
+    },
+    "inherited": "继承",
+    "disableInheritance": "点击禁用继承",
+    "addPermission": {
+      "title": "添加用户权限",
+      "selectUser": "选择用户",
+      "selectUserPlaceholder": "选择一个用户...",
+      "permissionLevel": "权限级别",
+      "applyToSubfolders": "应用到子文件夹",
+      "cascadeDescription": "权限将传递到子文件夹和文档",
+      "adding": "添加中...",
+      "addButton": "添加权限"
+    },
+    "inheritanceInfo": "继承的权限会自动应用于此文件夹内的所有文档和子文件夹。点击权限上的\"继承\"徽章可为该用户禁用继承。",
+    "errors": {
+      "addFailed": "添加权限失败",
+      "removeFailed": "移除权限失败"
+    }
+  },
+  "privacySettings": {
+    "title": "隐私与安全设置",
+    "description": "配置设备追踪和会话管理方式",
+    "anonymizeIp": {
+      "label": "匿名化IP地址",
+      "description": "在会话日志中隐藏或加密IP地址以增强隐私保护"
+    },
+    "limitFingerprinting": {
+      "label": "限制设备指纹识别",
+      "description": "减少设备指纹识别时收集的详细信息"
+    },
+    "autoExpireSessions": {
+      "label": "自动过期非活跃会话",
+      "description": "自动结束长时间未使用的会话"
+    },
+    "sessionTimeout": {
+      "label": "会话超时时间（分钟）",
+      "days": "（{{count}}天）"
+    },
+    "requireAuthNewDevice": {
+      "label": "新设备需要授权",
+      "description": "在新设备访问您的账户前需手动批准"
+    },
+    "locationTracking": {
+      "label": "启用位置追踪",
+      "description": "追踪会话的大致位置（城市/国家）",
+      "warning": "位置追踪可能会损害您的隐私。请仅在了解风险的情况下启用。"
+    },
+    "activityLogs": {
+      "label": "记录设备活动",
+      "description": "保留设备活动和安全事件的历史记录",
+      "warning": "禁用活动日志将使检测未授权访问或可疑活动变得更加困难。"
+    }
+  },
+  "proposalFeedCard": {
+    "createdProposal": "创建了一个提案",
+    "governanceProposal": "治理提案",
+    "statuses": {
+      "draft": "草稿",
+      "discussion": "讨论中",
+      "voting": "投票中",
+      "decided": "已决定",
+      "cancelled": "已取消"
+    },
+    "votingMethods": {
+      "simple": "简单多数",
+      "rankedChoice": "排序选择投票",
+      "quadratic": "二次方投票",
+      "dhondt": "汉狄法",
+      "consensus": "共识"
+    },
+    "votingEnded": "投票已结束",
+    "deadline": "截止日期：",
+    "votingEnds": "投票截止：",
+    "actions": {
+      "review": "审阅",
+      "edit": "编辑",
+      "joinDiscussion": "加入讨论",
+      "viewDetails": "查看详情",
+      "castVote": "投票",
+      "viewProposal": "查看提案",
+      "viewResults": "查看结果",
+      "details": "详情"
+    }
+  },
+  "articleEditor": {
+    "close": "关闭",
+    "saving": "保存中...",
+    "lastSaved": "上次保存于 {{time}}",
+    "notSaved": "未保存",
+    "saveDraft": "保存草稿",
+    "preview": "预览",
+    "schedule": "定时发布",
+    "publish": "发布",
+    "scheduleFor": "定时于 {{date}}",
+    "articleSaved": "文章已保存",
+    "selectDateTime": "请选择日期和时间",
+    "articleScheduled": "文章已定时于 {{date}}",
+    "titlePlaceholder": "文章标题",
+    "subtitlePlaceholder": "添加副标题（可选）",
+    "addCoverImage": "添加封面图片",
+    "coverImagePrompt": "请输入封面图片网址：",
+    "addTags": "添加标签（按回车键确认）",
+    "visibility": "可见性：",
+    "visibilityOptions": {
+      "public": "公开",
+      "subscribers": "仅订阅者",
+      "paid": "仅付费订阅者"
+    },
+    "showSeoSettings": "显示SEO设置",
+    "hideSeoSettings": "隐藏SEO设置",
+    "seoSettings": "SEO设置",
+    "metaTitle": "元标题",
+    "metaDescription": "元描述",
+    "metaDescriptionPlaceholder": "搜索引擎简介（150-160个字符）",
+    "ogImage": "OG图片网址",
+    "ogImagePlaceholder": "社交分享图片网址",
+    "editorPlaceholder": "开始撰写您的文章...",
+    "imageUrlPrompt": "请输入图片网址：",
+    "linkUrlPrompt": "请输入网址："
+  },
+  "torStatusIndicator": {
+    "status": {
+      "disabled": "Tor已禁用",
+      "detecting": "检测中",
+      "enabled": "Tor已启用",
+      "connecting": "连接中",
+      "connected": "Tor已激活",
+      "error": "Tor错误",
+      "unknown": "未知"
+    },
+    "description": {
+      "disabled": "未通过Tor连接",
+      "detecting": "正在检测Tor浏览器...",
+      "enabled": "Tor路由已启用",
+      "connecting": "正在连接.onion中继...",
+      "connected": "已连接{{count}}个.onion中继",
+      "error": "连接错误",
+      "unknown": "未知状态"
+    },
+    "stats": {
+      "connectedRelays": "已连接中继: {{connected}}/{{total}}",
+      "avgLatency": "平均延迟: {{latency}}毫秒",
+      "onionRelays": "Onion中继",
+      "latency": "平均延迟",
+      "uptime": "运行时间",
+      "uptimeValue": "{{minutes}}分钟",
+      "data": "数据"
+    },
+    "warnings": {
+      "title": "警告:",
+      "securityWarnings": "安全警告:"
+    }
+  },
+  "anonymousVoting": {
+    "privacy": {
+      "cryptographic": "加密匿名",
+      "eligibleVoters": "{{count}}位合格选民",
+      "anonymous": "{{count}}位匿名"
+    },
+    "mode": {
+      "title": "匿名投票",
+      "description": "您的投票将被加密封存",
+      "anonymous": "匿名",
+      "public": "公开"
+    },
+    "options": {
+      "yes": "赞成",
+      "no": "反对",
+      "abstain": "弃权",
+      "yourVote": "您的投票"
+    },
+    "results": {
+      "votes": "{{count}}票 ({{percent}}%)",
+      "anonymousVotes": "{{count}}票匿名",
+      "hide": "隐藏结果",
+      "show": "显示结果"
+    },
+    "status": {
+      "recorded": "投票已记录",
+      "recordedAnonymous": "您的匿名投票已被加密封存并记录。",
+      "recordedPublic": "您的公开投票已被加密封存并记录。",
+      "canChange": "您可以在提案关闭前更改投票。",
+      "identityProtected": "您的身份受零知识加密保护"
+    }
+  },
+  "activityFeed": {
+    "feedType": "动态类型",
+    "types": {
+      "all": "全部动态",
+      "following": "关注的人",
+      "group": "群组帖子",
+      "mentions": "提及我的",
+      "bookmarks": "收藏",
+      "scheduled": "定时发布",
+      "pinned": "置顶"
+    },
+    "filters": "筛选",
+    "refresh": "刷新",
+    "contentType": "内容类型",
+    "contentTypes": {
+      "text": "文本",
+      "eventShare": "活动",
+      "documentShare": "文档"
+    },
+    "privacyLevel": "隐私级别",
+    "privacyLevels": {
+      "public": "公开",
+      "group": "群组",
+      "followers": "粉丝",
+      "encrypted": "加密"
+    },
+    "dateRange": "日期范围",
+    "from": "从",
+    "to": "至",
+    "clear": "清除",
+    "clearFilters": "清除筛选",
+    "noPosts": {
+      "title": "暂无帖子",
+      "beFirst": "成为第一个分享的人！",
+      "noActivity": "当前筛选条件下没有动态可显示。"
+    },
+    "loadMore": "加载更多",
+    "loading": "加载中...",
+    "loadingFeed": "正在加载动态...",
+    "tabs": {
+      "all": "全部动态",
+      "myGroups": "我的群组",
+      "mentions": "提及我的"
+    },
+    "actions": {
+      "refresh": "刷新",
+      "filter": "筛选",
+      "loadMore": "加载更多",
+      "loading": "加载中..."
+    },
+    "contentTypesExtended": {
+      "title": "内容类型",
+      "posts": "帖子",
+      "events": "活动",
+      "mutualAid": "互助",
+      "proposals": "提案",
+      "wikiUpdates": "维基更新"
+    },
+    "empty": {
+      "title": "暂无动态",
+      "all": "成为第一个分享更新的人！",
+      "myGroups": "加入群组以查看他们的动态",
+      "mentions": "还没有人提及你"
+    }
+  },
+  "createEventDialog": {
+    "triggerButton": "创建活动",
+    "title": "创建新活动",
+    "fields": {
+      "titleLabel": "活动标题 *",
+      "titlePlaceholder": "输入活动标题",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "活动描述",
+      "locationLabel": "地点",
+      "locationPlaceholder": "活动地点",
+      "startDateLabel": "开始日期和时间 *",
+      "endDateLabel": "结束日期和时间（可选）",
+      "privacyLabel": "隐私级别",
+      "capacityLabel": "容量（可选）",
+      "capacityPlaceholder": "最大参与人数",
+      "revealTimeLabel": "地点公开时间",
+      "revealTimeHelp": "地点将在此时间公开"
+    },
+    "privacy": {
+      "public": "公开 - 所有人可见",
+      "group": "群组 - 仅群组成员可见",
+      "private": "私密 - 仅限邀请",
+      "directAction": "直接行动 - 延迟公开地点"
+    },
+    "customFields": {
+      "title": "附加信息",
+      "selectPlaceholder": "选择一个选项"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "create": "创建活动",
+      "creating": "创建中..."
+    },
+    "errors": {
+      "createFailed": "创建活动失败"
+    }
+  },
+  "commentSidebar": {
+    "title": "评论",
+    "openCount": "{{count}} 条待处理",
+    "resolved": "已解决",
+    "showResolved": "显示 {{count}} 条已解决",
+    "hideResolved": "隐藏 {{count}} 条已解决",
+    "empty": {
+      "title": "暂无评论",
+      "description": "选择文本以添加评论"
+    },
+    "actions": {
+      "resolve": "解决",
+      "reply": "回复",
+      "delete": "删除"
+    },
+    "reply": {
+      "placeholder": "写下回复... 使用 @ 提及用户",
+      "mentionHint": "输入 @ 提及",
+      "cancel": "取消",
+      "submit": "回复"
+    },
+    "replies": {
+      "one": "{{count}} 条回复",
+      "other": "{{count}} 条回复"
+    },
+    "mentioned": "{{count}} 人被提及",
+    "mentionSuggestions": "提及建议"
+  },
+  "taskManager": {
+    "title": "任务队列",
+    "activeCount": "{{count}} 个活跃任务",
+    "filter": {
+      "label": "筛选：",
+      "all": "全部",
+      "allTasks": "所有任务",
+      "pending": "待处理",
+      "inProgress": "进行中",
+      "completed": "已完成"
+    },
+    "newTask": "新建任务",
+    "empty": "未找到任务",
+    "actions": {
+      "edit": "编辑任务",
+      "reassign": "重新分配",
+      "delete": "删除"
+    },
+    "metadata": {
+      "contact": "联系人：{{name}}",
+      "priority": {
+        "high": "高优先级",
+        "medium": "中优先级",
+        "low": "低优先级"
+      }
+    },
+    "automatedFollowUp": {
+      "label": "自动跟进",
+      "title": "自动跟进",
+      "description": "带有铃铛图标的任务会在联系人3天内未回复时自动创建。您可以在设置中配置自动化规则。"
+    }
+  },
+  "conditionalLogicEditor": {
+    "title": "条件逻辑",
+    "addRule": "添加规则",
+    "whenField": "当字段",
+    "is": "为",
+    "value": "值",
+    "valuePlaceholder": "输入值",
+    "then": "则",
+    "operators": {
+      "equals": "等于",
+      "notEquals": "不等于",
+      "contains": "包含",
+      "greaterThan": "大于",
+      "lessThan": "小于"
+    },
+    "actions": {
+      "show": "显示此字段",
+      "hide": "隐藏此字段",
+      "require": "设为必填"
+    },
+    "noLogic": "未设置条件逻辑",
+    "note": "注意：条件逻辑使用 JSON Schema 的 if/then/else 语法"
+  },
+  "eventDetail": {
+    "rsvpStatus": "回复状态",
+    "rsvpCounts": {
+      "going": "{{count}} 人参加",
+      "maybe": "{{count}} 人可能参加",
+      "notGoing": "{{count}} 人不参加"
+    },
+    "capacity": "{{current}} / {{max}} 容量",
+    "tabs": {
+      "details": "详情",
+      "attendees": "参与者"
+    },
+    "description": "描述",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "location": "地点",
+    "locationReveals": "将于 {{time}} 公布",
+    "tags": "标签",
+    "privacy": {
+      "public": "公开活动",
+      "group": "仅限群组",
+      "private": "私密活动",
+      "directAction": "直接行动"
+    },
+    "actions": {
+      "close": "关闭",
+      "edit": "编辑"
+    }
+  },
+  "editEventDialog": {
+    "title": "编辑活动",
+    "fields": {
+      "titleLabel": "活动标题 *",
+      "titlePlaceholder": "输入活动标题",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "活动描述",
+      "locationLabel": "地点",
+      "locationPlaceholder": "活动地点",
+      "startDateLabel": "开始日期和时间 *",
+      "endDateLabel": "结束日期和时间（可选）",
+      "privacyLabel": "隐私级别",
+      "capacityLabel": "容量（可选）",
+      "capacityPlaceholder": "最大参与人数",
+      "revealTimeLabel": "地点公布时间",
+      "revealTimeHelp": "地点将在此时间公布"
+    },
+    "privacy": {
+      "public": "公开 - 所有人可见",
+      "group": "群组 - 仅群组成员",
+      "private": "私密 - 仅限邀请",
+      "directAction": "直接行动 - 延迟公布地点"
+    },
+    "customFields": {
+      "title": "附加信息",
+      "selectPlaceholder": "选择一个选项"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "save": "保存更改",
+      "saving": "保存中..."
+    },
+    "errors": {
+      "updateFailed": "更新活动失败"
+    }
+  },
+  "channelManager": {
+    "title": "频道",
+    "description": "基于角色的频道，用于有组织的沟通",
+    "newChannel": "新建频道",
+    "createDialog": {
+      "title": "创建频道",
+      "description": "创建基于角色的频道以进行专注沟通",
+      "nameLabel": "频道名称",
+      "namePlaceholder": "例如：领导层、志愿者",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "这个频道的用途是什么？",
+      "typeLabel": "频道类型"
+    },
+    "types": {
+      "public": "公开（所有人）",
+      "member": "仅成员",
+      "adminOnly": "仅管理员",
+      "roleBased": "基于角色"
+    },
+    "typeDescriptions": {
+      "public": "任何人都可以阅读和发布",
+      "member": "所有群组成员都可以参与",
+      "adminOnly": "只有管理员可以阅读和发布",
+      "roleBased": "按角色自定义权限"
+    },
+    "typeLabels": {
+      "public": "公开",
+      "member": "成员",
+      "adminOnly": "管理员",
+      "roleBased": "按角色"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "create": "创建频道"
+    },
+    "empty": {
+      "title": "暂无频道",
+      "description": "创建频道以按角色或主题组织对话"
+    },
+    "confirmDelete": "确定要删除此频道吗？"
+  },
+  "submissionsList": {
+    "title": "表单提交",
+    "totalCount": "共 {{count}} 条提交",
+    "totalCount_plural": "共 {{count}} 条提交",
+    "export": "导出",
+    "searchPlaceholder": "按姓名或邮箱搜索...",
+    "filters": {
+      "all": "全部",
+      "unprocessed": "未处理",
+      "spam": "垃圾信息"
+    },
+    "tableHeaders": {
+      "submitted": "提交时间",
+      "name": "姓名",
+      "email": "邮箱",
+      "status": "状态",
+      "actions": "操作"
+    },
+    "status": {
+      "spam": "垃圾信息",
+      "processed": "已处理",
+      "new": "新提交"
+    },
+    "anonymous": "匿名",
+    "noSubmissions": "未找到提交记录",
+    "actions": {
+      "flagSpam": "标记为垃圾信息",
+      "markProcessed": "标记为已处理"
+    }
+  },
+  "analyticsDashboard": {
+    "title": "数据统计",
+    "description": "隐私保护型统计（无用户追踪）",
+    "empty": {
+      "title": "暂无统计数据",
+      "description": "开始获得流量后，统计数据将在此显示"
+    },
+    "timeframes": {
+      "day": "过去24小时",
+      "week": "过去7天",
+      "month": "过去30天",
+      "year": "过去一年",
+      "all": "全部时间"
+    },
+    "stats": {
+      "totalViews": "总浏览量",
+      "submissions": "提交数",
+      "donations": "捐款数",
+      "totalRaised": "筹集总额",
+      "clicks": "点击数",
+      "shares": "分享数",
+      "conversionRate": "转化率"
+    },
+    "topReferrers": {
+      "title": "主要流量来源",
+      "privacyNote": "（隐私保护：仅显示域名，不显示完整网址）",
+      "direct": "直接访问"
+    },
+    "privacyNotice": {
+      "title": "隐私优先统计：",
+      "description": "我们仅收集聚合的匿名数据。不收集IP地址、不使用Cookie、不追踪用户。会话ID是随机的，与个人身份无关。来源数据仅显示域名，不显示完整网址。"
+    },
+    "lastUpdated": "最后更新：{{date}}"
+  },
+  "createProposalDialog": {
+    "title": "创建提案",
+    "description": "创建新提案以进行民主决策",
+    "errors": {
+      "noIdentity": "无活跃身份或应用已锁定。请登录。",
+      "createFailed": "创建提案失败"
+    },
+    "fields": {
+      "titleLabel": "标题",
+      "titlePlaceholder": "提案标题...",
+      "descriptionLabel": "描述",
+      "descriptionPlaceholder": "提案的详细描述...",
+      "votingMethodLabel": "投票方式",
+      "optionsLabel": "选项（每行一个）",
+      "optionsPlaceholder": "选项 1\n选项 2\n选项 3",
+      "quorumLabel": "法定人数 (%)",
+      "thresholdLabel": "通过门槛 (%)",
+      "durationLabel": "投票持续时间（天）"
+    },
+    "votingMethods": {
+      "simple": "简单多数（赞成/反对/弃权）",
+      "rankedChoice": "排序选择投票",
+      "quadratic": "平方投票",
+      "consensus": "共识决策"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "create": "创建提案",
+      "creating": "创建中..."
+    }
+  },
+  "mutualAidFeedCard": {
+    "typeLabels": {
+      "requesting": "请求帮助",
+      "offering": "提供帮助"
+    },
+    "status": {
+      "open": "开放",
+      "matched": "已匹配",
+      "inProgress": "进行中",
+      "fulfilled": "已完成",
+      "closed": "已关闭"
+    },
+    "expires": "{{time}}到期",
+    "expired": "已过期",
+    "actions": {
+      "offerHelp": "提供帮助",
+      "message": "发消息",
+      "requestThis": "请求此项",
+      "details": "详情",
+      "viewDetails": "查看详情"
+    }
+  },
+  "conversationHistory": {
+    "title": "与{{name}}的对话",
+    "messageCount": "{{count}}条消息",
+    "messageTypes": {
+      "direct": "私信",
+      "group": "群组消息",
+      "mention": "被提及"
+    },
+    "filters": {
+      "label": "筛选消息",
+      "all": "全部消息",
+      "direct": "私信",
+      "group": "群组消息",
+      "mentions": "提及"
+    },
+    "searchPlaceholder": "搜索对话...",
+    "noMessages": "未找到消息",
+    "sendPlaceholder": "给{{name}}发送消息...",
+    "sendHint": "按Enter发送，Shift+Enter换行",
+    "send": "发送",
+    "summary": {
+      "title": "对话摘要",
+      "directMessages": "私信",
+      "groupInteractions": "群组互动",
+      "daysSinceContact": "首次联系至今天数"
+    }
+  },
+  "onboardingFlow": {
+    "stepCount": "第{{current}}步，共{{total}}步",
+    "navigation": {
+      "back": "返回",
+      "continue": "继续",
+      "getStarted": "开始使用"
+    },
+    "profile": {
+      "nameLabel": "姓名",
+      "namePlaceholder": "您的姓名",
+      "locationLabel": "位置（可选）",
+      "locationPlaceholder": "城市，省份",
+      "availabilityLabel": "可用时间",
+      "selectPlaceholder": "请选择...",
+      "weekdays": "工作日",
+      "weekends": "周末",
+      "flexible": "灵活"
+    },
+    "groups": {
+      "members": "{{count}}位成员",
+      "join": "加入"
+    },
+    "events": {
+      "going": "{{count}}人参加",
+      "rsvp": "确认参加"
+    },
+    "complete": {
+      "selectedInterests": "您选择的兴趣："
+    }
+  },
+  "smartNotifications": {
+    "title": "智能通知",
+    "personalized": "为{{level}}个性化定制",
+    "filters": {
+      "unread": "未读（{{count}}）",
+      "all": "全部",
+      "markAllRead": "全部标为已读"
+    },
+    "empty": {
+      "allCaughtUp": "全部已读！没有未读通知。",
+      "noNotifications": "暂无通知"
+    },
+    "actions": {
+      "markRead": "标为已读",
+      "dismiss": "忽略"
+    },
+    "relevance": "{{percent}}%相关",
+    "features": {
+      "title": "智能通知功能",
+      "personalized": "根据您的参与度个性化推送通知",
+      "priority": "优先级筛选将紧急事项置顶",
+      "relevance": "相关性评分显示您看到每条通知的原因",
+      "contextAware": "情境感知：随着您作为组织者的成长，所见内容会相应变化"
+    }
+  },
+  "pollComposer": {
+    "title": "创建投票",
+    "question": {
+      "label": "问题",
+      "placeholder": "你想问什么？",
+      "charCount": "{{current}}/{{max}}"
+    },
+    "options": {
+      "label": "选项",
+      "placeholder": "选项 {{number}}",
+      "removeAriaLabel": "删除选项 {{number}}",
+      "addOption": "添加选项"
+    },
+    "settings": {
+      "choiceType": {
+        "label": "选择类型",
+        "single": "单选",
+        "multiple": "多选"
+      },
+      "duration": {
+        "label": "持续时间",
+        "1hour": "1小时",
+        "6hours": "6小时",
+        "12hours": "12小时",
+        "1day": "1天",
+        "2days": "2天",
+        "3days": "3天",
+        "1week": "1周"
+      }
+    },
+    "privacy": {
+      "anonymous": {
+        "label": "匿名投票",
+        "descriptionOn": "投票者将保持匿名",
+        "descriptionOff": "投票者对投票创建者可见"
+      },
+      "showResults": {
+        "label": "结束前显示结果",
+        "descriptionOn": "投票进行时结果可见",
+        "descriptionOff": "投票结束前隐藏结果"
+      }
+    },
+    "actions": {
+      "cancel": "取消",
+      "create": "创建投票",
+      "creating": "创建中..."
+    },
+    "toast": {
+      "emptyQuestion": "请输入问题",
+      "minOptions": "请添加至少2个选项",
+      "success": "投票创建成功",
+      "error": "创建投票失败"
+    }
+  },
+  "contactDetailPage": {
+    "title": "联系人详情",
+    "description": "与此联系人的完整历史记录和通讯",
+    "notFound": "未找到联系人",
+    "backToContacts": "返回联系人列表",
+    "actions": {
+      "edit": "编辑",
+      "sendMessage": "发送消息"
+    },
+    "info": {
+      "joined": "加入于 {{date}}",
+      "lastContact": "最后联系 {{date}}",
+      "latestNote": "最新备注："
+    },
+    "customFields": {
+      "title": "附加信息"
+    },
+    "tabs": {
+      "activity": "活动时间线",
+      "conversation": "对话历史"
+    }
+  },
+  "pendingInvitations": {
+    "title": "待处理的邀请",
+    "description": "加入群组的邀请将显示在这里",
+    "reviewDescription": "查看并回复群组邀请",
+    "empty": {
+      "title": "没有待处理的邀请",
+      "description": "当有人邀请您加入群组时，将显示在这里"
+    },
+    "invitation": {
+      "unknownGroup": "未知群组",
+      "invitedBy": "邀请人",
+      "expires": "{{time}} 后过期"
+    },
+    "actions": {
+      "accept": "接受",
+      "decline": "拒绝"
+    },
+    "errors": {
+      "acceptFailed": "接受邀请失败。请重试。",
+      "declineFailed": "拒绝邀请失败。请重试。"
+    }
+  },
+  "formFieldEditor": {
+    "title": "字段属性",
+    "basic": {
+      "label": "标签",
+      "labelPlaceholder": "字段标签",
+      "placeholder": "占位符",
+      "placeholderPlaceholder": "占位符文本",
+      "helpText": "帮助文本",
+      "helpTextPlaceholder": "为用户提供额外指导",
+      "required": "必填"
+    },
+    "options": {
+      "title": "选项",
+      "placeholder": "选项 {{number}}",
+      "addOption": "添加选项"
+    },
+    "validation": {
+      "title": "验证",
+      "minLength": "最小长度",
+      "minLengthPlaceholder": "最小字符数",
+      "maxLength": "最大长度",
+      "maxLengthPlaceholder": "最大字符数",
+      "min": "最小值",
+      "minPlaceholder": "最小值",
+      "max": "最大值",
+      "maxPlaceholder": "最大值",
+      "pattern": "模式（正则表达式）",
+      "patternPlaceholder": "^[A-Za-z]+$"
+    }
+  },
+  "customFieldEditor": {
+    "title": {
+      "create": "创建自定义字段",
+      "edit": "编辑字段"
+    },
+    "fields": {
+      "name": "字段名称",
+      "namePlaceholder": "例如：dietary_preferences",
+      "label": "标签",
+      "labelPlaceholder": "例如：饮食偏好",
+      "fieldType": "字段类型",
+      "required": "必填字段",
+      "placeholder": "占位符",
+      "helpText": "帮助文本",
+      "options": "选项（JSON）",
+      "optionsPlaceholder": "[{\"value\": \"vegan\", \"label\": \"纯素\"}, {\"value\": \"vegetarian\", \"label\": \"素食\"}]",
+      "minLength": "最小长度",
+      "maxLength": "最大长度",
+      "pattern": "模式（正则表达式）",
+      "minimum": "最小值",
+      "maximum": "最大值"
+    },
+    "actions": {
+      "cancel": "取消",
+      "create": "创建",
+      "update": "更新",
+      "saving": "保存中..."
+    }
+  },
+  "bulkActionsToolbar": {
+    "selection": {
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "selected": "已选择 {{count}} 项"
+    },
+    "actions": {
+      "sendMessage": "发送消息",
+      "moreActions": "更多操作",
+      "bulkActions": "批量操作",
+      "addTag": "添加标签",
+      "updateField": "更新字段",
+      "assignTask": "分配任务",
+      "exportSelected": "导出所选",
+      "deleteSelected": "删除所选"
+    }
+  },
+  "contactActivityLog": {
+    "title": "活动时间线",
+    "description": "与 {{name}} 的所有互动",
+    "addNote": "添加备注",
+    "searchPlaceholder": "搜索活动...",
+    "noteForm": {
+      "title": "添加备注",
+      "placeholder": "添加关于此联系人的备注...",
+      "save": "保存备注",
+      "cancel": "取消"
+    },
+    "empty": "未找到活动",
+    "summary": {
+      "title": "活动摘要",
+      "messages": "消息",
+      "events": "活动",
+      "notes": "备注"
+    }
+  },
+  "bookmarksView": {
+    "title": "收藏夹",
+    "newCollection": "新建收藏集",
+    "searchPlaceholder": "搜索收藏...",
+    "collections": {
+      "all": "所有收藏集",
+      "uncategorized": "未分类"
+    },
+    "empty": {
+      "title": "未找到收藏",
+      "filtered": "尝试调整筛选条件",
+      "default": "开始收藏帖子以便稍后查看"
+    },
+    "dialog": {
+      "title": "创建收藏集",
+      "description": "将您的收藏整理到收藏集中",
+      "nameLabel": "收藏集名称",
+      "namePlaceholder": "例如：阅读清单、重要帖子",
+      "cancel": "取消",
+      "create": "创建"
+    }
+  },
+  "templateGallery": {
+    "title": "选择表单模板",
+    "description": "从预设模板开始或从头创建表单",
+    "searchPlaceholder": "搜索模板...",
+    "blank": {
+      "title": "从头开始",
+      "description": "使用您自己的字段创建自定义表单"
+    },
+    "fields": "{{count}} 个字段",
+    "preview": {
+      "includedFields": "包含的字段：",
+      "required": "必填",
+      "requiredCount": "{{count}} 个必填字段",
+      "requiredCountPlural": "{{count}} 个必填字段"
+    },
+    "actions": {
+      "cancel": "取消",
+      "useTemplate": "使用此模板"
+    }
+  },
+  "folderTree": {
+    "allDocuments": "所有文档",
+    "starred": "已加星标",
+    "folders": "文件夹",
+    "noFolders": "暂无文件夹",
+    "contextMenu": {
+      "rename": "重命名",
+      "delete": "删除"
+    },
+    "dialog": {
+      "title": "创建新文件夹",
+      "namePlaceholder": "文件夹名称",
+      "colorLabel": "颜色",
+      "cancel": "取消",
+      "create": "创建文件夹"
+    }
+  },
+  "customFieldsManagement": {
+    "title": "{{entityType}} 的自定义字段",
+    "applyTemplate": "应用模板：",
+    "selectTemplate": "选择模板",
+    "addField": "添加字段",
+    "empty": "暂无自定义字段。创建一个或应用模板以开始使用。",
+    "type": "类型：{{widget}}",
+    "required": "必填",
+    "deleteDialog": {
+      "title": "删除自定义字段",
+      "description": "确定要删除 \"{{label}}\" 吗？这将删除字段定义，但现有数据将被保留。",
+      "cancel": "取消",
+      "delete": "删除"
+    }
+  },
+  "publicCampaignView": {
+    "goal": "目标 {{goal}}",
+    "funded": "已筹集 {{percent}}%",
+    "supportCampaign": "支持此活动",
+    "donate": "捐赠",
+    "claimed": "{{current}} / {{max}} 已认领",
+    "customAmount": {
+      "title": "自定义金额",
+      "description": "输入自定义捐赠金额",
+      "button": "捐赠自定义金额"
+    }
+  },
+  "formBuilder": {
+    "titlePlaceholder": "表单标题",
+    "descriptionPlaceholder": "表单描述（可选）",
+    "cancel": "取消",
+    "saveForm": "保存表单",
+    "tabs": {
+      "build": "构建",
+      "preview": "预览",
+      "settings": "设置"
+    },
+    "noFieldSelected": "选择一个字段以编辑其属性",
+    "settings": {
+      "multiPage": "多页表单",
+      "enableMultiPage": "启用多页表单",
+      "currentPage": "当前页面"
+    }
+  },
+  "moveFolderDialog": {
+    "title": "移动 {{count}} 个文件",
+    "title_plural": "移动 {{count}} 个文件",
+    "description": "为所选文件选择目标文件夹。",
+    "root": "根目录（无文件夹）",
+    "current": "（当前）",
+    "noFolders": "没有可用的文件夹",
+    "cancel": "取消",
+    "moveHere": "移动到此处"
+  },
+  "mermaidBlock": {
+    "instructions": "输入 Mermaid 图表（Ctrl/Cmd+Enter 保存，Escape 取消）",
+    "examples": {
+      "flowchart": "流程图",
+      "sequence": "时序图",
+      "gantt": "甘特图",
+      "pie": "饼图"
+    },
+    "docs": "Mermaid 文档",
+    "cancel": "取消",
+    "save": "保存",
+    "clickToAdd": "点击添加图表"
+  },
+  "conversationsPage": {
+    "title": "消息",
+    "newChat": "新建聊天",
+    "searchPlaceholder": "搜索对话...",
+    "tabs": {
+      "all": "全部",
+      "dms": "私信",
+      "groups": "群组",
+      "unread": "未读",
+      "archived": "已归档"
+    },
+    "empty": {
+      "title": "暂无对话",
+      "description": "开始新对话以开始使用"
+    },
+    "conversation": "对话",
+    "noMessages": "暂无消息"
+  },
+  "engagementLadder": {
+    "title": "您的参与等级",
+    "progressTo": "进入 {{level}} 的进度",
+    "milestones": "{{completed}}/{{total}} 里程碑",
+    "maxLevel": "您已达到最高参与等级！继续推动运动发展。",
+    "nextSteps": "建议的后续步骤",
+    "milestonesFor": "{{level}} 的里程碑",
+    "ladderTitle": "参与阶梯",
+    "youAreHere": "您在这里",
+    "points": "+{{points}} 分"
+  },
+  "notificationsDemoLevels": {
+    "neutral": "中立 (30%)",
+    "passiveSupport": "被动支持 (40%)",
+    "activeSupport": "积极支持 (70%)",
+    "coreOrganizer": "核心组织者 (100%)"
+  },
+  "createPageDialog": {
+    "title": "创建Wiki页面",
+    "description": "为您的社区创建协作文档",
+    "titleLabel": "标题",
+    "titlePlaceholder": "页面标题...",
+    "categoryLabel": "分类（可选）",
+    "categoryPlaceholder": "例如：入门指南、组织、法律",
+    "tagsLabel": "标签（用逗号分隔）",
+    "tagsPlaceholder": "组织、安全、资源",
+    "contentLabel": "内容 (Markdown)",
+    "cancel": "取消",
+    "createPage": "创建页面"
+  },
+  "deliveryProgress": {
+    "sending": "正在发送通讯...",
+    "complete": "发送完成",
+    "readyToSend": "准备发送",
+    "cancel": "取消",
+    "untitled": "无标题通讯",
+    "progress": "进度",
+    "stats": {
+      "delivered": "已送达",
+      "pending": "待处理",
+      "failed": "失败"
+    },
+    "sendingTo": "发送至",
+    "totalRecipients": "总收件人数：{{count}}",
+    "close": "关闭"
+  },
+  "tiersEditor": {
+    "title": "捐赠级别",
+    "description": "创建带有权益的预设捐赠金额",
+    "addTier": "添加级别",
+    "empty": {
+      "title": "暂无捐赠级别",
+      "description": "添加级别以建议捐赠金额"
+    },
+    "tierName": "级别名称",
+    "tierNamePlaceholder": "支持者",
+    "amount": "金额 ({{currency}})",
+    "amountPlaceholder": "25.00",
+    "descriptionLabel": "描述（可选）",
+    "descriptionPlaceholder": "此级别支持者可获得的权益"
+  },
+  "fileList": {
+    "delete": "删除",
+    "download": "下载",
+    "share": "分享",
+    "confirmDeleteFile": "确定删除此文件？",
+    "confirmDeleteFolder": "确定删除此文件夹及其所有内容？"
+  },
+  "filesAccessRequestDialog": {
+    "title": "请求访问",
+    "description": "请求访问 \"{{resourceName}}\"",
+    "accessLevel": "访问级别",
+    "viewOnly": "仅查看",
+    "viewDownload": "查看和下载",
+    "edit": "编辑",
+    "messageLabel": "留言（可选）",
+    "messagePlaceholder": "您为什么需要访问此文件？",
+    "cancel": "取消",
+    "sending": "发送中...",
+    "sendRequest": "发送请求",
+    "error": "提交访问请求失败"
+  },
+  "documentsAccessRequestDialog": {
+    "title": "请求访问",
+    "description": "请求访问 \"{{resourceTitle}}\"",
+    "accessLevel": "访问级别",
+    "viewOnly": "仅查看",
+    "viewComment": "查看和评论",
+    "edit": "编辑",
+    "messageLabel": "留言（可选）",
+    "messagePlaceholder": "您为什么需要访问此文档？",
+    "cancel": "取消",
+    "sending": "发送中...",
+    "sendRequest": "发送请求",
+    "error": "提交访问请求失败"
+  },
+  "groupSettingsDialog": {
+    "settings": "设置",
+    "title": "{{groupName}} 设置",
+    "description": "管理群组设置、模块和成员",
+    "tabs": {
+      "modules": "模块",
+      "general": "常规",
+      "members": "成员"
+    },
+    "general": {
+      "title": "常规设置",
+      "description": "配置群组常规设置",
+      "comingSoon": "常规设置即将推出..."
+    }
+  },
+  "publicWikiPage": {
+    "categories": {
+      "security": "安全",
+      "strategy": "策略",
+      "governance": "治理",
+      "legal": "法律"
+    },
+    "popularPages": {
+      "securityBestPractices": "安全最佳实践",
+      "powerMappingGuide": "权力关系图指南",
+      "consensusDecisionMaking": "共识决策"
+    }
+  },
+  "pollList": {
+    "title": "投票",
+    "createPoll": "创建投票",
+    "tabs": {
+      "active": "进行中",
+      "myPolls": "我的投票",
+      "ended": "已结束"
+    },
+    "empty": {
+      "active": {
+        "title": "没有进行中的投票",
+        "description": "成为第一个创建投票并收集社区意见的人。"
+      },
+      "myPolls": {
+        "title": "暂无投票",
+        "description": "您还没有创建任何投票。开始收集社区的意见吧！",
+        "createFirst": "创建您的第一个投票"
+      },
+      "ended": {
+        "title": "没有已结束的投票",
+        "description": "已完成的投票将显示在这里。"
+      }
+    }
+  },
+  "articleView": {
+    "backTo": "返回 {{publicationName}}",
+    "minRead": "{{minutes}} 分钟阅读",
+    "visibility": {
+      "subscribers": "此文章仅供订阅者阅读",
+      "paid": "此文章仅供付费订阅者阅读"
+    },
+    "share": {
+      "title": "分享此文章",
+      "helpSpread": "帮助传播信息",
+      "copyLink": "复制链接",
+      "twitter": "Twitter",
+      "linkCopied": "链接已复制到剪贴板"
+    },
+    "subscribe": "订阅"
+  },
+  "campaignTemplateGallery": {
+    "title": "活动模板",
+    "description": "从预建模板开始或从零创建活动",
+    "blank": {
+      "title": "空白活动",
+      "description": "从零开始构建您自己的自定义活动"
+    },
+    "includesTiers": "包含 {{count}} 个捐赠等级",
+    "useTemplate": "使用模板"
+  },
+  "editableTableView": {
+    "filterPlaceholder": "筛选 {{label}}...",
+    "selected": "已选择 {{count}} 项",
+    "delete": "删除",
+    "addRecord": "添加记录",
+    "noRecords": "未找到记录。",
+    "showing": "显示 {{showing}} / {{total}} 条记录",
+    "showingSelected": "显示 {{showing}} / {{total}} 条记录 - 已选择 {{selected}} 项",
+    "selectAll": "全选",
+    "selectRow": "选择行"
+  },
+  "embedCard": {
+    "error": {
+      "title": "加载嵌入内容失败",
+      "openExternally": "在外部打开"
+    },
+    "openOn": "在 {{provider}} 上打开",
+    "providerEmbed": "{{provider}} 嵌入内容",
+    "loading": "加载中...",
+    "loadProvider": "加载 {{provider}}",
+    "openExternally": "在外部打开",
+    "privacyNote": "点击加载外部内容。这将连接到 {{domain}}。"
+  },
+  "commentThread": {
+    "reply": "回复",
+    "replies": "{{count}} 条回复",
+    "replies_plural": "{{count}} 条回复",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "delete": "删除",
+    "confirmDelete": "删除此评论？",
+    "threadCollapsed": "对话已折叠（{{count}} 条回复）",
+    "threadCollapsed_plural": "对话已折叠（{{count}} 条回复）",
+    "noComments": "暂无评论。成为第一个评论者！",
+    "replyTo": "回复 {{author}}..."
+  },
+  "formPreview": {
+    "title": "表单预览",
+    "description": "这是您的表单对用户的显示效果",
+    "addFields": "添加字段以查看预览",
+    "submitPreview": "提交预览",
+    "reset": "重置",
+    "currentFormData": "当前表单数据："
+  },
+  "fileUploadZone": {
+    "title": "上传文件",
+    "dragDrop": "拖放文件到此处，或点击浏览",
+    "encrypted": "文件将在上传前加密",
+    "selectedFiles": "已选文件：",
+    "cancel": "取消",
+    "upload": "上传",
+    "uploadCount": "上传 ({{count}})",
+    "groupNotFound": "未找到群组",
+    "success": "成功上传 {{count}} 个文件",
+    "error": "上传文件失败"
+  },
+  "tableView": {
+    "filterPlaceholder": "筛选 {{label}}...",
+    "noRecords": "未找到记录。",
+    "showing": "显示 {{from}}-{{to}} 共 {{total}} 条记录",
+    "page": "第 {{current}} 页，共 {{total}} 页"
+  },
+  "editableCell": {
+    "empty": "空",
+    "noTargetTable": "未配置目标表",
+    "notSupported": "{{widget}} 不支持内联编辑",
+    "linked": "已关联",
+    "linkedCount": "{{count}} 个已关联"
+  },
+  "deviceActivityHistory": {
+    "title": "活动历史",
+    "description": "近期安全事件和设备活动",
+    "clearOld": "清除旧记录（30天以上）",
+    "all": "全部",
+    "noActivity": "未找到活动",
+    "viewMetadata": "查看元数据",
+    "unknownDevice": "未知设备"
+  },
+  "autoModerationRuleForm": {
+    "ruleName": "规则名称",
+    "ruleNamePlaceholder": "例如：屏蔽脏话、过滤垃圾链接",
+    "ruleType": "规则类型",
+    "patterns": "匹配模式",
+    "patternPlaceholderRegex": "输入正则表达式模式",
+    "patternPlaceholderLink": "输入域名或URL模式",
+    "patternPlaceholderKeyword": "输入关键词或短语",
+    "add": "添加",
+    "action": "操作",
+    "notifyModerators": "通知管理员",
+    "ruleTypes": {
+      "keyword": "关键词过滤",
+      "keywordDescription": "匹配精确的关键词或短语",
+      "regex": "正则表达式模式",
+      "regexDescription": "使用正则表达式进行高级匹配",
+      "spamDetection": "垃圾信息检测",
+      "spamDetectionDescription": "自动检测垃圾信息内容",
+      "linkFilter": "链接过滤",
+      "linkFilterDescription": "过滤包含特定链接的帖子"
+    },
+    "actions": {
+      "flag": "标记待审核",
+      "flagDescription": "添加到审核队列",
+      "hide": "隐藏内容",
+      "hideDescription": "隐藏但不删除",
+      "delete": "删除",
+      "deleteDescription": "立即删除内容",
+      "warn": "警告用户",
+      "warnDescription": "向用户发送警告"
+    }
+  },
+  "publicPageRenderer": {
+    "status": "状态",
+    "type": "类型",
+    "url": "链接",
+    "created": "创建时间",
+    "published": "发布时间",
+    "updated": "更新时间"
+  },
+  "syncStatusIndicator": {
+    "offline": "离线",
+    "online": "在线",
+    "syncing": "同步中...",
+    "synced": "已同步",
+    "failed": "{{count}} 个失败",
+    "pending": "{{count}} 个待处理",
+    "pendingLabel": "待处理",
+    "failedLabel": "失败",
+    "everythingSynced": "全部已同步",
+    "retryAll": "全部重试",
+    "clearAll": "全部清除",
+    "retry": "重试",
+    "remove": "移除",
+    "retriesFailed": "({{retryCount}}/{{maxRetries}} 次重试)",
+    "itemTypes": {
+      "message": "消息",
+      "post": "帖子",
+      "fileUpload": "文件上传",
+      "reaction": "表情回应",
+      "comment": "评论"
+    },
+    "itemDescriptions": {
+      "messageTo": "发送给 {{conversationId}} 的消息...",
+      "post": "帖子: {{content}}...",
+      "file": "文件: {{fileName}}",
+      "reaction": "表情回应: {{reactionType}}",
+      "commentOnPost": "帖子评论"
+    }
+  },
+  "notificationCenter": {
+    "title": "通知",
+    "markAllRead": "全部标为已读",
+    "enableBrowser": {
+      "title": "启用浏览器通知",
+      "description": "即使应用在后台运行也能收到通知",
+      "button": "启用"
+    },
+    "empty": "暂无通知",
+    "markAsRead": "标为已读",
+    "removeNotification": "移除通知",
+    "timeAgo": {
+      "justNow": "刚刚",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前",
+      "daysAgo": "{{count}}天前"
+    }
+  },
+  "groupThreadList": {
+    "noThreadsTitle": "暂无话题",
+    "noThreadsDescription": "创建第一个话题来开始对话",
+    "createThread": "创建话题",
+    "threads": "话题",
+    "newThread": "新话题",
+    "messageCount": "{{count}} 条消息"
+  },
+  "wikiUpdateFeedCard": {
+    "createdPage": "创建了一个维基页面",
+    "updatedPage": "更新了一个维基页面",
+    "wikiPage": "维基页面",
+    "moreTags": "+{{count}} 更多",
+    "readPage": "阅读页面",
+    "edit": "编辑",
+    "history": "历史"
+  },
+  "contactsList": {
+    "following": "正在关注 ({{count}})",
+    "followers": "粉丝 ({{count}})",
+    "friends": "好友 ({{count}})",
+    "emptyFollowing": "你还没有关注任何人",
+    "emptyFollowers": "暂无粉丝",
+    "emptyFriends": "暂无共同好友"
+  },
+  "addContactDialog": {
+    "trigger": "添加联系人",
+    "title": "添加联系人",
+    "description": "输入 Nostr 公钥（npub 或十六进制）将其添加到你的联系人",
+    "pubkeyLabel": "公钥（npub 或十六进制）",
+    "pubkeyPlaceholder": "npub1... 或十六进制公钥",
+    "petnameLabel": "昵称（可选）",
+    "petnamePlaceholder": "小明",
+    "invalidPubkey": "公钥格式无效。请使用 npub 或十六进制格式。",
+    "submit": "添加联系人"
+  },
+  "contactCard": {
+    "trustTiers": {
+      "stranger": "陌生人",
+      "contact": "联系人",
+      "friend": "朋友",
+      "verified": "已验证",
+      "trusted": "信任"
+    },
+    "verifiedInPerson": "当面验证",
+    "sendMessage": "发送消息",
+    "viewProfile": "查看资料",
+    "addToFavorites": "添加到收藏",
+    "removeFromFavorites": "从收藏移除",
+    "blockContact": "屏蔽联系人",
+    "removeContact": "移除联系人",
+    "confirmRemove": "从联系人中移除 {{name}}？",
+    "confirmBlock": "屏蔽 {{name}}？你将不再看到他们的内容。"
+  },
+  "formCanvas": {
+    "required": "必填",
+    "placeholder": "占位文本：{{value}}",
+    "options": "选项：{{value}}",
+    "emptyTitle": "将字段拖到这里构建表单",
+    "emptyDescription": "从左侧面板选择字段类型"
+  },
+  "footnote": {
+    "title": "脚注 {{number}}",
+    "clickToAdd": "点击添加",
+    "enterContent": "输入脚注内容...",
+    "ctrlEnterToSave": "Ctrl+Enter 保存",
+    "cancel": "取消",
+    "save": "保存",
+    "deleteFootnote": "删除脚注"
+  },
+  "databaseDashboard": {
+    "noTablesTitle": "暂无数据表",
+    "noTablesDescription": "创建你的第一个数据表开始使用",
+    "createTable": "创建数据表",
+    "loading": "加载中...",
+    "newTable": "新建数据表",
+    "newRecord": "新建记录",
+    "tableNamePrompt": "数据表名称："
+  },
+  "calendarView": {
+    "noDateField": "此视图未配置日期字段",
+    "previous": "上一个",
+    "today": "今天",
+    "next": "下一个",
+    "days": {
+      "sun": "周日",
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六"
+    },
+    "untitled": "无标题",
+    "more": "+{{count}} 更多"
+  },
+  "groupSidebar": {
+    "groupNotFound": "群组未找到",
+    "backToNetwork": "返回网络",
+    "dashboard": "仪表盘",
+    "feed": "动态",
+    "members": "成员",
+    "settings": "设置"
+  },
+  "createThreadDialog": {
+    "title": "创建新话题",
+    "description": "在此群组中开始新的对话",
+    "titleLabel": "标题",
+    "titlePlaceholder": "例如：会议记录、想法、公告",
+    "categoryLabel": "分类（可选）",
+    "categoryPlaceholder": "例如：常规、计划、资源",
+    "cancel": "取消",
+    "creating": "创建中...",
+    "create": "创建话题"
+  },
+  "groupList": {
+    "loginRequired": "请登录以查看群组",
+    "loading": "正在加载群组...",
+    "title": "你的群组",
+    "empty": "暂无群组。创建一个开始吧！",
+    "private": "私密",
+    "memberCount": "{{count}} 位成员",
+    "memberCount_other": "{{count}} 位成员",
+    "moduleCount": "{{count}} 个模块",
+    "moduleCount_other": "{{count}} 个模块"
+  },
+  "transportStatus": {
+    "mesh": "网状网络",
+    "meshPeers": "{{count}} 个节点",
+    "relays": "{{count}} 个中继",
+    "offline": "离线",
+    "cloud": "云端"
+  },
+  "anonymousReactions": {
+    "anonymousMode": "匿名模式",
+    "anonymousModeDesc": "你的反应不会被其他人看到",
+    "anonymous": "匿名",
+    "public": "公开",
+    "anonymousCount": "{{count}} 个匿名反应",
+    "anonymousCount_plural": "{{count}} 个匿名反应",
+    "yourReactionAnonymous": "你的反应是匿名的",
+    "reactions": {
+      "support": "支持",
+      "solidarity": "团结",
+      "greatIdea": "好主意",
+      "concern": "担忧"
+    }
+  },
+  "storyViewer": {
+    "deleteStory": "删除动态",
+    "views": "{{count}} 次浏览",
+    "replies": "{{count}} 条回复",
+    "replyPlaceholder": "回复..."
+  },
+  "rsvpButton": {
+    "going": "参加",
+    "maybe": "可能参加",
+    "notGoing": "不参加",
+    "failedUpdate": "更新回复失败"
+  },
+  "groupMessagesPage": {
+    "loading": "加载中...",
+    "notFound": "未找到群组",
+    "title": "消息",
+    "subtitle": "群组对话和讨论串"
+  },
+  "groupDashboard": {
+    "title": "群组仪表板",
+    "groupId": "群组ID: {{id}}",
+    "welcome": "欢迎来到你的群组! 使用侧边栏在各模块之间导航。"
+  },
+  "eventCard": {
+    "privacyLabels": {
+      "public": "公开",
+      "group": "仅限群组",
+      "private": "私密",
+      "directAction": "直接行动"
+    },
+    "locationReveals": "地点公开时间: {{date}}",
+    "maxAttendees": "最多 {{count}} 人参加"
+  },
+  "messageThread": {
+    "newMessage": "新消息",
+    "today": "今天",
+    "yesterday": "昨天",
+    "invalidConversation": "无效的对话",
+    "noMessages": "暂无消息。开始对话吧!",
+    "placeholder": "输入消息... (使用 @ 提及)",
+    "send": "发送"
+  },
+  "formAnalyticsDashboard": {
+    "title": "分析",
+    "subtitle": "隐私保护的表单分析",
+    "totalViews": "总浏览量",
+    "submissions": "提交次数",
+    "conversionRate": "转化率",
+    "topReferrers": "主要来源",
+    "direct": "直接访问"
+  },
+  "filesPage": {
+    "downloadFailed": "下载文件失败。请重试。",
+    "deleteFailed": "删除部分文件失败。请重试。",
+    "moveFailed": "移动部分文件失败。请重试。"
+  },
+  "headerFooter": {
+    "documentHeader": "文档页眉",
+    "documentFooter": "文档页脚",
+    "alignLeft": "左对齐",
+    "alignCenter": "居中对齐",
+    "alignRight": "右对齐",
+    "showPageNumber": "显示页码",
+    "pageNumberNote": "第 {{page}} 页 (页码在打印时显示)"
+  },
+  "conversationList": {
+    "title": "对话",
+    "loginRequired": "请登录以查看对话",
+    "noConversations": "暂无对话。开始一个新对话吧!",
+    "unknown": "未知",
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}}分钟前",
+    "hoursAgo": "{{count}}小时前",
+    "daysAgo": "{{count}}天前"
+  },
+  "mainApp": {
+    "initError": "初始化错误",
+    "initFailed": "应用程序初始化失败。请刷新页面。",
+    "retry": "重试",
+    "initializing": "正在初始化..."
+  },
+  "mobileNav": {
+    "menu": "菜单",
+    "home": "首页",
+    "messages": "消息",
+    "groups": "群组",
+    "modules": "模块",
+    "settings": "设置"
+  },
+  "contactDetailInfo": {
+    "joined": "加入于 {{date}}",
+    "lastContact": "上次联系 {{date}}"
+  },
+  "friendRequestCard": {
+    "sent": "已发送",
+    "acceptRequest": "接受请求",
+    "accept": "接受",
+    "declineRequest": "拒绝请求",
+    "methods": {
+      "qr": "二维码",
+      "username": "用户名搜索",
+      "email": "邮件邀请",
+      "inviteLink": "邀请链接"
+    }
+  }
+}

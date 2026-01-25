@@ -6,7 +6,7 @@
 
 import { View, Text, StyleSheet, Pressable, ScrollView, RefreshControl } from 'react-native'
 import { useState, useCallback } from 'react'
-import { useRouter } from 'one'
+import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore, useMessageStore } from '../../src/stores'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'

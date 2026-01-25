@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, StyleSheet, Pressable, Alert, Platform, TextInput } from 'react-native'
-import { useRouter } from 'one'
+import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'

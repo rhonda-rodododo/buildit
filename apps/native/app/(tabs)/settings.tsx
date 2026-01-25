@@ -17,7 +17,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native'
-import { useRouter } from 'one'
+import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../../src/stores'
 import type { LinkedDevice } from '../../src/stores'

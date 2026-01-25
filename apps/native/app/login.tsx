@@ -6,7 +6,7 @@
 
 import { useState } from 'react'
 import { View, Text, StyleSheet, Pressable, TextInput, Alert, ScrollView } from 'react-native'
-import { Link, useRouter } from 'one'
+import { Link, useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore } from '../src/stores'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'

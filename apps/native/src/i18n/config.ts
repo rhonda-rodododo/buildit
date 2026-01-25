@@ -10,7 +10,7 @@ import { initReactI18next } from 'react-i18next'
 import { I18nManager, Platform } from 'react-native'
 import { getSecureItem, setSecureItem, STORAGE_KEYS } from '../storage/secureStorage'
 
-// Import translations from symlinked locales folder (-> src/i18n/locales/)
+// Import translations from local locales folder
 import en from './locales/en.json'
 import es from './locales/es.json'
 import fr from './locales/fr.json'

@@ -17,7 +17,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native'
-import { useRouter, useParams } from 'one'
+import { useRouter, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAuthStore, useMessageStore } from '../../src/stores'
 import type { Message } from '../../src/stores'
@@ -43,7 +43,7 @@ function formatTime(timestamp: number): string {
 
 export default function ChatScreen() {
   const router = useRouter()
-  const { pubkey } = useParams<{ pubkey: string }>()
+  const { pubkey } = useLocalSearchParams<{ pubkey: string }>()
   const insets = useSafeAreaInsets()
   const { identity } = useAuthStore()
   const { getConversation, sendMessage, markAsRead, isConnected } = useMessageStore()

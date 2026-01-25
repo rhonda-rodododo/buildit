@@ -1,27 +1,18 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "jsx": "react-jsx",
     "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@buildit/sdk": ["../../packages/sdk/src"],
-      "@buildit/sdk/*": ["../../packages/sdk/src/*"],
-      "@buildit/design-tokens": ["../../packages/design-tokens/src"],
-      "@buildit/design-tokens/*": ["../../packages/design-tokens/src/*"]
+      "@/*": ["./src/*"]
     },
     "baseUrl": "."
   },
-  "include": ["src/**/*", "app/**/*"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

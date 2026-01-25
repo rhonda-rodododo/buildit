@@ -9,7 +9,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { Slot, useRouter, usePathname } from 'one'
+import { Slot, useRouter, usePathname } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useThemeColors } from '../../src/theme'
 import { useTranslation } from '../../src/i18n'

@@ -6,12 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
+    "scheme": "buildit",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#0a0a0a"
     },
+    "platforms": ["ios", "android"],
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -37,12 +39,8 @@
         "USE_FINGERPRINT"
       ]
     },
-    "web": {
-      "bundler": "vite",
-      "output": "single",
-      "favicon": "./assets/favicon.png"
-    },
     "plugins": [
+      "expo-router",
       "expo-camera",
       "expo-secure-store",
       "expo-local-authentication",
@@ -55,7 +53,13 @@
         }
       ]
     ],
+    "experiments": {
+      "typedRoutes": true
+    },
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "your-project-id"
       }

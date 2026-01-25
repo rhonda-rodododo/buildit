@@ -43,7 +43,8 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme()
   const [mode, setModeState] = useState<ThemeMode>('system')
-  const [isLoaded, setIsLoaded] = useState(false)
+  // Start as loaded immediately - load preferences in background
+  const [isLoaded, setIsLoaded] = useState(true)
 
   // Determine actual theme based on mode
   const resolvedTheme: 'light' | 'dark' =
@@ -51,21 +52,23 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   const colors = resolvedTheme === 'dark' ? darkTheme : lightTheme
 
-  // Load saved theme preference
+  // Load saved theme preference in background
   useEffect(() => {
+    let mounted = true
+
     async function loadTheme() {
       try {
         const saved = await getSecureItem(STORAGE_KEYS.THEME)
-        if (saved && ['light', 'dark', 'system'].includes(saved)) {
+        if (mounted && saved && ['light', 'dark', 'system'].includes(saved)) {
           setModeState(saved as ThemeMode)
         }
       } catch (error) {
         console.warn('Failed to load theme preference:', error)
-      } finally {
-        setIsLoaded(true)
       }
     }
     loadTheme()
+
+    return () => { mounted = false }
   }, [])
 
   // Save theme preference when it changes

@@ -14,7 +14,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native'
-import { useRouter, Stack } from 'one'
+import { useRouter, Stack } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { spacing, fontSize, fontWeight } from '@buildit/design-tokens'
 import { useAuthStore, useGroupsStore } from '../src/stores'

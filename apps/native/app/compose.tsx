@@ -17,7 +17,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native'
-import { useRouter } from 'one'
+import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Clipboard from 'expo-clipboard'
 import { nip19 } from 'nostr-tools'

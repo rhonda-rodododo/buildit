@@ -1,0 +1,4882 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "mạng lưới hành động xã hội"
+  },
+  "meta": {
+    "defaultDescription": "Nền tảng tổ chức ưu tiên quyền riêng tư được xây dựng trên giao thức Nostr dành cho các nhóm hoạt động xã hội, hợp tác xã, công đoàn và người tổ chức cộng đồng.",
+    "home": "Bảng tin hoạt động với bài viết, sự kiện và cập nhật từ các nhóm của bạn.",
+    "messages": "Tin nhắn bảo mật, mã hóa đầu cuối cho các cuộc trò chuyện riêng tư.",
+    "groups": "Tạo và quản lý nhóm để tổ chức, hỗ trợ lẫn nhau và xây dựng cộng đồng.",
+    "events": "Phối hợp các sự kiện, cuộc mít tinh, hội thảo và hoạt động cộng đồng.",
+    "mutualAid": "Chia sẻ tài nguyên, hỗ trợ và phối hợp hỗ trợ cộng đồng.",
+    "governance": "Ra quyết định dân chủ với đề xuất, bỏ phiếu và xây dựng đồng thuận.",
+    "wiki": "Kho kiến thức cộng tác cho tài liệu và nguồn lực tổ chức.",
+    "crm": "Quản lý liên hệ, theo dõi tiếp cận và phối hợp các nỗ lực chiến dịch.",
+    "settings": "Quản lý hồ sơ, quyền riêng tư, bảo mật và cài đặt thông báo.",
+    "login": "Đăng nhập vào tài khoản hoặc tạo danh tính mới.",
+    "unlock": "Mở khóa tài khoản để tiếp tục.",
+    "recovery": "Khôi phục tài khoản bằng cụm từ khôi phục.",
+    "notFound": "Trang bạn tìm kiếm không tồn tại.",
+    "security": "Cài đặt bảo mật và quản lý khóa mã hóa.",
+    "notifications": "Cấu hình cách bạn nhận thông báo và cập nhật.",
+    "privacy": "Kiểm soát khả năng hiển thị dữ liệu và cài đặt quyền riêng tư.",
+    "preferences": "Tùy chỉnh trải nghiệm với cài đặt hiển thị và ngôn ngữ.",
+    "analytics": "Xem số liệu tương tác và thống kê hoạt động nhóm.",
+    "files": "Lưu trữ và chia sẻ tệp an toàn cho các nhóm của bạn.",
+    "documents": "Tạo và cộng tác trên các tài liệu văn bản phong phú.",
+    "database": "Cơ sở dữ liệu tùy chỉnh và quản lý dữ liệu có cấu trúc.",
+    "fundraising": "Tổ chức chiến dịch gây quỹ và theo dõi quyên góp.",
+    "newsletters": "Tạo và gửi bản tin đến cộng đồng của bạn.",
+    "forms": "Xây dựng biểu mẫu tùy chỉnh cho khảo sát, đăng ký và thu thập dữ liệu.",
+    "pages": "Xuất bản các trang công khai cho nhóm hoặc chiến dịch của bạn.",
+    "bookmarks": "Bài viết, sự kiện và nội dung đã lưu của bạn."
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "createIdentity": "Tạo danh tính",
+    "importKey": "Nhập khóa",
+    "name": "Tên",
+    "privateKey": "Khóa riêng tư",
+    "generateNew": "Tạo danh tính mới",
+    "hidePassword": "Ẩn mật khẩu",
+    "showPassword": "Hiện mật khẩu",
+    "login": {
+      "tabCreate": "Tạo mới",
+      "tabImport": "Nhập",
+      "displayName": "Tên hiển thị",
+      "namePlaceholder": "Nhập tên của bạn",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Tạo mật khẩu mạnh",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPlaceholder": "Xác nhận mật khẩu của bạn",
+      "passwordHint": "Tối thiểu 8 ký tự. Mật khẩu này mã hóa khóa riêng tư của bạn.",
+      "importPasswordHint": "Mật khẩu này sẽ mã hóa khóa nhập của bạn trên thiết bị.",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+      "passwordMismatch": "Mật khẩu không khớp",
+      "securityNote": "Khóa riêng tư của bạn sẽ được mã hóa bằng mật khẩu này. Nó không bao giờ rời khỏi thiết bị của bạn mà không được mã hóa.",
+      "privateKey": "Khóa riêng tư (nsec)",
+      "creating": "Đang tạo...",
+      "createButton": "Tạo danh tính",
+      "importing": "Đang nhập...",
+      "importButton": "Nhập danh tính",
+      "createFailed": "Không thể tạo danh tính",
+      "importFailed": "Không thể nhập danh tính"
+    },
+    "unlock": {
+      "title": "Chào mừng trở lại",
+      "password": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu của bạn",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "button": "Mở khóa",
+      "unlocking": "Đang mở khóa...",
+      "forgotPassword": "Quên mật khẩu?",
+      "addAccount": "Thêm tài khoản khác",
+      "importKey": "Nhập khóa",
+      "newAccount": "Tài khoản mới",
+      "selectAccount": "Chọn tài khoản để mở khóa"
+    },
+    "recovery": {
+      "title": "Bảo vệ tài khoản của bạn",
+      "description": "Trước khi sử dụng BuildIt, bạn cần lưu cụm từ khôi phục.",
+      "descriptionWithName": "Xin chào, {{name}}! Trước khi sử dụng BuildIt, bạn cần lưu cụm từ khôi phục.",
+      "warningTitle": "Bước bảo mật quan trọng",
+      "warningDescription": "Cụm từ 24 từ này là CÁCH DUY NHẤT để khôi phục tài khoản nếu bạn quên mật khẩu hoặc mất quyền truy cập thiết bị. KHÔNG có chức năng đặt lại mật khẩu. Hãy viết ra và lưu trữ an toàn ngoại tuyến.",
+      "phraseLabel": "Cụm từ khôi phục của bạn",
+      "hide": "Ẩn",
+      "show": "Hiện",
+      "copied": "Đã sao chép!",
+      "copyPhrase": "Sao chép vào bộ nhớ tạm",
+      "confirmWrittenDown": "Tôi đã viết ra cụm từ khôi phục và lưu trữ ở nơi an toàn. Tôi hiểu rằng nếu mất cụm từ này, tôi sẽ vĩnh viễn mất quyền truy cập tài khoản.",
+      "verifyPhrase": "Xác minh cụm từ khôi phục",
+      "verifyTitle": "Xác minh cụm từ khôi phục của bạn",
+      "verifyDescription": "Nhập các từ được yêu cầu từ cụm từ khôi phục để xác nhận bạn đã lưu đúng.",
+      "enterWord": "Nhập từ số #{{number}}",
+      "wordPlaceholder": "Nhập từ",
+      "verificationFailed": "Một hoặc nhiều từ không chính xác. Vui lòng kiểm tra cụm từ khôi phục và thử lại.",
+      "verifyHint": "Không nhớ được? Quay lại để xem lại cụm từ khôi phục, nhưng lần này hãy nhớ viết ra!",
+      "newWords": "Thử các từ khác",
+      "verifying": "Đang xác minh...",
+      "confirm": "Xác nhận & Tiếp tục",
+      "recoverTitle": "Khôi phục tài khoản",
+      "recoverDesc": "Nhập cụm từ khôi phục 24 từ để đặt lại mật khẩu và khôi phục quyền truy cập tài khoản.",
+      "recoverDescWithName": "Nhập cụm từ khôi phục 24 từ cho \"{{name}}\" để đặt mật khẩu mới.",
+      "secureTitle": "Khôi phục an toàn",
+      "secureDesc": "Cụm từ khôi phục của bạn không bao giờ được gửi đến bất kỳ máy chủ nào. Nó chỉ được sử dụng cục bộ để tạo khóa riêng tư.",
+      "phraseValid": "Cụm từ khôi phục hợp lệ",
+      "invalidPhrase": "Vui lòng nhập cụm từ khôi phục 24 từ hợp lệ.",
+      "invalidWords": "Các từ không hợp lệ: {{words}}",
+      "wrongWordCount": "Cần 24 từ, nhận được {{count}}",
+      "newPasswordTitle": "Đặt mật khẩu mới",
+      "newPasswordDesc": "Tạo mật khẩu mới để bảo vệ tài khoản trên thiết bị này.",
+      "passwordWarning": "Mật khẩu này mã hóa khóa riêng tư trên thiết bị này. Nếu quên, bạn sẽ cần cụm từ khôi phục một lần nữa.",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mạnh",
+      "passwordHint": "Tối thiểu 8 ký tự",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Xác nhận mật khẩu của bạn",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+      "passwordMismatch": "Mật khẩu không khớp",
+      "recovering": "Đang khôi phục...",
+      "recoverButton": "Khôi phục tài khoản",
+      "successTitle": "Đã khôi phục tài khoản!",
+      "successDesc": "Tài khoản của bạn đã được khôi phục và bạn đã đăng nhập.",
+      "recoveredIdentity": "Danh tính đã khôi phục",
+      "failed": "Khôi phục thất bại. Vui lòng kiểm tra cụm từ khôi phục."
+    },
+    "logout": {
+      "button": "Đăng xuất",
+      "warningTitle": "Không tìm thấy bản sao lưu",
+      "warningDescription": "Bạn chưa tạo bản sao lưu cho tài khoản này. Nếu đăng xuất và quên mật khẩu, bạn có thể mất vĩnh viễn quyền truy cập.",
+      "noRecoveryTitle": "Không có đặt lại mật khẩu",
+      "noRecoveryDescription": "BuildIt không có chức năng khôi phục mật khẩu qua máy chủ. Cụm từ khôi phục là CÁCH DUY NHẤT để khôi phục tài khoản nếu quên mật khẩu.",
+      "identityLocked": "Danh tính đã bị khóa. Vui lòng mở khóa trước để xem cụm từ khôi phục.",
+      "phraseFailed": "Không thể lấy cụm từ khôi phục",
+      "createBackupNow": "Tạo bản sao lưu ngay",
+      "logoutAnyway": "Vẫn đăng xuất",
+      "saveBackupTitle": "Lưu cụm từ khôi phục",
+      "saveBackupDescription": "Viết ra 24 từ này và lưu trữ an toàn. Đây là cách duy nhất để khôi phục tài khoản.",
+      "phraseWarning": "Bất kỳ ai có cụm từ này đều có thể truy cập tài khoản của bạn. Lưu trữ an toàn ngoại tuyến và không bao giờ chia sẻ.",
+      "phraseLabel": "Cụm từ khôi phục 24 từ",
+      "iveSavedIt": "Tôi đã lưu cụm từ"
+    },
+    "backup": {
+      "reminderTitle": "Bảo vệ tài khoản",
+      "reminderDescription": "Tài khoản của bạn chưa được sao lưu. Lưu cụm từ khôi phục để tránh mất quyền truy cập.",
+      "backupNow": "Sao lưu ngay",
+      "snooze": "Nhắc tôi sau",
+      "identityLocked": "Vui lòng mở khóa danh tính trước.",
+      "phraseFailed": "Không thể lấy cụm từ khôi phục",
+      "dialogTitle": "Lưu cụm từ khôi phục",
+      "dialogDescription": "Cụm từ 24 từ này là CÁCH DUY NHẤT để khôi phục tài khoản nếu bạn quên mật khẩu hoặc mất quyền truy cập thiết bị này.",
+      "phraseWarning": "Viết ra các từ này và lưu trữ an toàn ngoại tuyến. Bất kỳ ai có cụm từ này đều có thể truy cập tài khoản của bạn.",
+      "phraseLabel": "Cụm từ khôi phục 24 từ",
+      "iveSavedIt": "Tôi đã lưu cụm từ"
+    }
+  },
+  "autoModerationSettings": {
+    "title": "Quy tac kiem duyet tu dong",
+    "description": "Tu dong phat hien va xu ly noi dung co van de",
+    "newRule": "Quy tac moi",
+    "createRule": "Tao quy tac kiem duyet tu dong",
+    "createRuleDescription": "Thiet lap phat hien va xu ly noi dung tu dong",
+    "editRule": "Chinh sua quy tac kiem duyet tu dong",
+    "noRulesTitle": "Chua co quy tac nao",
+    "noRulesDescription": "Tao quy tac kiem duyet tu dong de xu ly noi dung tu dong.",
+    "createFirstRule": "Tao quy tac dau tien",
+    "triggeredTimes": "Da kich hoat {{count}} lan",
+    "more": "+{{count}} them",
+    "deleteRuleTitle": "Xoa quy tac?",
+    "deleteRuleDescription": "Dieu nay se xoa vinh vien quy tac kiem duyet tu dong nay. Hanh dong nay khong the hoan tac.",
+    "cancel": "Huy",
+    "delete": "Xoa",
+    "creating": "Dang tao...",
+    "saving": "Dang luu...",
+    "saveChanges": "Luu thay doi",
+    "ruleName": "Ten quy tac",
+    "ruleNamePlaceholder": "VD: Chan tu ngu tho tuc, Loc link spam",
+    "ruleType": "Loai quy tac",
+    "ruleTypes": {
+      "keyword": "Loc tu khoa",
+      "keywordDesc": "Khop tu khoa hoac cum tu cu the",
+      "regex": "Bieu thuc chinh quy",
+      "regexDesc": "Su dung bieu thuc chinh quy de khop nang cao",
+      "spamDetection": "Phat hien spam",
+      "spamDetectionDesc": "Tu dong phat hien noi dung giong spam",
+      "linkFilter": "Loc lien ket",
+      "linkFilterDesc": "Loc bai dang chua mot so lien ket nhat dinh"
+    },
+    "patterns": "Mau",
+    "patternPlaceholders": {
+      "regex": "Nhap mau bieu thuc chinh quy",
+      "link": "Nhap ten mien hoac mau URL",
+      "keyword": "Nhap tu khoa hoac cum tu"
+    },
+    "add": "Them",
+    "action": "Hanh dong",
+    "actions": {
+      "flag": "Danh dau de xem xet",
+      "flagDesc": "Them vao hang doi kiem duyet",
+      "hide": "An noi dung",
+      "hideDesc": "An nhung khong xoa",
+      "delete": "Xoa",
+      "deleteDesc": "Xoa noi dung ngay lap tuc",
+      "warn": "Canh bao nguoi dung",
+      "warnDesc": "Gui canh bao den nguoi dung"
+    },
+    "notifyModerators": "Thong bao cho quan tri vien",
+    "toasts": {
+      "created": "Da tao quy tac kiem duyet tu dong",
+      "updated": "Da cap nhat quy tac",
+      "deleted": "Da xoa quy tac",
+      "enabled": "Da bat quy tac",
+      "disabled": "Da tat quy tac",
+      "createFailed": "Khong the tao quy tac",
+      "updateFailed": "Khong the cap nhat quy tac",
+      "deleteFailed": "Khong the xoa quy tac",
+      "toggleFailed": "Khong the chuyen doi quy tac",
+      "enterName": "Vui long nhap ten quy tac",
+      "addPattern": "Vui long them it nhat mot mau"
+    }
+  },
+  "nav": {
+    "feed": "Bảng tin",
+    "messages": "Tin nhắn",
+    "groups": "Nhóm",
+    "events": "Sự kiện",
+    "mutualAid": "Hỗ trợ lẫn nhau",
+    "tools": "Công cụ",
+    "settings": "Cài đặt",
+    "openMenu": "Mở menu điều hướng"
+  },
+  "messages": {
+    "title": "Tin nhắn",
+    "newConversation": "Cuộc trò chuyện mới",
+    "startNewConversation": "Bắt đầu cuộc trò chuyện mới",
+    "startConversation": "Bắt đầu trò chuyện",
+    "selectConversation": "Chọn một cuộc trò chuyện hoặc bắt đầu cuộc trò chuyện mới",
+    "recipientPublicKey": "Khóa công khai người nhận",
+    "recipientPlaceholder": "Nhập khóa công khai hex 64 ký tự...",
+    "invalidPublicKey": "Khóa công khai không hợp lệ. Phải là 64 ký tự hex.",
+    "conversations": "Cuộc trò chuyện",
+    "noMessages": "Chưa có tin nhắn",
+    "typeMessage": "Nhập tin nhắn...",
+    "send": "Gửi"
+  },
+  "groups": {
+    "title": "Nhóm",
+    "createGroup": "Tạo nhóm",
+    "noGroups": "Chưa có nhóm",
+    "groupName": "Tên nhóm",
+    "description": "Mô tả",
+    "privacy": "Quyền riêng tư",
+    "public": "Công khai",
+    "private": "Riêng tư",
+    "secret": "Bí mật",
+    "enabledModules": "Mô-đun đã bật",
+    "settings": "Cài đặt",
+    "members": "thành viên",
+    "pendingInvitations": "Bạn có lời mời nhóm đang chờ"
+  },
+  "events": {
+    "title": "Sự kiện",
+    "groupDescription": "Sự kiện và họp mặt của nhóm",
+    "publicDescription": "Sự kiện và họp mặt công khai",
+    "createEvent": "Tạo sự kiện",
+    "noEvents": "Chưa có sự kiện",
+    "eventName": "Tên sự kiện",
+    "location": "Địa điểm",
+    "startTime": "Thời gian bắt đầu",
+    "endTime": "Thời gian kết thúc",
+    "capacity": "Sức chứa",
+    "rsvp": "Phản hồi tham dự",
+    "going": "Sẽ tham gia",
+    "maybe": "Có thể",
+    "notGoing": "Không tham gia",
+    "exportCalendar": "Xuất ra lịch",
+    "upcoming": "Sắp tới",
+    "allEvents": "Tất cả sự kiện",
+    "calendar": "Lịch"
+  },
+  "mutualAid": {
+    "title": "Hỗ trợ lẫn nhau",
+    "description": "Hỗ trợ cộng đồng thông qua chia sẻ tài nguyên và đoàn kết",
+    "createRequest": "Tạo yêu cầu/đề nghị",
+    "requests": "Yêu cầu đang hoạt động",
+    "requestsDesc": "Thành viên cộng đồng cần sự giúp đỡ của bạn",
+    "offers": "Đề nghị có sẵn",
+    "offersDesc": "Tài nguyên sẵn có để giúp đỡ",
+    "noRequests": "Không có yêu cầu đang hoạt động",
+    "noOffers": "Không có đề nghị có sẵn",
+    "rideShare": "Chia sẻ xe đoàn kết",
+    "solidarityRideShare": "Chia sẻ xe đoàn kết",
+    "rideShareDesc": "Phối hợp di chuyển với thành viên cộng đồng",
+    "noRideShares": "Không có chia sẻ xe có sẵn",
+    "browse": "Duyệt",
+    "myItems": "Mục của tôi",
+    "noMyItems": "Bạn chưa tạo yêu cầu hoặc đề nghị nào",
+    "matches": "Kết nối",
+    "noMatches": "Không tìm thấy kết nối. Tạo yêu cầu hoặc đề nghị để bắt đầu."
+  },
+  "governance": {
+    "title": "Quản trị",
+    "description": "Ra quyết định dân chủ và quản trị tập thể",
+    "createProposal": "Tạo đề xuất",
+    "activeProposals": "Đề xuất đang hoạt động",
+    "voting": "Bỏ phiếu",
+    "history": "Lịch sử",
+    "noProposals": "Chưa có đề xuất",
+    "draftProposals": "Đề xuất nháp",
+    "draftProposalsDesc": "Đề xuất đang thảo luận",
+    "noDraftProposals": "Không có đề xuất nháp",
+    "openForVoting": "Đang mở bỏ phiếu",
+    "castYourVote": "Bỏ phiếu của bạn",
+    "noActiveVotes": "Không có bỏ phiếu đang hoạt động",
+    "ends": "Kết thúc",
+    "decisionHistory": "Lịch sử quyết định",
+    "auditTrail": "Nhật ký kiểm toán của tất cả quyết định",
+    "noDecisionHistory": "Chưa có lịch sử quyết định",
+    "decidedOn": "Quyết định vào",
+    "votingMethods": "Phương pháp bỏ phiếu có sẵn",
+    "votingMethodsDesc": "Hỗ trợ nhiều hệ thống bỏ phiếu dân chủ",
+    "simpleMajority": "Đa số đơn giản",
+    "simpleMajorityDesc": "Bỏ phiếu truyền thống đồng ý/không đồng ý/trống",
+    "rankedChoice": "Bỏ phiếu xếp hạng",
+    "rankedChoiceDesc": "Xếp hạng ưu tiên cho nhiều lựa chọn",
+    "quadraticVoting": "Bỏ phiếu bậc hai",
+    "quadraticVotingDesc": "Thể hiện mức độ ưu tiên bằng phân bổ token",
+    "consensus": "Đồng thuận",
+    "consensusDesc": "Ra quyết định dựa trên ngưỡng đồng thuận"
+  },
+  "wiki": {
+    "title": "Kho kiến thức",
+    "newPage": "Trang mới",
+    "search": "Tìm kiếm wiki...",
+    "noPages": "Chưa có trang",
+    "gettingStarted": "Bắt đầu",
+    "organizingResources": "Tài nguyên tổ chức",
+    "legalSafety": "Pháp lý & An toàn"
+  },
+  "crm": {
+    "title": "Cơ sở dữ liệu liên hệ",
+    "addContact": "Thêm liên hệ",
+    "noContacts": "Chưa có liên hệ",
+    "tableView": "Chế độ bảng",
+    "boardView": "Chế độ bảng Kanban",
+    "calendarView": "Chế độ lịch",
+    "templates": "Mẫu có sẵn",
+    "unionOrganizing": "Tổ chức công đoàn",
+    "fundraising": "Gây quỹ",
+    "legalTracking": "Theo dõi pháp lý"
+  },
+  "common": {
+    "create": "Tạo",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "continue": "Tiếp tục",
+    "submit": "Gửi",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "done": "Hoàn tất",
+    "join": "Tham gia",
+    "select": "Chọn...",
+    "previous": "Trước",
+    "show": "Hiện",
+    "hide": "Ẩn",
+    "sending": "Đang gửi...",
+    "somethingWentWrong": "Đã xảy ra lỗi",
+    "goToApp": "Đến ứng dụng",
+    "reloadPage": "Tải lại trang",
+    "unknownError": "Đã xảy ra lỗi không xác định",
+    "anErrorOccurred": "Đã xảy ra lỗi",
+    "theme": {
+      "toggle": "Chuyển đổi giao diện",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "language": {
+      "switch": "Chuyển ngôn ngữ"
+    }
+  },
+  "media": {
+    "sensitiveContent": "Nội dung nhạy cảm",
+    "showContent": "Hiện nội dung",
+    "hideContent": "Ẩn nội dung",
+    "downloadImage": "Tải hình ảnh",
+    "closeGallery": "Đóng thư viện",
+    "viewFullscreen": "Xem toàn màn hình",
+    "imageEncrypted": "Hình ảnh này được mã hóa",
+    "decryptAndView": "Giải mã & Xem"
+  },
+  "memberInviteDialog": {
+    "inviteMembers": "Moi thanh vien",
+    "inviteTo": "Moi vao {{name}}",
+    "inviteDescription": "Moi thanh vien moi tham gia nhom nay",
+    "directTab": "Truc tiep",
+    "linkTab": "Lien ket",
+    "publicKeyLabel": "Khoa cong khai hoac npub",
+    "publicKeyPlaceholder": "npub1... hoac khoa cong khai hex",
+    "roleLabel": "Vai tro",
+    "roles": {
+      "member": "Thanh vien",
+      "moderator": "Nguoi kiem duyet",
+      "admin": "Quan tri vien",
+      "readOnly": "Chi doc"
+    },
+    "messageLabel": "Tin nhan (tuy chon)",
+    "messagePlaceholder": "Them tin nhan ca nhan...",
+    "sending": "Dang gui...",
+    "sendInvitation": "Gui loi moi",
+    "defaultRole": "Vai tro mac dinh",
+    "roleDescription": "Vai tro duoc gan cho bat ky ai tham gia qua lien ket nay",
+    "expiresIn": "Het han sau",
+    "expiryOptions": {
+      "1day": "1 ngay",
+      "7days": "7 ngay",
+      "30days": "30 ngay",
+      "90days": "90 ngay"
+    },
+    "generating": "Dang tao...",
+    "generateInviteLink": "Tao lien ket moi",
+    "inviteLink": "Lien ket moi",
+    "shareLink": "Chia se lien ket nay voi nhung nguoi ban muon moi",
+    "generateNewLink": "Tao lien ket moi",
+    "failedToSend": "Khong the gui loi moi",
+    "failedToGenerate": "Khong the tao lien ket moi"
+  },
+  "security": {
+    "deviceManagement": "Quản lý thiết bị",
+    "signOutAllDevices": "Đăng xuất tất cả thiết bị",
+    "noDevicesFound": "Không tìm thấy thiết bị",
+    "removeDevice": "Xóa thiết bị",
+    "confirmSignOutAll": "Bạn có chắc muốn đăng xuất khỏi tất cả thiết bị? Bạn sẽ cần đăng nhập lại trên mỗi thiết bị.",
+    "activityHistory": "Lịch sử hoạt động",
+    "noActivityFound": "Không tìm thấy hoạt động",
+    "biometricAvailable": "Xác thực sinh trắc học khả dụng!",
+    "securityKeyRequired": "Yêu cầu khóa bảo mật",
+    "webauthnBenefits": {
+      "noPassword": "Không cần nhớ mật khẩu",
+      "phishingResistant": "Chống lừa đảo",
+      "fastSecure": "Nhanh và an toàn",
+      "worksAcrossDevices": "Hoạt động trên nhiều thiết bị"
+    },
+    "nameThisDevice": "Đặt tên thiết bị này",
+    "deviceName": "Tên thiết bị",
+    "registeringCredential": "Đang đăng ký thông tin xác thực",
+    "important": "Quan trọng:",
+    "troubleshooting": {
+      "checkBiometric": "Kiểm tra xem sinh trắc học đã được bật trên thiết bị của bạn chưa",
+      "trySecurityKey": "Thử sử dụng khóa bảo mật thay thế",
+      "updateBrowser": "Cập nhật trình duyệt lên phiên bản mới nhất"
+    }
+  },
+  "contacts": {
+    "addContact": "Thêm liên hệ",
+    "publicKeyLabel": "Khóa công khai (npub hoặc hex)",
+    "petnameLabel": "Biệt danh (tùy chọn)"
+  },
+  "friends": {
+    "title": "Bạn bè & Liên hệ",
+    "subtitle": "Quản lý kết nối và lời mời kết bạn",
+    "addFriend": "Thêm bạn",
+    "friends": "Bạn bè",
+    "verified": "Đã xác minh",
+    "favorites": "Yêu thích",
+    "pendingRequests": "Yêu cầu đang chờ",
+    "allTrustLevels": "Tất cả mức độ tin cậy",
+    "trustLevel": "Mức độ tin cậy",
+    "friend": "Bạn bè",
+    "trusted": "Đáng tin cậy",
+    "allFriends": "Tất cả bạn bè",
+    "noFriendsFound": "Không tìm thấy bạn bè",
+    "noFriendsHint": "Hãy thử điều chỉnh bộ lọc hoặc thêm bạn bè!",
+    "noIncomingRequests": "Không có yêu cầu đến",
+    "noSentRequests": "Không có yêu cầu đã gửi",
+    "chooseHowConnect": "Chọn cách bạn muốn kết nối với bạn bè",
+    "sendFriendRequest": "Gửi lời mời kết bạn",
+    "incomingRequests": "Yêu cầu đến",
+    "sentRequests": "Yêu cầu đã gửi",
+    "requests": "Yêu cầu",
+    "searchFriends": "Tìm kiếm bạn bè..."
+  },
+  "hotlines": {
+    "title": "Đường dây nóng",
+    "subtitle": "Quản lý đường dây, điều phối và phối hợp",
+    "createHotline": "Tạo đường dây nóng",
+    "totalCalls": "Tổng cuộc gọi",
+    "activeCalls": "Cuộc gọi đang hoạt động",
+    "avgDuration": "Thời lượng trung bình",
+    "operatorsOnDuty": "Điều hành viên trực",
+    "selectHotline": "Chọn đường dây để xem cuộc gọi",
+    "selectHotlineToView": "Chọn đường dây để xem cuộc gọi và điều hành viên",
+    "callHistory": "Lịch sử cuộc gọi",
+    "operators": "Điều hành viên",
+    "operatorManagementSoon": "Quản lý điều hành viên sắp ra mắt",
+    "startNewCall": "Bắt đầu cuộc gọi mới",
+    "callerName": "Tên người gọi",
+    "phoneNumber": "Số điện thoại",
+    "priority": "Mức ưu tiên",
+    "priorityLow": "Thấp",
+    "priorityMedium": "Trung bình",
+    "priorityHigh": "Cao",
+    "priorityUrgent": "Khẩn cấp",
+    "noActiveCalls": "Không có cuộc gọi đang hoạt động",
+    "active": "Đang hoạt động"
+  },
+  "customFields": {
+    "fieldName": "Tên trường",
+    "label": "Nhãn",
+    "fieldType": "Loại trường",
+    "required": "Trường bắt buộc",
+    "placeholder": "Chỗ giữ chỗ",
+    "helpText": "Văn bản trợ giúp",
+    "optionsJson": "Tùy chọn (JSON)",
+    "minLength": "Độ dài tối thiểu",
+    "maxLength": "Độ dài tối đa",
+    "pattern": "Mẫu (regex)",
+    "minimum": "Giá trị tối thiểu",
+    "maximum": "Giá trị tối đa",
+    "applyTemplate": "Áp dụng mẫu:",
+    "deleteCustomField": "Xóa trường tùy chỉnh"
+  },
+  "onboarding": {
+    "availability": {
+      "weekdays": "Ngày trong tuần",
+      "weekends": "Cuối tuần",
+      "flexible": "Linh hoạt"
+    }
+  },
+  "tasks": {
+    "automatedFollowup": "Theo dõi tự động",
+    "editTask": "Sửa công việc",
+    "reassign": "Giao lại"
+  },
+  "pages": {
+    "groupMembers": "Thành viên nhóm",
+    "groupNotFound": "Không tìm thấy nhóm",
+    "basicInformation": "Thông tin cơ bản",
+    "privacyLevel": "Mức độ riêng tư",
+    "userDirectory": "Danh bạ người dùng",
+    "allUsers": "Tất cả người dùng",
+    "verifiedOnly": "Chỉ đã xác minh",
+    "unverifiedOnly": "Chỉ chưa xác minh",
+    "usernameAZ": "Tên người dùng (A-Z)",
+    "nameAZ": "Tên (A-Z)",
+    "recentlyActive": "Hoạt động gần đây",
+    "members": "Thành viên",
+    "membersCount": "{{count}} thành viên",
+    "membersCount_plural": "{{count}} thành viên",
+    "memberIn": "trong {{name}}",
+    "inviteMembers": "Mời thành viên",
+    "noMembersFound": "Không tìm thấy thành viên",
+    "joined": "Tham gia {{date}}",
+    "groupSettings": "Cài đặt nhóm",
+    "configureSettings": "Cấu hình cài đặt và tính năng của {{name}}",
+    "updateNameDescription": "Cập nhật tên và mô tả nhóm",
+    "enterGroupName": "Nhập tên nhóm",
+    "enterGroupDescription": "Nhập mô tả nhóm",
+    "saving": "Đang lưu...",
+    "saveChanges": "Lưu thay đổi",
+    "chooseModules": "Chọn các mô-đun có sẵn cho nhóm này",
+    "enabled": "Đã bật",
+    "disabled": "Đã tắt",
+    "managePrivacy": "Quản lý quyền riêng tư và khả năng hiển thị của nhóm",
+    "publicAccess": "Mọi người đều có thể xem nhóm này và tham gia",
+    "privateAccess": "Chỉ được mời - nội dung được mã hóa"
+  },
+  "posts": {
+    "placeholder": "Bạn đang nghĩ gì? Chia sẻ cập nhật, tổ chức hành động, xây dựng đoàn kết...",
+    "postCreated": "Đã tạo bài viết thành công",
+    "postFailed": "Không thể tạo bài viết",
+    "postScheduled": "Đã lên lịch bài viết thành công",
+    "scheduleFailed": "Không thể lên lịch bài viết",
+    "selectFutureDate": "Vui lòng chọn ngày và giờ trong tương lai",
+    "addEmoji": "Thêm biểu tượng cảm xúc",
+    "disableLinkPreviews": "Tắt xem trước liên kết",
+    "enableLinkPreviews": "Bật xem trước liên kết",
+    "linkPreviewsOn": "Xem trước liên kết đang bật",
+    "linkPreviewsOff": "Xem trước liên kết đang tắt",
+    "postPrivacy": "Mức độ riêng tư bài viết",
+    "privacy": "Quyền riêng tư",
+    "groupOnly": "Chỉ nhóm",
+    "public": "Công khai",
+    "followers": "Người theo dõi",
+    "encrypted": "Mã hóa",
+    "groupOnlyDesc": "Chỉ thành viên trong nhóm của bạn có thể xem",
+    "publicDesc": "Mọi người đều có thể xem, được chia sẻ trên relay công khai",
+    "followersDesc": "Chỉ những người theo dõi bạn có thể xem",
+    "encryptedDesc": "Mã hóa đầu cuối, chỉ những người cụ thể có thể giải mã",
+    "post": "Đăng",
+    "schedulePost": "Lên lịch bài viết",
+    "schedule": "Lên lịch",
+    "makePublicTitle": "Đăng bài công khai?",
+    "makePublicWarning": "Bài viết công khai mọi người trên internet đều có thể xem và sẽ được chia sẻ trên các relay Nostr công khai.",
+    "publicActivistWarning": "Đối với hoạt động tổ chức, hãy cân nhắc liệu nội dung này có nên giữ riêng tư để bảo vệ cộng đồng của bạn.",
+    "keepPrivate": "Giữ riêng tư",
+    "makePublic": "Đăng công khai"
+  },
+  "templates": {
+    "title": "Chọn mẫu",
+    "subtitle": "Chọn một mẫu để bắt đầu nhanh với các mô-đun được cấu hình sẵn.",
+    "manualMode": "Thiết lập thủ công",
+    "customize": "Tùy chỉnh",
+    "continue": "Tiếp tục",
+    "createGroup": "Tạo nhóm",
+    "creating": "Đang tạo...",
+    "modules": "mô-đun",
+    "modulesEnabled": "mô-đun sẽ được bật",
+    "modulesToEnable": "Mô-đun cần bật",
+    "includeSampleData": "Bao gồm dữ liệu mẫu",
+    "sampleDataDescription": "Điền nhóm với nội dung ví dụ để giúp bạn bắt đầu",
+    "optionalEnhancements": "Cải tiến tùy chọn",
+    "summary": "Tóm tắt",
+    "template": "Mẫu",
+    "enhancementsAdded": "cải tiến đã thêm",
+    "demoDataWillBeLoaded": "Dữ liệu demo sẽ được tải",
+    "manualModeDescription": "Chế độ thủ công: Bạn sẽ chọn từng mô-đun ở bước tiếp theo.",
+    "complexity": {
+      "1": "Đơn giản",
+      "2": "Cơ bản",
+      "3": "Tiêu chuẩn",
+      "4": "Nâng cao",
+      "5": "Chuyên gia"
+    },
+    "categories": {
+      "community": "Cộng đồng",
+      "mutual-aid": "Hỗ trợ lẫn nhau",
+      "organizing": "Tổ chức",
+      "civic": "Hành động công dân",
+      "governance": "Quản trị",
+      "movement-defense": "Bảo vệ phong trào"
+    },
+    "simpleGroup": {
+      "name": "Nhóm đơn giản",
+      "description": "Một nhóm tối giản chỉ có tin nhắn. Hoàn hảo để bắt đầu nhanh chóng."
+    },
+    "mutualAidNetwork": {
+      "name": "Mạng lưới hỗ trợ lẫn nhau",
+      "description": "Chia sẻ tài nguyên và phối hợp hỗ trợ cộng đồng. Hoàn hảo cho các mạng lưới láng giềng.",
+      "enhancements": {
+        "governance": {
+          "name": "Quyết định dân chủ",
+          "description": "Thêm đề xuất và bỏ phiếu cho các quyết định tập thể"
+        },
+        "events": {
+          "name": "Sự kiện & Họp mặt",
+          "description": "Phối hợp các buổi gặp gỡ và sự kiện cộng đồng"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "Chi bộ công đoàn",
+      "description": "Công cụ hoàn chỉnh cho tổ chức nơi làm việc: chiến dịch, liên hệ và quản trị dân chủ.",
+      "enhancements": {
+        "publicPresence": {
+          "name": "Hiện diện công khai",
+          "description": "Tạo trang công khai cho chi bộ của bạn"
+        },
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho hợp đồng, khiếu nại và ghi chú"
+        },
+        "files": {
+          "name": "Lưu trữ tệp",
+          "description": "Lưu trữ an toàn cho hợp đồng, ảnh và bằng chứng"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "Chiến dịch bầu cử công đoàn",
+      "description": "Tổ chức bầu cử công đoàn với theo dõi công nhân, thăm nhà, thẻ ủy quyền và phối hợp với cơ quan lao động.",
+      "enhancements": {
+        "wiki": {
+          "name": "Kho kiến thức",
+          "description": "Tài liệu về quy định lao động, chiến thuật chống công đoàn và nguồn lực tổ chức"
+        },
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho lập kế hoạch và ghi chép vi phạm"
+        },
+        "publicPresence": {
+          "name": "Chiến dịch công khai",
+          "description": "Thêm trang công khai để tiếp cận công nhân (sử dụng cẩn thận)"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "Tập thể hoạt động xã hội",
+      "description": "Phối hợp chiến dịch, xây dựng kiến thức và huy động cộng đồng hiệu quả.",
+      "enhancements": {
+        "crm": {
+          "name": "Quản lý liên hệ",
+          "description": "Theo dõi người ủng hộ, tình nguyện viên và nỗ lực tiếp cận"
+        },
+        "database": {
+          "name": "Cơ sở dữ liệu tùy chỉnh",
+          "description": "Tạo hệ thống theo dõi tùy chỉnh cho chiến dịch của bạn"
+        },
+        "files": {
+          "name": "Thư viện phương tiện",
+          "description": "Lưu trữ và tổ chức tài liệu chiến dịch"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "Trung tâm cộng đồng",
+      "description": "Không gian đa năng cho tổ chức và kết nối cộng đồng. Hoàn hảo cho khu phố và các nhóm xã hội.",
+      "enhancements": {
+        "governance": {
+          "name": "Quyết định tập thể",
+          "description": "Thêm đề xuất và bỏ phiếu cho các quyết định cộng đồng"
+        },
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho biên bản họp và lập kế hoạch"
+        },
+        "files": {
+          "name": "Chia sẻ tệp",
+          "description": "Lưu trữ tệp chung cho tài nguyên cộng đồng"
+        },
+        "crm": {
+          "name": "Danh bạ liên hệ",
+          "description": "Quản lý liên hệ cộng đồng và doanh nghiệp địa phương"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "Tập thể bảo vệ pháp lý phong trào",
+      "description": "Phối hợp bảo vệ hàng loạt đầy đủ tính năng với quản lý vụ việc, lịch tòa án, phối hợp luật sư và đường dây hỗ trợ giam giữ.",
+      "enhancements": {
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho văn bản pháp lý, mẫu và ghi chú vụ việc"
+        },
+        "wiki": {
+          "name": "Kho kiến thức",
+          "description": "Tài liệu hướng dẫn quyền lợi, thủ tục pháp lý và nguồn lực"
+        },
+        "publicPresence": {
+          "name": "Nguồn lực công khai",
+          "description": "Thêm trang công khai về quyền lợi và cách nhận trợ giúp"
+        },
+        "fundraising": {
+          "name": "Quỹ bảo lãnh & Quyên góp",
+          "description": "Thêm quản lý quỹ bảo lãnh và theo dõi quyên góp"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "Tập thể y tế đường phố",
+      "description": "Đào tạo và huy động nhân viên y tế đường phố cho biểu tình và sự kiện cộng đồng. Theo dõi chứng chỉ, phối hợp triển khai và quản lý vật tư y tế.",
+      "enhancements": {
+        "governance": {
+          "name": "Quản trị tập thể",
+          "description": "Thêm đề xuất và bỏ phiếu cho các quyết định tập thể"
+        },
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho quy trình, tài liệu đào tạo và báo cáo"
+        },
+        "hotlines": {
+          "name": "Điều phối y tế",
+          "description": "Thêm đường dây điều phối cho phối hợp y tế khẩn cấp"
+        },
+        "fundraising": {
+          "name": "Quỹ vật tư",
+          "description": "Theo dõi quyên góp cho vật tư và thiết bị y tế"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "Tập thể tự vệ cộng đồng",
+      "description": "Đào tạo và phối hợp nhân viên an toàn và đội ngũ giảm căng thẳng cho biểu tình và sự kiện cộng đồng.",
+      "enhancements": {
+        "governance": {
+          "name": "Quản trị tập thể",
+          "description": "Thêm đề xuất và bỏ phiếu cho các quyết định tập thể"
+        },
+        "documents": {
+          "name": "Bộ tài liệu",
+          "description": "Tài liệu cộng tác cho quy trình, báo cáo sự cố và tài liệu đào tạo"
+        },
+        "hotlines": {
+          "name": "Điều phối an ninh",
+          "description": "Thêm đường dây điều phối cho phối hợp an ninh"
+        }
+      }
+    },
+    "mediaCollective": {
+      "name": "Tập thể truyền thông",
+      "description": "Báo chí cộng đồng với tự quản dân chủ. Xuất bản bài viết, phân phối đến các mạng lưới và cùng đưa ra quyết định.",
+      "channels": {
+        "general": "Chung",
+        "editorial": "Biên tập",
+        "pitches": "Đề xuất bài",
+        "governance": "Quản trị",
+        "announcements": "Thông báo"
+      },
+      "roles": {
+        "editor": "Biên tập viên",
+        "writer": "Phóng viên",
+        "copyEditor": "Biên tập nội dung",
+        "publisher": "Nhà xuất bản",
+        "newsletterEditor": "Biên tập bản tin"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "Tòa soạn mở",
+          "description": "Nhận bài viết công khai từ cộng đồng"
+        },
+        "wireService": {
+          "name": "Chế độ dịch vụ tin",
+          "description": "Tổng hợp và đăng lại bài từ các tập thể khác"
+        },
+        "events": {
+          "name": "Sự kiện & Họp báo",
+          "description": "Tổ chức sự kiện báo chí, họp cộng đồng và phối hợp đưa tin"
+        },
+        "mutualAid": {
+          "name": "Nguồn lực cộng đồng",
+          "description": "Kết nối độc giả với nguồn lực cộng đồng và hỗ trợ lẫn nhau"
+        },
+        "microblogging": {
+          "name": "Cập nhật tin nóng",
+          "description": "Đăng cập nhật nhanh, tin nóng và nội dung mạng xã hội"
+        },
+        "fundraising": {
+          "name": "Gây quỹ & Thành viên",
+          "description": "Nhận quyên góp và quản lý thành viên"
+        }
+      }
+    }
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "Thay đổi chính sách biên tập",
+        "description": "Đề xuất thay đổi hướng dẫn, tiêu chuẩn hoặc chính sách biên tập"
+      },
+      "coveragePriority": {
+        "title": "Ưu tiên đưa tin",
+        "description": "Đặt hoặc thay đổi ưu tiên đưa tin cho tập thể"
+      },
+      "styleGuideUpdate": {
+        "title": "Cập nhật hướng dẫn phong cách",
+        "description": "Đề xuất cập nhật hướng dẫn phong cách của tập thể"
+      },
+      "newMemberApproval": {
+        "title": "Phê duyệt thành viên mới",
+        "description": "Bỏ phiếu chấp nhận thành viên mới vào tập thể"
+      },
+      "roleAssignment": {
+        "title": "Phân công vai trò",
+        "description": "Phân công thành viên vào vai trò cụ thể"
+      },
+      "electEditorialBoard": {
+        "title": "Bầu ban biên tập",
+        "description": "Bầu các thành viên vào ban biên tập"
+      },
+      "joinCoalition": {
+        "title": "Tham gia liên minh",
+        "description": "Bỏ phiếu tham gia liên minh truyền thông khu vực hoặc toàn cầu"
+      },
+      "leaveCoalition": {
+        "title": "Rời liên minh",
+        "description": "Bỏ phiếu rời khỏi liên minh mà tập thể đang tham gia"
+      },
+      "partnershipAgreement": {
+        "title": "Thỏa thuận đối tác",
+        "description": "Thiết lập quan hệ đối tác với tổ chức khác"
+      },
+      "budgetAllocation": {
+        "title": "Phân bổ ngân sách",
+        "description": "Phân bổ quỹ tập thể cho các mục đích cụ thể"
+      },
+      "contentDispute": {
+        "title": "Giải quyết tranh chấp nội dung",
+        "description": "Giải quyết tranh chấp về nội dung đã xuất bản hoặc đang chờ xử lý"
+      },
+      "retractionRequest": {
+        "title": "Rút lại hoặc chỉnh sửa",
+        "description": "Bỏ phiếu rút lại hoặc chỉnh sửa nội dung đã xuất bản"
+      },
+      "syndicationApproval": {
+        "title": "Phê duyệt phân phối",
+        "description": "Phê duyệt phân phối bài viết cụ thể đến (các) liên minh"
+      }
+    },
+    "categories": {
+      "editorial": "Quản trị biên tập",
+      "membership": "Thành viên & Vai trò",
+      "operations": "Hoạt động & Tài chính",
+      "content": "Quyết định nội dung",
+      "coalition": "Thành viên liên minh"
+    }
+  },
+  "modules": {
+    "title": "Cài đặt mô-đun",
+    "description": "Bật và cấu hình các mô-đun cho nhóm của bạn. Mỗi mô-đun cung cấp các tính năng và khả năng khác nhau.",
+    "noPermission": "Bạn không có quyền quản lý mô-đun cho nhóm này.",
+    "noPermissionAlert": "Bạn không có quyền quản lý mô-đun",
+    "failedToToggle": "Không thể bật/tắt mô-đun",
+    "failedToUpdateConfig": "Không thể cập nhật cấu hình",
+    "cannotDisable": "Không thể tắt: {{modules}} phụ thuộc vào mô-đun này",
+    "required": "Bắt buộc:",
+    "isRequired": "{{module}} là bắt buộc",
+    "enhancedBy": "Được nâng cao bởi:",
+    "enhancedByModule": "Được nâng cao bởi {{module}}",
+    "enableForFeatures": "Bật {{module}} để có thêm tính năng",
+    "recommended": "Được khuyến nghị:",
+    "worksWellWith": "{{module}} hoạt động tốt với mô-đun này",
+    "enableFirst": "Bật {{modules}} trước",
+    "requiredBy": "Được yêu cầu bởi:",
+    "capabilities": "Khả năng:",
+    "configure": "Cấu hình",
+    "configureModule": "Cấu hình {{module}}",
+    "saveConfiguration": "Lưu cấu hình",
+    "error": "Lỗi: {{message}}"
+  },
+  "notifications": {
+    "title": "Cài đặt thông báo",
+    "description": "Quản lý cách bạn nhận thông báo",
+    "comingSoon": "Cài đặt thông báo sắp ra mắt..."
+  },
+  "preferences": {
+    "title": "Tùy chọn",
+    "description": "Quản lý tùy chọn ứng dụng và giao diện của bạn",
+    "language": "Ngôn ngữ",
+    "colorMode": "Chế độ màu",
+    "theme": "Giao diện"
+  },
+  "securityPage": {
+    "title": "Bảo mật & Thiết bị",
+    "description": "Quản lý thiết bị, phiên đăng nhập và cài đặt bảo mật của bạn",
+    "webauthnProtection": "Bảo vệ WebAuthn",
+    "active": "Đang hoạt động",
+    "keysProtected": "Khóa của bạn được bảo vệ bằng WebAuthn",
+    "setupBiometric": "Thiết lập xác thực sinh trắc học hoặc khóa bảo mật phần cứng",
+    "setupWebauthn": "Thiết lập WebAuthn",
+    "registeredCredentials": "Thông tin xác thực đã đăng ký",
+    "thisDevice": "Thiết bị này",
+    "lastUsed": "Sử dụng lần cuối:",
+    "webauthnNotSupported": "WebAuthn không được hỗ trợ",
+    "webauthnNotSupportedDesc": "Trình duyệt của bạn không hỗ trợ WebAuthn. Vui lòng sử dụng trình duyệt hiện đại (Chrome, Firefox, Safari, Edge) để bật xác thực sinh trắc học và khóa bảo mật phần cứng.",
+    "tabDevices": "Thiết bị",
+    "tabSession": "Phiên",
+    "tabActivity": "Hoạt động",
+    "tabPrivacy": "Quyền riêng tư",
+    "tabTor": "Tor",
+    "tabBackup": "Sao lưu",
+    "tabBackupTooltip": "Sao lưu & Đa thiết bị",
+    "unlockForMultiDevice": "Vui lòng mở khóa danh tính của bạn để truy cập các tính năng đa thiết bị."
+  },
+  "profile": {
+    "pleaseLogin": "Vui lòng đăng nhập để quản lý hồ sơ của bạn",
+    "usernameAndDisplayName": "Tên người dùng & Tên hiển thị",
+    "usernameDescription": "Đặt tên người dùng dễ đọc để người khác dễ tìm và đề cập đến bạn",
+    "username": "Tên người dùng",
+    "usernameTaken": "Tên người dùng đã được sử dụng",
+    "usernameAvailable": "Tên người dùng khả dụng",
+    "usernameHint": "3-20 ký tự, chỉ chữ thường, số và dấu gạch ngang",
+    "displayName": "Tên hiển thị (Tùy chọn)",
+    "displayNameHint": "Tên đầy đủ hoặc tên hiển thị ưa thích của bạn",
+    "saving": "Đang lưu...",
+    "saveUsername": "Lưu tên người dùng",
+    "usernameSaved": "Đã lưu tên người dùng thành công",
+    "usernameSaveFailed": "Không thể lưu tên người dùng",
+    "nip05Verification": "Xác minh NIP-05",
+    "verified": "Đã xác minh",
+    "nip05Description": "Xác minh danh tính của bạn bằng tên miền (username@domain.com)",
+    "nip05Identifier": "Định danh NIP-05",
+    "nip05Hint": "Nhập định danh NIP-05 của bạn để xác minh danh tính",
+    "verifying": "Đang xác minh...",
+    "verifyNip05": "Xác minh NIP-05",
+    "verifiedAs": "Đã xác minh là",
+    "nip05Verified": "Xác minh NIP-05 thành công",
+    "nip05Failed": "Xác minh NIP-05 thất bại",
+    "privacySettings": "Cài đặt quyền riêng tư",
+    "privacyDescription": "Kiểm soát ai có thể tìm thấy bạn và xem hồ sơ của bạn",
+    "loadingSettings": "Đang tải cài đặt...",
+    "usernameSearch": "Tìm kiếm theo tên người dùng",
+    "usernameSearchHint": "Cho phép người khác tìm thấy bạn bằng tên người dùng",
+    "showInDirectory": "Hiển thị trong danh bạ",
+    "showInDirectoryHint": "Xuất hiện trong danh bạ người dùng công khai",
+    "profileVisibility": "Khả năng hiển thị hồ sơ",
+    "visibilityPublic": "Công khai (ai cũng có thể xem)",
+    "visibilityGroups": "Chỉ nhóm",
+    "visibilityFriends": "Chỉ bạn bè",
+    "visibilityPrivate": "Riêng tư (ẩn)",
+    "visibilityHint": "Ai có thể xem hồ sơ và bài viết của bạn",
+    "publicKey": "Khóa công khai",
+    "publicKeyDescription": "Khóa công khai Nostr của bạn (npub)",
+    "npub": "npub",
+    "npubHint": "Định danh duy nhất của bạn trên mạng Nostr",
+    "privacyUpdated": "Đã cập nhật cài đặt quyền riêng tư",
+    "privacyUpdateFailed": "Không thể cập nhật cài đặt"
+  },
+  "fundraising": {
+    "title": "Gay quy",
+    "description": "Tao va quan ly cac chien dich gay quy cho to chuc cua ban",
+    "viewTemplates": "Xem mau",
+    "newCampaign": "Chien dich moi",
+    "createCampaign": "Tao chien dich",
+    "browseTemplates": "Duyet mau",
+    "noCampaigns": "Chua co chien dich",
+    "noCampaignsDescription": "Tao chien dich gay quy dau tien de ho tro quy dinh cong, quy bao lanh, ho tro lan nhau va nhieu hon.",
+    "backToCampaigns": "Quay lai chien dich",
+    "deleteCampaign": "Xoa chien dich",
+    "deleteCampaignConfirm": "Ban co chac chan muon xoa \"{{title}}\"? Dieu nay cung se xoa tat ca cac khoan quyen gop va cap nhat. Hanh dong nay khong the hoan tac.",
+    "edit": "Sua",
+    "preview": "Xem truoc",
+    "donors": "Nha tai tro",
+    "analytics": "Phan tich",
+    "copyLink": "Sao chep lien ket",
+    "pause": "Tam dung",
+    "publish": "Xuat ban",
+    "of": "trong",
+    "funded": "da quyen gop"
+  },
+  "forms": {
+    "title": "Bieu mau",
+    "description": "Tao va quan ly bieu mau cong khai de thu thap du lieu",
+    "viewTemplates": "Xem mau",
+    "newForm": "Bieu mau moi",
+    "createForm": "Tao bieu mau",
+    "browseTemplates": "Duyet mau",
+    "noForms": "Chua co bieu mau",
+    "noFormsDescription": "Tao bieu mau dau tien de bat dau thu thap du lieu tu tinh nguyen vien, dang ky su kien, khao sat va nhieu hon.",
+    "backToForms": "Quay lai bieu mau",
+    "deleteForm": "Xoa bieu mau",
+    "deleteFormConfirm": "Ban co chac chan muon xoa \"{{title}}\"? Dieu nay cung se xoa tat ca cac bai gui. Hanh dong nay khong the hoan tac.",
+    "edit": "Sua",
+    "preview": "Xem truoc",
+    "submissions": "Bai gui",
+    "analytics": "Phan tich",
+    "copyLink": "Sao chep lien ket",
+    "unpublish": "Huy xuat ban",
+    "publish": "Xuat ban",
+    "fields": "truong"
+  },
+  "files": {
+    "title": "Tệp",
+    "analytics": "Phân tích",
+    "select": "Chọn",
+    "newFolder": "Thư mục mới",
+    "uploadFiles": "Tải lên tệp",
+    "selectFiles": "Chọn tệp",
+    "filesSelected": "Đã chọn {{count}} tệp",
+    "filesSelected_plural": "Đã chọn {{count}} tệp",
+    "downloadZip": "Tải xuống ZIP",
+    "download": "Tải xuống",
+    "move": "Di chuyển",
+    "share": "Chia sẻ",
+    "searchPlaceholder": "Tìm kiếm tệp theo tên hoặc nội dung...",
+    "searching": "Đang tìm kiếm...",
+    "searchContents": "Tìm kiếm nội dung",
+    "recentSearches": "Tìm kiếm gần đây",
+    "clear": "Xóa",
+    "savedFilters": "Bộ lọc đã lưu",
+    "filters": "Bộ lọc",
+    "filterFiles": "Lọc tệp",
+    "fileType": "Loại tệp",
+    "allTypes": "Tất cả loại",
+    "images": "Hình ảnh",
+    "documents": "Tài liệu",
+    "videos": "Video",
+    "audio": "Âm thanh",
+    "archives": "Tệp nén",
+    "other": "Khác",
+    "fileSize": "Kích thước tệp",
+    "allSizes": "Tất cả kích thước",
+    "sizeSmall": "Nhỏ (< 1 MB)",
+    "sizeMedium": "Trung bình (1-100 MB)",
+    "sizeLarge": "Lớn (> 100 MB)",
+    "modified": "Đã sửa đổi",
+    "anyTime": "Bất kỳ lúc nào",
+    "today": "Hôm nay",
+    "pastWeek": "Tuần trước",
+    "pastMonth": "Tháng trước",
+    "pastYear": "Năm trước",
+    "saveFilter": "Lưu bộ lọc",
+    "activeFilters": "Bộ lọc đang hoạt động:",
+    "type": "Loại",
+    "size": "Kích thước",
+    "contentMatches": "Nội dung khớp",
+    "deleteFilesTitle": "Xóa {{count}} tệp?",
+    "deleteFilesTitle_plural": "Xóa {{count}} tệp?",
+    "deleteFilesDesc": "Hành động này không thể hoàn tác. Các tệp đã chọn sẽ bị xóa vĩnh viễn.",
+    "deleting": "Đang xóa...",
+    "saveSearchFilter": "Lưu bộ lọc tìm kiếm",
+    "filterName": "Tên bộ lọc",
+    "filterNamePlaceholder": "ví dụ: 'Video lớn tháng này'",
+    "filterWillSave": "Bộ lọc này sẽ lưu:",
+    "search": "Tìm kiếm",
+    "analyticsTitle": "Phân tích Tệp",
+    "refresh": "Làm mới",
+    "overview": "Tổng quan",
+    "activity": "Hoạt động",
+    "duplicates": "Tệp trùng lặp",
+    "shared": "Đã chia sẻ",
+    "storageUsage": "Sử dụng Lưu trữ",
+    "ofUsed": "đã sử dụng trong tổng số {{total}}",
+    "totalFiles": "Tổng số Tệp",
+    "filesInGroup": "tệp trong nhóm này",
+    "sharedFiles": "Tệp Đã Chia sẻ",
+    "filesSharedWithOthers": "tệp đã chia sẻ với người khác",
+    "storageByType": "Lưu trữ theo Loại Tệp",
+    "filesCount": "{{count}} tệp ({{size}})",
+    "noFilesUploaded": "Chưa có tệp nào được tải lên",
+    "mostAccessedFiles": "Tệp Được Truy cập Nhiều Nhất",
+    "filesWithMostAccess": "Các tệp có nhiều lượt truy cập chia sẻ nhất",
+    "accesses": "{{count}} lượt truy cập",
+    "noActivityYet": "Chưa có hoạt động nào được ghi lại",
+    "loadingAnalytics": "Đang tải phân tích...",
+    "actions": {
+      "uploaded": "Đã tải lên",
+      "downloaded": "Đã tải xuống",
+      "shared": "Đã chia sẻ",
+      "deleted": "Đã xóa",
+      "moved": "Đã di chuyển",
+      "renamed": "Đã đổi tên",
+      "viewed": "Đã xem"
+    },
+    "time": {
+      "justNow": "Vừa xong",
+      "minutesAgo": "{{count}} phút trước",
+      "hoursAgo": "{{count}} giờ trước",
+      "daysAgo": "{{count}} ngày trước"
+    },
+    "duplicatesFound": "Tìm thấy {{count}} nhóm tệp trùng lặp. Hãy cân nhắc xóa các tệp trùng để giải phóng dung lượng lưu trữ.",
+    "duplicateGroup": "Nhóm Trùng lặp #{{index}}",
+    "identicalFiles": "{{count}} tệp giống hệt nhau ({{size}} mỗi tệp)",
+    "created": "Tạo vào {{date}}",
+    "keep": "Giữ lại",
+    "noDuplicates": "Không tìm thấy tệp trùng lặp",
+    "storageOptimized": "Lưu trữ của bạn đã được tối ưu hóa!",
+    "filesShared": "tệp đã chia sẻ",
+    "viewFileShares": "Xem các lượt chia sẻ tệp riêng lẻ trong danh sách tệp.",
+    "exportSharingReport": "Xuất Báo cáo Chia sẻ",
+    "exporting": "Đang xuất...",
+    "noFilesShared": "Chưa có tệp nào được chia sẻ",
+    "shareToSee": "Chia sẻ tệp để xem chúng ở đây",
+    "deleteDuplicate": "Xóa tệp trùng lặp này?",
+    "failedExport": "Không thể xuất báo cáo chia sẻ",
+    "bulkShare": {
+      "title": "Chia sẻ {{count}} Tệp",
+      "description": "Chia sẻ nhiều tệp với cùng cài đặt",
+      "complete": "Chia sẻ Hàng loạt Hoàn tất",
+      "filesSharedSuccessfully": "tệp đã được chia sẻ thành công",
+      "failedToShare": "{{count}} tệp không thể chia sẻ:",
+      "done": "Xong",
+      "sharingFiles": "Đang chia sẻ tệp...",
+      "pleaseWait": "Vui lòng đợi trong khi chúng tôi chia sẻ tệp của bạn",
+      "percentComplete": "{{percent}}% hoàn thành",
+      "shareWithUsers": "Chia sẻ với Người dùng",
+      "createLinks": "Tạo Liên kết",
+      "selectUsers": "Chọn Người dùng",
+      "member": "Thành viên",
+      "noGroupMembers": "Không tìm thấy thành viên nhóm",
+      "permissionLevel": "Mức độ Quyền hạn",
+      "viewOnly": "Chỉ xem",
+      "viewDownload": "Xem và Tải xuống",
+      "viewDownloadEdit": "Xem, Tải xuống và Chỉnh sửa",
+      "generateLinks": "Tạo liên kết công khai cho tất cả tệp",
+      "passwordOptional": "Mật khẩu (tùy chọn, giống nhau cho tất cả)",
+      "passwordPlaceholder": "Để trống nếu không cần mật khẩu",
+      "expiresIn": "Hết hạn sau (ngày)",
+      "never": "Không bao giờ",
+      "day": "1 ngày",
+      "days7": "7 ngày",
+      "days30": "30 ngày",
+      "days90": "90 ngày",
+      "more": "+{{count}} tệp nữa"
+    },
+    "storageUsed": "da su dung {{size}}"
+  },
+  "cache": {
+    "storageUsage": "Sử dụng lưu trữ",
+    "storageDesc": "Dữ liệu được lưu trong bộ nhớ đệm để truy cập ngoại tuyến",
+    "used": "đã dùng",
+    "limit": "giới hạn",
+    "cachedItems": "mục được lưu trong bộ nhớ đệm",
+    "oldest": "Cũ nhất",
+    "ago": "trước",
+    "imagesMedia": "Hình ảnh & Phương tiện",
+    "documents": "Tài liệu",
+    "appData": "Dữ liệu ứng dụng",
+    "offlineQueue": "Hàng đợi ngoại tuyến",
+    "refresh": "Làm mới",
+    "freeSpace": "Giải phóng dung lượng",
+    "exportData": "Xuất dữ liệu",
+    "cacheSettings": "Cài đặt bộ nhớ đệm",
+    "cacheSettingsDesc": "Cấu hình thời gian lưu giữ dữ liệu ngoại tuyến",
+    "maxCacheSize": "Kích thước bộ nhớ đệm tối đa",
+    "maxCacheSizeDesc": "Giới hạn cho các tệp và hình ảnh được lưu trong bộ nhớ đệm",
+    "cacheExpiration": "Hết hạn bộ nhớ đệm",
+    "cacheExpirationDesc": "Tự động xóa các mục được lưu trong bộ nhớ đệm cũ hơn",
+    "days": "ngày",
+    "dataRetention": "Lưu giữ dữ liệu",
+    "dataRetentionDesc": "Cấu hình thời gian lưu giữ tin nhắn và bài viết cục bộ",
+    "messages": "Tin nhắn",
+    "keepMessages": "Giữ tin nhắn cục bộ trong",
+    "posts": "Bài viết",
+    "keepPosts": "Giữ bài viết cục bộ trong",
+    "keepFiles": "Giữ tệp được lưu trong bộ nhớ đệm trong",
+    "lastCleanup": "Lần dọn dẹp cuối",
+    "noCleanupYet": "Chưa thực hiện dọn dẹp",
+    "cleanUpNow": "Dọn dẹp ngay",
+    "dangerZone": "Vùng nguy hiểm",
+    "clearAllCache": "Xóa tất cả bộ nhớ đệm",
+    "clearCacheDesc": "Xóa tất cả dữ liệu được lưu trong bộ nhớ đệm. Bạn sẽ cần tải lại nội dung.",
+    "clearCache": "Xóa bộ nhớ đệm",
+    "clearCacheTitle": "Xóa tất cả bộ nhớ đệm?",
+    "clearCacheDialogDesc": "Điều này sẽ xóa tất cả các tệp, hình ảnh và dữ liệu tạm thời được lưu trong bộ nhớ đệm. Tin nhắn, bài viết và dữ liệu tài khoản của bạn sẽ không bị ảnh hưởng. Nội dung sẽ cần được tải lại khi bạn truy cập lại.",
+    "cleanUpTitle": "Dọn dẹp dữ liệu cũ?",
+    "cleanUpDialogDesc": "Điều này sẽ xóa các tin nhắn, bài viết và tệp được lưu trong bộ nhớ đệm cũ dựa trên cài đặt lưu giữ của bạn. Điều này giúp giải phóng dung lượng lưu trữ trong khi vẫn giữ dữ liệu gần đây.",
+    "cleanUp": "Dọn dẹp"
+  },
+  "publishing": {
+    "settings": "Cài đặt xuất bản",
+    "saveChanges": "Lưu thay đổi",
+    "settingsSaved": "Đã lưu cài đặt",
+    "tabs": {
+      "general": "Chung",
+      "theme": "Giao diện",
+      "content": "Nội dung",
+      "subscriptions": "Đăng ký",
+      "social": "Mạng xã hội"
+    },
+    "general": {
+      "title": "Cài đặt chung",
+      "description": "Thông tin cơ bản về ấn phẩm của bạn",
+      "name": "Tên ấn phẩm",
+      "namePlaceholder": "Ấn phẩm của tôi",
+      "descriptionLabel": "Mô tả",
+      "descriptionPlaceholder": "Ấn phẩm của bạn nói về điều gì?",
+      "logoUrl": "URL logo",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoPreview": "Xem trước logo",
+      "coverImageUrl": "URL ảnh bìa",
+      "coverImagePlaceholder": "https://example.com/cover.jpg",
+      "coverPreview": "Xem trước ảnh bìa"
+    },
+    "theme": {
+      "title": "Giao diện & Ngoại hình",
+      "description": "Tùy chỉnh giao diện ấn phẩm của bạn",
+      "primaryColor": "Màu chủ đạo",
+      "fontFamily": "Họ phông chữ",
+      "fontSans": "Sans-serif (Hiện đại)",
+      "fontSerif": "Serif (Cổ điển)",
+      "fontMono": "Monospace (Kỹ thuật)",
+      "layout": "Kiểu bố cục",
+      "layoutDefault": "Mặc định",
+      "layoutMagazine": "Tạp chí",
+      "layoutMinimal": "Tối giản",
+      "darkMode": "Chế độ tối",
+      "darkModeDesc": "Bật chế độ tối cho ấn phẩm của bạn"
+    },
+    "content": {
+      "title": "Cài đặt nội dung",
+      "description": "Kiểm soát cách nội dung được xuất bản và hiển thị",
+      "defaultVisibility": "Khả năng hiển thị mặc định của bài viết",
+      "visibilityPublic": "Công khai",
+      "visibilitySubscribers": "Chỉ người đăng ký",
+      "visibilityPaid": "Chỉ người đăng ký trả phí",
+      "allowComments": "Cho phép bình luận",
+      "allowCommentsDesc": "Cho phép độc giả bình luận trên bài viết",
+      "enableRss": "Bật nguồn cấp RSS",
+      "enableRssDesc": "Tạo nguồn cấp RSS cho ấn phẩm của bạn",
+      "fullRss": "Nội dung đầy đủ trong RSS",
+      "fullRssDesc": "Bao gồm nội dung bài viết đầy đủ trong RSS (thay vì chỉ trích đoạn)"
+    },
+    "subscriptions": {
+      "title": "Cài đặt đăng ký",
+      "description": "Cấu hình tính năng đăng ký và kiếm tiền",
+      "emailNotifications": "Thông báo email",
+      "emailNotificationsDesc": "Gửi thông báo email cho người đăng ký (yêu cầu cấu hình email)",
+      "paidSubscriptions": "Đăng ký trả phí",
+      "paidSubscriptionsDesc": "Bật cấp đăng ký trả phí cho nội dung cao cấp",
+      "monthlyPrice": "Giá hàng tháng (USD)",
+      "perMonth": "/ tháng"
+    },
+    "social": {
+      "title": "Liên kết mạng xã hội",
+      "description": "Thêm liên kết mạng xã hội vào ấn phẩm của bạn",
+      "twitter": "Twitter / X",
+      "twitterPlaceholder": "@username",
+      "nostr": "Nostr",
+      "nostrPlaceholder": "npub...",
+      "website": "Trang web",
+      "websitePlaceholder": "https://example.com"
+    }
+  },
+  "tor": {
+    "title": "Tích hợp Tor",
+    "description": "Kết nối với các relay Nostr qua Tor để tăng cường quyền riêng tư và khả năng chống kiểm duyệt",
+    "enableRouting": "Bật định tuyến Tor",
+    "enableRoutingDesc": "Định tuyến kết nối Nostr qua các relay .onion",
+    "connectionMethod": "Phương thức kết nối",
+    "methodAuto": "Tự động phát hiện (Khuyến nghị)",
+    "methodTorBrowser": "Trình duyệt Tor",
+    "methodManualProxy": "Proxy SOCKS5 thủ công",
+    "methodAutoDesc": "Tự động phát hiện Trình duyệt Tor hoặc proxy SOCKS5",
+    "methodTorBrowserDesc": "Sử dụng Trình duyệt Tor cho các kết nối relay .onion",
+    "methodManualProxyDesc": "Cấu hình proxy SOCKS5 tùy chỉnh (yêu cầu daemon Tor cục bộ)",
+    "proxyConfig": "Cấu hình Proxy SOCKS5",
+    "proxyHost": "Host proxy",
+    "proxyPort": "Cổng proxy",
+    "proxyHint": "Tor tiêu chuẩn: 9050, Trình duyệt Tor: 9150",
+    "onionRelays": "Relay Onion",
+    "onionRelaysDesc": "Quản lý các relay Nostr .onion cho kết nối Tor",
+    "healthCheck": "Kiểm tra sức khỏe",
+    "onionOnlyMode": "Chế độ chỉ Onion",
+    "onionOnlyModeDesc": "Chỉ sử dụng các relay .onion (không có dự phòng clearnet)",
+    "fallbackClearnet": "Dự phòng Clearnet",
+    "fallbackClearnetDesc": "Sử dụng relay clearnet nếu relay .onion không khả dụng",
+    "addCustomRelay": "Thêm relay tùy chỉnh",
+    "onionAddress": "Địa chỉ .onion",
+    "nameOptional": "Tên (tùy chọn)",
+    "add": "Thêm",
+    "tableRelay": "Relay",
+    "tableUrl": "URL",
+    "tableStatus": "Trạng thái",
+    "tableLatency": "Độ trễ",
+    "noRelaysConfigured": "Chưa cấu hình relay .onion nào",
+    "customRelay": "Relay tùy chỉnh",
+    "statusUnknown": "Không rõ",
+    "statusHealthy": "Khỏe mạnh",
+    "statusDown": "Không hoạt động",
+    "enhancedSecurity": "Bảo mật nâng cao",
+    "enhancedSecurityDesc": "Bảo vệ bổ sung khi sử dụng Tor",
+    "blockWebRTC": "Chặn WebRTC",
+    "blockWebRTCDesc": "Ngăn rò rỉ IP qua WebRTC (yêu cầu tiện ích mở rộng trình duyệt)",
+    "blockGeolocation": "Chặn định vị địa lý",
+    "blockGeolocationDesc": "Từ chối tất cả các yêu cầu API định vị địa lý",
+    "fingerprintProtection": "Bảo vệ dấu vân tay",
+    "fingerprintProtectionDesc": "Tăng cường bảo vệ chống theo dõi dấu vân tay trình duyệt",
+    "securityWarnings": "Cảnh báo bảo mật",
+    "howToUse": "Cách sử dụng Tor với BuildIt Network",
+    "recommendedNote": "Sử dụng Trình duyệt Tor để có quyền riêng tư và bảo mật tốt nhất. BuildIt sẽ tự động phát hiện và sử dụng các relay .onion.",
+    "advancedNote": "Chạy daemon Tor cục bộ (cổng 9050) và bật chế độ Proxy thủ công để tích hợp máy tính để bàn.",
+    "noteNote": "Chặn WebRTC và định vị địa lý yêu cầu cấu hình trình duyệt hoặc tiện ích mở rộng. Trình duyệt Tor bao gồm các bảo vệ này theo mặc định.",
+    "recommended": "Khuyến nghị:",
+    "advanced": "Nâng cao:",
+    "note": "Lưu ý:",
+    "invalidOnionAddress": "Vui lòng nhập địa chỉ .onion hợp lệ"
+  },
+  "subscribers": {
+    "title": "Người đăng ký",
+    "stats": "{{active}} đang hoạt động, {{pending}} đang chờ, {{unsubscribed}} đã hủy đăng ký",
+    "import": "Nhập",
+    "export": "Xuất",
+    "addSubscriber": "Thêm người đăng ký",
+    "active": "Đang hoạt động",
+    "pending": "Đang chờ",
+    "unsubscribed": "Đã hủy đăng ký",
+    "searchPlaceholder": "Tìm kiếm theo khóa công khai...",
+    "all": "Tất cả",
+    "noSubscribers": "Không có người đăng ký",
+    "addFirstSubscriber": "Thêm người đăng ký đầu tiên để bắt đầu.",
+    "noStatusSubscribers": "Không tìm thấy người đăng ký với trạng thái {{status}}.",
+    "tablePubkey": "Khóa công khai",
+    "tableStatus": "Trạng thái",
+    "tableSource": "Nguồn",
+    "tableSubscribed": "Đã đăng ký",
+    "tableActions": "Hành động",
+    "unsubscribe": "Hủy đăng ký",
+    "confirm": "Xác nhận",
+    "delete": "Xóa",
+    "sourceManual": "Thủ công",
+    "sourceImport": "Nhập",
+    "sourceSelf": "Chính mình",
+    "sourceContacts": "Liên hệ",
+    "addDialogTitle": "Thêm người đăng ký",
+    "addDialogDesc": "Thêm người đăng ký mới bằng khóa công khai Nostr của họ.",
+    "nostrPubkey": "Khóa công khai Nostr",
+    "pubkeyPlaceholder": "npub... hoặc khóa công khai hex",
+    "skipConfirmation": "Bỏ qua xác nhận",
+    "skipConfirmationDesc": "Kích hoạt ngay mà không cần xác nhận",
+    "importDialogTitle": "Nhập người đăng ký",
+    "importDialogDesc": "Dán các khóa công khai Nostr (một dòng một hoặc phân cách bằng dấu phẩy).",
+    "pubkeys": "Khóa công khai",
+    "importPlaceholder": "npub1abc...\nnpub1def...\nhoặc phân cách bằng dấu phẩy",
+    "toastEnterPubkey": "Vui lòng nhập khóa công khai",
+    "toastInvalidPubkey": "Định dạng khóa công khai không hợp lệ",
+    "toastSubscriberAdded": "Đã thêm người đăng ký",
+    "toastNoValidPubkeys": "Không tìm thấy khóa công khai hợp lệ",
+    "toastImported": "Đã nhập {{count}} người đăng ký",
+    "toastExported": "Đã xuất người đăng ký",
+    "toastRemoved": "Đã xóa người đăng ký",
+    "toastDeleted": "Đã xóa người đăng ký",
+    "toastConfirmed": "Đã xác nhận đăng ký"
+  },
+  "webauthn": {
+    "setup": {
+      "title": "Thiết lập Bảo vệ WebAuthn",
+      "description": "Bảo vệ khóa của bạn bằng xác thực sinh trắc học hoặc khóa bảo mật phần cứng",
+      "biometricAvailable": "Xác thực sinh trắc học khả dụng!",
+      "biometricDetails": "Bạn có thể sử dụng Touch ID, Face ID, Windows Hello hoặc xác thực tích hợp của thiết bị.",
+      "securityKeyRequired": "Cần khóa bảo mật",
+      "securityKeyDetails": "Thiết bị này không hỗ trợ xác thực sinh trắc học. Bạn sẽ cần một khóa bảo mật phần cứng (như YubiKey) để tiếp tục.",
+      "benefits": "Lợi ích:",
+      "benefitBiometric": "Bảo vệ khóa của bạn bằng sinh trắc học hoặc bảo mật phần cứng",
+      "benefitUnauthorized": "Ngăn chặn truy cập trái phép ngay cả khi mật khẩu bị lộ",
+      "benefitDevices": "Hoạt động trên tất cả thiết bị của bạn",
+      "benefitStandard": "Bảo mật tiêu chuẩn công nghiệp FIDO2/WebAuthn",
+      "getStarted": "Bắt đầu",
+      "nameDevice": "Đặt tên Thiết bị Này",
+      "nameDeviceDesc": "Đặt tên cho thiết bị này để nhận dạng sau",
+      "deviceName": "Tên Thiết bị",
+      "deviceNamePlaceholder": "iPhone của tôi, Laptop công việc, v.v.",
+      "enterDeviceName": "Vui lòng nhập tên thiết bị",
+      "registering": "Đang Đăng ký Thông tin Xác thực",
+      "registeringDesc": "Làm theo hướng dẫn trên thiết bị để hoàn tất đăng ký",
+      "useBiometric": "Sử dụng vân tay, khuôn mặt hoặc mã PIN để tiếp tục...",
+      "insertKey": "Cắm và chạm vào khóa bảo mật của bạn...",
+      "success": "Thiết lập WebAuthn Thành công",
+      "successDescBiometric": "Khóa của bạn đã được bảo vệ bằng xác thực sinh trắc học",
+      "successDescKey": "Khóa của bạn đã được bảo vệ bằng khóa bảo mật",
+      "successImportant": "Quan trọng:",
+      "successWarning": "Bây giờ bạn sẽ cần xác thực bằng WebAuthn mỗi khi truy cập khóa. Đảm bảo bạn luôn có thể truy cập thiết bị này hoặc có phương thức xác thực dự phòng.",
+      "credentialDetails": "Chi tiết Thông tin Xác thực:",
+      "device": "Thiết bị:",
+      "failed": "Đăng ký Thất bại",
+      "failedDesc": "Chúng tôi không thể đăng ký thông tin xác thực WebAuthn của bạn",
+      "troubleshooting": "Khắc phục sự cố:",
+      "troubleshootBrowser": "Đảm bảo trình duyệt của bạn hỗ trợ WebAuthn",
+      "troubleshootAuthenticator": "Thử sử dụng trình xác thực khác",
+      "troubleshootAlreadyRegistered": "Kiểm tra xem bạn đã đăng ký thiết bị này chưa",
+      "troubleshootInserted": "Đảm bảo khóa bảo mật được cắm đúng cách",
+      "tryAgain": "Thử lại"
+    }
+  },
+  "shareDialog": {
+    "title": "Chia sẻ \"{{title}}\"",
+    "description": "Mời người hoặc tạo liên kết có thể chia sẻ",
+    "share": "Chia sẻ",
+    "tabs": {
+      "people": "Người",
+      "link": "Liên kết"
+    },
+    "permissions": {
+      "view": "Người xem",
+      "comment": "Người bình luận",
+      "edit": "Người chỉnh sửa",
+      "admin": "Quản trị viên",
+      "owner": "Chủ sở hữu"
+    },
+    "people": {
+      "placeholder": "Thêm người bằng npub hoặc email...",
+      "invite": "Mời",
+      "you": "Bạn",
+      "noCollaborators": "Chưa có cộng tác viên. Mời người để cộng tác.",
+      "added": "Đã thêm {{time}}"
+    },
+    "link": {
+      "public": "Liên kết công khai",
+      "private": "Liên kết riêng tư",
+      "publicDesc": "Bất kỳ ai có liên kết đều có thể truy cập tài liệu này",
+      "privateDesc": "Chỉ những người đã đăng nhập vào BuildIt mới có thể truy cập liên kết này",
+      "permission": "Quyền",
+      "viewOnly": "Chỉ xem",
+      "canComment": "Có thể bình luận",
+      "canEdit": "Có thể chỉnh sửa",
+      "expires": "Hết hạn",
+      "never": "Không bao giờ",
+      "day1": "1 ngày",
+      "days7": "7 ngày",
+      "days30": "30 ngày",
+      "days90": "90 ngày",
+      "createLink": "Tạo Liên kết",
+      "activeLinks": "Liên kết Đang hoạt động",
+      "views": "{{count}} lượt xem",
+      "expiresIn": "Hết hạn {{time}}",
+      "expired": "Đã hết hạn {{time}}",
+      "expiredLinks": "Liên kết Đã hết hạn",
+      "noLinks": "Chưa tạo liên kết chia sẻ nào"
+    }
+  },
+  "templateBuilder": {
+    "templateName": "Ten Mau",
+    "templateNamePlaceholder": "vi du: Co so du lieu Lien he CRM, Theo doi Du an",
+    "description": "Mo ta",
+    "descriptionPlaceholder": "Mo ta muc dich cua mau nay va nhung gi no bao gom...",
+    "category": "Danh muc",
+    "categories": {
+      "general": "Chung",
+      "crm": "CRM",
+      "project": "Quan ly Du an",
+      "inventory": "Kho hang",
+      "custom": "Tuy chinh"
+    },
+    "tables": "Bang",
+    "tablesCount": "Bang ({{count}})",
+    "relationships": "Moi quan he",
+    "relationshipsCount": "Moi quan he ({{count}})",
+    "tablesDesc": "Dinh nghia cac bang va truong trong mau co so du lieu nay",
+    "addTable": "Them Bang",
+    "noTables": "Chua co bang nao. Them bang dau tien de bat dau.",
+    "field": "truong",
+    "fields": "truong",
+    "view": "che do xem",
+    "views": "che do xem",
+    "more": "+{{count}} them",
+    "deleteTable": "Ban co chac chan muon xoa bang nay khong?",
+    "relationshipsDesc": "Dinh nghia moi quan he giua cac bang",
+    "addRelationship": "Them Moi quan he",
+    "noRelationships": "Chua co moi quan he nao.",
+    "noRelationshipsNeedTables": "Them it nhat 2 bang truoc.",
+    "noRelationshipsConnect": "Them moi quan he de ket noi cac bang cua ban.",
+    "updateTemplate": "Cap nhat Mau",
+    "createTemplate": "Tao Mau",
+    "enterName": "Vui long nhap ten mau",
+    "addTableFirst": "Vui long them it nhat mot bang",
+    "relationship": {
+      "edit": "Chinh sua",
+      "add": "Them",
+      "title": "Moi quan he",
+      "desc": "Dinh nghia cach cac bang lien ket voi nhau",
+      "sourceTable": "Bang Nguon",
+      "sourceField": "Truong Nguon",
+      "targetTable": "Bang Dich",
+      "targetField": "Truong Dich",
+      "type": "Loai Moi quan he",
+      "oneToMany": "Mot-Nhieu",
+      "manyToOne": "Nhieu-Mot",
+      "manyToMany": "Nhieu-Nhieu",
+      "onDelete": "Khi Xoa",
+      "cascade": "Lien tuc (xoa cac ban ghi lien quan)",
+      "setNull": "Dat Null (xoa moi quan he)",
+      "restrict": "Han che (ngan xoa)",
+      "selectTable": "Chon bang",
+      "selectField": "Chon truong",
+      "fillFields": "Vui long dien tat ca cac truong",
+      "save": "Luu Moi quan he"
+    }
+  },
+  "privacyDashboard": {
+    "covertMode": "Che do Ho tro Bi mat",
+    "covertModeDesc": "Bao mat toi da cho nhung nguoi can an su tham gia cua minh",
+    "covertActive": "Che do Bi mat Dang Hoat dong",
+    "covertActiveDesc": "Tat ca cai dat bao mat da duoc bat. Hoat dong cua ban an khoi cong chung trong khi ban van co the ho tro phong trao.",
+    "highRiskDetected": "Phat hien Rui ro Cao",
+    "highRiskAdvice": "Xem xet bat Che do Bi mat de bao ve toi da.",
+    "riskLevel": "Muc Rui ro Hien tai",
+    "riskLevelDesc": "Dua tren vi tri va chien dich cua ban",
+    "riskLow": "Rui ro Thap",
+    "riskMedium": "Rui ro Trung binh",
+    "riskHigh": "Rui ro Cao - Su dung Che do Bi mat",
+    "privacyControls": "Dieu khien Bao mat",
+    "settings": {
+      "anonymousVoting": "Bo phieu An danh",
+      "anonymousVotingDesc": "Bo phieu ma khong tiet lo danh tinh",
+      "anonymousReactions": "Phan ung An danh",
+      "anonymousReactionsDesc": "Phan ung voi bai dang mot cach an danh",
+      "hideFromDirectory": "An khoi Danh muc Thanh vien",
+      "hideFromDirectoryDesc": "Khong xuat hien trong danh sach thanh vien cong khai",
+      "encryptedMessagesOnly": "Chi Tin nhan Ma hoa",
+      "encryptedMessagesOnlyDesc": "Yeu cau ma hoa dau-cuoi",
+      "disableReadReceipts": "Tat Bien nhan Doc",
+      "disableReadReceiptsDesc": "Khong hien thi khi ban da doc tin nhan",
+      "hideActivityStatus": "An Trang thai Hoat dong",
+      "hideActivityStatusDesc": "Khong hien thi khi ban truc tuyen",
+      "restrictProfileVisibility": "Han che Kha nang Hien thi Ho so",
+      "restrictProfileVisibilityDesc": "Chi thanh vien co the xem ho so cua ban"
+    },
+    "aboutTitle": "Ve Dieu khien Bao mat",
+    "aboutDesc": "Cac cai dat nay bao ve ban trong boi canh to chuc rui ro cao noi su hien thi co the dan den tra thu.",
+    "aboutCovert": "Che do Bi mat:",
+    "aboutCovertDesc": "Bao mat toi da - kich hoat tat ca cac bao ve",
+    "aboutAnonymous": "Hanh dong An danh:",
+    "aboutAnonymousDesc": "Tham gia ma khong tiet lo danh tinh",
+    "aboutHidden": "Su hien dien An:",
+    "aboutHiddenDesc": "Ho tro phong trao mot cach vo hinh",
+    "aboutEncryption": "Ma hoa Dau-cuoi:",
+    "aboutEncryptionDesc": "Tat ca thong tin lien lac duoc bao mat bang mat ma"
+  },
+  "memberVerification": {
+    "title": "Xác minh Thành viên",
+    "description": "Xác minh thành viên trực tiếp để xây dựng niềm tin và ngăn chặn xâm nhập",
+    "howItWorks": "Cách Xác minh Hoạt động",
+    "inPerson": "Xác minh Trực tiếp:",
+    "inPersonDesc": "Quét mã QR của thành viên khi gặp mặt trực tiếp",
+    "vouching": "Bảo lãnh:",
+    "vouchingDesc": "Bảo lãnh cho thành viên bạn tin tưởng để tăng điểm tin cậy của họ",
+    "trustScoreInfo": "Điểm Tin cậy:",
+    "trustScoreDesc": "Được tính dựa trên xác minh, bảo lãnh và hoạt động",
+    "verifiedBadge": "Huy hiệu Đã xác minh:",
+    "verifiedBadgeDesc": "Cho thấy thành viên đã được xác minh trực tiếp",
+    "qrVerification": "Xác minh Mã QR",
+    "closeScanner": "Đóng Máy quét",
+    "scanQR": "Quét Mã QR",
+    "qrScannerPlaceholder": "Máy quét QR sẽ xuất hiện ở đây trong môi trường sản xuất",
+    "cameraRequired": "Cần quyền truy cập camera để xác minh trực tiếp",
+    "enterMemberId": "Hoặc nhập ID thành viên thủ công...",
+    "verify": "Xác minh",
+    "members": "Thành viên",
+    "verified": "Đã xác minh",
+    "admin": "Quản trị viên",
+    "organizer": "Người tổ chức",
+    "joined": "Tham gia {{date}}",
+    "vouch": "bảo lãnh",
+    "vouches": "bảo lãnh",
+    "verifyInPerson": "Xác minh Trực tiếp",
+    "vouchForMember": "Bảo lãnh cho Thành viên",
+    "youVouched": "Bạn đã bảo lãnh",
+    "trustScore": "Điểm Tin cậy",
+    "lowTrustWarning": "Điểm tin cậy thấp.",
+    "lowTrustAdvice": "Cân nhắc xác minh trực tiếp trước khi chia sẻ thông tin nhạy cảm.",
+    "trustLevels": "Các Mức Điểm Tin cậy",
+    "trusted": "Đáng tin cậy (80+)",
+    "trustedDesc": "Đã xác minh + nhiều bảo lãnh",
+    "verifiedLevel": "Đã xác minh (60-79)",
+    "verifiedLevelDesc": "Đã xác minh trực tiếp",
+    "newLevel": "Mới (40-59)",
+    "newLevelDesc": "Hoạt động nhưng chưa xác minh",
+    "unverified": "Chưa xác minh (<40)",
+    "unverifiedDesc": "Cần xác minh"
+  },
+  "anomaly": {
+    "title": "Phát hiện bất thường",
+    "description": "Giám sát các mẫu hành vi đáng ngờ để xác định những kẻ xâm nhập tiềm năng",
+    "adminRequired": "Cần quyền quản trị viên để xem các bất thường bảo mật",
+    "criticalDetected": "Đã phát hiện {{count}} bất thường nghiêm trọng",
+    "criticalDetected_plural": "Đã phát hiện {{count}} bất thường nghiêm trọng",
+    "immediateAction": "Yêu cầu điều tra ngay lập tức. Các mẫu này cho thấy khả năng xâm nhập hoặc trích xuất dữ liệu.",
+    "reviewNow": "Xem xét ngay",
+    "activeAnomalies": "Bất thường đang hoạt động",
+    "critical": "Nghiêm trọng",
+    "investigating": "Đang điều tra",
+    "resolved": "Đã giải quyết",
+    "detectionSystemsActive": "Hệ thống phát hiện đang hoạt động",
+    "recentAnomalies": "Bất thường gần đây",
+    "resourcesAffected": "{{count}} tài nguyên bị ảnh hưởng",
+    "userId": "ID người dùng:",
+    "startInvestigation": "Bắt đầu điều tra",
+    "markFalsePositive": "Đánh dấu là cảnh báo giả",
+    "suspendUser": "Tạm ngưng người dùng",
+    "markResolved": "Đánh dấu đã giải quyết",
+    "falsePositive": "Cảnh báo giả",
+    "honeypotTrapsActive": "Bẫy honeypot đang hoạt động",
+    "honeypotDesc": "Honeypots là các tài liệu hoặc tính năng ẩn mà chỉ những kẻ xâm nhập hoặc kẻ xấu mới truy cập. Chúng xuất hiện như thông tin \"nhạy cảm\" để thu hút người dùng đáng ngờ.",
+    "honeypotFakeDocs": "Tài liệu nhạy cảm giả:",
+    "honeypotFakeDocsDesc": "3 honeypot đang hoạt động đã được triển khai",
+    "honeypotHiddenContacts": "Danh sách liên hệ ẩn:",
+    "honeypotHiddenContactsDesc": "Phát hiện trích xuất dữ liệu trái phép",
+    "honeypotTrapQuestions": "Câu hỏi bẫy:",
+    "honeypotTrapQuestionsDesc": "Câu hỏi khảo sát xác định kẻ xấu",
+    "types": {
+      "massAccess": "Truy cập dữ liệu hàng loạt",
+      "unusualPosting": "Đăng bài bất thường",
+      "rapidFollowing": "Theo dõi nhanh",
+      "honeypotTrigger": "Kích hoạt Honeypot",
+      "dataExport": "Xuất dữ liệu"
+    },
+    "typeDesc": {
+      "massAccess": "Phát hiện xem hồ sơ thành viên hoặc tài liệu nhanh chóng",
+      "unusualPosting": "Xác định các mẫu đăng bài spam hoặc gây chia rẽ",
+      "rapidFollowing": "Đánh dấu người dùng xây dựng mạng xã hội quá nhanh",
+      "honeypotTrigger": "Tài liệu nhạy cảm ẩn mà chỉ kẻ xâm nhập truy cập",
+      "dataExport": "Giám sát tải xuống và xuất dữ liệu hàng loạt"
+    },
+    "status": {
+      "active": "đang hoạt động",
+      "investigating": "đang điều tra",
+      "resolved": "đã giải quyết",
+      "falsePositive": "cảnh báo giả"
+    },
+    "severity": {
+      "critical": "nghiêm trọng",
+      "high": "cao",
+      "medium": "trung bình",
+      "low": "thấp"
+    }
+  },
+  "publicWiki": {
+    "pageNotFound": "Khong tim thay trang",
+    "pageNotFoundDesc": "Trang wiki ban dang tim khong ton tai hoac khong cong khai.",
+    "browseWiki": "Duyet Wiki",
+    "backToWiki": "Quay lai Wiki",
+    "updated": "Cap nhat {{date}}",
+    "version": "Phien ban {{number}}",
+    "maintainedByComm": "Trang nay duoc duy tri boi cong dong",
+    "editPage": "Sua trang",
+    "popularPages": "Trang pho bien",
+    "categories": "Danh muc",
+    "joinMovement": "Tham gia phong trao",
+    "joinMovementDesc": "Truy cap cong cu to chuc rieng tu va ket noi voi cac nha to chuc.",
+    "signUp": "Dang ky",
+    "searchWiki": "Tim kiem wiki...",
+    "campaigns": "Chien dich",
+    "login": "Dang nhap",
+    "builditWiki": "Wiki BuildIt",
+    "builditNetwork": "Mang BuildIt",
+    "builditDesc": "Nen tang to chuc uu tien quyen rieng tu danh cho cac nha hoat dong, cong doan va nhom cong dong.",
+    "resources": "Tai nguyen",
+    "knowledgeBase": "Co so kien thuc",
+    "about": "Gioi thieu",
+    "privacyPolicy": "Chinh sach bao mat",
+    "contact": "Lien he",
+    "builtWithPrivacy": "Xay dung voi quyen rieng tu va bao mat la uu tien",
+    "poweredByNostr": "Duoc ho tro boi giao thuc Nostr",
+    "freeOpenSource": "Mien phi va ma nguon mo"
+  },
+  "publicCampaign": {
+    "campaignNotFound": "Khong tim thay chien dich",
+    "campaignNotFoundDesc": "Chien dich ban dang tim khong ton tai hoac khong cong khai.",
+    "goHome": "Ve trang chu",
+    "joinCampaign": "Tham gia chien dich",
+    "contactUs": "Lien he voi chung toi",
+    "share": "Chia se",
+    "members": "{{count}} thanh vien",
+    "ourMission": "Su menh cua chung toi",
+    "ourDemands": "Yeu cau cua chung toi",
+    "recentUpdates": "Cap nhat gan day",
+    "upcomingEvents": "Su kien sap toi",
+    "learnMore": "Tim hieu them",
+    "knowledgeBase": "Co so kien thuc",
+    "aboutUs": "Ve chung toi",
+    "contact": "Lien he",
+    "getInTouch": "Lien lac",
+    "getInTouchDesc": "Co cau hoi hoac muon tham gia? Gui tin nhan cho chung toi!",
+    "name": "Ten",
+    "yourName": "Ten cua ban",
+    "email": "Email",
+    "emailPlaceholder": "email@cuaban.com",
+    "message": "Tin nhan",
+    "messagePlaceholder": "Tin nhan cua ban...",
+    "sendMessage": "Gui tin nhan",
+    "wiki": "Wiki"
+  },
+  "campaignAnalytics": {
+    "title": "Phan tich chien dich",
+    "description": "Theo doi hieu suat chien dich va xu huong tuong tac",
+    "exportCSV": "Xuat CSV",
+    "totalMembers": "Tong so thanh vien",
+    "thisMonth": "thang nay",
+    "avgEventAttendance": "Ty le tham du su kien trung binh",
+    "showUpRate": "ty le co mat",
+    "voteTurnout": "Ty le tham gia bo phieu",
+    "activeVotes": "bo phieu dang dien ra",
+    "engagementRate": "Ty le tuong tac",
+    "reactions": "phan ung",
+    "membershipGrowth": "Tang truong thanh vien",
+    "lastMonth": "Thang truoc",
+    "growth": "Tang truong",
+    "eventAttendance": "Tham du su kien",
+    "rsvp": "Da xac nhan",
+    "actual": "Thuc te",
+    "rsvpRate": "Ty le xac nhan",
+    "showUpRateLabel": "Ty le co mat",
+    "governanceParticipation": "Tham gia quan tri",
+    "turnout": "Ty le tham gia",
+    "avgTurnout": "Ty le tham gia trung binh",
+    "consensusRate": "Ty le dong thuan",
+    "engagementTrends": "Xu huong tuong tac",
+    "posts": "Bai viet",
+    "comments": "Binh luan",
+    "topContributors": "Nguoi dong gop hang dau",
+    "postsReactions": "{{posts}} bai viet • {{reactions}} phan ung",
+    "campaignWins": "Thanh tuu chien dich",
+    "majorImpact": "Tac dong lon",
+    "moderateImpact": "Tac dong vua",
+    "passed": "Da thong qua",
+    "discussion": "Thao luan"
+  },
+  "editor": {
+    "connected": "Da ket noi",
+    "connecting": "Dang ket noi...",
+    "synced": "Da dong bo",
+    "suggesting": "Dang goi y",
+    "active": "{{count}} dang hoat dong",
+    "bold": "Dam (Ctrl+B)",
+    "italic": "Nghieng (Ctrl+I)",
+    "strikethrough": "Gach ngang",
+    "inlineCode": "Ma noi dong",
+    "heading1": "Tieu de 1",
+    "heading2": "Tieu de 2",
+    "heading3": "Tieu de 3",
+    "bulletList": "Danh sach dau cham",
+    "numberedList": "Danh sach danh so",
+    "blockquote": "Trich dan",
+    "insertImage": "Chen hinh anh",
+    "insertLink": "Chen lien ket",
+    "insertTable": "Chen bang",
+    "insertBlock": "Chen khoi",
+    "mathEquation": "Phuong trinh toan hoc",
+    "diagram": "Bieu do (Mermaid)",
+    "tableOfContents": "Muc luc",
+    "footnote": "Chu thich cuoi trang",
+    "pageBreak": "Ngat trang",
+    "documentHeader": "Dau trang tai lieu",
+    "documentFooter": "Chan trang tai lieu",
+    "addComment": "Them binh luan",
+    "writeComment": "Viet binh luan cua ban...",
+    "cancel": "Huy",
+    "comment": "Binh luan",
+    "suggestionModeActive": "Che do goi y dang bat",
+    "suggestionModeTrack": "Che do goi y (Theo doi thay doi)",
+    "undo": "Hoan tac (Ctrl+Z)",
+    "redo": "Lam lai (Ctrl+Y)",
+    "enterImageUrl": "Nhap URL hinh anh:",
+    "enterUrl": "Nhap URL:",
+    "addFootnote": "Them chu thich cuoi trang"
+  },
+  "subscriberList": {
+    "title": "Nguoi dang ky",
+    "description": "Quan ly nguoi dang ky an pham cua ban",
+    "exportCSV": "Xuat CSV",
+    "totalActive": "Tong so hoat dong",
+    "freeSubscribers": "Nguoi dang ky mien phi",
+    "paidSubscribers": "Nguoi dang ky tra phi",
+    "searchPlaceholder": "Tim kiem theo pubkey hoac email...",
+    "tierPlaceholder": "Cap do",
+    "allTiers": "Tat ca cap do",
+    "free": "Mien phi",
+    "paid": "Tra phi",
+    "statusPlaceholder": "Trang thai",
+    "allStatus": "Tat ca trang thai",
+    "active": "Hoat dong",
+    "cancelled": "Da huy",
+    "expired": "Het han",
+    "noSubscribers": "Chua co nguoi dang ky",
+    "noSubscribersDesc": "Khi doc gia dang ky an pham cua ban, ho se xuat hien o day.",
+    "subscriber": "Nguoi dang ky",
+    "tier": "Cap do",
+    "status": "Trang thai",
+    "notifications": "Thong bao",
+    "subscribed": "Da dang ky",
+    "actions": "Hanh dong",
+    "nostr": "Nostr",
+    "email": "Email",
+    "none": "Khong co",
+    "sendEmail": "Gui email",
+    "removeSubscriber": "Xoa nguoi dang ky",
+    "exportedToast": "Da xuat nguoi dang ky",
+    "removedToast": "Da xoa nguoi dang ky"
+  },
+  "articleList": {
+    "title": "Bai viet",
+    "articleCount": "{{count}} bai viet",
+    "articleCountPlural": "{{count}} bai viet",
+    "newArticle": "Bai viet moi",
+    "searchPlaceholder": "Tim kiem bai viet...",
+    "filterByStatus": "Loc theo trang thai",
+    "allStatus": "Tat ca trang thai",
+    "draft": "Ban nhap",
+    "published": "Da xuat ban",
+    "scheduled": "Da len lich",
+    "archived": "Da luu tru",
+    "sortBy": "Sap xep theo",
+    "lastUpdated": "Cap nhat lan cuoi",
+    "publishedDate": "Ngay xuat ban",
+    "titleSort": "Tieu de",
+    "noArticles": "Chua co bai viet",
+    "noArticlesDesc": "Bat dau bang cach tao bai viet dau tien cua ban.",
+    "createArticle": "Tao bai viet",
+    "tableTitle": "Tieu de",
+    "tableStatus": "Trang thai",
+    "tableVisibility": "Hien thi",
+    "tableUpdated": "Cap nhat",
+    "tableActions": "Hanh dong",
+    "untitled": "Chua co tieu de",
+    "public": "Cong khai",
+    "subscribers": "Nguoi dang ky",
+    "paidOnly": "Tra phi",
+    "edit": "Chinh sua",
+    "preview": "Xem truoc",
+    "publish": "Xuat ban",
+    "unpublish": "Huy xuat ban",
+    "delete": "Xoa"
+  },
+  "filePreview": {
+    "share": "Chia se",
+    "download": "Tai xuong",
+    "loadingPreview": "Dang tai xem truoc...",
+    "failedToLoad": "Khong the tai xem truoc",
+    "videoNotSupported": "Trinh duyet cua ban khong ho tro the video.",
+    "audioNotSupported": "Trinh duyet cua ban khong ho tro the audio.",
+    "officeDocument": "Tai lieu Office",
+    "officeDesc": "Tai lieu Office co the xem bang cach tai tap tin xuong.",
+    "officeApps": "Mo trong Microsoft Office, Google Docs hoac LibreOffice.",
+    "downloadToView": "Tai xuong de xem",
+    "archiveContents": "Noi dung luu tru",
+    "itemsCount": "{{count}} muc",
+    "emptyArchive": "Luu tru trong hoac khong the doc noi dung",
+    "loading3D": "Dang tai trinh xem 3D...",
+    "noPreview": "Khong the xem truoc loai tap tin nay",
+    "downloadToViewShort": "Tai xuong de xem",
+    "detailsTab": "Chi tiet",
+    "activityTab": "Hoat dong",
+    "versionsTab": "Phien ban",
+    "fileType": "Loai tap tin",
+    "size": "Kich thuoc",
+    "uploaded": "Da tai len",
+    "modified": "Da chinh sua",
+    "encryption": "Ma hoa",
+    "e2eEncrypted": "Ma hoa dau cuoi",
+    "fileUploaded": "Tap tin da tai len",
+    "fileModified": "Tap tin da chinh sua",
+    "loadingVersions": "Dang tai phien ban...",
+    "noVersionHistory": "Khong co lich su phien ban",
+    "versionHistory": "Lich su phien ban",
+    "version": "Phien ban {{number}}",
+    "current": "Hien tai",
+    "restore": "Khoi phuc",
+    "restoreConfirm": "Khoi phuc tap tin ve phien ban {{number}}?",
+    "restoreSuccess": "Khoi phuc phien ban thanh cong",
+    "restoreFailed": "Khoi phuc phien ban that bai"
+  },
+  "auditLogs": {
+    "adminRequired": "Can quyen quan tri vien de xem nhat ky kiem toan",
+    "title": "Nhat ky kiem toan",
+    "description": "Theo doi tat ca hanh dong nhay cam de dieu tra bao mat",
+    "exportLogs": "Xuat nhat ky",
+    "whatGetsLogged": "Nhung gi duoc ghi lai",
+    "securityActions": "Hanh dong bao mat:",
+    "securityActionsDesc": "Xac minh, dinh chi, thay doi quyen",
+    "dataAccess": "Truy cap du lieu:",
+    "dataAccessDesc": "Xem ho so, truy cap tai lieu, xuat du lieu",
+    "contentChanges": "Thay doi noi dung:",
+    "contentChangesDesc": "Tao, cap nhat, xoa noi dung nhay cam",
+    "failedAttempts": "Cac lan thu that bai:",
+    "failedAttemptsDesc": "Truy cap trai phep, dang nhap that bai",
+    "metadata": "Sieu du lieu:",
+    "metadataDesc": "Dia chi IP, user agent, tem thoi gian de dieu tra",
+    "searchPlaceholder": "Tim kiem nhat ky theo nguoi dung, hanh dong hoac tai nguyen...",
+    "allTypes": "Tat ca loai",
+    "create": "Tao",
+    "read": "Doc",
+    "update": "Cap nhat",
+    "deleteType": "Xoa",
+    "permission": "Quyen",
+    "security": "Bao mat",
+    "export": "Xuat",
+    "totalLogs": "Tong nhat ky",
+    "critical": "Nghiem trong",
+    "failedActions": "Hanh dong that bai",
+    "last24h": "24 gio qua",
+    "recentActivity": "Hoat dong gan day",
+    "logCount": "{{count}} nhat ky",
+    "logsCount": "{{count}} nhat ky",
+    "noLogsMatch": "Khong co nhat ky kiem toan nao phu hop voi tieu chi tim kiem cua ban",
+    "target": "Muc tieu:",
+    "ip": "IP:"
+  },
+  "moderationQueue": {
+    "title": "Hang doi Kiem duyet",
+    "description": "Xem xet va xu ly noi dung bi bao cao",
+    "pending": "dang cho",
+    "pendingTab": "Dang cho",
+    "reviewedTab": "Da xem xet",
+    "activityLog": "Nhat ky hoat dong",
+    "allCaughtUp": "Da xu ly het!",
+    "noPendingReports": "Khong co bao cao nao dang cho xem xet.",
+    "noReviewedReports": "Khong co bao cao da xem xet",
+    "reviewedAppear": "Cac bao cao da xem xet se hien thi o day.",
+    "noActivity": "Chua co hoat dong",
+    "actionsLogged": "Cac hanh dong kiem duyet se duoc ghi lai o day.",
+    "user": "Nguoi dung:",
+    "content": "Noi dung:",
+    "systemAction": "Hanh dong he thong",
+    "reviewReport": "Xem xet Bao cao",
+    "takeAction": "Xu ly noi dung bi bao cao nay",
+    "report": "Bao cao",
+    "reason": "Ly do:",
+    "reportedBy": "Nguoi bao cao:",
+    "reportedUser": "Nguoi dung bi bao cao:",
+    "submitted": "Da gui:",
+    "additionalDetails": "Chi tiet bo sung:",
+    "notes": "Ghi chu (tuy chon)",
+    "notesPlaceholder": "Them ghi chu ve quyet dinh cua ban...",
+    "dismiss": "Bo qua",
+    "markReviewed": "Danh dau Da xem xet",
+    "blockUser": "Chan Nguoi dung",
+    "dismissedToast": "Da bo qua bao cao",
+    "actionedToast": "Da xu ly va chan nguoi dung",
+    "reviewedToast": "Da xem xet bao cao",
+    "failedToast": "Khong the xu ly bao cao",
+    "from": "Tu:",
+    "against": "Doi voi:",
+    "action": "Hanh dong:",
+    "pendingReview": "Cho Xem xet",
+    "reviewed": "Da Xem xet",
+    "actionTaken": "Da Xu ly",
+    "dismissed": "Da Bo qua",
+    "reviewReportButton": "Xem xet Bao cao",
+    "contentTypes": {
+      "post": "Bai dang",
+      "comment": "Binh luan",
+      "story": "Tin",
+      "user": "Nguoi dung",
+      "message": "Tin nhan"
+    },
+    "reasons": {
+      "spam": "Thu rac",
+      "harassment": "Quay roi",
+      "hate-speech": "Ngon tu thu dich",
+      "violence": "Bao luc",
+      "misinformation": "Thong tin sai lech",
+      "illegal-content": "Noi dung bat hop phap",
+      "impersonation": "Gia mao",
+      "self-harm": "Tu gay hai",
+      "other": "Khac"
+    }
+  },
+  "seoControls": {
+    "indexability": "Kha nang lap chi muc",
+    "indexabilityDesc": "Kiem soat cach cong cu tim kiem va he thong AI truy cap noi dung nay.",
+    "searchEngine": "Lap Chi muc Cong cu Tim kiem",
+    "searchEngineDesc": "Cho phep Google, Bing, DuckDuckGo va cac cong cu tim kiem khac lap chi muc trang nay",
+    "aiTraining": "Huan luyen / Lap Chi muc AI",
+    "aiTrainingDesc": "Cho phep bot AI (GPTBot, Claude, v.v.) su dung noi dung nay de huan luyen",
+    "preventArchiving": "Ngan Luu tru",
+    "preventArchivingDesc": "Chan archive.org va cac dich vu tuong tu luu tru trang nay",
+    "aiDisabledNote": "Luu y: Lap chi muc AI tu dong bi tat khi lap chi muc cong cu tim kiem bi tat.",
+    "basicSeo": "SEO Co ban",
+    "pageTitle": "Tieu de Trang",
+    "pageTitlePlaceholder": "Tieu de trang cho cong cu tim kiem",
+    "characters": "{{count}}/{{max}} ky tu (toi uu: {{optimal}})",
+    "metaDescription": "Mo ta Meta",
+    "metaDescPlaceholder": "Mo ta ngan cho ket qua tim kiem",
+    "robots": "Robots",
+    "indexFollow": "Lap chi muc, Theo doi (mac dinh)",
+    "noIndexFollow": "Khong lap chi muc, Theo doi",
+    "indexNoFollow": "Lap chi muc, Khong theo doi",
+    "noIndexNoFollow": "Khong lap chi muc, Khong theo doi",
+    "openGraph": "Open Graph (Chia se Mang xa hoi)",
+    "ogTitle": "Tieu de OG",
+    "ogTitlePlaceholder": "Tieu de khi chia se len mang xa hoi",
+    "ogDescription": "Mo ta OG",
+    "ogDescPlaceholder": "Mo ta khi chia se len mang xa hoi",
+    "ogImage": "URL Hinh anh OG",
+    "recommended": "Khuyen nghi: {{size}}",
+    "twitterCard": "The Twitter",
+    "cardType": "Loai The",
+    "summary": "Tom tat",
+    "summaryLargeImage": "Tom tat voi Hinh anh Lon",
+    "twitterSite": "Tai khoan Twitter cua Trang"
+  },
+  "fileShareDialog": {
+    "shareTitle": "Chia se \"{{name}}\"",
+    "shareLinkCreated": "Da tao lien ket chia se!",
+    "copied": "Da sao chep!",
+    "copy": "Sao chep",
+    "password": "Mat khau",
+    "expiresIn": "Het han sau {{days}} ngay",
+    "done": "Xong",
+    "shareWithUsers": "Chia se voi Nguoi dung",
+    "createLink": "Tao Lien ket",
+    "selectUsers": "Chon Nguoi dung",
+    "member": "Thanh vien",
+    "noMembersFound": "Khong tim thay thanh vien nhom",
+    "permissionLevel": "Cap Quyen",
+    "viewOnly": "Chi xem",
+    "viewDownload": "Xem va Tai xuong",
+    "viewDownloadEdit": "Xem, Tai xuong va Chinh sua",
+    "generatePublicLink": "Tao lien ket cong khai",
+    "passwordOptional": "Mat khau (tuy chon)",
+    "passwordPlaceholder": "De trong neu khong can mat khau",
+    "expiresInDays": "Het han sau (ngay)",
+    "never": "Khong bao gio",
+    "oneDay": "1 ngay",
+    "sevenDays": "7 ngay",
+    "thirtyDays": "30 ngay",
+    "ninetyDays": "90 ngay",
+    "cancel": "Huy",
+    "creating": "Dang tao...",
+    "createShare": "Tao Chia se",
+    "failedToast": "Khong the tao chia se"
+  },
+  "publishingPage": {
+    "selectGroupLogin": "Vui long chon nhom va dang nhap de quan ly xuat ban.",
+    "startPublishing": "Bat dau Xuat ban",
+    "startPublishingDescription": "Tao an pham dau tien cua ban de bat dau viet va chia se noi dung dai voi doc gia.",
+    "createPublication": "Tao An pham",
+    "createPublicationDescription": "Thiet lap an pham de bat dau viet bai.",
+    "publicationName": "Ten An pham",
+    "publicationNamePlaceholder": "An pham Tuyet voi cua Toi",
+    "description": "Mo ta",
+    "descriptionPlaceholder": "Ban se viet ve gi?",
+    "cancel": "Huy",
+    "enterPublicationName": "Vui long nhap ten an pham",
+    "publicationCreated": "Da tao an pham",
+    "untitledArticle": "Bai viet Chua co Tieu de",
+    "articlePublished": "Da xuat ban bai viet",
+    "articleDeleted": "Da xoa bai viet",
+    "rssFeed": "Nguon RSS",
+    "settings": "Cai dat",
+    "newArticle": "Bai viet Moi",
+    "published": "Da xuat ban",
+    "drafts": "Ban nhap",
+    "subscribers": "Nguoi theo doi",
+    "totalArticles": "Tong so Bai viet",
+    "articles": "Bai viet",
+    "analytics": "Phan tich",
+    "publicationAnalytics": "Phan tich An pham",
+    "analyticsDescription": "Xem chi so hieu suat cua an pham",
+    "analyticsComingSoon": "Phan tich sap ra mat",
+    "analyticsComingSoonDescription": "Xem hieu suat bai viet, tang truong nguoi theo doi va hon nua.",
+    "deleteArticle": "Xoa Bai viet",
+    "deleteArticleConfirm": "Ban co chac chan muon xoa bai viet nay? Hanh dong nay khong the hoan tac.",
+    "delete": "Xoa"
+  },
+  "sharedItemsDashboard": {
+    "title": "Muc Da Chia Se",
+    "description": "Quan ly tat ca tai lieu va tep da chia se cua ban tai mot noi",
+    "totalShares": "Tong So Chia Se",
+    "publicLinks": "Lien Ket Cong Khai",
+    "expiringSoon": "Sap Het Han",
+    "totalViews": "Tong Luot Xem",
+    "filters": "Bo Loc:",
+    "type": "Loai",
+    "allTypes": "Tat Ca Loai",
+    "documents": "Tai Lieu",
+    "files": "Tep",
+    "permission": "Quyen",
+    "allPermissions": "Tat Ca Quyen",
+    "viewOnly": "Chi Xem",
+    "comment": "Binh Luan",
+    "edit": "Chinh Sua",
+    "tableHeaders": {
+      "name": "Ten",
+      "type": "Loai",
+      "permission": "Quyen",
+      "sharedVia": "Chia Se Qua",
+      "views": "Luot Xem",
+      "expires": "Het Han"
+    },
+    "noSharedItems": "Khong tim thay muc da chia se",
+    "permissions": {
+      "view": "Xem",
+      "comment": "Binh Luan",
+      "edit": "Chinh Sua",
+      "download": "Tai Xuong",
+      "admin": "Quan Tri"
+    },
+    "sharedVia": {
+      "publicLink": "Lien Ket Cong Khai",
+      "privateLink": "Lien Ket Rieng Tu",
+      "direct": "Truc Tiep"
+    },
+    "expired": "Da Het Han",
+    "never": "Khong Bao Gio",
+    "open": "Mo",
+    "revokeShare": "Thu Hoi Chia Se",
+    "confirmRevoke": "Ban co chac chan muon thu hoi chia se nay?"
+  },
+  "userModeration": {
+    "unmute": "Bo Tat Tieng",
+    "mute": "Tat Tieng",
+    "unblock": "Bo Chan",
+    "block": "Chan",
+    "report": "Bao Cao",
+    "muteTitle": "Tat Tieng {{name}}",
+    "muteDescription": "Noi dung cua ho se bi an khoi bang tin cua ban. Ho se khong duoc thong bao.",
+    "duration": "Thoi Han",
+    "durations": {
+      "1hour": "1 gio",
+      "1day": "1 ngay",
+      "1week": "1 tuan",
+      "1month": "1 thang",
+      "indefinitely": "Vinh Vien"
+    },
+    "whatToMute": "Tat Tieng Noi Dung Nao",
+    "muteScopes": {
+      "all": "Tat ca noi dung (bai dang, binh luan, tin nhan)",
+      "posts": "Chi bai dang",
+      "comments": "Chi binh luan",
+      "dms": "Chi tin nhan"
+    },
+    "reasonOptional": "Ly Do (tuy chon)",
+    "mutePlaceholder": "Tai sao ban tat tieng nguoi dung nay?",
+    "cancel": "Huy",
+    "muting": "Dang tat tieng...",
+    "muteUser": "Tat Tieng Nguoi Dung",
+    "blockTitle": "Chan {{name}}?",
+    "blockDescription": "Chan se:",
+    "blockEffects": {
+      "hideContent": "An tat ca noi dung cua ho khoi ban",
+      "preventSeeYou": "Ngan ho xem noi dung cua ban",
+      "preventMessage": "Ngan ho gui tin nhan cho ban",
+      "removeFollower": "Xoa ho khoi danh sach nguoi theo doi"
+    },
+    "noNotification": "Ho se khong duoc thong bao rang ban da chan ho.",
+    "blocking": "Dang chan...",
+    "reportTitle": "Bao Cao {{name}}",
+    "reportDescription": "Giup chung toi hieu van de. Bao cao cua ban se duoc bao mat.",
+    "reasonForReporting": "Ly Do Bao Cao",
+    "reportReasons": {
+      "spam": "Thu Rac",
+      "spamDesc": "Noi dung lap lai hoac khong mong muon",
+      "harassment": "Quay Roi",
+      "harassmentDesc": "Hanh vi nham muc tieu hoac de doa",
+      "hateSpeech": "Ngon Tu Thu Ghet",
+      "hateSpeechDesc": "Noi dung thuc day phan biet doi xu",
+      "violence": "Bao Luc",
+      "violenceDesc": "Noi dung thuc day bao luc hoac gay hai",
+      "misinformation": "Thong Tin Sai Lech",
+      "misinformationDesc": "Thong tin sai hoac gay hieu lam",
+      "illegalContent": "Noi Dung Bat Hop Phap",
+      "illegalContentDesc": "Noi dung co the bat hop phap",
+      "impersonation": "Gia Mao",
+      "impersonationDesc": "Gia lam nguoi khac",
+      "selfHarm": "Tu Gay Thuong",
+      "selfHarmDesc": "Noi dung thuc day tu gay thuong",
+      "other": "Khac",
+      "otherDesc": "Dieu gi khac"
+    },
+    "additionalDetails": "Chi Tiet Bo Sung (tuy chon)",
+    "reportPlaceholder": "Cung cap them ngu canh ve ly do ban bao cao nguoi dung nay...",
+    "submitting": "Dang gui...",
+    "submitReport": "Gui Bao Cao",
+    "toasts": {
+      "muted": "Da tat tieng {{name}}",
+      "unmuted": "Da bo tat tieng {{name}}",
+      "blocked": "Da chan {{name}}",
+      "unblocked": "Da bo chan {{name}}",
+      "reported": "Da gui bao cao. Cam on ban da giup cong dong an toan.",
+      "muteFailed": "Khong the tat tieng nguoi dung",
+      "unmuteFailed": "Khong the bo tat tieng nguoi dung",
+      "blockFailed": "Khong the chan nguoi dung",
+      "unblockFailed": "Khong the bo chan nguoi dung",
+      "reportFailed": "Khong the gui bao cao"
+    }
+  },
+  "newsletterEditor": {
+    "editIssue": "Chinh sua so",
+    "newIssue": "So moi",
+    "unsavedChanges": "Cac thay doi chua luu",
+    "saveDraft": "Luu ban nhap",
+    "preview": "Xem truoc",
+    "schedule": "Len lich",
+    "send": "Gui ({{count}})",
+    "draftSaved": "Da luu ban nhap",
+    "tabs": {
+      "compose": "Soan thao",
+      "settings": "Cai dat"
+    },
+    "compose": {
+      "subjectLine": "Dong chu de",
+      "subjectPlaceholder": "Chu de ban tin cua ban...",
+      "previewText": "Van ban xem truoc (Tuy chon)",
+      "previewPlaceholder": "Dong dau tien hien thi trong ban xem truoc...",
+      "previewHint": "Noi dung nay xuat hien trong ban xem truoc thong bao",
+      "content": "Noi dung",
+      "editorPlaceholder": "Bat dau viet ban tin cua ban..."
+    },
+    "settings": {
+      "theme": "Giao dien ban tin",
+      "headerImage": "URL hinh anh tieu de",
+      "headerPlaceholder": "https://example.com/header.png",
+      "footerText": "Van ban chan trang",
+      "footerPlaceholder": "Van ban chan trang...",
+      "editInSettings": "Chinh sua trong cai dat ban tin"
+    },
+    "scheduleDialog": {
+      "title": "Len lich ban tin",
+      "description": "Chon thoi gian gui ban tin nay den {{count}} nguoi dang ky{{plural}}.",
+      "date": "Ngay",
+      "time": "Gio"
+    },
+    "toasts": {
+      "draftSaved": "Da luu ban nhap",
+      "scheduled": "Da len lich ban tin",
+      "selectDate": "Vui long chon ngay",
+      "futureDateRequired": "Thoi gian len lich phai o tuong lai",
+      "enterSubject": "Vui long nhap chu de",
+      "addContent": "Vui long them noi dung",
+      "noSubscribers": "Khong co nguoi dang ky hoat dong de gui"
+    },
+    "cancel": "Huy"
+  },
+  "privacyDemo": {
+    "title": "Quyen rieng tu va Tham gia An danh",
+    "description": "Tham gia an toan cho cac boi canh to chuc rui ro cao",
+    "tabs": {
+      "dashboard": "Bang dieu khien Quyen rieng tu",
+      "reactions": "Phan ung An danh",
+      "voting": "Bo phieu An danh"
+    },
+    "reactions": {
+      "samplePost": "Bai dang mau",
+      "sampleContent": "\"Chung toi dang to chuc mot hanh dong truc tiep vao tuan toi de phan doi cac vu cuong che. Tat ca deu duoc chao don tham gia - cac quy trinh an toan se duoc cung cap.\"",
+      "howItWorks": "Cach Phan ung An danh Hoat dong",
+      "tips": {
+        "enableAnonymous": "Bat che do an danh de an danh tinh trong khi the hien su ung ho",
+        "aggregateCounts": "So luong tong hop van duoc hien thi de cho thay su ung ho cua cong dong",
+        "critical": "Quan trong cho cac chien dich rui ro cao noi su ung ho cong khai co the dan den tra thu",
+        "cryptoSecured": "Duoc bao mat bang mat ma de ngan chan viec bo an danh"
+      }
+    },
+    "voting": {
+      "howItWorks": "Cach Bo phieu An danh Hoat dong",
+      "tips": {
+        "zeroKnowledge": "Mat ma hoc khong tiet lo dam bao quyen rieng tu cua phieu bau",
+        "noTrace": "Khong the truy vet phieu bau ca nhan den nguoi bo phieu",
+        "verifiable": "Ket qua co the xac minh chinh xac bat chap tinh an danh",
+        "essential": "Thiet yeu cho cac quyet dinh nhay cam trong to chuc rui ro cao",
+        "preventIntimidation": "Ngan chan su de doa va cho phep tham gia trung thuc"
+      }
+    },
+    "whyMatters": {
+      "title": "Tai sao Tham gia An danh Quan trong",
+      "intro": "Trong cac boi canh to chuc rui ro cao (cac quoc gia giam sat, to chuc cong doan, cac hiep hoi nguoi thue nha doi mat voi tra thu), su ung ho cong khai co the gay ra hau qua nghiem trong:",
+      "consequences": {
+        "workers": "Cong nhan to chuc cong doan co the bi sa thai",
+        "tenants": "Nguoi thue nha chong cuong che co the bi dua vao danh sach den",
+        "activists": "Cac nha hoat dong o cac quoc gia doc tai co nguy co bi bat giu",
+        "marginalized": "Cac cong dong bi gat ra ngoai le phai doi mat voi su giam sat khong can xung"
+      },
+      "conclusion": "Cac cong cu tham gia an danh cho phep nhung nguoi ung ho nay tham gia an toan trong khi van xay dung suc manh tap the."
+    }
+  },
+  "onboardingDemo": {
+    "title": "Huong Dan Ca Nhan Hoa",
+    "description": "Cac luong khac nhau dua tren cach nguoi dung kham pha nen tang",
+    "entryPointLabel": "Diem vao: {{entry}}",
+    "simulateEntryPoint": "Mo Phong Diem Vao",
+    "entryPoints": {
+      "campaign": "Trang Chien Dich",
+      "event": "Dang Ky Su Kien",
+      "friend-invite": "Loi Moi Tu Ban Be",
+      "website": "Trang Web Chinh",
+      "social-media": "Lien Ket Mang Xa Hoi"
+    },
+    "complete": {
+      "title": "Hoan Thanh Huong Dan!",
+      "description": "Nguoi dung se duoc chuyen huong den bang dieu khien ca nhan hoa cua ho",
+      "tryAnother": "Thu Diem Vao Khac"
+    },
+    "about": {
+      "title": "Ve Huong Dan Ca Nhan Hoa",
+      "intro": "Cac diem vao khac nhau dan den cac luong huong dan khac nhau duoc toi uu hoa cho boi canh nguoi dung:",
+      "campaign": "Chien dich:",
+      "campaignDesc": "Tap trung vao van de cu the, sau do mo rong ra toan bo nen tang",
+      "event": "Su kien:",
+      "eventDesc": "Thiet lap nhanh de dang ky, sau do kham pha cac nhom lam viec",
+      "friendInvite": "Loi moi ban be:",
+      "friendInviteDesc": "Ket noi xa hoi truoc, sau do xay dung cong dong",
+      "website": "Trang web:",
+      "websiteDesc": "Tong quan toan dien ve tat ca cong viec to chuc",
+      "socialMedia": "Mang xa hoi:",
+      "socialMediaDesc": "Con duong nhanh den hanh dong cho nguoi moi nang dong"
+    }
+  },
+  "activeCallsPanel": {
+    "startNewCall": "Bat Dau Cuoc Goi Moi",
+    "newCallTitle": "Bat Dau Cuoc Goi Moi",
+    "newCallDescription": "Ghi nhan cuoc goi den moi tren duong day nong",
+    "callerName": "Ten Nguoi Goi",
+    "callerNamePlaceholder": "Nhap ten nguoi goi",
+    "phoneNumber": "So Dien Thoai",
+    "phonePlaceholder": "Nhap so dien thoai",
+    "priority": "Muc Do Uu Tien",
+    "priorities": {
+      "low": "Thap",
+      "medium": "Trung Binh",
+      "high": "Cao",
+      "urgent": "Khan Cap"
+    },
+    "cancel": "Huy",
+    "startCall": "Bat Dau Cuoc Goi",
+    "noActiveCalls": "Khong co cuoc goi dang hoat dong",
+    "unknownCaller": "Nguoi Goi Khong Xac Dinh",
+    "onHold": "Dang Cho",
+    "resume": "Tiep Tuc",
+    "hold": "Cho",
+    "end": "Ket Thuc",
+    "endCallTitle": "Ket Thuc Cuoc Goi",
+    "endCallDescription": "Cung cap tom tat cuoc goi truoc khi ket thuc",
+    "callSummary": "Tom Tat Cuoc Goi",
+    "summaryPlaceholder": "Nhap tom tat cuoc goi...",
+    "endCallButton": "Ket Thuc Cuoc Goi"
+  },
+  "newslettersPage": {
+    "selectGroupLogin": "Vui long chon mot nhom va dang nhap de quan ly ban tin.",
+    "startNewsletter": "Bat dau ban tin",
+    "startDescription": "Tao ban tin de gui cap nhat cho nguoi dang ky cua ban qua tin nhan truc tiep Nostr duoc ma hoa.",
+    "createNewsletter": "Tao ban tin",
+    "createNewsletterTitle": "Tao ban tin",
+    "createDescription": "Thiet lap ban tin cua ban de bat dau gui cap nhat.",
+    "newsletterName": "Ten ban tin",
+    "namePlaceholder": "Ban tin tuyet voi cua toi",
+    "description": "Mo ta",
+    "descriptionPlaceholder": "Ban se chia se gi voi nguoi dang ky?",
+    "cancel": "Huy",
+    "enterName": "Vui long nhap ten ban tin",
+    "created": "Da tao ban tin",
+    "untitledIssue": "So chua co tieu de",
+    "sent": "Ban tin da duoc gui thanh cong",
+    "deleted": "Da xoa so",
+    "previewComingSoon": "Xem truoc sap co",
+    "settings": "Cai dat",
+    "newIssue": "So moi",
+    "stats": {
+      "subscribers": "Nguoi dang ky",
+      "issuesSent": "So da gui",
+      "drafts": "Ban nhap",
+      "totalIssues": "Tong so"
+    },
+    "tabs": {
+      "issues": "Cac so",
+      "subscribers": "Nguoi dang ky"
+    },
+    "deleteIssue": "Xoa so",
+    "deleteConfirm": "Ban co chac chan muon xoa so nay khong? Hanh dong nay khong the hoan tac.",
+    "delete": "Xoa"
+  },
+  "postCard": {
+    "pinnedPost": "Bai viet duoc ghim",
+    "contentWarning": "Canh bao noi dung:",
+    "moreOptions": "Them tuy chon",
+    "unpinFromProfile": "Bo ghim khoi ho so",
+    "pinToProfile": "Ghim vao ho so",
+    "copyLink": "Sao chep lien ket",
+    "editPost": "Chinh sua bai viet",
+    "deletePost": "Xoa bai viet",
+    "reportPost": "Bao cao bai viet",
+    "reactions": "Phan ung",
+    "reactionCount": "{{count}} phan ung",
+    "reactionCount_plural": "{{count}} phan ung",
+    "commentCount": "{{count}} binh luan",
+    "commentCount_plural": "{{count}} binh luan",
+    "repostCount": "{{count}} chia se lai",
+    "repostCount_plural": "{{count}} chia se lai",
+    "react": "Phan ung",
+    "comment": "Binh luan",
+    "repost": "Chia se lai",
+    "undoRepost": "Huy chia se lai",
+    "quotePost": "Trich dan bai viet",
+    "bookmark": "Danh dau",
+    "removeBookmark": "Bo danh dau",
+    "share": "Chia se",
+    "quoteDialog": {
+      "title": "Trich dan bai viet",
+      "description": "Them suy nghi cua ban ve bai viet nay",
+      "yourComment": "Binh luan cua ban",
+      "placeholder": "Ban nghi gi ve dieu nay?",
+      "cancel": "Huy",
+      "submit": "Trich dan bai viet"
+    }
+  },
+  "tableBuilder": {
+    "editTable": "Chinh sua bang",
+    "createTable": "Tao bang",
+    "subtitle": "Xac dinh cau truc va cac truong cho bang nay",
+    "tableName": "Ten bang",
+    "tableNamePlaceholder": "Vi du: Danh ba, Du an, Cong viec",
+    "descriptionOptional": "Mo ta (tuy chon)",
+    "descriptionPlaceholder": "Bang nay dung de lam gi?",
+    "fields": "Cac truong",
+    "addField": "Them truong",
+    "noFields": "Chua co truong nao. Them truong dau tien de xac dinh cau truc bang.",
+    "required": "Bat buoc",
+    "cancel": "Huy",
+    "saveTable": "Luu bang",
+    "alerts": {
+      "enterTableName": "Vui long nhap ten bang",
+      "addAtLeastOneField": "Vui long them it nhat mot truong"
+    },
+    "fieldEditor": {
+      "editField": "Chinh sua truong",
+      "addField": "Them truong",
+      "subtitle": "Cau hinh thuoc tinh va xac thuc cho truong",
+      "label": "Nhan *",
+      "labelPlaceholder": "Vi du: Ho ten, Dia chi email",
+      "fieldName": "Ten truong * (dung trong ma)",
+      "fieldNamePlaceholder": "Vi du: ho_ten, dia_chi_email",
+      "fieldNameHelp": "Chi chu cai thuong, so va dau gach duoi",
+      "fieldType": "Loai truong *",
+      "requiredField": "Truong bat buoc",
+      "placeholder": "Van ban giu cho (tuy chon)",
+      "placeholderPlaceholder": "Van ban giu cho",
+      "helpText": "Van ban huong dan (tuy chon)",
+      "helpTextPlaceholder": "Huong dan bo sung cho nguoi dung",
+      "options": "Cac lua chon *",
+      "addOption": "Them lua chon",
+      "optionLabel": "Nhan",
+      "optionValue": "Gia tri",
+      "saveField": "Luu truong",
+      "alerts": {
+        "enterLabel": "Vui long nhap nhan cho truong",
+        "enterName": "Vui long nhap ten cho truong",
+        "invalidName": "Ten truong chi co the chua chu cai thuong, so va dau gach duoi",
+        "duplicateName": "Da ton tai truong voi ten nay",
+        "addOption": "Vui long them it nhat mot lua chon"
+      }
+    }
+  },
+  "groupMembersTab": {
+    "loading": "Dang tai thanh vien...",
+    "title": "Thanh vien",
+    "memberCount": "{{count}} thanh vien trong nhom nay",
+    "memberCount_plural": "{{count}} thanh vien trong nhom nay",
+    "pendingInvitations": "Loi moi dang cho ({{count}})",
+    "inviteLink": "Lien ket moi: {{code}}",
+    "unknown": "Khong xac dinh",
+    "expires": "Het han {{time}}",
+    "you": "Ban",
+    "joined": "Tham gia {{time}}",
+    "noMembers": "Khong tim thay thanh vien. Hay la nguoi dau tien moi ai do!",
+    "roles": {
+      "admin": "Quan tri vien",
+      "moderator": "Nguoi dieu hanh",
+      "member": "Thanh vien",
+      "read-only": "Chi doc"
+    },
+    "removeDialog": {
+      "title": "Xoa thanh vien",
+      "description": "Ban co chac chan muon xoa thanh vien nay khoi nhom? Ho se can duoc moi lai de tham gia lai.",
+      "cancel": "Huy",
+      "remove": "Xoa"
+    },
+    "revokeDialog": {
+      "title": "Thu hoi loi moi",
+      "description": "Ban co chac chan muon thu hoi loi moi nay? Lien ket moi hoac loi moi truc tiep se khong con hoat dong.",
+      "cancel": "Huy",
+      "revoke": "Thu hoi"
+    },
+    "alerts": {
+      "failedToUpdateRole": "Khong the cap nhat vai tro thanh vien",
+      "failedToRemoveMember": "Khong the xoa thanh vien",
+      "failedToRevokeInvite": "Khong the thu hoi loi moi"
+    }
+  },
+  "publicPageList": {
+    "title": "Trang Cong Khai",
+    "subtitle": "Tao va quan ly cac trang cong khai toi uu hoa SEO",
+    "newPage": "Trang Moi",
+    "noPages": "Chua co trang cong khai nao",
+    "noPagesDescription": "Tao trang cong khai dau tien cua ban de chia se voi the gioi",
+    "createFirstPage": "Tao Trang Dau Tien",
+    "url": "URL:",
+    "type": "Loai:",
+    "created": "Tao ngay {{date}}",
+    "published": "Xuat ban ngay {{date}}",
+    "actions": {
+      "edit": "Chinh sua",
+      "view": "Xem",
+      "unpublish": "Huy xuat ban",
+      "publish": "Xuat ban",
+      "copyLink": "Sao chep Lien ket",
+      "delete": "Xoa"
+    },
+    "deleteDialog": {
+      "title": "Xoa Trang",
+      "description": "Ban co chac chan muon xoa \"{{title}}\"? Hanh dong nay khong the hoan tac.",
+      "cancel": "Huy",
+      "delete": "Xoa"
+    }
+  },
+  "publicPageEditor": {
+    "editPage": "Chinh sua Trang",
+    "createPage": "Tao Trang",
+    "subtitle": "Tao cac trang cong khai toi uu hoa SEO",
+    "edit": "Chinh sua",
+    "preview": "Xem truoc",
+    "cancel": "Huy",
+    "saveDraft": "Luu Ban nhap",
+    "publish": "Xuat ban",
+    "tabs": {
+      "content": "Noi dung",
+      "seo": "SEO",
+      "settings": "Cai dat"
+    },
+    "pageTitle": "Tieu de Trang",
+    "titlePlaceholder": "Nhap tieu de trang",
+    "urlSlug": "Duong dan URL",
+    "slugPlaceholder": "duong-dan-trang",
+    "slugHelp": "Chi su dung chu thuong, so va dau gach ngang",
+    "pageType": "Loai Trang",
+    "pageTypes": {
+      "landing": "Trang Dich",
+      "about": "Trang Gioi thieu",
+      "events": "Lich Su kien",
+      "contact": "Trang Lien he",
+      "custom": "Tuy chinh"
+    },
+    "placeholderText": "Viet noi dung trang cua ban o day...",
+    "pageStatus": "Trang thai Trang",
+    "statuses": {
+      "draft": "Ban nhap",
+      "published": "Da xuat ban"
+    },
+    "draftVisibility": "Cac trang ban nhap chi hien thi voi quan tri vien nhom",
+    "publishedDate": "Ngay xuat ban: {{date}}"
+  },
+  "crmAnalytics": {
+    "title": "Phan tich CRM",
+    "subtitle": "Chi so quan ly lien he va to chuc",
+    "exportCsv": "Xuat CSV",
+    "totalContacts": "Tong so Lien he",
+    "contactRate": "Ty le Lien he",
+    "pipelineConversions": "Chuyen doi Quy trinh",
+    "thisMonth": "Thang nay",
+    "avgDaysToConvert": "So ngay Trung binh de Chuyen doi",
+    "days": "Ngay",
+    "supportLevelDistribution": "Phan phoi Muc do Ho tro",
+    "pipelineMovement": "Bien dong Quy trinh (Thang nay)",
+    "organizerPerformance": "Hieu suat To chuc vien",
+    "departmentAnalysis": "Phan tich Phong ban",
+    "table": {
+      "organizer": "To chuc vien",
+      "contacts": "Lien he",
+      "conversions": "Chuyen doi",
+      "rate": "Ty le",
+      "active": "hoat dong"
+    },
+    "movements": {
+      "neutralToPassive": "Trung lap → Thu dong",
+      "passiveToActive": "Thu dong → Chu dong",
+      "activeToCore": "Chu dong → Nong cot"
+    }
+  },
+  "engagementPage": {
+    "title": "Hanh trinh cua Ban",
+    "subtitle": "Theo doi su tham gia, hoan thanh cac moc va truong thanh nhu mot to chuc vien",
+    "demoSwitchLevel": "Demo: Chuyen Cap do",
+    "viewAs": "Xem voi tu cach...",
+    "levelOptions": {
+      "neutral": "Trung lap (30%)",
+      "passive": "Ho tro Thu dong (40%)",
+      "active": "Ho tro Chu dong (70%)",
+      "core": "To chuc vien Nong cot (100%)"
+    },
+    "tabs": {
+      "engagement": "Hanh trinh Tham gia",
+      "notifications": "Thong bao Thong minh"
+    },
+    "aboutLadder": {
+      "title": "Ve Thang Tham gia",
+      "description": "Thang Tham gia dua tren phuong phap Pho Ho tro duoc su dung boi cac phong trao to chuc thanh cong. Moi cap do dai dien cho su tham gia sau hon vao phong trao:",
+      "levels": {
+        "neutral": "Trung lap (30%) - Hoc hoi va kham pha",
+        "passive": "Ho tro Thu dong (40%) - Ho tro tu ben le",
+        "active": "Ho tro Chu dong (70%) - Tich cuc tham gia cac hoat dong",
+        "core": "To chuc vien Nong cot (100%) - Dan dat va phat trien nguoi khac"
+      },
+      "footer": "Hoan thanh cac moc o cap do hien tai de mo khoa giai doan tiep theo trong hanh trinh to chuc cua ban."
+    }
+  },
+  "eventFeedCard": {
+    "createdEvent": "da tao mot su kien",
+    "privacy": {
+      "public": "Su kien Cong khai",
+      "group": "Su kien Nhom",
+      "private": "Su kien Rieng tu",
+      "directAction": "Hanh dong Truc tiep"
+    },
+    "time": {
+      "todayAt": "Hom nay luc {{time}}",
+      "tomorrowAt": "Ngay mai luc {{time}}"
+    },
+    "locationReveal": "Dia diem duoc cong bo truoc {{time}} cua su kien",
+    "capacity": "{{current}} / {{max}} nguoi tham gia",
+    "rsvp": {
+      "going": "Xac nhan Tham gia",
+      "goingConfirmed": "Se tham gia",
+      "maybe": "Co the",
+      "maybeConfirmed": "Co the"
+    },
+    "details": "Chi tiet"
+  },
+  "groupFeedPage": {
+    "loading": "Dang tai...",
+    "notFound": "Khong tim thay nhom",
+    "feedSuffix": "Bang tin",
+    "subtitle": "Hoat dong va cap nhat tu nhom nay",
+    "shareUpdate": "Chia se cap nhat"
+  },
+  "analyticsPage": {
+    "title": "Bang dieu khien Phan tich",
+    "subtitle": "Theo doi chi so to chuc, hieu suat chien dich va dua ra quyet dinh dua tren du lieu",
+    "tabs": {
+      "crm": "Phan tich CRM",
+      "campaign": "Phan tich Chien dich"
+    }
+  },
+  "wikiView": {
+    "title": "Co So Kien Thuc",
+    "subtitle": "Tai lieu hop tac va tai nguyen",
+    "newPage": "Trang Moi",
+    "searchPlaceholder": "Tim kiem wiki...",
+    "noResults": "Khong tim thay trang nao phu hop voi tim kiem cua ban",
+    "empty": "Chua co trang wiki nao. Tao trang dau tien de bat dau!",
+    "updated": "Cap nhat {{date}}"
+  },
+  "pollCard": {
+    "status": {
+      "active": "Dang hoat dong",
+      "ended": "Da ket thuc"
+    },
+    "voteCount": "{{count}} phieu",
+    "voteCount_other": "{{count}} phieu",
+    "anonymous": "An danh",
+    "public": "Cong khai",
+    "yourVote": "Phieu cua ban",
+    "resultsHidden": "Ket qua se duoc cong bo khi cuoc binh chon ket thuc",
+    "voting": "Dang bo phieu...",
+    "vote": "Bo phieu"
+  },
+  "publicFormView": {
+    "notPublished": "Bieu mau nay hien chua duoc xuat ban.",
+    "thankYou": "Cam on ban!",
+    "defaultConfirmation": "Bai gui cua ban da duoc nhan.",
+    "continue": "Tiep tuc",
+    "submitting": "Dang gui...",
+    "submit": "Gui",
+    "submitFailed": "Gui bieu mau that bai",
+    "poweredBy": "Duoc ho tro boi BuildIt Network"
+  },
+  "model3DPreview": {
+    "failedToLoad": "Khong the tai mo hinh 3D",
+    "downloadModel": "Tai mo hinh",
+    "loading": "Dang tai mo hinh 3D...",
+    "badge": "Mo hinh 3D",
+    "instructions": "Keo de xoay | Cuon de phong to | Shift+keo de di chuyen"
+  },
+  "createFolderDialog": {
+    "title": "Tao thu muc",
+    "folderName": "Ten thu muc",
+    "placeholder": "Nhap ten thu muc",
+    "cancel": "Huy",
+    "create": "Tao"
+  },
+  "eventsCalendarView": {
+    "title": "Lich",
+    "exportAll": "Xuat tat ca",
+    "eventsOn": "Su kien ngay {{date}}",
+    "noEvents": "Khong co su kien vao ngay nay"
+  },
+  "groupView": {
+    "selectGroup": "Chon mot nhom de xem chi tiet",
+    "privacyLabel": "Nhom {{privacy}}",
+    "memberCount": "{{count}} thanh vien",
+    "memberCount_other": "{{count}} thanh vien",
+    "modulesEnabled": "{{count}} module da kich hoat",
+    "modulesEnabled_other": "{{count}} module da kich hoat"
+  },
+  "filesAccessRequestsPanel": {
+    "title": "Yeu cau truy cap dang cho",
+    "noPending": "Khong co yeu cau dang cho",
+    "requestsWillAppear": "Cac yeu cau truy cap se hien thi tai day",
+    "requested": "Da yeu cau {{time}}",
+    "permissions": {
+      "view": "Xem",
+      "download": "Tai xuong",
+      "edit": "Chinh sua",
+      "delete": "Xoa"
+    }
+  },
+  "documentsAccessRequestsPanel": {
+    "title": "Yeu cau truy cap dang cho",
+    "noPending": "Khong co yeu cau dang cho",
+    "requestsWillAppear": "Cac yeu cau truy cap se hien thi tai day",
+    "requested": "Da yeu cau {{time}}",
+    "permissions": {
+      "view": "Xem",
+      "comment": "Binh luan",
+      "edit": "Chinh sua",
+      "admin": "Quan tri vien"
+    }
+  },
+  "mathBlock": {
+    "instructions": "Nhap phuong trinh LaTeX (Shift+Enter de luu, Escape de huy)",
+    "placeholder": "E = mc^2",
+    "cancel": "Huy",
+    "save": "Luu",
+    "clickToAdd": "Nhan de them phuong trinh"
+  },
+  "errors": {
+    "invalidPassword": "Mật khẩu không hợp lệ hoặc dữ liệu khóa bị hỏng",
+    "invalidNsec": "Định dạng nsec không hợp lệ",
+    "invalidNpub": "Định dạng npub không hợp lệ",
+    "invalidWordCount": "Số từ không hợp lệ. Phải là 12, 15, 18 hoặc 24.",
+    "identityAlreadyExists": "Danh tính đã tồn tại",
+    "identityNotFound": "Không tìm thấy danh tính",
+    "noIdentitySelected": "Chưa chọn danh tính",
+    "webauthnNotEnabled": "WebAuthn chưa được bật cho danh tính này",
+    "webauthnFailed": "Xác thực WebAuthn thất bại",
+    "webauthnNotSupported": "Thiết bị này không hỗ trợ WebAuthn",
+    "failedToCreateIdentity": "Không thể tạo danh tính",
+    "failedToImportIdentity": "Không thể nhập danh tính",
+    "failedToLoadIdentities": "Không thể tải danh tính",
+    "failedToRemoveIdentity": "Không thể xóa danh tính",
+    "failedToUnlock": "Không thể mở khóa",
+    "failedToChangePassword": "Không thể thay đổi mật khẩu",
+    "failedToEnableWebauthn": "Không thể bật WebAuthn",
+    "failedToDisableWebauthn": "Không thể tắt WebAuthn",
+    "migrationRequired": "Danh tính này cần được di chuyển. Vui lòng sử dụng công cụ di chuyển trong Cài đặt.",
+    "rateLimited": "Quá nhiều lần thử. Vui lòng thử lại sau.",
+    "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối của bạn.",
+    "unknownError": "Đã xảy ra lỗi không xác định"
+  },
+  "securityDemo": {
+    "title": "Biện pháp chống xâm nhập",
+    "description": "Bảo vệ các chiến dịch có nguy cơ cao khỏi sự xâm nhập và thu thập dữ liệu",
+    "whyMatters": "Tại sao biện pháp chống xâm nhập quan trọng",
+    "whyMattersDesc": "Các chiến dịch tổ chức có nguy cơ cao phải đối mặt với các mối đe dọa liên tục từ người xâm nhập, kẻ xấu và giám sát. Các tính năng bảo mật này giúp xác định và ngăn chặn hoạt động độc hại trong khi duy trì sự tin tưởng trong cộng đồng.",
+    "memberVerification": "Xác minh thành viên",
+    "memberVerificationDesc": "Xác minh mã QR trực tiếp và điểm tin cậy ngăn chặn tài khoản giả và người xâm nhập",
+    "anomalyDetection": "Phát hiện bất thường",
+    "anomalyDetectionDesc": "Phát hiện tự động các mẫu hành vi đáng ngờ như truy cập dữ liệu hàng loạt",
+    "auditLogs": "Nhật ký kiểm toán",
+    "auditLogsDesc": "Theo dõi đầy đủ các hành động nhạy cảm để điều tra và chịu trách nhiệm",
+    "tabs": {
+      "verification": "Xác minh thành viên",
+      "anomalies": "Phát hiện bất thường",
+      "audit": "Nhật ký kiểm toán"
+    },
+    "useCases": {
+      "title": "Các trường hợp sử dụng thực tế",
+      "intro": "Các tính năng bảo mật này rất cần thiết cho:",
+      "unionOrganizing": "Tổ chức công đoàn:",
+      "unionOrganizingDesc": "Ngăn chặn sự xâm nhập của chủ lao động trong các chiến dịch tổ chức",
+      "directAction": "Chiến dịch hành động trực tiếp:",
+      "directActionDesc": "Xác định cảnh sát chìm hoặc người cung cấp thông tin",
+      "tenantUnions": "Công đoàn người thuê nhà:",
+      "tenantUnionsDesc": "Phát hiện những kẻ xấu được chủ nhà tài trợ cố gắng phá hoại tổ chức",
+      "whistleblower": "Mạng lưới người tố giác:",
+      "whistleblowerDesc": "Bảo vệ nguồn tin khỏi sự giám sát của doanh nghiệp hoặc chính phủ",
+      "activist": "Liên minh hoạt động:",
+      "activistDesc": "Ngăn chặn các đặc vụ khiêu khích phá hoại công việc của phong trào",
+      "keyInsight": "Thông tin quan trọng:",
+      "keyInsightDesc": "Xâm nhập không phải là hoang tưởng - đó là chiến thuật được ghi nhận đã được sử dụng để chống lại các nỗ lực tổ chức trong suốt lịch sử. Những công cụ này cung cấp phòng thủ có hệ thống mà không tạo ra văn hóa nghi ngờ."
+    }
+  },
+  "issuesList": {
+    "title": "Số báo",
+    "noIssuesYet": "Chưa có số báo nào",
+    "noIssuesDescription": "Tạo số báo bản tin đầu tiên của bạn để bắt đầu tương tác với người đăng ký.",
+    "createIssue": "Tạo số báo",
+    "newIssue": "Số báo mới",
+    "stats": "{{drafts}} bản nháp, {{scheduled}} đã lên lịch, {{sent}} đã gửi",
+    "tabs": {
+      "all": "Tất cả ({{count}})",
+      "drafts": "Bản nháp ({{count}})",
+      "scheduled": "Đã lên lịch ({{count}})",
+      "sent": "Đã gửi ({{count}})"
+    },
+    "tableHeaders": {
+      "subject": "Chủ đề",
+      "status": "Trạng thái",
+      "recipients": "Người nhận",
+      "created": "Ngày tạo",
+      "actions": "Hành động"
+    },
+    "statuses": {
+      "draft": "Bản nháp",
+      "scheduled": "Đã lên lịch",
+      "sending": "Đang gửi",
+      "sent": "Đã gửi",
+      "failed": "Thất bại"
+    },
+    "untitled": "Không có tiêu đề",
+    "actions": {
+      "edit": "Chỉnh sửa",
+      "sendNow": "Gửi ngay",
+      "view": "Xem",
+      "delete": "Xóa"
+    }
+  },
+  "cryptoDonation": {
+    "title": "Quyen gop bang tien dien tu",
+    "mainnet": "Mang chinh",
+    "testnet": "Mang thu nghiem",
+    "paymentConfirmed": "Da xac nhan thanh toan",
+    "thankYou": "Cam on ban da quyen gop {{amount}}",
+    "viewOnExplorer": "Xem tren trinh duyet blockchain",
+    "paymentPending": "Thanh toan dang cho xu ly",
+    "detected": "Da phat hien {{amount}}",
+    "confirmations": "Xac nhan:",
+    "trackOnBlockchain": "Theo doi tren blockchain",
+    "donationAmount": "So tien quyen gop (USD)",
+    "custom": "Tuy chinh",
+    "calculating": "Dang tinh toan...",
+    "currentPrice": "Gia hien tai: ${{price}} USD",
+    "generatingAddress": "Dang tao dia chi...",
+    "generateAddress": "Tao dia chi {{crypto}}",
+    "paymentAddress": "Dia chi thanh toan",
+    "monitoring": "Dang theo doi...",
+    "startMonitoring": "Bat dau theo doi",
+    "checkNow": "Kiem tra ngay",
+    "howToDonate": "Cach quyen gop:",
+    "steps": {
+      "scan": "Quet ma QR hoac sao chep dia chi",
+      "send": "Gui {{amount}} den dia chi nay",
+      "monitor": "Nhan \"Bat dau theo doi\" de theo doi thanh toan cua ban",
+      "wait": "Doi {{confirmations}} xac nhan"
+    },
+    "toasts": {
+      "addressGenerated": "Da tao dia chi thanh toan",
+      "addressCopied": "Da sao chep dia chi vao clipboard",
+      "paymentConfirmed": "Da xac nhan thanh toan",
+      "paymentDetected": "Da phat hien thanh toan! Dang cho xac nhan...",
+      "failedToGenerate": "Khong the tao dia chi"
+    },
+    "errors": {
+      "failedToGenerate": "Khong the tao dia chi thanh toan. Vui long thu lai."
+    }
+  },
+  "campaignBuilder": {
+    "editCampaign": "Chinh sua chien dich",
+    "createCampaign": "Tao chien dich",
+    "subtitle": "Thiet lap chien dich gay quy cho nhom cua ban",
+    "cancel": "Huy",
+    "saveCampaign": "Luu chien dich",
+    "basicInfo": "Thong tin co ban",
+    "campaignTitle": "Ten chien dich *",
+    "titlePlaceholder": "Quy ho tro dinh cong",
+    "urlSlug": "URL Slug *",
+    "slugPlaceholder": "quy-ho-tro-dinh-cong",
+    "urlPreview": "URL: /campaigns/{{slug}}",
+    "category": "Danh muc",
+    "categories": {
+      "general": "Chung",
+      "bail": "Quy bao lanh",
+      "strike": "Quy dinh cong",
+      "mutual-aid": "Ho tro tuong tro",
+      "legal": "Bao ve phap ly",
+      "emergency": "Khan cap"
+    },
+    "description": "Mo ta",
+    "descriptionPlaceholder": "Mo ta chien dich gay quy cua ban...",
+    "fundraisingGoal": "Muc tieu gay quy",
+    "goalAmount": "So tien muc tieu *",
+    "currency": "Loai tien",
+    "currencies": {
+      "usd": "USD ($)",
+      "eur": "EUR (\u20ac)",
+      "gbp": "GBP (\u00a3)",
+      "cad": "CAD ($)"
+    }
+  },
+  "scheduledPostsView": {
+    "loading": "Dang tai bai viet da len lich...",
+    "noScheduledPosts": "Khong co bai viet da len lich",
+    "noScheduledPostsDescription": "Len lich bai viet de dang vao mot thoi diem cu the bang cach su dung tuy chon len lich trong trinh soan bai viet.",
+    "moreOptions": "Them tuy chon",
+    "statuses": {
+      "published": "Da dang",
+      "cancelled": "Da huy",
+      "failed": "That bai",
+      "due": "Den han",
+      "scheduled": "Da len lich"
+    },
+    "actions": {
+      "publishNow": "Dang ngay",
+      "edit": "Chinh sua",
+      "cancel": "Huy"
+    },
+    "editDialog": {
+      "title": "Chinh sua bai viet da len lich",
+      "description": "Cap nhat noi dung hoac len lich lai bai viet nay.",
+      "contentLabel": "Noi dung",
+      "contentPlaceholder": "Ban dang nghi gi?",
+      "scheduledForLabel": "Len lich cho",
+      "cancelButton": "Huy",
+      "saveButton": "Luu thay doi"
+    },
+    "deleteDialog": {
+      "title": "Huy bai viet da len lich?",
+      "description": "Dieu nay se huy bai viet da len lich. Hanh dong nay khong the hoan tac.",
+      "keepPost": "Giu bai viet",
+      "cancelPost": "Huy bai viet"
+    }
+  },
+  "addFriendDialog": {
+    "title": "Them ban be",
+    "description": "Chon cach ban muon ket noi voi ban be cua minh",
+    "tabs": {
+      "username": "Ten nguoi dung",
+      "qr": "Ma QR",
+      "email": "Email",
+      "link": "Lien ket"
+    },
+    "username": {
+      "label": "Ten nguoi dung hoac Khoa cong khai",
+      "placeholder": "Nhap ten nguoi dung hoac khoa cong khai...",
+      "messageLabel": "Tin nhan tuy chon",
+      "messagePlaceholder": "Chao ban...",
+      "sendRequest": "Gui yeu cau ket ban",
+      "sending": "Dang gui..."
+    },
+    "qr": {
+      "yourQrCode": "Ma QR cua ban",
+      "scanFriendQr": "Quet ma QR cua ban be",
+      "letFriendScan": "De ban be cua ban quet ma nay",
+      "startScanning": "Bat dau quet",
+      "scannedSuccessfully": "Quet thanh cong!"
+    },
+    "email": {
+      "friendEmail": "Email cua ban be",
+      "emailPlaceholder": "banbe@vidu.com",
+      "invitationMessage": "Tin nhan moi",
+      "invitationPlaceholder": "Toi muon ket noi voi ban tren BuildIt Network...",
+      "sendEmailInvite": "Gui loi moi qua email"
+    },
+    "link": {
+      "description": "Tao lien ket co the chia se ma bat ky ai cung co the su dung de gui yeu cau ket ban cho ban. Lien ket het han sau 7 ngay va co the su dung toi da 10 lan.",
+      "generateLink": "Tao lien ket moi",
+      "yourInviteLink": "Lien ket moi cua ban",
+      "copyLink": "Sao chep lien ket",
+      "expiresInfo": "Chia se lien ket nay voi ban be. Het han sau 7 ngay hoac sau 10 lan su dung."
+    },
+    "toasts": {
+      "enterUsername": "Vui long nhap ten nguoi dung",
+      "requestSent": "Yeu cau ket ban da duoc gui!",
+      "enterEmail": "Vui long nhap dia chi email",
+      "emailComingSoon": "Loi moi qua email sap co!",
+      "inviteLinkCreated": "Lien ket moi da duoc tao!",
+      "linkCopied": "Lien ket da duoc sao chep vao clipboard!",
+      "failedToAccessCamera": "Khong the truy cap camera",
+      "invalidQrCode": "Ma QR khong hop le"
+    }
+  },
+  "crmView": {
+    "title": "Co So Du Lieu Lien He",
+    "subtitle": "To chuc va quan ly cac moi quan he cong dong",
+    "addContact": "Them Lien He",
+    "views": {
+      "table": "Xem Bang",
+      "board": "Xem Bang Kanban",
+      "calendar": "Xem Lich"
+    },
+    "contacts": {
+      "title": "Lien He",
+      "description": "Quan ly lien he voi cac truong tuy chinh va kiem soat quyen rieng tu",
+      "emptyState": "Chua co lien he nao. Them lien he dau tien de bat dau."
+    },
+    "emptyStates": {
+      "board": "Xem bang kanban - to chuc lien he theo trang thai hoac danh muc",
+      "calendar": "Xem lich - xem lien he theo truong ngay"
+    },
+    "templates": {
+      "title": "Mau Co San",
+      "description": "Cac truong duoc cau hinh san cho cac truong hop su dung pho bien",
+      "unionOrganizing": {
+        "title": "To Chuc Cong Doan",
+        "description": "Theo doi cac cuoc tro chuyen to chuc va cam ket"
+      },
+      "fundraising": {
+        "title": "Gay Quy",
+        "description": "Quan ly nha tai tro va theo doi chien dich"
+      },
+      "legalTracking": {
+        "title": "Theo Doi Phap Ly",
+        "description": "Quan ly vu viec cho cong viec ho tro phap ly"
+      }
+    }
+  },
+  "deviceManager": {
+    "title": "Quan Ly Thiet Bi",
+    "description": "Quan ly cac thiet bi va phien co quyen truy cap vao tai khoan cua ban",
+    "signOutAll": "Dang Xuat Tat Ca Thiet Bi",
+    "noDevices": "Khong tim thay thiet bi",
+    "currentDevice": "Thiet Bi Hien Tai",
+    "trusted": "Dang Tin Cay",
+    "activeSessions": "Phien Dang Hoat Dong",
+    "noActiveSessions": "Khong co phien dang hoat dong",
+    "lastSeen": "Lan cuoi truc tuyen: {{time}}",
+    "firstSeen": "Lan dau truc tuyen: {{time}}",
+    "timeAgo": {
+      "justNow": "Vua xong",
+      "minutesAgo": "{{count}} phut truoc",
+      "hoursAgo": "{{count}} gio truoc"
+    },
+    "removeDeviceDialog": {
+      "title": "Xoa Thiet Bi",
+      "description": "Ban co chac chan muon xoa thiet bi nay khong? Tat ca cac phien cua thiet bi nay se bi thu hoi va ban se can cap phep lai de truy cap tai khoan.",
+      "cancel": "Huy",
+      "remove": "Xoa Thiet Bi"
+    },
+    "signOutAllDialog": {
+      "title": "Dang Xuat Tat Ca Thiet Bi",
+      "description": "Thao tac nay se dang xuat ban khoi tat ca cac thiet bi khac ngoai thiet bi nay. Ban se can dang nhap lai tren nhung thiet bi do.",
+      "cancel": "Huy",
+      "signOut": "Dang Xuat Tat Ca"
+    }
+  },
+  "mediaUploader": {
+    "dropzone": "Nhan de chon {{type}} hoac keo va tha",
+    "files": "tap tin",
+    "aFile": "mot tap tin",
+    "settings": {
+      "title": "Cai dat tai len",
+      "privacyLevel": "Muc do rieng tu",
+      "storageProvider": "Nha cung cap luu tru",
+      "stripExif": "Xoa du lieu EXIF (Rieng tu)",
+      "encryptMedia": "Ma hoa phuong tien",
+      "contentWarning": "Canh bao noi dung"
+    },
+    "privacy": {
+      "public": "Cong khai",
+      "group": "Chi nhom",
+      "private": "Rieng tu",
+      "encrypted": "Da ma hoa"
+    },
+    "storage": {
+      "nip96": "NIP-96 (Luu tru HTTP)",
+      "nip94": "NIP-94 (Sieu du lieu tap tin)",
+      "blossom": "Blossom (Phi tap trung)",
+      "ipfs": "IPFS",
+      "local": "Cuc bo (Dev)"
+    },
+    "caption": "Mo ta (tuy chon)",
+    "altText": "Van ban thay the cho kha nang truy cap",
+    "contentWarningPlaceholder": "Mo ta noi dung nhay cam...",
+    "uploadFile": "Tai tap tin len",
+    "uploadFiles": "Tai {{count}} tap tin len",
+    "cancel": "Huy",
+    "status": {
+      "complete": "Hoan thanh",
+      "error": "Loi: {{message}}"
+    },
+    "alerts": {
+      "fileTooLarge": "Tap tin {{filename}} vuot qua kich thuoc toi da cho {{type}}",
+      "loginFirst": "Vui long dang nhap truoc"
+    }
+  },
+  "notificationsDemoPage": {
+    "title": "Thong bao thong minh",
+    "subtitle": "Thong bao theo ngu canh dua tren muc do tham gia",
+    "demoSwitchLevel": "Demo: Chuyen doi cap do",
+    "viewAs": "Xem voi tu cach...",
+    "explanation": {
+      "title": "Thong bao thong minh hoat dong nhu the nao",
+      "description": "Thong bao thay doi dua tren muc do tham gia cua ban:",
+      "levels": {
+        "neutral": "Su kien than thien voi nguoi moi, noi dung giao duc",
+        "passive": "Khuyen khich tham gia hoat dong, cap nhat tien do",
+        "active": "Co hoi tinh nguyen, huy dong khan cap",
+        "core": "Cuoc hop lanh dao, huong dan, canh bao an ninh"
+      },
+      "footer": "Moi thong bao bao gom diem lien quan cho thay ly do ban nhin thay no."
+    }
+  },
+  "bulkOperationsPage": {
+    "title": "Thao Tac Hang Loat",
+    "subtitle": "Mo rong to chuc cua ban voi cac thao tac hang loat, chon nhieu va quan ly cong viec tu dong",
+    "tabs": {
+      "bulkActions": "Thao Tac Hang Loat",
+      "taskManager": "Quan Ly Cong Viec"
+    },
+    "table": {
+      "name": "Ten",
+      "email": "Email",
+      "supportLevel": "Muc Do Ho Tro",
+      "tags": "Nhan",
+      "lastContact": "Lien He Cuoi",
+      "noTags": "Khong co nhan",
+      "daysAgo": "{{count}} ngay truoc"
+    },
+    "supportLevels": {
+      "coreOrganizer": "To Chuc Vien Nong Cot",
+      "activeSupport": "Ho Tro Tich Cuc",
+      "passiveSupport": "Ho Tro Thu Dong",
+      "neutral": "Trung Lap"
+    },
+    "features": {
+      "title": "Tinh Nang Thao Tac Hang Loat",
+      "selectMultiple": "Chon nhieu lien he bang o danh dau",
+      "sendBulk": "Gui tin nhan hang loat den cac lien he da chon",
+      "addTags": "Them nhan cho nhieu lien he cung luc",
+      "updateFields": "Cap nhat truong tuy chinh hang loat",
+      "assignTasks": "Giao viec cho to chuc vien de theo doi",
+      "exportCSV": "Xuat cac lien he da chon sang CSV"
+    },
+    "alerts": {
+      "sendingMessage": "Dang gui tin nhan den {{count}} lien he",
+      "addingTag": "Dang them nhan cho {{count}} lien he",
+      "updatingField": "Dang cap nhat truong cho {{count}} lien he",
+      "creatingTask": "Dang tao cong viec cho {{count}} lien he",
+      "exportingCSV": "Dang xuat {{count}} lien he sang CSV",
+      "confirmDelete": "Xoa {{count}} lien he? Hanh dong nay khong the hoan tac."
+    }
+  },
+  "folderPermissionsDialog": {
+    "title": "Quyen Thu Muc",
+    "description": "Quan ly ai co the truy cap \"{{name}}\" va noi dung cua no",
+    "usersWithAccess": "Nguoi Dung Co Quyen Truy Cap",
+    "addUser": "Them Nguoi Dung",
+    "emptyState": {
+      "title": "Chua thiet lap quyen cu the",
+      "description": "Thu muc co the truy cap boi tat ca thanh vien nhom"
+    },
+    "permissions": {
+      "view": "Xem",
+      "download": "Tai Xuong",
+      "edit": "Chinh Sua",
+      "delete": "Xoa"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "Chi xem",
+      "viewDownload": "Xem va Tai Xuong",
+      "viewDownloadEdit": "Xem, Tai Xuong va Chinh Sua",
+      "fullAccess": "Truy Cap Day Du (bao gom Xoa)"
+    },
+    "inherited": "Ke Thua",
+    "disableInheritance": "Nhan de tat ke thua",
+    "addPermission": {
+      "title": "Them Quyen Nguoi Dung",
+      "selectUser": "Chon Nguoi Dung",
+      "selectUserPlaceholder": "Chon mot nguoi dung...",
+      "permissionLevel": "Cap Quyen",
+      "applyToSubfolders": "Ap dung cho thu muc con",
+      "cascadeDescription": "Quyen se lan truyen den cac thu muc va tap tin con",
+      "adding": "Dang them...",
+      "addButton": "Them Quyen"
+    },
+    "inheritanceInfo": "Cac quyen ke thua tu dong ap dung cho tat ca cac tap tin va thu muc con trong thu muc nay. Nhan vao huy hieu \"Ke Thua\" tren quyen de tat ke thua cho nguoi dung do.",
+    "errors": {
+      "addFailed": "Them quyen that bai",
+      "removeFailed": "Xoa quyen that bai"
+    }
+  },
+  "secureEmbed": {
+    "untrusted": {
+      "title": "Nguon nhung khong dang tin cay",
+      "description": "Noi dung nay tu nguon khong dang tin cay va khong the nhung an toan.",
+      "openInNewTab": "Mo trong tab moi"
+    },
+    "loadEmbed": "Tai {{provider}}",
+    "openExternally": "Mo ben ngoai",
+    "embedName": "Nhung {{provider}}",
+    "dialog": {
+      "title": "Nhung Phuong Tien",
+      "placeholder": "Dan lien ket (YouTube, Vimeo, SoundCloud, Spotify...)",
+      "detected": "Da phat hien: {{provider}}",
+      "supportedProviders": "Nha cung cap duoc ho tro:",
+      "providers": {
+        "youtube": "YouTube (che do bao mat nang cao)",
+        "vimeo": "Vimeo (che do khong theo doi)",
+        "peertube": "PeerTube (bat ky may chu nao)",
+        "soundcloud": "SoundCloud",
+        "spotify": "Spotify",
+        "codepen": "CodePen",
+        "codesandbox": "CodeSandbox"
+      },
+      "cancel": "Huy",
+      "embed": "Nhung"
+    },
+    "errors": {
+      "enterUrl": "Vui long nhap lien ket",
+      "unsupportedProvider": "Nha cung cap khong duoc ho tro. Duoc ho tro: {{providers}}"
+    }
+  },
+  "folderPermissionsPanel": {
+    "title": "Quyen Thu Muc",
+    "description": "Quan ly ai co the truy cap \"{{name}}\" va tai lieu cua no",
+    "usersWithAccess": "Nguoi dung co Quyen truy cap",
+    "addUser": "Them Nguoi dung",
+    "emptyState": {
+      "title": "Chua thiet lap quyen cu the",
+      "description": "Thu muc co the truy cap boi tat ca thanh vien nhom"
+    },
+    "permissions": {
+      "view": "Xem",
+      "comment": "Binh luan",
+      "edit": "Chinh sua",
+      "admin": "Quan tri vien"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "Chi xem",
+      "viewComment": "Xem va Binh luan",
+      "edit": "Chinh sua",
+      "adminFull": "Quan tri vien (quyen kiem soat day du)"
+    },
+    "inherited": "Ke thua",
+    "disableInheritance": "Nhan de vo hieu hoa ke thua",
+    "addPermission": {
+      "title": "Them Quyen Nguoi dung",
+      "selectUser": "Chon Nguoi dung",
+      "selectUserPlaceholder": "Chon mot nguoi dung...",
+      "permissionLevel": "Cap do Quyen",
+      "applyToSubfolders": "Ap dung cho thu muc con",
+      "cascadeDescription": "Quyen lan truyen den thu muc con va tai lieu",
+      "adding": "Dang them...",
+      "addButton": "Them Quyen"
+    },
+    "inheritanceInfo": "Quyen ke thua tu dong ap dung cho tat ca tai lieu va thu muc con trong thu muc nay. Nhan vao huy hieu \"Ke thua\" tren quyen de vo hieu hoa ke thua cho nguoi dung do.",
+    "errors": {
+      "addFailed": "Khong the them quyen",
+      "removeFailed": "Khong the xoa quyen"
+    }
+  },
+  "privacySettings": {
+    "title": "Cai dat Quyen rieng tu va Bao mat",
+    "description": "Cau hinh theo doi thiet bi va quan ly phien lam viec",
+    "anonymizeIp": {
+      "label": "An danh Dia chi IP",
+      "description": "An hoac ma hoa dia chi IP trong nhat ky phien de bao ve quyen rieng tu tot hon"
+    },
+    "limitFingerprinting": {
+      "label": "Han che Dau van tay Thiet bi",
+      "description": "Giam thong tin chi tiet thu thap trong qua trinh nhan dien thiet bi"
+    },
+    "autoExpireSessions": {
+      "label": "Tu dong Het han Phien khong Hoat dong",
+      "description": "Tu dong ket thuc cac phien khong duoc su dung"
+    },
+    "sessionTimeout": {
+      "label": "Thoi gian Het han Phien (phut)",
+      "days": "({{count}} ngay)"
+    },
+    "requireAuthNewDevice": {
+      "label": "Yeu cau Xac thuc cho Thiet bi Moi",
+      "description": "Phe duyet thu cong cac thiet bi moi truoc khi chung co the truy cap tai khoan cua ban"
+    },
+    "locationTracking": {
+      "label": "Bat Theo doi Vi tri",
+      "description": "Theo doi vi tri gan dung (thanh pho/quoc gia) cho cac phien",
+      "warning": "Theo doi vi tri co the anh huong den quyen rieng tu cua ban. Chi bat neu ban hieu ro cac rui ro."
+    },
+    "activityLogs": {
+      "label": "Ghi nhat ky Hoat dong Thiet bi",
+      "description": "Luu lich su hoat dong thiet bi va cac su kien bao mat",
+      "warning": "Vo hieu hoa nhat ky hoat dong se khien viec phat hien truy cap trai phep hoac hoat dong dang ngo kho khan hon."
+    }
+  },
+  "proposalFeedCard": {
+    "createdProposal": "da tao mot de xuat",
+    "governanceProposal": "De xuat Quan tri",
+    "statuses": {
+      "draft": "Ban nhap",
+      "discussion": "Thao luan",
+      "voting": "Bieu quyet",
+      "decided": "Da quyet dinh",
+      "cancelled": "Da huy"
+    },
+    "votingMethods": {
+      "simple": "Da so Don gian",
+      "rankedChoice": "Bieu quyet Xep hang",
+      "quadratic": "Bieu quyet Bac hai",
+      "dhondt": "Phuong phap D'Hondt",
+      "consensus": "Dong thuan"
+    },
+    "votingEnded": "Bieu quyet da ket thuc",
+    "deadline": "Han chot:",
+    "votingEnds": "Bieu quyet ket thuc:",
+    "actions": {
+      "review": "Xem xet",
+      "edit": "Chinh sua",
+      "joinDiscussion": "Tham gia Thao luan",
+      "viewDetails": "Xem Chi tiet",
+      "castVote": "Bo phieu",
+      "viewProposal": "Xem De xuat",
+      "viewResults": "Xem Ket qua",
+      "details": "Chi tiet"
+    }
+  },
+  "articleEditor": {
+    "close": "Dong",
+    "saving": "Dang luu...",
+    "lastSaved": "Luu lan cuoi {{time}}",
+    "notSaved": "Chua luu",
+    "saveDraft": "Luu Ban Nhap",
+    "preview": "Xem Truoc",
+    "schedule": "Len Lich",
+    "publish": "Xuat Ban",
+    "scheduleFor": "Len lich cho {{date}}",
+    "articleSaved": "Bai viet da duoc luu",
+    "selectDateTime": "Vui long chon ngay va gio",
+    "articleScheduled": "Bai viet da duoc len lich cho {{date}}",
+    "titlePlaceholder": "Tieu de bai viet",
+    "subtitlePlaceholder": "Them phu de (tuy chon)",
+    "addCoverImage": "Them anh bia",
+    "coverImagePrompt": "Nhap URL anh bia:",
+    "addTags": "Them the (nhan Enter)",
+    "visibility": "Hien thi:",
+    "visibilityOptions": {
+      "public": "Cong khai",
+      "subscribers": "Chi Nguoi Dang Ky",
+      "paid": "Chi Nguoi Dang Ky Tra Phi"
+    },
+    "showSeoSettings": "Hien Cai Dat SEO",
+    "hideSeoSettings": "An Cai Dat SEO",
+    "seoSettings": "Cai Dat SEO",
+    "metaTitle": "Tieu De Meta",
+    "metaDescription": "Mo Ta Meta",
+    "metaDescriptionPlaceholder": "Mo ta ngan cho cong cu tim kiem (150-160 ky tu)",
+    "ogImage": "URL Hinh OG",
+    "ogImagePlaceholder": "URL hinh anh de chia se tren mang xa hoi",
+    "editorPlaceholder": "Bat dau viet bai viet cua ban...",
+    "imageUrlPrompt": "Nhap URL hinh anh:",
+    "linkUrlPrompt": "Nhap URL:"
+  },
+  "torStatusIndicator": {
+    "status": {
+      "disabled": "Tor Da Tat",
+      "detecting": "Dang Phat Hien",
+      "enabled": "Tor Da Bat",
+      "connecting": "Dang Ket Noi",
+      "connected": "Tor Dang Hoat Dong",
+      "error": "Loi Tor",
+      "unknown": "Khong Xac Dinh"
+    },
+    "description": {
+      "disabled": "Khong ket noi qua Tor",
+      "detecting": "Dang phat hien Trinh duyet Tor...",
+      "enabled": "Da bat dinh tuyen Tor",
+      "connecting": "Dang ket noi toi cac relay .onion...",
+      "connected": "Da ket noi toi {{count}} relay .onion",
+      "error": "Loi ket noi",
+      "unknown": "Trang thai khong xac dinh"
+    },
+    "stats": {
+      "connectedRelays": "Relay da ket noi: {{connected}}/{{total}}",
+      "avgLatency": "Do tre trung binh: {{latency}}ms",
+      "onionRelays": "Relay Onion",
+      "latency": "Do Tre Trung Binh",
+      "uptime": "Thoi Gian Hoat Dong",
+      "uptimeValue": "{{minutes}} phut",
+      "data": "Du Lieu"
+    },
+    "warnings": {
+      "title": "Canh Bao:",
+      "securityWarnings": "Canh Bao Bao Mat:"
+    }
+  },
+  "anonymousVoting": {
+    "privacy": {
+      "cryptographic": "An danh bang mat ma",
+      "eligibleVoters": "{{count}} cu tri du dieu kien",
+      "anonymous": "{{count}} an danh"
+    },
+    "mode": {
+      "title": "Bo Phieu An Danh",
+      "description": "Phieu bau cua ban se duoc niem phong bang mat ma",
+      "anonymous": "An Danh",
+      "public": "Cong Khai"
+    },
+    "options": {
+      "yes": "Dong Y",
+      "no": "Khong Dong Y",
+      "abstain": "Trang Phieu",
+      "yourVote": "Phieu bau cua ban"
+    },
+    "results": {
+      "votes": "{{count}} phieu ({{percent}}%)",
+      "anonymousVotes": "{{count}} an danh",
+      "hide": "An Ket Qua",
+      "show": "Hien Ket Qua"
+    },
+    "status": {
+      "recorded": "Phieu Bau Da Ghi Nhan",
+      "recordedAnonymous": "Phieu bau an danh cua ban da duoc niem phong bang mat ma va ghi nhan.",
+      "recordedPublic": "Phieu bau cong khai cua ban da duoc niem phong bang mat ma va ghi nhan.",
+      "canChange": "Ban co the thay doi phieu bau cho den khi de xuat dong lai.",
+      "identityProtected": "Danh tinh cua ban duoc bao ve boi mat ma hoc khong tiet lo thong tin"
+    }
+  },
+  "activityFeed": {
+    "feedType": "Loai bang tin",
+    "types": {
+      "all": "Tat Ca Hoat Dong",
+      "following": "Dang Theo Doi",
+      "group": "Bai Dang Nhom",
+      "mentions": "De Cap",
+      "bookmarks": "Danh Dau",
+      "scheduled": "Da Len Lich",
+      "pinned": "Ghim"
+    },
+    "filters": "Bo Loc",
+    "refresh": "Lam Moi",
+    "contentType": "Loai Noi Dung",
+    "contentTypes": {
+      "text": "Van Ban",
+      "eventShare": "Su Kien",
+      "documentShare": "Tai Lieu"
+    },
+    "privacyLevel": "Muc Do Rieng Tu",
+    "privacyLevels": {
+      "public": "Cong Khai",
+      "group": "Nhom",
+      "followers": "Nguoi Theo Doi",
+      "encrypted": "Ma Hoa"
+    },
+    "dateRange": "Khoang Ngay",
+    "from": "Tu",
+    "to": "Den",
+    "clear": "Xoa",
+    "clearFilters": "Xoa Bo Loc",
+    "noPosts": {
+      "title": "Chua co bai dang nao",
+      "beFirst": "Hay la nguoi dau tien chia se!",
+      "noActivity": "Khong co hoat dong de hien thi voi bo loc hien tai."
+    },
+    "loadMore": "Tai Them",
+    "loading": "Dang tai...",
+    "loadingFeed": "Dang tai bang tin...",
+    "tabs": {
+      "all": "Tat Ca Hoat Dong",
+      "myGroups": "Nhom Cua Toi",
+      "mentions": "De Cap"
+    },
+    "actions": {
+      "refresh": "Lam Moi",
+      "filter": "Loc",
+      "loadMore": "Tai Them",
+      "loading": "Dang tai..."
+    },
+    "contentTypesExtended": {
+      "title": "Loai Noi Dung",
+      "posts": "Bai Dang",
+      "events": "Su Kien",
+      "mutualAid": "Ho Tro Lan Nhau",
+      "proposals": "De Xuat",
+      "wikiUpdates": "Cap Nhat Wiki"
+    },
+    "empty": {
+      "title": "Chua co hoat dong nao",
+      "all": "Hay la nguoi dau tien chia se cap nhat!",
+      "myGroups": "Tham gia nhom de xem hoat dong cua ho",
+      "mentions": "Chua ai de cap den ban"
+    }
+  },
+  "createEventDialog": {
+    "triggerButton": "Tao Su Kien",
+    "title": "Tao Su Kien Moi",
+    "fields": {
+      "titleLabel": "Tieu De Su Kien *",
+      "titlePlaceholder": "Nhap tieu de su kien",
+      "descriptionLabel": "Mo Ta",
+      "descriptionPlaceholder": "Mo ta su kien",
+      "locationLabel": "Dia Diem",
+      "locationPlaceholder": "Dia diem su kien",
+      "startDateLabel": "Ngay va Gio Bat Dau *",
+      "endDateLabel": "Ngay va Gio Ket Thuc (Tuy Chon)",
+      "privacyLabel": "Muc Do Rieng Tu",
+      "capacityLabel": "Suc Chua (Tuy Chon)",
+      "capacityPlaceholder": "So nguoi tham du toi da",
+      "revealTimeLabel": "Thoi Gian Cong Bo Dia Diem",
+      "revealTimeHelp": "Dia diem se duoc cong bo vao thoi diem nay"
+    },
+    "privacy": {
+      "public": "Cong Khai - Bat ky ai cung co the xem",
+      "group": "Nhom - Chi thanh vien nhom",
+      "private": "Rieng Tu - Chi theo loi moi",
+      "directAction": "Hanh Dong Truc Tiep - Cong bo dia diem tre"
+    },
+    "customFields": {
+      "title": "Thong Tin Bo Sung",
+      "selectPlaceholder": "Chon mot tuy chon"
+    },
+    "buttons": {
+      "cancel": "Huy",
+      "create": "Tao Su Kien",
+      "creating": "Dang tao..."
+    },
+    "errors": {
+      "createFailed": "Khong the tao su kien"
+    }
+  },
+  "commentSidebar": {
+    "title": "Binh Luan",
+    "openCount": "{{count}} dang mo",
+    "resolved": "Da Giai Quyet",
+    "showResolved": "Hien thi {{count}} da giai quyet",
+    "hideResolved": "An {{count}} da giai quyet",
+    "empty": {
+      "title": "Chua co binh luan nao",
+      "description": "Chon van ban de them binh luan"
+    },
+    "actions": {
+      "resolve": "Giai Quyet",
+      "reply": "Tra Loi",
+      "delete": "Xoa"
+    },
+    "reply": {
+      "placeholder": "Viet phan hoi... Dung @ de tag nguoi dung",
+      "mentionHint": "Nhap @ de tag",
+      "cancel": "Huy",
+      "submit": "Tra Loi"
+    },
+    "replies": {
+      "one": "{{count}} phan hoi",
+      "other": "{{count}} phan hoi"
+    },
+    "mentioned": "{{count}} nguoi duoc tag",
+    "mentionSuggestions": "Goi y tag"
+  },
+  "taskManager": {
+    "title": "Hang Doi Cong Viec",
+    "activeCount": "{{count}} cong viec dang hoat dong",
+    "filter": {
+      "label": "Loc:",
+      "all": "Tat Ca",
+      "allTasks": "Tat Ca Cong Viec",
+      "pending": "Cho Xu Ly",
+      "inProgress": "Dang Thuc Hien",
+      "completed": "Hoan Thanh"
+    },
+    "newTask": "Cong Viec Moi",
+    "empty": "Khong tim thay cong viec nao",
+    "actions": {
+      "edit": "Chinh Sua Cong Viec",
+      "reassign": "Phan Cong Lai",
+      "delete": "Xoa"
+    },
+    "metadata": {
+      "contact": "Lien He: {{name}}",
+      "priority": {
+        "high": "Uu tien cao",
+        "medium": "Uu tien trung binh",
+        "low": "Uu tien thap"
+      }
+    },
+    "automatedFollowUp": {
+      "label": "Theo doi tu dong",
+      "title": "Theo Doi Tu Dong",
+      "description": "Cac cong viec co bieu tuong chuong duoc tao tu dong khi lien he khong phan hoi trong 3 ngay. Ban co the cau hinh cac quy tac tu dong hoa trong cai dat."
+    }
+  },
+  "conditionalLogicEditor": {
+    "title": "Logic Co Dieu Kien",
+    "addRule": "Them Quy Tac",
+    "whenField": "Khi truong",
+    "is": "La",
+    "value": "Gia Tri",
+    "valuePlaceholder": "Nhap gia tri",
+    "then": "Thi",
+    "operators": {
+      "equals": "Bang",
+      "notEquals": "Khong Bang",
+      "contains": "Chua",
+      "greaterThan": "Lon Hon",
+      "lessThan": "Nho Hon"
+    },
+    "actions": {
+      "show": "Hien thi truong nay",
+      "hide": "An truong nay",
+      "require": "Yeu cau truong nay"
+    },
+    "noLogic": "Chua co logic co dieu kien nao",
+    "note": "Luu y: Logic co dieu kien su dung cu phap if/then/else cua JSON Schema"
+  },
+  "eventDetail": {
+    "rsvpStatus": "Trang thai xac nhan",
+    "rsvpCounts": {
+      "going": "{{count}} nguoi se tham gia",
+      "maybe": "{{count}} nguoi co the",
+      "notGoing": "{{count}} nguoi khong tham gia"
+    },
+    "capacity": "{{current}} / {{max}} suc chua",
+    "tabs": {
+      "details": "Chi tiet",
+      "attendees": "Nguoi tham gia"
+    },
+    "description": "Mo ta",
+    "startTime": "Thoi gian bat dau",
+    "endTime": "Thoi gian ket thuc",
+    "location": "Dia diem",
+    "locationReveals": "Se duoc tiet lo luc {{time}}",
+    "tags": "The",
+    "privacy": {
+      "public": "Su kien cong khai",
+      "group": "Chi trong nhom",
+      "private": "Su kien rieng tu",
+      "directAction": "Hanh dong truc tiep"
+    },
+    "actions": {
+      "close": "Dong",
+      "edit": "Chinh sua"
+    }
+  },
+  "editEventDialog": {
+    "title": "Chinh sua su kien",
+    "fields": {
+      "titleLabel": "Tieu de su kien *",
+      "titlePlaceholder": "Nhap tieu de su kien",
+      "descriptionLabel": "Mo ta",
+      "descriptionPlaceholder": "Mo ta su kien",
+      "locationLabel": "Dia diem",
+      "locationPlaceholder": "Dia diem su kien",
+      "startDateLabel": "Ngay va gio bat dau *",
+      "endDateLabel": "Ngay va gio ket thuc (Tuy chon)",
+      "privacyLabel": "Muc do rieng tu",
+      "capacityLabel": "Suc chua (Tuy chon)",
+      "capacityPlaceholder": "So nguoi tham gia toi da",
+      "revealTimeLabel": "Thoi gian tiet lo dia diem",
+      "revealTimeHelp": "Dia diem se duoc tiet lo vao thoi gian nay"
+    },
+    "privacy": {
+      "public": "Cong khai - Ai cung co the xem",
+      "group": "Nhom - Chi thanh vien nhom",
+      "private": "Rieng tu - Chi theo loi moi",
+      "directAction": "Hanh dong truc tiep - Tiet lo dia diem tre"
+    },
+    "customFields": {
+      "title": "Thong tin bo sung",
+      "selectPlaceholder": "Chon mot tuy chon"
+    },
+    "buttons": {
+      "cancel": "Huy",
+      "save": "Luu thay doi",
+      "saving": "Dang luu..."
+    },
+    "errors": {
+      "updateFailed": "Khong the cap nhat su kien"
+    }
+  },
+  "channelManager": {
+    "title": "Kenh",
+    "description": "Kenh dua tren vai tro de giao tiep co to chuc",
+    "newChannel": "Kenh moi",
+    "createDialog": {
+      "title": "Tao kenh",
+      "description": "Tao kenh dua tren vai tro de giao tiep tap trung",
+      "nameLabel": "Ten kenh",
+      "namePlaceholder": "vi du: lanh dao, tinh nguyen vien",
+      "descriptionLabel": "Mo ta",
+      "descriptionPlaceholder": "Kenh nay dung de lam gi?",
+      "typeLabel": "Loai kenh"
+    },
+    "types": {
+      "public": "Cong khai (Tat ca)",
+      "member": "Chi thanh vien",
+      "adminOnly": "Chi quan tri vien",
+      "roleBased": "Dua tren vai tro"
+    },
+    "typeDescriptions": {
+      "public": "Ai cung co the doc va dang",
+      "member": "Tat ca thanh vien nhom co the tham gia",
+      "adminOnly": "Chi quan tri vien co the doc va dang",
+      "roleBased": "Quyen tuy chinh theo vai tro"
+    },
+    "typeLabels": {
+      "public": "Cong khai",
+      "member": "Thanh vien",
+      "adminOnly": "Quan tri",
+      "roleBased": "Theo vai tro"
+    },
+    "buttons": {
+      "cancel": "Huy",
+      "create": "Tao kenh"
+    },
+    "empty": {
+      "title": "Chua co kenh nao",
+      "description": "Tao kenh de to chuc cac cuoc tro chuyen theo vai tro hoac chu de"
+    },
+    "confirmDelete": "Ban co chac chan muon xoa kenh nay?"
+  },
+  "submissionsList": {
+    "title": "Cac bai nop bieu mau",
+    "totalCount": "Tong cong {{count}} bai nop",
+    "totalCount_plural": "Tong cong {{count}} bai nop",
+    "export": "Xuat",
+    "searchPlaceholder": "Tim theo ten hoac email...",
+    "filters": {
+      "all": "Tat ca",
+      "unprocessed": "Chua xu ly",
+      "spam": "Spam"
+    },
+    "tableHeaders": {
+      "submitted": "Da nop",
+      "name": "Ten",
+      "email": "Email",
+      "status": "Trang thai",
+      "actions": "Hanh dong"
+    },
+    "status": {
+      "spam": "Spam",
+      "processed": "Da xu ly",
+      "new": "Moi"
+    },
+    "anonymous": "An danh",
+    "noSubmissions": "Khong tim thay bai nop nao",
+    "actions": {
+      "flagSpam": "Danh dau la spam",
+      "markProcessed": "Danh dau da xu ly"
+    }
+  },
+  "analyticsDashboard": {
+    "title": "Thong ke",
+    "description": "Thong ke bao mat quyen rieng tu (khong theo doi nguoi dung)",
+    "empty": {
+      "title": "Chua co du lieu thong ke",
+      "description": "Thong ke se xuat hien tai day khi ban bat dau co luong truy cap"
+    },
+    "timeframes": {
+      "day": "24 gio qua",
+      "week": "7 ngay qua",
+      "month": "30 ngay qua",
+      "year": "Nam qua",
+      "all": "Toan bo thoi gian"
+    },
+    "stats": {
+      "totalViews": "Tong luot xem",
+      "submissions": "Luot gui",
+      "donations": "Quyen gop",
+      "totalRaised": "Tong so tien quyen gop",
+      "clicks": "Luot nhan",
+      "shares": "Luot chia se",
+      "conversionRate": "Ty le chuyen doi"
+    },
+    "topReferrers": {
+      "title": "Nguon gioi thieu hang dau",
+      "privacyNote": "(Bao mat: chi hien ten mien, khong hien URL day du)",
+      "direct": "Truc tiep"
+    },
+    "privacyNotice": {
+      "title": "Thong ke uu tien quyen rieng tu:",
+      "description": "Chung toi chi thu thap du lieu tong hop, an danh. Khong dia chi IP, khong cookie, khong theo doi nguoi dung. ID phien la ngau nhien va khong lien ket voi ca nhan. Du lieu gioi thieu chi hien ten mien, khong hien URL day du."
+    },
+    "lastUpdated": "Cap nhat lan cuoi: {{date}}"
+  },
+  "createProposalDialog": {
+    "title": "Tao de xuat",
+    "description": "Tao de xuat moi de ra quyet dinh dan chu",
+    "errors": {
+      "noIdentity": "Khong co danh tinh hoat dong hoac ung dung bi khoa. Vui long dang nhap.",
+      "createFailed": "Khong the tao de xuat"
+    },
+    "fields": {
+      "titleLabel": "Tieu de",
+      "titlePlaceholder": "Tieu de de xuat...",
+      "descriptionLabel": "Mo ta",
+      "descriptionPlaceholder": "Mo ta chi tiet ve de xuat...",
+      "votingMethodLabel": "Phuong thuc bo phieu",
+      "optionsLabel": "Cac lua chon (moi dong mot lua chon)",
+      "optionsPlaceholder": "Lua chon 1\nLua chon 2\nLua chon 3",
+      "quorumLabel": "Dinh so (%)",
+      "thresholdLabel": "Nguong (%)",
+      "durationLabel": "Thoi gian bo phieu (ngay)"
+    },
+    "votingMethods": {
+      "simple": "Da so don gian (Dong y/Khong dong y/Trang)",
+      "rankedChoice": "Bo phieu xep hang",
+      "quadratic": "Bo phieu binh phuong",
+      "consensus": "Dong thuan"
+    },
+    "buttons": {
+      "cancel": "Huy",
+      "create": "Tao de xuat",
+      "creating": "Dang tao..."
+    }
+  },
+  "mutualAidFeedCard": {
+    "typeLabels": {
+      "requesting": "yeu cau giup do",
+      "offering": "de nghi giup do"
+    },
+    "status": {
+      "open": "Mo",
+      "matched": "Da ghep cap",
+      "inProgress": "Dang Thuc Hien",
+      "fulfilled": "Hoan Thanh",
+      "closed": "Da Dong"
+    },
+    "expires": "Het han {{time}}",
+    "expired": "Da het han",
+    "actions": {
+      "offerHelp": "De Nghi Giup Do",
+      "message": "Nhan Tin",
+      "requestThis": "Yeu Cau Dieu Nay",
+      "details": "Chi Tiet",
+      "viewDetails": "Xem Chi Tiet"
+    }
+  },
+  "conversationHistory": {
+    "title": "Cuoc tro chuyen voi {{name}}",
+    "messageCount": "{{count}} tin nhan",
+    "messageTypes": {
+      "direct": "Tin Nhan Truc Tiep",
+      "group": "Tin Nhan Nhom",
+      "mention": "Duoc Nhac Den"
+    },
+    "filters": {
+      "label": "Loc Tin Nhan",
+      "all": "Tat Ca Tin Nhan",
+      "direct": "Tin Nhan Truc Tiep",
+      "group": "Tin Nhan Nhom",
+      "mentions": "Luot Nhac"
+    },
+    "searchPlaceholder": "Tim kiem trong cuoc tro chuyen...",
+    "noMessages": "Khong tim thay tin nhan",
+    "sendPlaceholder": "Gui tin nhan cho {{name}}...",
+    "sendHint": "Nhan Enter de gui, Shift+Enter de xuong dong",
+    "send": "Gui",
+    "summary": {
+      "title": "Tom Tat Cuoc Tro Chuyen",
+      "directMessages": "Tin Nhan Truc Tiep",
+      "groupInteractions": "Tuong Tac Nhom",
+      "daysSinceContact": "So Ngay Tu Lan Lien Lac Dau"
+    }
+  },
+  "onboardingFlow": {
+    "stepCount": "Buoc {{current}} trong {{total}}",
+    "navigation": {
+      "back": "Quay Lai",
+      "continue": "Tiep Tuc",
+      "getStarted": "Bat Dau"
+    },
+    "profile": {
+      "nameLabel": "Ten",
+      "namePlaceholder": "Ten cua ban",
+      "locationLabel": "Vi Tri (Tuy Chon)",
+      "locationPlaceholder": "Thanh pho, Tinh",
+      "availabilityLabel": "Thoi Gian Ranh",
+      "selectPlaceholder": "Chon...",
+      "weekdays": "Ngay trong tuan",
+      "weekends": "Cuoi tuan",
+      "flexible": "Linh hoat"
+    },
+    "groups": {
+      "members": "{{count}} thanh vien",
+      "join": "Tham Gia"
+    },
+    "events": {
+      "going": "{{count}} nguoi tham gia",
+      "rsvp": "Xac Nhan"
+    },
+    "complete": {
+      "selectedInterests": "So thich ban da chon:"
+    }
+  },
+  "smartNotifications": {
+    "title": "Thong Bao Thong Minh",
+    "personalized": "Ca nhan hoa cho {{level}}",
+    "filters": {
+      "unread": "Chua doc ({{count}})",
+      "all": "Tat Ca",
+      "markAllRead": "Danh dau tat ca da doc"
+    },
+    "empty": {
+      "allCaughtUp": "Da cap nhat! Khong co thong bao chua doc.",
+      "noNotifications": "Chua co thong bao nao"
+    },
+    "actions": {
+      "markRead": "Danh dau da doc",
+      "dismiss": "Bo qua"
+    },
+    "relevance": "{{percent}}% lien quan",
+    "features": {
+      "title": "Tinh Nang Thong Bao Thong Minh",
+      "personalized": "Thong bao duoc ca nhan hoa dua tren muc do tham gia cua ban",
+      "priority": "Loc uu tien dat cac muc khan cap len dau",
+      "relevance": "Diem lien quan cho thay ly do ban nhan duoc moi thong bao",
+      "contextAware": "Nhan biet ngu canh: nhung gi ban thay se thay doi khi ban truong thanh voi vai tro to chuc"
+    }
+  },
+  "pollComposer": {
+    "title": "Tao Cuoc Tham Do",
+    "question": {
+      "label": "Cau Hoi",
+      "placeholder": "Ban muon hoi gi?",
+      "charCount": "{{current}}/{{max}}"
+    },
+    "options": {
+      "label": "Cac Lua Chon",
+      "placeholder": "Lua chon {{number}}",
+      "removeAriaLabel": "Xoa lua chon {{number}}",
+      "addOption": "Them Lua Chon"
+    },
+    "settings": {
+      "choiceType": {
+        "label": "Loai Lua Chon",
+        "single": "Chon Mot",
+        "multiple": "Chon Nhieu"
+      },
+      "duration": {
+        "label": "Thoi Gian",
+        "1hour": "1 gio",
+        "6hours": "6 gio",
+        "12hours": "12 gio",
+        "1day": "1 ngay",
+        "2days": "2 ngay",
+        "3days": "3 ngay",
+        "1week": "1 tuan"
+      }
+    },
+    "privacy": {
+      "anonymous": {
+        "label": "Bo Phieu An Danh",
+        "descriptionOn": "Nguoi bo phieu se an danh",
+        "descriptionOff": "Nguoi bo phieu se hien thi voi nguoi tao cuoc tham do"
+      },
+      "showResults": {
+        "label": "Hien Ket Qua Truoc Khi Ket Thuc",
+        "descriptionOn": "Ket qua hien thi khi dang bo phieu",
+        "descriptionOff": "Ket qua an cho den khi cuoc tham do ket thuc"
+      }
+    },
+    "actions": {
+      "cancel": "Huy",
+      "create": "Tao Cuoc Tham Do",
+      "creating": "Dang tao..."
+    },
+    "toast": {
+      "emptyQuestion": "Vui long nhap cau hoi",
+      "minOptions": "Vui long them it nhat 2 lua chon",
+      "success": "Tao cuoc tham do thanh cong",
+      "error": "Khong the tao cuoc tham do"
+    }
+  },
+  "contactDetailPage": {
+    "title": "Chi Tiet Lien He",
+    "description": "Lich su day du va giao tiep voi lien he nay",
+    "notFound": "Khong tim thay lien he",
+    "backToContacts": "Quay lai Danh sach Lien he",
+    "actions": {
+      "edit": "Chinh sua",
+      "sendMessage": "Gui Tin nhan"
+    },
+    "info": {
+      "joined": "Tham gia {{date}}",
+      "lastContact": "Lien he gan nhat {{date}}",
+      "latestNote": "Ghi chu moi nhat:"
+    },
+    "customFields": {
+      "title": "Thong tin Bo sung"
+    },
+    "tabs": {
+      "activity": "Dong thoi gian Hoat dong",
+      "conversation": "Lich su Hoi thoai"
+    }
+  },
+  "pendingInvitations": {
+    "title": "Loi moi Dang cho",
+    "description": "Loi moi tham gia nhom se hien thi o day",
+    "reviewDescription": "Xem xet va phan hoi loi moi nhom",
+    "empty": {
+      "title": "Khong co loi moi dang cho",
+      "description": "Khi ai do moi ban vao nhom, no se hien thi o day"
+    },
+    "invitation": {
+      "unknownGroup": "Nhom Khong xac dinh",
+      "invitedBy": "Duoc moi boi",
+      "expires": "Het han {{time}}"
+    },
+    "actions": {
+      "accept": "Chap nhan",
+      "decline": "Tu choi"
+    },
+    "errors": {
+      "acceptFailed": "Khong the chap nhan loi moi. Vui long thu lai.",
+      "declineFailed": "Khong the tu choi loi moi. Vui long thu lai."
+    }
+  },
+  "formFieldEditor": {
+    "title": "Thuoc tinh Truong",
+    "basic": {
+      "label": "Nhan",
+      "labelPlaceholder": "Nhan truong",
+      "placeholder": "Van ban giu cho",
+      "placeholderPlaceholder": "Van ban giu cho",
+      "helpText": "Van ban Tro giup",
+      "helpTextPlaceholder": "Huong dan bo sung cho nguoi dung",
+      "required": "Bat buoc"
+    },
+    "options": {
+      "title": "Tuy chon",
+      "placeholder": "Tuy chon {{number}}",
+      "addOption": "Them Tuy chon"
+    },
+    "validation": {
+      "title": "Xac thuc",
+      "minLength": "Do dai Toi thieu",
+      "minLengthPlaceholder": "So ky tu toi thieu",
+      "maxLength": "Do dai Toi da",
+      "maxLengthPlaceholder": "So ky tu toi da",
+      "min": "Gia tri Toi thieu",
+      "minPlaceholder": "Gia tri toi thieu",
+      "max": "Gia tri Toi da",
+      "maxPlaceholder": "Gia tri toi da",
+      "pattern": "Mau (Regex)",
+      "patternPlaceholder": "^[A-Za-z]+$"
+    }
+  },
+  "customFieldEditor": {
+    "title": {
+      "create": "Tao Truong Tuy chinh",
+      "edit": "Sua Truong"
+    },
+    "fields": {
+      "name": "Ten Truong",
+      "namePlaceholder": "vd: so_thich_an_uong",
+      "label": "Nhan",
+      "labelPlaceholder": "vd: So thich An uong",
+      "fieldType": "Loai Truong",
+      "required": "Truong bat buoc",
+      "placeholder": "Van ban giu cho",
+      "helpText": "Van ban Tro giup",
+      "options": "Tuy chon (JSON)",
+      "optionsPlaceholder": "[{\"value\": \"thuan_chay\", \"label\": \"Thuan chay\"}, {\"value\": \"an_chay\", \"label\": \"An chay\"}]",
+      "minLength": "Do dai Toi thieu",
+      "maxLength": "Do dai Toi da",
+      "pattern": "Mau (regex)",
+      "minimum": "Toi thieu",
+      "maximum": "Toi da"
+    },
+    "actions": {
+      "cancel": "Huy",
+      "create": "Tao",
+      "update": "Cap nhat",
+      "saving": "Dang luu..."
+    }
+  },
+  "bulkActionsToolbar": {
+    "selection": {
+      "selectAll": "Chon tat ca",
+      "deselectAll": "Bo chon tat ca",
+      "selected": "Da chon {{count}}"
+    },
+    "actions": {
+      "sendMessage": "Gui tin nhan",
+      "moreActions": "Them hanh dong",
+      "bulkActions": "Hanh dong hang loat",
+      "addTag": "Them the",
+      "updateField": "Cap nhat truong",
+      "assignTask": "Giao nhiem vu",
+      "exportSelected": "Xuat muc da chon",
+      "deleteSelected": "Xoa muc da chon"
+    }
+  },
+  "contactActivityLog": {
+    "title": "Dong thoi gian hoat dong",
+    "description": "Tat ca tuong tac voi {{name}}",
+    "addNote": "Them ghi chu",
+    "searchPlaceholder": "Tim kiem hoat dong...",
+    "noteForm": {
+      "title": "Them ghi chu",
+      "placeholder": "Them ghi chu ve lien he nay...",
+      "save": "Luu ghi chu",
+      "cancel": "Huy"
+    },
+    "empty": "Khong tim thay hoat dong",
+    "summary": {
+      "title": "Tom tat hoat dong",
+      "messages": "Tin nhan",
+      "events": "Su kien",
+      "notes": "Ghi chu"
+    }
+  },
+  "bookmarksView": {
+    "title": "Danh dau",
+    "newCollection": "Bo suu tap moi",
+    "searchPlaceholder": "Tim kiem danh dau...",
+    "collections": {
+      "all": "Tat ca bo suu tap",
+      "uncategorized": "Chua phan loai"
+    },
+    "empty": {
+      "title": "Khong tim thay danh dau",
+      "filtered": "Thu dieu chinh bo loc",
+      "default": "Bat dau luu bai viet de xem sau"
+    },
+    "dialog": {
+      "title": "Tao bo suu tap",
+      "description": "Sap xep danh dau cua ban vao cac bo suu tap",
+      "nameLabel": "Ten bo suu tap",
+      "namePlaceholder": "vi du: Danh sach doc, Bai viet quan trong",
+      "cancel": "Huy",
+      "create": "Tao"
+    }
+  },
+  "templateGallery": {
+    "title": "Chon mau bieu mau",
+    "description": "Bat dau voi mau co san hoac tao bieu mau tu dau",
+    "searchPlaceholder": "Tim kiem mau...",
+    "blank": {
+      "title": "Bat dau tu dau",
+      "description": "Tao bieu mau tuy chinh voi cac truong cua rieng ban"
+    },
+    "fields": "{{count}} truong",
+    "preview": {
+      "includedFields": "Cac truong bao gom:",
+      "required": "Bat buoc",
+      "requiredCount": "{{count}} truong bat buoc",
+      "requiredCountPlural": "{{count}} truong bat buoc"
+    },
+    "actions": {
+      "cancel": "Huy",
+      "useTemplate": "Su dung mau nay"
+    }
+  },
+  "folderTree": {
+    "allDocuments": "Tat ca tai lieu",
+    "starred": "Danh dau sao",
+    "folders": "Thu muc",
+    "noFolders": "Chua co thu muc nao",
+    "contextMenu": {
+      "rename": "Doi ten",
+      "delete": "Xoa"
+    },
+    "dialog": {
+      "title": "Tao thu muc moi",
+      "namePlaceholder": "Ten thu muc",
+      "colorLabel": "Mau sac",
+      "cancel": "Huy",
+      "create": "Tao thu muc"
+    }
+  },
+  "customFieldsManagement": {
+    "title": "Truong tuy chinh cho {{entityType}}",
+    "applyTemplate": "Ap dung mau:",
+    "selectTemplate": "Chon mau",
+    "addField": "Them truong",
+    "empty": "Chua co truong tuy chinh nao. Tao mot truong hoac ap dung mau de bat dau.",
+    "type": "Loai: {{widget}}",
+    "required": "Bat buoc",
+    "deleteDialog": {
+      "title": "Xoa truong tuy chinh",
+      "description": "Ban co chac chan muon xoa \"{{label}}\"? Thao tac nay se xoa dinh nghia truong, nhung du lieu hien co se duoc giu lai.",
+      "cancel": "Huy",
+      "delete": "Xoa"
+    }
+  },
+  "publicCampaignView": {
+    "goal": "trong muc tieu {{goal}}",
+    "funded": "Da dat {{percent}}%",
+    "supportCampaign": "Ung ho chien dich nay",
+    "donate": "Quyen gop",
+    "claimed": "{{current}} / {{max}} da nhan",
+    "customAmount": {
+      "title": "So tien tuy chinh",
+      "description": "Nhap so tien quyen gop tuy chinh",
+      "button": "Quyen gop so tien tuy chinh"
+    }
+  },
+  "formBuilder": {
+    "titlePlaceholder": "Tieu de bieu mau",
+    "descriptionPlaceholder": "Mo ta bieu mau (tuy chon)",
+    "cancel": "Huy",
+    "saveForm": "Luu bieu mau",
+    "tabs": {
+      "build": "Xay dung",
+      "preview": "Xem truoc",
+      "settings": "Cai dat"
+    },
+    "noFieldSelected": "Chon mot truong de chinh sua thuoc tinh",
+    "settings": {
+      "multiPage": "Bieu mau nhieu trang",
+      "enableMultiPage": "Bat bieu mau nhieu trang",
+      "currentPage": "Trang hien tai"
+    }
+  },
+  "moveFolderDialog": {
+    "title": "Di chuyen {{count}} tap tin",
+    "title_plural": "Di chuyen {{count}} tap tin",
+    "description": "Chon thu muc dich cho cac tap tin da chon.",
+    "root": "Goc (Khong co thu muc)",
+    "current": "(hien tai)",
+    "noFolders": "Khong co thu muc nao",
+    "cancel": "Huy",
+    "moveHere": "Di chuyen den day"
+  },
+  "mermaidBlock": {
+    "instructions": "Nhap so do Mermaid (Ctrl/Cmd+Enter de luu, Escape de huy)",
+    "examples": {
+      "flowchart": "So do luong",
+      "sequence": "Trinh tu",
+      "gantt": "Gantt",
+      "pie": "Bieu do tron"
+    },
+    "docs": "Tai lieu Mermaid",
+    "cancel": "Huy",
+    "save": "Luu",
+    "clickToAdd": "Nhan de them so do"
+  },
+  "conversationsPage": {
+    "title": "Tin nhan",
+    "newChat": "Tro chuyen moi",
+    "searchPlaceholder": "Tim kiem cuoc tro chuyen...",
+    "tabs": {
+      "all": "Tat ca",
+      "dms": "Tin nhan rieng",
+      "groups": "Nhom",
+      "unread": "Chua doc",
+      "archived": "Da luu tru"
+    },
+    "empty": {
+      "title": "Chua co cuoc tro chuyen nao",
+      "description": "Bat dau cuoc tro chuyen moi de bat dau"
+    },
+    "conversation": "Cuoc tro chuyen",
+    "noMessages": "Chua co tin nhan nao"
+  },
+  "engagementLadder": {
+    "title": "Cap do tham gia cua ban",
+    "progressTo": "Tien do den {{level}}",
+    "milestones": "{{completed}}/{{total}} cot moc",
+    "maxLevel": "Ban da dat cap do tham gia cao nhat! Tiep tuc xay dung phong trao.",
+    "nextSteps": "Cac buoc tiep theo duoc de xuat",
+    "milestonesFor": "Cot moc cho {{level}}",
+    "ladderTitle": "Thang tham gia",
+    "youAreHere": "Ban o day",
+    "points": "+{{points}} diem"
+  },
+  "notificationsDemoLevels": {
+    "neutral": "Trung lap (30%)",
+    "passiveSupport": "Ho tro thu dong (40%)",
+    "activeSupport": "Ho tro tich cuc (70%)",
+    "coreOrganizer": "To chuc vien nong cot (100%)"
+  },
+  "createPageDialog": {
+    "title": "Tao Trang Wiki",
+    "description": "Tao tai lieu cong tac cho cong dong cua ban",
+    "titleLabel": "Tieu de",
+    "titlePlaceholder": "Tieu de trang...",
+    "categoryLabel": "Danh muc (tuy chon)",
+    "categoryPlaceholder": "vd., Bat dau, To chuc, Phap ly",
+    "tagsLabel": "The (phan cach bang dau phay)",
+    "tagsPlaceholder": "to chuc, an toan, tai nguyen",
+    "contentLabel": "Noi dung (Markdown)",
+    "cancel": "Huy",
+    "createPage": "Tao Trang"
+  },
+  "deliveryProgress": {
+    "sending": "Dang Gui Ban Tin...",
+    "complete": "Gui Hoan Tat",
+    "readyToSend": "San Sang Gui",
+    "cancel": "Huy",
+    "untitled": "Ban Tin Chua Dat Ten",
+    "progress": "Tien do",
+    "stats": {
+      "delivered": "Da gui",
+      "pending": "Dang cho",
+      "failed": "That bai"
+    },
+    "sendingTo": "Gui den",
+    "totalRecipients": "Tong so nguoi nhan: {{count}}",
+    "close": "Dong"
+  },
+  "tiersEditor": {
+    "title": "Cap Do Quyen Gop",
+    "description": "Tao cac muc quyen gop co san voi quyen loi",
+    "addTier": "Them Cap Do",
+    "empty": {
+      "title": "Chua co cap do quyen gop nao",
+      "description": "Them cap do de goi y muc quyen gop"
+    },
+    "tierName": "Ten Cap Do",
+    "tierNamePlaceholder": "Nguoi Ung Ho",
+    "amount": "So tien ({{currency}})",
+    "amountPlaceholder": "25.00",
+    "descriptionLabel": "Mo ta (tuy chon)",
+    "descriptionPlaceholder": "Nhung gi nguoi ung ho nhan duoc o cap do nay"
+  },
+  "fileList": {
+    "delete": "Xoa",
+    "download": "Tai xuong",
+    "share": "Chia se",
+    "confirmDeleteFile": "Xoa tap tin nay?",
+    "confirmDeleteFolder": "Xoa thu muc nay va tat ca noi dung?"
+  },
+  "filesAccessRequestDialog": {
+    "title": "Yeu Cau Truy Cap",
+    "description": "Yeu cau truy cap \"{{resourceName}}\"",
+    "accessLevel": "Cap Do Truy Cap",
+    "viewOnly": "Chi xem",
+    "viewDownload": "Xem va Tai xuong",
+    "edit": "Chinh sua",
+    "messageLabel": "Tin nhan (tuy chon)",
+    "messagePlaceholder": "Tai sao ban can truy cap tap tin nay?",
+    "cancel": "Huy",
+    "sending": "Dang gui...",
+    "sendRequest": "Gui Yeu Cau",
+    "error": "Khong the gui yeu cau truy cap"
+  },
+  "documentsAccessRequestDialog": {
+    "title": "Yeu Cau Truy Cap",
+    "description": "Yeu cau truy cap \"{{resourceTitle}}\"",
+    "accessLevel": "Cap Do Truy Cap",
+    "viewOnly": "Chi xem",
+    "viewComment": "Xem va Binh luan",
+    "edit": "Chinh sua",
+    "messageLabel": "Tin nhan (tuy chon)",
+    "messagePlaceholder": "Tai sao ban can truy cap tai lieu nay?",
+    "cancel": "Huy",
+    "sending": "Dang gui...",
+    "sendRequest": "Gui Yeu Cau",
+    "error": "Khong the gui yeu cau truy cap"
+  },
+  "groupSettingsDialog": {
+    "settings": "Cai dat",
+    "title": "Cai dat {{groupName}}",
+    "description": "Quan ly cai dat nhom, module va thanh vien",
+    "tabs": {
+      "modules": "Module",
+      "general": "Chung",
+      "members": "Thanh vien"
+    },
+    "general": {
+      "title": "Cai Dat Chung",
+      "description": "Cau hinh cai dat chung cua nhom",
+      "comingSoon": "Cai dat chung sap ra mat..."
+    }
+  },
+  "publicWikiPage": {
+    "categories": {
+      "security": "Bao Mat",
+      "strategy": "Chien Luoc",
+      "governance": "Quan Tri",
+      "legal": "Phap Ly"
+    },
+    "popularPages": {
+      "securityBestPractices": "Thuc Hanh Bao Mat Tot Nhat",
+      "powerMappingGuide": "Huong Dan Lap Ban Do Quyen Luc",
+      "consensusDecisionMaking": "Ra Quyet Dinh Dong Thuan"
+    }
+  },
+  "pollList": {
+    "title": "Khao Sat",
+    "createPoll": "Tao Khao Sat",
+    "tabs": {
+      "active": "Dang Hoat Dong",
+      "myPolls": "Khao Sat Cua Toi",
+      "ended": "Da Ket Thuc"
+    },
+    "empty": {
+      "active": {
+        "title": "Khong co khao sat dang hoat dong",
+        "description": "Hay la nguoi dau tien tao khao sat va thu thap y kien tu cong dong."
+      },
+      "myPolls": {
+        "title": "Chua co khao sat nao",
+        "description": "Ban chua tao khao sat nao. Bat dau thu thap y kien tu cong dong cua ban!",
+        "createFirst": "Tao Khao Sat Dau Tien"
+      },
+      "ended": {
+        "title": "Khong co khao sat da ket thuc",
+        "description": "Cac khao sat da hoan thanh se hien thi o day."
+      }
+    }
+  },
+  "articleView": {
+    "backTo": "Quay lai {{publicationName}}",
+    "minRead": "{{minutes}} phut doc",
+    "visibility": {
+      "subscribers": "Bai viet nay chi danh cho nguoi dang ky",
+      "paid": "Bai viet nay chi danh cho nguoi dang ky tra phi"
+    },
+    "share": {
+      "title": "Chia se bai viet nay",
+      "helpSpread": "Giup lan truyen thong tin",
+      "copyLink": "Sao Chep Lien Ket",
+      "twitter": "Twitter",
+      "linkCopied": "Da sao chep lien ket vao bo nho tam"
+    },
+    "subscribe": "Dang Ky"
+  },
+  "campaignTemplateGallery": {
+    "title": "Thu Vien Mau Chien Dich",
+    "description": "Bat dau voi mau co san hoac tao chien dich tu dau",
+    "blank": {
+      "title": "Chien Dich Trong",
+      "description": "Bat dau tu dau va xay dung chien dich tuy chinh cua rieng ban"
+    },
+    "includesTiers": "Bao gom {{count}} muc quyen gop",
+    "useTemplate": "Su Dung Mau"
+  },
+  "editableTableView": {
+    "filterPlaceholder": "Loc {{label}}...",
+    "selected": "Da chon {{count}}",
+    "delete": "Xoa",
+    "addRecord": "Them Ban Ghi",
+    "noRecords": "Khong tim thay ban ghi nao.",
+    "showing": "Hien thi {{showing}} / {{total}} ban ghi",
+    "showingSelected": "Hien thi {{showing}} / {{total}} ban ghi - Da chon {{selected}}",
+    "selectAll": "Chon tat ca",
+    "selectRow": "Chon hang"
+  },
+  "embedCard": {
+    "error": {
+      "title": "Khong the tai noi dung nhung",
+      "openExternally": "Mo ben ngoai"
+    },
+    "openOn": "Mo tren {{provider}}",
+    "providerEmbed": "Noi dung nhung tu {{provider}}",
+    "loading": "Dang tai...",
+    "loadProvider": "Tai {{provider}}",
+    "openExternally": "Mo ben ngoai",
+    "privacyNote": "Nhan de tai noi dung ben ngoai. Thao tac nay se ket noi den {{domain}}."
+  },
+  "commentThread": {
+    "reply": "Tra loi",
+    "replies": "{{count}} tra loi",
+    "replies_plural": "{{count}} tra loi",
+    "mute": "Tat tieng",
+    "unmute": "Bat tieng",
+    "delete": "Xoa",
+    "confirmDelete": "Xoa binh luan nay?",
+    "threadCollapsed": "Chuoi da thu gon ({{count}} tra loi)",
+    "threadCollapsed_plural": "Chuoi da thu gon ({{count}} tra loi)",
+    "noComments": "Chua co binh luan nao. Hay la nguoi dau tien binh luan!",
+    "replyTo": "Tra loi {{author}}..."
+  },
+  "formPreview": {
+    "title": "Xem Truoc Bieu Mau",
+    "description": "Day la cach bieu mau cua ban se hien thi voi nguoi dung",
+    "addFields": "Them truong de xem truoc",
+    "submitPreview": "Gui Xem Truoc",
+    "reset": "Dat Lai",
+    "currentFormData": "Du Lieu Bieu Mau Hien Tai:"
+  },
+  "fileUploadZone": {
+    "title": "Tai Len Tep",
+    "dragDrop": "Keo va tha tep vao day, hoac nhan de duyet",
+    "encrypted": "Cac tep se duoc ma hoa truoc khi tai len",
+    "selectedFiles": "Tep da chon:",
+    "cancel": "Huy",
+    "upload": "Tai Len",
+    "uploadCount": "Tai Len ({{count}})",
+    "groupNotFound": "Khong tim thay nhom",
+    "success": "Da tai len {{count}} tep thanh cong",
+    "error": "Tai len tep that bai"
+  },
+  "tableView": {
+    "filterPlaceholder": "Loc {{label}}...",
+    "noRecords": "Khong tim thay ban ghi.",
+    "showing": "Hien thi {{from}}-{{to}} trong {{total}} ban ghi",
+    "page": "Trang {{current}} trong {{total}}"
+  },
+  "editableCell": {
+    "empty": "Trong",
+    "noTargetTable": "Chua cau hinh bang dich",
+    "notSupported": "Chinh sua truc tiep khong ho tro cho {{widget}}",
+    "linked": "Da lien ket",
+    "linkedCount": "{{count}} da lien ket"
+  },
+  "deviceActivityHistory": {
+    "title": "Lich Su Hoat Dong",
+    "description": "Cac su kien bao mat va hoat dong thiet bi gan day",
+    "clearOld": "Xoa Cu (Tren 30 ngay)",
+    "all": "Tat Ca",
+    "noActivity": "Khong tim thay hoat dong",
+    "viewMetadata": "Xem du lieu meta",
+    "unknownDevice": "Thiet Bi Khong Xac Dinh"
+  },
+  "autoModerationRuleForm": {
+    "ruleName": "Ten Quy Tac",
+    "ruleNamePlaceholder": "vd., Chan tu ngu tho tuc, Loc link spam",
+    "ruleType": "Loai Quy Tac",
+    "patterns": "Mau",
+    "patternPlaceholderRegex": "Nhap mau regex",
+    "patternPlaceholderLink": "Nhap ten mien hoac mau URL",
+    "patternPlaceholderKeyword": "Nhap tu khoa hoac cum tu",
+    "add": "Them",
+    "action": "Hanh Dong",
+    "notifyModerators": "Thong Bao Nguoi Kiem Duyet",
+    "ruleTypes": {
+      "keyword": "Bo Loc Tu Khoa",
+      "keywordDescription": "Khop tu khoa hoac cum tu chinh xac",
+      "regex": "Mau Regex",
+      "regexDescription": "Su dung bieu thuc chinh quy de khop nang cao",
+      "spamDetection": "Phat Hien Spam",
+      "spamDetectionDescription": "Tu dong phat hien noi dung giong spam",
+      "linkFilter": "Bo Loc Lien Ket",
+      "linkFilterDescription": "Loc bai dang chua cac lien ket nhat dinh"
+    },
+    "actions": {
+      "flag": "Danh Dau De Xem Xet",
+      "flagDescription": "Them vao hang doi kiem duyet",
+      "hide": "An Noi Dung",
+      "hideDescription": "An nhung khong xoa",
+      "delete": "Xoa",
+      "deleteDescription": "Xoa noi dung ngay lap tuc",
+      "warn": "Canh Bao Nguoi Dung",
+      "warnDescription": "Gui canh bao den nguoi dung"
+    }
+  },
+  "publicPageRenderer": {
+    "status": "Trang Thai",
+    "type": "Loai",
+    "url": "URL",
+    "created": "Da Tao",
+    "published": "Da Xuat Ban",
+    "updated": "Da Cap Nhat"
+  },
+  "syncStatusIndicator": {
+    "offline": "Ngoai Tuyen",
+    "online": "Truc Tuyen",
+    "syncing": "Dang Dong Bo...",
+    "synced": "Da Dong Bo",
+    "failed": "{{count}} that bai",
+    "pending": "{{count}} dang cho",
+    "pendingLabel": "Dang Cho",
+    "failedLabel": "That Bai",
+    "everythingSynced": "Tat ca da duoc dong bo",
+    "retryAll": "Thu Lai Tat Ca",
+    "clearAll": "Xoa Tat Ca",
+    "retry": "Thu Lai",
+    "remove": "Xoa",
+    "retriesFailed": "({{retryCount}}/{{maxRetries}} lan thu)",
+    "itemTypes": {
+      "message": "Tin Nhan",
+      "post": "Bai Dang",
+      "fileUpload": "Tai Len Tep",
+      "reaction": "Phan Ung",
+      "comment": "Binh Luan"
+    },
+    "itemDescriptions": {
+      "messageTo": "Tin nhan den {{conversationId}}...",
+      "post": "Bai dang: {{content}}...",
+      "file": "Tep: {{fileName}}",
+      "reaction": "Phan ung: {{reactionType}}",
+      "commentOnPost": "Binh luan bai dang"
+    }
+  },
+  "notificationCenter": {
+    "title": "Thong Bao",
+    "markAllRead": "Danh dau tat ca da doc",
+    "enableBrowser": {
+      "title": "Bat thong bao trinh duyet",
+      "description": "Nhan thong bao ngay ca khi ung dung chay ngam",
+      "button": "Bat"
+    },
+    "empty": "Chua co thong bao",
+    "markAsRead": "Danh dau da doc",
+    "removeNotification": "Xoa thong bao",
+    "timeAgo": {
+      "justNow": "vua xong",
+      "minutesAgo": "{{count}} phut truoc",
+      "hoursAgo": "{{count}} gio truoc",
+      "daysAgo": "{{count}} ngay truoc"
+    }
+  },
+  "groupThreadList": {
+    "noThreadsTitle": "Chua co chu de nao",
+    "noThreadsDescription": "Bat dau cuoc tro chuyen bang cach tao chu de dau tien",
+    "createThread": "Tao chu de",
+    "threads": "Chu de",
+    "newThread": "Chu de moi",
+    "messageCount": "{{count}} tin nhan"
+  },
+  "wikiUpdateFeedCard": {
+    "createdPage": "da tao mot trang wiki",
+    "updatedPage": "da cap nhat mot trang wiki",
+    "wikiPage": "Trang Wiki",
+    "moreTags": "+{{count}} nua",
+    "readPage": "Doc trang",
+    "edit": "Chinh sua",
+    "history": "Lich su"
+  },
+  "contactsList": {
+    "following": "Dang theo doi ({{count}})",
+    "followers": "Nguoi theo doi ({{count}})",
+    "friends": "Ban be ({{count}})",
+    "emptyFollowing": "Ban chua theo doi ai",
+    "emptyFollowers": "Chua co nguoi theo doi",
+    "emptyFriends": "Chua co ban chung"
+  },
+  "addContactDialog": {
+    "trigger": "Them lien he",
+    "title": "Them lien he",
+    "description": "Nhap khoa cong khai Nostr (npub hoac hex) de them vao danh ba",
+    "pubkeyLabel": "Khoa cong khai (npub hoac hex)",
+    "pubkeyPlaceholder": "npub1... hoac khoa cong khai hex",
+    "petnameLabel": "Biet danh (tuy chon)",
+    "petnamePlaceholder": "an",
+    "invalidPubkey": "Dinh dang khoa cong khai khong hop le. Su dung dinh dang npub hoac hex.",
+    "submit": "Them lien he"
+  },
+  "contactCard": {
+    "trustTiers": {
+      "stranger": "Nguoi la",
+      "contact": "Lien he",
+      "friend": "Ban be",
+      "verified": "Da xac minh",
+      "trusted": "Dang tin cay"
+    },
+    "verifiedInPerson": "Xac minh truc tiep",
+    "sendMessage": "Gui tin nhan",
+    "viewProfile": "Xem ho so",
+    "addToFavorites": "Them vao yeu thich",
+    "removeFromFavorites": "Xoa khoi yeu thich",
+    "blockContact": "Chan lien he",
+    "removeContact": "Xoa lien he",
+    "confirmRemove": "Xoa {{name}} khoi danh ba?",
+    "confirmBlock": "Chan {{name}}? Ban se khong thay noi dung cua ho nua."
+  },
+  "formCanvas": {
+    "required": "Bat buoc",
+    "placeholder": "Van ban giu cho: {{value}}",
+    "options": "Cac lua chon: {{value}}",
+    "emptyTitle": "Keo cac truong vao day de xay dung bieu mau",
+    "emptyDescription": "Chon loai truong tu bang ben trai"
+  },
+  "footnote": {
+    "title": "Chu thich {{number}}",
+    "clickToAdd": "Nhan de them",
+    "enterContent": "Nhap noi dung chu thich...",
+    "ctrlEnterToSave": "Ctrl+Enter de luu",
+    "cancel": "Huy",
+    "save": "Luu",
+    "deleteFootnote": "Xoa chu thich"
+  },
+  "databaseDashboard": {
+    "noTablesTitle": "Chua co bang nao",
+    "noTablesDescription": "Tao bang dau tien de bat dau",
+    "createTable": "Tao bang",
+    "loading": "Dang tai...",
+    "newTable": "Bang moi",
+    "newRecord": "Ban ghi moi",
+    "tableNamePrompt": "Ten bang:"
+  },
+  "calendarView": {
+    "noDateField": "Chua cau hinh truong ngay cho che do xem nay",
+    "previous": "Truoc",
+    "today": "Hom nay",
+    "next": "Tiep",
+    "days": {
+      "sun": "CN",
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7"
+    },
+    "untitled": "Chua co tieu de",
+    "more": "+{{count}} khac"
+  },
+  "groupSidebar": {
+    "groupNotFound": "Khong tim thay nhom",
+    "backToNetwork": "Quay lai mang luoi",
+    "dashboard": "Bang dieu khien",
+    "feed": "Bang tin",
+    "members": "Thanh vien",
+    "settings": "Cai dat"
+  },
+  "createThreadDialog": {
+    "title": "Tao chu de moi",
+    "description": "Bat dau cuoc tro chuyen moi trong nhom nay",
+    "titleLabel": "Tieu de",
+    "titlePlaceholder": "vd: Ghi chu hop, Y tuong, Thong bao",
+    "categoryLabel": "Danh muc (Tuy chon)",
+    "categoryPlaceholder": "vd: Chung, Ke hoach, Tai nguyen",
+    "cancel": "Huy",
+    "creating": "Dang tao...",
+    "create": "Tao chu de"
+  },
+  "groupList": {
+    "loginRequired": "Vui long dang nhap de xem cac nhom",
+    "loading": "Dang tai cac nhom...",
+    "title": "Nhom cua ban",
+    "empty": "Chua co nhom nao. Tao mot nhom de bat dau!",
+    "private": "Rieng tu",
+    "memberCount": "{{count}} thanh vien",
+    "memberCount_other": "{{count}} thanh vien",
+    "moduleCount": "{{count}} mo-dun",
+    "moduleCount_other": "{{count}} mo-dun"
+  },
+  "transportStatus": {
+    "mesh": "Mang luoi",
+    "meshPeers": "{{count}} nut mang",
+    "relays": "{{count}} relay",
+    "offline": "Ngoai tuyen",
+    "cloud": "Dam may"
+  },
+  "anonymousReactions": {
+    "anonymousMode": "Che do An danh",
+    "anonymousModeDesc": "Phan ung cua ban se khong hien thi voi nguoi khac",
+    "anonymous": "An danh",
+    "public": "Cong khai",
+    "anonymousCount": "{{count}} phan ung an danh",
+    "anonymousCount_plural": "{{count}} phan ung an danh",
+    "yourReactionAnonymous": "Phan ung cua ban la an danh",
+    "reactions": {
+      "support": "Ung ho",
+      "solidarity": "Doan ket",
+      "greatIdea": "Y tuong hay",
+      "concern": "Lo ngai"
+    }
+  },
+  "storyViewer": {
+    "deleteStory": "Xoa tin",
+    "views": "{{count}} luot xem",
+    "replies": "{{count}} tra loi",
+    "replyPlaceholder": "Tra loi..."
+  },
+  "rsvpButton": {
+    "going": "Se tham gia",
+    "maybe": "Co the",
+    "notGoing": "Khong tham gia",
+    "failedUpdate": "Cap nhat RSVP that bai"
+  },
+  "groupMessagesPage": {
+    "loading": "Dang tai...",
+    "notFound": "Khong tim thay nhom",
+    "title": "Tin nhan",
+    "subtitle": "Cuoc tro chuyen va chuoi hoi thoai nhom"
+  },
+  "groupDashboard": {
+    "title": "Bang dieu khien nhom",
+    "groupId": "Ma nhom: {{id}}",
+    "welcome": "Chao mung den nhom cua ban! Su dung thanh ben de di chuyen giua cac module."
+  },
+  "eventCard": {
+    "privacyLabels": {
+      "public": "Cong khai",
+      "group": "Chi nhom",
+      "private": "Rieng tu",
+      "directAction": "Hanh dong truc tiep"
+    },
+    "locationReveals": "Dia diem se hien thi: {{date}}",
+    "maxAttendees": "Toi da {{count}} nguoi tham gia"
+  },
+  "messageThread": {
+    "newMessage": "Tin nhan moi",
+    "today": "Hom nay",
+    "yesterday": "Hom qua",
+    "invalidConversation": "Cuoc tro chuyen khong hop le",
+    "noMessages": "Chua co tin nhan. Hay bat dau cuoc tro chuyen!",
+    "placeholder": "Nhap tin nhan... (dung @ de tag)",
+    "send": "Gui"
+  },
+  "formAnalyticsDashboard": {
+    "title": "Phan tich",
+    "subtitle": "Phan tich bieu mau bao mat quyen rieng tu",
+    "totalViews": "Tong luot xem",
+    "submissions": "Luot gui",
+    "conversionRate": "Ty le chuyen doi",
+    "topReferrers": "Nguon gioi thieu hang dau",
+    "direct": "Truc tiep"
+  },
+  "filesPage": {
+    "downloadFailed": "Tai tap tin that bai. Vui long thu lai.",
+    "deleteFailed": "Xoa mot so tap tin that bai. Vui long thu lai.",
+    "moveFailed": "Di chuyen mot so tap tin that bai. Vui long thu lai."
+  },
+  "headerFooter": {
+    "documentHeader": "Dau trang tai lieu",
+    "documentFooter": "Chan trang tai lieu",
+    "alignLeft": "Can trai",
+    "alignCenter": "Can giua",
+    "alignRight": "Can phai",
+    "showPageNumber": "Hien thi so trang",
+    "pageNumberNote": "Trang {{page}} (so trang hien thi khi in)"
+  },
+  "conversationList": {
+    "title": "Hoi thoai",
+    "loginRequired": "Vui long dang nhap de xem hoi thoai",
+    "noConversations": "Chua co hoi thoai nao. Bat dau mot cuoc tro chuyen moi!",
+    "unknown": "Khong ro",
+    "justNow": "Vua xong",
+    "minutesAgo": "{{count}} phut truoc",
+    "hoursAgo": "{{count}} gio truoc",
+    "daysAgo": "{{count}} ngay truoc"
+  },
+  "mainApp": {
+    "initError": "Loi Khoi tao",
+    "initFailed": "Khoi tao ung dung that bai. Vui long tai lai trang.",
+    "retry": "Thu lai",
+    "initializing": "Dang khoi tao..."
+  },
+  "mobileNav": {
+    "menu": "Menu",
+    "home": "Trang chu",
+    "messages": "Tin nhan",
+    "groups": "Nhom",
+    "modules": "Mo-dun",
+    "settings": "Cai dat"
+  },
+  "contactDetailInfo": {
+    "joined": "Tham gia {{date}}",
+    "lastContact": "Lien he cuoi {{date}}"
+  },
+  "friendRequestCard": {
+    "sent": "Da gui",
+    "acceptRequest": "Chap nhan yeu cau",
+    "accept": "Chap nhan",
+    "declineRequest": "Tu choi yeu cau",
+    "methods": {
+      "qr": "Ma QR",
+      "username": "Tim kiem Ten nguoi dung",
+      "email": "Moi qua Email",
+      "inviteLink": "Lien ket moi"
+    }
+  }
+}

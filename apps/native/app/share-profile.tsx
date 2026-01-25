@@ -13,7 +13,7 @@ import {
   Share,
   Alert,
 } from 'react-native'
-import { useRouter, Stack } from 'one'
+import { useRouter, Stack } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Clipboard from 'expo-clipboard'
 import { useAuthStore } from '../src/stores'

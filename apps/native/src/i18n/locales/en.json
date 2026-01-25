@@ -1,0 +1,5208 @@
+{
+  "app": {
+    "name": "BuildN",
+    "tagline": "a social action network"
+  },
+  "meta": {
+    "defaultDescription": "Privacy-first organizing platform built on Nostr protocol for activist groups, co-ops, unions, and community organizers.",
+    "home": "Your activity feed with posts, events, and community updates from your groups.",
+    "messages": "Secure, end-to-end encrypted messaging for private conversations.",
+    "groups": "Create and manage groups for organizing, mutual aid, and community building.",
+    "events": "Coordinate events, rallies, workshops, and community gatherings.",
+    "mutualAid": "Share resources, offer help, and coordinate community support.",
+    "governance": "Democratic decision-making with proposals, voting, and consensus building.",
+    "wiki": "Collaborative knowledge base for documentation and organizing resources.",
+    "crm": "Manage contacts, track outreach, and coordinate campaign efforts.",
+    "settings": "Manage your profile, privacy, security, and notification preferences.",
+    "login": "Sign in to your account or create a new identity.",
+    "unlock": "Unlock your account to continue.",
+    "recovery": "Recover your account with your recovery phrase.",
+    "notFound": "The page you're looking for doesn't exist.",
+    "security": "Security settings and encryption key management.",
+    "notifications": "Configure how you receive alerts and updates.",
+    "privacy": "Control your data visibility and privacy settings.",
+    "preferences": "Customize your experience with display and language settings.",
+    "analytics": "View engagement metrics and group activity statistics.",
+    "files": "Secure file storage and sharing for your groups.",
+    "documents": "Create and collaborate on rich text documents.",
+    "database": "Custom databases and structured data management.",
+    "fundraising": "Organize fundraising campaigns and track donations.",
+    "newsletters": "Create and send newsletters to your community.",
+    "forms": "Build custom forms for surveys, signups, and data collection.",
+    "pages": "Publish public-facing pages for your group or campaign.",
+    "bookmarks": "Your saved posts, events, and content."
+  },
+  "auth": {
+    "login": "Login",
+    "createIdentity": "Create Identity",
+    "importKey": "Import Key",
+    "name": "Name",
+    "privateKey": "Private Key",
+    "generateNew": "Generate New Identity",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "login": {
+      "tabCreate": "Create New",
+      "tabImport": "Import",
+      "displayName": "Display Name",
+      "namePlaceholder": "Enter your name",
+      "password": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPassword": "Confirm Password",
+      "confirmPlaceholder": "Confirm your password",
+      "passwordHint": "Minimum 8 characters. This password encrypts your private keys.",
+      "importPasswordHint": "This password will encrypt your imported key locally.",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "securityNote": "Your private key will be encrypted with this password. It never leaves your device unencrypted.",
+      "privateKey": "Private Key (nsec)",
+      "creating": "Creating...",
+      "createButton": "Create Identity",
+      "importing": "Importing...",
+      "importButton": "Import Identity",
+      "createFailed": "Failed to create identity",
+      "importFailed": "Failed to import identity"
+    },
+    "unlock": {
+      "title": "Welcome Back",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordRequired": "Please enter your password",
+      "button": "Unlock",
+      "unlocking": "Unlocking...",
+      "forgotPassword": "Forgot Password?",
+      "addAccount": "Add Another Account",
+      "importKey": "Import Key",
+      "newAccount": "New Account",
+      "selectAccount": "Select an account to unlock"
+    },
+    "recovery": {
+      "title": "Secure Your Account",
+      "description": "Before you can use BuildIt, you need to save your recovery phrase.",
+      "descriptionWithName": "Welcome, {{name}}! Before you can use BuildIt, you need to save your recovery phrase.",
+      "warningTitle": "Critical Security Step",
+      "warningDescription": "This 24-word phrase is the ONLY way to recover your account if you forget your password or lose access to your device. There is NO password reset. Write it down and store it securely offline.",
+      "phraseLabel": "Your Recovery Phrase",
+      "hide": "Hide",
+      "show": "Show",
+      "copied": "Copied!",
+      "copyPhrase": "Copy to Clipboard",
+      "confirmWrittenDown": "I have written down my recovery phrase and stored it in a secure location. I understand that if I lose this phrase, I will permanently lose access to my account.",
+      "verifyPhrase": "Verify Recovery Phrase",
+      "verifyTitle": "Verify Your Recovery Phrase",
+      "verifyDescription": "Enter the requested words from your recovery phrase to confirm you have saved it correctly.",
+      "enterWord": "Enter word #{{number}}",
+      "wordPlaceholder": "Enter word",
+      "verificationFailed": "One or more words are incorrect. Please check your recovery phrase and try again.",
+      "verifyHint": "Can't remember? Go back to view your recovery phrase again, but make sure to write it down this time!",
+      "newWords": "Try different words",
+      "verifying": "Verifying...",
+      "confirm": "Confirm & Continue",
+      "recoverTitle": "Recover Your Account",
+      "recoverDesc": "Enter your 24-word recovery phrase to reset your password and recover access to your account.",
+      "recoverDescWithName": "Enter the 24-word recovery phrase for \"{{name}}\" to set a new password.",
+      "secureTitle": "Secure Recovery",
+      "secureDesc": "Your recovery phrase is never sent to any server. It is only used locally to derive your private key.",
+      "phraseValid": "Valid recovery phrase",
+      "invalidPhrase": "Please enter a valid 24-word recovery phrase.",
+      "invalidWords": "Invalid words: {{words}}",
+      "wrongWordCount": "Expected 24 words, got {{count}}",
+      "newPasswordTitle": "Set New Password",
+      "newPasswordDesc": "Create a new password to protect your account on this device.",
+      "passwordWarning": "This password encrypts your private key on this device. If you forget it, you will need your recovery phrase again.",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter a strong password",
+      "passwordHint": "Minimum 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "recovering": "Recovering...",
+      "recoverButton": "Recover Account",
+      "successTitle": "Account Recovered!",
+      "successDesc": "Your account has been recovered and you are now logged in.",
+      "recoveredIdentity": "Recovered Identity",
+      "failed": "Recovery failed. Please check your recovery phrase."
+    },
+    "logout": {
+      "button": "Logout",
+      "warningTitle": "No Backup Found",
+      "warningDescription": "You haven't created a backup for this account. If you logout and forget your password, you may permanently lose access.",
+      "noRecoveryTitle": "No Password Reset",
+      "noRecoveryDescription": "BuildIt has no server-side password recovery. Your recovery phrase is the ONLY way to restore your account if you forget your password.",
+      "identityLocked": "Identity is locked. Please unlock first to view your recovery phrase.",
+      "phraseFailed": "Failed to get recovery phrase",
+      "createBackupNow": "Create Backup Now",
+      "logoutAnyway": "Logout Anyway",
+      "saveBackupTitle": "Save Your Recovery Phrase",
+      "saveBackupDescription": "Write down these 24 words and store them securely. This is your only way to recover your account.",
+      "phraseWarning": "Anyone with this phrase can access your account. Store it securely offline and never share it.",
+      "phraseLabel": "24-Word Recovery Phrase",
+      "iveSavedIt": "I've Saved My Phrase"
+    },
+    "backup": {
+      "reminderTitle": "Protect Your Account",
+      "reminderDescription": "Your account is not backed up. Save your recovery phrase to prevent losing access.",
+      "backupNow": "Backup Now",
+      "snooze": "Remind me later",
+      "identityLocked": "Please unlock your identity first.",
+      "phraseFailed": "Failed to get recovery phrase",
+      "dialogTitle": "Save Your Recovery Phrase",
+      "dialogDescription": "This 24-word phrase is the ONLY way to recover your account if you forget your password or lose access to this device.",
+      "phraseWarning": "Write down these words and store them securely offline. Anyone with this phrase can access your account.",
+      "phraseLabel": "24-Word Recovery Phrase",
+      "iveSavedIt": "I've Saved My Phrase"
+    }
+  },
+  "nav": {
+    "feed": "Feed",
+    "messages": "Messages",
+    "groups": "Groups",
+    "events": "Events",
+    "mutualAid": "Mutual Aid",
+    "tools": "Tools",
+    "settings": "Settings",
+    "openMenu": "Open navigation menu"
+  },
+  "messages": {
+    "title": "Messages",
+    "newConversation": "New Conversation",
+    "startNewConversation": "Start New Conversation",
+    "startConversation": "Start Conversation",
+    "selectConversation": "Select a conversation or start a new one",
+    "recipientPublicKey": "Recipient Public Key",
+    "recipientPlaceholder": "Enter 64-character hex public key...",
+    "invalidPublicKey": "Invalid public key. Must be 64 hex characters.",
+    "conversations": "Conversations",
+    "noMessages": "No messages yet",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "groups": {
+    "title": "Groups",
+    "createGroup": "Create Group",
+    "noGroups": "No groups yet",
+    "groupName": "Group Name",
+    "description": "Description",
+    "privacy": "Privacy",
+    "public": "Public",
+    "private": "Private",
+    "secret": "Secret",
+    "enabledModules": "Enabled Modules",
+    "settings": "Settings",
+    "members": "members",
+    "pendingInvitations": "You have pending group invitations"
+  },
+  "events": {
+    "title": "Events",
+    "groupDescription": "Group events and gatherings",
+    "publicDescription": "Public events and gatherings",
+    "createEvent": "Create Event",
+    "noEvents": "No events yet",
+    "eventName": "Event Name",
+    "location": "Location",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "capacity": "Capacity",
+    "rsvp": "RSVP",
+    "going": "Going",
+    "maybe": "Maybe",
+    "notGoing": "Not Going",
+    "exportCalendar": "Export to Calendar",
+    "upcoming": "Upcoming",
+    "allEvents": "All Events",
+    "calendar": "Calendar"
+  },
+  "mutualAid": {
+    "title": "Mutual Aid",
+    "description": "Community support through resource sharing and solidarity",
+    "createRequest": "Create Request/Offer",
+    "requests": "Active Requests",
+    "requestsDesc": "Community members need your help",
+    "offers": "Available Offers",
+    "offersDesc": "Resources available to help",
+    "noRequests": "No active requests",
+    "noOffers": "No available offers",
+    "rideShare": "Ride Share",
+    "solidarityRideShare": "Solidarity Ride Share",
+    "rideShareDesc": "Coordinate transportation with community members",
+    "noRideShares": "No ride shares available",
+    "browse": "Browse",
+    "myItems": "My Items",
+    "noMyItems": "You haven't created any requests or offers yet",
+    "matches": "Matches",
+    "noMatches": "No matches found. Create a request or offer to get started."
+  },
+  "governance": {
+    "title": "Governance",
+    "description": "Democratic decision-making and collective governance",
+    "createProposal": "Create Proposal",
+    "activeProposals": "Active Proposals",
+    "voting": "Voting",
+    "history": "History",
+    "noProposals": "No proposals yet",
+    "draftProposals": "Draft Proposals",
+    "draftProposalsDesc": "Proposals under discussion",
+    "noDraftProposals": "No draft proposals",
+    "openForVoting": "Open for Voting",
+    "castYourVote": "Cast your vote",
+    "noActiveVotes": "No active votes",
+    "ends": "Ends",
+    "decisionHistory": "Decision History",
+    "auditTrail": "Audit trail of all decisions",
+    "noDecisionHistory": "No decision history yet",
+    "decidedOn": "Decided on",
+    "votingMethods": "Voting Methods Available",
+    "votingMethodsDesc": "Multiple democratic voting systems supported",
+    "simpleMajority": "Simple Majority",
+    "simpleMajorityDesc": "Traditional yes/no/abstain voting",
+    "rankedChoice": "Ranked Choice",
+    "rankedChoiceDesc": "Rank preferences for multiple options",
+    "quadraticVoting": "Quadratic Voting",
+    "quadraticVotingDesc": "Express preference intensity with token allocation",
+    "consensus": "Consensus",
+    "consensusDesc": "Threshold-based consensus decision making"
+  },
+  "wiki": {
+    "title": "Knowledge Base",
+    "newPage": "New Page",
+    "search": "Search wiki...",
+    "noPages": "No pages yet",
+    "gettingStarted": "Getting Started",
+    "organizingResources": "Organizing Resources",
+    "legalSafety": "Legal & Safety"
+  },
+  "crm": {
+    "title": "Contact Database",
+    "addContact": "Add Contact",
+    "noContacts": "No contacts yet",
+    "tableView": "Table View",
+    "boardView": "Board View",
+    "calendarView": "Calendar View",
+    "templates": "Available Templates",
+    "unionOrganizing": "Union Organizing",
+    "fundraising": "Fundraising",
+    "legalTracking": "Legal Tracking"
+  },
+  "common": {
+    "create": "Create",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "done": "Done",
+    "join": "Join",
+    "select": "Select...",
+    "previous": "Previous",
+    "show": "Show",
+    "hide": "Hide",
+    "sending": "Sending...",
+    "somethingWentWrong": "Something went wrong",
+    "goToApp": "Go to App",
+    "reloadPage": "Reload Page",
+    "unknownError": "An unknown error occurred",
+    "anErrorOccurred": "An error occurred",
+    "theme": {
+      "toggle": "Toggle theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": {
+      "switch": "Switch language"
+    }
+  },
+  "media": {
+    "sensitiveContent": "Sensitive Content",
+    "showContent": "Show Content",
+    "hideContent": "Hide Content",
+    "downloadImage": "Download image",
+    "closeGallery": "Close gallery",
+    "viewFullscreen": "View fullscreen",
+    "imageEncrypted": "This image is encrypted",
+    "decryptAndView": "Decrypt & View"
+  },
+  "security": {
+    "deviceManagement": "Device Management",
+    "signOutAllDevices": "Sign Out All Devices",
+    "noDevicesFound": "No devices found",
+    "removeDevice": "Remove Device",
+    "confirmSignOutAll": "Are you sure you want to sign out from all devices? You will need to sign in again on each device.",
+    "activityHistory": "Activity History",
+    "noActivityFound": "No activity found",
+    "biometricAvailable": "Biometric authentication available!",
+    "securityKeyRequired": "Security key required",
+    "webauthnBenefits": {
+      "noPassword": "No password to remember",
+      "phishingResistant": "Phishing-resistant",
+      "fastSecure": "Fast and secure",
+      "worksAcrossDevices": "Works across devices"
+    },
+    "nameThisDevice": "Name This Device",
+    "deviceName": "Device Name",
+    "registeringCredential": "Registering Credential",
+    "important": "Important:",
+    "troubleshooting": {
+      "checkBiometric": "Check that biometric is enabled on your device",
+      "trySecurityKey": "Try using a security key instead",
+      "updateBrowser": "Update your browser to the latest version"
+    }
+  },
+  "contacts": {
+    "addContact": "Add Contact",
+    "publicKeyLabel": "Public Key (npub or hex)",
+    "petnameLabel": "Petname (optional)"
+  },
+  "friends": {
+    "title": "Friends & Contacts",
+    "subtitle": "Manage your connections and friend requests",
+    "addFriend": "Add Friend",
+    "friends": "Friends",
+    "verified": "Verified",
+    "favorites": "Favorites",
+    "pendingRequests": "Pending Requests",
+    "allTrustLevels": "All Trust Levels",
+    "trustLevel": "Trust Level",
+    "friend": "Friend",
+    "trusted": "Trusted",
+    "allFriends": "All Friends",
+    "noFriendsFound": "No friends found",
+    "noFriendsHint": "Try adjusting your filters or add some friends!",
+    "noIncomingRequests": "No incoming requests",
+    "noSentRequests": "No sent requests",
+    "chooseHowConnect": "Choose how you'd like to connect with your friend",
+    "sendFriendRequest": "Send Friend Request",
+    "incomingRequests": "Incoming Requests",
+    "sentRequests": "Sent Requests",
+    "requests": "Requests",
+    "searchFriends": "Search friends..."
+  },
+  "hotlines": {
+    "title": "Hotlines",
+    "subtitle": "Manage call lines, dispatch, and coordination",
+    "createHotline": "Create Hotline",
+    "totalCalls": "Total Calls",
+    "activeCalls": "Active Calls",
+    "avgDuration": "Avg Duration",
+    "operatorsOnDuty": "Operators On Duty",
+    "selectHotline": "Select a hotline to view calls",
+    "selectHotlineToView": "Select a hotline to view calls and operators",
+    "callHistory": "Call History",
+    "operators": "Operators",
+    "operatorManagementSoon": "Operator management coming soon",
+    "startNewCall": "Start New Call",
+    "callerName": "Caller Name",
+    "phoneNumber": "Phone Number",
+    "priority": "Priority",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "priorityUrgent": "Urgent",
+    "noActiveCalls": "No active calls",
+    "active": "Active"
+  },
+  "customFields": {
+    "fieldName": "Field Name",
+    "label": "Label",
+    "fieldType": "Field Type",
+    "required": "Required field",
+    "placeholder": "Placeholder",
+    "helpText": "Help Text",
+    "optionsJson": "Options (JSON)",
+    "minLength": "Min Length",
+    "maxLength": "Max Length",
+    "pattern": "Pattern (regex)",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "applyTemplate": "Apply Template:",
+    "deleteCustomField": "Delete Custom Field"
+  },
+  "onboarding": {
+    "availability": {
+      "weekdays": "Weekdays",
+      "weekends": "Weekends",
+      "flexible": "Flexible"
+    }
+  },
+  "tasks": {
+    "automatedFollowup": "Automated follow-up",
+    "editTask": "Edit Task",
+    "reassign": "Reassign"
+  },
+  "pages": {
+    "groupMembers": "Group Members",
+    "groupNotFound": "Group not found",
+    "basicInformation": "Basic Information",
+    "privacyLevel": "Privacy Level",
+    "userDirectory": "User Directory",
+    "allUsers": "All users",
+    "verifiedOnly": "Verified only",
+    "unverifiedOnly": "Unverified only",
+    "usernameAZ": "Username (A-Z)",
+    "nameAZ": "Name (A-Z)",
+    "recentlyActive": "Recently active",
+    "members": "Members",
+    "membersCount": "{{count}} member",
+    "membersCount_plural": "{{count}} members",
+    "memberIn": "in {{name}}",
+    "inviteMembers": "Invite Members",
+    "noMembersFound": "No members found",
+    "joined": "Joined {{date}}",
+    "groupSettings": "Group Settings",
+    "configureSettings": "Configure {{name}} settings and features",
+    "updateNameDescription": "Update your group's name and description",
+    "enterGroupName": "Enter group name",
+    "enterGroupDescription": "Enter group description",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "chooseModules": "Choose which modules are available for this group",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "managePrivacy": "Manage group privacy and visibility",
+    "publicAccess": "Anyone can see this group and join",
+    "privateAccess": "Invitation only - encrypted content"
+  },
+  "posts": {
+    "placeholder": "What's on your mind? Share updates, organize actions, build solidarity...",
+    "postCreated": "Post created successfully",
+    "postFailed": "Failed to create post",
+    "postScheduled": "Post scheduled successfully",
+    "scheduleFailed": "Failed to schedule post",
+    "selectFutureDate": "Please select a future date and time",
+    "addEmoji": "Add emoji",
+    "disableLinkPreviews": "Disable link previews",
+    "enableLinkPreviews": "Enable link previews",
+    "linkPreviewsOn": "Link previews on",
+    "linkPreviewsOff": "Link previews off",
+    "postPrivacy": "Post privacy level",
+    "privacy": "Privacy",
+    "groupOnly": "Group only",
+    "public": "Public",
+    "followers": "Followers",
+    "encrypted": "Encrypted",
+    "groupOnlyDesc": "Only members of your groups can see this",
+    "publicDesc": "Visible to anyone, shared on public relays",
+    "followersDesc": "Only people who follow you can see this",
+    "encryptedDesc": "End-to-end encrypted, only specific people can decrypt",
+    "post": "Post",
+    "schedulePost": "Schedule post",
+    "schedule": "Schedule",
+    "makePublicTitle": "Make this post public?",
+    "makePublicWarning": "Public posts are visible to anyone on the internet and will be shared on public Nostr relays.",
+    "publicActivistWarning": "For activist organizing, consider whether this content should remain private to protect your community.",
+    "keepPrivate": "Keep Private",
+    "makePublic": "Make Public"
+  },
+  "templates": {
+    "title": "Choose a Template",
+    "subtitle": "Choose a template to get started quickly with pre-configured modules.",
+    "manualMode": "Manual setup",
+    "customize": "Customize",
+    "continue": "Continue",
+    "createGroup": "Create Group",
+    "creating": "Creating...",
+    "modules": "modules",
+    "modulesEnabled": "modules will be enabled",
+    "modulesToEnable": "Modules to Enable",
+    "includeSampleData": "Include sample data",
+    "sampleDataDescription": "Populate the group with example content to help you get started",
+    "optionalEnhancements": "Optional Enhancements",
+    "summary": "Summary",
+    "template": "Template",
+    "enhancementsAdded": "enhancements added",
+    "demoDataWillBeLoaded": "Demo data will be loaded",
+    "manualModeDescription": "Manual mode: You'll select individual modules in the next step.",
+    "complexity": {
+      "1": "Simple",
+      "2": "Basic",
+      "3": "Standard",
+      "4": "Advanced",
+      "5": "Expert"
+    },
+    "categories": {
+      "community": "Community",
+      "mutual-aid": "Mutual Aid",
+      "organizing": "Organizing",
+      "civic": "Civic Action",
+      "governance": "Governance",
+      "movement-defense": "Movement Defense"
+    },
+    "simpleGroup": {
+      "name": "Simple Group",
+      "description": "A minimal group with just messaging. Perfect for getting started quickly."
+    },
+    "mutualAidNetwork": {
+      "name": "Mutual Aid Network",
+      "description": "Share resources and coordinate community support. Perfect for neighborhood networks.",
+      "enhancements": {
+        "governance": {
+          "name": "Democratic Decisions",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "events": {
+          "name": "Events & Gatherings",
+          "description": "Coordinate meetups and community events"
+        }
+      }
+    },
+    "unionChapter": {
+      "name": "Union Chapter",
+      "description": "Complete tools for workplace organizing: campaigns, contacts, and democratic governance.",
+      "enhancements": {
+        "publicPresence": {
+          "name": "Public Presence",
+          "description": "Create a public-facing page for your chapter"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for contracts, grievances, and notes"
+        },
+        "files": {
+          "name": "File Storage",
+          "description": "Secure storage for contracts, photos, and evidence"
+        }
+      }
+    },
+    "unionElectionCampaign": {
+      "name": "Union Election Campaign",
+      "description": "Organize a union election with worker tracking, house visits, authorization cards, and NLRB coordination.",
+      "enhancements": {
+        "wiki": {
+          "name": "Knowledge Base",
+          "description": "Document NLRB rules, anti-union tactics, and organizing resources"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for planning and ULP documentation"
+        },
+        "publicPresence": {
+          "name": "Public Campaign",
+          "description": "Add public pages for worker outreach (use with caution)"
+        }
+      }
+    },
+    "activistCollective": {
+      "name": "Activist Collective",
+      "description": "Coordinate campaigns, build knowledge, and mobilize your community effectively.",
+      "enhancements": {
+        "crm": {
+          "name": "Contact Management",
+          "description": "Track supporters, volunteers, and outreach efforts"
+        },
+        "database": {
+          "name": "Custom Databases",
+          "description": "Create custom tracking systems for your campaigns"
+        },
+        "files": {
+          "name": "Media Library",
+          "description": "Store and organize campaign materials"
+        }
+      }
+    },
+    "communityHub": {
+      "name": "Community Hub",
+      "description": "A general-purpose space for community organizing and connection. Perfect for neighborhoods and social groups.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Decisions",
+          "description": "Add proposals and voting for community decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for meeting notes and planning"
+        },
+        "files": {
+          "name": "File Sharing",
+          "description": "Shared file storage for community resources"
+        },
+        "crm": {
+          "name": "Contact Directory",
+          "description": "Manage community contacts and local businesses"
+        }
+      }
+    },
+    "movementLegalDefense": {
+      "name": "Movement Legal Defense Collective",
+      "description": "Full-featured mass defense coordination with case management, court calendars, lawyer coordination, and jail support hotlines.",
+      "enhancements": {
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for legal briefs, templates, and case notes"
+        },
+        "wiki": {
+          "name": "Knowledge Base",
+          "description": "Document know-your-rights guides, legal procedures, and resources"
+        },
+        "publicPresence": {
+          "name": "Public Resources",
+          "description": "Add public pages for know-your-rights info and how to get help"
+        },
+        "fundraising": {
+          "name": "Bail Fund & Donations",
+          "description": "Add bail fund management and donation tracking"
+        }
+      }
+    },
+    "streetMedicsCollective": {
+      "name": "Street Medics Collective",
+      "description": "Train and mobilize street medics for protests and community events. Track certifications, coordinate deployments, and manage medical supplies.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Governance",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for protocols, training materials, and debriefs"
+        },
+        "hotlines": {
+          "name": "Medical Dispatch",
+          "description": "Add dispatch hotline for emergency medical coordination"
+        },
+        "fundraising": {
+          "name": "Supply Fund",
+          "description": "Track donations for medical supplies and equipment"
+        }
+      }
+    },
+    "selfDefenseCollective": {
+      "name": "Community Self-Defense Collective",
+      "description": "Train and coordinate safety marshals and de-escalation teams for demonstrations and community events.",
+      "enhancements": {
+        "governance": {
+          "name": "Collective Governance",
+          "description": "Add proposals and voting for collective decisions"
+        },
+        "documents": {
+          "name": "Document Suite",
+          "description": "Collaborative documents for protocols, incident reports, and training materials"
+        },
+        "hotlines": {
+          "name": "Security Dispatch",
+          "description": "Add dispatch hotline for security coordination"
+        }
+      }
+    },
+    "mediaCollective": {
+      "name": "Media Collective",
+      "description": "Community journalism with democratic self-governance. Publish articles, syndicate to networks, and make decisions together.",
+      "channels": {
+        "general": "General",
+        "editorial": "Editorial",
+        "pitches": "Story Pitches",
+        "governance": "Governance",
+        "announcements": "Announcements"
+      },
+      "roles": {
+        "editor": "Editor",
+        "writer": "Writer",
+        "copyEditor": "Copy Editor",
+        "publisher": "Publisher",
+        "newsletterEditor": "Newsletter Editor"
+      },
+      "enhancements": {
+        "openNewsroom": {
+          "name": "Open Newsroom",
+          "description": "Accept public story submissions from the community"
+        },
+        "wireService": {
+          "name": "Wire Service Mode",
+          "description": "Aggregate and republish stories from other collectives"
+        },
+        "events": {
+          "name": "Events & Press Conferences",
+          "description": "Organize press events, community meetings, and coverage coordination"
+        },
+        "mutualAid": {
+          "name": "Community Resources",
+          "description": "Connect readers with community resources and mutual aid"
+        },
+        "microblogging": {
+          "name": "Breaking News Updates",
+          "description": "Post quick updates, breaking news, and social media-style content"
+        },
+        "fundraising": {
+          "name": "Fundraising & Membership",
+          "description": "Accept donations and manage memberships"
+        }
+      }
+    }
+  },
+  "polls": {
+    "create": "Create Poll",
+    "question": "Question",
+    "questionPlaceholder": "Ask a question...",
+    "options": "Options",
+    "optionPlaceholder": "Option {{n}}",
+    "addOption": "Add Option",
+    "removeOption": "Remove option",
+    "type": "Poll Type",
+    "singleChoice": "Single choice",
+    "multipleChoice": "Multiple choice",
+    "duration": "Duration",
+    "hideResults": "Hide results until poll ends",
+    "createPoll": "Create Poll",
+    "vote": "Vote",
+    "voting": "Voting...",
+    "votes": "votes",
+    "voters": "voters",
+    "totalVotes": "total votes",
+    "ended": "Poll ended",
+    "singleChoiceHint": "Select one option",
+    "multipleChoiceHint": "Select one or more options"
+  },
+  "stories": {
+    "create": "Create Story",
+    "yourStory": "Your story",
+    "addStory": "Add story",
+    "text": "Text",
+    "image": "Image",
+    "video": "Video",
+    "textPlaceholder": "Type your story...",
+    "captionPlaceholder": "Add a caption...",
+    "clickToUpload": "Click to upload",
+    "backgroundColor": "Background",
+    "textColor": "Text Color",
+    "font": "Font",
+    "share": "Share Story",
+    "delete": "Delete story",
+    "replyPlaceholder": "Send a reply...",
+    "views": "views"
+  },
+  "moderation": {
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "muting": "Muting...",
+    "muteUser": "Mute {{name}}?",
+    "muteDescription": "You won't see posts, comments, or stories from this user. They won't be notified that you've muted them."
+  },
+  "report": {
+    "title": "Report {{type}}",
+    "description": "Help us understand what's wrong with this content.",
+    "reason": "Why are you reporting this?",
+    "additionalInfo": "Additional information (optional)",
+    "additionalInfoPlaceholder": "Provide any additional context...",
+    "privacyNote": "Your report is confidential. The reported user will not know who reported them.",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "contentTypes": {
+      "post": "post",
+      "comment": "comment",
+      "user": "user",
+      "message": "message",
+      "story": "story"
+    },
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "hate_speech": "Hate Speech",
+      "violence": "Violence",
+      "illegal_content": "Illegal Content",
+      "misinformation": "Misinformation",
+      "impersonation": "Impersonation",
+      "copyright": "Copyright",
+      "other": "Other"
+    },
+    "reasonDescriptions": {
+      "spam": "Unsolicited or repetitive content",
+      "harassment": "Targeted harassment or bullying",
+      "hate_speech": "Content that promotes hatred based on identity",
+      "violence": "Threats or promotion of violence",
+      "illegal_content": "Content that violates laws",
+      "misinformation": "False or misleading information",
+      "impersonation": "Pretending to be someone else",
+      "copyright": "Content that infringes on copyrights",
+      "other": "Something else not listed above"
+    }
+  },
+  "lists": {
+    "title": "Your Lists",
+    "create": "New List",
+    "createTitle": "Create a new list",
+    "editTitle": "Edit list",
+    "deleteTitle": "Delete list?",
+    "deleteDescription": "This will permanently delete \"{{name}}\" and remove all members. This action cannot be undone.",
+    "name": "Name",
+    "namePlaceholder": "My List",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "What is this list about?",
+    "private": "Private",
+    "privateHint": "Only you can see this list",
+    "members": "members",
+    "empty": "No lists yet",
+    "emptyHint": "Create a list to organize users into groups"
+  },
+  "trending": {
+    "title": "Trending",
+    "posts": "posts",
+    "empty": "No trending topics yet"
+  },
+  "governanceTemplates": {
+    "mediaCollective": {
+      "editorialPolicyChange": {
+        "title": "Editorial Policy Change",
+        "description": "Propose changes to editorial guidelines, standards, or policies"
+      },
+      "coveragePriority": {
+        "title": "Coverage Priority",
+        "description": "Set or change coverage priorities for the collective"
+      },
+      "styleGuideUpdate": {
+        "title": "Style Guide Update",
+        "description": "Propose updates to the collective's style guide"
+      },
+      "newMemberApproval": {
+        "title": "New Member Approval",
+        "description": "Vote on accepting a new member to the collective"
+      },
+      "roleAssignment": {
+        "title": "Role Assignment",
+        "description": "Assign a member to a specific role"
+      },
+      "electEditorialBoard": {
+        "title": "Elect Editorial Board",
+        "description": "Elect members to serve on the editorial board"
+      },
+      "joinCoalition": {
+        "title": "Join Coalition",
+        "description": "Vote on joining a regional or global media coalition"
+      },
+      "leaveCoalition": {
+        "title": "Leave Coalition",
+        "description": "Vote on leaving a coalition the collective currently belongs to"
+      },
+      "partnershipAgreement": {
+        "title": "Partnership Agreement",
+        "description": "Establish a partnership with another organization"
+      },
+      "budgetAllocation": {
+        "title": "Budget Allocation",
+        "description": "Allocate collective funds for specific purposes"
+      },
+      "contentDispute": {
+        "title": "Content Dispute Resolution",
+        "description": "Resolve disputes about published or pending content"
+      },
+      "retractionRequest": {
+        "title": "Retraction or Correction",
+        "description": "Vote on retracting or correcting published content"
+      },
+      "syndicationApproval": {
+        "title": "Syndication Approval",
+        "description": "Approve syndicating a specific article to coalition(s)"
+      }
+    },
+    "categories": {
+      "editorial": "Editorial Governance",
+      "membership": "Membership & Roles",
+      "operations": "Operations & Finance",
+      "content": "Content Decisions",
+      "coalition": "Coalition Membership"
+    }
+  },
+  "modules": {
+    "title": "Module Settings",
+    "description": "Enable and configure modules for your group. Each module provides different features and capabilities.",
+    "noPermission": "You do not have permission to manage modules for this group.",
+    "noPermissionAlert": "You do not have permission to manage modules",
+    "failedToToggle": "Failed to toggle module",
+    "failedToUpdateConfig": "Failed to update configuration",
+    "cannotDisable": "Cannot disable: {{modules}} depends on this",
+    "required": "Required:",
+    "isRequired": "{{module}} is required",
+    "enhancedBy": "Enhanced by:",
+    "enhancedByModule": "Enhanced by {{module}}",
+    "enableForFeatures": "Enable {{module}} for more features",
+    "recommended": "Recommended:",
+    "worksWellWith": "{{module}} works well with this module",
+    "enableFirst": "Enable {{modules}} first",
+    "requiredBy": "Required by:",
+    "capabilities": "Capabilities:",
+    "configure": "Configure",
+    "configureModule": "Configure {{module}}",
+    "saveConfiguration": "Save Configuration",
+    "error": "Error: {{message}}"
+  },
+  "notifications": {
+    "title": "Notification Settings",
+    "description": "Manage how you receive notifications",
+    "comingSoon": "Notification settings coming soon..."
+  },
+  "preferences": {
+    "title": "Preferences",
+    "description": "Manage your app preferences and appearance",
+    "language": "Language",
+    "colorMode": "Color Mode",
+    "theme": "Theme"
+  },
+  "securityPage": {
+    "title": "Security & Devices",
+    "description": "Manage your devices, sessions, and security settings",
+    "webauthnProtection": "WebAuthn Protection",
+    "active": "Active",
+    "keysProtected": "Your keys are protected with WebAuthn",
+    "setupBiometric": "Set up biometric authentication or hardware security keys",
+    "setupWebauthn": "Set Up WebAuthn",
+    "registeredCredentials": "Registered Credentials",
+    "thisDevice": "This Device",
+    "lastUsed": "Last used:",
+    "webauthnNotSupported": "WebAuthn not supported",
+    "webauthnNotSupportedDesc": "Your browser doesn't support WebAuthn. Please use a modern browser (Chrome, Firefox, Safari, Edge) to enable biometric authentication and hardware security keys.",
+    "tabDevices": "Devices",
+    "tabSession": "Session",
+    "tabActivity": "Activity",
+    "tabPrivacy": "Privacy",
+    "tabTor": "Tor",
+    "tabBackup": "Backup",
+    "tabBackupTooltip": "Backup & Multi-Device",
+    "unlockForMultiDevice": "Please unlock your identity to access multi-device features."
+  },
+  "profile": {
+    "pleaseLogin": "Please log in to manage your profile",
+    "usernameAndDisplayName": "Username & Display Name",
+    "usernameDescription": "Set a human-readable username to make it easier for others to find and mention you",
+    "username": "Username",
+    "usernameTaken": "Username already taken",
+    "usernameAvailable": "Username available",
+    "usernameHint": "3-20 characters, lowercase letters, numbers, and hyphens only",
+    "displayName": "Display Name (Optional)",
+    "displayNameHint": "Your full name or preferred display name",
+    "saving": "Saving...",
+    "saveUsername": "Save Username",
+    "usernameSaved": "Username saved successfully",
+    "usernameSaveFailed": "Failed to save username",
+    "nip05Verification": "NIP-05 Verification",
+    "verified": "Verified",
+    "nip05Description": "Verify your identity with a domain name (username@domain.com)",
+    "nip05Identifier": "NIP-05 Identifier",
+    "nip05Hint": "Enter your NIP-05 identifier to verify your identity",
+    "verifying": "Verifying...",
+    "verifyNip05": "Verify NIP-05",
+    "verifiedAs": "Verified as",
+    "nip05Verified": "NIP-05 verified successfully",
+    "nip05Failed": "NIP-05 verification failed",
+    "privacySettings": "Privacy Settings",
+    "privacyDescription": "Control who can find you and see your profile",
+    "loadingSettings": "Loading settings...",
+    "usernameSearch": "Username Search",
+    "usernameSearchHint": "Allow others to find you by username",
+    "showInDirectory": "Show in Directory",
+    "showInDirectoryHint": "Appear in the public user directory",
+    "profileVisibility": "Profile Visibility",
+    "visibilityPublic": "Public (anyone can see)",
+    "visibilityGroups": "Groups only",
+    "visibilityFriends": "Friends only",
+    "visibilityPrivate": "Private (hidden)",
+    "visibilityHint": "Who can view your profile and posts",
+    "publicKey": "Public Key",
+    "publicKeyDescription": "Your Nostr public key (npub)",
+    "npub": "npub",
+    "npubHint": "Your unique identifier on the Nostr network",
+    "privacyUpdated": "Privacy settings updated",
+    "privacyUpdateFailed": "Failed to update settings"
+  },
+  "fundraising": {
+    "title": "Fundraising",
+    "description": "Create and manage fundraising campaigns for your organization",
+    "viewTemplates": "View Templates",
+    "newCampaign": "New Campaign",
+    "createCampaign": "Create Campaign",
+    "browseTemplates": "Browse Templates",
+    "noCampaigns": "No campaigns yet",
+    "noCampaignsDescription": "Create your first fundraising campaign to support strike funds, bail funds, mutual aid, and more.",
+    "backToCampaigns": "Back to Campaigns",
+    "deleteCampaign": "Delete Campaign",
+    "deleteCampaignConfirm": "Are you sure you want to delete \"{{title}}\"? This will also delete all donations and updates. This action cannot be undone.",
+    "edit": "Edit",
+    "preview": "Preview",
+    "donors": "Donors",
+    "analytics": "Analytics",
+    "copyLink": "Copy Link",
+    "pause": "Pause",
+    "publish": "Publish",
+    "of": "of",
+    "funded": "funded"
+  },
+  "forms": {
+    "title": "Forms",
+    "description": "Create and manage public forms for data collection",
+    "viewTemplates": "View Templates",
+    "newForm": "New Form",
+    "createForm": "Create Form",
+    "browseTemplates": "Browse Templates",
+    "noForms": "No forms yet",
+    "noFormsDescription": "Create your first form to start collecting data from volunteers, event registrations, surveys, and more.",
+    "backToForms": "Back to Forms",
+    "deleteForm": "Delete Form",
+    "deleteFormConfirm": "Are you sure you want to delete \"{{title}}\"? This will also delete all submissions. This action cannot be undone.",
+    "edit": "Edit",
+    "preview": "Preview",
+    "submissions": "Submissions",
+    "analytics": "Analytics",
+    "copyLink": "Copy Link",
+    "unpublish": "Unpublish",
+    "publish": "Publish",
+    "fields": "fields"
+  },
+  "files": {
+    "title": "Files",
+    "analytics": "Analytics",
+    "select": "Select",
+    "newFolder": "New Folder",
+    "uploadFiles": "Upload Files",
+    "selectFiles": "Select files",
+    "filesSelected": "{{count}} file selected",
+    "filesSelected_plural": "{{count}} files selected",
+    "downloadZip": "Download ZIP",
+    "download": "Download",
+    "move": "Move",
+    "share": "Share",
+    "searchPlaceholder": "Search files by name or content...",
+    "searching": "Searching...",
+    "searchContents": "Search Contents",
+    "recentSearches": "Recent Searches",
+    "clear": "Clear",
+    "savedFilters": "Saved Filters",
+    "filters": "Filters",
+    "filterFiles": "Filter Files",
+    "fileType": "File Type",
+    "allTypes": "All Types",
+    "images": "Images",
+    "documents": "Documents",
+    "videos": "Videos",
+    "audio": "Audio",
+    "archives": "Archives",
+    "other": "Other",
+    "fileSize": "File Size",
+    "allSizes": "All Sizes",
+    "sizeSmall": "Small (< 1 MB)",
+    "sizeMedium": "Medium (1-100 MB)",
+    "sizeLarge": "Large (> 100 MB)",
+    "modified": "Modified",
+    "anyTime": "Any Time",
+    "today": "Today",
+    "pastWeek": "Past Week",
+    "pastMonth": "Past Month",
+    "pastYear": "Past Year",
+    "saveFilter": "Save Filter",
+    "activeFilters": "Active filters:",
+    "type": "Type",
+    "size": "Size",
+    "contentMatches": "Content matches",
+    "deleteFilesTitle": "Delete {{count}} file?",
+    "deleteFilesTitle_plural": "Delete {{count}} files?",
+    "deleteFilesDesc": "This action cannot be undone. The selected files will be permanently deleted.",
+    "deleting": "Deleting...",
+    "saveSearchFilter": "Save Search Filter",
+    "filterName": "Filter Name",
+    "filterNamePlaceholder": "e.g., 'Large videos this month'",
+    "filterWillSave": "This filter will save:",
+    "search": "Search",
+    "analyticsTitle": "File Analytics",
+    "refresh": "Refresh",
+    "overview": "Overview",
+    "activity": "Activity",
+    "duplicates": "Duplicates",
+    "shared": "Shared",
+    "storageUsage": "Storage Usage",
+    "ofUsed": "of {{total}} used",
+    "totalFiles": "Total Files",
+    "filesInGroup": "files in this group",
+    "sharedFiles": "Shared Files",
+    "filesSharedWithOthers": "files shared with others",
+    "storageByType": "Storage by File Type",
+    "filesCount": "{{count}} files ({{size}})",
+    "noFilesUploaded": "No files uploaded yet",
+    "mostAccessedFiles": "Most Accessed Files",
+    "filesWithMostAccess": "Files with the most share access",
+    "accesses": "{{count}} accesses",
+    "noActivityYet": "No activity recorded yet",
+    "loadingAnalytics": "Loading analytics...",
+    "actions": {
+      "uploaded": "Uploaded",
+      "downloaded": "Downloaded",
+      "shared": "Shared",
+      "deleted": "Deleted",
+      "moved": "Moved",
+      "renamed": "Renamed",
+      "viewed": "Viewed"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "duplicatesFound": "Found {{count}} duplicate file groups. Consider deleting duplicates to free up storage.",
+    "duplicateGroup": "Duplicate Group #{{index}}",
+    "identicalFiles": "{{count}} identical files ({{size}} each)",
+    "created": "Created {{date}}",
+    "keep": "Keep",
+    "noDuplicates": "No duplicate files found",
+    "storageOptimized": "Your storage is optimized!",
+    "filesShared": "files shared",
+    "viewFileShares": "View individual file shares in the file list.",
+    "exportSharingReport": "Export Sharing Report",
+    "exporting": "Exporting...",
+    "noFilesShared": "No files shared yet",
+    "shareToSee": "Share files to see them here",
+    "deleteDuplicate": "Delete this duplicate file?",
+    "failedExport": "Failed to export sharing report",
+    "bulkShare": {
+      "title": "Share {{count}} Files",
+      "description": "Share multiple files with the same settings",
+      "complete": "Bulk Share Complete",
+      "filesSharedSuccessfully": "files shared successfully",
+      "failedToShare": "{{count}} file(s) failed to share:",
+      "done": "Done",
+      "sharingFiles": "Sharing files...",
+      "pleaseWait": "Please wait while we share your files",
+      "percentComplete": "{{percent}}% complete",
+      "shareWithUsers": "Share with Users",
+      "createLinks": "Create Links",
+      "selectUsers": "Select Users",
+      "member": "Member",
+      "noGroupMembers": "No group members found",
+      "permissionLevel": "Permission Level",
+      "viewOnly": "View only",
+      "viewDownload": "View & Download",
+      "viewDownloadEdit": "View, Download & Edit",
+      "generateLinks": "Generate public links for all files",
+      "passwordOptional": "Password (optional, same for all)",
+      "passwordPlaceholder": "Leave empty for no password",
+      "expiresIn": "Expires in (days)",
+      "never": "Never",
+      "day": "1 day",
+      "days7": "7 days",
+      "days30": "30 days",
+      "days90": "90 days",
+      "more": "+{{count}} more"
+    },
+    "storageUsed": "of {{size}} used"
+  },
+  "cache": {
+    "storageUsage": "Storage Usage",
+    "storageDesc": "Cached data for offline access",
+    "used": "used",
+    "limit": "limit",
+    "cachedItems": "cached items",
+    "oldest": "Oldest",
+    "ago": "ago",
+    "imagesMedia": "Images & Media",
+    "documents": "Documents",
+    "appData": "App Data",
+    "offlineQueue": "Offline Queue",
+    "refresh": "Refresh",
+    "freeSpace": "Free Space",
+    "exportData": "Export Data",
+    "cacheSettings": "Cache Settings",
+    "cacheSettingsDesc": "Configure how long data is kept offline",
+    "maxCacheSize": "Maximum Cache Size",
+    "maxCacheSizeDesc": "Limit for cached files and images",
+    "cacheExpiration": "Cache Expiration",
+    "cacheExpirationDesc": "Auto-delete cached items older than",
+    "days": "days",
+    "dataRetention": "Data Retention",
+    "dataRetentionDesc": "Configure how long messages and posts are kept locally",
+    "messages": "Messages",
+    "keepMessages": "Keep local messages for",
+    "posts": "Posts",
+    "keepPosts": "Keep local posts for",
+    "keepFiles": "Keep cached files for",
+    "lastCleanup": "Last cleanup",
+    "noCleanupYet": "No cleanup performed yet",
+    "cleanUpNow": "Clean Up Now",
+    "dangerZone": "Danger Zone",
+    "clearAllCache": "Clear All Cache",
+    "clearCacheDesc": "Remove all cached data. You'll need to re-download content.",
+    "clearCache": "Clear Cache",
+    "clearCacheTitle": "Clear All Cache?",
+    "clearCacheDialogDesc": "This will remove all cached files, images, and temporary data. Your messages, posts, and account data will not be affected. Content will need to be re-downloaded when you access it again.",
+    "cleanUpTitle": "Clean Up Old Data?",
+    "cleanUpDialogDesc": "This will remove old messages, posts, and cached files based on your retention settings. This helps free up storage space while keeping recent data.",
+    "cleanUp": "Clean Up"
+  },
+  "publishing": {
+    "settings": "Publication Settings",
+    "saveChanges": "Save Changes",
+    "settingsSaved": "Settings saved",
+    "tabs": {
+      "general": "General",
+      "theme": "Theme",
+      "content": "Content",
+      "subscriptions": "Subscriptions",
+      "social": "Social"
+    },
+    "general": {
+      "title": "General Settings",
+      "description": "Basic information about your publication",
+      "name": "Publication Name",
+      "namePlaceholder": "My Publication",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What is your publication about?",
+      "logoUrl": "Logo URL",
+      "logoPlaceholder": "https://example.com/logo.png",
+      "logoPreview": "Logo preview",
+      "coverImageUrl": "Cover Image URL",
+      "coverImagePlaceholder": "https://example.com/cover.jpg",
+      "coverPreview": "Cover preview"
+    },
+    "theme": {
+      "title": "Theme & Appearance",
+      "description": "Customize how your publication looks",
+      "primaryColor": "Primary Color",
+      "fontFamily": "Font Family",
+      "fontSans": "Sans-serif (Modern)",
+      "fontSerif": "Serif (Classic)",
+      "fontMono": "Monospace (Technical)",
+      "layout": "Layout Style",
+      "layoutDefault": "Default",
+      "layoutMagazine": "Magazine",
+      "layoutMinimal": "Minimal",
+      "darkMode": "Dark Mode",
+      "darkModeDesc": "Enable dark mode for your publication"
+    },
+    "content": {
+      "title": "Content Settings",
+      "description": "Control how content is published and displayed",
+      "defaultVisibility": "Default Article Visibility",
+      "visibilityPublic": "Public",
+      "visibilitySubscribers": "Subscribers Only",
+      "visibilityPaid": "Paid Subscribers Only",
+      "allowComments": "Allow Comments",
+      "allowCommentsDesc": "Let readers comment on articles",
+      "enableRss": "Enable RSS Feed",
+      "enableRssDesc": "Generate RSS feed for your publication",
+      "fullRss": "Full Content in RSS",
+      "fullRssDesc": "Include full article content in RSS (vs excerpt only)"
+    },
+    "subscriptions": {
+      "title": "Subscription Settings",
+      "description": "Configure subscriber features and monetization",
+      "emailNotifications": "Email Notifications",
+      "emailNotificationsDesc": "Send email notifications to subscribers (requires email setup)",
+      "paidSubscriptions": "Paid Subscriptions",
+      "paidSubscriptionsDesc": "Enable paid subscription tier for premium content",
+      "monthlyPrice": "Monthly Price (USD)",
+      "perMonth": "/ month"
+    },
+    "social": {
+      "title": "Social Links",
+      "description": "Add social media links to your publication",
+      "twitter": "Twitter / X",
+      "twitterPlaceholder": "@username",
+      "nostr": "Nostr",
+      "nostrPlaceholder": "npub...",
+      "website": "Website",
+      "websitePlaceholder": "https://example.com"
+    }
+  },
+  "tor": {
+    "title": "Tor Integration",
+    "description": "Connect to Nostr relays through Tor for enhanced privacy and censorship resistance",
+    "enableRouting": "Enable Tor Routing",
+    "enableRoutingDesc": "Route Nostr connections through .onion relays",
+    "connectionMethod": "Connection Method",
+    "methodAuto": "Auto-detect (Recommended)",
+    "methodTorBrowser": "Tor Browser",
+    "methodManualProxy": "Manual SOCKS5 Proxy",
+    "methodAutoDesc": "Automatically detect Tor Browser or SOCKS5 proxy",
+    "methodTorBrowserDesc": "Use Tor Browser for .onion relay connections",
+    "methodManualProxyDesc": "Configure custom SOCKS5 proxy (requires local Tor daemon)",
+    "proxyConfig": "SOCKS5 Proxy Configuration",
+    "proxyHost": "Proxy Host",
+    "proxyPort": "Proxy Port",
+    "proxyHint": "Standard Tor: 9050, Tor Browser: 9150",
+    "onionRelays": "Onion Relays",
+    "onionRelaysDesc": "Manage .onion Nostr relays for Tor connections",
+    "healthCheck": "Health Check",
+    "onionOnlyMode": "Onion Only Mode",
+    "onionOnlyModeDesc": "Use only .onion relays (no clearnet fallback)",
+    "fallbackClearnet": "Fallback to Clearnet",
+    "fallbackClearnetDesc": "Use clearnet relays if .onion relays unavailable",
+    "addCustomRelay": "Add Custom Relay",
+    "onionAddress": ".onion address",
+    "nameOptional": "Name (optional)",
+    "add": "Add",
+    "tableRelay": "Relay",
+    "tableUrl": "URL",
+    "tableStatus": "Status",
+    "tableLatency": "Latency",
+    "noRelaysConfigured": "No .onion relays configured",
+    "customRelay": "Custom Relay",
+    "statusUnknown": "Unknown",
+    "statusHealthy": "Healthy",
+    "statusDown": "Down",
+    "enhancedSecurity": "Enhanced Security",
+    "enhancedSecurityDesc": "Additional protections when using Tor",
+    "blockWebRTC": "Block WebRTC",
+    "blockWebRTCDesc": "Prevent WebRTC IP leaks (requires browser extension)",
+    "blockGeolocation": "Block Geolocation",
+    "blockGeolocationDesc": "Deny all geolocation API requests",
+    "fingerprintProtection": "Fingerprinting Protection",
+    "fingerprintProtectionDesc": "Enhanced protection against browser fingerprinting",
+    "securityWarnings": "Security Warnings",
+    "howToUse": "How to use Tor with BuildIt Network",
+    "recommendedNote": "Use Tor Browser for the best privacy and security. BuildIt will automatically detect and use .onion relays.",
+    "advancedNote": "Run a local Tor daemon (port 9050) and enable Manual Proxy mode for desktop integration.",
+    "noteNote": "WebRTC and geolocation blocking require browser configuration or extensions. Tor Browser includes these protections by default.",
+    "recommended": "Recommended:",
+    "advanced": "Advanced:",
+    "note": "Note:",
+    "invalidOnionAddress": "Please enter a valid .onion address"
+  },
+  "subscribers": {
+    "title": "Subscribers",
+    "stats": "{{active}} active, {{pending}} pending, {{unsubscribed}} unsubscribed",
+    "import": "Import",
+    "export": "Export",
+    "addSubscriber": "Add Subscriber",
+    "active": "Active",
+    "pending": "Pending",
+    "unsubscribed": "Unsubscribed",
+    "searchPlaceholder": "Search by pubkey...",
+    "all": "All",
+    "noSubscribers": "No subscribers",
+    "addFirstSubscriber": "Add your first subscriber to get started.",
+    "noStatusSubscribers": "No {{status}} subscribers found.",
+    "tablePubkey": "Pubkey",
+    "tableStatus": "Status",
+    "tableSource": "Source",
+    "tableSubscribed": "Subscribed",
+    "tableActions": "Actions",
+    "unsubscribe": "Unsubscribe",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "sourceManual": "Manual",
+    "sourceImport": "Import",
+    "sourceSelf": "Self",
+    "sourceContacts": "Contacts",
+    "addDialogTitle": "Add Subscriber",
+    "addDialogDesc": "Add a new subscriber by their Nostr pubkey.",
+    "nostrPubkey": "Nostr Pubkey",
+    "pubkeyPlaceholder": "npub... or hex pubkey",
+    "skipConfirmation": "Skip Confirmation",
+    "skipConfirmationDesc": "Activate immediately without confirmation",
+    "importDialogTitle": "Import Subscribers",
+    "importDialogDesc": "Paste Nostr pubkeys (one per line or comma-separated).",
+    "pubkeys": "Pubkeys",
+    "importPlaceholder": "npub1abc...\nnpub1def...\nor comma-separated",
+    "toastEnterPubkey": "Please enter a pubkey",
+    "toastInvalidPubkey": "Invalid pubkey format",
+    "toastSubscriberAdded": "Subscriber added",
+    "toastNoValidPubkeys": "No valid pubkeys found",
+    "toastImported": "{{count}} subscriber(s) imported",
+    "toastExported": "Subscribers exported",
+    "toastRemoved": "Subscriber removed",
+    "toastDeleted": "Subscriber deleted",
+    "toastConfirmed": "Subscription confirmed"
+  },
+  "webauthn": {
+    "setup": {
+      "title": "Set Up WebAuthn Protection",
+      "description": "Protect your keys with biometric authentication or a hardware security key",
+      "biometricAvailable": "Biometric authentication available!",
+      "biometricDetails": "You can use Touch ID, Face ID, Windows Hello, or your device's built-in authentication.",
+      "securityKeyRequired": "Security key required",
+      "securityKeyDetails": "This device doesn't support biometric authentication. You'll need a hardware security key (like a YubiKey) to continue.",
+      "benefits": "Benefits:",
+      "benefitBiometric": "Protect your keys with biometrics or hardware security",
+      "benefitUnauthorized": "Prevent unauthorized access even if password is compromised",
+      "benefitDevices": "Works across all your devices",
+      "benefitStandard": "Industry-standard FIDO2/WebAuthn security",
+      "getStarted": "Get Started",
+      "nameDevice": "Name This Device",
+      "nameDeviceDesc": "Give this device a name so you can identify it later",
+      "deviceName": "Device Name",
+      "deviceNamePlaceholder": "My iPhone, Work Laptop, etc.",
+      "enterDeviceName": "Please enter a device name",
+      "registering": "Registering Credential",
+      "registeringDesc": "Follow the prompts on your device to complete registration",
+      "useBiometric": "Use your fingerprint, face, or PIN to continue...",
+      "insertKey": "Insert and touch your security key...",
+      "success": "WebAuthn Set Up Successfully",
+      "successDescBiometric": "Your keys are now protected with biometric authentication",
+      "successDescKey": "Your keys are now protected with your security key",
+      "successImportant": "Important:",
+      "successWarning": "You'll now need to authenticate with WebAuthn whenever you access your keys. Make sure you can always access this device or have a backup authentication method.",
+      "credentialDetails": "Credential Details:",
+      "device": "Device:",
+      "failed": "Registration Failed",
+      "failedDesc": "We couldn't register your WebAuthn credential",
+      "troubleshooting": "Troubleshooting:",
+      "troubleshootBrowser": "Make sure your browser supports WebAuthn",
+      "troubleshootAuthenticator": "Try using a different authenticator",
+      "troubleshootAlreadyRegistered": "Check that you haven't already registered this device",
+      "troubleshootInserted": "Ensure your security key is properly inserted",
+      "tryAgain": "Try Again"
+    }
+  },
+  "shareDialog": {
+    "title": "Share \"{{title}}\"",
+    "description": "Invite people or create a shareable link",
+    "share": "Share",
+    "tabs": {
+      "people": "People",
+      "link": "Link"
+    },
+    "permissions": {
+      "view": "Viewer",
+      "comment": "Commenter",
+      "edit": "Editor",
+      "admin": "Admin",
+      "owner": "Owner"
+    },
+    "people": {
+      "placeholder": "Add people by npub or email...",
+      "invite": "Invite",
+      "you": "You",
+      "noCollaborators": "No collaborators yet. Invite people to collaborate.",
+      "added": "Added {{time}}"
+    },
+    "link": {
+      "public": "Public link",
+      "private": "Private link",
+      "publicDesc": "Anyone with the link can access this document",
+      "privateDesc": "Only people signed into BuildIt can access this link",
+      "permission": "Permission",
+      "viewOnly": "View only",
+      "canComment": "Can comment",
+      "canEdit": "Can edit",
+      "expires": "Expires",
+      "never": "Never",
+      "day1": "1 day",
+      "days7": "7 days",
+      "days30": "30 days",
+      "days90": "90 days",
+      "createLink": "Create Link",
+      "activeLinks": "Active Links",
+      "views": "{{count}} views",
+      "expiresIn": "Expires {{time}}",
+      "expired": "Expired {{time}}",
+      "expiredLinks": "Expired Links",
+      "noLinks": "No share links created yet"
+    }
+  },
+  "templateBuilder": {
+    "templateName": "Template Name",
+    "templateNamePlaceholder": "e.g., CRM Contact Database, Project Tracker",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe what this template is for and what it includes...",
+    "category": "Category",
+    "categories": {
+      "general": "General",
+      "crm": "CRM",
+      "project": "Project Management",
+      "inventory": "Inventory",
+      "custom": "Custom"
+    },
+    "tables": "Tables",
+    "tablesCount": "Tables ({{count}})",
+    "relationships": "Relationships",
+    "relationshipsCount": "Relationships ({{count}})",
+    "tablesDesc": "Define the tables and fields in this database template",
+    "addTable": "Add Table",
+    "noTables": "No tables yet. Add your first table to get started.",
+    "field": "field",
+    "fields": "fields",
+    "view": "view",
+    "views": "views",
+    "more": "+{{count}} more",
+    "deleteTable": "Are you sure you want to delete this table?",
+    "relationshipsDesc": "Define relationships between tables",
+    "addRelationship": "Add Relationship",
+    "noRelationships": "No relationships yet.",
+    "noRelationshipsNeedTables": "Add at least 2 tables first.",
+    "noRelationshipsConnect": "Add a relationship to connect your tables.",
+    "updateTemplate": "Update Template",
+    "createTemplate": "Create Template",
+    "enterName": "Please enter a template name",
+    "addTableFirst": "Please add at least one table",
+    "relationship": {
+      "edit": "Edit",
+      "add": "Add",
+      "title": "Relationship",
+      "desc": "Define how tables relate to each other",
+      "sourceTable": "Source Table",
+      "sourceField": "Source Field",
+      "targetTable": "Target Table",
+      "targetField": "Target Field",
+      "type": "Relationship Type",
+      "oneToMany": "One to Many",
+      "manyToOne": "Many to One",
+      "manyToMany": "Many to Many",
+      "onDelete": "On Delete",
+      "cascade": "Cascade (delete related records)",
+      "setNull": "Set Null (clear relationship)",
+      "restrict": "Restrict (prevent deletion)",
+      "selectTable": "Select table",
+      "selectField": "Select field",
+      "fillFields": "Please fill in all fields",
+      "save": "Save Relationship"
+    }
+  },
+  "privacyDashboard": {
+    "covertMode": "Covert Supporter Mode",
+    "covertModeDesc": "Maximum privacy for those who need to hide their involvement",
+    "covertActive": "Covert Mode Active",
+    "covertActiveDesc": "All privacy settings enabled. Your activity is hidden from public view while you can still support the movement.",
+    "highRiskDetected": "High Risk Detected",
+    "highRiskAdvice": "Consider enabling Covert Mode for maximum protection.",
+    "riskLevel": "Current Risk Level",
+    "riskLevelDesc": "Based on your location and campaign",
+    "riskLow": "Low Risk",
+    "riskMedium": "Medium Risk",
+    "riskHigh": "High Risk - Use Covert Mode",
+    "privacyControls": "Privacy Controls",
+    "settings": {
+      "anonymousVoting": "Anonymous Voting",
+      "anonymousVotingDesc": "Cast votes without revealing identity",
+      "anonymousReactions": "Anonymous Reactions",
+      "anonymousReactionsDesc": "React to posts anonymously",
+      "hideFromDirectory": "Hide from Member Directory",
+      "hideFromDirectoryDesc": "Don't appear in public member lists",
+      "encryptedMessagesOnly": "Encrypted Messages Only",
+      "encryptedMessagesOnlyDesc": "Require end-to-end encryption",
+      "disableReadReceipts": "Disable Read Receipts",
+      "disableReadReceiptsDesc": "Don't show when you've read messages",
+      "hideActivityStatus": "Hide Activity Status",
+      "hideActivityStatusDesc": "Don't show when you're online",
+      "restrictProfileVisibility": "Restrict Profile Visibility",
+      "restrictProfileVisibilityDesc": "Only members can see your profile"
+    },
+    "aboutTitle": "About Privacy Controls",
+    "aboutDesc": "These settings protect you in high-risk organizing contexts where visibility could lead to retaliation.",
+    "aboutCovert": "Covert Mode:",
+    "aboutCovertDesc": "Maximum privacy - enables all protections",
+    "aboutAnonymous": "Anonymous Actions:",
+    "aboutAnonymousDesc": "Participate without revealing identity",
+    "aboutHidden": "Hidden Presence:",
+    "aboutHiddenDesc": "Support the movement invisibly",
+    "aboutEncryption": "End-to-End Encryption:",
+    "aboutEncryptionDesc": "All communications are cryptographically secured"
+  },
+  "memberVerification": {
+    "title": "Member Verification",
+    "description": "Verify members in-person to build trust and prevent infiltration",
+    "howItWorks": "How Verification Works",
+    "inPerson": "In-Person Verification:",
+    "inPersonDesc": "Scan member's QR code when you meet face-to-face",
+    "vouching": "Vouching:",
+    "vouchingDesc": "Vouch for members you trust to increase their trust score",
+    "trustScoreInfo": "Trust Score:",
+    "trustScoreDesc": "Calculated based on verification, vouches, and activity",
+    "verifiedBadge": "Verified Badge:",
+    "verifiedBadgeDesc": "Shows member has been verified in-person",
+    "qrVerification": "QR Code Verification",
+    "closeScanner": "Close Scanner",
+    "scanQR": "Scan QR Code",
+    "qrScannerPlaceholder": "QR Scanner would appear here in production",
+    "cameraRequired": "Camera access required for in-person verification",
+    "enterMemberId": "Or enter member ID manually...",
+    "verify": "Verify",
+    "members": "Members",
+    "verified": "Verified",
+    "admin": "Admin",
+    "organizer": "Organizer",
+    "joined": "Joined {{date}}",
+    "vouch": "vouch",
+    "vouches": "vouches",
+    "verifyInPerson": "Verify In-Person",
+    "vouchForMember": "Vouch for Member",
+    "youVouched": "You vouched",
+    "trustScore": "Trust Score",
+    "lowTrustWarning": "Low trust score.",
+    "lowTrustAdvice": "Consider in-person verification before sharing sensitive information.",
+    "trustLevels": "Trust Score Levels",
+    "trusted": "Trusted (80+)",
+    "trustedDesc": "Verified + multiple vouches",
+    "verifiedLevel": "Verified (60-79)",
+    "verifiedLevelDesc": "In-person verified",
+    "newLevel": "New (40-59)",
+    "newLevelDesc": "Active but unverified",
+    "unverified": "Unverified (<40)",
+    "unverifiedDesc": "Requires verification"
+  },
+  "anomaly": {
+    "title": "Anomaly Detection",
+    "description": "Monitor suspicious behavior patterns to identify potential infiltrators",
+    "adminRequired": "Admin access required to view security anomalies",
+    "criticalDetected": "{{count}} Critical Anomaly Detected",
+    "criticalDetected_plural": "{{count}} Critical Anomalies Detected",
+    "immediateAction": "Immediate investigation required. These patterns indicate potential infiltration or data harvesting.",
+    "reviewNow": "Review Now",
+    "activeAnomalies": "Active Anomalies",
+    "critical": "Critical",
+    "investigating": "Investigating",
+    "resolved": "Resolved",
+    "detectionSystemsActive": "Detection Systems Active",
+    "recentAnomalies": "Recent Anomalies",
+    "resourcesAffected": "{{count}} resources affected",
+    "userId": "User ID:",
+    "startInvestigation": "Start Investigation",
+    "markFalsePositive": "Mark False Positive",
+    "suspendUser": "Suspend User",
+    "markResolved": "Mark Resolved",
+    "falsePositive": "False Positive",
+    "honeypotTrapsActive": "Honeypot Traps Active",
+    "honeypotDesc": "Honeypots are hidden documents or features that only infiltrators or bad actors would access. They appear as \"sensitive\" information to attract suspicious users.",
+    "honeypotFakeDocs": "Fake Sensitive Documents:",
+    "honeypotFakeDocsDesc": "3 active honeypots deployed",
+    "honeypotHiddenContacts": "Hidden Contact Lists:",
+    "honeypotHiddenContactsDesc": "Detect unauthorized data harvesting",
+    "honeypotTrapQuestions": "Trap Questions:",
+    "honeypotTrapQuestionsDesc": "Survey questions that identify bad actors",
+    "types": {
+      "massAccess": "Mass Data Access",
+      "unusualPosting": "Unusual Posting",
+      "rapidFollowing": "Rapid Following",
+      "honeypotTrigger": "Honeypot Triggered",
+      "dataExport": "Data Export"
+    },
+    "typeDesc": {
+      "massAccess": "Detects rapid viewing of member profiles or documents",
+      "unusualPosting": "Identifies spam-like or divisive posting patterns",
+      "rapidFollowing": "Flags users building social graphs too quickly",
+      "honeypotTrigger": "Hidden sensitive documents that only infiltrators access",
+      "dataExport": "Monitors bulk data downloads and exports"
+    },
+    "status": {
+      "active": "active",
+      "investigating": "investigating",
+      "resolved": "resolved",
+      "falsePositive": "false positive"
+    },
+    "severity": {
+      "critical": "critical",
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    }
+  },
+  "publicWiki": {
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundDesc": "The wiki page you're looking for doesn't exist or is not public.",
+    "browseWiki": "Browse Wiki",
+    "backToWiki": "Back to Wiki",
+    "updated": "Updated {{date}}",
+    "version": "Version {{number}}",
+    "maintainedByComm": "This page is maintained by the community",
+    "editPage": "Edit Page",
+    "popularPages": "Popular Pages",
+    "categories": "Categories",
+    "joinMovement": "Join the Movement",
+    "joinMovementDesc": "Get access to private organizing tools and connect with organizers.",
+    "signUp": "Sign Up",
+    "searchWiki": "Search wiki...",
+    "campaigns": "Campaigns",
+    "login": "Login",
+    "builditWiki": "BuildIt Wiki",
+    "builditNetwork": "BuildIt Network",
+    "builditDesc": "Privacy-first organizing platform for activists, unions, and community groups.",
+    "resources": "Resources",
+    "knowledgeBase": "Knowledge Base",
+    "about": "About",
+    "privacyPolicy": "Privacy Policy",
+    "contact": "Contact",
+    "builtWithPrivacy": "Built with privacy & security first",
+    "poweredByNostr": "Powered by Nostr protocol",
+    "freeOpenSource": "Free and open source"
+  },
+  "publicCampaign": {
+    "campaignNotFound": "Campaign Not Found",
+    "campaignNotFoundDesc": "The campaign you're looking for doesn't exist or is not public.",
+    "goHome": "Go Home",
+    "joinCampaign": "Join the Campaign",
+    "contactUs": "Contact Us",
+    "share": "Share",
+    "members": "{{count}} members",
+    "ourMission": "Our Mission",
+    "ourDemands": "Our Demands",
+    "recentUpdates": "Recent Updates",
+    "upcomingEvents": "Upcoming Events",
+    "learnMore": "Learn More",
+    "knowledgeBase": "Knowledge Base",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "getInTouch": "Get In Touch",
+    "getInTouchDesc": "Have questions or want to get involved? Send us a message!",
+    "name": "Name",
+    "yourName": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "message": "Message",
+    "messagePlaceholder": "Your message...",
+    "sendMessage": "Send Message",
+    "wiki": "Wiki"
+  },
+  "campaignAnalytics": {
+    "title": "Campaign Analytics",
+    "description": "Track campaign performance and engagement trends",
+    "exportCSV": "Export CSV",
+    "totalMembers": "Total Members",
+    "thisMonth": "this month",
+    "avgEventAttendance": "Avg Event Attendance",
+    "showUpRate": "show-up rate",
+    "voteTurnout": "Vote Turnout",
+    "activeVotes": "active votes",
+    "engagementRate": "Engagement Rate",
+    "reactions": "reactions",
+    "membershipGrowth": "Membership Growth",
+    "lastMonth": "Last Month",
+    "growth": "Growth",
+    "eventAttendance": "Event Attendance",
+    "rsvp": "RSVP",
+    "actual": "Actual",
+    "rsvpRate": "RSVP Rate",
+    "showUpRateLabel": "Show-Up Rate",
+    "governanceParticipation": "Governance Participation",
+    "turnout": "Turnout",
+    "avgTurnout": "Avg Turnout",
+    "consensusRate": "Consensus Rate",
+    "engagementTrends": "Engagement Trends",
+    "posts": "Posts",
+    "comments": "Comments",
+    "topContributors": "Top Contributors",
+    "postsReactions": "{{posts}} posts • {{reactions}} reactions",
+    "campaignWins": "Campaign Wins",
+    "majorImpact": "Major Impact",
+    "moderateImpact": "Moderate Impact",
+    "passed": "Passed",
+    "discussion": "Discussion"
+  },
+  "editor": {
+    "connected": "Connected",
+    "connecting": "Connecting...",
+    "synced": "Synced",
+    "suggesting": "Suggesting",
+    "active": "{{count}} active",
+    "bold": "Bold (Ctrl+B)",
+    "italic": "Italic (Ctrl+I)",
+    "strikethrough": "Strikethrough",
+    "inlineCode": "Inline Code",
+    "heading1": "Heading 1",
+    "heading2": "Heading 2",
+    "heading3": "Heading 3",
+    "bulletList": "Bullet List",
+    "numberedList": "Numbered List",
+    "blockquote": "Blockquote",
+    "insertImage": "Insert Image",
+    "insertLink": "Insert Link",
+    "insertTable": "Insert Table",
+    "insertBlock": "Insert Block",
+    "mathEquation": "Math Equation",
+    "diagram": "Diagram (Mermaid)",
+    "tableOfContents": "Table of Contents",
+    "footnote": "Footnote",
+    "pageBreak": "Page Break",
+    "documentHeader": "Document Header",
+    "documentFooter": "Document Footer",
+    "addComment": "Add Comment",
+    "writeComment": "Write your comment...",
+    "cancel": "Cancel",
+    "comment": "Comment",
+    "suggestionModeActive": "Suggestion Mode Active",
+    "suggestionModeTrack": "Suggestion Mode (Track Changes)",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)",
+    "enterImageUrl": "Enter image URL:",
+    "enterUrl": "Enter URL:",
+    "addFootnote": "Add footnote"
+  },
+  "subscriberList": {
+    "title": "Subscribers",
+    "description": "Manage your publication subscribers",
+    "exportCSV": "Export CSV",
+    "totalActive": "Total Active",
+    "freeSubscribers": "Free Subscribers",
+    "paidSubscribers": "Paid Subscribers",
+    "searchPlaceholder": "Search by pubkey or email...",
+    "tierPlaceholder": "Tier",
+    "allTiers": "All Tiers",
+    "free": "Free",
+    "paid": "Paid",
+    "statusPlaceholder": "Status",
+    "allStatus": "All Status",
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "expired": "Expired",
+    "noSubscribers": "No subscribers yet",
+    "noSubscribersDesc": "When readers subscribe to your publication, they'll appear here.",
+    "subscriber": "Subscriber",
+    "tier": "Tier",
+    "status": "Status",
+    "notifications": "Notifications",
+    "subscribed": "Subscribed",
+    "actions": "Actions",
+    "nostr": "Nostr",
+    "email": "Email",
+    "none": "None",
+    "sendEmail": "Send Email",
+    "removeSubscriber": "Remove Subscriber",
+    "exportedToast": "Subscribers exported",
+    "removedToast": "Subscriber removed"
+  },
+  "articleList": {
+    "title": "Articles",
+    "articleCount": "{{count}} article",
+    "articleCountPlural": "{{count}} articles",
+    "newArticle": "New Article",
+    "searchPlaceholder": "Search articles...",
+    "filterByStatus": "Filter by status",
+    "allStatus": "All Status",
+    "draft": "Draft",
+    "published": "Published",
+    "scheduled": "Scheduled",
+    "archived": "Archived",
+    "sortBy": "Sort by",
+    "lastUpdated": "Last Updated",
+    "publishedDate": "Published Date",
+    "titleSort": "Title",
+    "noArticles": "No articles yet",
+    "noArticlesDesc": "Get started by creating your first article.",
+    "createArticle": "Create Article",
+    "tableTitle": "Title",
+    "tableStatus": "Status",
+    "tableVisibility": "Visibility",
+    "tableUpdated": "Updated",
+    "tableActions": "Actions",
+    "untitled": "Untitled",
+    "public": "Public",
+    "subscribers": "Subscribers",
+    "paidOnly": "Paid",
+    "edit": "Edit",
+    "preview": "Preview",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "delete": "Delete"
+  },
+  "filePreview": {
+    "share": "Share",
+    "download": "Download",
+    "loadingPreview": "Loading preview...",
+    "failedToLoad": "Failed to load preview",
+    "videoNotSupported": "Your browser does not support the video tag.",
+    "audioNotSupported": "Your browser does not support the audio tag.",
+    "officeDocument": "Office Document",
+    "officeDesc": "Office documents can be viewed by downloading the file.",
+    "officeApps": "Open in Microsoft Office, Google Docs, or LibreOffice.",
+    "downloadToView": "Download to View",
+    "archiveContents": "Archive Contents",
+    "itemsCount": "{{count}} items",
+    "emptyArchive": "Empty archive or unable to read contents",
+    "loading3D": "Loading 3D viewer...",
+    "noPreview": "Preview not available for this file type",
+    "downloadToViewShort": "Download to view",
+    "detailsTab": "Details",
+    "activityTab": "Activity",
+    "versionsTab": "Versions",
+    "fileType": "File Type",
+    "size": "Size",
+    "uploaded": "Uploaded",
+    "modified": "Modified",
+    "encryption": "Encryption",
+    "e2eEncrypted": "End-to-end encrypted",
+    "fileUploaded": "File uploaded",
+    "fileModified": "File modified",
+    "loadingVersions": "Loading versions...",
+    "noVersionHistory": "No version history available",
+    "versionHistory": "Version History",
+    "version": "Version {{number}}",
+    "current": "Current",
+    "restore": "Restore",
+    "restoreConfirm": "Restore file to version {{number}}?",
+    "restoreSuccess": "Version restored successfully",
+    "restoreFailed": "Failed to restore version"
+  },
+  "auditLogs": {
+    "adminRequired": "Admin access required to view audit logs",
+    "title": "Audit Logs",
+    "description": "Track all sensitive actions for security investigation",
+    "exportLogs": "Export Logs",
+    "whatGetsLogged": "What Gets Logged",
+    "securityActions": "Security Actions:",
+    "securityActionsDesc": "Verifications, suspensions, permission changes",
+    "dataAccess": "Data Access:",
+    "dataAccessDesc": "Profile views, document access, exports",
+    "contentChanges": "Content Changes:",
+    "contentChangesDesc": "Creates, updates, deletes of sensitive content",
+    "failedAttempts": "Failed Attempts:",
+    "failedAttemptsDesc": "Unauthorized access, failed logins",
+    "metadata": "Metadata:",
+    "metadataDesc": "IP address, user agent, timestamp for investigation",
+    "searchPlaceholder": "Search logs by user, action, or resource...",
+    "allTypes": "All Types",
+    "create": "Create",
+    "read": "Read",
+    "update": "Update",
+    "deleteType": "Delete",
+    "permission": "Permission",
+    "security": "Security",
+    "export": "Export",
+    "totalLogs": "Total Logs",
+    "critical": "Critical",
+    "failedActions": "Failed Actions",
+    "last24h": "Last 24h",
+    "recentActivity": "Recent Activity",
+    "logCount": "{{count}} log",
+    "logsCount": "{{count}} logs",
+    "noLogsMatch": "No audit logs match your search criteria",
+    "target": "Target:",
+    "ip": "IP:"
+  },
+  "moderationQueue": {
+    "title": "Moderation Queue",
+    "description": "Review and take action on reported content",
+    "pending": "pending",
+    "pendingTab": "Pending",
+    "reviewedTab": "Reviewed",
+    "activityLog": "Activity Log",
+    "allCaughtUp": "All caught up!",
+    "noPendingReports": "There are no pending reports to review.",
+    "noReviewedReports": "No reviewed reports",
+    "reviewedAppear": "Reviewed reports will appear here.",
+    "noActivity": "No activity yet",
+    "actionsLogged": "Moderation actions will be logged here.",
+    "user": "User:",
+    "content": "Content:",
+    "systemAction": "System action",
+    "reviewReport": "Review Report",
+    "takeAction": "Take action on this reported content",
+    "report": "Report",
+    "reason": "Reason:",
+    "reportedBy": "Reported by:",
+    "reportedUser": "Reported user:",
+    "submitted": "Submitted:",
+    "additionalDetails": "Additional details:",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Add notes about your decision...",
+    "dismiss": "Dismiss",
+    "markReviewed": "Mark Reviewed",
+    "blockUser": "Block User",
+    "dismissedToast": "Report dismissed",
+    "actionedToast": "Action taken and user blocked",
+    "reviewedToast": "Report reviewed",
+    "failedToast": "Failed to process report",
+    "from": "From:",
+    "against": "Against:",
+    "action": "Action:",
+    "pendingReview": "Pending Review",
+    "reviewed": "Reviewed",
+    "actionTaken": "Action Taken",
+    "dismissed": "Dismissed",
+    "reviewReportButton": "Review Report",
+    "contentTypes": {
+      "post": "Post",
+      "comment": "Comment",
+      "story": "Story",
+      "user": "User",
+      "message": "Message"
+    },
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "hate-speech": "Hate Speech",
+      "violence": "Violence",
+      "misinformation": "Misinformation",
+      "illegal-content": "Illegal Content",
+      "impersonation": "Impersonation",
+      "self-harm": "Self-Harm",
+      "other": "Other"
+    }
+  },
+  "seoControls": {
+    "indexability": "Indexability",
+    "indexabilityDesc": "Control how search engines and AI systems can access this content.",
+    "searchEngine": "Search Engine Indexing",
+    "searchEngineDesc": "Allow Google, Bing, DuckDuckGo and other search engines to index this page",
+    "aiTraining": "AI Training / Indexing",
+    "aiTrainingDesc": "Allow AI crawlers (GPTBot, Claude, etc.) to use this content for training",
+    "preventArchiving": "Prevent Archiving",
+    "preventArchivingDesc": "Block archive.org and similar services from caching this page",
+    "aiDisabledNote": "Note: AI indexing is automatically disabled when search engine indexing is off.",
+    "basicSeo": "Basic SEO",
+    "pageTitle": "Page Title",
+    "pageTitlePlaceholder": "Page title for search engines",
+    "characters": "{{count}}/{{max}} characters (optimal: {{optimal}})",
+    "metaDescription": "Meta Description",
+    "metaDescPlaceholder": "Brief description for search results",
+    "robots": "Robots",
+    "indexFollow": "Index, Follow (default)",
+    "noIndexFollow": "No Index, Follow",
+    "indexNoFollow": "Index, No Follow",
+    "noIndexNoFollow": "No Index, No Follow",
+    "openGraph": "Open Graph (Social Sharing)",
+    "ogTitle": "OG Title",
+    "ogTitlePlaceholder": "Title for social media shares",
+    "ogDescription": "OG Description",
+    "ogDescPlaceholder": "Description for social media shares",
+    "ogImage": "OG Image URL",
+    "recommended": "Recommended: {{size}}",
+    "twitterCard": "Twitter Card",
+    "cardType": "Card Type",
+    "summary": "Summary",
+    "summaryLargeImage": "Summary Large Image",
+    "twitterSite": "Twitter Site Handle"
+  },
+  "fileShareDialog": {
+    "shareTitle": "Share \"{{name}}\"",
+    "shareLinkCreated": "Share link created!",
+    "copied": "Copied!",
+    "copy": "Copy",
+    "password": "Password",
+    "expiresIn": "Expires in {{days}} days",
+    "done": "Done",
+    "shareWithUsers": "Share with Users",
+    "createLink": "Create Link",
+    "selectUsers": "Select Users",
+    "member": "Member",
+    "noMembersFound": "No group members found",
+    "permissionLevel": "Permission Level",
+    "viewOnly": "View only",
+    "viewDownload": "View & Download",
+    "viewDownloadEdit": "View, Download & Edit",
+    "generatePublicLink": "Generate public link",
+    "passwordOptional": "Password (optional)",
+    "passwordPlaceholder": "Leave empty for no password",
+    "expiresInDays": "Expires in (days)",
+    "never": "Never",
+    "oneDay": "1 day",
+    "sevenDays": "7 days",
+    "thirtyDays": "30 days",
+    "ninetyDays": "90 days",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "createShare": "Create Share",
+    "failedToast": "Failed to create share"
+  },
+  "publishingPage": {
+    "selectGroupLogin": "Please select a group and log in to manage publications.",
+    "startPublishing": "Start Publishing",
+    "startPublishingDescription": "Create your first publication to start writing and sharing long-form content with your audience.",
+    "createPublication": "Create Publication",
+    "createPublicationDescription": "Set up your publication to start writing articles.",
+    "publicationName": "Publication Name",
+    "publicationNamePlaceholder": "My Awesome Publication",
+    "description": "Description",
+    "descriptionPlaceholder": "What will you write about?",
+    "cancel": "Cancel",
+    "enterPublicationName": "Please enter a publication name",
+    "publicationCreated": "Publication created",
+    "untitledArticle": "Untitled Article",
+    "articlePublished": "Article published",
+    "articleDeleted": "Article deleted",
+    "rssFeed": "RSS Feed",
+    "settings": "Settings",
+    "newArticle": "New Article",
+    "published": "Published",
+    "drafts": "Drafts",
+    "subscribers": "Subscribers",
+    "totalArticles": "Total Articles",
+    "articles": "Articles",
+    "analytics": "Analytics",
+    "publicationAnalytics": "Publication Analytics",
+    "analyticsDescription": "View performance metrics for your publication",
+    "analyticsComingSoon": "Analytics coming soon",
+    "analyticsComingSoonDescription": "View article performance, subscriber growth, and more.",
+    "deleteArticle": "Delete Article",
+    "deleteArticleConfirm": "Are you sure you want to delete this article? This action cannot be undone.",
+    "delete": "Delete"
+  },
+  "sharedItemsDashboard": {
+    "title": "Shared Items",
+    "description": "Manage all your shared documents and files in one place",
+    "totalShares": "Total Shares",
+    "publicLinks": "Public Links",
+    "expiringSoon": "Expiring Soon",
+    "totalViews": "Total Views",
+    "filters": "Filters:",
+    "type": "Type",
+    "allTypes": "All Types",
+    "documents": "Documents",
+    "files": "Files",
+    "permission": "Permission",
+    "allPermissions": "All Permissions",
+    "viewOnly": "View Only",
+    "comment": "Comment",
+    "edit": "Edit",
+    "tableHeaders": {
+      "name": "Name",
+      "type": "Type",
+      "permission": "Permission",
+      "sharedVia": "Shared Via",
+      "views": "Views",
+      "expires": "Expires"
+    },
+    "noSharedItems": "No shared items found",
+    "permissions": {
+      "view": "View",
+      "comment": "Comment",
+      "edit": "Edit",
+      "download": "Download",
+      "admin": "Admin"
+    },
+    "sharedVia": {
+      "publicLink": "Public Link",
+      "privateLink": "Private Link",
+      "direct": "Direct"
+    },
+    "expired": "Expired",
+    "never": "Never",
+    "open": "Open",
+    "revokeShare": "Revoke Share",
+    "confirmRevoke": "Are you sure you want to revoke this share?"
+  },
+  "userModeration": {
+    "unmute": "Unmute",
+    "mute": "Mute",
+    "unblock": "Unblock",
+    "block": "Block",
+    "report": "Report",
+    "muteTitle": "Mute {{name}}",
+    "muteDescription": "Their content will be hidden from your feed. They won't be notified.",
+    "duration": "Duration",
+    "durations": {
+      "1hour": "1 hour",
+      "1day": "1 day",
+      "1week": "1 week",
+      "1month": "1 month",
+      "indefinitely": "Indefinitely"
+    },
+    "whatToMute": "What to mute",
+    "muteScopes": {
+      "all": "All content (posts, comments, DMs)",
+      "posts": "Posts only",
+      "comments": "Comments only",
+      "dms": "Direct messages only"
+    },
+    "reasonOptional": "Reason (optional)",
+    "mutePlaceholder": "Why are you muting this user?",
+    "cancel": "Cancel",
+    "muting": "Muting...",
+    "muteUser": "Mute User",
+    "blockTitle": "Block {{name}}?",
+    "blockDescription": "Blocking will:",
+    "blockEffects": {
+      "hideContent": "Hide all their content from you",
+      "preventSeeYou": "Prevent them from seeing your content",
+      "preventMessage": "Prevent them from messaging you",
+      "removeFollower": "Remove them from your followers"
+    },
+    "noNotification": "They won't be notified that you blocked them.",
+    "blocking": "Blocking...",
+    "reportTitle": "Report {{name}}",
+    "reportDescription": "Help us understand what's wrong. Your report is confidential.",
+    "reasonForReporting": "Reason for reporting",
+    "reportReasons": {
+      "spam": "Spam",
+      "spamDesc": "Repetitive or unwanted content",
+      "harassment": "Harassment",
+      "harassmentDesc": "Targeting or intimidating behavior",
+      "hateSpeech": "Hate Speech",
+      "hateSpeechDesc": "Content that promotes discrimination",
+      "violence": "Violence",
+      "violenceDesc": "Content promoting violence or harm",
+      "misinformation": "Misinformation",
+      "misinformationDesc": "False or misleading information",
+      "illegalContent": "Illegal Content",
+      "illegalContentDesc": "Content that may be illegal",
+      "impersonation": "Impersonation",
+      "impersonationDesc": "Pretending to be someone else",
+      "selfHarm": "Self-Harm",
+      "selfHarmDesc": "Content promoting self-harm",
+      "other": "Other",
+      "otherDesc": "Something else"
+    },
+    "additionalDetails": "Additional details (optional)",
+    "reportPlaceholder": "Provide more context about why you're reporting this user...",
+    "submitting": "Submitting...",
+    "submitReport": "Submit Report",
+    "toasts": {
+      "muted": "{{name}} has been muted",
+      "unmuted": "{{name}} has been unmuted",
+      "blocked": "{{name}} has been blocked",
+      "unblocked": "{{name}} has been unblocked",
+      "reported": "Report submitted. Thank you for helping keep the community safe.",
+      "muteFailed": "Failed to mute user",
+      "unmuteFailed": "Failed to unmute user",
+      "blockFailed": "Failed to block user",
+      "unblockFailed": "Failed to unblock user",
+      "reportFailed": "Failed to submit report"
+    }
+  },
+  "autoModerationSettings": {
+    "title": "Auto-Moderation Rules",
+    "description": "Automatically detect and handle problematic content",
+    "newRule": "New Rule",
+    "createRule": "Create Auto-Moderation Rule",
+    "createRuleDescription": "Set up automatic detection and handling of content",
+    "editRule": "Edit Auto-Moderation Rule",
+    "noRulesTitle": "No rules configured",
+    "noRulesDescription": "Create auto-moderation rules to automatically handle content.",
+    "createFirstRule": "Create First Rule",
+    "triggeredTimes": "Triggered {{count}} times",
+    "more": "+{{count}} more",
+    "deleteRuleTitle": "Delete Rule?",
+    "deleteRuleDescription": "This will permanently delete this auto-moderation rule. This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "creating": "Creating...",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "ruleName": "Rule Name",
+    "ruleNamePlaceholder": "e.g., Block slurs, Filter spam links",
+    "ruleType": "Rule Type",
+    "ruleTypes": {
+      "keyword": "Keyword Filter",
+      "keywordDesc": "Match exact keywords or phrases",
+      "regex": "Regex Pattern",
+      "regexDesc": "Use regular expressions for advanced matching",
+      "spamDetection": "Spam Detection",
+      "spamDetectionDesc": "Automatically detect spam-like content",
+      "linkFilter": "Link Filter",
+      "linkFilterDesc": "Filter posts containing certain links"
+    },
+    "patterns": "Patterns",
+    "patternPlaceholders": {
+      "regex": "Enter regex pattern",
+      "link": "Enter domain or URL pattern",
+      "keyword": "Enter keyword or phrase"
+    },
+    "add": "Add",
+    "action": "Action",
+    "actions": {
+      "flag": "Flag for Review",
+      "flagDesc": "Add to moderation queue",
+      "hide": "Hide Content",
+      "hideDesc": "Hide but do not delete",
+      "delete": "Delete",
+      "deleteDesc": "Remove content immediately",
+      "warn": "Warn User",
+      "warnDesc": "Send warning to user"
+    },
+    "notifyModerators": "Notify Moderators",
+    "toasts": {
+      "created": "Auto-moderation rule created",
+      "updated": "Rule updated",
+      "deleted": "Rule deleted",
+      "enabled": "Rule enabled",
+      "disabled": "Rule disabled",
+      "createFailed": "Failed to create rule",
+      "updateFailed": "Failed to update rule",
+      "deleteFailed": "Failed to delete rule",
+      "toggleFailed": "Failed to toggle rule",
+      "enterName": "Please enter a rule name",
+      "addPattern": "Please add at least one pattern"
+    }
+  },
+  "memberInviteDialog": {
+    "inviteMembers": "Invite Members",
+    "inviteTo": "Invite to {{name}}",
+    "inviteDescription": "Invite new members to join this group",
+    "directTab": "Direct",
+    "linkTab": "Link",
+    "publicKeyLabel": "Public Key or npub",
+    "publicKeyPlaceholder": "npub1... or hex public key",
+    "roleLabel": "Role",
+    "roles": {
+      "member": "Member",
+      "moderator": "Moderator",
+      "admin": "Admin",
+      "readOnly": "Read Only"
+    },
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Add a personal message...",
+    "sending": "Sending...",
+    "sendInvitation": "Send Invitation",
+    "defaultRole": "Default Role",
+    "roleDescription": "Role assigned to anyone who joins via this link",
+    "expiresIn": "Expires In",
+    "expiryOptions": {
+      "1day": "1 day",
+      "7days": "7 days",
+      "30days": "30 days",
+      "90days": "90 days"
+    },
+    "generating": "Generating...",
+    "generateInviteLink": "Generate Invite Link",
+    "inviteLink": "Invite Link",
+    "shareLink": "Share this link with people you want to invite",
+    "generateNewLink": "Generate New Link",
+    "failedToSend": "Failed to send invitation",
+    "failedToGenerate": "Failed to generate invite link"
+  },
+  "securityDemo": {
+    "title": "Infiltration Countermeasures",
+    "description": "Protect high-risk campaigns from infiltration and data harvesting",
+    "whyMatters": "Why Infiltration Countermeasures Matter",
+    "whyMattersDesc": "High-risk organizing campaigns face constant threats from infiltrators, bad actors, and surveillance. These security features help identify and prevent malicious activity while maintaining trust within the community.",
+    "memberVerification": "Member Verification",
+    "memberVerificationDesc": "In-person QR verification and trust scores prevent fake accounts and infiltrators",
+    "anomalyDetection": "Anomaly Detection",
+    "anomalyDetectionDesc": "Automated detection of suspicious behavior patterns like mass data access",
+    "auditLogs": "Audit Logs",
+    "auditLogsDesc": "Complete tracking of sensitive actions for investigation and accountability",
+    "tabs": {
+      "verification": "Member Verification",
+      "anomalies": "Anomaly Detection",
+      "audit": "Audit Logs"
+    },
+    "useCases": {
+      "title": "Real-World Use Cases",
+      "intro": "These security features are essential for:",
+      "unionOrganizing": "Union Organizing:",
+      "unionOrganizingDesc": "Prevent employer infiltration during organizing drives",
+      "directAction": "Direct Action Campaigns:",
+      "directActionDesc": "Identify undercover law enforcement or informants",
+      "tenantUnions": "Tenant Unions:",
+      "tenantUnionsDesc": "Detect landlord-sponsored bad actors attempting to disrupt organizing",
+      "whistleblower": "Whistleblower Networks:",
+      "whistleblowerDesc": "Protect sources from corporate or government surveillance",
+      "activist": "Activist Coalitions:",
+      "activistDesc": "Prevent agent provocateurs from disrupting movement work",
+      "keyInsight": "Key Insight:",
+      "keyInsightDesc": "Infiltration is not paranoia - it's a documented tactic used against organizing efforts throughout history. These tools provide systematic defense without creating a culture of suspicion."
+    }
+  },
+  "issuesList": {
+    "title": "Issues",
+    "noIssuesYet": "No issues yet",
+    "noIssuesDescription": "Create your first newsletter issue to start engaging with your subscribers.",
+    "createIssue": "Create Issue",
+    "newIssue": "New Issue",
+    "stats": "{{drafts}} draft{{draftsPlural}}, {{scheduled}} scheduled, {{sent}} sent",
+    "tabs": {
+      "all": "All ({{count}})",
+      "drafts": "Drafts ({{count}})",
+      "scheduled": "Scheduled ({{count}})",
+      "sent": "Sent ({{count}})"
+    },
+    "tableHeaders": {
+      "subject": "Subject",
+      "status": "Status",
+      "recipients": "Recipients",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "sending": "Sending",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "untitled": "Untitled",
+    "actions": {
+      "edit": "Edit",
+      "sendNow": "Send Now",
+      "view": "View",
+      "delete": "Delete"
+    }
+  },
+  "newsletterEditor": {
+    "editIssue": "Edit Issue",
+    "newIssue": "New Issue",
+    "unsavedChanges": "Unsaved changes",
+    "saveDraft": "Save Draft",
+    "preview": "Preview",
+    "schedule": "Schedule",
+    "send": "Send ({{count}})",
+    "draftSaved": "Draft saved",
+    "tabs": {
+      "compose": "Compose",
+      "settings": "Settings"
+    },
+    "compose": {
+      "subjectLine": "Subject Line",
+      "subjectPlaceholder": "Your newsletter subject...",
+      "previewText": "Preview Text (Optional)",
+      "previewPlaceholder": "First line shown in previews...",
+      "previewHint": "This appears in the notification preview",
+      "content": "Content",
+      "editorPlaceholder": "Start writing your newsletter..."
+    },
+    "settings": {
+      "theme": "Newsletter Theme",
+      "headerImage": "Header Image URL",
+      "headerPlaceholder": "https://example.com/header.png",
+      "footerText": "Footer Text",
+      "footerPlaceholder": "Footer text...",
+      "editInSettings": "Edit in newsletter settings"
+    },
+    "scheduleDialog": {
+      "title": "Schedule Newsletter",
+      "description": "Choose when to send this newsletter to {{count}} subscriber{{plural}}.",
+      "date": "Date",
+      "time": "Time"
+    },
+    "toasts": {
+      "draftSaved": "Draft saved",
+      "scheduled": "Newsletter scheduled",
+      "selectDate": "Please select a date",
+      "futureDateRequired": "Scheduled time must be in the future",
+      "enterSubject": "Please enter a subject",
+      "addContent": "Please add some content",
+      "noSubscribers": "No active subscribers to send to"
+    },
+    "cancel": "Cancel"
+  },
+  "privacyDemo": {
+    "title": "Privacy & Anonymous Engagement",
+    "description": "Safe participation for high-risk organizing contexts",
+    "tabs": {
+      "dashboard": "Privacy Dashboard",
+      "reactions": "Anonymous Reactions",
+      "voting": "Anonymous Voting"
+    },
+    "reactions": {
+      "samplePost": "Sample Post",
+      "sampleContent": "\"We're organizing a direct action next week to protest the evictions. All are welcome to join - safety protocols will be provided.\"",
+      "howItWorks": "How Anonymous Reactions Work",
+      "tips": {
+        "enableAnonymous": "Enable anonymous mode to hide your identity while showing support",
+        "aggregateCounts": "Aggregate counts are still shown to demonstrate community backing",
+        "critical": "Critical for high-risk campaigns where public support could lead to retaliation",
+        "cryptoSecured": "Cryptographically secured to prevent de-anonymization"
+      }
+    },
+    "voting": {
+      "howItWorks": "How Anonymous Voting Works",
+      "tips": {
+        "zeroKnowledge": "Zero-knowledge cryptography ensures vote privacy",
+        "noTrace": "Individual votes cannot be traced to voters",
+        "verifiable": "Results are verifiably accurate despite anonymity",
+        "essential": "Essential for sensitive decisions in high-risk organizing",
+        "preventIntimidation": "Prevents intimidation and enables honest participation"
+      }
+    },
+    "whyMatters": {
+      "title": "Why Anonymous Engagement Matters",
+      "intro": "In high-risk organizing contexts (surveillance states, workplace organizing, tenant unions facing retaliation), visible support can have serious consequences:",
+      "consequences": {
+        "workers": "Workers organizing a union may face termination",
+        "tenants": "Tenants fighting evictions may be blacklisted",
+        "activists": "Activists in authoritarian states risk arrest",
+        "marginalized": "Marginalized communities face disproportionate surveillance"
+      },
+      "conclusion": "Anonymous engagement tools allow these supporters to participate safely while still building collective power."
+    }
+  },
+  "onboardingDemo": {
+    "title": "Personalized Onboarding",
+    "description": "Different flows based on how users discover the platform",
+    "entryPointLabel": "Entry Point: {{entry}}",
+    "simulateEntryPoint": "Simulate Entry Point",
+    "entryPoints": {
+      "campaign": "Campaign Landing Page",
+      "event": "Event RSVP",
+      "friend-invite": "Friend Invitation",
+      "website": "Main Website",
+      "social-media": "Social Media Link"
+    },
+    "complete": {
+      "title": "Onboarding Complete!",
+      "description": "User would now be redirected to their personalized dashboard",
+      "tryAnother": "Try Another Entry Point"
+    },
+    "about": {
+      "title": "About Personalized Onboarding",
+      "intro": "Different entry points lead to different onboarding flows optimized for user context:",
+      "campaign": "Campaign:",
+      "campaignDesc": "Focus on specific issue, then broaden to full platform",
+      "event": "Event:",
+      "eventDesc": "Quick setup to get to RSVP, then explore working groups",
+      "friendInvite": "Friend Invite:",
+      "friendInviteDesc": "Social connection first, then community building",
+      "website": "Website:",
+      "websiteDesc": "Comprehensive overview of all organizing work",
+      "socialMedia": "Social Media:",
+      "socialMediaDesc": "Fast path to action for high-energy newcomers"
+    }
+  },
+  "activeCallsPanel": {
+    "startNewCall": "Start New Call",
+    "newCallTitle": "Start New Call",
+    "newCallDescription": "Log a new incoming call to the hotline",
+    "callerName": "Caller Name",
+    "callerNamePlaceholder": "Enter caller name",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "Enter phone number",
+    "priority": "Priority",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "cancel": "Cancel",
+    "startCall": "Start Call",
+    "noActiveCalls": "No active calls",
+    "unknownCaller": "Unknown Caller",
+    "onHold": "On Hold",
+    "resume": "Resume",
+    "hold": "Hold",
+    "end": "End",
+    "endCallTitle": "End Call",
+    "endCallDescription": "Provide a summary of the call before ending",
+    "callSummary": "Call Summary",
+    "summaryPlaceholder": "Enter a summary of the call...",
+    "endCallButton": "End Call"
+  },
+  "newslettersPage": {
+    "selectGroupLogin": "Please select a group and log in to manage newsletters.",
+    "startNewsletter": "Start a Newsletter",
+    "startDescription": "Create a newsletter to send updates to your subscribers via encrypted Nostr DMs.",
+    "createNewsletter": "Create Newsletter",
+    "createNewsletterTitle": "Create Newsletter",
+    "createDescription": "Set up your newsletter to start sending updates.",
+    "newsletterName": "Newsletter Name",
+    "namePlaceholder": "My Awesome Newsletter",
+    "description": "Description",
+    "descriptionPlaceholder": "What will you share with your subscribers?",
+    "cancel": "Cancel",
+    "enterName": "Please enter a newsletter name",
+    "created": "Newsletter created",
+    "untitledIssue": "Untitled Issue",
+    "sent": "Newsletter sent successfully",
+    "deleted": "Issue deleted",
+    "previewComingSoon": "Preview coming soon",
+    "settings": "Settings",
+    "newIssue": "New Issue",
+    "stats": {
+      "subscribers": "Subscribers",
+      "issuesSent": "Issues Sent",
+      "drafts": "Drafts",
+      "totalIssues": "Total Issues"
+    },
+    "tabs": {
+      "issues": "Issues",
+      "subscribers": "Subscribers"
+    },
+    "deleteIssue": "Delete Issue",
+    "deleteConfirm": "Are you sure you want to delete this issue? This action cannot be undone.",
+    "delete": "Delete"
+  },
+  "postCard": {
+    "pinnedPost": "Pinned post",
+    "contentWarning": "Content Warning:",
+    "moreOptions": "More options",
+    "unpinFromProfile": "Unpin from profile",
+    "pinToProfile": "Pin to profile",
+    "copyLink": "Copy link",
+    "editPost": "Edit post",
+    "deletePost": "Delete post",
+    "reportPost": "Report post",
+    "reactions": "Reactions",
+    "reactionCount": "{{count}} reaction",
+    "reactionCount_plural": "{{count}} reactions",
+    "commentCount": "{{count}} comment",
+    "commentCount_plural": "{{count}} comments",
+    "repostCount": "{{count}} repost",
+    "repostCount_plural": "{{count}} reposts",
+    "react": "React",
+    "comment": "Comment",
+    "repost": "Repost",
+    "undoRepost": "Undo Repost",
+    "quotePost": "Quote Post",
+    "bookmark": "Bookmark",
+    "removeBookmark": "Remove bookmark",
+    "share": "Share",
+    "quoteDialog": {
+      "title": "Quote Post",
+      "description": "Add your thoughts to this post",
+      "yourComment": "Your comment",
+      "placeholder": "What do you think about this?",
+      "cancel": "Cancel",
+      "submit": "Quote Post"
+    }
+  },
+  "cryptoDonation": {
+    "title": "Donate with Crypto",
+    "mainnet": "Mainnet",
+    "testnet": "Testnet",
+    "paymentConfirmed": "Payment Confirmed!",
+    "thankYou": "Thank you for your donation of {{amount}}",
+    "viewOnExplorer": "View on blockchain explorer",
+    "paymentPending": "Payment Pending",
+    "detected": "{{amount}} detected",
+    "confirmations": "Confirmations:",
+    "trackOnBlockchain": "Track on blockchain",
+    "donationAmount": "Donation Amount (USD)",
+    "custom": "Custom",
+    "calculating": "Calculating...",
+    "currentPrice": "Current price: ${{price}} USD",
+    "generatingAddress": "Generating Address...",
+    "generateAddress": "Generate {{crypto}} Address",
+    "paymentAddress": "Payment Address",
+    "monitoring": "Monitoring...",
+    "startMonitoring": "Start Monitoring",
+    "checkNow": "Check Now",
+    "howToDonate": "How to donate:",
+    "steps": {
+      "scan": "Scan the QR code or copy the address",
+      "send": "Send {{amount}} to this address",
+      "monitor": "Click \"Start Monitoring\" to track your payment",
+      "wait": "Wait for {{confirmations}} confirmations"
+    },
+    "toasts": {
+      "addressGenerated": "Payment address generated",
+      "addressCopied": "Address copied to clipboard",
+      "paymentConfirmed": "Payment confirmed!",
+      "paymentDetected": "Payment detected! Waiting for confirmations...",
+      "failedToGenerate": "Failed to generate address"
+    },
+    "errors": {
+      "failedToGenerate": "Failed to generate payment address. Please try again."
+    }
+  },
+  "campaignBuilder": {
+    "editCampaign": "Edit Campaign",
+    "createCampaign": "Create Campaign",
+    "subtitle": "Set up a fundraising campaign for your group",
+    "cancel": "Cancel",
+    "saveCampaign": "Save Campaign",
+    "basicInfo": "Basic Information",
+    "campaignTitle": "Campaign Title *",
+    "titlePlaceholder": "Strike Support Fund",
+    "urlSlug": "URL Slug *",
+    "slugPlaceholder": "strike-support-fund",
+    "urlPreview": "URL: /campaigns/{{slug}}",
+    "category": "Category",
+    "categories": {
+      "general": "General",
+      "bail": "Bail Fund",
+      "strike": "Strike Fund",
+      "mutual-aid": "Mutual Aid",
+      "legal": "Legal Defense",
+      "emergency": "Emergency"
+    },
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your fundraising campaign...",
+    "fundraisingGoal": "Fundraising Goal",
+    "goalAmount": "Goal Amount *",
+    "currency": "Currency",
+    "currencies": {
+      "usd": "USD ($)",
+      "eur": "EUR (€)",
+      "gbp": "GBP (£)",
+      "cad": "CAD ($)"
+    }
+  },
+  "tableBuilder": {
+    "editTable": "Edit Table",
+    "createTable": "Create Table",
+    "subtitle": "Define the structure and fields for this table",
+    "tableName": "Table Name",
+    "tableNamePlaceholder": "e.g., Contacts, Projects, Tasks",
+    "descriptionOptional": "Description (optional)",
+    "descriptionPlaceholder": "What is this table for?",
+    "fields": "Fields",
+    "addField": "Add Field",
+    "noFields": "No fields yet. Add your first field to define the table structure.",
+    "required": "Required",
+    "cancel": "Cancel",
+    "saveTable": "Save Table",
+    "alerts": {
+      "enterTableName": "Please enter a table name",
+      "addAtLeastOneField": "Please add at least one field"
+    },
+    "fieldEditor": {
+      "editField": "Edit Field",
+      "addField": "Add Field",
+      "subtitle": "Configure the field properties and validation",
+      "label": "Label *",
+      "labelPlaceholder": "e.g., Full Name, Email Address",
+      "fieldName": "Field Name * (used in code)",
+      "fieldNamePlaceholder": "e.g., full_name, email_address",
+      "fieldNameHelp": "Lowercase letters, numbers, and underscores only",
+      "fieldType": "Field Type *",
+      "requiredField": "Required field",
+      "placeholder": "Placeholder (optional)",
+      "placeholderPlaceholder": "Placeholder text",
+      "helpText": "Help Text (optional)",
+      "helpTextPlaceholder": "Additional guidance for users",
+      "options": "Options *",
+      "addOption": "Add Option",
+      "optionLabel": "Label",
+      "optionValue": "Value",
+      "saveField": "Save Field",
+      "alerts": {
+        "enterLabel": "Please enter a field label",
+        "enterName": "Please enter a field name",
+        "invalidName": "Field name can only contain lowercase letters, numbers, and underscores",
+        "duplicateName": "A field with this name already exists",
+        "addOption": "Please add at least one option"
+      }
+    }
+  },
+  "groupMembersTab": {
+    "loading": "Loading members...",
+    "title": "Members",
+    "memberCount": "{{count}} member in this group",
+    "memberCount_plural": "{{count}} members in this group",
+    "pendingInvitations": "Pending Invitations ({{count}})",
+    "inviteLink": "Invite Link: {{code}}",
+    "unknown": "Unknown",
+    "expires": "Expires {{time}}",
+    "you": "You",
+    "joined": "Joined {{time}}",
+    "noMembers": "No members found. Be the first to invite someone!",
+    "roles": {
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "member": "Member",
+      "read-only": "Read Only"
+    },
+    "removeDialog": {
+      "title": "Remove Member",
+      "description": "Are you sure you want to remove this member from the group? They will need to be re-invited to rejoin.",
+      "cancel": "Cancel",
+      "remove": "Remove"
+    },
+    "revokeDialog": {
+      "title": "Revoke Invitation",
+      "description": "Are you sure you want to revoke this invitation? The invite link or direct invite will no longer work.",
+      "cancel": "Cancel",
+      "revoke": "Revoke"
+    },
+    "alerts": {
+      "failedToUpdateRole": "Failed to update member role",
+      "failedToRemoveMember": "Failed to remove member",
+      "failedToRevokeInvite": "Failed to revoke invitation"
+    }
+  },
+  "publicPageList": {
+    "title": "Public Pages",
+    "subtitle": "Create and manage SEO-optimized public pages",
+    "newPage": "New Page",
+    "noPages": "No public pages yet",
+    "noPagesDescription": "Create your first public page to share with the world",
+    "createFirstPage": "Create First Page",
+    "url": "URL:",
+    "type": "Type:",
+    "created": "Created {{date}}",
+    "published": "Published {{date}}",
+    "actions": {
+      "edit": "Edit",
+      "view": "View",
+      "unpublish": "Unpublish",
+      "publish": "Publish",
+      "copyLink": "Copy Link",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete Page",
+      "description": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  },
+  "publicPageEditor": {
+    "editPage": "Edit Page",
+    "createPage": "Create Page",
+    "subtitle": "Create SEO-optimized public pages",
+    "edit": "Edit",
+    "preview": "Preview",
+    "cancel": "Cancel",
+    "saveDraft": "Save Draft",
+    "publish": "Publish",
+    "tabs": {
+      "content": "Content",
+      "seo": "SEO",
+      "settings": "Settings"
+    },
+    "pageTitle": "Page Title",
+    "titlePlaceholder": "Enter page title",
+    "urlSlug": "URL Slug",
+    "slugPlaceholder": "page-slug",
+    "slugHelp": "Lowercase letters, numbers, and hyphens only",
+    "pageType": "Page Type",
+    "pageTypes": {
+      "landing": "Landing Page",
+      "about": "About Page",
+      "events": "Events Calendar",
+      "contact": "Contact Page",
+      "custom": "Custom"
+    },
+    "placeholderText": "Write your page content here...",
+    "pageStatus": "Page Status",
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "draftVisibility": "Draft pages are only visible to group admins",
+    "publishedDate": "Published: {{date}}"
+  },
+  "crmAnalytics": {
+    "title": "CRM Analytics",
+    "subtitle": "Contact management and organizing metrics",
+    "exportCsv": "Export CSV",
+    "totalContacts": "Total Contacts",
+    "contactRate": "Contact Rate",
+    "pipelineConversions": "Pipeline Conversions",
+    "thisMonth": "This month",
+    "avgDaysToConvert": "Avg Days to Convert",
+    "days": "Days",
+    "supportLevelDistribution": "Support Level Distribution",
+    "pipelineMovement": "Pipeline Movement (This Month)",
+    "organizerPerformance": "Organizer Performance",
+    "departmentAnalysis": "Department Analysis",
+    "table": {
+      "organizer": "Organizer",
+      "contacts": "Contacts",
+      "conversions": "Conversions",
+      "rate": "Rate",
+      "active": "active"
+    },
+    "movements": {
+      "neutralToPassive": "Neutral → Passive",
+      "passiveToActive": "Passive → Active",
+      "activeToCore": "Active → Core"
+    }
+  },
+  "engagementPage": {
+    "title": "Your Journey",
+    "subtitle": "Track your engagement, complete milestones, and grow as an organizer",
+    "demoSwitchLevel": "Demo: Switch Level",
+    "viewAs": "View as...",
+    "levelOptions": {
+      "neutral": "Neutral (30%)",
+      "passive": "Passive Support (40%)",
+      "active": "Active Support (70%)",
+      "core": "Core Organizer (100%)"
+    },
+    "tabs": {
+      "engagement": "Engagement Journey",
+      "notifications": "Smart Notifications"
+    },
+    "aboutLadder": {
+      "title": "About the Engagement Ladder",
+      "description": "The Engagement Ladder is based on the Spectrum of Support methodology used by successful organizing movements. Each level represents deeper involvement in the movement:",
+      "levels": {
+        "neutral": "Neutral (30%) - Learning and exploring",
+        "passive": "Passive Support (40%) - Supporting from the sidelines",
+        "active": "Active Support (70%) - Actively participating in actions",
+        "core": "Core Organizer (100%) - Leading and developing others"
+      },
+      "footer": "Complete milestones at your current level to unlock the next stage of your organizing journey."
+    }
+  },
+  "eventFeedCard": {
+    "createdEvent": "created an event",
+    "privacy": {
+      "public": "Public Event",
+      "group": "Group Event",
+      "private": "Private Event",
+      "directAction": "Direct Action"
+    },
+    "time": {
+      "todayAt": "Today at {{time}}",
+      "tomorrowAt": "Tomorrow at {{time}}"
+    },
+    "locationReveal": "Location revealed {{time}} before event",
+    "capacity": "{{current}} / {{max}} attending",
+    "rsvp": {
+      "going": "RSVP Going",
+      "goingConfirmed": "Going",
+      "maybe": "Maybe",
+      "maybeConfirmed": "Maybe"
+    },
+    "details": "Details"
+  },
+  "groupFeedPage": {
+    "loading": "Loading...",
+    "notFound": "Group not found",
+    "feedSuffix": "Feed",
+    "subtitle": "Activity and updates from this group",
+    "shareUpdate": "Share an update"
+  },
+  "analyticsPage": {
+    "title": "Analytics Dashboard",
+    "subtitle": "Track organizing metrics, campaign performance, and make data-driven decisions",
+    "tabs": {
+      "crm": "CRM Analytics",
+      "campaign": "Campaign Analytics"
+    }
+  },
+  "wikiView": {
+    "title": "Knowledge Base",
+    "subtitle": "Collaborative documentation and resources",
+    "newPage": "New Page",
+    "searchPlaceholder": "Search wiki...",
+    "noResults": "No pages found matching your search",
+    "empty": "No wiki pages yet. Create your first page to get started!",
+    "updated": "Updated {{date}}"
+  },
+  "pollCard": {
+    "status": {
+      "active": "Active",
+      "ended": "Ended"
+    },
+    "voteCount": "{{count}} vote",
+    "voteCount_other": "{{count}} votes",
+    "anonymous": "Anonymous",
+    "public": "Public",
+    "yourVote": "Your vote",
+    "resultsHidden": "Results will be revealed when the poll ends",
+    "voting": "Voting...",
+    "vote": "Vote"
+  },
+  "publicFormView": {
+    "notPublished": "This form is not currently published.",
+    "thankYou": "Thank you!",
+    "defaultConfirmation": "Your submission has been received.",
+    "continue": "Continue",
+    "submitting": "Submitting...",
+    "submit": "Submit",
+    "submitFailed": "Failed to submit form",
+    "poweredBy": "Powered by BuildIt Network"
+  },
+  "model3DPreview": {
+    "failedToLoad": "Failed to load 3D model",
+    "downloadModel": "Download Model",
+    "loading": "Loading 3D model...",
+    "badge": "3D Model",
+    "instructions": "Drag to rotate | Scroll to zoom | Shift+drag to pan"
+  },
+  "createFolderDialog": {
+    "title": "Create Folder",
+    "folderName": "Folder Name",
+    "placeholder": "Enter folder name",
+    "cancel": "Cancel",
+    "create": "Create"
+  },
+  "eventsCalendarView": {
+    "title": "Calendar",
+    "exportAll": "Export All",
+    "eventsOn": "Events on {{date}}",
+    "noEvents": "No events on this date"
+  },
+  "groupView": {
+    "selectGroup": "Select a group to view details",
+    "privacyLabel": "{{privacy}} group",
+    "memberCount": "{{count}} member",
+    "memberCount_other": "{{count}} members",
+    "modulesEnabled": "{{count}} module enabled",
+    "modulesEnabled_other": "{{count}} modules enabled"
+  },
+  "filesAccessRequestsPanel": {
+    "title": "Pending Access Requests",
+    "noPending": "No pending requests",
+    "requestsWillAppear": "Access requests will appear here",
+    "requested": "Requested {{time}}",
+    "permissions": {
+      "view": "View",
+      "download": "Download",
+      "edit": "Edit",
+      "delete": "Delete"
+    }
+  },
+  "documentsAccessRequestsPanel": {
+    "title": "Pending Access Requests",
+    "noPending": "No pending requests",
+    "requestsWillAppear": "Access requests will appear here",
+    "requested": "Requested {{time}}",
+    "permissions": {
+      "view": "View",
+      "comment": "Comment",
+      "edit": "Edit",
+      "admin": "Admin"
+    }
+  },
+  "mathBlock": {
+    "instructions": "Enter LaTeX equation (Shift+Enter to save, Escape to cancel)",
+    "placeholder": "E = mc^2",
+    "cancel": "Cancel",
+    "save": "Save",
+    "clickToAdd": "Click to add equation"
+  },
+  "errors": {
+    "invalidPassword": "Invalid password or corrupted key data",
+    "invalidNsec": "Invalid nsec format",
+    "invalidNpub": "Invalid npub format",
+    "invalidWordCount": "Invalid word count. Must be 12, 15, 18, or 24.",
+    "identityAlreadyExists": "Identity already exists",
+    "identityNotFound": "Identity not found",
+    "noIdentitySelected": "No identity selected",
+    "webauthnNotEnabled": "WebAuthn not enabled for this identity",
+    "webauthnFailed": "WebAuthn authentication failed",
+    "webauthnNotSupported": "WebAuthn is not supported on this device",
+    "failedToCreateIdentity": "Failed to create identity",
+    "failedToImportIdentity": "Failed to import identity",
+    "failedToLoadIdentities": "Failed to load identities",
+    "failedToRemoveIdentity": "Failed to remove identity",
+    "failedToUnlock": "Failed to unlock",
+    "failedToChangePassword": "Failed to change password",
+    "failedToEnableWebauthn": "Failed to enable WebAuthn",
+    "failedToDisableWebauthn": "Failed to disable WebAuthn",
+    "migrationRequired": "This identity needs to be migrated. Please use the migration tool in Settings.",
+    "rateLimited": "Too many attempts. Please try again later.",
+    "networkError": "Network error. Please check your connection.",
+    "unknownError": "An unknown error occurred"
+  },
+  "scheduledPostsView": {
+    "loading": "Loading scheduled posts...",
+    "noScheduledPosts": "No scheduled posts",
+    "noScheduledPostsDescription": "Schedule posts to be published at a specific time by using the schedule option in the post composer.",
+    "moreOptions": "More options",
+    "statuses": {
+      "published": "Published",
+      "cancelled": "Cancelled",
+      "failed": "Failed",
+      "due": "Due",
+      "scheduled": "Scheduled"
+    },
+    "actions": {
+      "publishNow": "Publish now",
+      "edit": "Edit",
+      "cancel": "Cancel"
+    },
+    "editDialog": {
+      "title": "Edit Scheduled Post",
+      "description": "Update the content or reschedule this post.",
+      "contentLabel": "Content",
+      "contentPlaceholder": "What's on your mind?",
+      "scheduledForLabel": "Scheduled for",
+      "cancelButton": "Cancel",
+      "saveButton": "Save changes"
+    },
+    "deleteDialog": {
+      "title": "Cancel scheduled post?",
+      "description": "This will cancel the scheduled post. This action cannot be undone.",
+      "keepPost": "Keep post",
+      "cancelPost": "Cancel post"
+    }
+  },
+  "addFriendDialog": {
+    "title": "Add Friend",
+    "description": "Choose how you'd like to connect with your friend",
+    "tabs": {
+      "username": "Username",
+      "qr": "QR Code",
+      "email": "Email",
+      "link": "Link"
+    },
+    "username": {
+      "label": "Username or Public Key",
+      "placeholder": "Enter username or pubkey...",
+      "messageLabel": "Optional Message",
+      "messagePlaceholder": "Say hello...",
+      "sendRequest": "Send Friend Request",
+      "sending": "Sending..."
+    },
+    "qr": {
+      "yourQrCode": "Your QR Code",
+      "scanFriendQr": "Scan Friend's QR Code",
+      "letFriendScan": "Let your friend scan this code",
+      "startScanning": "Start Scanning",
+      "scannedSuccessfully": "Scanned successfully!"
+    },
+    "email": {
+      "friendEmail": "Friend's Email",
+      "emailPlaceholder": "friend@example.com",
+      "invitationMessage": "Invitation Message",
+      "invitationPlaceholder": "I'd like to connect with you on BuildIt Network...",
+      "sendEmailInvite": "Send Email Invite"
+    },
+    "link": {
+      "description": "Generate a shareable link that anyone can use to send you a friend request. Link expires in 7 days and can be used up to 10 times.",
+      "generateLink": "Generate Invite Link",
+      "yourInviteLink": "Your Invite Link",
+      "copyLink": "Copy link",
+      "expiresInfo": "Share this link with friends. Expires in 7 days or after 10 uses."
+    },
+    "toasts": {
+      "enterUsername": "Please enter a username",
+      "requestSent": "Friend request sent!",
+      "enterEmail": "Please enter an email address",
+      "emailComingSoon": "Email invites coming soon!",
+      "inviteLinkCreated": "Invite link created!",
+      "linkCopied": "Link copied to clipboard!",
+      "failedToAccessCamera": "Failed to access camera",
+      "invalidQrCode": "Invalid QR code"
+    }
+  },
+  "documentsPage": {
+    "folders": "Folders",
+    "starred": "Starred",
+    "newDocument": "New Document",
+    "createNewDocument": "Create New Document",
+    "documentTitle": "Document title",
+    "documentTitlePlaceholder": "Document title",
+    "chooseTemplate": "Choose a template (optional)",
+    "creating": "Creating...",
+    "createDocument": "Create Document",
+    "searchDocuments": "Search documents...",
+    "sort": {
+      "lastUpdated": "Last updated",
+      "dateCreated": "Date created",
+      "name": "Name"
+    },
+    "exportSharing": "Export Sharing",
+    "exporting": "Exporting...",
+    "exportTooltip": "Export CSV report of all document sharing permissions",
+    "emptyState": {
+      "noDocuments": "No documents yet",
+      "noDocumentsHint": "Create a new document to get started",
+      "noSearchResults": "No documents match your search",
+      "noStarred": "No starred documents"
+    },
+    "listItem": {
+      "edit": "Edit",
+      "addToStarred": "Add to starred",
+      "removeFromStarred": "Remove from starred",
+      "duplicate": "Duplicate"
+    },
+    "editor": {
+      "suggesting": "Suggesting",
+      "editing": "Editing",
+      "suggestionModeTooltip": "Changes tracked as suggestions",
+      "editModeTooltip": "Direct editing mode",
+      "collaborationEnabled": "Real-time collaboration enabled",
+      "enableCollaboration": "Enable collaboration",
+      "hideComments": "Hide comments",
+      "showComments": "Show comments",
+      "autoSaving": "Auto-saving with collaboration",
+      "saveDocument": "Save document"
+    },
+    "actions": {
+      "duplicate": "Duplicate",
+      "versionHistory": "Version history",
+      "exportHtml": "Export HTML",
+      "exportMarkdown": "Export Markdown",
+      "exportPdf": "Export PDF",
+      "delete": "Delete"
+    },
+    "tags": {
+      "addTag": "Add tag",
+      "addTagPlaceholder": "Add tag...",
+      "clear": "Clear",
+      "moreCount": "+{{count}} more"
+    },
+    "deleteConfirm": "Are you sure you want to delete \"{{title}}\"?",
+    "failedToExport": "Failed to export sharing report"
+  },
+  "donorsList": {
+    "title": "Donors & Donations",
+    "subtitle": "Manage donations for {{campaign}}",
+    "stats": {
+      "totalRaised": "Total Raised",
+      "totalDonations": "Total Donations",
+      "completedDonations": "Completed Donations"
+    },
+    "searchPlaceholder": "Search by name or email...",
+    "filters": {
+      "all": "All",
+      "completed": "Completed",
+      "pending": "Pending"
+    },
+    "exportCsv": "Export CSV",
+    "table": {
+      "date": "Date",
+      "donor": "Donor",
+      "amount": "Amount",
+      "status": "Status",
+      "paymentMethod": "Payment Method",
+      "message": "Message",
+      "anonymous": "Anonymous",
+      "na": "N/A",
+      "recurring": "Recurring"
+    },
+    "emptyState": {
+      "noDonations": "No donations yet",
+      "adjustFilters": "Try adjusting your search filters"
+    }
+  },
+  "crmView": {
+    "title": "Contact Database",
+    "subtitle": "Organize and manage community relationships",
+    "addContact": "Add Contact",
+    "views": {
+      "table": "Table View",
+      "board": "Board View",
+      "calendar": "Calendar View"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Manage contacts with custom fields and privacy controls",
+      "emptyState": "No contacts yet. Add your first contact to get started."
+    },
+    "emptyStates": {
+      "board": "Board view - organize contacts by status or category",
+      "calendar": "Calendar view - see contacts by date-based fields"
+    },
+    "templates": {
+      "title": "Available Templates",
+      "description": "Pre-configured fields for common use cases",
+      "unionOrganizing": {
+        "title": "Union Organizing",
+        "description": "Track organizing conversations and commitments"
+      },
+      "fundraising": {
+        "title": "Fundraising",
+        "description": "Donor management and campaign tracking"
+      },
+      "legalTracking": {
+        "title": "Legal Tracking",
+        "description": "Case management for legal support work"
+      }
+    }
+  },
+  "deviceManager": {
+    "title": "Device Management",
+    "description": "Manage devices and sessions that have access to your account",
+    "signOutAll": "Sign Out All Devices",
+    "noDevices": "No devices found",
+    "currentDevice": "Current Device",
+    "trusted": "Trusted",
+    "activeSessions": "Active Sessions",
+    "noActiveSessions": "No active sessions",
+    "lastSeen": "Last seen: {{time}}",
+    "firstSeen": "First seen: {{time}}",
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago"
+    },
+    "removeDeviceDialog": {
+      "title": "Remove Device",
+      "description": "Are you sure you want to remove this device? All sessions for this device will be revoked and you'll need to re-authorize it to access your account.",
+      "cancel": "Cancel",
+      "remove": "Remove Device"
+    },
+    "signOutAllDialog": {
+      "title": "Sign Out All Devices",
+      "description": "This will sign you out of all other devices except this one. You'll need to sign in again on those devices.",
+      "cancel": "Cancel",
+      "signOut": "Sign Out All"
+    }
+  },
+  "mediaUploader": {
+    "dropzone": "Click to select {{type}} or drag and drop",
+    "files": "files",
+    "aFile": "a file",
+    "settings": {
+      "title": "Upload Settings",
+      "privacyLevel": "Privacy Level",
+      "storageProvider": "Storage Provider",
+      "stripExif": "Strip EXIF Data (Privacy)",
+      "encryptMedia": "Encrypt Media",
+      "contentWarning": "Content Warning"
+    },
+    "privacy": {
+      "public": "Public",
+      "group": "Group Only",
+      "private": "Private",
+      "encrypted": "Encrypted"
+    },
+    "storage": {
+      "nip96": "NIP-96 (HTTP Storage)",
+      "nip94": "NIP-94 (File Metadata)",
+      "blossom": "Blossom (Decentralized)",
+      "ipfs": "IPFS",
+      "local": "Local (Dev)"
+    },
+    "caption": "Caption (optional)",
+    "altText": "Alt text for accessibility",
+    "contentWarningPlaceholder": "Describe the sensitive content...",
+    "uploadFile": "Upload File",
+    "uploadFiles": "Upload {{count}} Files",
+    "cancel": "Cancel",
+    "status": {
+      "complete": "Complete",
+      "error": "Error: {{message}}"
+    },
+    "alerts": {
+      "fileTooLarge": "File {{filename}} exceeds maximum size for {{type}}",
+      "loginFirst": "Please login first"
+    }
+  },
+  "notificationsDemoPage": {
+    "title": "Smart Notifications",
+    "subtitle": "Context-aware notifications based on engagement level",
+    "demoSwitchLevel": "Demo: Switch Level",
+    "viewAs": "View as...",
+    "explanation": {
+      "title": "How Smart Notifications Work",
+      "description": "Notifications change based on your engagement level:",
+      "levels": {
+        "neutral": "Beginner-friendly events, educational content",
+        "passive": "Encouragement to attend actions, progress updates",
+        "active": "Volunteer opportunities, urgent mobilizations",
+        "core": "Leadership meetings, mentorship, security alerts"
+      },
+      "footer": "Each notification includes a relevance score showing why you're seeing it."
+    }
+  },
+  "bulkOperationsPage": {
+    "title": "Bulk Operations",
+    "subtitle": "Scale your organizing with bulk actions, multi-select, and automated task management",
+    "tabs": {
+      "bulkActions": "Bulk Actions",
+      "taskManager": "Task Manager"
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "supportLevel": "Support Level",
+      "tags": "Tags",
+      "lastContact": "Last Contact",
+      "noTags": "No tags",
+      "daysAgo": "{{count}} days ago"
+    },
+    "supportLevels": {
+      "coreOrganizer": "Core Organizer",
+      "activeSupport": "Active Support",
+      "passiveSupport": "Passive Support",
+      "neutral": "Neutral"
+    },
+    "features": {
+      "title": "Bulk Operations Features",
+      "selectMultiple": "Select multiple contacts with checkboxes",
+      "sendBulk": "Send bulk messages to selected contacts",
+      "addTags": "Add tags to multiple contacts at once",
+      "updateFields": "Update custom fields in bulk",
+      "assignTasks": "Assign tasks to organizers for follow-ups",
+      "exportCSV": "Export selected contacts to CSV"
+    },
+    "alerts": {
+      "sendingMessage": "Sending message to {{count}} contacts",
+      "addingTag": "Adding tag to {{count}} contacts",
+      "updatingField": "Updating field for {{count}} contacts",
+      "creatingTask": "Creating task for {{count}} contacts",
+      "exportingCSV": "Exporting {{count}} contacts to CSV",
+      "confirmDelete": "Delete {{count}} contacts? This cannot be undone."
+    }
+  },
+  "folderPermissionsDialog": {
+    "title": "Folder Permissions",
+    "description": "Manage who can access \"{{name}}\" and its contents",
+    "usersWithAccess": "Users with Access",
+    "addUser": "Add User",
+    "emptyState": {
+      "title": "No specific permissions set",
+      "description": "Folder is accessible to all group members"
+    },
+    "permissions": {
+      "view": "View",
+      "download": "Download",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "View only",
+      "viewDownload": "View & Download",
+      "viewDownloadEdit": "View, Download & Edit",
+      "fullAccess": "Full Access (incl. Delete)"
+    },
+    "inherited": "Inherited",
+    "disableInheritance": "Click to disable inheritance",
+    "addPermission": {
+      "title": "Add User Permission",
+      "selectUser": "Select User",
+      "selectUserPlaceholder": "Choose a user...",
+      "permissionLevel": "Permission Level",
+      "applyToSubfolders": "Apply to subfolders",
+      "cascadeDescription": "Permission cascades to child folders and files",
+      "adding": "Adding...",
+      "addButton": "Add Permission"
+    },
+    "inheritanceInfo": "Inherited permissions automatically apply to all files and subfolders within this folder. Click the \"Inherited\" badge on a permission to disable inheritance for that user.",
+    "errors": {
+      "addFailed": "Failed to add permission",
+      "removeFailed": "Failed to remove permission"
+    }
+  },
+  "secureEmbed": {
+    "untrusted": {
+      "title": "Untrusted embed source",
+      "description": "This content is from an untrusted source and cannot be embedded securely.",
+      "openInNewTab": "Open in new tab"
+    },
+    "loadEmbed": "Load {{provider}}",
+    "openExternally": "Open externally",
+    "embedName": "{{provider}} embed",
+    "dialog": {
+      "title": "Embed Media",
+      "placeholder": "Paste URL (YouTube, Vimeo, SoundCloud, Spotify...)",
+      "detected": "Detected: {{provider}}",
+      "supportedProviders": "Supported providers:",
+      "providers": {
+        "youtube": "YouTube (privacy-enhanced mode)",
+        "vimeo": "Vimeo (do-not-track mode)",
+        "peertube": "PeerTube (any instance)",
+        "soundcloud": "SoundCloud",
+        "spotify": "Spotify",
+        "codepen": "CodePen",
+        "codesandbox": "CodeSandbox"
+      },
+      "cancel": "Cancel",
+      "embed": "Embed"
+    },
+    "errors": {
+      "enterUrl": "Please enter a URL",
+      "unsupportedProvider": "Unsupported provider. Supported: {{providers}}"
+    }
+  },
+  "folderPermissionsPanel": {
+    "title": "Folder Permissions",
+    "description": "Manage who can access \"{{name}}\" and its documents",
+    "usersWithAccess": "Users with Access",
+    "addUser": "Add User",
+    "emptyState": {
+      "title": "No specific permissions set",
+      "description": "Folder is accessible to all group members"
+    },
+    "permissions": {
+      "view": "View",
+      "comment": "Comment",
+      "edit": "Edit",
+      "admin": "Admin"
+    },
+    "permissionDescriptions": {
+      "viewOnly": "View only",
+      "viewComment": "View & Comment",
+      "edit": "Edit",
+      "adminFull": "Admin (full control)"
+    },
+    "inherited": "Inherited",
+    "disableInheritance": "Click to disable inheritance",
+    "addPermission": {
+      "title": "Add User Permission",
+      "selectUser": "Select User",
+      "selectUserPlaceholder": "Choose a user...",
+      "permissionLevel": "Permission Level",
+      "applyToSubfolders": "Apply to subfolders",
+      "cascadeDescription": "Permission cascades to child folders and documents",
+      "adding": "Adding...",
+      "addButton": "Add Permission"
+    },
+    "inheritanceInfo": "Inherited permissions automatically apply to all documents and subfolders within this folder. Click the \"Inherited\" badge on a permission to disable inheritance for that user.",
+    "errors": {
+      "addFailed": "Failed to add permission",
+      "removeFailed": "Failed to remove permission"
+    }
+  },
+  "privacySettings": {
+    "title": "Privacy & Security Settings",
+    "description": "Configure how device tracking and session management works",
+    "anonymizeIp": {
+      "label": "Anonymize IP Addresses",
+      "description": "Hide or hash IP addresses in session logs for better privacy"
+    },
+    "limitFingerprinting": {
+      "label": "Limit Device Fingerprinting",
+      "description": "Reduce detail collected during device fingerprinting"
+    },
+    "autoExpireSessions": {
+      "label": "Auto-Expire Inactive Sessions",
+      "description": "Automatically end sessions that haven't been used"
+    },
+    "sessionTimeout": {
+      "label": "Session Timeout (minutes)",
+      "days": "({{count}} days)"
+    },
+    "requireAuthNewDevice": {
+      "label": "Require Authorization for New Devices",
+      "description": "Manually approve new devices before they can access your account"
+    },
+    "locationTracking": {
+      "label": "Enable Location Tracking",
+      "description": "Track approximate location (city/country) for sessions",
+      "warning": "Location tracking may compromise your privacy. Only enable if you understand the risks."
+    },
+    "activityLogs": {
+      "label": "Log Device Activity",
+      "description": "Keep a history of device activities and security events",
+      "warning": "Disabling activity logs will make it harder to detect unauthorized access or suspicious activity."
+    }
+  },
+  "proposalFeedCard": {
+    "createdProposal": "created a proposal",
+    "governanceProposal": "Governance Proposal",
+    "statuses": {
+      "draft": "Draft",
+      "discussion": "Discussion",
+      "voting": "Voting",
+      "decided": "Decided",
+      "cancelled": "Cancelled"
+    },
+    "votingMethods": {
+      "simple": "Simple Majority",
+      "rankedChoice": "Ranked Choice",
+      "quadratic": "Quadratic Voting",
+      "dhondt": "D'Hondt Method",
+      "consensus": "Consensus"
+    },
+    "votingEnded": "Voting ended",
+    "deadline": "Deadline:",
+    "votingEnds": "Voting ends:",
+    "actions": {
+      "review": "Review",
+      "edit": "Edit",
+      "joinDiscussion": "Join Discussion",
+      "viewDetails": "View Details",
+      "castVote": "Cast Vote",
+      "viewProposal": "View Proposal",
+      "viewResults": "View Results",
+      "details": "Details"
+    }
+  },
+  "articleEditor": {
+    "close": "Close",
+    "saving": "Saving...",
+    "lastSaved": "Last saved {{time}}",
+    "notSaved": "Not saved",
+    "saveDraft": "Save Draft",
+    "preview": "Preview",
+    "schedule": "Schedule",
+    "publish": "Publish",
+    "scheduleFor": "Schedule for {{date}}",
+    "articleSaved": "Article saved",
+    "selectDateTime": "Please select a date and time",
+    "articleScheduled": "Article scheduled for {{date}}",
+    "titlePlaceholder": "Article title",
+    "subtitlePlaceholder": "Add a subtitle (optional)",
+    "addCoverImage": "Add cover image",
+    "coverImagePrompt": "Enter cover image URL:",
+    "addTags": "Add tags (press Enter)",
+    "visibility": "Visibility:",
+    "visibilityOptions": {
+      "public": "Public",
+      "subscribers": "Subscribers Only",
+      "paid": "Paid Subscribers Only"
+    },
+    "showSeoSettings": "Show SEO Settings",
+    "hideSeoSettings": "Hide SEO Settings",
+    "seoSettings": "SEO Settings",
+    "metaTitle": "Meta Title",
+    "metaDescription": "Meta Description",
+    "metaDescriptionPlaceholder": "Brief description for search engines (150-160 characters)",
+    "ogImage": "OG Image URL",
+    "ogImagePlaceholder": "Image URL for social sharing",
+    "editorPlaceholder": "Start writing your article...",
+    "imageUrlPrompt": "Enter image URL:",
+    "linkUrlPrompt": "Enter URL:"
+  },
+  "activityFeed": {
+    "feedType": "Feed type",
+    "types": {
+      "all": "All Activity",
+      "following": "Following",
+      "group": "Group Posts",
+      "mentions": "Mentions",
+      "bookmarks": "Bookmarks",
+      "scheduled": "Scheduled",
+      "pinned": "Pinned"
+    },
+    "filters": "Filters",
+    "refresh": "Refresh",
+    "contentType": "Content Type",
+    "contentTypes": {
+      "text": "Text",
+      "eventShare": "Events",
+      "documentShare": "Documents",
+      "title": "Content Types",
+      "posts": "Posts",
+      "events": "Events",
+      "mutualAid": "Mutual Aid",
+      "proposals": "Proposals",
+      "wikiUpdates": "Wiki Updates"
+    },
+    "privacyLevel": "Privacy Level",
+    "privacyLevels": {
+      "public": "Public",
+      "group": "Group",
+      "followers": "Followers",
+      "encrypted": "Encrypted"
+    },
+    "dateRange": "Date Range",
+    "from": "From",
+    "to": "To",
+    "clear": "Clear",
+    "clearFilters": "Clear Filters",
+    "noPosts": {
+      "title": "No posts yet",
+      "beFirst": "Be the first to share something!",
+      "noActivity": "No activity to display with current filters."
+    },
+    "loadMore": "Load More",
+    "loading": "Loading...",
+    "loadingFeed": "Loading feed...",
+    "tabs": {
+      "all": "All Activity",
+      "myGroups": "My Groups",
+      "mentions": "Mentions"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "filter": "Filter",
+      "loadMore": "Load More",
+      "loading": "Loading..."
+    },
+    "empty": {
+      "title": "No activity yet",
+      "all": "Be the first to share an update!",
+      "myGroups": "Join groups to see their activity",
+      "mentions": "No one has mentioned you yet"
+    }
+  },
+  "createEventDialog": {
+    "triggerButton": "Create Event",
+    "title": "Create New Event",
+    "fields": {
+      "titleLabel": "Event Title *",
+      "titlePlaceholder": "Enter event title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Event description",
+      "locationLabel": "Location",
+      "locationPlaceholder": "Event location",
+      "startDateLabel": "Start Date & Time *",
+      "endDateLabel": "End Date & Time (Optional)",
+      "privacyLabel": "Privacy Level",
+      "capacityLabel": "Capacity (Optional)",
+      "capacityPlaceholder": "Max attendees",
+      "revealTimeLabel": "Location Reveal Time",
+      "revealTimeHelp": "Location will be revealed at this time"
+    },
+    "privacy": {
+      "public": "Public - Anyone can see",
+      "group": "Group - Only group members",
+      "private": "Private - Invite only",
+      "directAction": "Direct Action - Time-delayed location reveal"
+    },
+    "customFields": {
+      "title": "Additional Information",
+      "selectPlaceholder": "Select an option"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Event",
+      "creating": "Creating..."
+    },
+    "errors": {
+      "createFailed": "Failed to create event"
+    }
+  },
+  "commentSidebar": {
+    "title": "Comments",
+    "openCount": "{{count}} open",
+    "resolved": "Resolved",
+    "showResolved": "Show {{count}} resolved",
+    "hideResolved": "Hide {{count}} resolved",
+    "empty": {
+      "title": "No comments yet",
+      "description": "Select text to add a comment"
+    },
+    "actions": {
+      "resolve": "Resolve",
+      "reply": "Reply",
+      "delete": "Delete"
+    },
+    "reply": {
+      "placeholder": "Write a reply... Use @ to mention users",
+      "mentionHint": "Type @ to mention",
+      "cancel": "Cancel",
+      "submit": "Reply"
+    },
+    "replies": {
+      "one": "{{count}} reply",
+      "other": "{{count}} replies"
+    },
+    "mentioned": "{{count}} mentioned",
+    "mentionSuggestions": "Mention suggestions"
+  },
+  "taskManager": {
+    "title": "Task Queue",
+    "activeCount": "{{count}} active tasks",
+    "filter": {
+      "label": "Filter:",
+      "all": "All",
+      "allTasks": "All Tasks",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "newTask": "New Task",
+    "empty": "No tasks found",
+    "actions": {
+      "edit": "Edit Task",
+      "reassign": "Reassign",
+      "delete": "Delete"
+    },
+    "metadata": {
+      "contact": "Contact: {{name}}",
+      "priority": {
+        "high": "High priority",
+        "medium": "Medium priority",
+        "low": "Low priority"
+      }
+    },
+    "automatedFollowUp": {
+      "label": "Automated follow-up",
+      "title": "Automated Follow-Ups",
+      "description": "Tasks marked with the bell icon are automatically created when contacts don't respond within 3 days. You can configure automation rules in settings."
+    }
+  },
+  "conditionalLogicEditor": {
+    "title": "Conditional Logic",
+    "addRule": "Add Rule",
+    "whenField": "When field",
+    "is": "Is",
+    "value": "Value",
+    "valuePlaceholder": "Enter value",
+    "then": "Then",
+    "operators": {
+      "equals": "Equals",
+      "notEquals": "Not Equals",
+      "contains": "Contains",
+      "greaterThan": "Greater Than",
+      "lessThan": "Less Than"
+    },
+    "actions": {
+      "show": "Show this field",
+      "hide": "Hide this field",
+      "require": "Require this field"
+    },
+    "noLogic": "No conditional logic set",
+    "note": "Note: Conditional logic uses JSON Schema if/then/else syntax"
+  },
+  "eventDetail": {
+    "rsvpStatus": "RSVP Status",
+    "rsvpCounts": {
+      "going": "{{count}} Going",
+      "maybe": "{{count}} Maybe",
+      "notGoing": "{{count}} Not Going"
+    },
+    "capacity": "{{current}} / {{max}} capacity",
+    "tabs": {
+      "details": "Details",
+      "attendees": "Attendees"
+    },
+    "description": "Description",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "location": "Location",
+    "locationReveals": "Reveals at {{time}}",
+    "tags": "Tags",
+    "privacy": {
+      "public": "Public Event",
+      "group": "Group Only",
+      "private": "Private Event",
+      "directAction": "Direct Action"
+    },
+    "actions": {
+      "close": "Close",
+      "edit": "Edit"
+    }
+  },
+  "editEventDialog": {
+    "title": "Edit Event",
+    "fields": {
+      "titleLabel": "Event Title *",
+      "titlePlaceholder": "Enter event title",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Event description",
+      "locationLabel": "Location",
+      "locationPlaceholder": "Event location",
+      "startDateLabel": "Start Date & Time *",
+      "endDateLabel": "End Date & Time (Optional)",
+      "privacyLabel": "Privacy Level",
+      "capacityLabel": "Capacity (Optional)",
+      "capacityPlaceholder": "Max attendees",
+      "revealTimeLabel": "Location Reveal Time",
+      "revealTimeHelp": "Location will be revealed at this time"
+    },
+    "privacy": {
+      "public": "Public - Anyone can see",
+      "group": "Group - Only group members",
+      "private": "Private - Invite only",
+      "directAction": "Direct Action - Time-delayed location reveal"
+    },
+    "customFields": {
+      "title": "Additional Information",
+      "selectPlaceholder": "Select an option"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving..."
+    },
+    "errors": {
+      "updateFailed": "Failed to update event"
+    }
+  },
+  "channelManager": {
+    "title": "Channels",
+    "description": "Role-based channels for organized communication",
+    "newChannel": "New Channel",
+    "createDialog": {
+      "title": "Create Channel",
+      "description": "Create a role-based channel for focused communication",
+      "nameLabel": "Channel Name",
+      "namePlaceholder": "e.g., leadership, volunteers",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What is this channel for?",
+      "typeLabel": "Channel Type"
+    },
+    "types": {
+      "public": "Public (Everyone)",
+      "member": "Members Only",
+      "adminOnly": "Admins Only",
+      "roleBased": "Role-Based"
+    },
+    "typeDescriptions": {
+      "public": "Anyone can read and post",
+      "member": "All group members can participate",
+      "adminOnly": "Only admins can read and post",
+      "roleBased": "Custom permissions per role"
+    },
+    "typeLabels": {
+      "public": "Public",
+      "member": "Members",
+      "adminOnly": "Admins",
+      "roleBased": "Role-based"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Channel"
+    },
+    "empty": {
+      "title": "No channels yet",
+      "description": "Create channels to organize conversations by role or topic"
+    },
+    "confirmDelete": "Are you sure you want to delete this channel?"
+  },
+  "submissionsList": {
+    "title": "Form Submissions",
+    "totalCount": "{{count}} total submission",
+    "totalCount_plural": "{{count}} total submissions",
+    "export": "Export",
+    "searchPlaceholder": "Search by name or email...",
+    "filters": {
+      "all": "All",
+      "unprocessed": "Unprocessed",
+      "spam": "Spam"
+    },
+    "tableHeaders": {
+      "submitted": "Submitted",
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "spam": "Spam",
+      "processed": "Processed",
+      "new": "New"
+    },
+    "anonymous": "Anonymous",
+    "noSubmissions": "No submissions found",
+    "actions": {
+      "flagSpam": "Flag as spam",
+      "markProcessed": "Mark as processed"
+    }
+  },
+  "templateGallery": {
+    "title": "Choose a Form Template",
+    "description": "Start with a pre-built template or create a form from scratch",
+    "startFromScratch": "Start from Scratch",
+    "createTemplate": "Create Template",
+    "searchPlaceholder": "Search templates...",
+    "categories": {
+      "all": "All Templates",
+      "general": "General",
+      "crm": "CRM",
+      "project": "Project",
+      "inventory": "Inventory",
+      "custom": "Custom"
+    },
+    "loading": "Loading templates...",
+    "noTemplates": "No templates found.",
+    "tryDifferentSearch": "Try a different search term.",
+    "builtIn": "Built-in",
+    "details": {
+      "tables": "Tables:",
+      "relationships": "Relationships:",
+      "category": "Category:"
+    },
+    "actions": {
+      "useTemplate": "Use This Template",
+      "useThisTemplate": "Use This Template",
+      "close": "Close",
+      "cancel": "Cancel"
+    },
+    "preview": {
+      "tables": "Tables ({{count}})",
+      "relationships": "Relationships ({{count}})",
+      "fields": "Fields:",
+      "includedFields": "Included Fields:",
+      "required": "Required",
+      "requiredFields": "{{count}} required fields",
+      "requiredCount": "{{count}} required field",
+      "requiredCountPlural": "{{count}} required fields",
+      "cancel": "Cancel",
+      "useTemplate": "Use This Template"
+    },
+    "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
+    "errors": {
+      "saveFailed": "Failed to save template",
+      "deleteFailed": "Failed to delete template"
+    },
+    "startFromScratchDescription": "Create a custom form with your own fields",
+    "blank": {
+      "title": "Start from Scratch",
+      "description": "Create a custom form with your own fields"
+    },
+    "fields": "{{count}} fields"
+  },
+  "coalitionManager": {
+    "title": "Coalitions",
+    "description": "Multi-group chats for coordinating across organizations",
+    "newCoalition": "New Coalition",
+    "createDialog": {
+      "title": "Create Coalition",
+      "description": "Build a multi-group coalition for cross-organizational coordination",
+      "nameLabel": "Coalition Name",
+      "namePlaceholder": "e.g., Climate Justice Coalition",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What is this coalition working on?",
+      "groupsLabel": "Participating Groups",
+      "groupsNote": "Note: Group selection will be fully implemented in production. For MVP, coalition is created with your current group."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Coalition"
+    },
+    "empty": {
+      "title": "No coalitions yet",
+      "description": "Create a coalition to coordinate with other organizations"
+    },
+    "badges": {
+      "groups": "{{count}} groups",
+      "individuals": "{{count}} individuals"
+    },
+    "confirmDelete": "Are you sure you want to delete this coalition?"
+  },
+  "userDirectory": {
+    "title": "User Directory",
+    "description": "Browse and connect with other users on BuildIt Network",
+    "searchPlaceholder": "Search by username or name...",
+    "filters": {
+      "allUsers": "All users",
+      "verifiedOnly": "Verified only",
+      "unverifiedOnly": "Unverified only"
+    },
+    "sort": {
+      "username": "Username (A-Z)",
+      "name": "Name (A-Z)",
+      "recent": "Recently active"
+    },
+    "resultsCount": "{{count}} user found",
+    "resultsCount_plural": "{{count}} users found",
+    "noUsersFound": "No users found matching your search",
+    "verified": "Verified",
+    "actions": {
+      "viewProfile": "View Profile",
+      "message": "Message"
+    }
+  },
+  "storyComposer": {
+    "addStory": "Add Story",
+    "title": "Create Story",
+    "contentTypes": {
+      "text": "Text",
+      "image": "Image",
+      "video": "Video",
+      "imageComingSoon": "Image stories coming soon",
+      "videoComingSoon": "Video stories coming soon"
+    },
+    "preview": {
+      "placeholder": "Your story text..."
+    },
+    "textInput": {
+      "placeholder": "What's on your mind?",
+      "charCount": "{{current}}/{{max}}"
+    },
+    "style": {
+      "background": "Background",
+      "fontSize": "Font Size",
+      "alignment": "Alignment",
+      "fontSizes": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "privacy": {
+      "label": "Who can see this story?",
+      "public": "Everyone",
+      "friends": "Friends",
+      "closeFriends": "Close Friends",
+      "custom": "Custom"
+    },
+    "allowReplies": "Allow Replies",
+    "submit": {
+      "creating": "Creating...",
+      "share": "Share Story"
+    },
+    "toast": {
+      "emptyText": "Please enter some text for your story",
+      "success": "Story created! It will expire in 24 hours.",
+      "error": "Failed to create story"
+    }
+  },
+  "analyticsDashboard": {
+    "title": "Analytics",
+    "description": "Privacy-preserving analytics (no user tracking)",
+    "empty": {
+      "title": "No analytics data yet",
+      "description": "Analytics will appear here once you start getting traffic"
+    },
+    "timeframes": {
+      "day": "Last 24 Hours",
+      "week": "Last 7 Days",
+      "month": "Last 30 Days",
+      "year": "Last Year",
+      "all": "All Time"
+    },
+    "stats": {
+      "totalViews": "Total Views",
+      "submissions": "Submissions",
+      "donations": "Donations",
+      "totalRaised": "Total Raised",
+      "clicks": "Clicks",
+      "shares": "Shares",
+      "conversionRate": "Conversion Rate"
+    },
+    "topReferrers": {
+      "title": "Top Referrers",
+      "privacyNote": "(Privacy: domain only, no full URLs)",
+      "direct": "Direct"
+    },
+    "privacyNotice": {
+      "title": "Privacy-First Analytics:",
+      "description": "We collect only aggregated, anonymized data. No IP addresses, no cookies, no user tracking. Session IDs are random and not tied to individuals. Referrer data shows only domains, not full URLs."
+    },
+    "lastUpdated": "Last updated: {{date}}"
+  },
+  "createProposalDialog": {
+    "title": "Create Proposal",
+    "description": "Create a new proposal for democratic decision-making",
+    "errors": {
+      "noIdentity": "No active identity or app is locked. Please log in.",
+      "createFailed": "Failed to create proposal"
+    },
+    "fields": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "Proposal title...",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Detailed description of the proposal...",
+      "votingMethodLabel": "Voting Method",
+      "optionsLabel": "Options (one per line)",
+      "optionsPlaceholder": "Option 1\nOption 2\nOption 3",
+      "quorumLabel": "Quorum (%)",
+      "thresholdLabel": "Threshold (%)",
+      "durationLabel": "Voting Duration (days)"
+    },
+    "votingMethods": {
+      "simple": "Simple Majority (Yes/No/Abstain)",
+      "rankedChoice": "Ranked Choice Voting",
+      "quadratic": "Quadratic Voting",
+      "consensus": "Consensus"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Proposal",
+      "creating": "Creating..."
+    }
+  },
+  "mutualAidFeedCard": {
+    "typeLabels": {
+      "requesting": "requesting help",
+      "offering": "offering help"
+    },
+    "status": {
+      "open": "Open",
+      "matched": "Matched",
+      "inProgress": "In Progress",
+      "fulfilled": "Fulfilled",
+      "closed": "Closed"
+    },
+    "expires": "Expires {{time}}",
+    "expired": "Expired",
+    "actions": {
+      "offerHelp": "Offer Help",
+      "message": "Message",
+      "requestThis": "Request This",
+      "details": "Details",
+      "viewDetails": "View Details"
+    }
+  },
+  "conversationHistory": {
+    "title": "Conversation with {{name}}",
+    "messageCount": "{{count}} messages",
+    "messageTypes": {
+      "direct": "Direct Message",
+      "group": "Group Message",
+      "mention": "Mentioned"
+    },
+    "filters": {
+      "label": "Filter Messages",
+      "all": "All Messages",
+      "direct": "Direct Messages",
+      "group": "Group Messages",
+      "mentions": "Mentions"
+    },
+    "searchPlaceholder": "Search conversation...",
+    "noMessages": "No messages found",
+    "sendPlaceholder": "Send a message to {{name}}...",
+    "sendHint": "Press Enter to send, Shift+Enter for new line",
+    "send": "Send",
+    "summary": {
+      "title": "Conversation Summary",
+      "directMessages": "Direct Messages",
+      "groupInteractions": "Group Interactions",
+      "daysSinceContact": "Days Since First Contact"
+    }
+  },
+  "onboardingFlow": {
+    "stepCount": "Step {{current}} of {{total}}",
+    "navigation": {
+      "back": "Back",
+      "continue": "Continue",
+      "getStarted": "Get Started"
+    },
+    "profile": {
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "locationLabel": "Location (Optional)",
+      "locationPlaceholder": "City, State",
+      "availabilityLabel": "Availability",
+      "selectPlaceholder": "Select...",
+      "weekdays": "Weekdays",
+      "weekends": "Weekends",
+      "flexible": "Flexible"
+    },
+    "groups": {
+      "members": "{{count}} members",
+      "join": "Join"
+    },
+    "events": {
+      "going": "{{count}} going",
+      "rsvp": "RSVP"
+    },
+    "complete": {
+      "selectedInterests": "Your selected interests:"
+    }
+  },
+  "smartNotifications": {
+    "title": "Smart Notifications",
+    "personalized": "Personalized for {{level}}",
+    "filters": {
+      "unread": "Unread ({{count}})",
+      "all": "All",
+      "markAllRead": "Mark all read"
+    },
+    "empty": {
+      "allCaughtUp": "All caught up! No unread notifications.",
+      "noNotifications": "No notifications yet"
+    },
+    "actions": {
+      "markRead": "Mark read",
+      "dismiss": "Dismiss"
+    },
+    "relevance": "{{percent}}% relevant",
+    "features": {
+      "title": "Smart Notification Features",
+      "personalized": "Notifications personalized based on your engagement level",
+      "priority": "Priority filtering puts urgent items first",
+      "relevance": "Relevance scoring shows why you're seeing each notification",
+      "contextAware": "Context-aware: what you see changes as you grow as an organizer"
+    }
+  },
+  "torStatusIndicator": {
+    "status": {
+      "disabled": "Tor Disabled",
+      "detecting": "Detecting",
+      "enabled": "Tor Enabled",
+      "connecting": "Connecting",
+      "connected": "Tor Active",
+      "error": "Tor Error",
+      "unknown": "Unknown"
+    },
+    "description": {
+      "disabled": "Not connected through Tor",
+      "detecting": "Detecting Tor Browser...",
+      "enabled": "Tor routing enabled",
+      "connecting": "Connecting to .onion relays...",
+      "connected": "Connected to {{count}} .onion relays",
+      "error": "Connection error",
+      "unknown": "Unknown status"
+    },
+    "stats": {
+      "connectedRelays": "Connected relays: {{connected}}/{{total}}",
+      "avgLatency": "Avg latency: {{latency}}ms",
+      "onionRelays": "Onion Relays",
+      "latency": "Avg Latency",
+      "uptime": "Uptime",
+      "uptimeValue": "{{minutes}} min",
+      "data": "Data"
+    },
+    "warnings": {
+      "title": "Warnings:",
+      "securityWarnings": "Security Warnings:"
+    }
+  },
+  "anonymousVoting": {
+    "privacy": {
+      "cryptographic": "Cryptographically anonymous",
+      "eligibleVoters": "{{count}} eligible voters",
+      "anonymous": "{{count}} anonymous"
+    },
+    "mode": {
+      "title": "Cast Anonymous Vote",
+      "description": "Your vote will be cryptographically sealed",
+      "anonymous": "Anonymous",
+      "public": "Public"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "abstain": "Abstain",
+      "yourVote": "Your vote"
+    },
+    "results": {
+      "votes": "{{count}} votes ({{percent}}%)",
+      "anonymousVotes": "{{count}} anonymous",
+      "hide": "Hide Results",
+      "show": "Show Results"
+    },
+    "status": {
+      "recorded": "Vote Recorded",
+      "recordedAnonymous": "Your anonymous vote has been cryptographically sealed and recorded.",
+      "recordedPublic": "Your public vote has been cryptographically sealed and recorded.",
+      "canChange": "You can change your vote until the proposal closes.",
+      "identityProtected": "Your identity is protected by zero-knowledge cryptography"
+    }
+  },
+  "pollComposer": {
+    "title": "Create Poll",
+    "question": {
+      "label": "Question",
+      "placeholder": "What do you want to ask?",
+      "charCount": "{{current}}/{{max}}"
+    },
+    "options": {
+      "label": "Options",
+      "placeholder": "Option {{number}}",
+      "removeAriaLabel": "Remove option {{number}}",
+      "addOption": "Add Option"
+    },
+    "settings": {
+      "choiceType": {
+        "label": "Choice Type",
+        "single": "Single Choice",
+        "multiple": "Multiple Choice"
+      },
+      "duration": {
+        "label": "Duration",
+        "1hour": "1 hour",
+        "6hours": "6 hours",
+        "12hours": "12 hours",
+        "1day": "1 day",
+        "2days": "2 days",
+        "3days": "3 days",
+        "1week": "1 week"
+      }
+    },
+    "privacy": {
+      "anonymous": {
+        "label": "Anonymous Voting",
+        "descriptionOn": "Voters will remain anonymous",
+        "descriptionOff": "Voters will be visible to poll creator"
+      },
+      "showResults": {
+        "label": "Show Results Before End",
+        "descriptionOn": "Results visible while voting is open",
+        "descriptionOff": "Results hidden until poll ends"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Poll",
+      "creating": "Creating..."
+    },
+    "toast": {
+      "emptyQuestion": "Please enter a question",
+      "minOptions": "Please add at least 2 options",
+      "success": "Poll created successfully",
+      "error": "Failed to create poll"
+    }
+  },
+  "formFieldEditor": {
+    "title": "Field Properties",
+    "basic": {
+      "label": "Label",
+      "labelPlaceholder": "Field label",
+      "placeholder": "Placeholder",
+      "placeholderPlaceholder": "Placeholder text",
+      "helpText": "Help Text",
+      "helpTextPlaceholder": "Additional guidance for users",
+      "required": "Required"
+    },
+    "options": {
+      "title": "Options",
+      "placeholder": "Option {{number}}",
+      "addOption": "Add Option"
+    },
+    "validation": {
+      "title": "Validation",
+      "minLength": "Min Length",
+      "minLengthPlaceholder": "Minimum character count",
+      "maxLength": "Max Length",
+      "maxLengthPlaceholder": "Maximum character count",
+      "min": "Minimum Value",
+      "minPlaceholder": "Minimum value",
+      "max": "Maximum Value",
+      "maxPlaceholder": "Maximum value",
+      "pattern": "Pattern (Regex)",
+      "patternPlaceholder": "^[A-Za-z]+$"
+    }
+  },
+  "customFieldEditor": {
+    "title": {
+      "create": "Create Custom Field",
+      "edit": "Edit Field"
+    },
+    "fields": {
+      "name": "Field Name",
+      "namePlaceholder": "e.g., dietary_preferences",
+      "label": "Label",
+      "labelPlaceholder": "e.g., Dietary Preferences",
+      "fieldType": "Field Type",
+      "required": "Required field",
+      "placeholder": "Placeholder",
+      "helpText": "Help Text",
+      "options": "Options (JSON)",
+      "optionsPlaceholder": "[{\"value\": \"vegan\", \"label\": \"Vegan\"}, {\"value\": \"vegetarian\", \"label\": \"Vegetarian\"}]",
+      "minLength": "Min Length",
+      "maxLength": "Max Length",
+      "pattern": "Pattern (regex)",
+      "minimum": "Minimum",
+      "maximum": "Maximum"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "update": "Update",
+      "saving": "Saving..."
+    }
+  },
+  "contactDetailPage": {
+    "title": "Contact Details",
+    "description": "Complete history and communication with this contact",
+    "notFound": "Contact not found",
+    "backToContacts": "Back to Contacts",
+    "actions": {
+      "edit": "Edit",
+      "sendMessage": "Send Message"
+    },
+    "info": {
+      "joined": "Joined {{date}}",
+      "lastContact": "Last contact {{date}}",
+      "latestNote": "Latest Note:"
+    },
+    "customFields": {
+      "title": "Additional Information"
+    },
+    "tabs": {
+      "activity": "Activity Timeline",
+      "conversation": "Conversation History"
+    }
+  },
+  "pendingInvitations": {
+    "title": "Pending Invitations",
+    "description": "Invitations to join groups will appear here",
+    "reviewDescription": "Review and respond to group invitations",
+    "empty": {
+      "title": "No pending invitations",
+      "description": "When someone invites you to a group, it will appear here"
+    },
+    "invitation": {
+      "unknownGroup": "Unknown Group",
+      "invitedBy": "Invited by",
+      "expires": "Expires {{time}}"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+    "errors": {
+      "acceptFailed": "Failed to accept invitation. Please try again.",
+      "declineFailed": "Failed to decline invitation. Please try again."
+    }
+  },
+  "bulkActionsToolbar": {
+    "selection": {
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selected": "{{count}} selected"
+    },
+    "actions": {
+      "sendMessage": "Send Message",
+      "moreActions": "More Actions",
+      "bulkActions": "Bulk Actions",
+      "addTag": "Add Tag",
+      "updateField": "Update Field",
+      "assignTask": "Assign Task",
+      "exportSelected": "Export Selected",
+      "deleteSelected": "Delete Selected"
+    }
+  },
+  "contactActivityLog": {
+    "title": "Activity Timeline",
+    "description": "All interactions with {{name}}",
+    "addNote": "Add Note",
+    "searchPlaceholder": "Search activity...",
+    "noteForm": {
+      "title": "Add Note",
+      "placeholder": "Add a note about this contact...",
+      "save": "Save Note",
+      "cancel": "Cancel"
+    },
+    "empty": "No activities found",
+    "summary": {
+      "title": "Activity Summary",
+      "messages": "Messages",
+      "events": "Events",
+      "notes": "Notes"
+    }
+  },
+  "bookmarksView": {
+    "title": "Bookmarks",
+    "newCollection": "New Collection",
+    "searchPlaceholder": "Search bookmarks...",
+    "collections": {
+      "all": "All Collections",
+      "uncategorized": "Uncategorized"
+    },
+    "empty": {
+      "title": "No bookmarks found",
+      "filtered": "Try adjusting your filters",
+      "default": "Start bookmarking posts to save them for later"
+    },
+    "dialog": {
+      "title": "Create Collection",
+      "description": "Organize your bookmarks into collections",
+      "nameLabel": "Collection Name",
+      "namePlaceholder": "e.g., Reading List, Important Posts",
+      "cancel": "Cancel",
+      "create": "Create"
+    }
+  },
+  "folderTree": {
+    "allDocuments": "All Documents",
+    "starred": "Starred",
+    "folders": "Folders",
+    "noFolders": "No folders yet",
+    "contextMenu": {
+      "rename": "Rename",
+      "delete": "Delete"
+    },
+    "dialog": {
+      "title": "Create New Folder",
+      "namePlaceholder": "Folder name",
+      "colorLabel": "Color",
+      "cancel": "Cancel",
+      "create": "Create Folder"
+    }
+  },
+  "customFieldsManagement": {
+    "title": "Custom Fields for {{entityType}}",
+    "applyTemplate": "Apply Template:",
+    "selectTemplate": "Select template",
+    "addField": "Add Field",
+    "empty": "No custom fields yet. Create one or apply a template to get started.",
+    "type": "Type: {{widget}}",
+    "required": "Required",
+    "deleteDialog": {
+      "title": "Delete Custom Field",
+      "description": "Are you sure you want to delete \"{{label}}\"? This will remove the field definition, but existing data will be preserved.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  },
+  "publicCampaignView": {
+    "goal": "of {{goal}} goal",
+    "funded": "{{percent}}% funded",
+    "supportCampaign": "Support This Campaign",
+    "donate": "Donate",
+    "claimed": "{{current}} / {{max}} claimed",
+    "customAmount": {
+      "title": "Custom Amount",
+      "description": "Enter a custom donation amount",
+      "button": "Donate Custom Amount"
+    }
+  },
+  "formBuilder": {
+    "titlePlaceholder": "Form Title",
+    "descriptionPlaceholder": "Form description (optional)",
+    "cancel": "Cancel",
+    "saveForm": "Save Form",
+    "tabs": {
+      "build": "Build",
+      "preview": "Preview",
+      "settings": "Settings"
+    },
+    "noFieldSelected": "Select a field to edit its properties",
+    "settings": {
+      "multiPage": "Multi-Page Form",
+      "enableMultiPage": "Enable multi-page form",
+      "currentPage": "Current Page"
+    }
+  },
+  "moveFolderDialog": {
+    "title": "Move {{count}} file",
+    "title_plural": "Move {{count}} files",
+    "description": "Select a destination folder for the selected files.",
+    "root": "Root (No folder)",
+    "current": "(current)",
+    "noFolders": "No folders available",
+    "cancel": "Cancel",
+    "moveHere": "Move Here"
+  },
+  "mermaidBlock": {
+    "instructions": "Enter Mermaid diagram (Ctrl/Cmd+Enter to save, Escape to cancel)",
+    "examples": {
+      "flowchart": "Flowchart",
+      "sequence": "Sequence",
+      "gantt": "Gantt",
+      "pie": "Pie"
+    },
+    "docs": "Mermaid Docs",
+    "cancel": "Cancel",
+    "save": "Save",
+    "clickToAdd": "Click to add diagram"
+  },
+  "conversationsPage": {
+    "title": "Messages",
+    "newChat": "New Chat",
+    "searchPlaceholder": "Search conversations...",
+    "tabs": {
+      "all": "All",
+      "dms": "DMs",
+      "groups": "Groups",
+      "unread": "Unread",
+      "archived": "Archived"
+    },
+    "empty": {
+      "title": "No conversations yet",
+      "description": "Start a new conversation to get started"
+    },
+    "conversation": "Conversation",
+    "noMessages": "No messages yet"
+  },
+  "engagementLadder": {
+    "title": "Your Engagement Level",
+    "progressTo": "Progress to {{level}}",
+    "milestones": "{{completed}}/{{total}} milestones",
+    "maxLevel": "🎉 You're at the highest engagement level! Keep building the movement.",
+    "nextSteps": "Suggested Next Steps",
+    "milestonesFor": "Milestones for {{level}}",
+    "ladderTitle": "Engagement Ladder",
+    "youAreHere": "You are here",
+    "points": "+{{points}} pts"
+  },
+  "notificationsDemoLevels": {
+    "neutral": "Neutral (30%)",
+    "passiveSupport": "Passive Support (40%)",
+    "activeSupport": "Active Support (70%)",
+    "coreOrganizer": "Core Organizer (100%)"
+  },
+  "createPageDialog": {
+    "title": "Create Wiki Page",
+    "description": "Create collaborative documentation for your community",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Page title...",
+    "categoryLabel": "Category (optional)",
+    "categoryPlaceholder": "e.g., Getting Started, Organizing, Legal",
+    "tagsLabel": "Tags (comma-separated)",
+    "tagsPlaceholder": "organizing, safety, resources",
+    "contentLabel": "Content (Markdown)",
+    "cancel": "Cancel",
+    "createPage": "Create Page"
+  },
+  "deliveryProgress": {
+    "sending": "Sending Newsletter...",
+    "complete": "Delivery Complete",
+    "readyToSend": "Ready to Send",
+    "cancel": "Cancel",
+    "untitled": "Untitled Newsletter",
+    "progress": "Progress",
+    "stats": {
+      "delivered": "Delivered",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "sendingTo": "Sending to",
+    "totalRecipients": "Total Recipients: {{count}}",
+    "close": "Close"
+  },
+  "tiersEditor": {
+    "title": "Donation Tiers",
+    "description": "Create preset donation amounts with benefits",
+    "addTier": "Add Tier",
+    "empty": {
+      "title": "No donation tiers yet",
+      "description": "Add tiers to suggest donation amounts"
+    },
+    "tierName": "Tier Name",
+    "tierNamePlaceholder": "Supporter",
+    "amount": "Amount ({{currency}})",
+    "amountPlaceholder": "25.00",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "What supporters get at this level"
+  },
+  "fileList": {
+    "delete": "Delete",
+    "download": "Download",
+    "share": "Share",
+    "confirmDeleteFile": "Delete this file?",
+    "confirmDeleteFolder": "Delete this folder and all its contents?"
+  },
+  "filesAccessRequestDialog": {
+    "title": "Request Access",
+    "description": "Request access to \"{{resourceName}}\"",
+    "accessLevel": "Access Level",
+    "viewOnly": "View only",
+    "viewDownload": "View & Download",
+    "edit": "Edit",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Why do you need access to this file?",
+    "cancel": "Cancel",
+    "sending": "Sending...",
+    "sendRequest": "Send Request",
+    "error": "Failed to submit access request"
+  },
+  "documentsAccessRequestDialog": {
+    "title": "Request Access",
+    "description": "Request access to \"{{resourceTitle}}\"",
+    "accessLevel": "Access Level",
+    "viewOnly": "View only",
+    "viewComment": "View & Comment",
+    "edit": "Edit",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Why do you need access to this document?",
+    "cancel": "Cancel",
+    "sending": "Sending...",
+    "sendRequest": "Send Request",
+    "error": "Failed to submit access request"
+  },
+  "groupSettingsDialog": {
+    "settings": "Settings",
+    "title": "{{groupName}} Settings",
+    "description": "Manage group settings, modules, and members",
+    "tabs": {
+      "modules": "Modules",
+      "general": "General",
+      "members": "Members"
+    },
+    "general": {
+      "title": "General Settings",
+      "description": "Configure general group settings",
+      "comingSoon": "General settings coming soon..."
+    }
+  },
+  "publicWikiPage": {
+    "categories": {
+      "security": "Security",
+      "strategy": "Strategy",
+      "governance": "Governance",
+      "legal": "Legal"
+    },
+    "popularPages": {
+      "securityBestPractices": "Security Best Practices",
+      "powerMappingGuide": "Power Mapping Guide",
+      "consensusDecisionMaking": "Consensus Decision Making"
+    }
+  },
+  "pollList": {
+    "title": "Polls",
+    "createPoll": "Create Poll",
+    "tabs": {
+      "active": "Active",
+      "myPolls": "My Polls",
+      "ended": "Ended"
+    },
+    "empty": {
+      "active": {
+        "title": "No active polls",
+        "description": "Be the first to create a poll and gather opinions from the community."
+      },
+      "myPolls": {
+        "title": "No polls yet",
+        "description": "You haven't created any polls yet. Start gathering opinions from your community!",
+        "createFirst": "Create Your First Poll"
+      },
+      "ended": {
+        "title": "No ended polls",
+        "description": "Completed polls will appear here."
+      }
+    }
+  },
+  "articleView": {
+    "backTo": "Back to {{publicationName}}",
+    "minRead": "{{minutes}} min read",
+    "visibility": {
+      "subscribers": "This article is for subscribers only",
+      "paid": "This article is for paid subscribers only"
+    },
+    "share": {
+      "title": "Share this article",
+      "helpSpread": "Help spread the word",
+      "copyLink": "Copy Link",
+      "twitter": "Twitter",
+      "linkCopied": "Link copied to clipboard"
+    },
+    "subscribe": "Subscribe"
+  },
+  "campaignTemplateGallery": {
+    "title": "Campaign Templates",
+    "description": "Start with a pre-built template or create a campaign from scratch",
+    "blank": {
+      "title": "Blank Campaign",
+      "description": "Start from scratch and build your own custom campaign"
+    },
+    "includesTiers": "Includes {{count}} donation tiers",
+    "useTemplate": "Use Template"
+  },
+  "editableTableView": {
+    "filterPlaceholder": "Filter {{label}}...",
+    "selected": "{{count}} selected",
+    "delete": "Delete",
+    "addRecord": "Add Record",
+    "noRecords": "No records found.",
+    "showing": "Showing {{showing}} of {{total}} records",
+    "showingSelected": "Showing {{showing}} of {{total}} records • {{selected}} selected",
+    "selectAll": "Select all",
+    "selectRow": "Select row"
+  },
+  "embedCard": {
+    "error": {
+      "title": "Failed to load embed",
+      "openExternally": "Open externally"
+    },
+    "openOn": "Open on {{provider}}",
+    "providerEmbed": "{{provider}} embed",
+    "loading": "Loading...",
+    "loadProvider": "Load {{provider}}",
+    "openExternally": "Open externally",
+    "privacyNote": "Click to load external content. This will connect to {{domain}}."
+  },
+  "commentThread": {
+    "reply": "Reply",
+    "replies": "{{count}} reply",
+    "replies_plural": "{{count}} replies",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "delete": "Delete",
+    "confirmDelete": "Delete this comment?",
+    "threadCollapsed": "Thread collapsed ({{count}} reply)",
+    "threadCollapsed_plural": "Thread collapsed ({{count}} replies)",
+    "noComments": "No comments yet. Be the first to comment!",
+    "replyTo": "Reply to {{author}}..."
+  },
+  "formPreview": {
+    "title": "Form Preview",
+    "description": "This is how your form will appear to users",
+    "addFields": "Add fields to see the preview",
+    "submitPreview": "Submit Preview",
+    "reset": "Reset",
+    "currentFormData": "Current Form Data:"
+  },
+  "fileUploadZone": {
+    "title": "Upload Files",
+    "dragDrop": "Drag & drop files here, or click to browse",
+    "encrypted": "Files will be encrypted before upload",
+    "selectedFiles": "Selected files:",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "uploadCount": "Upload ({{count}})",
+    "groupNotFound": "Group not found",
+    "success": "{{count}} file(s) uploaded successfully",
+    "error": "Failed to upload files"
+  },
+  "tableView": {
+    "filterPlaceholder": "Filter {{label}}...",
+    "noRecords": "No records found.",
+    "showing": "Showing {{from}}-{{to}} of {{total}} records",
+    "page": "Page {{current}} of {{total}}"
+  },
+  "editableCell": {
+    "empty": "Empty",
+    "noTargetTable": "No target table configured",
+    "notSupported": "Inline editing not supported for {{widget}}",
+    "linked": "Linked",
+    "linkedCount": "{{count}} linked"
+  },
+  "deviceActivityHistory": {
+    "title": "Activity History",
+    "description": "Recent security events and device activities",
+    "clearOld": "Clear Old (30+ days)",
+    "all": "All",
+    "noActivity": "No activity found",
+    "viewMetadata": "View metadata",
+    "unknownDevice": "Unknown Device"
+  },
+  "autoModerationRuleForm": {
+    "ruleName": "Rule Name",
+    "ruleNamePlaceholder": "e.g., Block slurs, Filter spam links",
+    "ruleType": "Rule Type",
+    "patterns": "Patterns",
+    "patternPlaceholderRegex": "Enter regex pattern",
+    "patternPlaceholderLink": "Enter domain or URL pattern",
+    "patternPlaceholderKeyword": "Enter keyword or phrase",
+    "add": "Add",
+    "action": "Action",
+    "notifyModerators": "Notify Moderators",
+    "ruleTypes": {
+      "keyword": "Keyword Filter",
+      "keywordDescription": "Match exact keywords or phrases",
+      "regex": "Regex Pattern",
+      "regexDescription": "Use regular expressions for advanced matching",
+      "spamDetection": "Spam Detection",
+      "spamDetectionDescription": "Automatically detect spam-like content",
+      "linkFilter": "Link Filter",
+      "linkFilterDescription": "Filter posts containing certain links"
+    },
+    "actions": {
+      "flag": "Flag for Review",
+      "flagDescription": "Add to moderation queue",
+      "hide": "Hide Content",
+      "hideDescription": "Hide but do not delete",
+      "delete": "Delete",
+      "deleteDescription": "Remove content immediately",
+      "warn": "Warn User",
+      "warnDescription": "Send warning to user"
+    }
+  },
+  "publicPageRenderer": {
+    "status": "Status",
+    "type": "Type",
+    "url": "URL",
+    "created": "Created",
+    "published": "Published",
+    "updated": "Updated"
+  },
+  "syncStatusIndicator": {
+    "offline": "Offline",
+    "online": "Online",
+    "syncing": "Syncing...",
+    "synced": "Synced",
+    "failed": "{{count}} failed",
+    "pending": "{{count}} pending",
+    "pendingLabel": "Pending",
+    "failedLabel": "Failed",
+    "everythingSynced": "Everything is synced",
+    "retryAll": "Retry All",
+    "clearAll": "Clear All",
+    "retry": "Retry",
+    "remove": "Remove",
+    "retriesFailed": "({{retryCount}}/{{maxRetries}} retries)",
+    "itemTypes": {
+      "message": "Message",
+      "post": "Post",
+      "fileUpload": "File Upload",
+      "reaction": "Reaction",
+      "comment": "Comment"
+    },
+    "itemDescriptions": {
+      "messageTo": "Message to {{conversationId}}...",
+      "post": "Post: {{content}}...",
+      "file": "File: {{fileName}}",
+      "reaction": "Reaction: {{reactionType}}",
+      "commentOnPost": "Comment on post"
+    }
+  },
+  "notificationCenter": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "enableBrowser": {
+      "title": "Enable browser notifications",
+      "description": "Get notified even when the app is in the background",
+      "button": "Enable"
+    },
+    "empty": "No notifications yet",
+    "markAsRead": "Mark as read",
+    "removeNotification": "Remove notification",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    }
+  },
+  "groupThreadList": {
+    "noThreadsTitle": "No threads yet",
+    "noThreadsDescription": "Start a conversation by creating the first thread",
+    "createThread": "Create Thread",
+    "threads": "Threads",
+    "newThread": "New Thread",
+    "messageCount": "{{count}} messages"
+  },
+  "wikiUpdateFeedCard": {
+    "createdPage": "created a wiki page",
+    "updatedPage": "updated a wiki page",
+    "wikiPage": "Wiki Page",
+    "moreTags": "+{{count}} more",
+    "readPage": "Read Page",
+    "edit": "Edit",
+    "history": "History"
+  },
+  "contactsList": {
+    "following": "Following ({{count}})",
+    "followers": "Followers ({{count}})",
+    "friends": "Friends ({{count}})",
+    "emptyFollowing": "You're not following anyone yet",
+    "emptyFollowers": "No followers yet",
+    "emptyFriends": "No mutual friends yet"
+  },
+  "addContactDialog": {
+    "trigger": "Add Contact",
+    "title": "Add Contact",
+    "description": "Enter a Nostr public key (npub or hex) to add them to your contacts",
+    "pubkeyLabel": "Public Key (npub or hex)",
+    "pubkeyPlaceholder": "npub1... or hex pubkey",
+    "petnameLabel": "Petname (optional)",
+    "petnamePlaceholder": "alice",
+    "invalidPubkey": "Invalid pubkey format. Use npub or hex format.",
+    "submit": "Add Contact"
+  },
+  "contactCard": {
+    "trustTiers": {
+      "stranger": "Stranger",
+      "contact": "Contact",
+      "friend": "Friend",
+      "verified": "Verified",
+      "trusted": "Trusted"
+    },
+    "verifiedInPerson": "Verified in person",
+    "sendMessage": "Send message",
+    "viewProfile": "View Profile",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "blockContact": "Block Contact",
+    "removeContact": "Remove Contact",
+    "confirmRemove": "Remove {{name}} from your contacts?",
+    "confirmBlock": "Block {{name}}? You won't see their content anymore."
+  },
+  "formCanvas": {
+    "required": "Required",
+    "placeholder": "Placeholder: {{value}}",
+    "options": "Options: {{value}}",
+    "emptyTitle": "Drag fields here to build your form",
+    "emptyDescription": "Select field types from the palette on the left"
+  },
+  "footnote": {
+    "title": "Footnote {{number}}",
+    "clickToAdd": "Click to add",
+    "enterContent": "Enter footnote content...",
+    "ctrlEnterToSave": "Ctrl+Enter to save",
+    "cancel": "Cancel",
+    "save": "Save",
+    "deleteFootnote": "Delete footnote"
+  },
+  "databaseDashboard": {
+    "noTablesTitle": "No tables yet",
+    "noTablesDescription": "Create your first table to get started",
+    "createTable": "Create Table",
+    "loading": "Loading...",
+    "newTable": "New Table",
+    "newRecord": "New Record",
+    "tableNamePrompt": "Table name:"
+  },
+  "calendarView": {
+    "noDateField": "No date field configured",
+    "previous": "Previous",
+    "today": "Today",
+    "next": "Next",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "untitled": "Untitled",
+    "more": "+{{count}} more"
+  },
+  "groupSidebar": {
+    "groupNotFound": "Group not found",
+    "backToNetwork": "Back to Network",
+    "dashboard": "Dashboard",
+    "feed": "Feed",
+    "members": "Members",
+    "settings": "Settings"
+  },
+  "createThreadDialog": {
+    "title": "Create New Thread",
+    "description": "Start a new conversation thread in this group",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g., Meeting Notes, Ideas, Announcements",
+    "categoryLabel": "Category (Optional)",
+    "categoryPlaceholder": "e.g., General, Planning, Resources",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "create": "Create Thread"
+  },
+  "groupList": {
+    "loginRequired": "Please log in to view groups",
+    "loading": "Loading groups...",
+    "yourGroups": "Your Groups",
+    "empty": "No groups yet. Create one to get started!",
+    "private": "Private",
+    "memberCount": "{{count}} member",
+    "memberCount_plural": "{{count}} members",
+    "moduleCount": "{{count}} modules"
+  },
+  "transportStatus": {
+    "mesh": "Mesh",
+    "meshPeers": "{{count}} mesh",
+    "relays": "{{count}} relays",
+    "offline": "Offline",
+    "cloud": "Cloud"
+  },
+  "anonymousReactions": {
+    "anonymousMode": "Anonymous Mode",
+    "anonymousModeDesc": "Your reactions won't be visible to others",
+    "anonymous": "Anonymous",
+    "public": "Public",
+    "anonymousCount": "{{count}} anonymous reaction",
+    "anonymousCount_plural": "{{count}} anonymous reactions",
+    "yourReactionAnonymous": "Your reaction is anonymous",
+    "reactions": {
+      "support": "Support",
+      "solidarity": "Solidarity",
+      "greatIdea": "Great Idea",
+      "concern": "Concern"
+    }
+  },
+  "storyViewer": {
+    "deleteStory": "Delete Story",
+    "views": "{{count}} views",
+    "replies": "{{count}} replies",
+    "replyPlaceholder": "Reply..."
+  },
+  "rsvpButton": {
+    "going": "Going",
+    "maybe": "Maybe",
+    "notGoing": "Not Going",
+    "failedUpdate": "Failed to update RSVP"
+  },
+  "groupMessagesPage": {
+    "loading": "Loading...",
+    "notFound": "Group not found",
+    "title": "Messages",
+    "subtitle": "Group conversations and threads"
+  },
+  "groupDashboard": {
+    "title": "Group Dashboard",
+    "groupId": "Group ID: {{id}}",
+    "welcome": "Welcome to your group! Use the sidebar to navigate between modules."
+  },
+  "eventCard": {
+    "privacyLabels": {
+      "public": "Public",
+      "group": "Group Only",
+      "private": "Private",
+      "directAction": "Direct Action"
+    },
+    "locationReveals": "Location reveals: {{date}}",
+    "maxAttendees": "Max {{count}} attendees"
+  },
+  "messageThread": {
+    "newMessage": "New Message",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "invalidConversation": "Invalid conversation",
+    "noMessages": "No messages yet. Start the conversation!",
+    "placeholder": "Type a message... (use @ to mention)",
+    "send": "Send"
+  },
+  "formAnalyticsDashboard": {
+    "title": "Analytics",
+    "subtitle": "Privacy-preserving form analytics",
+    "totalViews": "Total Views",
+    "submissions": "Submissions",
+    "conversionRate": "Conversion Rate",
+    "topReferrers": "Top Referrers",
+    "direct": "Direct"
+  },
+  "filesPage": {
+    "downloadFailed": "Failed to download files. Please try again.",
+    "deleteFailed": "Failed to delete some files. Please try again.",
+    "moveFailed": "Failed to move some files. Please try again."
+  },
+  "headerFooter": {
+    "documentHeader": "Document Header",
+    "documentFooter": "Document Footer",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "showPageNumber": "Show page number",
+    "pageNumberNote": "Page {{page}} (page numbers shown when printing)"
+  },
+  "conversationList": {
+    "title": "Conversations",
+    "loginRequired": "Please log in to view conversations",
+    "noConversations": "No conversations yet. Start a new one!",
+    "unknown": "Unknown",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "mainApp": {
+    "initError": "Initialization Error",
+    "initFailed": "Failed to initialize application. Please refresh the page.",
+    "retry": "Retry",
+    "initializing": "Initializing..."
+  },
+  "mobileNav": {
+    "menu": "Menu",
+    "home": "Home",
+    "messages": "Messages",
+    "groups": "Groups",
+    "modules": "Modules",
+    "settings": "Settings"
+  },
+  "contactDetailInfo": {
+    "joined": "Joined {{date}}",
+    "lastContact": "Last contact {{date}}"
+  },
+  "friendRequestCard": {
+    "sent": "Sent",
+    "acceptRequest": "Accept request",
+    "accept": "Accept",
+    "declineRequest": "Decline request",
+    "methods": {
+      "qr": "QR Code",
+      "username": "Username Search",
+      "email": "Email Invite",
+      "inviteLink": "Invite Link"
+    }
+  }
+}
