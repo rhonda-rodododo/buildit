@@ -3,6 +3,7 @@
 //
 // Manages message queue for outgoing and incoming messages.
 // Handles persistence, ordering, and delivery tracking.
+// All message data is encrypted at rest using AES-256-GCM.
 
 import Foundation
 import Combine
@@ -214,36 +215,74 @@ actor MessageQueue {
         conversations[senderPublicKey] = conversation
     }
 
-    // MARK: - Persistence
+    // MARK: - Persistence (Encrypted)
+
+    private let encryption = DatabaseEncryption.shared
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
 
     private func saveToDisk() {
-        // Save incoming messages
-        if let incomingData = try? JSONEncoder().encode(incomingMessages) {
-            let incomingURL = getDocumentsDirectory().appendingPathComponent("incoming_messages.json")
-            try? incomingData.write(to: incomingURL)
+        // Save incoming messages (encrypted)
+        if let incomingData = try? encoder.encode(incomingMessages) {
+            let incomingURL = getDocumentsDirectory().appendingPathComponent("incoming_messages.db")
+            do {
+                try encryption.writeEncrypted(incomingData, to: incomingURL)
+            } catch {
+                logger.error("Failed to save incoming messages: \(error.localizedDescription)")
+            }
         }
 
-        // Save conversations (simplified, without messages)
+        // Save conversations (encrypted)
         let conversationData = conversations.mapValues { ConversationMetadata(conversation: $0) }
-        if let data = try? JSONEncoder().encode(conversationData) {
-            let url = getDocumentsDirectory().appendingPathComponent("conversations.json")
-            try? data.write(to: url)
+        if let data = try? encoder.encode(conversationData) {
+            let url = getDocumentsDirectory().appendingPathComponent("conversations.db")
+            do {
+                try encryption.writeEncrypted(data, to: url)
+            } catch {
+                logger.error("Failed to save conversations: \(error.localizedDescription)")
+            }
         }
     }
 
     private func loadFromDisk() {
-        // Load incoming messages
-        let incomingURL = getDocumentsDirectory().appendingPathComponent("incoming_messages.json")
-        if let data = try? Data(contentsOf: incomingURL),
-           let messages = try? JSONDecoder().decode([QueuedMessage].self, from: data) {
-            incomingMessages = messages
+        let fileManager = FileManager.default
+
+        // Load incoming messages (try encrypted first, then legacy)
+        let incomingURL = getDocumentsDirectory().appendingPathComponent("incoming_messages.db")
+        let legacyIncomingURL = getDocumentsDirectory().appendingPathComponent("incoming_messages.json")
+
+        do {
+            if let data = try encryption.readEncrypted(from: incomingURL),
+               let messages = try? decoder.decode([QueuedMessage].self, from: data) {
+                incomingMessages = messages
+            } else if fileManager.fileExists(atPath: legacyIncomingURL.path),
+                      let data = try? Data(contentsOf: legacyIncomingURL),
+                      let messages = try? decoder.decode([QueuedMessage].self, from: data) {
+                incomingMessages = messages
+                logger.info("Loaded incoming messages from legacy file (will be migrated)")
+                try? fileManager.removeItem(at: legacyIncomingURL)
+            }
+        } catch {
+            logger.error("Failed to load incoming messages: \(error.localizedDescription)")
         }
 
-        // Load conversations
-        let conversationsURL = getDocumentsDirectory().appendingPathComponent("conversations.json")
-        if let data = try? Data(contentsOf: conversationsURL),
-           let metadata = try? JSONDecoder().decode([String: ConversationMetadata].self, from: data) {
-            conversations = metadata.mapValues { $0.toConversation() }
+        // Load conversations (try encrypted first, then legacy)
+        let conversationsURL = getDocumentsDirectory().appendingPathComponent("conversations.db")
+        let legacyConversationsURL = getDocumentsDirectory().appendingPathComponent("conversations.json")
+
+        do {
+            if let data = try encryption.readEncrypted(from: conversationsURL),
+               let metadata = try? decoder.decode([String: ConversationMetadata].self, from: data) {
+                conversations = metadata.mapValues { $0.toConversation() }
+            } else if fileManager.fileExists(atPath: legacyConversationsURL.path),
+                      let data = try? Data(contentsOf: legacyConversationsURL),
+                      let metadata = try? decoder.decode([String: ConversationMetadata].self, from: data) {
+                conversations = metadata.mapValues { $0.toConversation() }
+                logger.info("Loaded conversations from legacy file (will be migrated)")
+                try? fileManager.removeItem(at: legacyConversationsURL)
+            }
+        } catch {
+            logger.error("Failed to load conversations: \(error.localizedDescription)")
         }
 
         // Rebuild conversation messages
@@ -253,6 +292,9 @@ actor MessageQueue {
                 conversations[message.senderPublicKey] = conversation
             }
         }
+
+        // Save encrypted versions to complete migration
+        saveToDisk()
     }
 
     private func getDocumentsDirectory() -> URL {
