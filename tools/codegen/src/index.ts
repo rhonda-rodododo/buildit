@@ -2,55 +2,160 @@
 /**
  * Schema Code Generator
  *
- * Generates native type definitions from JSON Schema files.
+ * Generates native type definitions from JSON Schema files using quicktype.
+ * Extracts $defs and generates code for TypeScript, Swift, and Kotlin.
  *
  * Usage:
  *   bun run src/index.ts                    # Generate all targets
- *   bun run src/index.ts --target typescript
+ *   bun run src/index.ts --target=typescript
  *   bun run src/index.ts --validate         # Validate only
  */
 
 import { glob } from 'glob';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { dirname, basename, join } from 'path';
+import {
+  quicktype,
+  InputData,
+  JSONSchemaInput,
+  JSONSchemaStore,
+} from 'quicktype-core';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/modules');
 
-interface Target {
-  name: string;
-  outputDir: string;
-  generate: (schema: any, moduleName: string) => string;
-  fileExtension: string;
+interface ModuleSchema {
+  $schema?: string;
+  $id?: string;
+  title?: string;
+  description?: string;
+  version: string;
+  minReaderVersion?: string;
+  type?: string;
+  $defs?: Record<string, any>;
+  testVectors?: any[];
 }
 
-const targets: Target[] = [
-  {
-    name: 'typescript',
-    outputDir: join(REPO_ROOT, 'clients/web/src/generated/schemas'),
-    fileExtension: '.ts',
-    generate: generateTypeScript,
-  },
-  {
-    name: 'swift',
-    outputDir: join(REPO_ROOT, 'clients/ios/Sources/Generated/Schemas'),
-    fileExtension: '.swift',
-    generate: generateSwift,
-  },
-  {
-    name: 'kotlin',
-    outputDir: join(REPO_ROOT, 'clients/android/app/src/main/java/network/buildit/generated/schemas'),
-    fileExtension: '.kt',
-    generate: generateKotlin,
-  },
-];
+// Custom schema store for resolving local refs
+class LocalSchemaStore extends JSONSchemaStore {
+  async fetch(_address: string): Promise<any> {
+    return undefined;
+  }
+}
+
+async function generateAllTypesWithQuicktype(
+  moduleName: string,
+  schema: ModuleSchema,
+  lang: string
+): Promise<string> {
+  const allDefs = schema.$defs || {};
+
+  // Create a schema with all definitions available
+  // Each definition is added as a separate top-level type
+  const schemaInput = new JSONSchemaInput(new LocalSchemaStore());
+
+  // Add each type definition as a separate source
+  for (const [name, def] of Object.entries(allDefs)) {
+    // Create a standalone schema for this type with definitions available for refs
+    const typeSchema = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      title: name,
+      definitions: {} as Record<string, any>,
+      ...convertRefsToDefinitions(def),
+    };
+
+    // Include all definitions for reference resolution
+    for (const [defName, defDef] of Object.entries(allDefs)) {
+      typeSchema.definitions[defName] = convertRefsToDefinitions(defDef);
+    }
+
+    await schemaInput.addSource({
+      name: name,
+      schema: JSON.stringify(typeSchema),
+    });
+  }
+
+  const inputData = new InputData();
+  inputData.addInput(schemaInput);
+
+  const result = await quicktype({
+    inputData,
+    lang,
+    rendererOptions: getRendererOptions(lang),
+    inferEnums: true,
+    inferDateTimes: false,
+    inferIntegerStrings: false,
+    inferUuids: false,
+    inferMaps: false,
+    inferBooleanStrings: false,
+    alphabetizeProperties: false,
+    allPropertiesOptional: false,
+    combineClasses: false,
+  });
+
+  return result.lines.join('\n');
+}
+
+// Convert $defs refs to definitions refs for quicktype
+function convertRefsToDefinitions(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+
+  if (obj.$ref && typeof obj.$ref === 'string') {
+    // Convert #/$defs/Name to #/definitions/Name
+    return {
+      ...obj,
+      $ref: obj.$ref.replace('#/$defs/', '#/definitions/'),
+    };
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertRefsToDefinitions);
+  }
+
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = convertRefsToDefinitions(value);
+  }
+  return result;
+}
+
+function pascalCase(str: string): string {
+  return str
+    .split('-')
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
+}
+
+function getRendererOptions(lang: string): Record<string, string> {
+  switch (lang) {
+    case 'typescript':
+      return {
+        'just-types': 'true',
+        'nice-property-names': 'false',
+      };
+    case 'swift':
+      return {
+        'just-types': 'true',
+        'struct-or-class': 'struct',
+        'access-level': 'public',
+      };
+    case 'kotlin':
+      return {
+        'just-types': 'true',
+        'framework': 'kotlinx',
+        'package': 'network.buildit.generated.schemas',
+      };
+    default:
+      return {};
+  }
+}
 
 async function main() {
   const args = process.argv.slice(2);
   const validateOnly = args.includes('--validate');
-  const targetFilter = args.find(a => a.startsWith('--target='))?.split('=')[1];
+  const targetFilter = args.find((a) => a.startsWith('--target='))?.split('=')[1];
 
-  console.log('📦 BuildIt Schema Code Generator\n');
+  console.log('📦 BuildIt Schema Code Generator (quicktype)\n');
 
   // Find all schema files
   const schemaFiles = await glob(`${SCHEMAS_DIR}/**/v*.json`);
@@ -72,334 +177,227 @@ async function main() {
     return;
   }
 
-  // Generate for each target
+  const targets = [
+    {
+      name: 'typescript',
+      lang: 'typescript',
+      outputDir: join(REPO_ROOT, 'clients/web/src/generated/schemas'),
+      ext: '.ts',
+    },
+    {
+      name: 'swift',
+      lang: 'swift',
+      outputDir: join(REPO_ROOT, 'clients/ios/Sources/Generated/Schemas'),
+      ext: '.swift',
+    },
+    {
+      name: 'kotlin',
+      lang: 'kotlin',
+      outputDir: join(REPO_ROOT, 'clients/android/app/src/main/java/network/buildit/generated/schemas'),
+      ext: '.kt',
+    },
+  ];
+
+  // Filter targets if specified
   const activeTargets = targetFilter
-    ? targets.filter(t => t.name === targetFilter)
+    ? targets.filter((t) => t.name === targetFilter)
     : targets;
 
-  for (const target of activeTargets) {
-    console.log(`\n🎯 Generating ${target.name}...`);
-    await mkdir(target.outputDir, { recursive: true });
+  // Process each schema file
+  for (const file of schemaFiles) {
+    const content = await readFile(file, 'utf-8');
+    const schema: ModuleSchema = JSON.parse(content);
+    const moduleName = basename(dirname(file));
 
-    for (const file of schemaFiles) {
-      const content = await readFile(file, 'utf-8');
-      const schema = JSON.parse(content);
-      const moduleName = basename(dirname(file));
+    console.log(`\n📄 Processing ${moduleName}...`);
 
-      const code = target.generate(schema, moduleName);
-      const outputFile = join(target.outputDir, `${moduleName}${target.fileExtension}`);
-
-      await writeFile(outputFile, code);
-      console.log(`  ✅ ${moduleName}${target.fileExtension}`);
+    if (!schema.$defs || Object.keys(schema.$defs).length === 0) {
+      console.log(`  ⏭️  No $defs found, skipping`);
+      continue;
     }
 
-    // Generate index file for TypeScript with explicit exports to avoid conflicts
-    if (target.name === 'typescript') {
-      const modules = schemaFiles.map(f => basename(dirname(f)));
-      const indexContent = await generateTypeScriptIndex(modules, schemaFiles);
-      await writeFile(join(target.outputDir, 'index.ts'), indexContent);
-      console.log('  ✅ index.ts');
+    for (const target of activeTargets) {
+      await mkdir(target.outputDir, { recursive: true });
+
+      try {
+        const generatedCode = await generateAllTypesWithQuicktype(moduleName, schema, target.lang);
+        const code = formatOutput(moduleName, schema.version || '1.0.0', schema.minReaderVersion || schema.version || '1.0.0', generatedCode, target.lang);
+        const outputFile = join(target.outputDir, `${moduleName}${target.ext}`);
+        await writeFile(outputFile, code);
+        console.log(`  ✅ ${target.name}: ${moduleName}${target.ext}`);
+      } catch (error) {
+        console.error(`  ❌ ${target.name}: ${error}`);
+      }
     }
+  }
+
+  // Generate index files
+  if (!targetFilter || targetFilter === 'typescript') {
+    await generateTypeScriptIndex(schemaFiles);
   }
 
   console.log('\n✅ Code generation complete!');
 }
 
-function generateTypeScript(schema: any, moduleName: string): string {
-  const version = schema.version || '1.0.0';
-  const minReaderVersion = schema.minReaderVersion || version;
+function formatOutput(
+  moduleName: string,
+  version: string,
+  minReaderVersion: string,
+  generatedCode: string,
+  lang: string
+): string {
+  const constPrefix = moduleName.toUpperCase().replace(/-/g, '_');
+  const pascalModule = pascalCase(moduleName);
 
-  let code = `/**
+  const header = `/**
  * @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
  * @version ${version}
  * @minReaderVersion ${minReaderVersion}
  *
- * DO NOT EDIT - This file is auto-generated by tools/codegen
+ * DO NOT EDIT - This file is auto-generated by tools/codegen using quicktype
  */
-
-import { z } from 'zod';
-
-// Version constants
-export const ${moduleName.toUpperCase().replace(/-/g, '_')}_VERSION = '${version}';
-export const ${moduleName.toUpperCase().replace(/-/g, '_')}_MIN_READER_VERSION = '${minReaderVersion}';
 
 `;
 
-  // Generate Zod schemas for each definition
-  if (schema.$defs) {
-    for (const [name, def] of Object.entries(schema.$defs)) {
-      code += generateZodSchema(name, def as any);
-      code += `\nexport type ${name} = z.infer<typeof ${name}Schema>;\n\n`;
-    }
-  }
+  switch (lang) {
+    case 'typescript':
+      return (
+        header +
+        `// Version constants
+export const ${constPrefix}_VERSION = '${version}';
+export const ${constPrefix}_MIN_READER_VERSION = '${minReaderVersion}';
 
-  return code;
+` +
+        generatedCode
+      );
+
+    case 'swift':
+      return (
+        header +
+        `import Foundation
+
+public enum ${pascalModule}Schema {
+    public static let version = "${version}"
+    public static let minReaderVersion = "${minReaderVersion}"
 }
 
-function generateZodSchema(name: string, def: any): string {
-  // Simplified Zod generation - real implementation would be more complete
-  let schema = `export const ${name}Schema = z.object({\n`;
+` +
+        generatedCode
+      );
 
-  if (def.properties) {
-    for (const [propName, propDef] of Object.entries(def.properties)) {
-      const prop = propDef as any;
-      const isRequired = def.required?.includes(propName);
+    case 'kotlin':
+      // Kotlin already has package declaration from quicktype, just add header
+      return header + generatedCode;
 
-      let zodType = 'z.unknown()';
-      if (prop.type === 'string') {
-        zodType = 'z.string()';
-        if (prop.format === 'uuid') zodType += '.uuid()';
-        if (prop.maxLength) zodType += `.max(${prop.maxLength})`;
-        if (prop.pattern) zodType += `.regex(/${prop.pattern}/)`;
-      } else if (prop.type === 'integer' || prop.type === 'number') {
-        zodType = 'z.number()';
-        if (prop.type === 'integer') zodType += '.int()';
-        if (prop.minimum !== undefined) zodType += `.min(${prop.minimum})`;
-      } else if (prop.type === 'boolean') {
-        zodType = 'z.boolean()';
-      } else if (prop.type === 'array') {
-        zodType = 'z.array(z.unknown())';
-      } else if (prop.type === 'object') {
-        zodType = 'z.record(z.string(), z.unknown())';
-      }
-
-      if (!isRequired) zodType += '.optional()';
-      if (prop.default !== undefined) zodType += `.default(${JSON.stringify(prop.default)})`;
-
-      schema += `  ${propName}: ${zodType},\n`;
-    }
+    default:
+      return header + generatedCode;
   }
-
-  schema += `}).passthrough(); // Preserve unknown fields for relay\n`;
-  return schema;
 }
 
-async function generateTypeScriptIndex(modules: string[], schemaFiles: string[]): Promise<string> {
-  // Track all exports across modules to detect conflicts
-  const allExports: Map<string, string[]> = new Map(); // export name -> module names
+async function generateTypeScriptIndex(schemaFiles: string[]) {
+  const outputDir = join(REPO_ROOT, 'clients/web/src/generated/schemas');
+  const modules = schemaFiles.map((f) => basename(dirname(f)));
 
-  for (let i = 0; i < modules.length; i++) {
-    const moduleName = modules[i];
-    const content = await readFile(schemaFiles[i], 'utf-8');
-    const schema = JSON.parse(content);
+  // Read generated files to find actual exports (distinguish types vs values)
+  interface ExportInfo {
+    name: string;
+    kind: 'type' | 'value'; // interface = type, enum/const = value
+  }
+  const moduleExports: Map<string, ExportInfo[]> = new Map();
 
-    if (schema.$defs) {
-      for (const name of Object.keys(schema.$defs)) {
-        // Each def generates: NameSchema, Name (type)
-        const exports = [`${name}Schema`, name];
-        for (const exp of exports) {
-          if (!allExports.has(exp)) {
-            allExports.set(exp, []);
-          }
-          allExports.get(exp)!.push(moduleName);
-        }
+  for (const moduleName of modules) {
+    const generatedFile = join(outputDir, `${moduleName}.ts`);
+    try {
+      const content = await readFile(generatedFile, 'utf-8');
+      const exports: ExportInfo[] = [];
+
+      // Match interface declarations (types)
+      const interfaceMatches = content.matchAll(/export\s+interface\s+(\w+)/g);
+      for (const match of interfaceMatches) {
+        exports.push({ name: match[1], kind: 'type' });
       }
-    }
 
-    // Version constants
-    const constPrefix = moduleName.toUpperCase().replace(/-/g, '_');
-    allExports.set(`${constPrefix}_VERSION`, [moduleName]);
-    allExports.set(`${constPrefix}_MIN_READER_VERSION`, [moduleName]);
+      // Match enum declarations (values - can also be used as types)
+      const enumMatches = content.matchAll(/export\s+enum\s+(\w+)/g);
+      for (const match of enumMatches) {
+        exports.push({ name: match[1], kind: 'value' });
+      }
+
+      // Match const declarations (values)
+      const constMatches = content.matchAll(/export\s+const\s+(\w+)/g);
+      for (const match of constMatches) {
+        exports.push({ name: match[1], kind: 'value' });
+      }
+
+      moduleExports.set(moduleName, exports);
+    } catch {
+      moduleExports.set(moduleName, []);
+    }
   }
 
-  // Find conflicts (exports that appear in multiple modules)
+  // Track all exports to detect conflicts
+  const allExports: Map<string, string[]> = new Map();
+  for (const [moduleName, exports] of moduleExports) {
+    for (const exp of exports) {
+      if (!allExports.has(exp.name)) allExports.set(exp.name, []);
+      allExports.get(exp.name)!.push(moduleName);
+    }
+  }
+
+  // Find conflicts
   const conflicts = new Set<string>();
   for (const [exp, mods] of allExports) {
-    if (mods.length > 1) {
-      conflicts.add(exp);
-    }
+    if (mods.length > 1) conflicts.add(exp);
   }
 
-  // Generate explicit exports for each module
-  let code = '// Auto-generated index file with conflict-aware exports\n\n';
+  // Generate index with explicit exports, using export type for interfaces
+  let code = '// Auto-generated index - DO NOT EDIT\n';
+  code += '// For conflicting types, import directly from the module file\n\n';
 
-  for (let i = 0; i < modules.length; i++) {
-    const moduleName = modules[i];
-    const content = await readFile(schemaFiles[i], 'utf-8');
-    const schema = JSON.parse(content);
-    const pascalModule = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
-
-    code += `// ${pascalModule} module exports\n`;
-    code += `export {\n`;
-
-    // Add version constants
+  for (const moduleName of modules) {
+    const pascalModule = pascalCase(moduleName);
     const constPrefix = moduleName.toUpperCase().replace(/-/g, '_');
-    code += `  ${constPrefix}_VERSION,\n`;
-    code += `  ${constPrefix}_MIN_READER_VERSION,\n`;
+    const exports = moduleExports.get(moduleName) || [];
 
-    if (schema.$defs) {
-      for (const name of Object.keys(schema.$defs)) {
-        const schemaName = `${name}Schema`;
-        if (conflicts.has(schemaName)) {
-          code += `  ${schemaName} as ${pascalModule}${schemaName},\n`;
-        } else {
-          code += `  ${schemaName},\n`;
-        }
+    code += `// ${pascalModule} module\n`;
 
-        if (conflicts.has(name)) {
-          code += `  type ${name} as ${pascalModule}${name},\n`;
-        } else {
-          code += `  type ${name},\n`;
-        }
+    // Always export version constants
+    code += `export { ${constPrefix}_VERSION, ${constPrefix}_MIN_READER_VERSION } from './${moduleName}';\n`;
+
+    // Separate type exports and value exports
+    const typeExports: string[] = [];
+    const valueExports: string[] = [];
+
+    for (const exp of exports) {
+      // Skip version constants already exported
+      if (exp.name === `${constPrefix}_VERSION` || exp.name === `${constPrefix}_MIN_READER_VERSION`) {
+        continue;
+      }
+
+      const exportName = conflicts.has(exp.name)
+        ? `${exp.name} as ${pascalModule}${exp.name}`
+        : exp.name;
+
+      if (exp.kind === 'type') {
+        typeExports.push(exportName);
+      } else {
+        valueExports.push(exportName);
       }
     }
 
-    code += `} from './${moduleName}';\n\n`;
-  }
-
-  return code;
-}
-
-function generateSwift(schema: any, moduleName: string): string {
-  const version = schema.version || '1.0.0';
-  const pascalName = moduleName
-    .split('-')
-    .map(s => s.charAt(0).toUpperCase() + s.slice(1))
-    .join('');
-
-  let code = `/**
- * @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
- * @version ${version}
- *
- * DO NOT EDIT - This file is auto-generated by tools/codegen
- */
-
-import Foundation
-
-public enum ${pascalName}Schema {
-    public static let version = "${version}"
-    public static let minReaderVersion = "${schema.minReaderVersion || version}"
-}
-
-`;
-
-  if (schema.$defs) {
-    for (const [name, def] of Object.entries(schema.$defs)) {
-      code += generateSwiftStruct(name, def as any);
+    if (typeExports.length > 0) {
+      code += `export type { ${typeExports.join(', ')} } from './${moduleName}';\n`;
     }
-  }
 
-  return code;
-}
-
-function generateSwiftStruct(name: string, def: any): string {
-  let code = `public struct ${name}: Codable, Sendable {\n`;
-
-  if (def.properties) {
-    for (const [propName, propDef] of Object.entries(def.properties)) {
-      const prop = propDef as any;
-      const isRequired = def.required?.includes(propName);
-
-      let swiftType = 'Any';
-      if (prop.type === 'string') {
-        swiftType = prop.format === 'uuid' ? 'UUID' : 'String';
-      } else if (prop.type === 'integer') {
-        swiftType = 'Int64';
-      } else if (prop.type === 'number') {
-        swiftType = 'Double';
-      } else if (prop.type === 'boolean') {
-        swiftType = 'Bool';
-      } else if (prop.type === 'array') {
-        swiftType = '[AnyCodable]';
-      } else if (prop.type === 'object') {
-        swiftType = '[String: AnyCodable]';
-      }
-
-      const optionalMark = isRequired ? '' : '?';
-      const camelName = propName.replace(/^_/, '');
-
-      if (prop.description) {
-        code += `    /// ${prop.description}\n`;
-      }
-      code += `    public let ${camelName}: ${swiftType}${optionalMark}\n`;
+    if (valueExports.length > 0) {
+      code += `export { ${valueExports.join(', ')} } from './${moduleName}';\n`;
     }
+
+    code += '\n';
   }
 
-  code += `\n    /// Unknown fields preserved for relay forwarding\n`;
-  code += `    private var _unknownFields: [String: AnyCodable] = [:]\n`;
-  code += `}\n\n`;
-
-  return code;
-}
-
-function generateKotlin(schema: any, moduleName: string): string {
-  const version = schema.version || '1.0.0';
-  const pascalName = moduleName
-    .split('-')
-    .map(s => s.charAt(0).toUpperCase() + s.slice(1))
-    .join('');
-
-  let code = `/**
- * @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
- * @version ${version}
- *
- * DO NOT EDIT - This file is auto-generated by tools/codegen
- */
-
-package network.buildit.generated.schemas
-
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-object ${pascalName}Schema {
-    const val VERSION = "${version}"
-    const val MIN_READER_VERSION = "${schema.minReaderVersion || version}"
-}
-
-`;
-
-  if (schema.$defs) {
-    for (const [name, def] of Object.entries(schema.$defs)) {
-      code += generateKotlinDataClass(name, def as any);
-    }
-  }
-
-  return code;
-}
-
-function generateKotlinDataClass(name: string, def: any): string {
-  let code = `@Serializable\ndata class ${name}(\n`;
-
-  const props: string[] = [];
-
-  if (def.properties) {
-    for (const [propName, propDef] of Object.entries(def.properties)) {
-      const prop = propDef as any;
-      const isRequired = def.required?.includes(propName);
-
-      let kotlinType = 'JsonElement';
-      if (prop.type === 'string') {
-        kotlinType = 'String';
-      } else if (prop.type === 'integer') {
-        kotlinType = 'Long';
-      } else if (prop.type === 'number') {
-        kotlinType = 'Double';
-      } else if (prop.type === 'boolean') {
-        kotlinType = 'Boolean';
-      } else if (prop.type === 'array') {
-        kotlinType = 'List<JsonElement>';
-      } else if (prop.type === 'object') {
-        kotlinType = 'Map<String, JsonElement>';
-      }
-
-      const nullMark = isRequired ? '' : '?';
-      const defaultVal = isRequired ? '' : ' = null';
-      const serialName = propName.startsWith('_') ? `@SerialName("${propName}") ` : '';
-
-      if (prop.description) {
-        props.push(`    /** ${prop.description} */`);
-      }
-      props.push(`    ${serialName}val ${propName.replace(/^_/, '')}: ${kotlinType}${nullMark}${defaultVal},`);
-    }
-  }
-
-  // Add unknown fields
-  props.push(`    @Transient internal val unknownFields: Map<String, JsonElement> = emptyMap()`);
-
-  code += props.join('\n');
-  code += `\n)\n\n`;
-
-  return code;
+  await writeFile(join(outputDir, 'index.ts'), code);
+  console.log(`  ✅ TypeScript: index.ts`);
 }
 
 main().catch(console.error);

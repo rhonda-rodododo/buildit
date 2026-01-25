@@ -5,18 +5,18 @@
   "type": "module",
   "scripts": {
     "generate": "bun run src/index.ts",
-    "generate:ts": "bun run src/index.ts --target typescript",
-    "generate:swift": "bun run src/index.ts --target swift",
-    "generate:kotlin": "bun run src/index.ts --target kotlin",
-    "validate": "bun run src/validate.ts"
+    "generate:ts": "bun run src/index.ts --target=typescript",
+    "generate:swift": "bun run src/index.ts --target=swift",
+    "generate:kotlin": "bun run src/index.ts --target=kotlin",
+    "validate": "bun run src/index.ts --validate"
   },
   "dependencies": {
-    "ajv": "^8.12.0",
-    "glob": "^10.3.10",
-    "json-schema-to-typescript": "^13.1.1"
+    "glob": "^11.0.0",
+    "json-schema-to-typescript": "^15.0.0",
+    "quicktype-core": "^23.2.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "^5.3.0"
+    "typescript": "^5.7.0"
   }
 }
