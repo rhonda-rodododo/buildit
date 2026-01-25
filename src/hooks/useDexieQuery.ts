@@ -130,7 +130,6 @@ export function useDexieQuery<T>(
       subscription.unsubscribe();
       subscriptionRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, refetchCounter, ...deps]);
 
   return { data, isLoading, error, refetch };

@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { JSONSchema7 } from 'json-schema';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,7 @@ interface FormBuilderProps {
 }
 
 export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
+  const { t } = useTranslation();
   const [formTitle, setFormTitle] = useState(form?.title || '');
   const [formDescription, setFormDescription] = useState(form?.description || '');
   const [fields, setFields] = useState<FormFieldDefinition[]>([]);
@@ -227,13 +229,13 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
         <div className="flex items-center justify-between">
           <div className="space-y-1 flex-1 mr-4">
             <Input
-              placeholder="Form Title"
+              placeholder={t('formBuilder.titlePlaceholder')}
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
               className="text-xl font-semibold border-none px-0 focus-visible:ring-0"
             />
             <Input
-              placeholder="Form description (optional)"
+              placeholder={t('formBuilder.descriptionPlaceholder')}
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
               className="text-sm text-muted-foreground border-none px-0 focus-visible:ring-0"
@@ -241,11 +243,11 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onCancel}>
-              Cancel
+              {t('formBuilder.cancel')}
             </Button>
             <Button onClick={handleSave} disabled={!formTitle || fields.length === 0}>
               <Save className="h-4 w-4 mr-2" />
-              Save Form
+              {t('formBuilder.saveForm')}
             </Button>
           </div>
         </div>
@@ -254,14 +256,14 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex-1 flex flex-col">
         <TabsList className="mx-4 mt-4">
-          <TabsTrigger value="build">Build</TabsTrigger>
+          <TabsTrigger value="build">{t('formBuilder.tabs.build')}</TabsTrigger>
           <TabsTrigger value="preview">
             <Eye className="h-4 w-4 mr-2" />
-            Preview
+            {t('formBuilder.tabs.preview')}
           </TabsTrigger>
           <TabsTrigger value="settings">
             <Settings className="h-4 w-4 mr-2" />
-            Settings
+            {t('formBuilder.tabs.settings')}
           </TabsTrigger>
         </TabsList>
 
@@ -292,7 +294,7 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
                 />
               ) : (
                 <Card className="p-6 text-center text-muted-foreground">
-                  <p>Select a field to edit its properties</p>
+                  <p>{t('formBuilder.noFieldSelected')}</p>
                 </Card>
               )}
             </div>
@@ -318,7 +320,7 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
         <TabsContent value="settings" className="flex-1 mt-0 p-4">
           <Card className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label>Multi-Page Form</Label>
+              <Label>{t('formBuilder.settings.multiPage')}</Label>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -326,13 +328,13 @@ export function FormBuilder({ form, onSave, onCancel }: FormBuilderProps) {
                   onChange={(e) => setMultiPage(e.target.checked)}
                   className="rounded"
                 />
-                <span className="text-sm">Enable multi-page form</span>
+                <span className="text-sm">{t('formBuilder.settings.enableMultiPage')}</span>
               </div>
             </div>
 
             {multiPage && (
               <div className="space-y-2">
-                <Label>Current Page</Label>
+                <Label>{t('formBuilder.settings.currentPage')}</Label>
                 <Input
                   type="number"
                   min={1}

@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,7 @@ interface DonorsListProps {
 }
 
 export function DonorsList({ campaign }: DonorsListProps) {
+  const { t } = useTranslation();
   const getDonationsByCampaign = useFundraisingStore((state) => state.getDonationsByCampaign);
   const getTotalRaised = useFundraisingStore((state) => state.getTotalRaised);
 
@@ -109,9 +111,9 @@ export function DonorsList({ campaign }: DonorsListProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Donors & Donations</h2>
+        <h2 className="text-2xl font-bold">{t('donorsList.title')}</h2>
         <p className="text-muted-foreground">
-          Manage donations for {campaign.title}
+          {t('donorsList.subtitle', { campaign: campaign.title })}
         </p>
       </div>
 
@@ -119,21 +121,21 @@ export function DonorsList({ campaign }: DonorsListProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-6">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Total Raised</p>
+            <p className="text-sm text-muted-foreground">{t('donorsList.stats.totalRaised')}</p>
             <p className="text-3xl font-bold">{formatCurrency(totalRaised)}</p>
           </div>
         </Card>
 
         <Card className="p-6">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Total Donations</p>
+            <p className="text-sm text-muted-foreground">{t('donorsList.stats.totalDonations')}</p>
             <p className="text-3xl font-bold">{donations.length}</p>
           </div>
         </Card>
 
         <Card className="p-6">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Completed Donations</p>
+            <p className="text-sm text-muted-foreground">{t('donorsList.stats.completedDonations')}</p>
             <p className="text-3xl font-bold">
               {donations.filter((d) => d.status === 'completed').length}
             </p>
@@ -147,7 +149,7 @@ export function DonorsList({ campaign }: DonorsListProps) {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name or email..."
+              placeholder={t('donorsList.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -160,27 +162,27 @@ export function DonorsList({ campaign }: DonorsListProps) {
               size="sm"
               onClick={() => setFilterStatus('all')}
             >
-              All
+              {t('donorsList.filters.all')}
             </Button>
             <Button
               variant={filterStatus === 'completed' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('completed')}
             >
-              Completed
+              {t('donorsList.filters.completed')}
             </Button>
             <Button
               variant={filterStatus === 'pending' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('pending')}
             >
-              Pending
+              {t('donorsList.filters.pending')}
             </Button>
           </div>
 
           <Button variant="outline" onClick={handleExportCSV}>
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            {t('donorsList.exportCsv')}
           </Button>
         </div>
       </Card>
@@ -189,19 +191,19 @@ export function DonorsList({ campaign }: DonorsListProps) {
       <Card>
         {filteredDonations.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
-            <p>No donations yet</p>
-            {searchQuery && <p className="text-sm mt-2">Try adjusting your search filters</p>}
+            <p>{t('donorsList.emptyState.noDonations')}</p>
+            {searchQuery && <p className="text-sm mt-2">{t('donorsList.emptyState.adjustFilters')}</p>}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Donor</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment Method</TableHead>
-                <TableHead>Message</TableHead>
+                <TableHead>{t('donorsList.table.date')}</TableHead>
+                <TableHead>{t('donorsList.table.donor')}</TableHead>
+                <TableHead>{t('donorsList.table.amount')}</TableHead>
+                <TableHead>{t('donorsList.table.status')}</TableHead>
+                <TableHead>{t('donorsList.table.paymentMethod')}</TableHead>
+                <TableHead>{t('donorsList.table.message')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -212,10 +214,10 @@ export function DonorsList({ campaign }: DonorsListProps) {
                   </TableCell>
                   <TableCell>
                     {donation.isAnonymous ? (
-                      <span className="text-muted-foreground">Anonymous</span>
+                      <span className="text-muted-foreground">{t('donorsList.table.anonymous')}</span>
                     ) : (
                       <div>
-                        <div className="font-medium">{donation.donorName || 'N/A'}</div>
+                        <div className="font-medium">{donation.donorName || t('donorsList.table.na')}</div>
                         {donation.donorEmail && (
                           <div className="text-xs text-muted-foreground">
                             {donation.donorEmail}
@@ -228,7 +230,7 @@ export function DonorsList({ campaign }: DonorsListProps) {
                     {formatCurrency(donation.amount)}
                     {donation.isRecurring && (
                       <Badge variant="outline" className="ml-2 text-xs">
-                        Recurring
+                        {t('donorsList.table.recurring')}
                       </Badge>
                     )}
                   </TableCell>

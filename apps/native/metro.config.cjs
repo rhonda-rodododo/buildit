@@ -21,6 +21,24 @@ config.resolver.nodeModulesPaths = [
 // Enable symlinks for bun workspace packages
 config.resolver.unstable_enableSymlinks = true;
 
+// Force React and related packages to resolve from the native app's node_modules
+// This prevents multiple React instances in monorepo setups
+const nativeNodeModules = path.resolve(appRoot, 'node_modules');
+config.resolver.extraNodeModules = {
+  'react': path.resolve(nativeNodeModules, 'react'),
+  'react-dom': path.resolve(nativeNodeModules, 'react-dom'),
+  'react-native': path.resolve(nativeNodeModules, 'react-native'),
+};
+
+// Block the root node_modules React from being bundled (prevents duplicate React)
+const escapedRoot = monorepoRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+config.resolver.blockList = [
+  // Exclude root node_modules react packages (but not apps/native/node_modules)
+  new RegExp(`${escapedRoot}/node_modules/react/.*`),
+  new RegExp(`${escapedRoot}/node_modules/react-dom/.*`),
+  new RegExp(`${escapedRoot}/node_modules/react-native/.*`),
+];
+
 // Handle .js extension in imports (some packages import @noble/hashes/sha256.js)
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // Strip .js extension from @noble and @scure imports for compatibility

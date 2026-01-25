@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { Card } from '@/components/ui/card';
@@ -19,6 +20,7 @@ import {
 import { Sparkles } from 'lucide-react';
 
 export const OnboardingDemoPage: FC = () => {
+  const { t } = useTranslation();
   const [entryPoint, setEntryPoint] = useState<'campaign' | 'event' | 'friend-invite' | 'website' | 'social-media'>('campaign');
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [completed, setCompleted] = useState(false);
@@ -34,14 +36,7 @@ export const OnboardingDemoPage: FC = () => {
   };
 
   const getEntryPointLabel = (ep: string) => {
-    const labels: Record<string, string> = {
-      'campaign': 'Campaign Landing Page',
-      'event': 'Event RSVP',
-      'friend-invite': 'Friend Invitation',
-      'website': 'Main Website',
-      'social-media': 'Social Media Link'
-    };
-    return labels[ep] || ep;
+    return t(`onboardingDemo.entryPoints.${ep}`, ep);
   };
 
   return (
@@ -50,9 +45,9 @@ export const OnboardingDemoPage: FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Personalized Onboarding</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('onboardingDemo.title')}</h1>
           <p className="text-muted-foreground">
-            Different flows based on how users discover the platform
+            {t('onboardingDemo.description')}
           </p>
         </div>
 
@@ -60,26 +55,26 @@ export const OnboardingDemoPage: FC = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
-              Entry Point: {getEntryPointLabel(entryPoint)}
+              {t('onboardingDemo.entryPointLabel', { entry: getEntryPointLabel(entryPoint) })}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Simulate Entry Point</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('onboardingDemo.simulateEntryPoint')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => { setEntryPoint('campaign'); handleReset(); }}>
-              Campaign Landing Page
+              {t('onboardingDemo.entryPoints.campaign')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setEntryPoint('event'); handleReset(); }}>
-              Event RSVP
+              {t('onboardingDemo.entryPoints.event')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setEntryPoint('friend-invite'); handleReset(); }}>
-              Friend Invitation
+              {t('onboardingDemo.entryPoints.friend-invite')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setEntryPoint('website'); handleReset(); }}>
-              Main Website
+              {t('onboardingDemo.entryPoints.website')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setEntryPoint('social-media'); handleReset(); }}>
-              Social Media Link
+              {t('onboardingDemo.entryPoints.social-media')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -98,27 +93,27 @@ export const OnboardingDemoPage: FC = () => {
               <Sparkles className="w-12 h-12 text-green-500" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold mb-2">Onboarding Complete!</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('onboardingDemo.complete.title')}</h2>
           <p className="text-muted-foreground mb-6">
-            User would now be redirected to their personalized dashboard
+            {t('onboardingDemo.complete.description')}
           </p>
-          <Button onClick={handleReset}>Try Another Entry Point</Button>
+          <Button onClick={handleReset}>{t('onboardingDemo.complete.tryAnother')}</Button>
         </Card>
       ) : null}
 
       {/* Info Box */}
       {showOnboarding && (
         <Card className="p-4 bg-blue-500/5 border-blue-500/20">
-          <h4 className="font-medium text-sm mb-2">About Personalized Onboarding</h4>
+          <h4 className="font-medium text-sm mb-2">{t('onboardingDemo.about.title')}</h4>
           <p className="text-xs text-muted-foreground">
-            Different entry points lead to different onboarding flows optimized for user context:
+            {t('onboardingDemo.about.intro')}
           </p>
           <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-4">
-            <li>• <strong>Campaign:</strong> Focus on specific issue, then broaden to full platform</li>
-            <li>• <strong>Event:</strong> Quick setup to get to RSVP, then explore working groups</li>
-            <li>• <strong>Friend Invite:</strong> Social connection first, then community building</li>
-            <li>• <strong>Website:</strong> Comprehensive overview of all organizing work</li>
-            <li>• <strong>Social Media:</strong> Fast path to action for high-energy newcomers</li>
+            <li>• <strong>{t('onboardingDemo.about.campaign')}</strong> {t('onboardingDemo.about.campaignDesc')}</li>
+            <li>• <strong>{t('onboardingDemo.about.event')}</strong> {t('onboardingDemo.about.eventDesc')}</li>
+            <li>• <strong>{t('onboardingDemo.about.friendInvite')}</strong> {t('onboardingDemo.about.friendInviteDesc')}</li>
+            <li>• <strong>{t('onboardingDemo.about.website')}</strong> {t('onboardingDemo.about.websiteDesc')}</li>
+            <li>• <strong>{t('onboardingDemo.about.socialMedia')}</strong> {t('onboardingDemo.about.socialMediaDesc')}</li>
           </ul>
         </Card>
       )}

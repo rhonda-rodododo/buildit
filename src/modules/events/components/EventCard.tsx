@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Event } from '../types'
@@ -11,6 +12,8 @@ interface EventCardProps {
 }
 
 export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
+  const { t } = useTranslation()
+
   const formatDate = (timestamp: number) => {
     return format(new Date(timestamp), 'PPp')
   }
@@ -29,13 +32,13 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
   const getPrivacyLabel = () => {
     switch (event.privacy) {
       case 'public':
-        return 'Public'
+        return t('eventCard.privacyLabels.public')
       case 'group':
-        return 'Group Only'
+        return t('eventCard.privacyLabels.group')
       case 'private':
-        return 'Private'
+        return t('eventCard.privacyLabels.private')
       case 'direct-action':
-        return 'Direct Action'
+        return t('eventCard.privacyLabels.directAction')
     }
   }
 
@@ -76,14 +79,14 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
         {event.privacy === 'direct-action' && event.locationRevealTime && (
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 mr-2" />
-            Location reveals: {formatDate(event.locationRevealTime)}
+            {t('eventCard.locationReveals', { date: formatDate(event.locationRevealTime) })}
           </div>
         )}
 
         {event.capacity && (
           <div className="flex items-center text-sm text-muted-foreground">
             <Users className="h-4 w-4 mr-2" />
-            Max {event.capacity} attendees
+            {t('eventCard.maxAttendees', { count: event.capacity })}
           </div>
         )}
 

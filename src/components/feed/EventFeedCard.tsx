@@ -4,6 +4,7 @@
  */
 
 import { FC, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format, formatDistanceToNow } from 'date-fns';
 import type { EventFeedItem } from './types';
 import { Card } from '@/components/ui/card';
@@ -28,6 +29,7 @@ interface EventFeedCardProps {
 }
 
 export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
+  const { t } = useTranslation();
   const { data: event } = item;
   const { updateRSVP, getUserRSVP } = useEventsStore();
   const { currentIdentity } = useAuthStore();
@@ -62,13 +64,13 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
   const getPrivacyLabel = () => {
     switch (event.privacy) {
       case 'public':
-        return 'Public Event';
+        return t('eventFeedCard.privacy.public');
       case 'group':
-        return 'Group Event';
+        return t('eventFeedCard.privacy.group');
       case 'private':
-        return 'Private Event';
+        return t('eventFeedCard.privacy.private');
       case 'direct-action':
-        return 'Direct Action';
+        return t('eventFeedCard.privacy.directAction');
     }
   };
 
@@ -80,9 +82,9 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
       date.toDateString() === new Date(now.getTime() + 86400000).toDateString();
 
     if (isToday) {
-      return `Today at ${format(date, 'h:mm a')}`;
+      return t('eventFeedCard.time.todayAt', { time: format(date, 'h:mm a') });
     } else if (isTomorrow) {
-      return `Tomorrow at ${format(date, 'h:mm a')}`;
+      return t('eventFeedCard.time.tomorrowAt', { time: format(date, 'h:mm a') });
     } else {
       return format(date, 'MMM d, yyyy • h:mm a');
     }
@@ -110,7 +112,7 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-sm truncate">{event.createdBy}</span>
-              <span className="text-xs text-muted-foreground">created an event</span>
+              <span className="text-xs text-muted-foreground">{t('eventFeedCard.createdEvent')}</span>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(event.createdAt, { addSuffix: true })}
               </span>
@@ -164,8 +166,7 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />
               <span>
-                Location revealed {formatDistanceToNow(event.locationRevealTime)} before
-                event
+                {t('eventFeedCard.locationReveal', { time: formatDistanceToNow(event.locationRevealTime) })}
               </span>
             </div>
           )}
@@ -175,7 +176,7 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
               <span>
-                {getRSVPCount()} / {event.capacity} attending
+                {t('eventFeedCard.capacity', { current: getRSVPCount(), max: event.capacity })}
               </span>
             </div>
           )}
@@ -203,7 +204,7 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
             onClick={() => handleRSVP('going')}
             disabled={!currentIdentity}
           >
-            {userRSVP?.status === 'going' ? '✓ Going' : 'RSVP Going'}
+            {userRSVP?.status === 'going' ? `✓ ${t('eventFeedCard.rsvp.goingConfirmed')}` : t('eventFeedCard.rsvp.going')}
           </Button>
           <Button
             variant={userRSVP?.status === 'maybe' ? 'default' : 'outline'}
@@ -211,14 +212,14 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
             onClick={() => handleRSVP('maybe')}
             disabled={!currentIdentity}
           >
-            {userRSVP?.status === 'maybe' ? '✓ Maybe' : 'Maybe'}
+            {userRSVP?.status === 'maybe' ? `✓ ${t('eventFeedCard.rsvp.maybeConfirmed')}` : t('eventFeedCard.rsvp.maybe')}
           </Button>
           <Button
             variant="ghost"
             className="flex-1"
             onClick={handleViewDetails}
           >
-            Details
+            {t('eventFeedCard.details')}
           </Button>
         </div>
       </div>

@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { AnonymousReactions } from '@/components/privacy/AnonymousReactions';
 import { AnonymousVoting } from '@/components/privacy/AnonymousVoting';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export const PrivacyDemoPage: FC = () => {
+  const { t } = useTranslation();
   const [_riskLevel, _setRiskLevel] = useState<'low' | 'medium' | 'high'>('medium');
 
   return (
@@ -25,9 +27,9 @@ export const PrivacyDemoPage: FC = () => {
       <PageMeta title="Privacy Demo" descriptionKey="meta.privacy" />
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Privacy & Anonymous Engagement</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('privacyDemo.title')}</h1>
         <p className="text-muted-foreground">
-          Safe participation for high-risk organizing contexts
+          {t('privacyDemo.description')}
         </p>
       </div>
 
@@ -36,15 +38,15 @@ export const PrivacyDemoPage: FC = () => {
         <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="dashboard" className="gap-2">
             <Settings className="w-4 h-4" />
-            Privacy Dashboard
+            {t('privacyDemo.tabs.dashboard')}
           </TabsTrigger>
           <TabsTrigger value="reactions" className="gap-2">
             <ThumbsUp className="w-4 h-4" />
-            Anonymous Reactions
+            {t('privacyDemo.tabs.reactions')}
           </TabsTrigger>
           <TabsTrigger value="voting" className="gap-2">
             <CheckCircle className="w-4 h-4" />
-            Anonymous Voting
+            {t('privacyDemo.tabs.voting')}
           </TabsTrigger>
         </TabsList>
 
@@ -54,9 +56,9 @@ export const PrivacyDemoPage: FC = () => {
 
         <TabsContent value="reactions" className="mt-6 space-y-6">
           <Card className="p-6">
-            <h3 className="font-semibold mb-2">Sample Post</h3>
+            <h3 className="font-semibold mb-2">{t('privacyDemo.reactions.samplePost')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              "We're organizing a direct action next week to protest the evictions. All are welcome to join - safety protocols will be provided."
+              {t('privacyDemo.reactions.sampleContent')}
             </p>
 
             <AnonymousReactions
@@ -68,12 +70,12 @@ export const PrivacyDemoPage: FC = () => {
           </Card>
 
           <Card className="p-4 bg-blue-500/5 border-blue-500/20">
-            <h4 className="text-sm font-medium mb-1">How Anonymous Reactions Work</h4>
+            <h4 className="text-sm font-medium mb-1">{t('privacyDemo.reactions.howItWorks')}</h4>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• Enable anonymous mode to hide your identity while showing support</li>
-              <li>• Aggregate counts are still shown to demonstrate community backing</li>
-              <li>• Critical for high-risk campaigns where public support could lead to retaliation</li>
-              <li>• Cryptographically secured to prevent de-anonymization</li>
+              <li>• {t('privacyDemo.reactions.tips.enableAnonymous')}</li>
+              <li>• {t('privacyDemo.reactions.tips.aggregateCounts')}</li>
+              <li>• {t('privacyDemo.reactions.tips.critical')}</li>
+              <li>• {t('privacyDemo.reactions.tips.cryptoSecured')}</li>
             </ul>
           </Card>
         </TabsContent>
@@ -92,13 +94,13 @@ export const PrivacyDemoPage: FC = () => {
           />
 
           <Card className="p-4 bg-blue-500/5 border-blue-500/20">
-            <h4 className="text-sm font-medium mb-1">How Anonymous Voting Works</h4>
+            <h4 className="text-sm font-medium mb-1">{t('privacyDemo.voting.howItWorks')}</h4>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• Zero-knowledge cryptography ensures vote privacy</li>
-              <li>• Individual votes cannot be traced to voters</li>
-              <li>• Results are verifiably accurate despite anonymity</li>
-              <li>• Essential for sensitive decisions in high-risk organizing</li>
-              <li>• Prevents intimidation and enables honest participation</li>
+              <li>• {t('privacyDemo.voting.tips.zeroKnowledge')}</li>
+              <li>• {t('privacyDemo.voting.tips.noTrace')}</li>
+              <li>• {t('privacyDemo.voting.tips.verifiable')}</li>
+              <li>• {t('privacyDemo.voting.tips.essential')}</li>
+              <li>• {t('privacyDemo.voting.tips.preventIntimidation')}</li>
             </ul>
           </Card>
         </TabsContent>
@@ -109,19 +111,18 @@ export const PrivacyDemoPage: FC = () => {
         <div className="flex items-start gap-3">
           <Shield className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">Why Anonymous Engagement Matters</h4>
+            <h4 className="text-sm font-medium mb-1">{t('privacyDemo.whyMatters.title')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
-              In high-risk organizing contexts (surveillance states, workplace organizing, tenant unions facing retaliation),
-              visible support can have serious consequences:
+              {t('privacyDemo.whyMatters.intro')}
             </p>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• Workers organizing a union may face termination</li>
-              <li>• Tenants fighting evictions may be blacklisted</li>
-              <li>• Activists in authoritarian states risk arrest</li>
-              <li>• Marginalized communities face disproportionate surveillance</li>
+              <li>• {t('privacyDemo.whyMatters.consequences.workers')}</li>
+              <li>• {t('privacyDemo.whyMatters.consequences.tenants')}</li>
+              <li>• {t('privacyDemo.whyMatters.consequences.activists')}</li>
+              <li>• {t('privacyDemo.whyMatters.consequences.marginalized')}</li>
             </ul>
             <p className="text-xs text-muted-foreground mt-2">
-              Anonymous engagement tools allow these supporters to participate safely while still building collective power.
+              {t('privacyDemo.whyMatters.conclusion')}
             </p>
           </div>
         </div>

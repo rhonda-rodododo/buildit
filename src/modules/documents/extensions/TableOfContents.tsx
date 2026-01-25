@@ -207,7 +207,6 @@ export const TableOfContents = Node.create<TableOfContentsOptions>({
   },
 
   addNodeView() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ReactNodeViewRenderer(TableOfContentsView as any)
   },
 

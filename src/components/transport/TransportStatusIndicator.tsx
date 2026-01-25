@@ -6,11 +6,13 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bluetooth, Wifi, WifiOff, Radio } from 'lucide-react';
 import { TransportService, TransportStatus, TransportType } from '@/core/transport';
 import { cn } from '@/lib/utils';
 
 export function TransportStatusIndicator() {
+  const { t } = useTranslation();
   const [bleStatus, setBleStatus] = useState<TransportStatus>(TransportStatus.DISCONNECTED);
   const [nostrStatus, setNostrStatus] = useState<TransportStatus>(TransportStatus.DISCONNECTED);
   const [blePeers, setBlePeers] = useState<number>(0);
@@ -75,9 +77,9 @@ export function TransportStatusIndicator() {
       )}>
         <Bluetooth className="w-4 h-4" />
         {bleStatus === TransportStatus.CONNECTED ? (
-          <span className="text-xs font-medium">{blePeers} mesh</span>
+          <span className="text-xs font-medium">{t('transportStatus.meshPeers', { count: blePeers })}</span>
         ) : (
-          <span className="text-xs">Mesh</span>
+          <span className="text-xs">{t('transportStatus.mesh')}</span>
         )}
       </div>
 
@@ -95,9 +97,9 @@ export function TransportStatusIndicator() {
           <WifiOff className="w-4 h-4" />
         )}
         {nostrStatus === TransportStatus.CONNECTED ? (
-          <span className="text-xs font-medium">{nostrRelays} relays</span>
+          <span className="text-xs font-medium">{t('transportStatus.relays', { count: nostrRelays })}</span>
         ) : (
-          <span className="text-xs">Offline</span>
+          <span className="text-xs">{t('transportStatus.offline')}</span>
         )}
       </div>
 
@@ -109,7 +111,7 @@ export function TransportStatusIndicator() {
         )}>
           <Radio className="w-4 h-4" />
           <span className="text-xs font-medium">
-            {isPrimary ? 'Mesh' : 'Cloud'}
+            {isPrimary ? t('transportStatus.mesh') : t('transportStatus.cloud')}
           </span>
         </div>
       )}

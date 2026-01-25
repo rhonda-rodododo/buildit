@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -43,6 +44,7 @@ export function AccessRequestDialog({
   resourceTitle,
   requesterPubkey,
 }: AccessRequestDialogProps) {
+  const { t } = useTranslation()
   const [requestedPermission, setRequestedPermission] = useState<DocumentPermission>('view')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -68,7 +70,7 @@ export function AccessRequestDialog({
       setRequestedPermission('view')
     } catch (err) {
       console.error('Failed to create access request:', err)
-      alert('Failed to submit access request')
+      alert(t('documentsAccessRequestDialog.error'))
     } finally {
       setSubmitting(false)
     }
@@ -80,16 +82,16 @@ export function AccessRequestDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Request Access
+            {t('documentsAccessRequestDialog.title')}
           </DialogTitle>
           <DialogDescription>
-            Request access to "{resourceTitle}"
+            {t('documentsAccessRequestDialog.description', { resourceTitle })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="permission">Access Level</Label>
+            <Label htmlFor="permission">{t('documentsAccessRequestDialog.accessLevel')}</Label>
             <Select
               value={requestedPermission}
               onValueChange={(v) => setRequestedPermission(v as DocumentPermission)}
@@ -98,18 +100,18 @@ export function AccessRequestDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="view">View only</SelectItem>
-                <SelectItem value="comment">View & Comment</SelectItem>
-                <SelectItem value="edit">Edit</SelectItem>
+                <SelectItem value="view">{t('documentsAccessRequestDialog.viewOnly')}</SelectItem>
+                <SelectItem value="comment">{t('documentsAccessRequestDialog.viewComment')}</SelectItem>
+                <SelectItem value="edit">{t('documentsAccessRequestDialog.edit')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message">Message (optional)</Label>
+            <Label htmlFor="message">{t('documentsAccessRequestDialog.messageLabel')}</Label>
             <Textarea
               id="message"
-              placeholder="Why do you need access to this document?"
+              placeholder={t('documentsAccessRequestDialog.messagePlaceholder')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
@@ -119,11 +121,11 @@ export function AccessRequestDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('documentsAccessRequestDialog.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             <Send className="h-4 w-4 mr-2" />
-            {submitting ? 'Sending...' : 'Send Request'}
+            {submitting ? t('documentsAccessRequestDialog.sending') : t('documentsAccessRequestDialog.sendRequest')}
           </Button>
         </DialogFooter>
       </DialogContent>

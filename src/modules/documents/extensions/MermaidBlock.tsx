@@ -8,6 +8,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react'
 import { FC, useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import mermaid from 'mermaid'
 import { sanitizeMathHtml } from '@/lib/security/sanitize'
 import { secureRandomInt } from '@/lib/utils'
@@ -73,6 +74,7 @@ const EXAMPLE_DIAGRAMS = {
 }
 
 const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, selected }) => {
+  const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState(!node.attrs.diagram)
   const [localDiagram, setLocalDiagram] = useState(node.attrs.diagram || '')
   const [renderedSvg, setRenderedSvg] = useState('')
@@ -136,7 +138,7 @@ const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, s
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground">
-                Enter Mermaid diagram (Ctrl/Cmd+Enter to save, Escape to cancel)
+                {t('mermaidBlock.instructions')}
               </div>
               <div className="flex gap-1">
                 <button
@@ -144,28 +146,28 @@ const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, s
                   className="px-2 py-1 text-xs rounded border hover:bg-muted"
                   type="button"
                 >
-                  Flowchart
+                  {t('mermaidBlock.examples.flowchart')}
                 </button>
                 <button
                   onClick={() => insertExample('sequence')}
                   className="px-2 py-1 text-xs rounded border hover:bg-muted"
                   type="button"
                 >
-                  Sequence
+                  {t('mermaidBlock.examples.sequence')}
                 </button>
                 <button
                   onClick={() => insertExample('gantt')}
                   className="px-2 py-1 text-xs rounded border hover:bg-muted"
                   type="button"
                 >
-                  Gantt
+                  {t('mermaidBlock.examples.gantt')}
                 </button>
                 <button
                   onClick={() => insertExample('pie')}
                   className="px-2 py-1 text-xs rounded border hover:bg-muted"
                   type="button"
                 >
-                  Pie
+                  {t('mermaidBlock.examples.pie')}
                 </button>
               </div>
             </div>
@@ -202,7 +204,7 @@ const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, s
                 rel="noopener noreferrer"
                 className="text-xs text-blue-600 hover:underline"
               >
-                Mermaid Docs
+                {t('mermaidBlock.docs')}
               </a>
               <div className="flex gap-2">
                 <button
@@ -213,14 +215,14 @@ const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, s
                   className="px-3 py-1 text-sm rounded border hover:bg-muted"
                   type="button"
                 >
-                  Cancel
+                  {t('mermaidBlock.cancel')}
                 </button>
                 <button
                   onClick={handleSave}
                   className="px-3 py-1 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
                   type="button"
                 >
-                  Save
+                  {t('mermaidBlock.save')}
                 </button>
               </div>
             </div>
@@ -237,7 +239,7 @@ const MermaidBlockView: FC<MermaidBlockViewProps> = ({ node, updateAttributes, s
               />
             ) : (
               <div className="text-center text-muted-foreground italic py-4">
-                Click to add diagram
+                {t('mermaidBlock.clickToAdd')}
               </div>
             )}
           </div>
@@ -282,7 +284,6 @@ export const MermaidBlock = Node.create<MermaidBlockOptions>({
   },
 
   addNodeView() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ReactNodeViewRenderer(MermaidBlockView as any)
   },
 

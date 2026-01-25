@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNewslettersStore } from '../newslettersStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +58,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
   newsletterId,
   className,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<SubscriberStatus | 'all'>('active');
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -106,37 +108,37 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
   const getStatusBadge = (status: SubscriberStatus) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500/20 text-green-600">Active</Badge>;
+        return <Badge className="bg-green-500/20 text-green-600">{t('subscribers.active')}</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-500/20 text-yellow-600">Pending</Badge>;
+        return <Badge className="bg-yellow-500/20 text-yellow-600">{t('subscribers.pending')}</Badge>;
       case 'unsubscribed':
-        return <Badge variant="outline">Unsubscribed</Badge>;
+        return <Badge variant="outline">{t('subscribers.unsubscribed')}</Badge>;
     }
   };
 
   const getSourceBadge = (source: NewsletterSubscriber['source']) => {
     switch (source) {
       case 'manual':
-        return <Badge variant="secondary">Manual</Badge>;
+        return <Badge variant="secondary">{t('subscribers.sourceManual')}</Badge>;
       case 'import':
-        return <Badge variant="secondary">Import</Badge>;
+        return <Badge variant="secondary">{t('subscribers.sourceImport')}</Badge>;
       case 'self-subscribe':
-        return <Badge variant="secondary">Self</Badge>;
+        return <Badge variant="secondary">{t('subscribers.sourceSelf')}</Badge>;
       case 'nostr-contact-list':
-        return <Badge variant="secondary">Contacts</Badge>;
+        return <Badge variant="secondary">{t('subscribers.sourceContacts')}</Badge>;
     }
   };
 
   // Add subscriber
   const handleAddSubscriber = () => {
     if (!newPubkey.trim()) {
-      toast.error('Please enter a pubkey');
+      toast.error(t('subscribers.toastEnterPubkey'));
       return;
     }
 
     // Validate pubkey format (basic check)
     if (newPubkey.length < 32) {
-      toast.error('Invalid pubkey format');
+      toast.error(t('subscribers.toastInvalidPubkey'));
       return;
     }
 
@@ -149,7 +151,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
 
     setNewPubkey('');
     setShowAddDialog(false);
-    toast.success('Subscriber added');
+    toast.success(t('subscribers.toastSubscriberAdded'));
   };
 
   // Import subscribers
@@ -160,7 +162,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
       .filter((p) => p.length >= 32);
 
     if (pubkeys.length === 0) {
-      toast.error('No valid pubkeys found');
+      toast.error(t('subscribers.toastNoValidPubkeys'));
       return;
     }
 
@@ -173,7 +175,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
 
     setImportPubkeys('');
     setShowImportDialog(false);
-    toast.success(`${imported.length} subscriber(s) imported`);
+    toast.success(t('subscribers.toastImported', { count: imported.length }));
   };
 
   // Export subscribers
@@ -186,19 +188,19 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
     a.download = 'subscribers.csv';
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Subscribers exported');
+    toast.success(t('subscribers.toastExported'));
   };
 
   // Handle unsubscribe
   const handleUnsubscribe = (subscriber: NewsletterSubscriber) => {
     unsubscribe(newsletterId, subscriber.subscriberPubkey);
-    toast.success('Subscriber removed');
+    toast.success(t('subscribers.toastRemoved'));
   };
 
   // Handle remove
   const handleRemove = (subscriber: NewsletterSubscriber) => {
     removeSubscriber(subscriber.id);
-    toast.success('Subscriber deleted');
+    toast.success(t('subscribers.toastDeleted'));
   };
 
   return (
@@ -206,23 +208,23 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold">Subscribers</h3>
+          <h3 className="text-lg font-semibold">{t('subscribers.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            {activeCount} active, {pendingCount} pending, {unsubscribedCount} unsubscribed
+            {t('subscribers.stats', { active: activeCount, pending: pendingCount, unsubscribed: unsubscribedCount })}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setShowImportDialog(true)}>
             <Upload className="h-4 w-4 mr-2" />
-            Import
+            {t('subscribers.import')}
           </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {t('subscribers.export')}
           </Button>
           <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Subscriber
+            {t('subscribers.addSubscriber')}
           </Button>
         </div>
       </div>
@@ -234,7 +236,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           onClick={() => setStatusFilter('active')}
         >
           <CardHeader className="pb-2">
-            <CardDescription>Active</CardDescription>
+            <CardDescription>{t('subscribers.active')}</CardDescription>
             <CardTitle className="text-2xl">{activeCount}</CardTitle>
           </CardHeader>
         </Card>
@@ -243,7 +245,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           onClick={() => setStatusFilter('pending')}
         >
           <CardHeader className="pb-2">
-            <CardDescription>Pending</CardDescription>
+            <CardDescription>{t('subscribers.pending')}</CardDescription>
             <CardTitle className="text-2xl">{pendingCount}</CardTitle>
           </CardHeader>
         </Card>
@@ -252,7 +254,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           onClick={() => setStatusFilter('unsubscribed')}
         >
           <CardHeader className="pb-2">
-            <CardDescription>Unsubscribed</CardDescription>
+            <CardDescription>{t('subscribers.unsubscribed')}</CardDescription>
             <CardTitle className="text-2xl">{unsubscribedCount}</CardTitle>
           </CardHeader>
         </Card>
@@ -265,7 +267,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by pubkey..."
+            placeholder={t('subscribers.searchPlaceholder')}
             className="pl-10"
           />
         </div>
@@ -273,7 +275,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           variant={statusFilter === 'all' ? 'secondary' : 'ghost'}
           onClick={() => setStatusFilter('all')}
         >
-          All
+          {t('subscribers.all')}
         </Button>
       </div>
 
@@ -282,16 +284,16 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No subscribers</h3>
+            <h3 className="text-lg font-medium mb-2">{t('subscribers.noSubscribers')}</h3>
             <p className="text-muted-foreground text-center max-w-sm mb-4">
               {statusFilter === 'all'
-                ? 'Add your first subscriber to get started.'
-                : `No ${statusFilter} subscribers found.`}
+                ? t('subscribers.addFirstSubscriber')
+                : t('subscribers.noStatusSubscribers', { status: statusFilter })}
             </p>
             {statusFilter === 'all' && (
               <Button onClick={() => setShowAddDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Subscriber
+                {t('subscribers.addSubscriber')}
               </Button>
             )}
           </CardContent>
@@ -301,11 +303,11 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Pubkey</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Subscribed</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('subscribers.tablePubkey')}</TableHead>
+                <TableHead>{t('subscribers.tableStatus')}</TableHead>
+                <TableHead>{t('subscribers.tableSource')}</TableHead>
+                <TableHead>{t('subscribers.tableSubscribed')}</TableHead>
+                <TableHead className="text-right">{t('subscribers.tableActions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -335,7 +337,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
                             onClick={() => handleUnsubscribe(subscriber)}
                           >
                             <UserMinus className="h-4 w-4 mr-2" />
-                            Unsubscribe
+                            {t('subscribers.unsubscribe')}
                           </DropdownMenuItem>
                         )}
                         {subscriber.status === 'pending' && (
@@ -347,11 +349,11 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
                                 subscriberPubkey: subscriber.subscriberPubkey,
                                 skipConfirmation: true,
                               });
-                              toast.success('Subscription confirmed');
+                              toast.success(t('subscribers.toastConfirmed'));
                             }}
                           >
                             <UserCheck className="h-4 w-4 mr-2" />
-                            Confirm
+                            {t('subscribers.confirm')}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
@@ -359,7 +361,7 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
                           onClick={() => handleRemove(subscriber)}
                         >
                           <UserMinus className="h-4 w-4 mr-2" />
-                          Delete
+                          {t('subscribers.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -375,26 +377,26 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Subscriber</DialogTitle>
+            <DialogTitle>{t('subscribers.addDialogTitle')}</DialogTitle>
             <DialogDescription>
-              Add a new subscriber by their Nostr pubkey.
+              {t('subscribers.addDialogDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="pubkey">Nostr Pubkey</Label>
+              <Label htmlFor="pubkey">{t('subscribers.nostrPubkey')}</Label>
               <Input
                 id="pubkey"
                 value={newPubkey}
                 onChange={(e) => setNewPubkey(e.target.value)}
-                placeholder="npub... or hex pubkey"
+                placeholder={t('subscribers.pubkeyPlaceholder')}
               />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <Label>Skip Confirmation</Label>
+                <Label>{t('subscribers.skipConfirmation')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Activate immediately without confirmation
+                  {t('subscribers.skipConfirmationDesc')}
                 </p>
               </div>
               <Switch checked={skipConfirmation} onCheckedChange={setSkipConfirmation} />
@@ -402,9 +404,9 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
-            <Button onClick={handleAddSubscriber}>Add Subscriber</Button>
+            <Button onClick={handleAddSubscriber}>{t('subscribers.addSubscriber')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -413,27 +415,27 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Import Subscribers</DialogTitle>
+            <DialogTitle>{t('subscribers.importDialogTitle')}</DialogTitle>
             <DialogDescription>
-              Paste Nostr pubkeys (one per line or comma-separated).
+              {t('subscribers.importDialogDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="importPubkeys">Pubkeys</Label>
+              <Label htmlFor="importPubkeys">{t('subscribers.pubkeys')}</Label>
               <Textarea
                 id="importPubkeys"
                 value={importPubkeys}
                 onChange={(e) => setImportPubkeys(e.target.value)}
-                placeholder="npub1abc...\nnpub1def...\nor comma-separated"
+                placeholder={t('subscribers.importPlaceholder')}
                 rows={6}
               />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <Label>Skip Confirmation</Label>
+                <Label>{t('subscribers.skipConfirmation')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Activate immediately without confirmation
+                  {t('subscribers.skipConfirmationDesc')}
                 </p>
               </div>
               <Switch checked={skipConfirmation} onCheckedChange={setSkipConfirmation} />
@@ -441,11 +443,11 @@ export const SubscriberManager: FC<SubscriberManagerProps> = ({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowImportDialog(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleImport}>
               <Upload className="h-4 w-4 mr-2" />
-              Import
+              {t('subscribers.import')}
             </Button>
           </DialogFooter>
         </DialogContent>

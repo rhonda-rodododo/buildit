@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { usePublishingStore } from '../publishingStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -54,6 +55,7 @@ type ViewState =
 export const PublishingPage: FC<PublishingPageProps> = ({
   className,
 }) => {
+  const { t } = useTranslation();
   // Get groupId from route params and userPubkey from auth store
   const { groupId } = useParams<{ groupId: string }>();
   const currentIdentity = useAuthStore((state) => state.currentIdentity);
@@ -63,7 +65,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
   if (!groupId || !userPubkey) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Please select a group and log in to manage publications.</p>
+        <p className="text-muted-foreground">{t('publishingPage.selectGroupLogin')}</p>
       </div>
     );
   }
@@ -102,7 +104,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
   // Create publication handler
   const handleCreatePublication = () => {
     if (!newPubName.trim()) {
-      toast.error('Please enter a publication name');
+      toast.error(t('publishingPage.enterPublicationName'));
       return;
     }
 
@@ -120,7 +122,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
     setShowCreatePublication(false);
     setNewPubName('');
     setNewPubDescription('');
-    toast.success('Publication created');
+    toast.success(t('publishingPage.publicationCreated'));
   };
 
   // Create article handler
@@ -130,7 +132,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
     const article = createArticle({
       publicationId: currentPublication.id,
       groupId,
-      title: 'Untitled Article',
+      title: t('publishingPage.untitledArticle'),
     });
 
     // Set author pubkey
@@ -148,7 +150,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
   const handleDeleteArticle = (articleId: string) => {
     deleteArticle(articleId);
     setShowDeleteConfirm(null);
-    toast.success('Article deleted');
+    toast.success(t('publishingPage.articleDeleted'));
   };
 
   // No publication yet
@@ -156,51 +158,50 @@ export const PublishingPage: FC<PublishingPageProps> = ({
     return (
       <div className={`flex flex-col items-center justify-center h-full p-8 ${className}`}>
         <BookOpen className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Start Publishing</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('publishingPage.startPublishing')}</h2>
         <p className="text-muted-foreground text-center mb-6 max-w-md">
-          Create your first publication to start writing and sharing long-form content
-          with your audience.
+          {t('publishingPage.startPublishingDescription')}
         </p>
         <Button onClick={() => setShowCreatePublication(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Publication
+          {t('publishingPage.createPublication')}
         </Button>
 
         {/* Create Publication Dialog */}
         <Dialog open={showCreatePublication} onOpenChange={setShowCreatePublication}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Publication</DialogTitle>
+              <DialogTitle>{t('publishingPage.createPublication')}</DialogTitle>
               <DialogDescription>
-                Set up your publication to start writing articles.
+                {t('publishingPage.createPublicationDescription')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="pubName">Publication Name</Label>
+                <Label htmlFor="pubName">{t('publishingPage.publicationName')}</Label>
                 <Input
                   id="pubName"
                   value={newPubName}
                   onChange={(e) => setNewPubName(e.target.value)}
-                  placeholder="My Awesome Publication"
+                  placeholder={t('publishingPage.publicationNamePlaceholder')}
                 />
               </div>
               <div>
-                <Label htmlFor="pubDesc">Description</Label>
+                <Label htmlFor="pubDesc">{t('publishingPage.description')}</Label>
                 <Textarea
                   id="pubDesc"
                   value={newPubDescription}
                   onChange={(e) => setNewPubDescription(e.target.value)}
-                  placeholder="What will you write about?"
+                  placeholder={t('publishingPage.descriptionPlaceholder')}
                   rows={3}
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreatePublication(false)}>
-                Cancel
+                {t('publishingPage.cancel')}
               </Button>
-              <Button onClick={handleCreatePublication}>Create Publication</Button>
+              <Button onClick={handleCreatePublication}>{t('publishingPage.createPublication')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -230,7 +231,7 @@ export const PublishingPage: FC<PublishingPageProps> = ({
         onPublish={() => {
           if (viewState.article) {
             publishArticle(viewState.article.id);
-            toast.success('Article published');
+            toast.success(t('publishingPage.articlePublished'));
             setViewState({ type: 'articles' });
           }
         }}
@@ -309,17 +310,17 @@ export const PublishingPage: FC<PublishingPageProps> = ({
                   rel="noopener noreferrer"
                 >
                   <Rss className="h-4 w-4 mr-2" />
-                  RSS Feed
+                  {t('publishingPage.rssFeed')}
                 </a>
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={() => setViewState({ type: 'settings' })}>
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              {t('publishingPage.settings')}
             </Button>
             <Button onClick={handleCreateArticle}>
               <Plus className="h-4 w-4 mr-2" />
-              New Article
+              {t('publishingPage.newArticle')}
             </Button>
           </div>
         </div>
@@ -328,25 +329,25 @@ export const PublishingPage: FC<PublishingPageProps> = ({
         <div className="grid gap-4 md:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Published</CardDescription>
+              <CardDescription>{t('publishingPage.published')}</CardDescription>
               <CardTitle className="text-3xl">{publishedCount}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Drafts</CardDescription>
+              <CardDescription>{t('publishingPage.drafts')}</CardDescription>
               <CardTitle className="text-3xl">{draftCount}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Subscribers</CardDescription>
+              <CardDescription>{t('publishingPage.subscribers')}</CardDescription>
               <CardTitle className="text-3xl">{activeSubscribers}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total Articles</CardDescription>
+              <CardDescription>{t('publishingPage.totalArticles')}</CardDescription>
               <CardTitle className="text-3xl">{pubArticles.length}</CardTitle>
             </CardHeader>
           </Card>
@@ -357,15 +358,15 @@ export const PublishingPage: FC<PublishingPageProps> = ({
           <TabsList>
             <TabsTrigger value="articles">
               <FileText className="h-4 w-4 mr-2" />
-              Articles
+              {t('publishingPage.articles')}
             </TabsTrigger>
             <TabsTrigger value="subscribers">
               <Users className="h-4 w-4 mr-2" />
-              Subscribers
+              {t('publishingPage.subscribers')}
             </TabsTrigger>
             <TabsTrigger value="analytics">
               <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
+              {t('publishingPage.analytics')}
             </TabsTrigger>
           </TabsList>
 
@@ -389,17 +390,17 @@ export const PublishingPage: FC<PublishingPageProps> = ({
           <TabsContent value="analytics">
             <Card>
               <CardHeader>
-                <CardTitle>Publication Analytics</CardTitle>
+                <CardTitle>{t('publishingPage.publicationAnalytics')}</CardTitle>
                 <CardDescription>
-                  View performance metrics for your publication
+                  {t('publishingPage.analyticsDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
                   <BarChart3 className="h-12 w-12 mx-auto mb-4" />
-                  <p>Analytics coming soon</p>
+                  <p>{t('publishingPage.analyticsComingSoon')}</p>
                   <p className="text-sm">
-                    View article performance, subscriber growth, and more.
+                    {t('publishingPage.analyticsComingSoonDescription')}
                   </p>
                 </div>
               </CardContent>
@@ -412,20 +413,20 @@ export const PublishingPage: FC<PublishingPageProps> = ({
       <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Article</DialogTitle>
+            <DialogTitle>{t('publishingPage.deleteArticle')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this article? This action cannot be undone.
+              {t('publishingPage.deleteArticleConfirm')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(null)}>
-              Cancel
+              {t('publishingPage.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={() => showDeleteConfirm && handleDeleteArticle(showDeleteConfirm)}
             >
-              Delete
+              {t('publishingPage.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

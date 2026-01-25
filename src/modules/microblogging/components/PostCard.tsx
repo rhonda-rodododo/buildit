@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { LazyMarkdown } from '@/components/markdown/LazyMarkdown';
 import { usePostsStore } from '../postsStore';
@@ -73,6 +74,7 @@ export const PostCard: FC<PostCardProps> = ({
   onCommentClick,
   className,
 }) => {
+  const { t } = useTranslation();
   const {
     addReaction,
     removeReaction,
@@ -186,7 +188,7 @@ export const PostCard: FC<PostCardProps> = ({
       {isPinned && (
         <div className="mb-2 flex items-center gap-1 text-xs text-muted-foreground">
           <Pin className="w-3 h-3" />
-          <span>Pinned post</span>
+          <span>{t('postCard.pinnedPost')}</span>
         </div>
       )}
 
@@ -195,7 +197,7 @@ export const PostCard: FC<PostCardProps> = ({
         <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-md flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
           <div className="flex-1 text-sm">
-            <span className="font-medium">Content Warning:</span> {post.contentWarning}
+            <span className="font-medium">{t('postCard.contentWarning')}</span> {post.contentWarning}
           </div>
         </div>
       )}
@@ -229,7 +231,7 @@ export const PostCard: FC<PostCardProps> = ({
         {/* More options */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label="More options">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label={t('postCard.moreOptions')}>
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -238,19 +240,19 @@ export const PostCard: FC<PostCardProps> = ({
               {isPinned ? (
                 <>
                   <PinOff className="w-4 h-4 mr-2" />
-                  Unpin from profile
+                  {t('postCard.unpinFromProfile')}
                 </>
               ) : (
                 <>
                   <Pin className="w-4 h-4 mr-2" />
-                  Pin to profile
+                  {t('postCard.pinToProfile')}
                 </>
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem>Copy link</DropdownMenuItem>
-            <DropdownMenuItem>Edit post</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Delete post</DropdownMenuItem>
-            <DropdownMenuItem>Report post</DropdownMenuItem>
+            <DropdownMenuItem>{t('postCard.copyLink')}</DropdownMenuItem>
+            <DropdownMenuItem>{t('postCard.editPost')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">{t('postCard.deletePost')}</DropdownMenuItem>
+            <DropdownMenuItem>{t('postCard.reportPost')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -318,12 +320,12 @@ export const PostCard: FC<PostCardProps> = ({
           <Popover>
             <PopoverTrigger asChild>
               <button className="hover:underline cursor-pointer">
-                {post.reactionCount} reaction{post.reactionCount !== 1 ? 's' : ''}
+                {t('postCard.reactionCount', { count: post.reactionCount })}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="space-y-3">
-                <h4 className="font-medium text-sm">Reactions</h4>
+                <h4 className="font-medium text-sm">{t('postCard.reactions')}</h4>
                 {Object.entries(reactionsByType).map(([type, userIds]) => (
                   <div key={type} className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -348,10 +350,10 @@ export const PostCard: FC<PostCardProps> = ({
           </Popover>
         )}
         {post.commentCount > 0 && (
-          <span>{post.commentCount} comment{post.commentCount !== 1 ? 's' : ''}</span>
+          <span>{t('postCard.commentCount', { count: post.commentCount })}</span>
         )}
         {post.repostCount > 0 && (
-          <span>{post.repostCount} repost{post.repostCount !== 1 ? 's' : ''}</span>
+          <span>{t('postCard.repostCount', { count: post.repostCount })}</span>
         )}
       </div>
 
@@ -367,7 +369,7 @@ export const PostCard: FC<PostCardProps> = ({
               aria-label={myReaction ? `Current reaction: ${myReaction}. Click to change` : 'Add reaction'}
             >
               {myReaction ? myReaction : <Heart className="w-4 h-4 sm:mr-2 shrink-0" />}
-              <span className="hidden sm:inline">React</span>
+              <span className="hidden sm:inline">{t('postCard.react')}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-2" side="top" align="start">
@@ -398,10 +400,10 @@ export const PostCard: FC<PostCardProps> = ({
             setShowComments(!showComments);
             onCommentClick?.();
           }}
-          aria-label="Comment"
+          aria-label={t('postCard.comment')}
         >
           <MessageCircle className="w-4 h-4 sm:mr-2 shrink-0" />
-          <span className="hidden sm:inline">Comment</span>
+          <span className="hidden sm:inline">{t('postCard.comment')}</span>
         </Button>
 
         {/* Repost button with dropdown */}
@@ -414,17 +416,17 @@ export const PostCard: FC<PostCardProps> = ({
               aria-label="Repost options"
             >
               <Repeat2 className="w-4 h-4 sm:mr-2 shrink-0" />
-              <span className="hidden sm:inline">Repost</span>
+              <span className="hidden sm:inline">{t('postCard.repost')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={handleRepost}>
               <Repeat2 className="w-4 h-4 mr-2" />
-              {isReposted ? 'Undo Repost' : 'Repost'}
+              {isReposted ? t('postCard.undoRepost') : t('postCard.repost')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowQuoteDialog(true)}>
               <Quote className="w-4 h-4 mr-2" />
-              Quote Post
+              {t('postCard.quotePost')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -435,15 +437,15 @@ export const PostCard: FC<PostCardProps> = ({
           size="sm"
           className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
           onClick={handleBookmark}
-          aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+          aria-label={isBookmarked ? t('postCard.removeBookmark') : t('postCard.bookmark')}
         >
           <Bookmark className={`w-4 h-4 shrink-0 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>
 
         {/* Share button */}
-        <Button variant="ghost" size="sm" className="flex-1 justify-center min-h-[44px] px-2 sm:px-3" aria-label="Share">
+        <Button variant="ghost" size="sm" className="flex-1 justify-center min-h-[44px] px-2 sm:px-3" aria-label={t('postCard.share')}>
           <Share2 className="w-4 h-4 sm:mr-2 shrink-0" />
-          <span className="hidden sm:inline">Share</span>
+          <span className="hidden sm:inline">{t('postCard.share')}</span>
         </Button>
       </div>
 
@@ -466,22 +468,22 @@ export const PostCard: FC<PostCardProps> = ({
       <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Quote Post</DialogTitle>
+            <DialogTitle>{t('postCard.quoteDialog.title')}</DialogTitle>
             <DialogDescription>
-              Add your thoughts to this post
+              {t('postCard.quoteDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Quote content input */}
             <div>
               <label htmlFor="quote-content" className="text-sm font-medium mb-2 block">
-                Your comment
+                {t('postCard.quoteDialog.yourComment')}
               </label>
               <textarea
                 id="quote-content"
                 value={quoteContent}
                 onChange={(e) => setQuoteContent(e.target.value)}
-                placeholder="What do you think about this?"
+                placeholder={t('postCard.quoteDialog.placeholder')}
                 className="w-full min-h-[100px] p-3 border rounded-md resize-y"
               />
             </div>
@@ -503,13 +505,13 @@ export const PostCard: FC<PostCardProps> = ({
             {/* Action buttons */}
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowQuoteDialog(false)}>
-                Cancel
+                {t('postCard.quoteDialog.cancel')}
               </Button>
               <Button
                 onClick={handleQuotePost}
                 disabled={!quoteContent.trim()}
               >
-                Quote Post
+                {t('postCard.quoteDialog.submit')}
               </Button>
             </div>
           </div>

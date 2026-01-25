@@ -5,6 +5,7 @@
 
 import { FC, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { PageMeta } from '@/components/PageMeta';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ interface WikiPage {
 }
 
 export const PublicWikiPage: FC = () => {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<WikiPage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -194,7 +196,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <PublicWikiHeader />
+        <PublicWikiHeader t={t} />
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-3">
@@ -214,14 +216,14 @@ Blocks must be addressed. They represent fundamental objections based on group v
   if (!page) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <PublicWikiHeader />
+        <PublicWikiHeader t={t} />
         <div className="container mx-auto px-4 py-12 max-w-6xl text-center">
-          <h1 className="text-3xl font-bold mb-4">Page Not Found</h1>
+          <h1 className="text-3xl font-bold mb-4">{t('publicWiki.pageNotFound')}</h1>
           <p className="text-muted-foreground mb-6">
-            The wiki page you're looking for doesn't exist or is not public.
+            {t('publicWiki.pageNotFoundDesc')}
           </p>
           <Button asChild>
-            <Link to="/wiki">Browse Wiki</Link>
+            <Link to="/wiki">{t('publicWiki.browseWiki')}</Link>
           </Button>
         </div>
       </div>
@@ -237,7 +239,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
         path={`/wiki/${page.slug}`}
         keywords={page.tags}
       />
-      <PublicWikiHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <PublicWikiHeader t={t} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="grid md:grid-cols-4 gap-8">
@@ -247,7 +249,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/wiki">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Wiki
+                  {t('publicWiki.backToWiki')}
                 </Link>
               </Button>
             </div>
@@ -267,10 +269,10 @@ Blocks must be addressed. They represent fundamental objections based on group v
 
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>Updated {format(page.updatedAt, 'MMM d, yyyy')}</span>
+                    <span>{t('publicWiki.updated', { date: format(page.updatedAt, 'MMM d, yyyy') })}</span>
                   </div>
 
-                  <span>Version {page.version}</span>
+                  <span>{t('publicWiki.version', { number: page.version })}</span>
                 </div>
 
                 {page.tags && page.tags.length > 0 && (
@@ -297,11 +299,11 @@ Blocks must be addressed. They represent fundamental objections based on group v
               <div className="mt-8 pt-6 border-t">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    This page is maintained by the community
+                    {t('publicWiki.maintainedByComm')}
                   </div>
                   <Button variant="outline" asChild>
                     <Link to="/login">
-                      Edit Page
+                      {t('publicWiki.editPage')}
                       <ExternalLink className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -316,7 +318,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
             <Card className="p-4">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
-                Popular Pages
+                {t('publicWiki.popularPages')}
               </h3>
               <ul className="space-y-2 text-sm">
                 <li>
@@ -324,7 +326,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
                     to="/wiki/security-best-practices"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Security Best Practices
+                    {t('publicWikiPage.popularPages.securityBestPractices')}
                   </Link>
                 </li>
                 <li>
@@ -332,7 +334,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
                     to="/wiki/power-mapping-guide"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Power Mapping Guide
+                    {t('publicWikiPage.popularPages.powerMappingGuide')}
                   </Link>
                 </li>
                 <li>
@@ -340,7 +342,7 @@ Blocks must be addressed. They represent fundamental objections based on group v
                     to="/wiki/consensus-decision-making"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Consensus Decision Making
+                    {t('publicWikiPage.popularPages.consensusDecisionMaking')}
                   </Link>
                 </li>
               </ul>
@@ -348,26 +350,26 @@ Blocks must be addressed. They represent fundamental objections based on group v
 
             {/* Categories */}
             <Card className="p-4">
-              <h3 className="font-semibold mb-3">Categories</h3>
+              <h3 className="font-semibold mb-3">{t('publicWiki.categories')}</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link to="/wiki/category/security" className="text-muted-foreground hover:text-foreground">
-                    Security
+                    {t('publicWikiPage.categories.security')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/wiki/category/strategy" className="text-muted-foreground hover:text-foreground">
-                    Strategy
+                    {t('publicWikiPage.categories.strategy')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/wiki/category/governance" className="text-muted-foreground hover:text-foreground">
-                    Governance
+                    {t('publicWikiPage.categories.governance')}
                   </Link>
                 </li>
                 <li>
                   <Link to="/wiki/category/legal" className="text-muted-foreground hover:text-foreground">
-                    Legal
+                    {t('publicWikiPage.categories.legal')}
                   </Link>
                 </li>
               </ul>
@@ -375,25 +377,26 @@ Blocks must be addressed. They represent fundamental objections based on group v
 
             {/* Call to Action */}
             <Card className="p-4 bg-primary/5 border-primary/20">
-              <h3 className="font-semibold mb-2">Join the Movement</h3>
+              <h3 className="font-semibold mb-2">{t('publicWiki.joinMovement')}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Get access to private organizing tools and connect with organizers.
+                {t('publicWiki.joinMovementDesc')}
               </p>
               <Button className="w-full" asChild>
-                <Link to="/login">Sign Up</Link>
+                <Link to="/login">{t('publicWiki.signUp')}</Link>
               </Button>
             </Card>
           </div>
         </div>
       </div>
 
-      <PublicFooter />
+      <PublicFooter t={t} />
     </div>
   );
 };
 
 // Public Wiki Header
-const PublicWikiHeader: FC<{ searchQuery?: string; onSearchChange?: (q: string) => void }> = ({
+const PublicWikiHeader: FC<{ t: (key: string) => string; searchQuery?: string; onSearchChange?: (q: string) => void }> = ({
+  t,
   searchQuery,
   onSearchChange
 }) => {
@@ -403,7 +406,7 @@ const PublicWikiHeader: FC<{ searchQuery?: string; onSearchChange?: (q: string) 
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="text-xl font-bold flex items-center gap-2">
             <BookOpen className="w-6 h-6" />
-            <span>BuildIt Wiki</span>
+            <span>{t('publicWiki.builditWiki')}</span>
           </Link>
 
           {onSearchChange && (
@@ -412,7 +415,7 @@ const PublicWikiHeader: FC<{ searchQuery?: string; onSearchChange?: (q: string) 
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search wiki..."
+                  placeholder={t('publicWiki.searchWiki')}
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
@@ -423,10 +426,10 @@ const PublicWikiHeader: FC<{ searchQuery?: string; onSearchChange?: (q: string) 
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" asChild>
-              <Link to="/campaigns">Campaigns</Link>
+              <Link to="/campaigns">{t('publicWiki.campaigns')}</Link>
             </Button>
             <Button asChild>
-              <Link to="/login">Login</Link>
+              <Link to="/login">{t('publicWiki.login')}</Link>
             </Button>
           </div>
         </div>
@@ -436,35 +439,35 @@ const PublicWikiHeader: FC<{ searchQuery?: string; onSearchChange?: (q: string) 
 };
 
 // Reuse footer from CampaignPage
-const PublicFooter: FC = () => {
+const PublicFooter: FC<{ t: (key: string) => string }> = ({ t }) => {
   return (
     <footer className="border-t bg-muted/30 mt-12">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="grid md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-bold mb-3">BuildIt Network</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.builditNetwork')}</h3>
             <p className="text-sm text-muted-foreground">
-              Privacy-first organizing platform for activists, unions, and community groups.
+              {t('publicWiki.builditDesc')}
             </p>
           </div>
           <div>
-            <h3 className="font-bold mb-3">Resources</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.resources')}</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/wiki" className="text-muted-foreground hover:text-foreground">Knowledge Base</Link></li>
-              <li><Link to="/about" className="text-muted-foreground hover:text-foreground">About</Link></li>
-              <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+              <li><Link to="/wiki" className="text-muted-foreground hover:text-foreground">{t('publicWiki.knowledgeBase')}</Link></li>
+              <li><Link to="/about" className="text-muted-foreground hover:text-foreground">{t('publicWiki.about')}</Link></li>
+              <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">{t('publicWiki.privacyPolicy')}</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold mb-3">Contact</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.contact')}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Built with privacy & security first</li>
-              <li>Powered by Nostr protocol</li>
+              <li>{t('publicWiki.builtWithPrivacy')}</li>
+              <li>{t('publicWiki.poweredByNostr')}</li>
             </ul>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} BuildIt Network. Free and open source.</p>
+          <p>&copy; {new Date().getFullYear()} {t('publicWiki.builditNetwork')}. {t('publicWiki.freeOpenSource')}</p>
         </div>
       </div>
     </footer>

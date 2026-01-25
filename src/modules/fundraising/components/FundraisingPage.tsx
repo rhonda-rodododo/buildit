@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -39,6 +40,7 @@ import type { Campaign, DonationTier } from '../types';
 type ViewMode = 'list' | 'builder' | 'preview' | 'donors' | 'analytics' | 'templates';
 
 export function FundraisingPage() {
+  const { t } = useTranslation();
   const { groupId } = useGroupContext();
   const currentIdentity = useAuthStore((state) => state.currentIdentity);
   const campaigns = useFundraisingStore((state) => state.getCampaignsByGroup(groupId));
@@ -190,7 +192,7 @@ export function FundraisingPage() {
       <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Campaigns
+            ← {t('fundraising.backToCampaigns')}
           </Button>
         </div>
         <PublicCampaignView
@@ -207,7 +209,7 @@ export function FundraisingPage() {
       <div className="h-full p-4 space-y-6 overflow-y-auto">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Campaigns
+            ← {t('fundraising.backToCampaigns')}
           </Button>
         </div>
         <DonorsList campaign={selectedCampaign} />
@@ -220,7 +222,7 @@ export function FundraisingPage() {
       <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Campaigns
+            ← {t('fundraising.backToCampaigns')}
           </Button>
         </div>
         <AnalyticsDashboard resourceType="campaign" resourceId={selectedCampaign.id} />
@@ -233,7 +235,7 @@ export function FundraisingPage() {
       <div className="h-full p-4 space-y-6 overflow-y-auto">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Campaigns
+            ← {t('fundraising.backToCampaigns')}
           </Button>
         </div>
         <TemplateGallery
@@ -278,18 +280,18 @@ export function FundraisingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Fundraising</h1>
+          <h1 className="text-3xl font-bold">{t('fundraising.title')}</h1>
           <p className="text-muted-foreground">
-            Create and manage fundraising campaigns for your organization
+            {t('fundraising.description')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setViewMode('templates')}>
-            View Templates
+            {t('fundraising.viewTemplates')}
           </Button>
           <Button onClick={handleCreateCampaign}>
             <Plus className="h-4 w-4 mr-2" />
-            New Campaign
+            {t('fundraising.newCampaign')}
           </Button>
         </div>
       </div>
@@ -298,17 +300,17 @@ export function FundraisingPage() {
       {campaigns.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="max-w-md mx-auto space-y-4">
-            <h3 className="text-lg font-semibold">No campaigns yet</h3>
+            <h3 className="text-lg font-semibold">{t('fundraising.noCampaigns')}</h3>
             <p className="text-muted-foreground">
-              Create your first fundraising campaign to support strike funds, bail funds, mutual aid, and more.
+              {t('fundraising.noCampaignsDescription')}
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={handleCreateCampaign}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Campaign
+                {t('fundraising.createCampaign')}
               </Button>
               <Button variant="outline" onClick={() => setViewMode('templates')}>
-                Browse Templates
+                {t('fundraising.browseTemplates')}
               </Button>
             </div>
           </div>
@@ -336,33 +338,33 @@ export function FundraisingPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEditCampaign(campaign)}>
                         <Edit className="h-4 w-4 mr-2" />
-                        Edit
+                        {t('fundraising.edit')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handlePreviewCampaign(campaign)}>
                         <Eye className="h-4 w-4 mr-2" />
-                        Preview
+                        {t('fundraising.preview')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleViewDonors(campaign)}>
                         <Users className="h-4 w-4 mr-2" />
-                        Donors
+                        {t('fundraising.donors')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleViewAnalytics(campaign)}>
                         <BarChart className="h-4 w-4 mr-2" />
-                        Analytics
+                        {t('fundraising.analytics')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleCopyLink(campaign)}>
                         <Copy className="h-4 w-4 mr-2" />
-                        Copy Link
+                        {t('fundraising.copyLink')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handlePublishToggle(campaign)}>
-                        {campaign.status === 'active' ? 'Pause' : 'Publish'}
+                        {campaign.status === 'active' ? t('fundraising.pause') : t('fundraising.publish')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(campaign)}
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        {t('common.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -372,10 +374,10 @@ export function FundraisingPage() {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{formatCurrency(progress.current, campaign.currency)}</span>
-                    <span className="text-muted-foreground">of {formatCurrency(progress.goal, campaign.currency)}</span>
+                    <span className="text-muted-foreground">{t('fundraising.of')} {formatCurrency(progress.goal, campaign.currency)}</span>
                   </div>
                   <Progress value={progress.percentage} className="h-2" />
-                  <p className="text-xs text-muted-foreground">{progress.percentage}% funded</p>
+                  <p className="text-xs text-muted-foreground">{progress.percentage}% {t('fundraising.funded')}</p>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -385,11 +387,11 @@ export function FundraisingPage() {
                 <div className="mt-4 pt-4 border-t flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => handleEditCampaign(campaign)}>
                     <Edit className="h-3 w-3 mr-1" />
-                    Edit
+                    {t('fundraising.edit')}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => handlePreviewCampaign(campaign)}>
                     <Eye className="h-3 w-3 mr-1" />
-                    Preview
+                    {t('fundraising.preview')}
                   </Button>
                 </div>
               </Card>
@@ -402,15 +404,15 @@ export function FundraisingPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Campaign</AlertDialogTitle>
+            <AlertDialogTitle>{t('fundraising.deleteCampaign')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{campaignToDelete?.title}"? This will also delete all donations and updates. This action cannot be undone.
+              {t('fundraising.deleteCampaignConfirm', { title: campaignToDelete?.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

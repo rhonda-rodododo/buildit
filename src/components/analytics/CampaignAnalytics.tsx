@@ -4,6 +4,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -92,6 +93,8 @@ const DEMO_DATA = {
 };
 
 export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => {
+  const { t } = useTranslation();
+
   const handleExportCSV = () => {
     // Generate CSV data
     const csvRows = [
@@ -149,14 +152,14 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Campaign Analytics</h2>
+          <h2 className="text-2xl font-bold">{t('campaignAnalytics.title')}</h2>
           <p className="text-muted-foreground">
-            Track campaign performance and engagement trends
+            {t('campaignAnalytics.description')}
           </p>
         </div>
         <Button onClick={handleExportCSV} variant="outline">
           <Download className="w-4 h-4 mr-2" />
-          Export CSV
+          {t('campaignAnalytics.exportCSV')}
         </Button>
       </div>
 
@@ -168,10 +171,10 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
               <Users className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Members</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.totalMembers')}</p>
               <p className="text-2xl font-bold">{DEMO_DATA.membershipGrowth.total}</p>
               <p className="text-xs text-green-500">
-                +{DEMO_DATA.membershipGrowth.thisMonth} this month
+                +{DEMO_DATA.membershipGrowth.thisMonth} {t('campaignAnalytics.thisMonth')}
               </p>
             </div>
           </div>
@@ -183,10 +186,10 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
               <Calendar className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Avg Event Attendance</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.avgEventAttendance')}</p>
               <p className="text-2xl font-bold">{DEMO_DATA.eventMetrics.avgAttendance}</p>
               <p className="text-xs text-muted-foreground">
-                {DEMO_DATA.eventMetrics.showUpRate} show-up rate
+                {DEMO_DATA.eventMetrics.showUpRate} {t('campaignAnalytics.showUpRate')}
               </p>
             </div>
           </div>
@@ -198,10 +201,10 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
               <Vote className="w-6 h-6 text-purple-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Vote Turnout</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.voteTurnout')}</p>
               <p className="text-2xl font-bold">{DEMO_DATA.governanceMetrics.avgTurnout}</p>
               <p className="text-xs text-muted-foreground">
-                {DEMO_DATA.governanceMetrics.activeVotes} active votes
+                {DEMO_DATA.governanceMetrics.activeVotes} {t('campaignAnalytics.activeVotes')}
               </p>
             </div>
           </div>
@@ -213,10 +216,10 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
               <Heart className="w-6 h-6 text-green-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Engagement Rate</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.engagementRate')}</p>
               <p className="text-2xl font-bold">{DEMO_DATA.engagementMetrics.avgEngagementRate}</p>
               <p className="text-xs text-muted-foreground">
-                {DEMO_DATA.engagementMetrics.reactions} reactions
+                {DEMO_DATA.engagementMetrics.reactions} {t('campaignAnalytics.reactions')}
               </p>
             </div>
           </div>
@@ -227,7 +230,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
-          Membership Growth
+          {t('campaignAnalytics.membershipGrowth')}
         </h3>
 
         <div className="space-y-4">
@@ -253,17 +256,17 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
 
           <div className="grid grid-cols-3 gap-4 pt-4 border-t">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">This Month</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.thisMonth')}</p>
               <p className="text-xl font-bold text-green-500">
                 +{DEMO_DATA.membershipGrowth.thisMonth}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">Last Month</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.lastMonth')}</p>
               <p className="text-xl font-bold">+{DEMO_DATA.membershipGrowth.lastMonth}</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">Growth</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.growth')}</p>
               <p className="text-xl font-bold text-green-500">
                 {DEMO_DATA.membershipGrowth.trend}
               </p>
@@ -277,7 +280,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            Event Attendance
+            {t('campaignAnalytics.eventAttendance')}
           </h3>
 
           <div className="space-y-3">
@@ -288,9 +291,9 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
                   <span className="text-xs text-muted-foreground">{event.rate}</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span>RSVP: {event.rsvp}</span>
+                  <span>{t('campaignAnalytics.rsvp')}: {event.rsvp}</span>
                   <span>•</span>
-                  <span>Actual: {event.actual}</span>
+                  <span>{t('campaignAnalytics.actual')}: {event.actual}</span>
                 </div>
               </div>
             ))}
@@ -298,11 +301,11 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
 
           <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-sm text-muted-foreground">RSVP Rate</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.rsvpRate')}</p>
               <p className="text-xl font-bold">{DEMO_DATA.eventMetrics.rsvpRate}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Show-Up Rate</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.showUpRateLabel')}</p>
               <p className="text-xl font-bold">{DEMO_DATA.eventMetrics.showUpRate}</p>
             </div>
           </div>
@@ -312,7 +315,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Vote className="w-5 h-5" />
-            Governance Participation
+            {t('campaignAnalytics.governanceParticipation')}
           </h3>
 
           <div className="space-y-3">
@@ -327,21 +330,21 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
                         : 'bg-blue-500/10 text-blue-500'
                     }`}
                   >
-                    {vote.outcome}
+                    {vote.outcome === 'Passed' ? t('campaignAnalytics.passed') : t('campaignAnalytics.discussion')}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">Turnout: {vote.turnout}</p>
+                <p className="text-xs text-muted-foreground">{t('campaignAnalytics.turnout')}: {vote.turnout}</p>
               </div>
             ))}
           </div>
 
           <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-sm text-muted-foreground">Avg Turnout</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.avgTurnout')}</p>
               <p className="text-xl font-bold">{DEMO_DATA.governanceMetrics.avgTurnout}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Consensus Rate</p>
+              <p className="text-sm text-muted-foreground">{t('campaignAnalytics.consensusRate')}</p>
               <p className="text-xl font-bold">{DEMO_DATA.governanceMetrics.consensusRate}</p>
             </div>
           </div>
@@ -352,25 +355,25 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
-          Engagement Trends
+          {t('campaignAnalytics.engagementTrends')}
         </h3>
 
         <div className="grid md:grid-cols-3 gap-6 mb-6">
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <p className="text-3xl font-bold">{DEMO_DATA.engagementMetrics.posts}</p>
-            <p className="text-sm text-muted-foreground">Posts</p>
+            <p className="text-sm text-muted-foreground">{t('campaignAnalytics.posts')}</p>
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <p className="text-3xl font-bold">{DEMO_DATA.engagementMetrics.reactions}</p>
-            <p className="text-sm text-muted-foreground">Reactions</p>
+            <p className="text-sm text-muted-foreground">{t('campaignAnalytics.reactions')}</p>
           </div>
           <div className="text-center p-4 bg-muted/50 rounded-lg">
             <p className="text-3xl font-bold">{DEMO_DATA.engagementMetrics.comments}</p>
-            <p className="text-sm text-muted-foreground">Comments</p>
+            <p className="text-sm text-muted-foreground">{t('campaignAnalytics.comments')}</p>
           </div>
         </div>
 
-        <h4 className="text-sm font-semibold mb-3">Top Contributors</h4>
+        <h4 className="text-sm font-semibold mb-3">{t('campaignAnalytics.topContributors')}</h4>
         <div className="space-y-2">
           {DEMO_DATA.engagementMetrics.topContributors.map((contributor, idx) => (
             <div key={contributor.name} className="flex items-center gap-3">
@@ -379,7 +382,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
               </span>
               <span className="flex-1 text-sm font-medium">{contributor.name}</span>
               <span className="text-xs text-muted-foreground">
-                {contributor.posts} posts • {contributor.reactions} reactions
+                {t('campaignAnalytics.postsReactions', { posts: contributor.posts, reactions: contributor.reactions })}
               </span>
             </div>
           ))}
@@ -390,7 +393,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" data-testid="trophy-icon" />
-          Campaign Wins
+          {t('campaignAnalytics.campaignWins')}
         </h3>
 
         <div className="space-y-4">
@@ -405,7 +408,7 @@ export const CampaignAnalytics: FC<CampaignAnalyticsProps> = ({ className }) => 
                       : 'bg-blue-500/10 text-blue-500'
                   }`}
                 >
-                  {win.impact} Impact
+                  {win.impact === 'Major' ? t('campaignAnalytics.majorImpact') : t('campaignAnalytics.moderateImpact')}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mb-1">{win.description}</p>

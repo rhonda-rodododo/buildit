@@ -3,6 +3,7 @@
  * Rich text editor for creating/editing public pages
  */
 
+import { useTranslation } from 'react-i18next';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -49,6 +50,7 @@ interface PublicPageEditorProps {
 }
 
 export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPageEditorProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(page?.title || '');
   const [slug, setSlug] = useState(page?.slug || '');
   const [type, setType] = useState<PageType>(page?.type || 'custom');
@@ -80,7 +82,7 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
       TableHeader,
       TableCell,
       Placeholder.configure({
-        placeholder: 'Write your page content here...',
+        placeholder: t('publicPageEditor.placeholderText'),
       }),
     ],
     content: page?.content || '',
@@ -98,7 +100,6 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: auto-slug from title
       setSlug(autoSlug);
     }
   }, [title, page]);
@@ -134,28 +135,28 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">
-            {page ? 'Edit Page' : 'Create Page'}
+            {page ? t('publicPageEditor.editPage') : t('publicPageEditor.createPage')}
           </h2>
           <p className="text-muted-foreground">
-            Create SEO-optimized public pages
+            {t('publicPageEditor.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setPreview(!preview)}>
             <Eye className="h-4 w-4 mr-2" />
-            {preview ? 'Edit' : 'Preview'}
+            {preview ? t('publicPageEditor.edit') : t('publicPageEditor.preview')}
           </Button>
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('publicPageEditor.cancel')}
           </Button>
           <Button onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
-            Save Draft
+            {t('publicPageEditor.saveDraft')}
           </Button>
           {status === 'draft' && (
             <Button onClick={handlePublish}>
               <Globe className="h-4 w-4 mr-2" />
-              Publish
+              {t('publicPageEditor.publish')}
             </Button>
           )}
         </div>
@@ -163,9 +164,9 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
 
       <Tabs defaultValue="content" className="w-full">
         <TabsList>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="content">{t('publicPageEditor.tabs.content')}</TabsTrigger>
+          <TabsTrigger value="seo">{t('publicPageEditor.tabs.seo')}</TabsTrigger>
+          <TabsTrigger value="settings">{t('publicPageEditor.tabs.settings')}</TabsTrigger>
         </TabsList>
 
         {/* Content Tab */}
@@ -173,18 +174,18 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
           {/* Basic Fields */}
           <Card className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Page Title</Label>
+              <Label htmlFor="title">{t('publicPageEditor.pageTitle')}</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter page title"
+                placeholder={t('publicPageEditor.titlePlaceholder')}
                 className="text-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="slug">URL Slug</Label>
+              <Label htmlFor="slug">{t('publicPageEditor.urlSlug')}</Label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   yoursite.com/
@@ -193,27 +194,27 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
                   id="slug"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  placeholder="page-slug"
+                  placeholder={t('publicPageEditor.slugPlaceholder')}
                   pattern="[a-z0-9-]+"
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Lowercase letters, numbers, and hyphens only
+                {t('publicPageEditor.slugHelp')}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Page Type</Label>
+              <Label htmlFor="type">{t('publicPageEditor.pageType')}</Label>
               <Select value={type} onValueChange={(v) => setType(v as PageType)}>
                 <SelectTrigger id="type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="landing">Landing Page</SelectItem>
-                  <SelectItem value="about">About Page</SelectItem>
-                  <SelectItem value="events">Events Calendar</SelectItem>
-                  <SelectItem value="contact">Contact Page</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
+                  <SelectItem value="landing">{t('publicPageEditor.pageTypes.landing')}</SelectItem>
+                  <SelectItem value="about">{t('publicPageEditor.pageTypes.about')}</SelectItem>
+                  <SelectItem value="events">{t('publicPageEditor.pageTypes.events')}</SelectItem>
+                  <SelectItem value="contact">{t('publicPageEditor.pageTypes.contact')}</SelectItem>
+                  <SelectItem value="custom">{t('publicPageEditor.pageTypes.custom')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -347,24 +348,24 @@ export function PublicPageEditor({ page, onSave, onCancel, groupId }: PublicPage
         <TabsContent value="settings">
           <Card className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="status">Page Status</Label>
+              <Label htmlFor="status">{t('publicPageEditor.pageStatus')}</Label>
               <Select value={status} onValueChange={(v) => setStatus(v as PageStatus)}>
                 <SelectTrigger id="status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="draft">{t('publicPageEditor.statuses.draft')}</SelectItem>
+                  <SelectItem value="published">{t('publicPageEditor.statuses.published')}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Draft pages are only visible to group admins
+                {t('publicPageEditor.draftVisibility')}
               </p>
             </div>
 
             {page?.publishedAt && (
               <div className="text-sm text-muted-foreground">
-                Published: {new Date(page.publishedAt).toLocaleString()}
+                {t('publicPageEditor.publishedDate', { date: new Date(page.publishedAt).toLocaleString() })}
               </div>
             )}
           </Card>

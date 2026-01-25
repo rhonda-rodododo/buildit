@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Hash, Plus, Trash2, Lock, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ interface ChannelManagerProps {
 }
 
 export function ChannelManager({ groupId }: ChannelManagerProps) {
+  const { t } = useTranslation();
   const { getChannels, createChannel, deleteChannel } = useGroupEntityStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState('');
@@ -51,7 +53,6 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
   }, [getChannels, groupId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data loading pattern
     loadChannels();
   }, [loadChannels]);
 
@@ -80,7 +81,7 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this channel?')) return;
+    if (!confirm(t('channelManager.confirmDelete'))) return;
 
     try {
       await deleteChannel(id);
@@ -97,72 +98,72 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Hash className="h-5 w-5" />
-              Channels
+              {t('channelManager.title')}
             </CardTitle>
             <CardDescription>
-              Role-based channels for organized communication
+              {t('channelManager.description')}
             </CardDescription>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                New Channel
+                {t('channelManager.newChannel')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create Channel</DialogTitle>
+                <DialogTitle>{t('channelManager.createDialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Create a role-based channel for focused communication
+                  {t('channelManager.createDialog.description')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="channel-name">Channel Name</Label>
+                  <Label htmlFor="channel-name">{t('channelManager.createDialog.nameLabel')}</Label>
                   <Input
                     id="channel-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., leadership, volunteers"
+                    placeholder={t('channelManager.createDialog.namePlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="channel-description">Description</Label>
+                  <Label htmlFor="channel-description">{t('channelManager.createDialog.descriptionLabel')}</Label>
                   <Textarea
                     id="channel-description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="What is this channel for?"
+                    placeholder={t('channelManager.createDialog.descriptionPlaceholder')}
                     rows={2}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="channel-type">Channel Type</Label>
+                  <Label htmlFor="channel-type">{t('channelManager.createDialog.typeLabel')}</Label>
                   <Select value={type} onValueChange={(v) => setType(v as Channel['type'])}>
                     <SelectTrigger id="channel-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="public">Public (Everyone)</SelectItem>
-                      <SelectItem value="member">Members Only</SelectItem>
-                      <SelectItem value="admin-only">Admins Only</SelectItem>
-                      <SelectItem value="role-based">Role-Based</SelectItem>
+                      <SelectItem value="public">{t('channelManager.types.public')}</SelectItem>
+                      <SelectItem value="member">{t('channelManager.types.member')}</SelectItem>
+                      <SelectItem value="admin-only">{t('channelManager.types.adminOnly')}</SelectItem>
+                      <SelectItem value="role-based">{t('channelManager.types.roleBased')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {type === 'public' && 'Anyone can read and post'}
-                    {type === 'member' && 'All group members can participate'}
-                    {type === 'admin-only' && 'Only admins can read and post'}
-                    {type === 'role-based' && 'Custom permissions per role'}
+                    {type === 'public' && t('channelManager.typeDescriptions.public')}
+                    {type === 'member' && t('channelManager.typeDescriptions.member')}
+                    {type === 'admin-only' && t('channelManager.typeDescriptions.adminOnly')}
+                    {type === 'role-based' && t('channelManager.typeDescriptions.roleBased')}
                   </p>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                    Cancel
+                    {t('channelManager.buttons.cancel')}
                   </Button>
                   <Button onClick={handleCreate} disabled={!name.trim()}>
-                    Create Channel
+                    {t('channelManager.buttons.create')}
                   </Button>
                 </div>
               </div>
@@ -174,9 +175,9 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
         {groupChannels.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Hash className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p>No channels yet</p>
+            <p>{t('channelManager.empty.title')}</p>
             <p className="text-sm mt-1">
-              Create channels to organize conversations by role or topic
+              {t('channelManager.empty.description')}
             </p>
           </div>
         ) : (
@@ -186,6 +187,7 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
                 key={channel.id}
                 channel={channel}
                 onDelete={handleDelete}
+                t={t}
               />
             ))}
           </div>
@@ -198,9 +200,10 @@ export function ChannelManager({ groupId }: ChannelManagerProps) {
 interface ChannelCardProps {
   channel: Channel;
   onDelete: (id: string) => void;
+  t: (key: string) => string;
 }
 
-function ChannelCard({ channel, onDelete }: ChannelCardProps) {
+function ChannelCard({ channel, onDelete, t }: ChannelCardProps) {
   const getIcon = () => {
     switch (channel.type) {
       case 'public':
@@ -215,13 +218,13 @@ function ChannelCard({ channel, onDelete }: ChannelCardProps) {
   const getTypeLabel = () => {
     switch (channel.type) {
       case 'public':
-        return 'Public';
+        return t('channelManager.typeLabels.public');
       case 'member':
-        return 'Members';
+        return t('channelManager.typeLabels.member');
       case 'admin-only':
-        return 'Admins';
+        return t('channelManager.typeLabels.adminOnly');
       case 'role-based':
-        return 'Role-based';
+        return t('channelManager.typeLabels.roleBased');
     }
   };
 

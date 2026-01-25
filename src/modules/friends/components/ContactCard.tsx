@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,15 +43,16 @@ const TRUST_TIER_COLORS: Record<TrustTier, string> = {
   trusted: 'bg-yellow-500',
 };
 
-const TRUST_TIER_LABELS: Record<TrustTier, string> = {
-  stranger: 'Stranger',
-  contact: 'Contact',
-  friend: 'Friend',
-  verified: 'Verified',
-  trusted: 'Trusted',
+const TRUST_TIER_LABEL_KEYS: Record<TrustTier, string> = {
+  stranger: 'contactCard.trustTiers.stranger',
+  contact: 'contactCard.trustTiers.contact',
+  friend: 'contactCard.trustTiers.friend',
+  verified: 'contactCard.trustTiers.verified',
+  trusted: 'contactCard.trustTiers.trusted',
 };
 
 export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardProps) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const { toggleFavorite, removeFriend, blockFriend } = useFriendsStore();
 
@@ -72,7 +74,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
   };
 
   const handleRemove = async () => {
-    if (confirm(`Remove ${displayName} from your contacts?`)) {
+    if (confirm(t('contactCard.confirmRemove', { name: displayName }))) {
       setIsLoading(true);
       try {
         await removeFriend(friend.id);
@@ -83,7 +85,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
   };
 
   const handleBlock = async () => {
-    if (confirm(`Block ${displayName}? You won't see their content anymore.`)) {
+    if (confirm(t('contactCard.confirmBlock', { name: displayName }))) {
       setIsLoading(true);
       try {
         await blockFriend(friend.id);
@@ -110,7 +112,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
               <h3 className="font-semibold truncate">{displayName}</h3>
               {friend.isFavorite && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
               {friend.verifiedInPerson && (
-                <ShieldCheck className="h-4 w-4 text-green-500" aria-label="Verified in person" />
+                <ShieldCheck className="h-4 w-4 text-green-500" aria-label={t('contactCard.verifiedInPerson')} />
               )}
             </div>
 
@@ -124,7 +126,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
                 variant="secondary"
                 className={`text-xs ${TRUST_TIER_COLORS[friend.trustTier]} text-white`}
               >
-                {TRUST_TIER_LABELS[friend.trustTier]}
+                {t(TRUST_TIER_LABEL_KEYS[friend.trustTier])}
               </Badge>
               {friend.tags.slice(0, 3).map((tag) => (
                 <Badge key={tag} variant="outline" className="text-xs">
@@ -151,7 +153,7 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
               variant="ghost"
               onClick={onMessage}
               disabled={isLoading}
-              title="Send message"
+              title={t('contactCard.sendMessage')}
               data-testid="contact-message-button"
             >
               <MessageCircle className="h-4 w-4" />
@@ -166,29 +168,29 @@ export function ContactCard({ friend, onMessage, onViewProfile }: ContactCardPro
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={onViewProfile}>
                   <Eye className="mr-2 h-4 w-4" />
-                  View Profile
+                  {t('contactCard.viewProfile')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleToggleFavorite}>
                   {friend.isFavorite ? (
                     <>
                       <StarOff className="mr-2 h-4 w-4" />
-                      Remove from Favorites
+                      {t('contactCard.removeFromFavorites')}
                     </>
                   ) : (
                     <>
                       <Star className="mr-2 h-4 w-4" />
-                      Add to Favorites
+                      {t('contactCard.addToFavorites')}
                     </>
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleBlock} className="text-orange-600">
                   <Ban className="mr-2 h-4 w-4" />
-                  Block Contact
+                  {t('contactCard.blockContact')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleRemove} className="text-destructive">
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Remove Contact
+                  {t('contactCard.removeContact')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

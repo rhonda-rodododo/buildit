@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -45,11 +46,9 @@ const PERMISSION_ICONS: Record<DocumentPermission, typeof Eye> = {
   admin: Shield,
 }
 
-const PERMISSION_LABELS: Record<DocumentPermission, string> = {
-  view: 'View',
-  comment: 'Comment',
-  edit: 'Edit',
-  admin: 'Admin',
+// Permission labels are now handled via translations
+const getPermissionLabel = (t: (key: string) => string, permission: DocumentPermission) => {
+  return t(`documentsAccessRequestsPanel.permissions.${permission}`)
 }
 
 export function AccessRequestsPanel({
@@ -58,6 +57,7 @@ export function AccessRequestsPanel({
   groupId,
   currentUserPubkey,
 }: AccessRequestsPanelProps) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
@@ -134,7 +134,7 @@ export function AccessRequestsPanel({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Pending Access Requests
+            {t('documentsAccessRequestsPanel.title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -146,9 +146,9 @@ export function AccessRequestsPanel({
           ) : requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No pending requests</p>
+              <p className="text-muted-foreground">{t('documentsAccessRequestsPanel.noPending')}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Access requests will appear here
+                {t('documentsAccessRequestsPanel.requestsWillAppear')}
               </p>
             </div>
           ) : (
@@ -175,7 +175,7 @@ export function AccessRequestsPanel({
                             </span>
                             <Badge variant="outline" className="gap-1 shrink-0">
                               <PermissionIcon className="h-3 w-3" />
-                              {PERMISSION_LABELS[request.requestedPermission]}
+                              {getPermissionLabel(t, request.requestedPermission)}
                             </Badge>
                           </div>
 
@@ -191,7 +191,7 @@ export function AccessRequestsPanel({
                           )}
 
                           <p className="text-xs text-muted-foreground mt-2">
-                            Requested {formatDistanceToNow(request.createdAt, { addSuffix: true })}
+                            {t('documentsAccessRequestsPanel.requested', { time: formatDistanceToNow(request.createdAt, { addSuffix: true }) })}
                           </p>
                         </div>
 

@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -37,6 +38,8 @@ export const ArticleView: FC<ArticleViewProps> = ({
   onRecordView,
   className,
 }) => {
+  const { t } = useTranslation();
+
   // Record view on mount
   useEffect(() => {
     if (onRecordView) {
@@ -50,7 +53,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
   const handleCopyLink = async () => {
     const url = `${window.location.origin}/p/${publication.slug}/${article.slug}`;
     await navigator.clipboard.writeText(url);
-    toast.success('Link copied to clipboard');
+    toast.success(t('articleView.share.linkCopied'));
   };
 
   const handleShareTwitter = () => {
@@ -71,7 +74,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
       <div className="mb-6">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to {publication.name}
+          {t('articleView.backTo', { publicationName: publication.name })}
         </Button>
       </div>
 
@@ -138,7 +141,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
               <span className="text-muted-foreground">·</span>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="h-4 w-4" />
-                <span>{article.readingTimeMinutes} min read</span>
+                <span>{t('articleView.minRead', { minutes: article.readingTimeMinutes })}</span>
               </div>
             </>
           )}
@@ -150,8 +153,8 @@ export const ArticleView: FC<ArticleViewProps> = ({
             <BookOpen className="h-5 w-5" />
             <span>
               {article.visibility === 'subscribers'
-                ? 'This article is for subscribers only'
-                : 'This article is for paid subscribers only'}
+                ? t('articleView.visibility.subscribers')
+                : t('articleView.visibility.paid')}
             </span>
           </div>
         )}
@@ -167,19 +170,19 @@ export const ArticleView: FC<ArticleViewProps> = ({
 
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold mb-1">Share this article</h3>
+            <h3 className="font-semibold mb-1">{t('articleView.share.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Help spread the word
+              {t('articleView.share.helpSpread')}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleCopyLink}>
               <LinkIcon className="h-4 w-4 mr-2" />
-              Copy Link
+              {t('articleView.share.copyLink')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleShareTwitter}>
               <Twitter className="h-4 w-4 mr-2" />
-              Twitter
+              {t('articleView.share.twitter')}
             </Button>
           </div>
         </div>
@@ -200,7 +203,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
               <h3 className="font-semibold text-lg mb-1">{publication.name}</h3>
               <p className="text-muted-foreground mb-4">{publication.description}</p>
               <Button variant="default" size="sm">
-                Subscribe
+                {t('articleView.subscribe')}
               </Button>
             </div>
           </div>

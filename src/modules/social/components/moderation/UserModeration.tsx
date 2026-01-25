@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,39 +61,13 @@ interface UserModerationProps {
   onAction?: (action: 'mute' | 'unmute' | 'block' | 'unblock' | 'report') => void;
 }
 
-const MUTE_DURATIONS = [
-  { value: '60', label: '1 hour' },
-  { value: '1440', label: '1 day' },
-  { value: '10080', label: '1 week' },
-  { value: '43200', label: '1 month' },
-  { value: '', label: 'Indefinitely' },
-];
-
-const MUTE_SCOPES: { value: MuteRecord['muteScope']; label: string }[] = [
-  { value: 'all', label: 'All content (posts, comments, DMs)' },
-  { value: 'posts', label: 'Posts only' },
-  { value: 'comments', label: 'Comments only' },
-  { value: 'dms', label: 'Direct messages only' },
-];
-
-const REPORT_REASONS: { value: ReportReason; label: string; description: string }[] = [
-  { value: 'spam', label: 'Spam', description: 'Repetitive or unwanted content' },
-  { value: 'harassment', label: 'Harassment', description: 'Targeting or intimidating behavior' },
-  { value: 'hate-speech', label: 'Hate Speech', description: 'Content that promotes discrimination' },
-  { value: 'violence', label: 'Violence', description: 'Content promoting violence or harm' },
-  { value: 'misinformation', label: 'Misinformation', description: 'False or misleading information' },
-  { value: 'illegal-content', label: 'Illegal Content', description: 'Content that may be illegal' },
-  { value: 'impersonation', label: 'Impersonation', description: 'Pretending to be someone else' },
-  { value: 'self-harm', label: 'Self-Harm', description: 'Content promoting self-harm' },
-  { value: 'other', label: 'Other', description: 'Something else' },
-];
-
 export const UserModeration: FC<UserModerationProps> = ({
   targetPubkey,
   targetDisplayName,
   trigger,
   onAction,
 }) => {
+  const { t } = useTranslation();
   const {
     muteUser,
     unmuteUser,
@@ -126,13 +101,13 @@ export const UserModeration: FC<UserModerationProps> = ({
     try {
       const duration = muteDuration ? parseInt(muteDuration) : undefined;
       await muteUser(targetPubkey, muteReason || undefined, duration, muteScope);
-      toast.success(`${displayName} has been muted`);
+      toast.success(t('userModeration.toasts.muted', { name: displayName }));
       setShowMuteDialog(false);
       resetMuteForm();
       onAction?.('mute');
     } catch (error) {
       console.error('Failed to mute user:', error);
-      toast.error('Failed to mute user');
+      toast.error(t('userModeration.toasts.muteFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -142,11 +117,11 @@ export const UserModeration: FC<UserModerationProps> = ({
     setIsProcessing(true);
     try {
       await unmuteUser(targetPubkey);
-      toast.success(`${displayName} has been unmuted`);
+      toast.success(t('userModeration.toasts.unmuted', { name: displayName }));
       onAction?.('unmute');
     } catch (error) {
       console.error('Failed to unmute user:', error);
-      toast.error('Failed to unmute user');
+      toast.error(t('userModeration.toasts.unmuteFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -156,12 +131,12 @@ export const UserModeration: FC<UserModerationProps> = ({
     setIsProcessing(true);
     try {
       await blockUser(targetPubkey);
-      toast.success(`${displayName} has been blocked`);
+      toast.success(t('userModeration.toasts.blocked', { name: displayName }));
       setShowBlockConfirm(false);
       onAction?.('block');
     } catch (error) {
       console.error('Failed to block user:', error);
-      toast.error('Failed to block user');
+      toast.error(t('userModeration.toasts.blockFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -171,11 +146,11 @@ export const UserModeration: FC<UserModerationProps> = ({
     setIsProcessing(true);
     try {
       await unblockUser(targetPubkey);
-      toast.success(`${displayName} has been unblocked`);
+      toast.success(t('userModeration.toasts.unblocked', { name: displayName }));
       onAction?.('unblock');
     } catch (error) {
       console.error('Failed to unblock user:', error);
-      toast.error('Failed to unblock user');
+      toast.error(t('userModeration.toasts.unblockFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -185,13 +160,13 @@ export const UserModeration: FC<UserModerationProps> = ({
     setIsProcessing(true);
     try {
       await reportContent('user', targetPubkey, targetPubkey, reportReason, reportDescription || undefined);
-      toast.success('Report submitted. Thank you for helping keep the community safe.');
+      toast.success(t('userModeration.toasts.reported'));
       setShowReportDialog(false);
       resetReportForm();
       onAction?.('report');
     } catch (error) {
       console.error('Failed to submit report:', error);
-      toast.error('Failed to submit report');
+      toast.error(t('userModeration.toasts.reportFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -223,12 +198,12 @@ export const UserModeration: FC<UserModerationProps> = ({
           {userIsMuted ? (
             <DropdownMenuItem onClick={handleUnmute} disabled={isProcessing}>
               <Volume2 className="w-4 h-4 mr-2" />
-              Unmute
+              {t('userModeration.unmute')}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => setShowMuteDialog(true)}>
               <VolumeX className="w-4 h-4 mr-2" />
-              Mute
+              {t('userModeration.mute')}
             </DropdownMenuItem>
           )}
 
@@ -236,7 +211,7 @@ export const UserModeration: FC<UserModerationProps> = ({
           {userIsBlocked ? (
             <DropdownMenuItem onClick={handleUnblock} disabled={isProcessing}>
               <UserCheck className="w-4 h-4 mr-2" />
-              Unblock
+              {t('userModeration.unblock')}
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
@@ -244,7 +219,7 @@ export const UserModeration: FC<UserModerationProps> = ({
               className="text-destructive"
             >
               <Ban className="w-4 h-4 mr-2" />
-              Block
+              {t('userModeration.block')}
             </DropdownMenuItem>
           )}
 
@@ -256,7 +231,7 @@ export const UserModeration: FC<UserModerationProps> = ({
             className="text-destructive"
           >
             <Flag className="w-4 h-4 mr-2" />
-            Report
+            {t('userModeration.report')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -267,16 +242,16 @@ export const UserModeration: FC<UserModerationProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <VolumeX className="w-5 h-5" />
-              Mute {displayName}
+              {t('userModeration.muteTitle', { name: displayName })}
             </DialogTitle>
             <DialogDescription>
-              Their content will be hidden from your feed. They won&apos;t be notified.
+              {t('userModeration.muteDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Duration</Label>
+              <Label>{t('userModeration.duration')}</Label>
               <Select value={muteDuration} onValueChange={setMuteDuration}>
                 <SelectTrigger>
                   <div className="flex items-center gap-2">
@@ -285,48 +260,47 @@ export const UserModeration: FC<UserModerationProps> = ({
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {MUTE_DURATIONS.map((duration) => (
-                    <SelectItem key={duration.value} value={duration.value}>
-                      {duration.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="60">{t('userModeration.durations.1hour')}</SelectItem>
+                  <SelectItem value="1440">{t('userModeration.durations.1day')}</SelectItem>
+                  <SelectItem value="10080">{t('userModeration.durations.1week')}</SelectItem>
+                  <SelectItem value="43200">{t('userModeration.durations.1month')}</SelectItem>
+                  <SelectItem value="">{t('userModeration.durations.indefinitely')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>What to mute</Label>
+              <Label>{t('userModeration.whatToMute')}</Label>
               <Select value={muteScope} onValueChange={(v) => setMuteScope(v as MuteRecord['muteScope'])}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {MUTE_SCOPES.map((scope) => (
-                    <SelectItem key={scope.value} value={scope.value}>
-                      {scope.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">{t('userModeration.muteScopes.all')}</SelectItem>
+                  <SelectItem value="posts">{t('userModeration.muteScopes.posts')}</SelectItem>
+                  <SelectItem value="comments">{t('userModeration.muteScopes.comments')}</SelectItem>
+                  <SelectItem value="dms">{t('userModeration.muteScopes.dms')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="mute-reason">Reason (optional)</Label>
+              <Label htmlFor="mute-reason">{t('userModeration.reasonOptional')}</Label>
               <Input
                 id="mute-reason"
                 value={muteReason}
                 onChange={(e) => setMuteReason(e.target.value)}
-                placeholder="Why are you muting this user?"
+                placeholder={t('userModeration.mutePlaceholder')}
               />
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowMuteDialog(false)}>
-              Cancel
+              {t('userModeration.cancel')}
             </Button>
             <Button onClick={handleMute} disabled={isProcessing}>
-              {isProcessing ? 'Muting...' : 'Mute User'}
+              {isProcessing ? t('userModeration.muting') : t('userModeration.muteUser')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -338,27 +312,27 @@ export const UserModeration: FC<UserModerationProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Ban className="w-5 h-5 text-destructive" />
-              Block {displayName}?
+              {t('userModeration.blockTitle', { name: displayName })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Blocking will:
+              {t('userModeration.blockDescription')}
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Hide all their content from you</li>
-                <li>Prevent them from seeing your content</li>
-                <li>Prevent them from messaging you</li>
-                <li>Remove them from your followers</li>
+                <li>{t('userModeration.blockEffects.hideContent')}</li>
+                <li>{t('userModeration.blockEffects.preventSeeYou')}</li>
+                <li>{t('userModeration.blockEffects.preventMessage')}</li>
+                <li>{t('userModeration.blockEffects.removeFollower')}</li>
               </ul>
-              <p className="mt-2">They won&apos;t be notified that you blocked them.</p>
+              <p className="mt-2">{t('userModeration.noNotification')}</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('userModeration.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBlock}
               disabled={isProcessing}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isProcessing ? 'Blocking...' : 'Block'}
+              {isProcessing ? t('userModeration.blocking') : t('userModeration.block')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -370,42 +344,86 @@ export const UserModeration: FC<UserModerationProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Flag className="w-5 h-5 text-destructive" />
-              Report {displayName}
+              {t('userModeration.reportTitle', { name: displayName })}
             </DialogTitle>
             <DialogDescription>
-              Help us understand what&apos;s wrong. Your report is confidential.
+              {t('userModeration.reportDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Reason for reporting</Label>
+              <Label>{t('userModeration.reasonForReporting')}</Label>
               <Select value={reportReason} onValueChange={(v) => setReportReason(v as ReportReason)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {REPORT_REASONS.map((reason) => (
-                    <SelectItem key={reason.value} value={reason.value}>
-                      <div>
-                        <div className="font-medium">{reason.label}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {reason.description}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="spam">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.spam')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.spamDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="harassment">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.harassment')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.harassmentDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="hate-speech">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.hateSpeech')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.hateSpeechDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="violence">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.violence')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.violenceDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="misinformation">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.misinformation')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.misinformationDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="illegal-content">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.illegalContent')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.illegalContentDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="impersonation">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.impersonation')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.impersonationDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="self-harm">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.selfHarm')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.selfHarmDesc')}</div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="other">
+                    <div>
+                      <div className="font-medium">{t('userModeration.reportReasons.other')}</div>
+                      <div className="text-xs text-muted-foreground">{t('userModeration.reportReasons.otherDesc')}</div>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="report-description">Additional details (optional)</Label>
+              <Label htmlFor="report-description">{t('userModeration.additionalDetails')}</Label>
               <Textarea
                 id="report-description"
                 value={reportDescription}
                 onChange={(e) => setReportDescription(e.target.value)}
-                placeholder="Provide more context about why you're reporting this user..."
+                placeholder={t('userModeration.reportPlaceholder')}
                 rows={4}
               />
             </div>
@@ -413,14 +431,14 @@ export const UserModeration: FC<UserModerationProps> = ({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowReportDialog(false)}>
-              Cancel
+              {t('userModeration.cancel')}
             </Button>
             <Button
               onClick={handleReport}
               disabled={isProcessing}
               variant="destructive"
             >
-              {isProcessing ? 'Submitting...' : 'Submit Report'}
+              {isProcessing ? t('userModeration.submitting') : t('userModeration.submitReport')}
             </Button>
           </DialogFooter>
         </DialogContent>

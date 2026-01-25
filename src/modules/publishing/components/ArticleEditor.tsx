@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -88,6 +89,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
   onClose,
   className,
 }) => {
+  const { t } = useTranslation();
   // Form state
   const [title, setTitle] = useState(article?.title || '');
   const [subtitle, setSubtitle] = useState(article?.subtitle || '');
@@ -190,7 +192,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
     };
     onSave(updates);
     setLastSaved(new Date());
-    toast.success('Article saved');
+    toast.success(t('articleEditor.articleSaved'));
   };
 
   // Handle publish
@@ -202,12 +204,12 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
   // Handle schedule
   const handleSchedule = () => {
     if (!scheduleDate) {
-      toast.error('Please select a date and time');
+      toast.error(t('articleEditor.selectDateTime'));
       return;
     }
     handleSave();
     onSchedule(scheduleDate.getTime());
-    toast.success(`Article scheduled for ${format(scheduleDate, 'PPpp')}`);
+    toast.success(t('articleEditor.articleScheduled', { date: format(scheduleDate, 'PPpp') }));
   };
 
   // Handle tag input
@@ -227,14 +229,14 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
 
   // Editor toolbar actions
   const addImage = () => {
-    const url = window.prompt('Enter image URL:');
+    const url = window.prompt(t('articleEditor.imageUrlPrompt'));
     if (url && editor) {
       editor.chain().focus().setImage({ src: url }).run();
     }
   };
 
   const setLink = () => {
-    const url = window.prompt('Enter URL:');
+    const url = window.prompt(t('articleEditor.linkUrlPrompt'));
     if (url && editor) {
       editor.chain().focus().setLink({ href: url }).run();
     }
@@ -257,16 +259,16 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4 mr-2" />
-            Close
+            {t('articleEditor.close')}
           </Button>
           <Separator orientation="vertical" className="h-6" />
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             {isSaving ? (
-              <span>Saving...</span>
+              <span>{t('articleEditor.saving')}</span>
             ) : lastSaved ? (
-              <span>Last saved {format(lastSaved, 'p')}</span>
+              <span>{t('articleEditor.lastSaved', { time: format(lastSaved, 'p') })}</span>
             ) : (
-              <span>Not saved</span>
+              <span>{t('articleEditor.notSaved')}</span>
             )}
           </div>
         </div>
@@ -274,17 +276,17 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
-            Save Draft
+            {t('articleEditor.saveDraft')}
           </Button>
           <Button variant="outline" size="sm" onClick={onPreview}>
             <Eye className="h-4 w-4 mr-2" />
-            Preview
+            {t('articleEditor.preview')}
           </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm">
                 <Clock className="h-4 w-4 mr-2" />
-                Schedule
+                {t('articleEditor.schedule')}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-4" align="end">
@@ -299,7 +301,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
                   <div className="flex justify-end">
                     <Button size="sm" onClick={handleSchedule}>
                       <CalendarIcon className="h-4 w-4 mr-2" />
-                      Schedule for {format(scheduleDate, 'PP')}
+                      {t('articleEditor.scheduleFor', { date: format(scheduleDate, 'PP') })}
                     </Button>
                   </div>
                 )}
@@ -308,7 +310,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
           </Popover>
           <Button onClick={handlePublish}>
             <Send className="h-4 w-4 mr-2" />
-            Publish
+            {t('articleEditor.publish')}
           </Button>
         </div>
       </div>
@@ -320,7 +322,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Article title"
+            placeholder={t('articleEditor.titlePlaceholder')}
             className="text-4xl font-bold border-none focus:ring-0 px-0 mb-2"
           />
 
@@ -328,7 +330,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
           <Input
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
-            placeholder="Add a subtitle (optional)"
+            placeholder={t('articleEditor.subtitlePlaceholder')}
             className="text-xl text-muted-foreground border-none focus:ring-0 px-0 mb-4"
           />
 
@@ -355,12 +357,12 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
                 variant="outline"
                 className="w-full h-32 border-dashed"
                 onClick={() => {
-                  const url = window.prompt('Enter cover image URL:');
+                  const url = window.prompt(t('articleEditor.coverImagePrompt'));
                   if (url) setCoverImage(url);
                 }}
               >
                 <ImageIcon className="h-6 w-6 mr-2" />
-                Add cover image
+                {t('articleEditor.addCoverImage')}
               </Button>
             )}
           </div>
@@ -384,14 +386,14 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleAddTag}
-              placeholder="Add tags (press Enter)"
+              placeholder={t('articleEditor.addTags')}
               className="max-w-xs"
             />
           </div>
 
           {/* Visibility */}
           <div className="mb-6 flex items-center gap-4">
-            <Label>Visibility:</Label>
+            <Label>{t('articleEditor.visibility')}</Label>
             <Select
               value={visibility}
               onValueChange={(v) => setVisibility(v as ArticleVisibility)}
@@ -400,9 +402,9 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="subscribers">Subscribers Only</SelectItem>
-                <SelectItem value="paid">Paid Subscribers Only</SelectItem>
+                <SelectItem value="public">{t('articleEditor.visibilityOptions.public')}</SelectItem>
+                <SelectItem value="subscribers">{t('articleEditor.visibilityOptions.subscribers')}</SelectItem>
+                <SelectItem value="paid">{t('articleEditor.visibilityOptions.paid')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -414,37 +416,37 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
             onClick={() => setShowSeoSettings(!showSeoSettings)}
             className="mb-4 px-0"
           >
-            {showSeoSettings ? 'Hide SEO Settings' : 'Show SEO Settings'}
+            {showSeoSettings ? t('articleEditor.hideSeoSettings') : t('articleEditor.showSeoSettings')}
           </Button>
 
           {/* SEO Settings */}
           {showSeoSettings && (
             <div className="mb-6 p-4 border rounded-lg space-y-4">
-              <h4 className="font-medium">SEO Settings</h4>
+              <h4 className="font-medium">{t('articleEditor.seoSettings')}</h4>
               <div className="grid gap-4">
                 <div>
-                  <Label>Meta Title</Label>
+                  <Label>{t('articleEditor.metaTitle')}</Label>
                   <Input
                     value={seo.title || ''}
                     onChange={(e) => setSeo({ ...seo, title: e.target.value })}
-                    placeholder={title || 'Article title'}
+                    placeholder={title || t('articleEditor.titlePlaceholder')}
                   />
                 </div>
                 <div>
-                  <Label>Meta Description</Label>
+                  <Label>{t('articleEditor.metaDescription')}</Label>
                   <Textarea
                     value={seo.description || ''}
                     onChange={(e) => setSeo({ ...seo, description: e.target.value })}
-                    placeholder="Brief description for search engines (150-160 characters)"
+                    placeholder={t('articleEditor.metaDescriptionPlaceholder')}
                     rows={3}
                   />
                 </div>
                 <div>
-                  <Label>OG Image URL</Label>
+                  <Label>{t('articleEditor.ogImage')}</Label>
                   <Input
                     value={seo.ogImage || ''}
                     onChange={(e) => setSeo({ ...seo, ogImage: e.target.value })}
-                    placeholder={coverImage || 'Image URL for social sharing'}
+                    placeholder={coverImage || t('articleEditor.ogImagePlaceholder')}
                   />
                 </div>
               </div>

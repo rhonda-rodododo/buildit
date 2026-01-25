@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDocumentsStore } from '../documentsStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,6 +67,7 @@ const FolderItem: FC<FolderItemProps> = ({
   selectedFolderId,
   onSelectFolder,
 }) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState(folder.name)
@@ -150,11 +152,11 @@ const FolderItem: FC<FolderItemProps> = ({
         <ContextMenuContent>
           <ContextMenuItem onClick={() => setIsEditing(true)}>
             <Pencil className="h-4 w-4 mr-2" />
-            Rename
+            {t('folderTree.contextMenu.rename')}
           </ContextMenuItem>
           <ContextMenuItem onClick={onDelete} className="text-destructive">
             <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            {t('folderTree.contextMenu.delete')}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -192,6 +194,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
   onSelectStarred,
   showStarred,
 }) => {
+  const { t } = useTranslation()
   const { getGroupFolders, getFolderChildren, addFolder, updateFolder, deleteFolder, getStarredDocuments } = useDocumentsStore()
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
@@ -242,7 +245,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
         onClick={() => onSelectFolder(null)}
       >
         <Folder className="h-4 w-4" />
-        <span className="text-sm font-medium">All Documents</span>
+        <span className="text-sm font-medium">{t('folderTree.allDocuments')}</span>
       </div>
 
       {/* Starred */}
@@ -254,7 +257,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
         onClick={onSelectStarred}
       >
         <Star className="h-4 w-4 text-yellow-500" />
-        <span className="text-sm font-medium">Starred</span>
+        <span className="text-sm font-medium">{t('folderTree.starred')}</span>
         {starredDocs.length > 0 && (
           <span className="text-xs text-muted-foreground ml-auto">
             {starredDocs.length}
@@ -268,7 +271,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
       {/* Folders Header */}
       <div className="flex items-center justify-between px-2">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Folders
+          {t('folderTree.folders')}
         </span>
         <Dialog open={newFolderDialogOpen} onOpenChange={setNewFolderDialogOpen}>
           <DialogTrigger asChild>
@@ -278,11 +281,11 @@ export const FolderTree: FC<FolderTreeProps> = ({
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Folder</DialogTitle>
+              <DialogTitle>{t('folderTree.dialog.title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <Input
-                placeholder="Folder name"
+                placeholder={t('folderTree.dialog.namePlaceholder')}
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 onKeyDown={(e) => {
@@ -290,7 +293,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
                 }}
               />
               <div className="space-y-2">
-                <label className="text-sm font-medium">Color</label>
+                <label className="text-sm font-medium">{t('folderTree.dialog.colorLabel')}</label>
                 <div className="flex flex-wrap gap-2">
                   {folderColors.map((color) => (
                     <button
@@ -310,10 +313,10 @@ export const FolderTree: FC<FolderTreeProps> = ({
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setNewFolderDialogOpen(false)}>
-                Cancel
+                {t('folderTree.dialog.cancel')}
               </Button>
               <Button onClick={handleCreateFolder} disabled={!newFolderName.trim()}>
-                Create Folder
+                {t('folderTree.dialog.create')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -338,7 +341,7 @@ export const FolderTree: FC<FolderTreeProps> = ({
         ))}
         {rootFolders.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-4">
-            No folders yet
+            {t('folderTree.noFolders')}
           </p>
         )}
       </div>

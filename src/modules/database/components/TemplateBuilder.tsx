@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import {
   DatabaseTemplate,
@@ -46,6 +47,7 @@ interface TemplateBuilderProps {
 }
 
 export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderProps) {
+  const { t } = useTranslation();
   const isEditing = !!template;
 
   // Form state
@@ -69,12 +71,12 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
   // Handlers
   const handleSaveTemplate = () => {
     if (!name.trim()) {
-      alert('Please enter a template name');
+      alert(t('templateBuilder.enterName'));
       return;
     }
 
     if (tables.length === 0) {
-      alert('Please add at least one table');
+      alert(t('templateBuilder.addTableFirst'));
       return;
     }
 
@@ -107,7 +109,7 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
   };
 
   const handleDeleteTable = (index: number) => {
-    if (confirm('Are you sure you want to delete this table?')) {
+    if (confirm(t('templateBuilder.deleteTable'))) {
       const tableName = tables[index].name;
       setTables(tables.filter((_, i) => i !== index));
       // Also remove any relationships involving this table
@@ -161,38 +163,38 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
       {/* Template Info */}
       <div className="space-y-4">
         <div>
-          <Label htmlFor="template-name">Template Name</Label>
+          <Label htmlFor="template-name">{t('templateBuilder.templateName')}</Label>
           <Input
             id="template-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., CRM Contact Database, Project Tracker"
+            placeholder={t('templateBuilder.templateNamePlaceholder')}
           />
         </div>
 
         <div>
-          <Label htmlFor="template-description">Description</Label>
+          <Label htmlFor="template-description">{t('templateBuilder.description')}</Label>
           <Textarea
             id="template-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe what this template is for and what it includes..."
+            placeholder={t('templateBuilder.descriptionPlaceholder')}
             rows={3}
           />
         </div>
 
         <div>
-          <Label htmlFor="template-category">Category</Label>
+          <Label htmlFor="template-category">{t('templateBuilder.category')}</Label>
           <Select value={category} onValueChange={(val) => setCategory(val as any)}>
             <SelectTrigger id="template-category">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="general">General</SelectItem>
-              <SelectItem value="crm">CRM</SelectItem>
-              <SelectItem value="project">Project Management</SelectItem>
-              <SelectItem value="inventory">Inventory</SelectItem>
-              <SelectItem value="custom">Custom</SelectItem>
+              <SelectItem value="general">{t('templateBuilder.categories.general')}</SelectItem>
+              <SelectItem value="crm">{t('templateBuilder.categories.crm')}</SelectItem>
+              <SelectItem value="project">{t('templateBuilder.categories.project')}</SelectItem>
+              <SelectItem value="inventory">{t('templateBuilder.categories.inventory')}</SelectItem>
+              <SelectItem value="custom">{t('templateBuilder.categories.custom')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -203,22 +205,22 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="tables">
             <TableIcon className="h-4 w-4 mr-2" />
-            Tables ({tables.length})
+            {t('templateBuilder.tables')} ({tables.length})
           </TabsTrigger>
           <TabsTrigger value="relationships">
             <Link2 className="h-4 w-4 mr-2" />
-            Relationships ({relationships.length})
+            {t('templateBuilder.relationships')} ({relationships.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tables" className="space-y-4 mt-4">
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              Define the tables and fields in this database template
+              {t('templateBuilder.tablesDesc')}
             </p>
             <Button onClick={handleAddTable}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Table
+              {t('templateBuilder.addTable')}
             </Button>
           </div>
 
@@ -227,7 +229,7 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-center text-muted-foreground">
-                    No tables yet. Add your first table to get started.
+                    {t('templateBuilder.noTables')}
                   </p>
                 </CardContent>
               </Card>
@@ -262,9 +264,9 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      {table.fields.length} field{table.fields.length !== 1 ? 's' : ''}
+                      {table.fields.length} {table.fields.length === 1 ? t('templateBuilder.field') : t('templateBuilder.fields')}
                       {table.defaultViews && table.defaultViews.length > 0 &&
-                        ` • ${table.defaultViews.length} view${table.defaultViews.length !== 1 ? 's' : ''}`}
+                        ` • ${table.defaultViews.length} ${table.defaultViews.length === 1 ? t('templateBuilder.view') : t('templateBuilder.views')}`}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {table.fields.slice(0, 5).map((field) => (
@@ -277,7 +279,7 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
                       ))}
                       {table.fields.length > 5 && (
                         <span className="text-xs px-2 py-1 bg-muted rounded">
-                          +{table.fields.length - 5} more
+                          {t('templateBuilder.more', { count: table.fields.length - 5 })}
                         </span>
                       )}
                     </div>
@@ -291,11 +293,11 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
         <TabsContent value="relationships" className="space-y-4 mt-4">
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              Define relationships between tables
+              {t('templateBuilder.relationshipsDesc')}
             </p>
             <Button onClick={handleAddRelationship} disabled={tables.length < 2}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Relationship
+              {t('templateBuilder.addRelationship')}
             </Button>
           </div>
 
@@ -304,7 +306,7 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-center text-muted-foreground">
-                    No relationships yet. {tables.length < 2 ? 'Add at least 2 tables first.' : 'Add a relationship to connect your tables.'}
+                    {t('templateBuilder.noRelationships')} {tables.length < 2 ? t('templateBuilder.noRelationshipsNeedTables') : t('templateBuilder.noRelationshipsConnect')}
                   </p>
                 </CardContent>
               </Card>
@@ -349,11 +351,11 @@ export function TemplateBuilder({ template, onSave, onCancel }: TemplateBuilderP
       {/* Action Buttons */}
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button onClick={handleSaveTemplate}>
           <Save className="h-4 w-4 mr-2" />
-          {isEditing ? 'Update Template' : 'Create Template'}
+          {isEditing ? t('templateBuilder.updateTemplate') : t('templateBuilder.createTemplate')}
         </Button>
       </div>
 
@@ -412,6 +414,7 @@ function RelationshipBuilder({
   onSave,
   onCancel,
 }: RelationshipBuilderProps) {
+  const { t } = useTranslation();
   const [sourceTableName, setSourceTableName] = useState(relationship?.sourceTableName || '');
   const [sourceFieldName, setSourceFieldName] = useState(relationship?.sourceFieldName || '');
   const [targetTableName, setTargetTableName] = useState(relationship?.targetTableName || '');
@@ -428,7 +431,7 @@ function RelationshipBuilder({
 
   const handleSave = () => {
     if (!sourceTableName || !sourceFieldName || !targetTableName || !targetFieldName) {
-      alert('Please fill in all fields');
+      alert(t('templateBuilder.relationship.fillFields'));
       return;
     }
 
@@ -446,18 +449,18 @@ function RelationshipBuilder({
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{relationship ? 'Edit' : 'Add'} Relationship</DialogTitle>
+          <DialogTitle>{relationship ? t('templateBuilder.relationship.edit') : t('templateBuilder.relationship.add')} {t('templateBuilder.relationship.title')}</DialogTitle>
           <DialogDescription>
-            Define how tables relate to each other
+            {t('templateBuilder.relationship.desc')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label>Source Table</Label>
+            <Label>{t('templateBuilder.relationship.sourceTable')}</Label>
             <Select value={sourceTableName} onValueChange={setSourceTableName}>
               <SelectTrigger>
-                <SelectValue placeholder="Select table" />
+                <SelectValue placeholder={t('templateBuilder.relationship.selectTable')} />
               </SelectTrigger>
               <SelectContent>
                 {tables.map((table) => (
@@ -471,10 +474,10 @@ function RelationshipBuilder({
 
           {sourceTable && (
             <div>
-              <Label>Source Field</Label>
+              <Label>{t('templateBuilder.relationship.sourceField')}</Label>
               <Select value={sourceFieldName} onValueChange={setSourceFieldName}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select field" />
+                  <SelectValue placeholder={t('templateBuilder.relationship.selectField')} />
                 </SelectTrigger>
                 <SelectContent>
                   {sourceTable.fields.map((field) => (
@@ -488,24 +491,24 @@ function RelationshipBuilder({
           )}
 
           <div>
-            <Label>Relationship Type</Label>
+            <Label>{t('templateBuilder.relationship.type')}</Label>
             <Select value={relationType} onValueChange={(val) => setRelationType(val as any)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="one-to-many">One to Many</SelectItem>
-                <SelectItem value="many-to-one">Many to One</SelectItem>
-                <SelectItem value="many-to-many">Many to Many</SelectItem>
+                <SelectItem value="one-to-many">{t('templateBuilder.relationship.oneToMany')}</SelectItem>
+                <SelectItem value="many-to-one">{t('templateBuilder.relationship.manyToOne')}</SelectItem>
+                <SelectItem value="many-to-many">{t('templateBuilder.relationship.manyToMany')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label>Target Table</Label>
+            <Label>{t('templateBuilder.relationship.targetTable')}</Label>
             <Select value={targetTableName} onValueChange={setTargetTableName}>
               <SelectTrigger>
-                <SelectValue placeholder="Select table" />
+                <SelectValue placeholder={t('templateBuilder.relationship.selectTable')} />
               </SelectTrigger>
               <SelectContent>
                 {tables.map((table) => (
@@ -519,10 +522,10 @@ function RelationshipBuilder({
 
           {targetTable && (
             <div>
-              <Label>Target Field</Label>
+              <Label>{t('templateBuilder.relationship.targetField')}</Label>
               <Select value={targetFieldName} onValueChange={setTargetFieldName}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select field" />
+                  <SelectValue placeholder={t('templateBuilder.relationship.selectField')} />
                 </SelectTrigger>
                 <SelectContent>
                   {targetTable.fields.map((field) => (
@@ -536,15 +539,15 @@ function RelationshipBuilder({
           )}
 
           <div>
-            <Label>On Delete</Label>
+            <Label>{t('templateBuilder.relationship.onDelete')}</Label>
             <Select value={onDelete} onValueChange={(val) => setOnDelete(val as any)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="cascade">Cascade (delete related records)</SelectItem>
-                <SelectItem value="set-null">Set Null (clear relationship)</SelectItem>
-                <SelectItem value="restrict">Restrict (prevent deletion)</SelectItem>
+                <SelectItem value="cascade">{t('templateBuilder.relationship.cascade')}</SelectItem>
+                <SelectItem value="set-null">{t('templateBuilder.relationship.setNull')}</SelectItem>
+                <SelectItem value="restrict">{t('templateBuilder.relationship.restrict')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -552,9 +555,9 @@ function RelationshipBuilder({
 
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
-          <Button onClick={handleSave}>Save Relationship</Button>
+          <Button onClick={handleSave}>{t('templateBuilder.relationship.save')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

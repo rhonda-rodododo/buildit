@@ -6,7 +6,7 @@ import { CreateEventFormData, RSVPStatus, Event } from '../types'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useNotificationStore } from '@/stores/notificationStore'
-import { bytesToHex } from '@noble/hashes/utils.js'
+import { bytesToHex } from '@noble/hashes/utils'
 
 // Initialize Nostr client (singleton pattern)
 let nostrClientInstance: NostrClient | null = null

@@ -9,6 +9,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react'
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FileText, ChevronUp, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -32,11 +33,12 @@ interface HeaderFooterViewProps {
  * Header/Footer node view component
  */
 const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes }) => {
+  const { t } = useTranslation()
   const { position, showPageNumber = false, alignment = 'center' } = node.attrs
 
   const isHeader = position === 'header'
   const Icon = isHeader ? ChevronUp : ChevronDown
-  const label = isHeader ? 'Document Header' : 'Document Footer'
+  const label = isHeader ? t('headerFooter.documentHeader') : t('headerFooter.documentFooter')
 
   const alignmentClasses = {
     left: 'text-left',
@@ -77,7 +79,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
                 'p-1 rounded hover:bg-muted',
                 alignment === 'left' && 'bg-muted'
               )}
-              title="Align left"
+              title={t('headerFooter.alignLeft')}
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -92,7 +94,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
                 'p-1 rounded hover:bg-muted',
                 alignment === 'center' && 'bg-muted'
               )}
-              title="Align center"
+              title={t('headerFooter.alignCenter')}
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -107,7 +109,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
                 'p-1 rounded hover:bg-muted',
                 alignment === 'right' && 'bg-muted'
               )}
-              title="Align right"
+              title={t('headerFooter.alignRight')}
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -126,7 +128,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
                 'p-1 rounded hover:bg-muted flex items-center gap-1 text-xs',
                 showPageNumber && 'bg-muted'
               )}
-              title="Show page number"
+              title={t('headerFooter.showPageNumber')}
             >
               <FileText className="h-3 w-3" />
               <span className="sr-only">Page #</span>
@@ -147,7 +149,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
               alignmentClasses[alignment]
             )}
           >
-            Page <span className="font-mono">1</span> (page numbers shown when printing)
+            {t('headerFooter.pageNumberNote', { page: 1 })}
           </div>
         )}
       </div>
@@ -273,7 +275,6 @@ export const HeaderFooter = Node.create<HeaderFooterOptions>({
   },
 
   addNodeView() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ReactNodeViewRenderer(HeaderFooterView as any)
   },
 

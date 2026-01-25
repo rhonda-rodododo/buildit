@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link2, Users, Lock, Calendar, Copy, Check } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ interface FileShareDialogProps {
 }
 
 export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogProps) {
+  const { t } = useTranslation()
   const file = useFilesStore((state) => state.getFile(fileId))
   const groupMembers = useGroupsStore((state) => state.groupMembers.get(groupId) || [])
 
@@ -102,7 +104,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Share "{file.name}"</DialogTitle>
+          <DialogTitle>{t('fileShareDialog.shareTitle', { name: file.name })}</DialogTitle>
         </DialogHeader>
 
         {shareLink ? (
@@ -111,7 +113,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
             <div className="rounded-lg bg-muted p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Link2 className="h-5 w-5 text-green-600" />
-                <p className="font-semibold text-green-600">Share link created!</p>
+                <p className="font-semibold text-green-600">{t('fileShareDialog.shareLinkCreated')}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Input value={shareLink} readOnly className="flex-1" />
@@ -123,30 +125,30 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                   {copied ? (
                     <>
                       <Check className="h-4 w-4 mr-2" />
-                      Copied!
+                      {t('fileShareDialog.copied')}
                     </>
                   ) : (
                     <>
                       <Copy className="h-4 w-4 mr-2" />
-                      Copy
+                      {t('fileShareDialog.copy')}
                     </>
                   )}
                 </Button>
               </div>
               {linkPassword && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Password: <code className="bg-background px-2 py-1 rounded">{linkPassword}</code>
+                  {t('fileShareDialog.password')}: <code className="bg-background px-2 py-1 rounded">{linkPassword}</code>
                 </p>
               )}
               {expiresInDays && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  Expires in {expiresInDays} days
+                  {t('fileShareDialog.expiresIn', { days: expiresInDays })}
                 </p>
               )}
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={onClose}>
-                Done
+                {t('fileShareDialog.done')}
               </Button>
             </div>
           </div>
@@ -156,17 +158,17 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
-                Share with Users
+                {t('fileShareDialog.shareWithUsers')}
               </TabsTrigger>
               <TabsTrigger value="link">
                 <Link2 className="h-4 w-4 mr-2" />
-                Create Link
+                {t('fileShareDialog.createLink')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="users" className="space-y-4">
               <div>
-                <Label>Select Users</Label>
+                <Label>{t('fileShareDialog.selectUsers')}</Label>
                 <div className="mt-2 space-y-2 max-h-60 overflow-auto border rounded-lg p-2">
                   {groupMembers.map((member) => (
                     <label
@@ -180,7 +182,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                         className="rounded"
                       />
                       <div className="flex-1">
-                        <p className="font-medium">Member</p>
+                        <p className="font-medium">{t('fileShareDialog.member')}</p>
                         <p className="text-xs text-muted-foreground truncate">
                           {member.pubkey.slice(0, 16)}...
                         </p>
@@ -189,22 +191,22 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                   ))}
                   {groupMembers.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      No group members found
+                      {t('fileShareDialog.noMembersFound')}
                     </p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label>Permission Level</Label>
+                <Label>{t('fileShareDialog.permissionLevel')}</Label>
                 <Select value={permission} onValueChange={(v) => setPermission(v as FilePermission)}>
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="view">View only</SelectItem>
-                    <SelectItem value="download">View & Download</SelectItem>
-                    <SelectItem value="edit">View, Download & Edit</SelectItem>
+                    <SelectItem value="view">{t('fileShareDialog.viewOnly')}</SelectItem>
+                    <SelectItem value="download">{t('fileShareDialog.viewDownload')}</SelectItem>
+                    <SelectItem value="edit">{t('fileShareDialog.viewDownloadEdit')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -213,7 +215,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
             <TabsContent value="link" className="space-y-4">
               <div className="rounded-lg bg-muted p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="generate-link">Generate public link</Label>
+                  <Label htmlFor="generate-link">{t('fileShareDialog.generatePublicLink')}</Label>
                   <Switch
                     id="generate-link"
                     checked={generateLink}
@@ -226,12 +228,12 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                     <div>
                       <Label htmlFor="link-password">
                         <Lock className="inline h-4 w-4 mr-1" />
-                        Password (optional)
+                        {t('fileShareDialog.passwordOptional')}
                       </Label>
                       <Input
                         id="link-password"
                         type="text"
-                        placeholder="Leave empty for no password"
+                        placeholder={t('fileShareDialog.passwordPlaceholder')}
                         value={linkPassword}
                         onChange={(e) => setLinkPassword(e.target.value)}
                         className="mt-2"
@@ -241,7 +243,7 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                     <div>
                       <Label htmlFor="expires-in">
                         <Calendar className="inline h-4 w-4 mr-1" />
-                        Expires in (days)
+                        {t('fileShareDialog.expiresInDays')}
                       </Label>
                       <Select
                         value={expiresInDays?.toString() || 'never'}
@@ -251,11 +253,11 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="never">Never</SelectItem>
-                          <SelectItem value="1">1 day</SelectItem>
-                          <SelectItem value="7">7 days</SelectItem>
-                          <SelectItem value="30">30 days</SelectItem>
-                          <SelectItem value="90">90 days</SelectItem>
+                          <SelectItem value="never">{t('fileShareDialog.never')}</SelectItem>
+                          <SelectItem value="1">{t('fileShareDialog.oneDay')}</SelectItem>
+                          <SelectItem value="7">{t('fileShareDialog.sevenDays')}</SelectItem>
+                          <SelectItem value="30">{t('fileShareDialog.thirtyDays')}</SelectItem>
+                          <SelectItem value="90">{t('fileShareDialog.ninetyDays')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -264,14 +266,14 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
               </div>
 
               <div>
-                <Label>Permission Level</Label>
+                <Label>{t('fileShareDialog.permissionLevel')}</Label>
                 <Select value={permission} onValueChange={(v) => setPermission(v as FilePermission)}>
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="view">View only</SelectItem>
-                    <SelectItem value="download">View & Download</SelectItem>
+                    <SelectItem value="view">{t('fileShareDialog.viewOnly')}</SelectItem>
+                    <SelectItem value="download">{t('fileShareDialog.viewDownload')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -279,13 +281,13 @@ export function FileShareDialog({ fileId, groupId, onClose }: FileShareDialogPro
 
             <div className="flex justify-end gap-2 pt-4 border-t">
               <Button variant="outline" onClick={onClose}>
-                Cancel
+                {t('fileShareDialog.cancel')}
               </Button>
               <Button
                 onClick={handleCreateShare}
                 disabled={isCreating || (selectedUsers.length === 0 && !generateLink)}
               >
-                {isCreating ? 'Creating...' : 'Create Share'}
+                {isCreating ? t('fileShareDialog.creating') : t('fileShareDialog.createShare')}
               </Button>
             </div>
           </Tabs>

@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +17,7 @@ interface InvitationWithGroup extends DBGroupInvitation {
 }
 
 export const PendingInvitationsView: FC = () => {
+  const { t } = useTranslation()
   const { currentIdentity } = useAuthStore()
   const { acceptInvitation, declineInvitation, loadGroups } = useGroupsStore()
   const [invitations, setInvitations] = useState<InvitationWithGroup[]>([])
@@ -71,7 +73,7 @@ export const PendingInvitationsView: FC = () => {
       await loadGroups(currentIdentity.publicKey)
     } catch (error) {
       console.error('Failed to accept invitation:', error)
-      alert('Failed to accept invitation. Please try again.')
+      alert(t('pendingInvitations.errors.acceptFailed'))
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev)
@@ -88,7 +90,7 @@ export const PendingInvitationsView: FC = () => {
       await loadInvitations()
     } catch (error) {
       console.error('Failed to decline invitation:', error)
-      alert('Failed to decline invitation. Please try again.')
+      alert(t('pendingInvitations.errors.declineFailed'))
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev)
@@ -104,7 +106,7 @@ export const PendingInvitationsView: FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Pending Invitations
+            {t('pendingInvitations.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -129,18 +131,18 @@ export const PendingInvitationsView: FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Pending Invitations
+            {t('pendingInvitations.title')}
           </CardTitle>
           <CardDescription>
-            Invitations to join groups will appear here
+            {t('pendingInvitations.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No pending invitations</p>
+            <p className="text-muted-foreground">{t('pendingInvitations.empty.title')}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              When someone invites you to a group, it will appear here
+              {t('pendingInvitations.empty.description')}
             </p>
           </div>
         </CardContent>
@@ -153,13 +155,13 @@ export const PendingInvitationsView: FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="h-5 w-5" />
-          Pending Invitations
+          {t('pendingInvitations.title')}
           <Badge variant="secondary" className="ml-2">
             {invitations.length}
           </Badge>
         </CardTitle>
         <CardDescription>
-          Review and respond to group invitations
+          {t('pendingInvitations.reviewDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -176,7 +178,7 @@ export const PendingInvitationsView: FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-medium truncate">
-                        {invitation.group?.name || 'Unknown Group'}
+                        {invitation.group?.name || t('pendingInvitations.invitation.unknownGroup')}
                       </h4>
                       <Badge
                         variant={
@@ -197,7 +199,7 @@ export const PendingInvitationsView: FC = () => {
 
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
                       <span className="flex items-center gap-1">
-                        Invited by{' '}
+                        {t('pendingInvitations.invitation.invitedBy')}{' '}
                         <UserHandle
                           pubkey={invitation.inviterPubkey}
                           format="display-name"
@@ -213,8 +215,7 @@ export const PendingInvitationsView: FC = () => {
                           className={`flex items-center gap-1 ${isExpiringSoon ? 'text-destructive' : ''}`}
                         >
                           {isExpiringSoon && <AlertCircle className="h-3 w-3" />}
-                          Expires{' '}
-                          {formatDistanceToNow(invitation.expiresAt, { addSuffix: true })}
+                          {t('pendingInvitations.invitation.expires', { time: formatDistanceToNow(invitation.expiresAt, { addSuffix: true }) })}
                         </span>
                       )}
                     </div>
@@ -235,7 +236,7 @@ export const PendingInvitationsView: FC = () => {
                       className="text-destructive hover:text-destructive"
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Decline
+                      {t('pendingInvitations.actions.decline')}
                     </Button>
                     <Button
                       size="sm"
@@ -243,7 +244,7 @@ export const PendingInvitationsView: FC = () => {
                       disabled={isProcessing}
                     >
                       <Check className="h-4 w-4 mr-1" />
-                      Accept
+                      {t('pendingInvitations.actions.accept')}
                     </Button>
                   </div>
                 </div>

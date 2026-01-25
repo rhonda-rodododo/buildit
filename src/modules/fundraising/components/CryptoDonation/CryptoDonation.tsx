@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   generatePaymentAddress,
@@ -70,6 +71,8 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
   onPaymentConfirmed,
   className,
 }) => {
+  const { t } = useTranslation();
+
   // State
   const [selectedCrypto, setSelectedCrypto] = useState<CryptoType>('bitcoin');
   const [amountUSD, setAmountUSD] = useState(defaultAmountUSD);
@@ -139,11 +142,11 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
       );
 
       setPaymentAddress(address);
-      toast.success('Payment address generated');
+      toast.success(t('cryptoDonation.toasts.addressGenerated'));
     } catch (err) {
       console.error('Failed to generate address:', err);
-      setError('Failed to generate payment address. Please try again.');
-      toast.error('Failed to generate address');
+      setError(t('cryptoDonation.errors.failedToGenerate'));
+      toast.error(t('cryptoDonation.toasts.failedToGenerate'));
     } finally {
       setIsGenerating(false);
     }
@@ -181,11 +184,11 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
           setConfirmedTx(latestTx);
           setPendingTx(null);
           onPaymentConfirmed?.(latestTx);
-          toast.success('Payment confirmed!');
+          toast.success(t('cryptoDonation.toasts.paymentConfirmed'));
         } else if (latestTx.status !== 'confirmed' && !pendingTx) {
           setPendingTx(latestTx);
           onPaymentDetected?.(latestTx);
-          toast.info('Payment detected! Waiting for confirmations...');
+          toast.info(t('cryptoDonation.toasts.paymentDetected'));
         } else if (pendingTx && latestTx.confirmations > pendingTx.confirmations) {
           setPendingTx(latestTx);
         }
@@ -216,7 +219,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
   const copyAddress = async () => {
     if (paymentAddress) {
       await navigator.clipboard.writeText(paymentAddress);
-      toast.success('Address copied to clipboard');
+      toast.success(t('cryptoDonation.toasts.addressCopied'));
     }
   };
 
@@ -245,7 +248,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
     const price = prices[selectedCrypto];
     return (
       <div className="text-sm text-muted-foreground">
-        Current price: ${price.toLocaleString(undefined, { maximumFractionDigits: 2 })} USD
+        {t('cryptoDonation.currentPrice', { price: price.toLocaleString(undefined, { maximumFractionDigits: 2 }) })}
       </div>
     );
   };
@@ -257,10 +260,10 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Wallet className="w-5 h-5" />
-            <h3 className="text-lg font-semibold">Donate with Crypto</h3>
+            <h3 className="text-lg font-semibold">{t('cryptoDonation.title')}</h3>
           </div>
           <Badge variant="outline">
-            {network === 'mainnet' ? 'Mainnet' : 'Testnet'}
+            {network === 'mainnet' ? t('cryptoDonation.mainnet') : t('cryptoDonation.testnet')}
           </Badge>
         </div>
 
@@ -269,10 +272,10 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
           <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
             <div className="flex items-center gap-2 text-green-600 mb-2">
               <Check className="w-5 h-5" />
-              <span className="font-semibold">Payment Confirmed!</span>
+              <span className="font-semibold">{t('cryptoDonation.paymentConfirmed')}</span>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              Thank you for your donation of {confirmedTx.amountFormatted}
+              {t('cryptoDonation.thankYou', { amount: confirmedTx.amountFormatted })}
             </p>
             <a
               href={getExplorerUrl(confirmedTx.txHash, selectedCrypto, network)}
@@ -280,7 +283,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
               rel="noopener noreferrer"
               className="text-sm text-primary flex items-center gap-1 hover:underline"
             >
-              View on blockchain explorer
+              {t('cryptoDonation.viewOnExplorer')}
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
@@ -291,13 +294,13 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
           <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <div className="flex items-center gap-2 text-yellow-600 mb-2">
               <Clock className="w-5 h-5 animate-pulse" />
-              <span className="font-semibold">Payment Pending</span>
+              <span className="font-semibold">{t('cryptoDonation.paymentPending')}</span>
             </div>
             <p className="text-sm text-muted-foreground mb-2">
-              {pendingTx.amountFormatted} detected
+              {t('cryptoDonation.detected', { amount: pendingTx.amountFormatted })}
             </p>
             <div className="flex items-center gap-2 text-sm">
-              <span>Confirmations:</span>
+              <span>{t('cryptoDonation.confirmations')}</span>
               <Badge variant="outline">
                 {pendingTx.confirmations} / {pendingTx.requiredConfirmations}
               </Badge>
@@ -308,7 +311,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
               rel="noopener noreferrer"
               className="text-sm text-primary flex items-center gap-1 hover:underline mt-2"
             >
-              Track on blockchain
+              {t('cryptoDonation.trackOnBlockchain')}
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
@@ -337,7 +340,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
 
             {/* Amount Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Donation Amount (USD)</label>
+              <label className="text-sm font-medium">{t('cryptoDonation.donationAmount')}</label>
               <div className="flex gap-2">
                 {[10, 25, 50, 100].map((amount) => (
                   <Button
@@ -355,12 +358,12 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
                   onChange={(e) => setAmountUSD(Number(e.target.value))}
                   min={1}
                   className="w-24"
-                  placeholder="Custom"
+                  placeholder={t('cryptoDonation.custom')}
                 />
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
-                  ≈ {cryptoAmount || 'Calculating...'}
+                  ≈ {cryptoAmount || t('cryptoDonation.calculating')}
                 </span>
                 {renderPriceInfo()}
               </div>
@@ -376,12 +379,12 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating Address...
+                    {t('cryptoDonation.generatingAddress')}
                   </>
                 ) : (
                   <>
                     <Wallet className="w-4 h-4 mr-2" />
-                    Generate {getCryptoDisplayName(selectedCrypto)} Address
+                    {t('cryptoDonation.generateAddress', { crypto: getCryptoDisplayName(selectedCrypto) })}
                   </>
                 )}
               </Button>
@@ -402,7 +405,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
 
                 {/* Address */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Payment Address</label>
+                  <label className="text-sm font-medium">{t('cryptoDonation.paymentAddress')}</label>
                   <div className="flex gap-2">
                     <Input
                       value={paymentAddress}
@@ -424,12 +427,12 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
                     {isMonitoring ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Monitoring...
+                        {t('cryptoDonation.monitoring')}
                       </>
                     ) : (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Start Monitoring
+                        {t('cryptoDonation.startMonitoring')}
                       </>
                     )}
                   </Button>
@@ -441,18 +444,18 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
                     disabled={isMonitoring}
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    Check Now
+                    {t('cryptoDonation.checkNow')}
                   </Button>
                 </div>
 
                 {/* Instructions */}
                 <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                  <p className="font-medium mb-1">How to donate:</p>
+                  <p className="font-medium mb-1">{t('cryptoDonation.howToDonate')}</p>
                   <ol className="list-decimal list-inside space-y-1">
-                    <li>Scan the QR code or copy the address</li>
-                    <li>Send {cryptoAmount} to this address</li>
-                    <li>Click "Start Monitoring" to track your payment</li>
-                    <li>Wait for {selectedCrypto === 'bitcoin' ? '3' : '12'} confirmations</li>
+                    <li>{t('cryptoDonation.steps.scan')}</li>
+                    <li>{t('cryptoDonation.steps.send', { amount: cryptoAmount })}</li>
+                    <li>{t('cryptoDonation.steps.monitor')}</li>
+                    <li>{t('cryptoDonation.steps.wait', { confirmations: selectedCrypto === 'bitcoin' ? '3' : '12' })}</li>
                   </ol>
                 </div>
               </div>

@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,6 +25,7 @@ interface CreateFolderDialogProps {
 }
 
 export function CreateFolderDialog({ groupId, parentId, onClose }: CreateFolderDialogProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [isCreating, setIsCreating] = useState(false)
 
@@ -55,17 +57,17 @@ export function CreateFolderDialog({ groupId, parentId, onClose }: CreateFolderD
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Folder</DialogTitle>
+          <DialogTitle>{t('createFolderDialog.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Folder Name</Label>
+            <Label htmlFor="name">{t('createFolderDialog.folderName')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter folder name"
+              placeholder={t('createFolderDialog.placeholder')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && name.trim()) {
                   handleCreate()
@@ -77,10 +79,10 @@ export function CreateFolderDialog({ groupId, parentId, onClose }: CreateFolderD
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('createFolderDialog.cancel')}
           </Button>
           <Button onClick={handleCreate} disabled={!name.trim() || isCreating}>
-            Create
+            {t('createFolderDialog.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

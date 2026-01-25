@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -229,6 +230,7 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
   onComplete,
   className
 }) => {
+  const { t } = useTranslation();
   const steps = ONBOARDING_FLOWS[entryPoint] || ONBOARDING_FLOWS['website'];
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -319,38 +321,38 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Name</label>
+                <label className="text-sm font-medium mb-2 block">{t('onboardingFlow.profile.nameLabel')}</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Your name"
+                  placeholder={t('onboardingFlow.profile.namePlaceholder')}
                   className="w-full p-2 border rounded-md bg-background"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Location (Optional)</label>
+                <label className="text-sm font-medium mb-2 block">{t('onboardingFlow.profile.locationLabel')}</label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="City, State"
+                  placeholder={t('onboardingFlow.profile.locationPlaceholder')}
                   className="w-full p-2 border rounded-md bg-background"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Availability</label>
+                <label className="text-sm font-medium mb-2 block">{t('onboardingFlow.profile.availabilityLabel')}</label>
                 <select
                   value={formData.availability}
                   onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
                   className="w-full p-2 border rounded-md bg-background"
                 >
-                  <option value="">Select...</option>
-                  <option value="weekdays">Weekdays</option>
-                  <option value="weekends">Weekends</option>
-                  <option value="flexible">Flexible</option>
+                  <option value="">{t('onboardingFlow.profile.selectPlaceholder')}</option>
+                  <option value="weekdays">{t('onboardingFlow.profile.weekdays')}</option>
+                  <option value="weekends">{t('onboardingFlow.profile.weekends')}</option>
+                  <option value="flexible">{t('onboardingFlow.profile.flexible')}</option>
                 </select>
               </div>
             </div>
@@ -380,9 +382,9 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">{group.name}</h4>
-                      <p className="text-xs text-muted-foreground">{group.members} members</p>
+                      <p className="text-xs text-muted-foreground">{t('onboardingFlow.groups.members', { count: group.members })}</p>
                     </div>
-                    <Button size="sm" variant="outline">Join</Button>
+                    <Button size="sm" variant="outline">{t('onboardingFlow.groups.join')}</Button>
                   </div>
                 </Card>
               ))}
@@ -413,9 +415,9 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">{event.title}</h4>
-                      <p className="text-xs text-muted-foreground">{event.date} • {event.attendees} going</p>
+                      <p className="text-xs text-muted-foreground">{event.date} • {t('onboardingFlow.events.going', { count: event.attendees })}</p>
                     </div>
-                    <Button size="sm" variant="outline">RSVP</Button>
+                    <Button size="sm" variant="outline">{t('onboardingFlow.events.rsvp')}</Button>
                   </div>
                 </Card>
               ))}
@@ -476,7 +478,7 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
 
             {selectedInterests.length > 0 && (
               <div className="mt-6">
-                <p className="text-sm text-muted-foreground mb-2">Your selected interests:</p>
+                <p className="text-sm text-muted-foreground mb-2">{t('onboardingFlow.complete.selectedInterests')}</p>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {selectedInterests.map(id => {
                     const interest = INTEREST_OPTIONS.find(i => i.id === id);
@@ -503,7 +505,7 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
       <div className="mb-6" data-testid="onboarding-progress">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium" data-testid="step-count">
-            Step {currentStepIndex + 1} of {steps.length}
+            {t('onboardingFlow.stepCount', { current: currentStepIndex + 1, total: steps.length })}
           </span>
           <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
         </div>
@@ -525,11 +527,11 @@ export const OnboardingFlow: FC<OnboardingFlowProps> = ({
           data-testid="onboarding-back-button"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t('onboardingFlow.navigation.back')}
         </Button>
 
         <Button onClick={handleNext} className="gap-2" data-testid="onboarding-next-button">
-          {currentStepIndex === steps.length - 1 ? 'Get Started' : 'Continue'}
+          {currentStepIndex === steps.length - 1 ? t('onboardingFlow.navigation.getStarted') : t('onboardingFlow.navigation.continue')}
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>

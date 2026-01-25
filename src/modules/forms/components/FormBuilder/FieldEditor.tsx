@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ interface FieldEditorProps {
 }
 
 export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
+  const { t } = useTranslation();
   const [localField, setLocalField] = useState(field);
 
   const handleChange = (updates: Partial<FormFieldDefinition>) => {
@@ -34,7 +36,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
   return (
     <Card className="p-4 space-y-4 max-h-[calc(100vh-12rem)] overflow-auto">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Field Properties</h3>
+        <h3 className="font-semibold">{t('formFieldEditor.title')}</h3>
         <Button variant="ghost" size="sm" onClick={onDelete}>
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
@@ -43,38 +45,38 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
       {/* Basic Properties */}
       <div className="space-y-3">
         <div className="space-y-1">
-          <Label htmlFor="label">Label</Label>
+          <Label htmlFor="label">{t('formFieldEditor.basic.label')}</Label>
           <Input
             id="label"
             value={localField.label}
             onChange={(e) => handleChange({ label: e.target.value })}
-            placeholder="Field label"
+            placeholder={t('formFieldEditor.basic.labelPlaceholder')}
           />
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="placeholder">Placeholder</Label>
+          <Label htmlFor="placeholder">{t('formFieldEditor.basic.placeholder')}</Label>
           <Input
             id="placeholder"
             value={localField.placeholder || ''}
             onChange={(e) => handleChange({ placeholder: e.target.value })}
-            placeholder="Placeholder text"
+            placeholder={t('formFieldEditor.basic.placeholderPlaceholder')}
           />
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="helpText">Help Text</Label>
+          <Label htmlFor="helpText">{t('formFieldEditor.basic.helpText')}</Label>
           <Textarea
             id="helpText"
             value={localField.helpText || ''}
             onChange={(e) => handleChange({ helpText: e.target.value })}
-            placeholder="Additional guidance for users"
+            placeholder={t('formFieldEditor.basic.helpTextPlaceholder')}
             rows={2}
           />
         </div>
 
         <div className="flex items-center justify-between">
-          <Label htmlFor="required">Required</Label>
+          <Label htmlFor="required">{t('formFieldEditor.basic.required')}</Label>
           <Switch
             id="required"
             checked={localField.required || false}
@@ -86,7 +88,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
       {/* Options (for select, radio, checkbox) */}
       {hasOptions && (
         <div className="space-y-2">
-          <Label>Options</Label>
+          <Label>{t('formFieldEditor.options.title')}</Label>
           <div className="space-y-2">
             {(localField.options || []).map((option, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -97,7 +99,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                     newOptions[index] = e.target.value;
                     handleChange({ options: newOptions });
                   }}
-                  placeholder={`Option ${index + 1}`}
+                  placeholder={t('formFieldEditor.options.placeholder', { number: index + 1 })}
                 />
                 <Button
                   variant="ghost"
@@ -115,13 +117,13 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
               variant="outline"
               size="sm"
               onClick={() => {
-                const newOptions = [...(localField.options || []), `Option ${(localField.options?.length || 0) + 1}`];
+                const newOptions = [...(localField.options || []), t('formFieldEditor.options.placeholder', { number: (localField.options?.length || 0) + 1 })];
                 handleChange({ options: newOptions });
               }}
               className="w-full"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Option
+              {t('formFieldEditor.options.addOption')}
             </Button>
           </div>
         </div>
@@ -130,12 +132,12 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
       {/* Validation */}
       {hasValidation && (
         <div className="space-y-3 pt-3 border-t">
-          <div className="font-medium text-sm">Validation</div>
+          <div className="font-medium text-sm">{t('formFieldEditor.validation.title')}</div>
 
           {(field.type === 'text' || field.type === 'textarea') && (
             <>
               <div className="space-y-1">
-                <Label htmlFor="minLength">Min Length</Label>
+                <Label htmlFor="minLength">{t('formFieldEditor.validation.minLength')}</Label>
                 <Input
                   id="minLength"
                   type="number"
@@ -146,11 +148,11 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                       validation: { ...localField.validation, minLength: val },
                     });
                   }}
-                  placeholder="Minimum character count"
+                  placeholder={t('formFieldEditor.validation.minLengthPlaceholder')}
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="maxLength">Max Length</Label>
+                <Label htmlFor="maxLength">{t('formFieldEditor.validation.maxLength')}</Label>
                 <Input
                   id="maxLength"
                   type="number"
@@ -161,7 +163,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                       validation: { ...localField.validation, maxLength: val },
                     });
                   }}
-                  placeholder="Maximum character count"
+                  placeholder={t('formFieldEditor.validation.maxLengthPlaceholder')}
                 />
               </div>
             </>
@@ -170,7 +172,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
           {field.type === 'number' && (
             <>
               <div className="space-y-1">
-                <Label htmlFor="min">Minimum Value</Label>
+                <Label htmlFor="min">{t('formFieldEditor.validation.min')}</Label>
                 <Input
                   id="min"
                   type="number"
@@ -181,11 +183,11 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                       validation: { ...localField.validation, min: val },
                     });
                   }}
-                  placeholder="Minimum value"
+                  placeholder={t('formFieldEditor.validation.minPlaceholder')}
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="max">Maximum Value</Label>
+                <Label htmlFor="max">{t('formFieldEditor.validation.max')}</Label>
                 <Input
                   id="max"
                   type="number"
@@ -196,7 +198,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                       validation: { ...localField.validation, max: val },
                     });
                   }}
-                  placeholder="Maximum value"
+                  placeholder={t('formFieldEditor.validation.maxPlaceholder')}
                 />
               </div>
             </>
@@ -204,7 +206,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
 
           {(field.type === 'text' || field.type === 'url' || field.type === 'email') && (
             <div className="space-y-1">
-              <Label htmlFor="pattern">Pattern (Regex)</Label>
+              <Label htmlFor="pattern">{t('formFieldEditor.validation.pattern')}</Label>
               <Input
                 id="pattern"
                 value={localField.validation?.pattern || ''}
@@ -213,7 +215,7 @@ export function FieldEditor({ field, onUpdate, onDelete }: FieldEditorProps) {
                     validation: { ...localField.validation, pattern: e.target.value },
                   });
                 }}
-                placeholder="^[A-Za-z]+$"
+                placeholder={t('formFieldEditor.validation.patternPlaceholder')}
               />
             </div>
           )}

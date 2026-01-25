@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +19,7 @@ interface CreateEventDialogProps {
 }
 
 export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEventCreated }) => {
+  const { t } = useTranslation()
   const { createEvent } = useEvents()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -62,7 +64,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
       onEventCreated?.()
     } catch (error) {
       console.error('Failed to create event:', error)
-      alert('Failed to create event')
+      alert(t('createEventDialog.errors.createFailed'))
     } finally {
       setLoading(false)
     }
@@ -73,48 +75,48 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Create Event
+          {t('createEventDialog.triggerButton')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Event</DialogTitle>
+          <DialogTitle>{t('createEventDialog.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Event Title *</Label>
+            <Label htmlFor="title">{t('createEventDialog.fields.titleLabel')}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
-              placeholder="Enter event title"
+              placeholder={t('createEventDialog.fields.titlePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('createEventDialog.fields.descriptionLabel')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Event description"
+              placeholder={t('createEventDialog.fields.descriptionPlaceholder')}
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">{t('createEventDialog.fields.locationLabel')}</Label>
             <Input
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Event location"
+              placeholder={t('createEventDialog.fields.locationPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="startDate">Start Date & Time *</Label>
+            <Label htmlFor="startDate">{t('createEventDialog.fields.startDateLabel')}</Label>
             <div className="flex gap-2">
               <Input
                 type="datetime-local"
@@ -128,7 +130,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="endDate">End Date & Time (Optional)</Label>
+            <Label htmlFor="endDate">{t('createEventDialog.fields.endDateLabel')}</Label>
             <Input
               type="datetime-local"
               value={formData.endTime?.toISOString().slice(0, 16) || ''}
@@ -142,7 +144,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="privacy">Privacy Level</Label>
+            <Label htmlFor="privacy">{t('createEventDialog.fields.privacyLabel')}</Label>
             <Select
               value={formData.privacy}
               onValueChange={(value: EventPrivacy) =>
@@ -153,18 +155,18 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="public">Public - Anyone can see</SelectItem>
-                <SelectItem value="group">Group - Only group members</SelectItem>
-                <SelectItem value="private">Private - Invite only</SelectItem>
+                <SelectItem value="public">{t('createEventDialog.privacy.public')}</SelectItem>
+                <SelectItem value="group">{t('createEventDialog.privacy.group')}</SelectItem>
+                <SelectItem value="private">{t('createEventDialog.privacy.private')}</SelectItem>
                 <SelectItem value="direct-action">
-                  Direct Action - Time-delayed location reveal
+                  {t('createEventDialog.privacy.directAction')}
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="capacity">Capacity (Optional)</Label>
+            <Label htmlFor="capacity">{t('createEventDialog.fields.capacityLabel')}</Label>
             <Input
               id="capacity"
               type="number"
@@ -176,13 +178,13 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                   capacity: e.target.value ? parseInt(e.target.value) : undefined,
                 })
               }
-              placeholder="Max attendees"
+              placeholder={t('createEventDialog.fields.capacityPlaceholder')}
             />
           </div>
 
           {formData.privacy === 'direct-action' && (
             <div className="space-y-2">
-              <Label htmlFor="revealTime">Location Reveal Time</Label>
+              <Label htmlFor="revealTime">{t('createEventDialog.fields.revealTimeLabel')}</Label>
               <Input
                 type="datetime-local"
                 value={formData.locationRevealTime?.toISOString().slice(0, 16) || ''}
@@ -194,7 +196,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Location will be revealed at this time
+                {t('createEventDialog.fields.revealTimeHelp')}
               </p>
             </div>
           )}
@@ -203,7 +205,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
             <>
               <Separator className="my-6" />
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Additional Information</h3>
+                <h3 className="text-lg font-semibold">{t('createEventDialog.customFields.title')}</h3>
                 {customFields.sort((a, b) => a.order - b.order).map((field) => (
                   <div key={field.id} className="space-y-2">
                     <Label htmlFor={field.name}>
@@ -232,7 +234,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                         onValueChange={(value) => setCustomFieldValues({ ...customFieldValues, [field.name]: value })}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={field.widget.placeholder || 'Select an option'} />
+                          <SelectValue placeholder={field.widget.placeholder || t('createEventDialog.customFields.selectPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {field.widget.options.map((option) => (
@@ -254,10 +256,10 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
 
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t('createEventDialog.buttons.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Event'}
+              {loading ? t('createEventDialog.buttons.creating') : t('createEventDialog.buttons.create')}
             </Button>
           </div>
         </form>

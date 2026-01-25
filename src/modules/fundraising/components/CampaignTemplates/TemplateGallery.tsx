@@ -3,6 +3,7 @@
  * Gallery of pre-built campaign templates
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -214,6 +215,7 @@ When activists face legal charges for their organizing work, we provide legal su
 ];
 
 export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGalleryProps) {
+  const { t } = useTranslation();
   const categoryColors: Record<CampaignCategory, string> = {
     general: 'default',
     bail: 'destructive',
@@ -227,9 +229,9 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Campaign Templates</h2>
+        <h2 className="text-2xl font-bold">{t('campaignTemplateGallery.title')}</h2>
         <p className="text-muted-foreground">
-          Start with a pre-built template or create a campaign from scratch
+          {t('campaignTemplateGallery.description')}
         </p>
       </div>
 
@@ -243,9 +245,9 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
             <Plus className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold">Blank Campaign</h3>
+            <h3 className="font-semibold">{t('campaignTemplateGallery.blank.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Start from scratch and build your own custom campaign
+              {t('campaignTemplateGallery.blank.description')}
             </p>
           </div>
         </div>
@@ -276,12 +278,12 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
 
               {template.defaultTiers && template.defaultTiers.length > 0 && (
                 <div className="text-xs text-muted-foreground">
-                  Includes {template.defaultTiers.length} donation tiers
+                  {t('campaignTemplateGallery.includesTiers', { count: template.defaultTiers.length })}
                 </div>
               )}
 
               <Button variant="outline" className="w-full">
-                Use Template
+                {t('campaignTemplateGallery.useTemplate')}
               </Button>
             </div>
           </Card>

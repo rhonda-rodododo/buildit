@@ -33,6 +33,7 @@ import {
   recordSuccess,
   clearRateLimitState,
 } from '@/lib/security/rateLimiter';
+import { getTranslatedErrorMessage } from '@/lib/i18n/errorTranslations';
 
 // localStorage key for persisting selected identity across page refreshes
 export const SELECTED_IDENTITY_KEY = 'buildit-selected-identity';
@@ -301,7 +302,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         // Return full identity with private key
         return identity;
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to create identity';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToCreateIdentity');
         set({ error: errorMsg, isLoading: false });
         throw error;
       }
@@ -363,7 +364,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         return identity;
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to import identity';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToImportIdentity');
         set({ error: errorMsg, isLoading: false });
         throw error;
       }
@@ -381,7 +382,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         set({ identities, isLoading: false });
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to load identities';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToLoadIdentities');
         set({ error: errorMsg, isLoading: false });
       }
     },
@@ -413,7 +414,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           isLoading: false,
         }));
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to remove identity';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToRemoveIdentity');
         set({ error: errorMsg, isLoading: false });
       }
     },
@@ -518,7 +519,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         // SECURITY: Record failed auth attempt
         recordFailure(current.publicKey);
 
-        const errorMsg = error instanceof Error ? error.message : 'Failed to unlock';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToUnlock');
         set({ error: errorMsg, isUnlocking: false });
         throw error;
       }
@@ -573,7 +574,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         set({ isLoading: false });
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to change password';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToChangePassword');
         set({ error: errorMsg, isLoading: false });
         throw error;
       }
@@ -677,7 +678,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         set({ isLoading: false });
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to enable WebAuthn';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToEnableWebauthn');
         set({ error: errorMsg, isLoading: false });
         throw error;
       }
@@ -712,7 +713,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
         set({ isLoading: false });
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Failed to disable WebAuthn';
+        const errorMsg = getTranslatedErrorMessage(error, 'errors.failedToDisableWebauthn');
         set({ error: errorMsg, isLoading: false });
         throw error;
       }

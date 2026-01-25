@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { PageMeta } from '@/components/PageMeta';
 import { ActivityFeed } from '@/components/feed/ActivityFeed';
@@ -10,34 +11,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
  * Shows activity feed filtered to current group
  */
 export const GroupFeedPage: FC = () => {
+  const { t } = useTranslation();
   const { group, groupId, isLoading } = useGroupContext();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{t('groupFeedPage.loading')}</div>;
   }
 
   if (!group) {
-    return <div>Group not found</div>;
+    return <div>{t('groupFeedPage.notFound')}</div>;
   }
 
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <PageMeta
-        title={`${group.name} - Feed`}
+        title={`${group.name} - ${t('groupFeedPage.feedSuffix')}`}
         descriptionKey="meta.groups"
         path={`/app/groups/${groupId}/feed`}
       />
       <div>
-        <h1 className="text-3xl font-bold">{group.name} - Feed</h1>
+        <h1 className="text-3xl font-bold">{group.name} - {t('groupFeedPage.feedSuffix')}</h1>
         <p className="text-muted-foreground">
-          Activity and updates from this group
+          {t('groupFeedPage.subtitle')}
         </p>
       </div>
 
       {/* Post composer */}
       <Card>
         <CardHeader>
-          <CardTitle>Share an update</CardTitle>
+          <CardTitle>{t('groupFeedPage.shareUpdate')}</CardTitle>
         </CardHeader>
         <CardContent>
           <PostComposer />

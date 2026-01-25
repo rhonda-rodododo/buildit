@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -42,6 +43,7 @@ import { TorConnectionMethod, TorStatus } from '@/modules/security/tor/types';
 import { TorStatusIndicator } from './TorStatusIndicator';
 
 export function TorSettings() {
+  const { t } = useTranslation();
   const {
     config,
     status,
@@ -76,7 +78,7 @@ export function TorSettings() {
 
     // Validate .onion URL
     if (!newRelayUrl.includes('.onion')) {
-      alert('Please enter a valid .onion address');
+      alert(t('tor.invalidOnionAddress'));
       return;
     }
 
@@ -113,10 +115,10 @@ export function TorSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Tor Integration
+            {t('tor.title')}
           </CardTitle>
           <CardDescription>
-            Connect to Nostr relays through Tor for enhanced privacy and censorship resistance
+            {t('tor.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -125,9 +127,9 @@ export function TorSettings() {
           {/* Enable/Disable Toggle */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-0.5">
-              <Label htmlFor="tor-enabled">Enable Tor Routing</Label>
+              <Label htmlFor="tor-enabled">{t('tor.enableRouting')}</Label>
               <p className="text-sm text-muted-foreground">
-                Route Nostr connections through .onion relays
+                {t('tor.enableRoutingDesc')}
               </p>
             </div>
             <Switch
@@ -140,7 +142,7 @@ export function TorSettings() {
 
           {/* Connection Method */}
           <div className="space-y-2">
-            <Label htmlFor="connection-method">Connection Method</Label>
+            <Label htmlFor="connection-method">{t('tor.connectionMethod')}</Label>
             <Select
               value={config.method}
               onValueChange={(value) =>
@@ -153,33 +155,33 @@ export function TorSettings() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={TorConnectionMethod.AUTO}>
-                  Auto-detect (Recommended)
+                  {t('tor.methodAuto')}
                 </SelectItem>
                 <SelectItem value={TorConnectionMethod.TOR_BROWSER}>
-                  Tor Browser
+                  {t('tor.methodTorBrowser')}
                 </SelectItem>
                 <SelectItem value={TorConnectionMethod.MANUAL_PROXY}>
-                  Manual SOCKS5 Proxy
+                  {t('tor.methodManualProxy')}
                 </SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
               {config.method === TorConnectionMethod.AUTO &&
-                'Automatically detect Tor Browser or SOCKS5 proxy'}
+                t('tor.methodAutoDesc')}
               {config.method === TorConnectionMethod.TOR_BROWSER &&
-                'Use Tor Browser for .onion relay connections'}
+                t('tor.methodTorBrowserDesc')}
               {config.method === TorConnectionMethod.MANUAL_PROXY &&
-                'Configure custom SOCKS5 proxy (requires local Tor daemon)'}
+                t('tor.methodManualProxyDesc')}
             </p>
           </div>
 
           {/* Manual Proxy Settings */}
           {config.method === TorConnectionMethod.MANUAL_PROXY && (
             <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
-              <p className="text-sm font-medium">SOCKS5 Proxy Configuration</p>
+              <p className="text-sm font-medium">{t('tor.proxyConfig')}</p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="proxy-host">Proxy Host</Label>
+                  <Label htmlFor="proxy-host">{t('tor.proxyHost')}</Label>
                   <Input
                     id="proxy-host"
                     value={config.socks5?.host || '127.0.0.1'}
@@ -195,7 +197,7 @@ export function TorSettings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="proxy-port">Proxy Port</Label>
+                  <Label htmlFor="proxy-port">{t('tor.proxyPort')}</Label>
                   <Input
                     id="proxy-port"
                     type="number"
@@ -213,7 +215,7 @@ export function TorSettings() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Standard Tor: 9050, Tor Browser: 9150
+                {t('tor.proxyHint')}
               </p>
             </div>
           )}
@@ -225,9 +227,9 @@ export function TorSettings() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Onion Relays</CardTitle>
+              <CardTitle>{t('tor.onionRelays')}</CardTitle>
               <CardDescription>
-                Manage .onion Nostr relays for Tor connections
+                {t('tor.onionRelaysDesc')}
               </CardDescription>
             </div>
             <Button
@@ -237,7 +239,7 @@ export function TorSettings() {
               disabled={isHealthChecking}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isHealthChecking ? 'animate-spin' : ''}`} />
-              Health Check
+              {t('tor.healthCheck')}
             </Button>
           </div>
         </CardHeader>
@@ -246,9 +248,9 @@ export function TorSettings() {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
-                <Label htmlFor="onion-only">Onion Only Mode</Label>
+                <Label htmlFor="onion-only">{t('tor.onionOnlyMode')}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Use only .onion relays (no clearnet fallback)
+                  {t('tor.onionOnlyModeDesc')}
                 </p>
               </div>
               <Switch
@@ -261,9 +263,9 @@ export function TorSettings() {
 
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
-                <Label htmlFor="fallback-clearnet">Fallback to Clearnet</Label>
+                <Label htmlFor="fallback-clearnet">{t('tor.fallbackClearnet')}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Use clearnet relays if .onion relays unavailable
+                  {t('tor.fallbackClearnetDesc')}
                 </p>
               </div>
               <Switch
@@ -277,23 +279,23 @@ export function TorSettings() {
 
           {/* Add New Relay */}
           <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
-            <Label>Add Custom Relay</Label>
+            <Label>{t('tor.addCustomRelay')}</Label>
             <div className="flex gap-2">
               <Input
-                placeholder=".onion address"
+                placeholder={t('tor.onionAddress')}
                 value={newRelayUrl}
                 onChange={(e) => setNewRelayUrl(e.target.value)}
                 className="flex-1"
               />
               <Input
-                placeholder="Name (optional)"
+                placeholder={t('tor.nameOptional')}
                 value={newRelayName}
                 onChange={(e) => setNewRelayName(e.target.value)}
                 className="w-40"
               />
               <Button onClick={handleAddRelay} size="sm">
                 <Plus className="h-4 w-4 mr-1" />
-                Add
+                {t('tor.add')}
               </Button>
             </div>
           </div>
@@ -303,10 +305,10 @@ export function TorSettings() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Relay</TableHead>
-                  <TableHead>URL</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right">Latency</TableHead>
+                  <TableHead>{t('tor.tableRelay')}</TableHead>
+                  <TableHead>{t('tor.tableUrl')}</TableHead>
+                  <TableHead className="text-center">{t('tor.tableStatus')}</TableHead>
+                  <TableHead className="text-right">{t('tor.tableLatency')}</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -314,30 +316,30 @@ export function TorSettings() {
                 {onionRelays.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center text-muted-foreground">
-                      No .onion relays configured
+                      {t('tor.noRelaysConfigured')}
                     </TableCell>
                   </TableRow>
                 ) : (
                   onionRelays.map((relay) => (
                     <TableRow key={relay.url}>
                       <TableCell className="font-medium">
-                        {relay.name || 'Custom Relay'}
+                        {relay.name || t('tor.customRelay')}
                       </TableCell>
                       <TableCell className="font-mono text-xs">
                         {relay.url.substring(0, 40)}...
                       </TableCell>
                       <TableCell className="text-center">
                         {relay.healthy === undefined ? (
-                          <Badge variant="secondary">Unknown</Badge>
+                          <Badge variant="secondary">{t('tor.statusUnknown')}</Badge>
                         ) : relay.healthy ? (
                           <Badge variant="default" className="gap-1">
                             <CheckCircle2 className="h-3 w-3" />
-                            Healthy
+                            {t('tor.statusHealthy')}
                           </Badge>
                         ) : (
                           <Badge variant="destructive" className="gap-1">
                             <XCircle className="h-3 w-3" />
-                            Down
+                            {t('tor.statusDown')}
                           </Badge>
                         )}
                       </TableCell>
@@ -367,18 +369,18 @@ export function TorSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5" />
-            Enhanced Security
+            {t('tor.enhancedSecurity')}
           </CardTitle>
           <CardDescription>
-            Additional protections when using Tor
+            {t('tor.enhancedSecurityDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
-              <Label htmlFor="block-webrtc">Block WebRTC</Label>
+              <Label htmlFor="block-webrtc">{t('tor.blockWebRTC')}</Label>
               <p className="text-xs text-muted-foreground">
-                Prevent WebRTC IP leaks (requires browser extension)
+                {t('tor.blockWebRTCDesc')}
               </p>
             </div>
             <Switch
@@ -398,9 +400,9 @@ export function TorSettings() {
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
-              <Label htmlFor="block-geolocation">Block Geolocation</Label>
+              <Label htmlFor="block-geolocation">{t('tor.blockGeolocation')}</Label>
               <p className="text-xs text-muted-foreground">
-                Deny all geolocation API requests
+                {t('tor.blockGeolocationDesc')}
               </p>
             </div>
             <Switch
@@ -420,9 +422,9 @@ export function TorSettings() {
 
           <div className="flex items-center justify-between p-3 border rounded-lg">
             <div>
-              <Label htmlFor="fingerprint-protection">Fingerprinting Protection</Label>
+              <Label htmlFor="fingerprint-protection">{t('tor.fingerprintProtection')}</Label>
               <p className="text-xs text-muted-foreground">
-                Enhanced protection against browser fingerprinting
+                {t('tor.fingerprintProtectionDesc')}
               </p>
             </div>
             <Switch
@@ -446,7 +448,7 @@ export function TorSettings() {
       {warnings.length > 0 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Security Warnings</AlertTitle>
+          <AlertTitle>{t('tor.securityWarnings')}</AlertTitle>
           <AlertDescription>
             <ul className="list-disc list-inside space-y-1 mt-2">
               {warnings.map((warning, i) => (
@@ -462,19 +464,16 @@ export function TorSettings() {
       {/* Info Alert */}
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertTitle>How to use Tor with BuildIt Network</AlertTitle>
+        <AlertTitle>{t('tor.howToUse')}</AlertTitle>
         <AlertDescription className="space-y-2 mt-2">
           <p className="text-sm">
-            <strong>Recommended:</strong> Use Tor Browser for the best privacy and security.
-            BuildIt will automatically detect and use .onion relays.
+            <strong>{t('tor.recommended')}</strong> {t('tor.recommendedNote')}
           </p>
           <p className="text-sm">
-            <strong>Advanced:</strong> Run a local Tor daemon (port 9050) and enable Manual
-            Proxy mode for desktop integration.
+            <strong>{t('tor.advanced')}</strong> {t('tor.advancedNote')}
           </p>
           <p className="text-sm">
-            <strong>Note:</strong> WebRTC and geolocation blocking require browser
-            configuration or extensions. Tor Browser includes these protections by default.
+            <strong>{t('tor.note')}</strong> {t('tor.noteNote')}
           </p>
         </AlertDescription>
       </Alert>

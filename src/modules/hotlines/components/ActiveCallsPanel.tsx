@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Phone,
@@ -49,6 +50,7 @@ const priorityColors: Record<Priority, string> = {
 };
 
 export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
+  const { t } = useTranslation();
   const { activeCalls, isLoading, loadActiveCalls, startCall, endCall, updateCall } =
     useHotlinesStore();
   const [newCallOpen, setNewCallOpen] = useState(false);
@@ -118,57 +120,57 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
         <DialogTrigger asChild>
           <Button className="w-full">
             <Plus className="h-4 w-4 mr-2" />
-            Start New Call
+            {t('activeCallsPanel.startNewCall')}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Start New Call</DialogTitle>
+            <DialogTitle>{t('activeCallsPanel.newCallTitle')}</DialogTitle>
             <DialogDescription>
-              Log a new incoming call to the hotline
+              {t('activeCallsPanel.newCallDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="callerName">Caller Name</Label>
+              <Label htmlFor="callerName">{t('activeCallsPanel.callerName')}</Label>
               <Input
                 id="callerName"
                 value={callerName}
                 onChange={(e) => setCallerName(e.target.value)}
-                placeholder="Enter caller name"
+                placeholder={t('activeCallsPanel.callerNamePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="callerPhone">Phone Number</Label>
+              <Label htmlFor="callerPhone">{t('activeCallsPanel.phoneNumber')}</Label>
               <Input
                 id="callerPhone"
                 value={callerPhone}
                 onChange={(e) => setCallerPhone(e.target.value)}
-                placeholder="Enter phone number"
+                placeholder={t('activeCallsPanel.phonePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
+              <Label htmlFor="priority">{t('activeCallsPanel.priority')}</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="low">{t('activeCallsPanel.priorities.low')}</SelectItem>
+                  <SelectItem value="medium">{t('activeCallsPanel.priorities.medium')}</SelectItem>
+                  <SelectItem value="high">{t('activeCallsPanel.priorities.high')}</SelectItem>
+                  <SelectItem value="urgent">{t('activeCallsPanel.priorities.urgent')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewCallOpen(false)}>
-              Cancel
+              {t('activeCallsPanel.cancel')}
             </Button>
             <Button onClick={handleStartCall}>
               <Phone className="h-4 w-4 mr-2" />
-              Start Call
+              {t('activeCallsPanel.startCall')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -178,7 +180,7 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
       {activeCalls.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>No active calls</p>
+          <p>{t('activeCallsPanel.noActiveCalls')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -199,13 +201,13 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">
-                        {call.callerName || 'Unknown Caller'}
+                        {call.callerName || t('activeCallsPanel.unknownCaller')}
                       </span>
                       <Badge variant="secondary" className={priorityColors[call.priority]}>
-                        {call.priority}
+                        {t(`activeCallsPanel.priorities.${call.priority}`)}
                       </Badge>
                       {call.status === 'on-hold' && (
-                        <Badge variant="outline">On Hold</Badge>
+                        <Badge variant="outline">{t('activeCallsPanel.onHold')}</Badge>
                       )}
                     </div>
                     {call.callerPhone && (
@@ -228,12 +230,12 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
                     {call.status === 'on-hold' ? (
                       <>
                         <Play className="h-4 w-4 mr-1" />
-                        Resume
+                        {t('activeCallsPanel.resume')}
                       </>
                     ) : (
                       <>
                         <Pause className="h-4 w-4 mr-1" />
-                        Hold
+                        {t('activeCallsPanel.hold')}
                       </>
                     )}
                   </Button>
@@ -246,7 +248,7 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
                     }}
                   >
                     <PhoneOff className="h-4 w-4 mr-1" />
-                    End
+                    {t('activeCallsPanel.end')}
                   </Button>
                 </div>
               </div>
@@ -259,30 +261,30 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
       <Dialog open={endCallDialogOpen} onOpenChange={setEndCallDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>End Call</DialogTitle>
+            <DialogTitle>{t('activeCallsPanel.endCallTitle')}</DialogTitle>
             <DialogDescription>
-              Provide a summary of the call before ending
+              {t('activeCallsPanel.endCallDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="summary">Call Summary</Label>
+              <Label htmlFor="summary">{t('activeCallsPanel.callSummary')}</Label>
               <Textarea
                 id="summary"
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
-                placeholder="Enter a summary of the call..."
+                placeholder={t('activeCallsPanel.summaryPlaceholder')}
                 rows={4}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEndCallDialogOpen(false)}>
-              Cancel
+              {t('activeCallsPanel.cancel')}
             </Button>
             <Button onClick={handleEndCall} variant="destructive">
               <PhoneOff className="h-4 w-4 mr-2" />
-              End Call
+              {t('activeCallsPanel.endCallButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

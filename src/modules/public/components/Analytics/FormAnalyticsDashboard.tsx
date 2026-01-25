@@ -3,6 +3,7 @@
  * Privacy-preserving analytics for forms
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, Eye, Send, BarChart } from 'lucide-react';
 import type { AnalyticsSummary } from '../../types';
@@ -12,21 +13,23 @@ interface FormAnalyticsDashboardProps {
 }
 
 export function FormAnalyticsDashboard({ summary }: FormAnalyticsDashboardProps) {
+  const { t } = useTranslation();
+
   const stats = [
     {
-      label: 'Total Views',
+      label: t('formAnalyticsDashboard.totalViews'),
       value: summary.views.toLocaleString(),
       icon: Eye,
       color: 'text-blue-600',
     },
     {
-      label: 'Submissions',
+      label: t('formAnalyticsDashboard.submissions'),
       value: (summary.submissions || 0).toLocaleString(),
       icon: Send,
       color: 'text-green-600',
     },
     {
-      label: 'Conversion Rate',
+      label: t('formAnalyticsDashboard.conversionRate'),
       value: `${(summary.conversionRate || 0).toFixed(1)}%`,
       icon: TrendingUp,
       color: 'text-purple-600',
@@ -36,9 +39,9 @@ export function FormAnalyticsDashboard({ summary }: FormAnalyticsDashboardProps)
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold">Analytics</h3>
+        <h3 className="text-lg font-semibold">{t('formAnalyticsDashboard.title')}</h3>
         <p className="text-sm text-muted-foreground">
-          Privacy-preserving form analytics
+          {t('formAnalyticsDashboard.subtitle')}
         </p>
       </div>
 
@@ -65,12 +68,12 @@ export function FormAnalyticsDashboard({ summary }: FormAnalyticsDashboardProps)
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <BarChart className="h-5 w-5 text-muted-foreground" />
-            <h4 className="font-semibold">Top Referrers</h4>
+            <h4 className="font-semibold">{t('formAnalyticsDashboard.topReferrers')}</h4>
           </div>
           <div className="space-y-2">
             {summary.topReferrers.slice(0, 5).map((referrer, index) => (
               <div key={index} className="flex items-center justify-between">
-                <span className="text-sm truncate flex-1">{referrer.referrer || 'Direct'}</span>
+                <span className="text-sm truncate flex-1">{referrer.referrer || t('formAnalyticsDashboard.direct')}</span>
                 <span className="text-sm font-medium">{referrer.count}</span>
               </div>
             ))}

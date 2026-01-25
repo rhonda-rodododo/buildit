@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -43,6 +44,7 @@ export function AccessRequestDialog({
   resourceName,
   requesterPubkey,
 }: AccessRequestDialogProps) {
+  const { t } = useTranslation()
   const [requestedPermission, setRequestedPermission] = useState<FilePermission>('view')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -68,7 +70,7 @@ export function AccessRequestDialog({
       setRequestedPermission('view')
     } catch (err) {
       console.error('Failed to create access request:', err)
-      alert('Failed to submit access request')
+      alert(t('filesAccessRequestDialog.error'))
     } finally {
       setSubmitting(false)
     }
@@ -80,16 +82,16 @@ export function AccessRequestDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Request Access
+            {t('filesAccessRequestDialog.title')}
           </DialogTitle>
           <DialogDescription>
-            Request access to "{resourceName}"
+            {t('filesAccessRequestDialog.description', { resourceName })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="permission">Access Level</Label>
+            <Label htmlFor="permission">{t('filesAccessRequestDialog.accessLevel')}</Label>
             <Select
               value={requestedPermission}
               onValueChange={(v) => setRequestedPermission(v as FilePermission)}
@@ -98,18 +100,18 @@ export function AccessRequestDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="view">View only</SelectItem>
-                <SelectItem value="download">View & Download</SelectItem>
-                <SelectItem value="edit">Edit</SelectItem>
+                <SelectItem value="view">{t('filesAccessRequestDialog.viewOnly')}</SelectItem>
+                <SelectItem value="download">{t('filesAccessRequestDialog.viewDownload')}</SelectItem>
+                <SelectItem value="edit">{t('filesAccessRequestDialog.edit')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message">Message (optional)</Label>
+            <Label htmlFor="message">{t('filesAccessRequestDialog.messageLabel')}</Label>
             <Textarea
               id="message"
-              placeholder="Why do you need access to this file?"
+              placeholder={t('filesAccessRequestDialog.messagePlaceholder')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
@@ -119,11 +121,11 @@ export function AccessRequestDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('filesAccessRequestDialog.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             <Send className="h-4 w-4 mr-2" />
-            {submitting ? 'Sending...' : 'Send Request'}
+            {submitting ? t('filesAccessRequestDialog.sending') : t('filesAccessRequestDialog.sendRequest')}
           </Button>
         </DialogFooter>
       </DialogContent>

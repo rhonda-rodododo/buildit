@@ -5,6 +5,7 @@
  */
 
 import { FC, useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
@@ -137,6 +138,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
   enableCollaboration = false,
   suggestionMode = false,
 }) => {
+  const { t } = useTranslation();
   const [ydoc, setYdoc] = useState<Y.Doc | null>(null)
   const [_provider, setProvider] = useState<EncryptedNostrProvider | null>(null)
   const [awareness, setAwareness] = useState<Awareness | null>(null)
@@ -220,7 +222,6 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
 
   // Build extensions array
   const extensions = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const baseExtensions: any[] = [
       StarterKit.configure({
         codeBlock: false, // Disable default code block to use lowlight version
@@ -342,14 +343,14 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
   }
 
   const addImage = () => {
-    const url = window.prompt('Enter image URL:')
+    const url = window.prompt(t('editor.enterImageUrl'))
     if (url) {
       editor.chain().focus().setImage({ src: url }).run()
     }
   }
 
   const setLink = () => {
-    const url = window.prompt('Enter URL:')
+    const url = window.prompt(t('editor.enterUrl'))
     if (url) {
       editor.chain().focus().setLink({ href: url }).run()
     }
@@ -411,24 +412,24 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
             {isConnected ? (
               <div className="flex items-center gap-2 text-green-600">
                 <Wifi className="h-4 w-4" />
-                <span className="text-sm font-medium">Connected</span>
+                <span className="text-sm font-medium">{t('editor.connected')}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-orange-600">
                 <WifiOff className="h-4 w-4" />
-                <span className="text-sm font-medium">Connecting...</span>
+                <span className="text-sm font-medium">{t('editor.connecting')}</span>
               </div>
             )}
 
             {isSynced && (
               <Badge variant="secondary" className="text-xs">
-                Synced
+                {t('editor.synced')}
               </Badge>
             )}
 
             {suggestionMode && (
               <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-                Suggesting
+                {t('editor.suggesting')}
               </Badge>
             )}
           </div>
@@ -437,7 +438,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
-              {participants.length} active
+              {t('editor.active', { count: participants.length })}
             </span>
             <div className="flex -space-x-2">
               {participants.slice(0, 5).map((participant) => (
@@ -478,7 +479,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Bold className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Bold (Ctrl+B)</TooltipContent>
+            <TooltipContent>{t('editor.bold')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -492,7 +493,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Italic className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Italic (Ctrl+I)</TooltipContent>
+            <TooltipContent>{t('editor.italic')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -506,7 +507,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Strikethrough className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Strikethrough</TooltipContent>
+            <TooltipContent>{t('editor.strikethrough')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -520,7 +521,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Code className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Inline Code</TooltipContent>
+            <TooltipContent>{t('editor.inlineCode')}</TooltipContent>
           </Tooltip>
 
           <Separator orientation="vertical" className="h-8" />
@@ -537,7 +538,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Heading1 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Heading 1</TooltipContent>
+            <TooltipContent>{t('editor.heading1')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -551,7 +552,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Heading2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Heading 2</TooltipContent>
+            <TooltipContent>{t('editor.heading2')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -565,7 +566,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Heading3 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Heading 3</TooltipContent>
+            <TooltipContent>{t('editor.heading3')}</TooltipContent>
           </Tooltip>
 
           <Separator orientation="vertical" className="h-8" />
@@ -582,7 +583,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <List className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Bullet List</TooltipContent>
+            <TooltipContent>{t('editor.bulletList')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -596,7 +597,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <ListOrdered className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Numbered List</TooltipContent>
+            <TooltipContent>{t('editor.numberedList')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -610,7 +611,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Quote className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Blockquote</TooltipContent>
+            <TooltipContent>{t('editor.blockquote')}</TooltipContent>
           </Tooltip>
 
           <Separator orientation="vertical" className="h-8" />
@@ -622,7 +623,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <ImageIcon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Insert Image</TooltipContent>
+            <TooltipContent>{t('editor.insertImage')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -631,7 +632,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <LinkIcon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Insert Link</TooltipContent>
+            <TooltipContent>{t('editor.insertLink')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -640,7 +641,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <TableIcon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Insert Table</TooltipContent>
+            <TooltipContent>{t('editor.insertTable')}</TooltipContent>
           </Tooltip>
 
           {/* Advanced Insert Dropdown - Epic 56 */}
@@ -653,38 +654,38 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent>Insert Block</TooltipContent>
+              <TooltipContent>{t('editor.insertBlock')}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={insertMath}>
                 <Sigma className="h-4 w-4 mr-2" />
-                Math Equation
+                {t('editor.mathEquation')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={insertMermaid}>
                 <GitBranch className="h-4 w-4 mr-2" />
-                Diagram (Mermaid)
+                {t('editor.diagram')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={insertTableOfContents}>
                 <ListTree className="h-4 w-4 mr-2" />
-                Table of Contents
+                {t('editor.tableOfContents')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={insertFootnote}>
                 <Superscript className="h-4 w-4 mr-2" />
-                Footnote
+                {t('editor.footnote')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={insertPageBreak}>
                 <SeparatorHorizontal className="h-4 w-4 mr-2" />
-                Page Break
+                {t('editor.pageBreak')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={insertHeader}>
                 <FileText className="h-4 w-4 mr-2" />
-                Document Header
+                {t('editor.documentHeader')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={insertFooter}>
                 <FileText className="h-4 w-4 mr-2" />
-                Document Footer
+                {t('editor.documentFooter')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -706,13 +707,13 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                   </Button>
                 </PopoverTrigger>
               </TooltipTrigger>
-              <TooltipContent>Add Comment</TooltipContent>
+              <TooltipContent>{t('editor.addComment')}</TooltipContent>
             </Tooltip>
             <PopoverContent className="w-80" align="start">
               <div className="space-y-3">
-                <h4 className="font-medium text-sm">Add Comment</h4>
+                <h4 className="font-medium text-sm">{t('editor.addComment')}</h4>
                 <Textarea
-                  placeholder="Write your comment..."
+                  placeholder={t('editor.writeComment')}
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   className="min-h-[80px]"
@@ -727,14 +728,14 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                       setShowCommentPopover(false)
                     }}
                   >
-                    Cancel
+                    {t('editor.cancel')}
                   </Button>
                   <Button
                     size="sm"
                     onClick={handleAddComment}
                     disabled={!commentText.trim()}
                   >
-                    Comment
+                    {t('editor.comment')}
                   </Button>
                 </div>
               </div>
@@ -753,7 +754,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {suggestionMode ? 'Suggestion Mode Active' : 'Suggestion Mode (Track Changes)'}
+              {suggestionMode ? t('editor.suggestionModeActive') : t('editor.suggestionModeTrack')}
             </TooltipContent>
           </Tooltip>
 
@@ -761,7 +762,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
           {suggestionMode && (
             <Badge variant="outline" className="ml-1 text-xs bg-orange-50 text-orange-700 border-orange-200">
               <Highlighter className="h-3 w-3 mr-1" />
-              Suggesting
+              {t('editor.suggesting')}
             </Badge>
           )}
 
@@ -779,7 +780,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Undo className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
+            <TooltipContent>{t('editor.undo')}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -793,7 +794,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
                 <Redo className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Redo (Ctrl+Y)</TooltipContent>
+            <TooltipContent>{t('editor.redo')}</TooltipContent>
           </Tooltip>
         </div>
       )}
@@ -840,7 +841,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
               size="sm"
               className="h-7 w-7 p-0"
               onClick={insertFootnote}
-              title="Add footnote"
+              title={t('editor.addFootnote')}
             >
               <Superscript className="h-3 w-3" />
             </Button>

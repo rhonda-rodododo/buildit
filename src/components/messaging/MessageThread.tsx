@@ -1,4 +1,5 @@
 import { FC, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -13,6 +14,7 @@ interface MessageThreadProps {
 }
 
 export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
+  const { t } = useTranslation()
   const { getConversationMessages, setMessages, addMessage, markAsRead, conversations } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
   const { addNotification } = useNotificationStore()
@@ -59,7 +61,7 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
           if (message.from !== currentIdentity.publicKey) {
             addNotification({
               type: 'new_dm',
-              title: 'New Message',
+              title: t('messageThread.newMessage'),
               message: `${message.from.slice(0, 8)}...: ${message.content.slice(0, 50)}`,
               metadata: {
                 conversationId: message.conversationId,
@@ -124,15 +126,15 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
     yesterday.setDate(yesterday.getDate() - 1)
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today'
+      return t('messageThread.today')
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday'
+      return t('messageThread.yesterday')
     }
     return date.toLocaleDateString()
   }
 
   if (!currentIdentity || !otherPubkey) {
-    return <div>Invalid conversation</div>
+    return <div>{t('messageThread.invalidConversation')}</div>
   }
 
   const truncatePubkey = (pubkey: string) => {
@@ -152,7 +154,7 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
-            No messages yet. Start the conversation!
+            {t('messageThread.noMessages')}
           </div>
         ) : (
           messages.map((msg) => {
@@ -201,12 +203,12 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
             <UserMentionInput
               value={messageInput}
               onChange={setMessageInput}
-              placeholder="Type a message... (use @ to mention)"
+              placeholder={t('messageThread.placeholder')}
               rows={1}
             />
           </div>
           <Button onClick={handleSend} disabled={sending || !messageInput.trim()}>
-            Send
+            {t('messageThread.send')}
           </Button>
         </div>
       </div>

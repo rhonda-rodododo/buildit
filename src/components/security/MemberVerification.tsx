@@ -5,6 +5,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
   isAdmin = false,
   className
 }) => {
+  const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([
     {
       id: 'member-1',
@@ -152,19 +154,19 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
   };
 
   const getTrustScoreLabel = (score: number) => {
-    if (score >= 80) return 'Trusted';
-    if (score >= 60) return 'Verified';
-    if (score >= 40) return 'New';
-    return 'Unverified';
+    if (score >= 80) return t('memberVerification.trusted').split(' ')[0];
+    if (score >= 60) return t('memberVerification.verified');
+    if (score >= 40) return t('memberVerification.newLevel').split(' ')[0];
+    return t('memberVerification.unverified').split(' ')[0];
   };
 
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold mb-2">Member Verification</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('memberVerification.title')}</h2>
         <p className="text-muted-foreground">
-          Verify members in-person to build trust and prevent infiltration
+          {t('memberVerification.description')}
         </p>
       </div>
 
@@ -173,12 +175,12 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">How Verification Works</h4>
+            <h4 className="text-sm font-medium mb-1">{t('memberVerification.howItWorks')}</h4>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>In-Person Verification:</strong> Scan member's QR code when you meet face-to-face</li>
-              <li>• <strong>Vouching:</strong> Vouch for members you trust to increase their trust score</li>
-              <li>• <strong>Trust Score:</strong> Calculated based on verification, vouches, and activity</li>
-              <li>• <strong>Verified Badge:</strong> Shows member has been verified in-person</li>
+              <li>• <strong>{t('memberVerification.inPerson')}</strong> {t('memberVerification.inPersonDesc')}</li>
+              <li>• <strong>{t('memberVerification.vouching')}</strong> {t('memberVerification.vouchingDesc')}</li>
+              <li>• <strong>{t('memberVerification.trustScoreInfo')}</strong> {t('memberVerification.trustScoreDesc')}</li>
+              <li>• <strong>{t('memberVerification.verifiedBadge')}</strong> {t('memberVerification.verifiedBadgeDesc')}</li>
             </ul>
           </div>
         </div>
@@ -190,14 +192,14 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <QrCode className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold">QR Code Verification</h3>
+              <h3 className="font-semibold">{t('memberVerification.qrVerification')}</h3>
             </div>
             <Button
               variant={showQRScanner ? 'outline' : 'default'}
               size="sm"
               onClick={() => setShowQRScanner(!showQRScanner)}
             >
-              {showQRScanner ? 'Close Scanner' : 'Scan QR Code'}
+              {showQRScanner ? t('memberVerification.closeScanner') : t('memberVerification.scanQR')}
             </Button>
           </div>
 
@@ -206,19 +208,19 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
               <div className="bg-muted/50 rounded-lg p-6 text-center border-2 border-dashed">
                 <QrCode className="w-16 h-16 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  QR Scanner would appear here in production
+                  {t('memberVerification.qrScannerPlaceholder')}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Camera access required for in-person verification
+                  {t('memberVerification.cameraRequired')}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder="Or enter member ID manually..."
+                  placeholder={t('memberVerification.enterMemberId')}
                   className="flex-1"
                 />
-                <Button size="sm">Verify</Button>
+                <Button size="sm">{t('memberVerification.verify')}</Button>
               </div>
             </div>
           )}
@@ -227,7 +229,7 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
 
       {/* Member List */}
       <div>
-        <h3 className="font-semibold mb-3">Members</h3>
+        <h3 className="font-semibold mb-3">{t('memberVerification.members')}</h3>
         <div className="space-y-2">
           {members.map((member) => {
             const isVouchedByMe = member.vouchedBy.includes(currentUserId);
@@ -251,14 +253,14 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                       {member.verified && (
                         <Badge variant="outline" className="gap-1 shrink-0">
                           <CheckCircle2 className="w-3 h-3 text-green-500" />
-                          Verified
+                          {t('memberVerification.verified')}
                         </Badge>
                       )}
                       {member.role === 'admin' && (
-                        <Badge variant="default" className="shrink-0">Admin</Badge>
+                        <Badge variant="default" className="shrink-0">{t('memberVerification.admin')}</Badge>
                       )}
                       {member.role === 'organizer' && (
-                        <Badge variant="secondary" className="shrink-0">Organizer</Badge>
+                        <Badge variant="secondary" className="shrink-0">{t('memberVerification.organizer')}</Badge>
                       )}
                     </div>
 
@@ -270,13 +272,13 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                         </span>
                       </div>
                       <div>•</div>
-                      <div>Joined {new Date(member.joinedDate).toLocaleDateString()}</div>
+                      <div>{t('memberVerification.joined', { date: new Date(member.joinedDate).toLocaleDateString() })}</div>
                       {member.vouchedBy.length > 0 && (
                         <>
                           <div>•</div>
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3" />
-                            {member.vouchedBy.length} {member.vouchedBy.length === 1 ? 'vouch' : 'vouches'}
+                            {member.vouchedBy.length} {member.vouchedBy.length === 1 ? t('memberVerification.vouch') : t('memberVerification.vouches')}
                           </div>
                         </>
                       )}
@@ -292,7 +294,7 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                           className="gap-1"
                         >
                           <Check className="w-3 h-3" />
-                          Verify In-Person
+                          {t('memberVerification.verifyInPerson')}
                         </Button>
                       )}
 
@@ -304,14 +306,14 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                           className="gap-1"
                         >
                           <UserPlus className="w-3 h-3" />
-                          Vouch for Member
+                          {t('memberVerification.vouchForMember')}
                         </Button>
                       )}
 
                       {isVouchedByMe && (
                         <Badge variant="outline" className="gap-1">
                           <Check className="w-3 h-3" />
-                          You vouched
+                          {t('memberVerification.youVouched')}
                         </Badge>
                       )}
                     </div>
@@ -322,7 +324,7 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                     <div className={`text-2xl font-bold ${getTrustScoreColor(member.trustScore)}`}>
                       {member.trustScore}
                     </div>
-                    <div className="text-xs text-muted-foreground">Trust Score</div>
+                    <div className="text-xs text-muted-foreground">{t('memberVerification.trustScore')}</div>
                   </div>
                 </div>
 
@@ -332,7 +334,7 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
                       <div className="text-xs text-muted-foreground">
-                        <strong>Low trust score.</strong> Consider in-person verification before sharing sensitive information.
+                        <strong>{t('memberVerification.lowTrustWarning')}</strong> {t('memberVerification.lowTrustAdvice')}
                       </div>
                     </div>
                   </div>
@@ -345,34 +347,34 @@ export const MemberVerification: FC<MemberVerificationProps> = ({
 
       {/* Legend */}
       <Card className="p-4">
-        <h4 className="text-sm font-medium mb-3">Trust Score Levels</h4>
+        <h4 className="text-sm font-medium mb-3">{t('memberVerification.trustLevels')}</h4>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-green-500" />
             <div className="text-xs">
-              <div className="font-medium">Trusted (80+)</div>
-              <div className="text-muted-foreground">Verified + multiple vouches</div>
+              <div className="font-medium">{t('memberVerification.trusted')}</div>
+              <div className="text-muted-foreground">{t('memberVerification.trustedDesc')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-blue-500" />
             <div className="text-xs">
-              <div className="font-medium">Verified (60-79)</div>
-              <div className="text-muted-foreground">In-person verified</div>
+              <div className="font-medium">{t('memberVerification.verifiedLevel')}</div>
+              <div className="text-muted-foreground">{t('memberVerification.verifiedLevelDesc')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <ShieldQuestion className="w-4 h-4 text-yellow-500" />
             <div className="text-xs">
-              <div className="font-medium">New (40-59)</div>
-              <div className="text-muted-foreground">Active but unverified</div>
+              <div className="font-medium">{t('memberVerification.newLevel')}</div>
+              <div className="text-muted-foreground">{t('memberVerification.newLevelDesc')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-red-500" />
             <div className="text-xs">
-              <div className="font-medium">Unverified (&lt;40)</div>
-              <div className="text-muted-foreground">Requires verification</div>
+              <div className="font-medium">{t('memberVerification.unverified')}</div>
+              <div className="text-muted-foreground">{t('memberVerification.unverifiedDesc')}</div>
             </div>
           </div>
         </div>

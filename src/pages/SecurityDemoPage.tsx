@@ -5,6 +5,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { MemberVerification } from '@/components/security/MemberVerification';
 import { AnomalyDetection } from '@/components/security/AnomalyDetection';
@@ -19,14 +20,16 @@ import {
 } from 'lucide-react';
 
 export const SecurityDemoPage: FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <PageMeta title="Security Demo" descriptionKey="meta.security" />
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Infiltration Countermeasures</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('securityDemo.title')}</h1>
         <p className="text-muted-foreground">
-          Protect high-risk campaigns from infiltration and data harvesting
+          {t('securityDemo.description')}
         </p>
       </div>
 
@@ -35,11 +38,9 @@ export const SecurityDemoPage: FC = () => {
         <div className="flex items-start gap-3 mb-4">
           <Shield className="w-6 h-6 text-primary shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-lg font-semibold mb-2">Why Infiltration Countermeasures Matter</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('securityDemo.whyMatters')}</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              High-risk organizing campaigns face constant threats from infiltrators, bad actors, and surveillance.
-              These security features help identify and prevent malicious activity while maintaining trust within
-              the community.
+              {t('securityDemo.whyMattersDesc')}
             </p>
           </div>
         </div>
@@ -48,9 +49,9 @@ export const SecurityDemoPage: FC = () => {
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-sm font-medium mb-1">Member Verification</h4>
+              <h4 className="text-sm font-medium mb-1">{t('securityDemo.memberVerification')}</h4>
               <p className="text-xs text-muted-foreground">
-                In-person QR verification and trust scores prevent fake accounts and infiltrators
+                {t('securityDemo.memberVerificationDesc')}
               </p>
             </div>
           </div>
@@ -58,9 +59,9 @@ export const SecurityDemoPage: FC = () => {
           <div className="flex items-start gap-2">
             <ShieldAlert className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-sm font-medium mb-1">Anomaly Detection</h4>
+              <h4 className="text-sm font-medium mb-1">{t('securityDemo.anomalyDetection')}</h4>
               <p className="text-xs text-muted-foreground">
-                Automated detection of suspicious behavior patterns like mass data access
+                {t('securityDemo.anomalyDetectionDesc')}
               </p>
             </div>
           </div>
@@ -68,9 +69,9 @@ export const SecurityDemoPage: FC = () => {
           <div className="flex items-start gap-2">
             <FileText className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-sm font-medium mb-1">Audit Logs</h4>
+              <h4 className="text-sm font-medium mb-1">{t('securityDemo.auditLogs')}</h4>
               <p className="text-xs text-muted-foreground">
-                Complete tracking of sensitive actions for investigation and accountability
+                {t('securityDemo.auditLogsDesc')}
               </p>
             </div>
           </div>
@@ -82,15 +83,15 @@ export const SecurityDemoPage: FC = () => {
         <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="verification" className="gap-2">
             <ShieldCheck className="w-4 h-4" />
-            Member Verification
+            {t('securityDemo.tabs.verification')}
           </TabsTrigger>
           <TabsTrigger value="anomalies" className="gap-2">
             <ShieldAlert className="w-4 h-4" />
-            Anomaly Detection
+            {t('securityDemo.tabs.anomalies')}
           </TabsTrigger>
           <TabsTrigger value="audit" className="gap-2">
             <FileText className="w-4 h-4" />
-            Audit Logs
+            {t('securityDemo.tabs.audit')}
           </TabsTrigger>
         </TabsList>
 
@@ -112,20 +113,19 @@ export const SecurityDemoPage: FC = () => {
         <div className="flex items-start gap-3">
           <Shield className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">Real-World Use Cases</h4>
+            <h4 className="text-sm font-medium mb-1">{t('securityDemo.useCases.title')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
-              These security features are essential for:
+              {t('securityDemo.useCases.intro')}
             </p>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>Union Organizing:</strong> Prevent employer infiltration during organizing drives</li>
-              <li>• <strong>Direct Action Campaigns:</strong> Identify undercover law enforcement or informants</li>
-              <li>• <strong>Tenant Unions:</strong> Detect landlord-sponsored bad actors attempting to disrupt organizing</li>
-              <li>• <strong>Whistleblower Networks:</strong> Protect sources from corporate or government surveillance</li>
-              <li>• <strong>Activist Coalitions:</strong> Prevent agent provocateurs from disrupting movement work</li>
+              <li>• <strong>{t('securityDemo.useCases.unionOrganizing')}</strong> {t('securityDemo.useCases.unionOrganizingDesc')}</li>
+              <li>• <strong>{t('securityDemo.useCases.directAction')}</strong> {t('securityDemo.useCases.directActionDesc')}</li>
+              <li>• <strong>{t('securityDemo.useCases.tenantUnions')}</strong> {t('securityDemo.useCases.tenantUnionsDesc')}</li>
+              <li>• <strong>{t('securityDemo.useCases.whistleblower')}</strong> {t('securityDemo.useCases.whistleblowerDesc')}</li>
+              <li>• <strong>{t('securityDemo.useCases.activist')}</strong> {t('securityDemo.useCases.activistDesc')}</li>
             </ul>
             <p className="text-xs text-muted-foreground mt-2">
-              <strong>Key Insight:</strong> Infiltration is not paranoia - it's a documented tactic used against organizing
-              efforts throughout history. These tools provide systematic defense without creating a culture of suspicion.
+              <strong>{t('securityDemo.useCases.keyInsight')}</strong> {t('securityDemo.useCases.keyInsightDesc')}
             </p>
           </div>
         </div>

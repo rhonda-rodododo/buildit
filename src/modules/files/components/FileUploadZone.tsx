@@ -4,7 +4,8 @@
  */
 
 import { useState, useCallback } from 'react'
-import { hexToBytes } from '@noble/hashes/utils.js'
+import { useTranslation } from 'react-i18next'
+import { hexToBytes } from '@noble/hashes/utils'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -27,6 +28,7 @@ interface FileUploadZoneProps {
 }
 
 export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZoneProps) {
+  const { t } = useTranslation()
   const [isDragging, setIsDragging] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -67,7 +69,7 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
       // Get group encryption key for file encryption
       const group = useGroupsStore.getState().groups.find(g => g.id === groupId)
       if (!group) {
-        toast.error('Group not found')
+        toast.error(t('fileUploadZone.groupNotFound'))
         return
       }
 
@@ -101,10 +103,10 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
 
       setSelectedFiles([])
       onClose()
-      toast.success(`${selectedFiles.length} file(s) uploaded successfully`)
+      toast.success(t('fileUploadZone.success', { count: selectedFiles.length }))
     } catch (error) {
       console.error('Upload failed:', error)
-      toast.error('Failed to upload files')
+      toast.error(t('fileUploadZone.error'))
     } finally {
       setIsUploading(false)
     }
@@ -114,7 +116,7 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upload Files</DialogTitle>
+          <DialogTitle>{t('fileUploadZone.title')}</DialogTitle>
         </DialogHeader>
 
         <div
@@ -129,10 +131,10 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
         >
           <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
           <p className="mt-4 text-sm font-medium">
-            Drag & drop files here, or click to browse
+            {t('fileUploadZone.dragDrop')}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Files will be encrypted before upload
+            {t('fileUploadZone.encrypted')}
           </p>
           <input
             type="file"
@@ -145,7 +147,7 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
         {/* Selected files */}
         {selectedFiles.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-sm font-medium">Selected files:</p>
+            <p className="text-sm font-medium">{t('fileUploadZone.selectedFiles')}</p>
             {selectedFiles.map((file, index) => (
               <div
                 key={index}
@@ -177,13 +179,13 @@ export function FileUploadZone({ groupId, folderId, onClose }: FileUploadZonePro
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('fileUploadZone.cancel')}
           </Button>
           <Button
             onClick={handleUpload}
             disabled={selectedFiles.length === 0 || isUploading}
           >
-            Upload {selectedFiles.length > 0 && `(${selectedFiles.length})`}
+            {selectedFiles.length > 0 ? t('fileUploadZone.uploadCount', { count: selectedFiles.length }) : t('fileUploadZone.upload')}
           </Button>
         </div>
       </DialogContent>

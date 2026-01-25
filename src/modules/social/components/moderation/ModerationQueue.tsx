@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,26 +49,24 @@ const REPORT_ICONS: Record<ContentReport['reportedContentType'], React.ReactNode
   message: <MessageSquare className="w-4 h-4" />,
 };
 
-const STATUS_BADGES: Record<ContentReport['status'], { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-  pending: { variant: 'default', label: 'Pending Review' },
-  reviewed: { variant: 'secondary', label: 'Reviewed' },
-  actioned: { variant: 'destructive', label: 'Action Taken' },
-  dismissed: { variant: 'outline', label: 'Dismissed' },
+const getStatusBadgeLabel = (status: ContentReport['status'], t: (key: string) => string): string => {
+  switch (status) {
+    case 'pending': return t('moderationQueue.pendingReview');
+    case 'reviewed': return t('moderationQueue.reviewed');
+    case 'actioned': return t('moderationQueue.actionTaken');
+    case 'dismissed': return t('moderationQueue.dismissed');
+  }
 };
 
-const REASON_LABELS: Record<string, string> = {
-  spam: 'Spam',
-  harassment: 'Harassment',
-  'hate-speech': 'Hate Speech',
-  violence: 'Violence',
-  misinformation: 'Misinformation',
-  'illegal-content': 'Illegal Content',
-  impersonation: 'Impersonation',
-  'self-harm': 'Self-Harm',
-  other: 'Other',
+const STATUS_BADGES: Record<ContentReport['status'], { variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  pending: { variant: 'default' },
+  reviewed: { variant: 'secondary' },
+  actioned: { variant: 'destructive' },
+  dismissed: { variant: 'outline' },
 };
 
 export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
+  const { t } = useTranslation();
   const {
     reports,
     getPendingReports,
@@ -110,10 +109,10 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
 
       toast.success(
         status === 'dismissed'
-          ? 'Report dismissed'
+          ? t('moderationQueue.dismissedToast')
           : status === 'actioned'
-          ? 'Action taken and user blocked'
-          : 'Report reviewed'
+          ? t('moderationQueue.actionedToast')
+          : t('moderationQueue.reviewedToast')
       );
 
       setSelectedReport(null);
@@ -144,15 +143,15 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            Moderation Queue
+            {t('moderationQueue.title')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Review and take action on reported content
+            {t('moderationQueue.description')}
           </p>
         </div>
         {pendingReports.length > 0 && (
           <Badge variant="destructive" className="text-lg px-3 py-1">
-            {pendingReports.length} pending
+            {pendingReports.length} {t('moderationQueue.pending')}
           </Badge>
         )}
       </div>
@@ -161,7 +160,7 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
         <TabsList className="mb-4">
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            Pending
+            {t('moderationQueue.pendingTab')}
             {pendingReports.length > 0 && (
               <Badge variant="secondary" className="ml-1">
                 {pendingReports.length}
@@ -170,11 +169,11 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
           </TabsTrigger>
           <TabsTrigger value="reviewed" className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
-            Reviewed
+            {t('moderationQueue.reviewedTab')}
           </TabsTrigger>
           <TabsTrigger value="logs" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Activity Log
+            {t('moderationQueue.activityLog')}
           </TabsTrigger>
         </TabsList>
 
@@ -183,9 +182,9 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
             <Card>
               <CardContent className="py-12 text-center">
                 <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-4" />
-                <h3 className="font-semibold text-lg mb-2">All caught up!</h3>
+                <h3 className="font-semibold text-lg mb-2">{t('moderationQueue.allCaughtUp')}</h3>
                 <p className="text-muted-foreground">
-                  There are no pending reports to review.
+                  {t('moderationQueue.noPendingReports')}
                 </p>
               </CardContent>
             </Card>
@@ -205,9 +204,9 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
             <Card>
               <CardContent className="py-12 text-center">
                 <FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="font-semibold text-lg mb-2">No reviewed reports</h3>
+                <h3 className="font-semibold text-lg mb-2">{t('moderationQueue.noReviewedReports')}</h3>
                 <p className="text-muted-foreground">
-                  Reviewed reports will appear here.
+                  {t('moderationQueue.reviewedAppear')}
                 </p>
               </CardContent>
             </Card>
@@ -227,9 +226,9 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
             <Card>
               <CardContent className="py-12 text-center">
                 <FileText className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="font-semibold text-lg mb-2">No activity yet</h3>
+                <h3 className="font-semibold text-lg mb-2">{t('moderationQueue.noActivity')}</h3>
                 <p className="text-muted-foreground">
-                  Moderation actions will be logged here.
+                  {t('moderationQueue.actionsLogged')}
                 </p>
               </CardContent>
             </Card>
@@ -241,10 +240,10 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
                     <Badge variant="outline">{log.action}</Badge>
                     <span className="text-sm">
                       {log.targetPubkey
-                        ? `User: ${log.targetPubkey.slice(0, 8)}...`
+                        ? `${t('moderationQueue.user')} ${log.targetPubkey.slice(0, 8)}...`
                         : log.targetContentId
-                        ? `Content: ${log.targetContentId.slice(0, 8)}...`
-                        : 'System action'}
+                        ? `${t('moderationQueue.content')} ${log.targetContentId.slice(0, 8)}...`
+                        : t('moderationQueue.systemAction')}
                     </span>
                   </div>
                   <span className="text-sm text-muted-foreground">
@@ -266,10 +265,10 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Flag className="w-5 h-5 text-destructive" />
-              Review Report
+              {t('moderationQueue.reviewReport')}
             </DialogTitle>
             <DialogDescription>
-              Take action on this reported content
+              {t('moderationQueue.takeAction')}
             </DialogDescription>
           </DialogHeader>
 
@@ -280,32 +279,32 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
                 <div className="flex items-center gap-2">
                   {REPORT_ICONS[selectedReport.reportedContentType]}
                   <span className="font-medium capitalize">
-                    {selectedReport.reportedContentType} Report
+                    {t(`moderationQueue.contentTypes.${selectedReport.reportedContentType}`)} {t('moderationQueue.report')}
                   </span>
                 </div>
                 <div className="text-sm space-y-1">
                   <p>
-                    <strong>Reason:</strong>{' '}
+                    <strong>{t('moderationQueue.reason')}</strong>{' '}
                     <Badge variant="outline">
-                      {REASON_LABELS[selectedReport.reason] || selectedReport.reason}
+                      {t(`moderationQueue.reasons.${selectedReport.reason}`, selectedReport.reason)}
                     </Badge>
                   </p>
                   <p>
-                    <strong>Reported by:</strong>{' '}
+                    <strong>{t('moderationQueue.reportedBy')}</strong>{' '}
                     {selectedReport.reporterPubkey.slice(0, 12)}...
                   </p>
                   <p>
-                    <strong>Reported user:</strong>{' '}
+                    <strong>{t('moderationQueue.reportedUser')}</strong>{' '}
                     {selectedReport.reportedPubkey.slice(0, 12)}...
                   </p>
                   <p>
-                    <strong>Submitted:</strong>{' '}
+                    <strong>{t('moderationQueue.submitted')}</strong>{' '}
                     {formatDistanceToNow(selectedReport.createdAt, { addSuffix: true })}
                   </p>
                 </div>
                 {selectedReport.description && (
                   <div className="mt-2 pt-2 border-t">
-                    <p className="text-sm font-medium">Additional details:</p>
+                    <p className="text-sm font-medium">{t('moderationQueue.additionalDetails')}</p>
                     <p className="text-sm text-muted-foreground">
                       {selectedReport.description}
                     </p>
@@ -315,11 +314,11 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
 
               {/* Action notes */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Notes (optional)</label>
+                <label className="text-sm font-medium">{t('moderationQueue.notes')}</label>
                 <Textarea
                   value={actionNotes}
                   onChange={(e) => setActionNotes(e.target.value)}
-                  placeholder="Add notes about your decision..."
+                  placeholder={t('moderationQueue.notesPlaceholder')}
                   rows={3}
                 />
               </div>
@@ -334,7 +333,7 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
               className="flex-1"
             >
               <XCircle className="w-4 h-4 mr-2" />
-              Dismiss
+              {t('moderationQueue.dismiss')}
             </Button>
             <Button
               variant="secondary"
@@ -343,7 +342,7 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
               className="flex-1"
             >
               <Eye className="w-4 h-4 mr-2" />
-              Mark Reviewed
+              {t('moderationQueue.markReviewed')}
             </Button>
             <Button
               variant="destructive"
@@ -352,7 +351,7 @@ export const ModerationQueue: FC<ModerationQueueProps> = ({ className }) => {
               className="flex-1"
             >
               <Ban className="w-4 h-4 mr-2" />
-              Block User
+              {t('moderationQueue.blockUser')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -369,6 +368,7 @@ interface ReportCardProps {
 }
 
 const ReportCard: FC<ReportCardProps> = ({ report, onReview, showStatus }) => {
+  const { t } = useTranslation();
   const statusBadge = STATUS_BADGES[report.status];
 
   return (
@@ -378,22 +378,22 @@ const ReportCard: FC<ReportCardProps> = ({ report, onReview, showStatus }) => {
           <div className="flex items-center gap-2">
             {REPORT_ICONS[report.reportedContentType]}
             <CardTitle className="text-base capitalize">
-              {report.reportedContentType} Report
+              {t(`moderationQueue.contentTypes.${report.reportedContentType}`)} {t('moderationQueue.report')}
             </CardTitle>
             <Badge variant="outline">
-              {REASON_LABELS[report.reason] || report.reason}
+              {t(`moderationQueue.reasons.${report.reason}`, report.reason)}
             </Badge>
           </div>
           {showStatus && (
-            <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+            <Badge variant={statusBadge.variant}>{getStatusBadgeLabel(report.status, t)}</Badge>
           )}
         </div>
         <CardDescription className="flex items-center gap-4 text-xs">
           <span>
-            From: {report.reporterPubkey.slice(0, 8)}...
+            {t('moderationQueue.from')} {report.reporterPubkey.slice(0, 8)}...
           </span>
           <span>
-            Against: {report.reportedPubkey.slice(0, 8)}...
+            {t('moderationQueue.against')} {report.reportedPubkey.slice(0, 8)}...
           </span>
           <span>
             {formatDistanceToNow(report.createdAt, { addSuffix: true })}
@@ -409,12 +409,12 @@ const ReportCard: FC<ReportCardProps> = ({ report, onReview, showStatus }) => {
           )}
           {onReview && (
             <Button onClick={onReview} size="sm">
-              Review Report
+              {t('moderationQueue.reviewReportButton')}
             </Button>
           )}
           {report.actionTaken && (
             <p className="text-sm mt-2">
-              <strong>Action:</strong> {report.actionTaken}
+              <strong>{t('moderationQueue.action')}</strong> {report.actionTaken}
             </p>
           )}
         </CardContent>

@@ -126,12 +126,10 @@ export function InfiniteScrollList<T>({
   items,
   renderItem,
   getKey,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Reserved for future virtualization
   estimatedItemHeight: _estimatedItemHeight,
   hasMore,
   isLoading,
   onLoadMore,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Reserved for future virtualization
   overscan: _overscan = 3,
   className,
 }: InfiniteScrollListProps<T>) {

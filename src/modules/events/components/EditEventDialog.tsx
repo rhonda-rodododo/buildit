@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
   onOpenChange,
   onEventUpdated,
 }) => {
+  const { t } = useTranslation()
   const { updateEvent } = useEvents()
   const [loading, setLoading] = useState(false)
   const [customFields, setCustomFields] = useState<CustomField[]>([])
@@ -80,7 +82,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
       onEventUpdated?.()
     } catch (error) {
       console.error('Failed to update event:', error)
-      alert('Failed to update event')
+      alert(t('editEventDialog.errors.updateFailed'))
     } finally {
       setLoading(false)
     }
@@ -100,43 +102,43 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Event</DialogTitle>
+          <DialogTitle>{t('editEventDialog.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-title">Event Title *</Label>
+            <Label htmlFor="edit-title">{t('editEventDialog.fields.titleLabel')}</Label>
             <Input
               id="edit-title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
-              placeholder="Enter event title"
+              placeholder={t('editEventDialog.fields.titlePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-description">Description</Label>
+            <Label htmlFor="edit-description">{t('editEventDialog.fields.descriptionLabel')}</Label>
             <Textarea
               id="edit-description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Event description"
+              placeholder={t('editEventDialog.fields.descriptionPlaceholder')}
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-location">Location</Label>
+            <Label htmlFor="edit-location">{t('editEventDialog.fields.locationLabel')}</Label>
             <Input
               id="edit-location"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Event location"
+              placeholder={t('editEventDialog.fields.locationPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-startDate">Start Date & Time *</Label>
+            <Label htmlFor="edit-startDate">{t('editEventDialog.fields.startDateLabel')}</Label>
             <div className="flex gap-2">
               <Input
                 type="datetime-local"
@@ -150,7 +152,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-endDate">End Date & Time (Optional)</Label>
+            <Label htmlFor="edit-endDate">{t('editEventDialog.fields.endDateLabel')}</Label>
             <Input
               type="datetime-local"
               value={formData.endTime ? formatDateForInput(formData.endTime) : ''}
@@ -164,7 +166,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-privacy">Privacy Level</Label>
+            <Label htmlFor="edit-privacy">{t('editEventDialog.fields.privacyLabel')}</Label>
             <Select
               value={formData.privacy}
               onValueChange={(value: EventPrivacy) =>
@@ -175,18 +177,18 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="public">Public - Anyone can see</SelectItem>
-                <SelectItem value="group">Group - Only group members</SelectItem>
-                <SelectItem value="private">Private - Invite only</SelectItem>
+                <SelectItem value="public">{t('editEventDialog.privacy.public')}</SelectItem>
+                <SelectItem value="group">{t('editEventDialog.privacy.group')}</SelectItem>
+                <SelectItem value="private">{t('editEventDialog.privacy.private')}</SelectItem>
                 <SelectItem value="direct-action">
-                  Direct Action - Time-delayed location reveal
+                  {t('editEventDialog.privacy.directAction')}
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-capacity">Capacity (Optional)</Label>
+            <Label htmlFor="edit-capacity">{t('editEventDialog.fields.capacityLabel')}</Label>
             <Input
               id="edit-capacity"
               type="number"
@@ -198,13 +200,13 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
                   capacity: e.target.value ? parseInt(e.target.value) : undefined,
                 })
               }
-              placeholder="Max attendees"
+              placeholder={t('editEventDialog.fields.capacityPlaceholder')}
             />
           </div>
 
           {formData.privacy === 'direct-action' && (
             <div className="space-y-2">
-              <Label htmlFor="edit-revealTime">Location Reveal Time</Label>
+              <Label htmlFor="edit-revealTime">{t('editEventDialog.fields.revealTimeLabel')}</Label>
               <Input
                 type="datetime-local"
                 value={formData.locationRevealTime ? formatDateForInput(formData.locationRevealTime) : ''}
@@ -216,7 +218,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Location will be revealed at this time
+                {t('editEventDialog.fields.revealTimeHelp')}
               </p>
             </div>
           )}
@@ -225,7 +227,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
             <>
               <Separator className="my-6" />
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Additional Information</h3>
+                <h3 className="text-lg font-semibold">{t('editEventDialog.customFields.title')}</h3>
                 {customFields.sort((a, b) => a.order - b.order).map((field) => (
                   <div key={field.id} className="space-y-2">
                     <Label htmlFor={`edit-${field.name}`}>
@@ -254,7 +256,7 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
                         onValueChange={(value) => setCustomFieldValues({ ...customFieldValues, [field.name]: value })}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={field.widget.placeholder || 'Select an option'} />
+                          <SelectValue placeholder={field.widget.placeholder || t('editEventDialog.customFields.selectPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {field.widget.options.map((option) => (
@@ -276,10 +278,10 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
 
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('editEventDialog.buttons.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? t('editEventDialog.buttons.saving') : t('editEventDialog.buttons.save')}
             </Button>
           </div>
         </form>

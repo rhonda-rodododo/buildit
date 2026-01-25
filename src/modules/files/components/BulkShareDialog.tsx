@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link2, Users, Lock, Calendar, Share2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ interface BulkShareDialogProps {
 }
 
 export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkShareDialogProps) {
+  const { t } = useTranslation()
   const groupMembers = useGroupsStore((state) => state.groupMembers.get(groupId) || [])
   const files = useFilesStore((state) => state.files)
 
@@ -117,7 +119,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="h-5 w-5" />
-              Bulk Share Complete
+              {t('files.bulkShare.complete')}
             </DialogTitle>
           </DialogHeader>
 
@@ -127,14 +129,14 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                 {fileIds.length - errors.length} / {fileIds.length}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                files shared successfully
+                {t('files.bulkShare.filesSharedSuccessfully')}
               </p>
             </div>
 
             {errors.length > 0 && (
               <div className="rounded-lg bg-destructive/10 p-4">
                 <p className="font-medium text-destructive mb-2">
-                  {errors.length} file(s) failed to share:
+                  {t('files.bulkShare.failedToShare', { count: errors.length })}
                 </p>
                 <ul className="text-sm text-destructive space-y-1">
                   {errors.map((error, i) => (
@@ -145,7 +147,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
             )}
 
             <div className="flex justify-end">
-              <Button onClick={onClose}>Done</Button>
+              <Button onClick={onClose}>{t('files.bulkShare.done')}</Button>
             </div>
           </div>
         </DialogContent>
@@ -159,10 +161,10 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
-            Share {fileIds.length} Files
+            {t('files.bulkShare.title', { count: fileIds.length })}
           </DialogTitle>
           <DialogDescription>
-            Share multiple files with the same settings
+            {t('files.bulkShare.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -176,7 +178,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
             ))}
             {selectedFiles.length > 10 && (
               <Badge variant="outline">
-                +{selectedFiles.length - 10} more
+                {t('files.bulkShare.more', { count: selectedFiles.length - 10 })}
               </Badge>
             )}
           </div>
@@ -185,14 +187,14 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
         {isSharing ? (
           <div className="py-8">
             <div className="text-center mb-4">
-              <p className="text-lg font-medium">Sharing files...</p>
+              <p className="text-lg font-medium">{t('files.bulkShare.sharingFiles')}</p>
               <p className="text-sm text-muted-foreground">
-                Please wait while we share your files
+                {t('files.bulkShare.pleaseWait')}
               </p>
             </div>
             <Progress value={progress} className="w-full" />
             <p className="text-center text-sm text-muted-foreground mt-2">
-              {Math.round(progress)}% complete
+              {t('files.bulkShare.percentComplete', { percent: Math.round(progress) })}
             </p>
           </div>
         ) : (
@@ -200,17 +202,17 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
-                Share with Users
+                {t('files.bulkShare.shareWithUsers')}
               </TabsTrigger>
               <TabsTrigger value="link">
                 <Link2 className="h-4 w-4 mr-2" />
-                Create Links
+                {t('files.bulkShare.createLinks')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="users" className="space-y-4">
               <div>
-                <Label>Select Users</Label>
+                <Label>{t('files.bulkShare.selectUsers')}</Label>
                 <div className="mt-2 space-y-2 max-h-48 overflow-auto border rounded-lg p-2">
                   {groupMembers.map((member) => (
                     <label
@@ -224,7 +226,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                         className="rounded"
                       />
                       <div className="flex-1">
-                        <p className="font-medium">Member</p>
+                        <p className="font-medium">{t('files.bulkShare.member')}</p>
                         <p className="text-xs text-muted-foreground truncate">
                           {member.pubkey.slice(0, 16)}...
                         </p>
@@ -233,22 +235,22 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                   ))}
                   {groupMembers.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      No group members found
+                      {t('files.bulkShare.noGroupMembers')}
                     </p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label>Permission Level</Label>
+                <Label>{t('files.bulkShare.permissionLevel')}</Label>
                 <Select value={permission} onValueChange={(v) => setPermission(v as FilePermission)}>
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="view">View only</SelectItem>
-                    <SelectItem value="download">View & Download</SelectItem>
-                    <SelectItem value="edit">View, Download & Edit</SelectItem>
+                    <SelectItem value="view">{t('files.bulkShare.viewOnly')}</SelectItem>
+                    <SelectItem value="download">{t('files.bulkShare.viewDownload')}</SelectItem>
+                    <SelectItem value="edit">{t('files.bulkShare.viewDownloadEdit')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -257,7 +259,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
             <TabsContent value="link" className="space-y-4">
               <div className="rounded-lg bg-muted p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="generate-link">Generate public links for all files</Label>
+                  <Label htmlFor="generate-link">{t('files.bulkShare.generateLinks')}</Label>
                   <Switch
                     id="generate-link"
                     checked={generateLink}
@@ -270,12 +272,12 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                     <div>
                       <Label htmlFor="link-password">
                         <Lock className="inline h-4 w-4 mr-1" />
-                        Password (optional, same for all)
+                        {t('files.bulkShare.passwordOptional')}
                       </Label>
                       <Input
                         id="link-password"
                         type="text"
-                        placeholder="Leave empty for no password"
+                        placeholder={t('files.bulkShare.passwordPlaceholder')}
                         value={linkPassword}
                         onChange={(e) => setLinkPassword(e.target.value)}
                         className="mt-2"
@@ -285,7 +287,7 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                     <div>
                       <Label htmlFor="expires-in">
                         <Calendar className="inline h-4 w-4 mr-1" />
-                        Expires in (days)
+                        {t('files.bulkShare.expiresIn')}
                       </Label>
                       <Select
                         value={expiresInDays?.toString() || 'never'}
@@ -295,11 +297,11 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="never">Never</SelectItem>
-                          <SelectItem value="1">1 day</SelectItem>
-                          <SelectItem value="7">7 days</SelectItem>
-                          <SelectItem value="30">30 days</SelectItem>
-                          <SelectItem value="90">90 days</SelectItem>
+                          <SelectItem value="never">{t('files.bulkShare.never')}</SelectItem>
+                          <SelectItem value="1">{t('files.bulkShare.day')}</SelectItem>
+                          <SelectItem value="7">{t('files.bulkShare.days7')}</SelectItem>
+                          <SelectItem value="30">{t('files.bulkShare.days30')}</SelectItem>
+                          <SelectItem value="90">{t('files.bulkShare.days90')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -308,14 +310,14 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
               </div>
 
               <div>
-                <Label>Permission Level</Label>
+                <Label>{t('files.bulkShare.permissionLevel')}</Label>
                 <Select value={permission} onValueChange={(v) => setPermission(v as FilePermission)}>
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="view">View only</SelectItem>
-                    <SelectItem value="download">View & Download</SelectItem>
+                    <SelectItem value="view">{t('files.bulkShare.viewOnly')}</SelectItem>
+                    <SelectItem value="download">{t('files.bulkShare.viewDownload')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -323,13 +325,13 @@ export function BulkShareDialog({ fileIds, groupId, onClose, onComplete }: BulkS
 
             <div className="flex justify-end gap-2 pt-4 border-t">
               <Button variant="outline" onClick={onClose}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={handleBulkShare}
                 disabled={selectedUsers.length === 0 && !generateLink}
               >
-                Share {fileIds.length} Files
+                {t('files.bulkShare.title', { count: fileIds.length })}
               </Button>
             </div>
           </Tabs>

@@ -14,6 +14,7 @@
  */
 
 import { FC, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEmbed } from './useEmbed'
 import type { EmbedCardProps } from './types'
 import { formatEmbedUrlForDisplay } from './utils'
@@ -39,6 +40,7 @@ export const EmbedCard: FC<EmbedCardProps> = ({
   onLoadClick,
   onLoaded,
 }) => {
+  const { t } = useTranslation()
   const { loading, error, embedData, provider, load, isLoaded, isEmbeddable } = useEmbed(url, {
     autoLoad,
     onLoad: onLoaded,
@@ -79,7 +81,7 @@ export const EmbedCard: FC<EmbedCardProps> = ({
         <div className="flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-destructive">Failed to load embed</p>
+            <p className="text-sm font-medium text-destructive">{t('embedCard.error.title')}</p>
             <p className="text-sm text-muted-foreground mt-1">{error}</p>
             <a
               href={url}
@@ -88,7 +90,7 @@ export const EmbedCard: FC<EmbedCardProps> = ({
               className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-2"
             >
               <ExternalLink className="h-3 w-3" />
-              Open externally
+              {t('embedCard.error.openExternally')}
             </a>
           </div>
         </div>
@@ -147,7 +149,7 @@ export const EmbedCard: FC<EmbedCardProps> = ({
               className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
             >
               <ExternalLink className="h-3 w-3" />
-              Open on {embedData.provider}
+              {t('embedCard.openOn', { provider: embedData.provider })}
             </a>
           </div>
         )}
@@ -171,7 +173,7 @@ export const EmbedCard: FC<EmbedCardProps> = ({
       <div className="flex flex-col items-center justify-center h-full gap-3">
         {/* Provider info */}
         <div className="text-sm text-muted-foreground text-center">
-          {provider?.name} embed
+          {t('embedCard.providerEmbed', { provider: provider?.name })}
         </div>
 
         {/* Load button */}
@@ -185,12 +187,12 @@ export const EmbedCard: FC<EmbedCardProps> = ({
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading...
+              {t('embedCard.loading')}
             </>
           ) : (
             <>
               <Play className="h-4 w-4" />
-              Load {provider?.name}
+              {t('embedCard.loadProvider', { provider: provider?.name })}
             </>
           )}
         </Button>
@@ -203,13 +205,13 @@ export const EmbedCard: FC<EmbedCardProps> = ({
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
         >
           <ExternalLink className="h-3 w-3" />
-          Open externally
+          {t('embedCard.openExternally')}
         </a>
 
         {/* Privacy note */}
         {!compact && (
           <p className="text-xs text-muted-foreground text-center max-w-[200px] mt-2">
-            Click to load external content. This will connect to {provider?.domain || 'third-party servers'}.
+            {t('embedCard.privacyNote', { domain: provider?.domain || 'third-party servers' })}
           </p>
         )}
       </div>

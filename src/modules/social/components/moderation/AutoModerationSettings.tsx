@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,24 +55,25 @@ interface AutoModerationSettingsProps {
   groupId?: string;
 }
 
-const RULE_TYPES: { value: AutoModerationRule['ruleType']; label: string; description: string }[] = [
-  { value: 'keyword', label: 'Keyword Filter', description: 'Match exact keywords or phrases' },
-  { value: 'regex', label: 'Regex Pattern', description: 'Use regular expressions for advanced matching' },
-  { value: 'spam-detection', label: 'Spam Detection', description: 'Automatically detect spam-like content' },
-  { value: 'link-filter', label: 'Link Filter', description: 'Filter posts containing certain links' },
+const RULE_TYPES: { value: AutoModerationRule['ruleType']; labelKey: string; descriptionKey: string }[] = [
+  { value: 'keyword', labelKey: 'autoModerationRuleForm.ruleTypes.keyword', descriptionKey: 'autoModerationRuleForm.ruleTypes.keywordDescription' },
+  { value: 'regex', labelKey: 'autoModerationRuleForm.ruleTypes.regex', descriptionKey: 'autoModerationRuleForm.ruleTypes.regexDescription' },
+  { value: 'spam-detection', labelKey: 'autoModerationRuleForm.ruleTypes.spamDetection', descriptionKey: 'autoModerationRuleForm.ruleTypes.spamDetectionDescription' },
+  { value: 'link-filter', labelKey: 'autoModerationRuleForm.ruleTypes.linkFilter', descriptionKey: 'autoModerationRuleForm.ruleTypes.linkFilterDescription' },
 ];
 
-const ACTIONS: { value: AutoModerationRule['action']; label: string; description: string }[] = [
-  { value: 'flag', label: 'Flag for Review', description: 'Add to moderation queue' },
-  { value: 'hide', label: 'Hide Content', description: 'Hide but do not delete' },
-  { value: 'delete', label: 'Delete', description: 'Remove content immediately' },
-  { value: 'warn', label: 'Warn User', description: 'Send warning to user' },
+const ACTIONS: { value: AutoModerationRule['action']; labelKey: string; descriptionKey: string }[] = [
+  { value: 'flag', labelKey: 'autoModerationRuleForm.actions.flag', descriptionKey: 'autoModerationRuleForm.actions.flagDescription' },
+  { value: 'hide', labelKey: 'autoModerationRuleForm.actions.hide', descriptionKey: 'autoModerationRuleForm.actions.hideDescription' },
+  { value: 'delete', labelKey: 'autoModerationRuleForm.actions.delete', descriptionKey: 'autoModerationRuleForm.actions.deleteDescription' },
+  { value: 'warn', labelKey: 'autoModerationRuleForm.actions.warn', descriptionKey: 'autoModerationRuleForm.actions.warnDescription' },
 ];
 
 export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
   className,
   groupId,
 }) => {
+  const { t } = useTranslation();
   const {
     moderationRules,
     createAutoModRule,
@@ -120,12 +122,12 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
 
   const handleCreateRule = async () => {
     if (!ruleName.trim()) {
-      toast.error('Please enter a rule name');
+      toast.error(t('autoModerationSettings.toasts.enterName'));
       return;
     }
 
     if ((ruleType === 'keyword' || ruleType === 'regex') && patterns.length === 0) {
-      toast.error('Please add at least one pattern');
+      toast.error(t('autoModerationSettings.toasts.addPattern'));
       return;
     }
 
@@ -142,12 +144,12 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
         createdBy: 'current-user', // Would be replaced with actual user
       });
 
-      toast.success('Auto-moderation rule created');
+      toast.success(t('autoModerationSettings.toasts.created'));
       setShowCreateDialog(false);
       resetForm();
     } catch (error) {
       console.error('Failed to create rule:', error);
-      toast.error('Failed to create rule');
+      toast.error(t('autoModerationSettings.toasts.createFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -166,12 +168,12 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
         notifyModerators,
       });
 
-      toast.success('Rule updated');
+      toast.success(t('autoModerationSettings.toasts.updated'));
       setEditingRule(null);
       resetForm();
     } catch (error) {
       console.error('Failed to update rule:', error);
-      toast.error('Failed to update rule');
+      toast.error(t('autoModerationSettings.toasts.updateFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -183,11 +185,11 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
     setIsProcessing(true);
     try {
       await deleteAutoModRule(deleteRuleId);
-      toast.success('Rule deleted');
+      toast.success(t('autoModerationSettings.toasts.deleted'));
       setDeleteRuleId(null);
     } catch (error) {
       console.error('Failed to delete rule:', error);
-      toast.error('Failed to delete rule');
+      toast.error(t('autoModerationSettings.toasts.deleteFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -196,10 +198,10 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
   const handleToggleRule = async (rule: AutoModerationRule) => {
     try {
       await updateAutoModRule(rule.id, { isEnabled: !rule.isEnabled });
-      toast.success(rule.isEnabled ? 'Rule disabled' : 'Rule enabled');
+      toast.success(rule.isEnabled ? t('autoModerationSettings.toasts.disabled') : t('autoModerationSettings.toasts.enabled'));
     } catch (error) {
       console.error('Failed to toggle rule:', error);
-      toast.error('Failed to toggle rule');
+      toast.error(t('autoModerationSettings.toasts.toggleFailed'));
     }
   };
 
@@ -218,24 +220,24 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Zap className="w-5 h-5" />
-            Auto-Moderation Rules
+            {t('autoModerationSettings.title')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Automatically detect and handle problematic content
+            {t('autoModerationSettings.description')}
           </p>
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              New Rule
+              {t('autoModerationSettings.newRule')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Create Auto-Moderation Rule</DialogTitle>
+              <DialogTitle>{t('autoModerationSettings.createRule')}</DialogTitle>
               <DialogDescription>
-                Set up automatic detection and handling of content
+                {t('autoModerationSettings.createRuleDescription')}
               </DialogDescription>
             </DialogHeader>
             <RuleForm
@@ -261,10 +263,10 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
                   resetForm();
                 }}
               >
-                Cancel
+                {t('autoModerationSettings.cancel')}
               </Button>
               <Button onClick={handleCreateRule} disabled={isProcessing}>
-                {isProcessing ? 'Creating...' : 'Create Rule'}
+                {isProcessing ? t('autoModerationSettings.creating') : t('autoModerationSettings.createRule')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -277,13 +279,13 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
           <Card>
             <CardContent className="py-12 text-center">
               <Shield className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-              <h3 className="font-semibold text-lg mb-2">No rules configured</h3>
+              <h3 className="font-semibold text-lg mb-2">{t('autoModerationSettings.noRulesTitle')}</h3>
               <p className="text-muted-foreground mb-4">
-                Create auto-moderation rules to automatically handle content.
+                {t('autoModerationSettings.noRulesDescription')}
               </p>
               <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Create First Rule
+                {t('autoModerationSettings.createFirstRule')}
               </Button>
             </CardContent>
           </Card>
@@ -314,7 +316,7 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
                         </Badge>
                         {rule.triggerCount > 0 && (
                           <span className="text-xs">
-                            Triggered {rule.triggerCount} times
+                            {t('autoModerationSettings.triggeredTimes', { count: rule.triggerCount })}
                           </span>
                         )}
                       </CardDescription>
@@ -348,7 +350,7 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
                     ))}
                     {rule.patterns.length > 5 && (
                       <Badge variant="secondary" className="text-xs">
-                        +{rule.patterns.length - 5} more
+                        {t('autoModerationSettings.more', { count: rule.patterns.length - 5 })}
                       </Badge>
                     )}
                   </div>
@@ -363,7 +365,7 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
       <Dialog open={!!editingRule} onOpenChange={() => setEditingRule(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Auto-Moderation Rule</DialogTitle>
+            <DialogTitle>{t('autoModerationSettings.editRule')}</DialogTitle>
           </DialogHeader>
           <RuleForm
             ruleName={ruleName}
@@ -388,10 +390,10 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
                 resetForm();
               }}
             >
-              Cancel
+              {t('autoModerationSettings.cancel')}
             </Button>
             <Button onClick={handleUpdateRule} disabled={isProcessing}>
-              {isProcessing ? 'Saving...' : 'Save Changes'}
+              {isProcessing ? t('autoModerationSettings.saving') : t('autoModerationSettings.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -401,18 +403,18 @@ export const AutoModerationSettings: FC<AutoModerationSettingsProps> = ({
       <AlertDialog open={!!deleteRuleId} onOpenChange={() => setDeleteRuleId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Rule?</AlertDialogTitle>
+            <AlertDialogTitle>{t('autoModerationSettings.deleteRuleTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this auto-moderation rule. This action cannot be undone.
+              {t('autoModerationSettings.deleteRuleDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('autoModerationSettings.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRule}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('autoModerationSettings.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -452,110 +454,114 @@ const RuleForm: FC<RuleFormProps> = ({
   setAction,
   notifyModerators,
   setNotifyModerators,
-}) => (
-  <div className="space-y-4">
-    <div className="space-y-2">
-      <Label htmlFor="rule-name">Rule Name</Label>
-      <Input
-        id="rule-name"
-        value={ruleName}
-        onChange={(e) => setRuleName(e.target.value)}
-        placeholder="e.g., Block slurs, Filter spam links"
-      />
-    </div>
+}) => {
+  const { t } = useTranslation();
 
-    <div className="space-y-2">
-      <Label>Rule Type</Label>
-      <Select value={ruleType} onValueChange={(v) => setRuleType(v as AutoModerationRule['ruleType'])}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {RULE_TYPES.map((type) => (
-            <SelectItem key={type.value} value={type.value}>
-              <div>
-                <div className="font-medium">{type.label}</div>
-                <div className="text-xs text-muted-foreground">{type.description}</div>
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-
-    {(ruleType === 'keyword' || ruleType === 'regex' || ruleType === 'link-filter') && (
+  return (
+    <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Patterns</Label>
-        <div className="flex gap-2">
-          <Input
-            value={newPattern}
-            onChange={(e) => setNewPattern(e.target.value)}
-            placeholder={
-              ruleType === 'regex'
-                ? 'Enter regex pattern'
-                : ruleType === 'link-filter'
-                ? 'Enter domain or URL pattern'
-                : 'Enter keyword or phrase'
-            }
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                onAddPattern();
-              }
-            }}
-          />
-          <Button type="button" onClick={onAddPattern}>
-            Add
-          </Button>
-        </div>
-        {patterns.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {patterns.map((pattern, i) => (
-              <Badge key={i} variant="secondary" className="pr-1">
-                {pattern}
-                <button
-                  type="button"
-                  onClick={() => onRemovePattern(pattern)}
-                  className="ml-1 hover:text-destructive"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
+        <Label htmlFor="rule-name">{t('autoModerationRuleForm.ruleName')}</Label>
+        <Input
+          id="rule-name"
+          value={ruleName}
+          onChange={(e) => setRuleName(e.target.value)}
+          placeholder={t('autoModerationRuleForm.ruleNamePlaceholder')}
+        />
       </div>
-    )}
 
-    <div className="space-y-2">
-      <Label>Action</Label>
-      <Select value={action} onValueChange={(v) => setAction(v as AutoModerationRule['action'])}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {ACTIONS.map((a) => (
-            <SelectItem key={a.value} value={a.value}>
-              <div>
-                <div className="font-medium">{a.label}</div>
-                <div className="text-xs text-muted-foreground">{a.description}</div>
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+      <div className="space-y-2">
+        <Label>{t('autoModerationRuleForm.ruleType')}</Label>
+        <Select value={ruleType} onValueChange={(v) => setRuleType(v as AutoModerationRule['ruleType'])}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {RULE_TYPES.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                <div>
+                  <div className="font-medium">{t(type.labelKey)}</div>
+                  <div className="text-xs text-muted-foreground">{t(type.descriptionKey)}</div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-    <div className="flex items-center justify-between">
-      <Label htmlFor="notify-mods" className="flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4" />
-        Notify Moderators
-      </Label>
-      <Switch
-        id="notify-mods"
-        checked={notifyModerators}
-        onCheckedChange={setNotifyModerators}
-      />
+      {(ruleType === 'keyword' || ruleType === 'regex' || ruleType === 'link-filter') && (
+        <div className="space-y-2">
+          <Label>{t('autoModerationRuleForm.patterns')}</Label>
+          <div className="flex gap-2">
+            <Input
+              value={newPattern}
+              onChange={(e) => setNewPattern(e.target.value)}
+              placeholder={
+                ruleType === 'regex'
+                  ? t('autoModerationRuleForm.patternPlaceholderRegex')
+                  : ruleType === 'link-filter'
+                  ? t('autoModerationRuleForm.patternPlaceholderLink')
+                  : t('autoModerationRuleForm.patternPlaceholderKeyword')
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onAddPattern();
+                }
+              }}
+            />
+            <Button type="button" onClick={onAddPattern}>
+              {t('autoModerationRuleForm.add')}
+            </Button>
+          </div>
+          {patterns.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {patterns.map((pattern, i) => (
+                <Badge key={i} variant="secondary" className="pr-1">
+                  {pattern}
+                  <button
+                    type="button"
+                    onClick={() => onRemovePattern(pattern)}
+                    className="ml-1 hover:text-destructive"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label>{t('autoModerationRuleForm.action')}</Label>
+        <Select value={action} onValueChange={(v) => setAction(v as AutoModerationRule['action'])}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ACTIONS.map((a) => (
+              <SelectItem key={a.value} value={a.value}>
+                <div>
+                  <div className="font-medium">{t(a.labelKey)}</div>
+                  <div className="text-xs text-muted-foreground">{t(a.descriptionKey)}</div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="notify-mods" className="flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" />
+          {t('autoModerationRuleForm.notifyModerators')}
+        </Label>
+        <Switch
+          id="notify-mods"
+          checked={notifyModerators}
+          onCheckedChange={setNotifyModerators}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};

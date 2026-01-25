@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CreateEventDialog } from './CreateEventDialog'
 import { EventList } from './EventList'
 import { CalendarView } from './CalendarView'
@@ -11,15 +12,16 @@ interface EventsViewProps {
 }
 
 export const EventsView: FC<EventsViewProps> = ({ groupId }) => {
+  const { t } = useTranslation()
   const { syncEvents } = useEvents(groupId)
 
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Events</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('events.title')}</h2>
           <p className="text-muted-foreground">
-            {groupId ? 'Group events and gatherings' : 'Public events and gatherings'}
+            {groupId ? t('events.groupDescription') : t('events.publicDescription')}
           </p>
         </div>
         <CreateEventDialog groupId={groupId} onEventCreated={syncEvents} />
@@ -29,15 +31,15 @@ export const EventsView: FC<EventsViewProps> = ({ groupId }) => {
         <TabsList>
           <TabsTrigger value="upcoming" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            <span className="hidden sm:inline">Upcoming</span>
+            <span className="hidden sm:inline">{t('events.upcoming')}</span>
           </TabsTrigger>
           <TabsTrigger value="all" className="flex items-center gap-2">
             <List className="h-4 w-4" />
-            <span className="hidden sm:inline">All Events</span>
+            <span className="hidden sm:inline">{t('events.allEvents')}</span>
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <CalendarDays className="h-4 w-4" />
-            <span className="hidden sm:inline">Calendar</span>
+            <span className="hidden sm:inline">{t('events.calendar')}</span>
           </TabsTrigger>
         </TabsList>
 

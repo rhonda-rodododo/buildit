@@ -123,78 +123,62 @@ bun run tauri:dev  # Development with Tauri
 bun run tauri:build # Build desktop app
 ```
 
-## 📱 Native Apps
+## 📱 Native Apps (Distribution)
 
-BuildIt Network now has native iOS and Android apps with full BLE mesh support. See [NATIVE_APPS.md](./NATIVE_APPS.md) for details.
+**BuildIt Network is distributed exclusively as native applications** - no standalone web app is published.
 
-| Platform | Repository | Tech Stack |
-|----------|------------|------------|
-| iOS | [buildit-ios](../buildit-ios) | Swift, SwiftUI, Core Bluetooth |
-| Android | [buildit-android](../buildit-android) | Kotlin, Jetpack Compose |
-| Desktop | `src-tauri/` (this repo) | Rust, Tauri, btleplug |
-| Protocol | [buildit-protocol](../buildit-protocol) | Specification docs |
-| Crypto | [buildit-crypto](../buildit-crypto) | Rust with UniFFI |
+| Platform | Repository | Tech Stack | Distribution |
+|----------|------------|------------|--------------|
+| iOS | [buildit-ios](../buildit-ios) | Swift, SwiftUI, Core Bluetooth | App Store / TestFlight |
+| Android | [buildit-android](../buildit-android) | Kotlin, Jetpack Compose | Google Play |
+| Desktop | `src-tauri/` (this repo) | Rust, Tauri, btleplug | macOS, Windows, Linux binaries |
+| Protocol | [buildit-protocol](../buildit-protocol) | Specification docs | - |
+| Crypto | [buildit-crypto](../buildit-crypto) | Rust with UniFFI | - |
 
-## 🚀 Deployment
+The webapp source in `src/` is used only as the UI layer for the Tauri desktop application.
 
-### Static Hosting (Recommended)
+See [NATIVE_APPS.md](./NATIVE_APPS.md) for architecture details.
 
-The app can be deployed to any static hosting service:
+## 🚀 Building & Distribution
 
-#### Vercel (One-Click Deploy)
+### Desktop App (Tauri)
+
+Build desktop applications for all platforms:
+
 ```bash
-bun install -g vercel
-vercel --prod
+# Development
+bun run tauri:dev
+
+# Production builds
+bun run tauri:build
+
+# Output locations:
+# macOS: src-tauri/target/release/bundle/macos/
+# Windows: src-tauri/target/release/bundle/msi/
+# Linux: src-tauri/target/release/bundle/appimage/
 ```
 
-#### Netlify
-```bash
-bun install -g netlify-cli
-bun run build
-netlify deploy --prod --dir=dist
-```
+### Mobile Apps
 
-#### GitHub Pages
-```bash
-bun run build
-# Push dist/ to gh-pages branch
-```
-
-### Docker Deployment
-```dockerfile
-FROM nginx:alpine
-COPY dist/ /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
+See the native app repositories for build instructions:
+- **iOS**: [buildit-ios](../buildit-ios) - Build via Xcode or `xcodebuild`
+- **Android**: [buildit-android](../buildit-android) - Build via `./gradlew assembleRelease`
 
 ### Environment Variables
 
-Create `.env` file:
+Create `.env` file for development:
 ```env
 VITE_DEFAULT_RELAYS=wss://relay.damus.io,wss://relay.nostr.band
 VITE_APP_NAME=BuildIt Network
 ```
 
-### PWA Requirements
-
-The app is a Progressive Web App and includes:
-- ✅ Service worker for offline support
-- ✅ Web App Manifest
-- ✅ Caching strategy (Workbox)
-- ✅ Installable on mobile/desktop
-
-**Note**: HTTPS is required for PWA features to work properly.
-
 ### Production Checklist
 
 - [ ] Set custom relay URLs in `.env`
-- [ ] Configure custom domain
-- [ ] Enable HTTPS (required for PWA)
-- [ ] Add PWA icons to `/public` (if custom branding)
+- [ ] Code sign desktop builds (macOS notarization, Windows signing)
 - [ ] Test offline functionality
-- [ ] Run Lighthouse audit (target: >90 score)
-- [ ] Monitor bundle size (<500KB gzipped initial load)
+- [ ] Run E2E tests (`bun run test:e2e:tauri`)
+- [ ] Monitor bundle size (<500KB gzipped)
 
 ## 📜 License
 

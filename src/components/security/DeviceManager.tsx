@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ const DEVICE_ICONS = {
 };
 
 export function DeviceManager() {
+  const { t } = useTranslation();
   const {
     devices,
     currentDeviceId,
@@ -74,9 +76,9 @@ export function DeviceManager() {
     const now = new Date();
     const diff = now.getTime() - timestamp;
 
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
+    if (diff < 60000) return t('deviceManager.timeAgo.justNow');
+    if (diff < 3600000) return t('deviceManager.timeAgo.minutesAgo', { count: Math.floor(diff / 60000) });
+    if (diff < 86400000) return t('deviceManager.timeAgo.hoursAgo', { count: Math.floor(diff / 3600000) });
     return date.toLocaleDateString();
   };
 
@@ -86,9 +88,9 @@ export function DeviceManager() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Device Management</CardTitle>
+              <CardTitle>{t('deviceManager.title')}</CardTitle>
               <CardDescription>
-                Manage devices and sessions that have access to your account
+                {t('deviceManager.description')}
               </CardDescription>
             </div>
             <Button
@@ -98,7 +100,7 @@ export function DeviceManager() {
               disabled={activeSessions.length <= 1}
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out All Devices
+              {t('deviceManager.signOutAll')}
             </Button>
           </div>
         </CardHeader>
@@ -115,13 +117,14 @@ export function DeviceManager() {
                 onRevokeSession={(sessionId) => revokeSession(sessionId)}
                 sessions={activeSessions.filter((s) => s.deviceId === device.id)}
                 formatTimestamp={formatTimestamp}
+                t={t}
               />
             ))}
 
             {deviceList.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 <HelpCircle className="mx-auto h-12 w-12 mb-2 opacity-50" />
-                <p>No devices found</p>
+                <p>{t('deviceManager.noDevices')}</p>
               </div>
             )}
           </div>
@@ -132,19 +135,18 @@ export function DeviceManager() {
       <AlertDialog open={!!deviceToRemove} onOpenChange={() => setDeviceToRemove(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Device</AlertDialogTitle>
+            <AlertDialogTitle>{t('deviceManager.removeDeviceDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this device? All sessions for this device will
-              be revoked and you'll need to re-authorize it to access your account.
+              {t('deviceManager.removeDeviceDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('deviceManager.removeDeviceDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deviceToRemove && handleRemoveDevice(deviceToRemove)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Remove Device
+              {t('deviceManager.removeDeviceDialog.remove')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -154,16 +156,15 @@ export function DeviceManager() {
       <AlertDialog open={showRevokeAll} onOpenChange={setShowRevokeAll}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sign Out All Devices</AlertDialogTitle>
+            <AlertDialogTitle>{t('deviceManager.signOutAllDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will sign you out of all other devices except this one. You'll need to sign
-              in again on those devices.
+              {t('deviceManager.signOutAllDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('deviceManager.signOutAllDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleRevokeAllSessions}>
-              Sign Out All
+              {t('deviceManager.signOutAllDialog.signOut')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -192,7 +193,8 @@ function DeviceCard({
   onUntrust,
   onRevokeSession,
   formatTimestamp,
-}: DeviceCardProps) {
+  t,
+}: DeviceCardProps & { t: (key: string, options?: Record<string, unknown>) => string }) {
   const DeviceIcon = DEVICE_ICONS[device.type] || HelpCircle;
 
   return (
@@ -207,13 +209,13 @@ function DeviceCard({
               <h4 className="font-medium">{device.name}</h4>
               {isCurrent && (
                 <Badge variant="default" className="text-xs">
-                  Current Device
+                  {t('deviceManager.currentDevice')}
                 </Badge>
               )}
               {device.isTrusted && (
                 <Badge variant="secondary" className="text-xs">
                   <Shield className="h-3 w-3 mr-1" />
-                  Trusted
+                  {t('deviceManager.trusted')}
                 </Badge>
               )}
               {device.webAuthnEnabled && (
@@ -250,7 +252,7 @@ function DeviceCard({
       <Separator />
 
       <div className="space-y-2">
-        <div className="text-xs font-medium text-muted-foreground">Active Sessions</div>
+        <div className="text-xs font-medium text-muted-foreground">{t('deviceManager.activeSessions')}</div>
         {sessions.length > 0 ? (
           sessions.map((session) => (
             <div
@@ -286,13 +288,13 @@ function DeviceCard({
             </div>
           ))
         ) : (
-          <div className="text-sm text-muted-foreground">No active sessions</div>
+          <div className="text-sm text-muted-foreground">{t('deviceManager.noActiveSessions')}</div>
         )}
       </div>
 
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Last seen: {formatTimestamp(device.lastSeen)}</span>
-        <span>First seen: {formatTimestamp(device.firstSeen)}</span>
+        <span>{t('deviceManager.lastSeen', { time: formatTimestamp(device.lastSeen) })}</span>
+        <span>{t('deviceManager.firstSeen', { time: formatTimestamp(device.firstSeen) })}</span>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
  * Configure device tracking and privacy preferences
  */
 
+import { useTranslation } from 'react-i18next';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 export function PrivacySettings() {
+  const { t } = useTranslation();
   const { privacySettings, updatePrivacySettings } = useDeviceStore();
 
   const handleToggle = (key: keyof typeof privacySettings, value: boolean) => {
@@ -29,19 +31,19 @@ export function PrivacySettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Privacy & Security Settings
+          {t('privacySettings.title')}
         </CardTitle>
         <CardDescription>
-          Configure how device tracking and session management works
+          {t('privacySettings.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* IP Address Anonymization */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="anonymize-ip">Anonymize IP Addresses</Label>
+            <Label htmlFor="anonymize-ip">{t('privacySettings.anonymizeIp.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Hide or hash IP addresses in session logs for better privacy
+              {t('privacySettings.anonymizeIp.description')}
             </p>
           </div>
           <Switch
@@ -54,9 +56,9 @@ export function PrivacySettings() {
         {/* Fingerprinting Limit */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="limit-fingerprint">Limit Device Fingerprinting</Label>
+            <Label htmlFor="limit-fingerprint">{t('privacySettings.limitFingerprinting.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Reduce detail collected during device fingerprinting
+              {t('privacySettings.limitFingerprinting.description')}
             </p>
           </div>
           <Switch
@@ -69,9 +71,9 @@ export function PrivacySettings() {
         {/* Auto-Expire Sessions */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="auto-expire">Auto-Expire Inactive Sessions</Label>
+            <Label htmlFor="auto-expire">{t('privacySettings.autoExpireSessions.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Automatically end sessions that haven't been used
+              {t('privacySettings.autoExpireSessions.description')}
             </p>
           </div>
           <Switch
@@ -84,7 +86,7 @@ export function PrivacySettings() {
         {/* Session Timeout */}
         {privacySettings.autoExpireSessions && (
           <div className="space-y-2 pl-6">
-            <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+            <Label htmlFor="session-timeout">{t('privacySettings.sessionTimeout.label')}</Label>
             <div className="flex items-center gap-4">
               <Input
                 id="session-timeout"
@@ -96,7 +98,7 @@ export function PrivacySettings() {
                 className="w-32"
               />
               <span className="text-sm text-muted-foreground">
-                ({Math.floor(privacySettings.sessionTimeoutMinutes / 60 / 24)} days)
+                {t('privacySettings.sessionTimeout.days', { count: Math.floor(privacySettings.sessionTimeoutMinutes / 60 / 24) })}
               </span>
             </div>
           </div>
@@ -105,9 +107,9 @@ export function PrivacySettings() {
         {/* New Device Authorization */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="require-auth">Require Authorization for New Devices</Label>
+            <Label htmlFor="require-auth">{t('privacySettings.requireAuthNewDevice.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Manually approve new devices before they can access your account
+              {t('privacySettings.requireAuthNewDevice.description')}
             </p>
           </div>
           <Switch
@@ -120,9 +122,9 @@ export function PrivacySettings() {
         {/* Location Tracking */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="location-tracking">Enable Location Tracking</Label>
+            <Label htmlFor="location-tracking">{t('privacySettings.locationTracking.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Track approximate location (city/country) for sessions
+              {t('privacySettings.locationTracking.description')}
             </p>
           </div>
           <Switch
@@ -136,8 +138,7 @@ export function PrivacySettings() {
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Location tracking may compromise your privacy. Only enable if you understand
-              the risks.
+              {t('privacySettings.locationTracking.warning')}
             </AlertDescription>
           </Alert>
         )}
@@ -145,9 +146,9 @@ export function PrivacySettings() {
         {/* Activity History Logging */}
         <div className="flex items-center justify-between space-x-2">
           <div className="space-y-0.5">
-            <Label htmlFor="activity-logs">Log Device Activity</Label>
+            <Label htmlFor="activity-logs">{t('privacySettings.activityLogs.label')}</Label>
             <p className="text-sm text-muted-foreground">
-              Keep a history of device activities and security events
+              {t('privacySettings.activityLogs.description')}
             </p>
           </div>
           <Switch
@@ -161,8 +162,7 @@ export function PrivacySettings() {
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Disabling activity logs will make it harder to detect unauthorized access or
-              suspicious activity.
+              {t('privacySettings.activityLogs.warning')}
             </AlertDescription>
           </Alert>
         )}

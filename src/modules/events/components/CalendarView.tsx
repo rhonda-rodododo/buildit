@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +15,7 @@ interface CalendarViewProps {
 }
 
 export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
+  const { t } = useTranslation()
   const { events } = useEvents(groupId)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
@@ -40,10 +42,10 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
     <div className="grid gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Calendar</CardTitle>
+          <CardTitle>{t('eventsCalendarView.title')}</CardTitle>
           <Button size="sm" variant="outline" onClick={handleDownloadAll}>
             <Download className="h-4 w-4 mr-2" />
-            Export All
+            {t('eventsCalendarView.exportAll')}
           </Button>
         </CardHeader>
         <CardContent>
@@ -68,13 +70,13 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
       <Card>
         <CardHeader>
           <CardTitle>
-            Events on {format(selectedDate, 'MMMM d, yyyy')}
+            {t('eventsCalendarView.eventsOn', { date: format(selectedDate, 'MMMM d, yyyy') })}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {eventsOnSelectedDate.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
-              No events on this date
+              {t('eventsCalendarView.noEvents')}
             </p>
           ) : (
             <div className="space-y-4">

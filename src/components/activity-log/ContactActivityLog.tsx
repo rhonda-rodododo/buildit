@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,6 +108,7 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
   contactName,
   className
 }) => {
+  const { t } = useTranslation();
   const [activities] = useState<ActivityItem[]>(DEMO_ACTIVITIES);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddNote, setShowAddNote] = useState(false);
@@ -147,15 +149,15 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Activity Timeline</h3>
+          <h3 className="text-lg font-semibold">{t('contactActivityLog.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            All interactions with {contactName}
+            {t('contactActivityLog.description', { name: contactName })}
           </p>
         </div>
 
         <Button size="sm" onClick={() => setShowAddNote(!showAddNote)} className="gap-2">
           <Plus className="w-4 h-4" />
-          Add Note
+          {t('contactActivityLog.addNote')}
         </Button>
       </div>
 
@@ -163,7 +165,7 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Search activity..."
+          placeholder={t('contactActivityLog.searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -173,16 +175,16 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
       {/* Add Note Form */}
       {showAddNote && (
         <Card className="p-4 bg-yellow-500/5 border-yellow-500/20">
-          <h4 className="text-sm font-semibold mb-2">Add Note</h4>
+          <h4 className="text-sm font-semibold mb-2">{t('contactActivityLog.noteForm.title')}</h4>
           <textarea
             className="w-full p-2 border rounded-md bg-background text-sm"
             rows={3}
-            placeholder="Add a note about this contact..."
+            placeholder={t('contactActivityLog.noteForm.placeholder')}
           />
           <div className="flex gap-2 mt-2">
-            <Button size="sm">Save Note</Button>
+            <Button size="sm">{t('contactActivityLog.noteForm.save')}</Button>
             <Button size="sm" variant="outline" onClick={() => setShowAddNote(false)}>
-              Cancel
+              {t('contactActivityLog.noteForm.cancel')}
             </Button>
           </div>
         </Card>
@@ -197,7 +199,7 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
         <div className="space-y-6">
           {filteredActivities.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="text-muted-foreground">No activities found</p>
+              <p className="text-muted-foreground">{t('contactActivityLog.empty')}</p>
             </Card>
           ) : (
             filteredActivities.map((activity, _index) => (
@@ -249,25 +251,25 @@ export const ContactActivityLog: FC<ContactActivityLogProps> = ({
 
       {/* Stats Summary */}
       <Card className="p-4 bg-muted/50">
-        <h4 className="text-sm font-semibold mb-3">Activity Summary</h4>
+        <h4 className="text-sm font-semibold mb-3">{t('contactActivityLog.summary.title')}</h4>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold">
               {activities.filter(a => a.type === 'message').length}
             </p>
-            <p className="text-xs text-muted-foreground">Messages</p>
+            <p className="text-xs text-muted-foreground">{t('contactActivityLog.summary.messages')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">
               {activities.filter(a => a.type === 'event_rsvp' || a.type === 'event_attended').length}
             </p>
-            <p className="text-xs text-muted-foreground">Events</p>
+            <p className="text-xs text-muted-foreground">{t('contactActivityLog.summary.events')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">
               {activities.filter(a => a.type === 'note').length}
             </p>
-            <p className="text-xs text-muted-foreground">Notes</p>
+            <p className="text-xs text-muted-foreground">{t('contactActivityLog.summary.notes')}</p>
           </div>
         </div>
       </Card>

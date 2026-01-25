@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CustomField } from '@/modules/custom-fields/types';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,6 +49,7 @@ export function EditableCell({
   onViewProfile,
   onNavigateToRecord,
 }: EditableCellProps) {
+  const { t } = useTranslation();
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
@@ -119,7 +121,7 @@ export function EditableCell({
         className="px-2 py-1.5 min-h-[2.5rem] flex items-center cursor-text hover:bg-muted/50 rounded"
         onClick={onEdit}
       >
-        {formatFieldValue(value, field)}
+        {formatFieldValue(value, field, t)}
       </div>
     );
   }
@@ -312,7 +314,7 @@ export function EditableCell({
         if (!field.widget.relationshipTargetTable) {
           return (
             <div className="px-2 py-1 text-muted-foreground text-sm">
-              No target table configured
+              {t('editableCell.noTargetTable')}
             </div>
           );
         }
@@ -335,7 +337,7 @@ export function EditableCell({
       default:
         return (
           <div className="px-2 py-1 text-muted-foreground text-sm">
-            Inline editing not supported for {field.widget.widget}
+            {t('editableCell.notSupported', { widget: field.widget.widget })}
           </div>
         );
     }
@@ -347,9 +349,9 @@ export function EditableCell({
 /**
  * Format field value for display
  */
-function formatFieldValue(value: unknown, field: CustomField): React.ReactNode {
+function formatFieldValue(value: unknown, field: CustomField, t?: (key: string, options?: Record<string, unknown>) => string): React.ReactNode {
   if (value === null || value === undefined || value === '') {
-    return <span className="text-muted-foreground italic">Empty</span>;
+    return <span className="text-muted-foreground italic">{t?.('editableCell.empty') ?? 'Empty'}</span>;
   }
 
   switch (field.widget.widget) {
@@ -367,7 +369,7 @@ function formatFieldValue(value: unknown, field: CustomField): React.ReactNode {
           ))}
         </div>
       ) : (
-        <span className="text-muted-foreground italic">Empty</span>
+        <span className="text-muted-foreground italic">{t?.('editableCell.empty') ?? 'Empty'}</span>
       );
     case 'checkbox':
       return value ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-muted-foreground" />;
@@ -385,14 +387,14 @@ function formatFieldValue(value: unknown, field: CustomField): React.ReactNode {
         return (
           <div className="flex items-center gap-1">
             <Link2 className="h-3 w-3 text-primary" />
-            <span className="text-sm">{value.length} linked</span>
+            <span className="text-sm">{t?.('editableCell.linkedCount', { count: value.length }) ?? `${value.length} linked`}</span>
           </div>
         );
       }
       return (
         <div className="flex items-center gap-1">
           <Link2 className="h-3 w-3 text-primary" />
-          <span className="text-sm text-primary">Linked</span>
+          <span className="text-sm text-primary">{t?.('editableCell.linked') ?? 'Linked'}</span>
         </div>
       );
     default:

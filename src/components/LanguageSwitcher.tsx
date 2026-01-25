@@ -9,8 +9,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { languages, type LanguageCode } from '@/i18n/config'
 
-export function LanguageSwitcher() {
-  const { i18n } = useTranslation()
+interface LanguageSwitcherProps {
+  variant?: 'ghost' | 'outline';
+}
+
+export function LanguageSwitcher({ variant = 'ghost' }: LanguageSwitcherProps) {
+  const { t, i18n } = useTranslation()
 
   const handleLanguageChange = (languageCode: LanguageCode) => {
     i18n.changeLanguage(languageCode)
@@ -19,9 +23,9 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Button variant={variant} size="icon" className="h-9 w-9">
           <Languages className="h-4 w-4" />
-          <span className="sr-only">Switch language</span>
+          <span className="sr-only">{t('common.language.switch')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

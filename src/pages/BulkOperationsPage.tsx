@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -67,6 +68,7 @@ const DEMO_CONTACTS: Contact[] = [
 ];
 
 export const BulkOperationsPage: FC = () => {
+  const { t } = useTranslation();
   const [contacts] = useState<Contact[]>(DEMO_CONTACTS);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('bulk-actions');
@@ -92,27 +94,27 @@ export const BulkOperationsPage: FC = () => {
   };
 
   const handleBulkMessage = () => {
-    alert(`Sending message to ${selectedIds.size} contacts`);
+    alert(t('bulkOperationsPage.alerts.sendingMessage', { count: selectedIds.size }));
   };
 
   const handleBulkAddTag = () => {
-    alert(`Adding tag to ${selectedIds.size} contacts`);
+    alert(t('bulkOperationsPage.alerts.addingTag', { count: selectedIds.size }));
   };
 
   const handleBulkUpdateField = () => {
-    alert(`Updating field for ${selectedIds.size} contacts`);
+    alert(t('bulkOperationsPage.alerts.updatingField', { count: selectedIds.size }));
   };
 
   const handleBulkAssignTask = () => {
-    alert(`Creating task for ${selectedIds.size} contacts`);
+    alert(t('bulkOperationsPage.alerts.creatingTask', { count: selectedIds.size }));
   };
 
   const handleBulkExport = () => {
-    alert(`Exporting ${selectedIds.size} contacts to CSV`);
+    alert(t('bulkOperationsPage.alerts.exportingCSV', { count: selectedIds.size }));
   };
 
   const handleBulkDelete = () => {
-    if (confirm(`Delete ${selectedIds.size} contacts? This cannot be undone.`)) {
+    if (confirm(t('bulkOperationsPage.alerts.confirmDelete', { count: selectedIds.size }))) {
       setSelectedIds(new Set());
     }
   };
@@ -131,9 +133,9 @@ export const BulkOperationsPage: FC = () => {
       <PageMeta titleKey="crm.title" descriptionKey="meta.crm" path="/app/bulk-operations" />
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Bulk Operations</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('bulkOperationsPage.title')}</h1>
         <p className="text-muted-foreground">
-          Scale your organizing with bulk actions, multi-select, and automated task management
+          {t('bulkOperationsPage.subtitle')}
         </p>
       </div>
 
@@ -142,11 +144,11 @@ export const BulkOperationsPage: FC = () => {
         <TabsList>
           <TabsTrigger value="bulk-actions" className="gap-2">
             <CheckSquare className="w-4 h-4" />
-            Bulk Actions
+            {t('bulkOperationsPage.tabs.bulkActions')}
           </TabsTrigger>
           <TabsTrigger value="tasks" className="gap-2">
             <ListTodo className="w-4 h-4" />
-            Task Manager
+            {t('bulkOperationsPage.tabs.taskManager')}
           </TabsTrigger>
         </TabsList>
 
@@ -183,11 +185,11 @@ export const BulkOperationsPage: FC = () => {
                         }}
                       />
                     </th>
-                    <th className="text-left p-4 font-medium">Name</th>
-                    <th className="text-left p-4 font-medium">Email</th>
-                    <th className="text-left p-4 font-medium">Support Level</th>
-                    <th className="text-left p-4 font-medium">Tags</th>
-                    <th className="text-left p-4 font-medium">Last Contact</th>
+                    <th className="text-left p-4 font-medium">{t('bulkOperationsPage.table.name')}</th>
+                    <th className="text-left p-4 font-medium">{t('bulkOperationsPage.table.email')}</th>
+                    <th className="text-left p-4 font-medium">{t('bulkOperationsPage.table.supportLevel')}</th>
+                    <th className="text-left p-4 font-medium">{t('bulkOperationsPage.table.tags')}</th>
+                    <th className="text-left p-4 font-medium">{t('bulkOperationsPage.table.lastContact')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -222,12 +224,12 @@ export const BulkOperationsPage: FC = () => {
                             </span>
                           ))}
                           {contact.tags.length === 0 && (
-                            <span className="text-xs text-muted-foreground">No tags</span>
+                            <span className="text-xs text-muted-foreground">{t('bulkOperationsPage.table.noTags')}</span>
                           )}
                         </div>
                       </td>
                       <td className="p-4 text-sm text-muted-foreground">
-                        {Math.floor((mountTime - contact.lastContact) / (24 * 60 * 60 * 1000))} days ago
+                        {t('bulkOperationsPage.table.daysAgo', { count: Math.floor((mountTime - contact.lastContact) / (24 * 60 * 60 * 1000)) })}
                       </td>
                     </tr>
                   ))}
@@ -238,14 +240,14 @@ export const BulkOperationsPage: FC = () => {
 
           {/* Info Box */}
           <Card className="p-4 bg-blue-500/5 border-blue-500/20">
-            <h4 className="font-medium text-sm mb-2">Bulk Operations Features</h4>
+            <h4 className="font-medium text-sm mb-2">{t('bulkOperationsPage.features.title')}</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Select multiple contacts with checkboxes</li>
-              <li>• Send bulk messages to selected contacts</li>
-              <li>• Add tags to multiple contacts at once</li>
-              <li>• Update custom fields in bulk</li>
-              <li>• Assign tasks to organizers for follow-ups</li>
-              <li>• Export selected contacts to CSV</li>
+              <li>• {t('bulkOperationsPage.features.selectMultiple')}</li>
+              <li>• {t('bulkOperationsPage.features.sendBulk')}</li>
+              <li>• {t('bulkOperationsPage.features.addTags')}</li>
+              <li>• {t('bulkOperationsPage.features.updateFields')}</li>
+              <li>• {t('bulkOperationsPage.features.assignTasks')}</li>
+              <li>• {t('bulkOperationsPage.features.exportCSV')}</li>
             </ul>
           </Card>
         </TabsContent>

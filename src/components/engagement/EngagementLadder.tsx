@@ -5,6 +5,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -254,6 +255,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
   completedMilestones,
   className
 }) => {
+  const { t } = useTranslation();
   const currentLevelData = ENGAGEMENT_LEVELS[currentLevel];
   const milestones = MILESTONES[currentLevel].map(m => ({
     ...m,
@@ -278,7 +280,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Your Engagement Level</h3>
+              <h3 className="text-lg font-semibold">{t('engagementLadder.title')}</h3>
             </div>
             <Badge className={`${currentLevelData.color} text-white text-sm px-3 py-1`} data-testid="engagement-level-badge">
               {currentLevel} ({currentLevelData.percentage}%)
@@ -295,8 +297,8 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
         {nextLevel && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Progress to {nextLevel.level}</span>
-              <span className="font-medium">{completedCount}/{totalCount} milestones</span>
+              <span className="text-muted-foreground">{t('engagementLadder.progressTo', { level: nextLevel.level })}</span>
+              <span className="font-medium">{t('engagementLadder.milestones', { completed: completedCount, total: totalCount })}</span>
             </div>
             <Progress value={progressPercentage} className="h-2" />
           </div>
@@ -305,7 +307,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
         {!nextLevel && (
           <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
             <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
-              🎉 You're at the highest engagement level! Keep building the movement.
+              {t('engagementLadder.maxLevel')}
             </p>
           </div>
         )}
@@ -315,7 +317,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
       <div data-testid="suggested-next-steps">
         <h4 className="font-semibold mb-3 flex items-center gap-2">
           <ArrowRight className="w-4 h-4" />
-          Suggested Next Steps
+          {t('engagementLadder.nextSteps')}
         </h4>
         <div className="grid gap-3">
           {nextSteps.map((step) => {
@@ -347,7 +349,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
       <div data-testid="milestones-section">
         <h4 className="font-semibold mb-3 flex items-center gap-2">
           <Target className="w-4 h-4" />
-          Milestones for {currentLevel}
+          {t('engagementLadder.milestonesFor', { level: currentLevel })}
         </h4>
         <div className="space-y-2">
           {milestones.map((milestone) => (
@@ -367,7 +369,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
                       {milestone.title}
                     </h5>
                     <Badge variant="outline" className="text-xs">
-                      +{milestone.points} pts
+                      {t('engagementLadder.points', { points: milestone.points })}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">{milestone.description}</p>
@@ -380,7 +382,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
 
       {/* Level Ladder Overview */}
       <Card className="p-4 bg-muted/30" data-testid="engagement-ladder-overview">
-        <h4 className="font-semibold text-sm mb-3">Engagement Ladder</h4>
+        <h4 className="font-semibold text-sm mb-3">{t('engagementLadder.ladderTitle')}</h4>
         <div className="space-y-2">
           {levels.map((level, index) => {
             const levelData = ENGAGEMENT_LEVELS[level];
@@ -398,7 +400,7 @@ export const EngagementLadder: FC<EngagementLadderProps> = ({
                   <div className="text-xs text-muted-foreground">{levelData.percentage}%</div>
                 </div>
                 {isCurrent && (
-                  <Badge variant="outline" className="text-xs">You are here</Badge>
+                  <Badge variant="outline" className="text-xs">{t('engagementLadder.youAreHere')}</Badge>
                 )}
                 {isPast && (
                   <CheckCircle2 className="w-4 h-4 text-green-500" />

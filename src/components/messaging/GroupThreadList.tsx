@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -13,6 +14,7 @@ interface GroupThreadListProps {
 }
 
 export function GroupThreadList({ groupId, onCreateThread }: GroupThreadListProps) {
+  const { t } = useTranslation()
   const { groupThreads, activeThreadId, setActiveThread, setGroupThreads } = useMessagingStore()
 
   const threads = groupThreads.get(groupId) || []
@@ -29,13 +31,13 @@ export function GroupThreadList({ groupId, onCreateThread }: GroupThreadListProp
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <MessageSquare className="w-12 h-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No threads yet</h3>
+        <h3 className="text-lg font-medium mb-2">{t('groupThreadList.noThreadsTitle')}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Start a conversation by creating the first thread
+          {t('groupThreadList.noThreadsDescription')}
         </p>
         <Button onClick={onCreateThread}>
           <Plus className="w-4 h-4 mr-2" />
-          Create Thread
+          {t('groupThreadList.createThread')}
         </Button>
       </div>
     )
@@ -44,10 +46,10 @@ export function GroupThreadList({ groupId, onCreateThread }: GroupThreadListProp
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b flex items-center justify-between">
-        <h3 className="font-semibold">Threads</h3>
+        <h3 className="font-semibold">{t('groupThreadList.threads')}</h3>
         <Button size="sm" variant="outline" onClick={onCreateThread}>
           <Plus className="w-4 h-4 mr-2" />
-          New Thread
+          {t('groupThreadList.newThread')}
         </Button>
       </div>
       <div className="flex-1 overflow-y-auto">
@@ -71,6 +73,7 @@ interface ThreadItemProps {
 }
 
 function ThreadItem({ thread, isActive, onClick }: ThreadItemProps) {
+  const { t } = useTranslation()
   const lastMessageDate = new Date(thread.lastMessageAt * 1000)
   const now = new Date()
   const isToday = lastMessageDate.toDateString() === now.toDateString()
@@ -100,7 +103,7 @@ function ThreadItem({ thread, isActive, onClick }: ThreadItemProps) {
         {thread.category && (
           <span className="bg-secondary px-2 py-1 rounded">{thread.category}</span>
         )}
-        <span>{thread.messageCount} messages</span>
+        <span>{t('groupThreadList.messageCount', { count: thread.messageCount })}</span>
       </div>
     </Card>
   )

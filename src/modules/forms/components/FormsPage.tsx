@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -39,6 +40,7 @@ import type { JSONSchema7 } from 'json-schema';
 type ViewMode = 'list' | 'builder' | 'preview' | 'submissions' | 'analytics' | 'templates';
 
 export function FormsPage() {
+  const { t } = useTranslation();
   const { groupId } = useGroupContext();
   const currentIdentity = useAuthStore((state) => state.currentIdentity);
   const forms = useFormsStore((state) => state.getFormsByGroup(groupId));
@@ -236,7 +238,7 @@ export function FormsPage() {
       <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Forms
+            ← {t('forms.backToForms')}
           </Button>
         </div>
         <PublicFormView
@@ -258,7 +260,7 @@ export function FormsPage() {
       <div className="h-full p-4 space-y-6 overflow-y-auto">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Forms
+            ← {t('forms.backToForms')}
           </Button>
         </div>
         <SubmissionsList
@@ -277,7 +279,7 @@ export function FormsPage() {
       <div className="h-full p-4 overflow-y-auto"><div className="max-w-4xl mx-auto space-y-6">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Forms
+            ← {t('forms.backToForms')}
           </Button>
         </div>
         <AnalyticsDashboard resourceType="form" resourceId={selectedForm.id} />
@@ -290,7 +292,7 @@ export function FormsPage() {
       <div className="h-full p-4 space-y-6 overflow-y-auto">
         <div>
           <Button variant="outline" onClick={() => setViewMode('list')}>
-            ← Back to Forms
+            ← {t('forms.backToForms')}
           </Button>
         </div>
         <TemplateGallery
@@ -360,18 +362,18 @@ export function FormsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Forms</h1>
+          <h1 className="text-3xl font-bold">{t('forms.title')}</h1>
           <p className="text-muted-foreground">
-            Create and manage public forms for data collection
+            {t('forms.description')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setViewMode('templates')}>
-            View Templates
+            {t('forms.viewTemplates')}
           </Button>
           <Button onClick={handleCreateForm}>
             <Plus className="h-4 w-4 mr-2" />
-            New Form
+            {t('forms.newForm')}
           </Button>
         </div>
       </div>
@@ -380,17 +382,17 @@ export function FormsPage() {
       {forms.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="max-w-md mx-auto space-y-4">
-            <h3 className="text-lg font-semibold">No forms yet</h3>
+            <h3 className="text-lg font-semibold">{t('forms.noForms')}</h3>
             <p className="text-muted-foreground">
-              Create your first form to start collecting data from volunteers, event registrations, surveys, and more.
+              {t('forms.noFormsDescription')}
             </p>
             <div className="flex gap-2 justify-center">
               <Button onClick={handleCreateForm}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Form
+                {t('forms.createForm')}
               </Button>
               <Button variant="outline" onClick={() => setViewMode('templates')}>
-                Browse Templates
+                {t('forms.browseTemplates')}
               </Button>
             </div>
           </div>
@@ -417,33 +419,33 @@ export function FormsPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleEditForm(form)}>
                       <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                      {t('forms.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handlePreviewForm(form)}>
                       <Eye className="h-4 w-4 mr-2" />
-                      Preview
+                      {t('forms.preview')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleViewSubmissions(form)}>
                       <BarChart className="h-4 w-4 mr-2" />
-                      Submissions
+                      {t('forms.submissions')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleViewAnalytics(form)}>
                       <BarChart className="h-4 w-4 mr-2" />
-                      Analytics
+                      {t('forms.analytics')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleCopyLink(form)}>
                       <Copy className="h-4 w-4 mr-2" />
-                      Copy Link
+                      {t('forms.copyLink')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handlePublishToggle(form)}>
-                      {form.status === 'published' ? 'Unpublish' : 'Publish'}
+                      {form.status === 'published' ? t('forms.unpublish') : t('forms.publish')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(form)}
                       className="text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      {t('common.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -454,17 +456,17 @@ export function FormsPage() {
                   {form.status}
                 </Badge>
                 <span>•</span>
-                <span>{form.fields.length} fields</span>
+                <span>{form.fields.length} {t('forms.fields')}</span>
               </div>
 
               <div className="mt-4 pt-4 border-t flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleEditForm(form)}>
                   <Edit className="h-3 w-3 mr-1" />
-                  Edit
+                  {t('forms.edit')}
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handlePreviewForm(form)}>
                   <Eye className="h-3 w-3 mr-1" />
-                  Preview
+                  {t('forms.preview')}
                 </Button>
               </div>
             </Card>
@@ -476,15 +478,15 @@ export function FormsPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Form</AlertDialogTitle>
+            <AlertDialogTitle>{t('forms.deleteForm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{formToDelete?.title}"? This will also delete all submissions. This action cannot be undone.
+              {t('forms.deleteFormConfirm', { title: formToDelete?.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

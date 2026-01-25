@@ -4,6 +4,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -52,6 +53,7 @@ export const BulkActionsToolbar: FC<BulkActionsToolbarProps> = ({
   onBulkDelete,
   className
 }) => {
+  const { t } = useTranslation();
   const allSelected = selectedCount === totalCount && totalCount > 0;
 
   return (
@@ -67,12 +69,12 @@ export const BulkActionsToolbar: FC<BulkActionsToolbarProps> = ({
           {allSelected ? (
             <>
               <CheckSquare className="w-4 h-4" />
-              Deselect All
+              {t('bulkActionsToolbar.selection.deselectAll')}
             </>
           ) : (
             <>
               <Square className="w-4 h-4" />
-              Select All
+              {t('bulkActionsToolbar.selection.selectAll')}
             </>
           )}
         </Button>
@@ -81,7 +83,7 @@ export const BulkActionsToolbar: FC<BulkActionsToolbarProps> = ({
           <>
             <div className="h-6 w-px bg-border" />
             <span className="text-sm font-medium">
-              {selectedCount} selected
+              {t('bulkActionsToolbar.selection.selected', { count: selectedCount })}
             </span>
             <Button
               variant="ghost"
@@ -108,38 +110,38 @@ export const BulkActionsToolbar: FC<BulkActionsToolbarProps> = ({
               className="gap-2"
             >
               <Mail className="w-4 h-4" />
-              Send Message
+              {t('bulkActionsToolbar.actions.sendMessage')}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Filter className="w-4 h-4" />
-                  More Actions
+                  {t('bulkActionsToolbar.actions.moreActions')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                <DropdownMenuLabel>Bulk Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('bulkActionsToolbar.actions.bulkActions')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={onBulkAddTag}>
                   <Tag className="w-4 h-4 mr-2" />
-                  Add Tag
+                  {t('bulkActionsToolbar.actions.addTag')}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={onBulkUpdateField}>
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Update Field
+                  {t('bulkActionsToolbar.actions.updateField')}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={onBulkAssignTask}>
                   <CheckSquare className="w-4 h-4 mr-2" />
-                  Assign Task
+                  {t('bulkActionsToolbar.actions.assignTask')}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem onClick={onBulkExport}>
                   <Download className="w-4 h-4 mr-2" />
-                  Export Selected
+                  {t('bulkActionsToolbar.actions.exportSelected')}
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
@@ -149,7 +151,7 @@ export const BulkActionsToolbar: FC<BulkActionsToolbarProps> = ({
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Selected
+                  {t('bulkActionsToolbar.actions.deleteSelected')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

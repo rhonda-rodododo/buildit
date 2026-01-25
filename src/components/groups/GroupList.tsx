@@ -1,4 +1,5 @@
 import { FC, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useAuthStore } from '@/stores/authStore'
 import { Card } from '@/components/ui/card'
@@ -9,6 +10,7 @@ interface GroupListProps {
 }
 
 export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
+  const { t } = useTranslation()
   const { groups, activeGroup, setActiveGroup, loadGroups, loadGroupMembers, groupMembers, isLoading } = useGroupsStore()
   const { currentIdentity } = useAuthStore()
   const  navigate = useNavigate()
@@ -17,7 +19,6 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
     if (!currentIdentity) return
 
     loadGroups(currentIdentity.publicKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdentity])
 
   // Load members for all groups to get accurate counts
@@ -39,19 +40,19 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
   }
 
   if (!currentIdentity) {
-    return <div>Please log in to view groups</div>
+    return <div>{t('groupList.loginRequired')}</div>
   }
 
   if (isLoading) {
-    return <div className="text-center text-muted-foreground py-8">Loading groups...</div>
+    return <div className="text-center text-muted-foreground py-8">{t('groupList.loading')}</div>
   }
 
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold mb-4">Your Groups</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('groupList.title')}</h2>
       {groups.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground">
-          No groups yet. Create one to get started!
+          {t('groupList.empty')}
         </Card>
       ) : (
         groups.map((group) => {
@@ -72,16 +73,16 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-sm">{group.name}</p>
                     {group.privacy === 'private' && (
-                      <span className="text-xs bg-muted px-2 py-0.5 rounded">Private</span>
+                      <span className="text-xs bg-muted px-2 py-0.5 rounded">{t('groupList.private')}</span>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground truncate mt-1">
                     {group.description}
                   </p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                    <span>{memberCount} {memberCount === 1 ? 'member' : 'members'}</span>
+                    <span>{t('groupList.memberCount', { count: memberCount })}</span>
                     {group.enabledModules.length > 0 && (
-                      <span>• {group.enabledModules.length} modules</span>
+                      <span>{t('groupList.moduleCount', { count: group.enabledModules.length })}</span>
                     )}
                   </div>
                 </div>

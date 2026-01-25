@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Cloud,
   CloudOff,
@@ -35,12 +36,12 @@ interface SyncStatusIndicatorProps {
   variant?: 'compact' | 'full'
 }
 
-const ITEM_TYPE_LABELS: Record<string, string> = {
-  message: 'Message',
-  post: 'Post',
-  'file-upload': 'File Upload',
-  reaction: 'Reaction',
-  comment: 'Comment',
+const ITEM_TYPE_LABEL_KEYS: Record<string, string> = {
+  message: 'syncStatusIndicator.itemTypes.message',
+  post: 'syncStatusIndicator.itemTypes.post',
+  'file-upload': 'syncStatusIndicator.itemTypes.fileUpload',
+  reaction: 'syncStatusIndicator.itemTypes.reaction',
+  comment: 'syncStatusIndicator.itemTypes.comment',
 }
 
 export function SyncStatusIndicator({
@@ -48,6 +49,7 @@ export function SyncStatusIndicator({
   showLabel = false,
   variant = 'compact',
 }: SyncStatusIndicatorProps) {
+  const { t } = useTranslation()
   const syncStatus = useOfflineQueueStore((state) => state.syncStatus)
   const isProcessing = useOfflineQueueStore((state) => state.isProcessing)
   const items = useOfflineQueueStore((state) => state.items)
@@ -91,11 +93,11 @@ export function SyncStatusIndicator({
   }
 
   const getStatusText = () => {
-    if (!syncStatus.isOnline) return 'Offline'
-    if (isProcessing) return 'Syncing...'
-    if (failedItems.length > 0) return `${failedItems.length} failed`
-    if (pendingItems.length > 0) return `${pendingItems.length} pending`
-    return 'Synced'
+    if (!syncStatus.isOnline) return t('syncStatusIndicator.offline')
+    if (isProcessing) return t('syncStatusIndicator.syncing')
+    if (failedItems.length > 0) return t('syncStatusIndicator.failed', { count: failedItems.length })
+    if (pendingItems.length > 0) return t('syncStatusIndicator.pending', { count: pendingItems.length })
+    return t('syncStatusIndicator.synced')
   }
 
   const handleRetryAll = async () => {
@@ -202,6 +204,7 @@ function SyncStatusPanel({
   onClearFailed,
 }: SyncStatusPanelProps) {
   void _onClearCompleted;
+  const { t } = useTranslation()
   const [showPending, setShowPending] = useState(true)
   const [showFailed, setShowFailed] = useState(true)
 
@@ -216,7 +219,7 @@ function SyncStatusPanel({
             <CloudOff className="h-4 w-4 text-muted-foreground" />
           )}
           <span className="text-sm font-medium">
-            {isOnline ? 'Online' : 'Offline'}
+            {isOnline ? t('syncStatusIndicator.online') : t('syncStatusIndicator.offline')}
           </span>
         </div>
         <div className="flex gap-1">
@@ -246,7 +249,7 @@ function SyncStatusPanel({
           >
             <div className="flex items-center gap-2">
               <Cloud className="h-4 w-4 text-amber-500" />
-              <span className="text-sm">Pending</span>
+              <span className="text-sm">{t('syncStatusIndicator.pendingLabel')}</span>
               <Badge variant="secondary" className="text-xs">
                 {pendingItems.length}
               </Badge>
@@ -283,7 +286,7 @@ function SyncStatusPanel({
           >
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-destructive" />
-              <span className="text-sm">Failed</span>
+              <span className="text-sm">{t('syncStatusIndicator.failedLabel')}</span>
               <Badge variant="destructive" className="text-xs">
                 {failedItems.length}
               </Badge>
@@ -305,7 +308,7 @@ function SyncStatusPanel({
                   className="text-xs"
                 >
                   <RotateCcw className="h-3 w-3 mr-1" />
-                  Retry All
+                  {t('syncStatusIndicator.retryAll')}
                 </Button>
                 <Button
                   variant="ghost"
@@ -314,7 +317,7 @@ function SyncStatusPanel({
                   className="text-xs text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-3 w-3 mr-1" />
-                  Clear All
+                  {t('syncStatusIndicator.clearAll')}
                 </Button>
               </div>
               <ScrollArea className="max-h-[150px]">
@@ -339,7 +342,7 @@ function SyncStatusPanel({
       {pendingItems.length === 0 && failedItems.length === 0 && (
         <div className="p-6 text-center text-muted-foreground">
           <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-          <p className="text-sm">Everything is synced</p>
+          <p className="text-sm">{t('syncStatusIndicator.everythingSynced')}</p>
         </div>
       )}
     </div>
@@ -359,18 +362,20 @@ function QueueItemRow({
   onRemove,
   showActions = false,
 }: QueueItemRowProps) {
+  const { t } = useTranslation()
+
   const getItemDescription = (item: QueueItem): string => {
     switch (item.type) {
       case 'message':
-        return 'Message to ' + (item.payload as any).conversationId?.slice(0, 8) + '...'
+        return t('syncStatusIndicator.itemDescriptions.messageTo', { conversationId: (item.payload as any).conversationId?.slice(0, 8) })
       case 'post':
-        return 'Post: ' + ((item.payload as any).content || '').slice(0, 30) + '...'
+        return t('syncStatusIndicator.itemDescriptions.post', { content: ((item.payload as any).content || '').slice(0, 30) })
       case 'file-upload':
-        return 'File: ' + (item.payload as any).fileName
+        return t('syncStatusIndicator.itemDescriptions.file', { fileName: (item.payload as any).fileName })
       case 'reaction':
-        return 'Reaction: ' + (item.payload as any).reactionType
+        return t('syncStatusIndicator.itemDescriptions.reaction', { reactionType: (item.payload as any).reactionType })
       case 'comment':
-        return 'Comment on post'
+        return t('syncStatusIndicator.itemDescriptions.commentOnPost')
       default: {
         // Handle any future queue types gracefully
         const unknownItem = item as { type: string }
@@ -384,11 +389,11 @@ function QueueItemRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-xs shrink-0">
-            {ITEM_TYPE_LABELS[item.type] || item.type}
+            {t(ITEM_TYPE_LABEL_KEYS[item.type] || item.type)}
           </Badge>
           {item.status === 'failed' && item.retryCount > 0 && (
             <span className="text-xs text-muted-foreground">
-              ({item.retryCount}/{item.maxRetries} retries)
+              {t('syncStatusIndicator.retriesFailed', { retryCount: item.retryCount, maxRetries: item.maxRetries })}
             </span>
           )}
         </div>
@@ -413,7 +418,7 @@ function QueueItemRow({
               size="sm"
               className="h-7 w-7 p-0"
               onClick={() => onRetry(item.id)}
-              title="Retry"
+              title={t('syncStatusIndicator.retry')}
             >
               <RotateCcw className="h-3 w-3" />
             </Button>
@@ -423,7 +428,7 @@ function QueueItemRow({
             size="sm"
             className="h-7 w-7 p-0 text-destructive hover:text-destructive"
             onClick={() => onRemove(item.id)}
-            title="Remove"
+            title={t('syncStatusIndicator.remove')}
           >
             <Trash2 className="h-3 w-3" />
           </Button>

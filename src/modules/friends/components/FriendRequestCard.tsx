@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -25,14 +26,19 @@ const METHOD_ICONS = {
   'invite-link': LinkIcon,
 };
 
-const METHOD_LABELS = {
-  qr: 'QR Code',
-  username: 'Username Search',
-  email: 'Email Invite',
-  'invite-link': 'Invite Link',
+// Method labels are now handled via translations
+const getMethodLabel = (t: (key: string) => string, method: keyof typeof METHOD_ICONS) => {
+  const labels: Record<string, string> = {
+    qr: t('friendRequestCard.methods.qr'),
+    username: t('friendRequestCard.methods.username'),
+    email: t('friendRequestCard.methods.email'),
+    'invite-link': t('friendRequestCard.methods.inviteLink'),
+  };
+  return labels[method] || method;
 };
 
 export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const { acceptFriendRequest, declineFriendRequest } = useFriendsStore();
 
@@ -85,7 +91,7 @@ export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
               <h3 className="font-semibold truncate">{displayName}</h3>
               {type === 'outgoing' && (
                 <Badge variant="outline" className="text-xs">
-                  Sent
+                  {t('friendRequestCard.sent')}
                 </Badge>
               )}
             </div>
@@ -102,7 +108,7 @@ export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
             {/* Metadata */}
             <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
               <MethodIcon className="h-3 w-3" />
-              <span>{METHOD_LABELS[request.method]}</span>
+              <span>{getMethodLabel(t, request.method)}</span>
               <span>•</span>
               <span>{formatDistanceToNow(request.createdAt, { addSuffix: true })}</span>
             </div>
@@ -116,18 +122,18 @@ export function FriendRequestCard({ request, type }: FriendRequestCardProps) {
                 variant="default"
                 onClick={handleAccept}
                 disabled={isLoading}
-                title="Accept request"
+                title={t('friendRequestCard.acceptRequest')}
                 data-testid="accept-friend-request-button"
               >
                 <Check className="h-4 w-4 mr-1" />
-                Accept
+                {t('friendRequestCard.accept')}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleDecline}
                 disabled={isLoading}
-                title="Decline request"
+                title={t('friendRequestCard.declineRequest')}
                 data-testid="decline-friend-request-button"
               >
                 <X className="h-4 w-4" />

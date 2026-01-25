@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '@/stores/authStore';
 import { usePostsStore } from '../postsStore';
@@ -28,6 +29,7 @@ interface CommentItemProps {
 }
 
 const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth }) => {
+  const { t } = useTranslation();
   const { currentIdentity } = useAuthStore();
   const { deleteComment, getPostComments } = usePostsStore();
   const [isReplying, setIsReplying] = useState(false);
@@ -67,7 +69,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
   const borderColor = depthColors[depth % depthColors.length];
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this comment?')) return;
+    if (!window.confirm(t('commentThread.confirmDelete'))) return;
 
     setIsDeleting(true);
     try {
@@ -120,7 +122,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
             </span>
             {totalReplies > 0 && (
               <span className="text-xs text-muted-foreground">
-                · {totalReplies} {totalReplies === 1 ? 'reply' : 'replies'}
+                · {totalReplies === 1 ? t('commentThread.replies', { count: totalReplies }) : t('commentThread.replies_plural', { count: totalReplies })}
               </span>
             )}
           </div>
@@ -140,7 +142,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
                     onClick={() => setIsReplying(!isReplying)}
                   >
                     <MessageCircle className="w-3 h-3 mr-1" />
-                    Reply
+                    {t('commentThread.reply')}
                   </Button>
                 )}
                 <Button
@@ -152,12 +154,12 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
                   {isMuted ? (
                     <>
                       <BellOff className="w-3 h-3 mr-1" />
-                      Unmute
+                      {t('commentThread.unmute')}
                     </>
                   ) : (
                     <>
                       <Bell className="w-3 h-3 mr-1" />
-                      Mute
+                      {t('commentThread.mute')}
                     </>
                   )}
                 </Button>
@@ -170,7 +172,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
                     disabled={isDeleting}
                   >
                     <Trash2 className="w-3 h-3 mr-1" />
-                    Delete
+                    {t('commentThread.delete')}
                   </Button>
                 )}
               </div>
@@ -179,7 +181,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
 
           {isCollapsed && (
             <p className="text-sm mt-1 text-muted-foreground italic">
-              Thread collapsed ({totalReplies} {totalReplies === 1 ? 'reply' : 'replies'})
+              {totalReplies === 1 ? t('commentThread.threadCollapsed', { count: totalReplies }) : t('commentThread.threadCollapsed_plural', { count: totalReplies })}
             </p>
           )}
 
@@ -189,7 +191,7 @@ const CommentItem: FC<CommentItemProps> = ({ comment, postId, depth, maxDepth })
               <CommentInput
                 postId={postId}
                 parentCommentId={comment.id}
-                placeholder={`Reply to ${comment.authorId}...`}
+                placeholder={t('commentThread.replyTo', { author: comment.authorId })}
                 onCommentAdded={handleReplyAdded}
                 onCancel={() => setIsReplying(false)}
                 autoFocus
@@ -222,13 +224,14 @@ export const CommentThread: FC<CommentThreadProps> = ({
   comments,
   maxDepth = 5,
 }) => {
+  const { t } = useTranslation();
   // Get top-level comments (no parent)
   const topLevelComments = comments.filter((c) => !c.parentCommentId);
 
   if (topLevelComments.length === 0) {
     return (
       <div className="text-center py-4 text-sm text-muted-foreground">
-        No comments yet. Be the first to comment!
+        {t('commentThread.noComments')}
       </div>
     );
   }

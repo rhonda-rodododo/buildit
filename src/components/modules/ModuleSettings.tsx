@@ -39,12 +39,14 @@ import {
   Puzzle,
   Lightbulb,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ModuleSettingsProps {
   groupId: string;
 }
 
 export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
+  const { t } = useTranslation();
   const [canManage, setCanManage] = useState(false);
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<ModulePlugin | null>(null);
@@ -136,7 +138,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
 
   const handleToggleModule = async (module: ModulePlugin) => {
     if (!canManage) {
-      alert('You do not have permission to manage modules');
+      alert(t('modules.noPermissionAlert', 'You do not have permission to manage modules'));
       return;
     }
 
@@ -145,7 +147,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
       await toggleGroupModule(groupId, module.metadata.id);
     } catch (error) {
       console.error('Failed to toggle module:', error);
-      alert('Failed to toggle module: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert(t('modules.failedToToggle', 'Failed to toggle module') + ': ' + (error instanceof Error ? error.message : t('errors.unknownError', 'Unknown error')));
     }
   };
 
@@ -165,7 +167,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
       setSelectedModule(null);
     } catch (error) {
       console.error('Failed to update module config:', error);
-      alert('Failed to update configuration: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert(t('modules.failedToUpdateConfig', 'Failed to update configuration') + ': ' + (error instanceof Error ? error.message : t('errors.unknownError', 'Unknown error')));
     }
   };
 
@@ -302,8 +304,8 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Module Settings</CardTitle>
-          <CardDescription>You do not have permission to manage modules for this group.</CardDescription>
+          <CardTitle>{t('modules.title', 'Module Settings')}</CardTitle>
+          <CardDescription>{t('modules.noPermission', 'You do not have permission to manage modules for this group.')}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -312,9 +314,9 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Module Settings</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('modules.title', 'Module Settings')}</h2>
         <p className="text-muted-foreground">
-          Enable and configure modules for your group. Each module provides different features and capabilities.
+          {t('modules.description', 'Enable and configure modules for your group. Each module provides different features and capabilities.')}
         </p>
       </div>
 
@@ -354,7 +356,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                       </TooltipTrigger>
                       {enabled && enabledDependents.length > 0 && (
                         <TooltipContent>
-                          <p>Cannot disable: {enabledDependents.join(', ')} depends on this</p>
+                          <p>{t('modules.cannotDisable', 'Cannot disable: {{modules}} depends on this', { modules: enabledDependents.join(', ') })}</p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -370,7 +372,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                           <div>
                             <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
                               <Lock className="h-3.5 w-3.5" />
-                              Required:
+                              {t('modules.required', 'Required:')}
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {dependencies.filter(d => d.relationship === 'requires').map((dep) => {
@@ -388,7 +390,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                                       </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>{dep.reason || `${depModule?.metadata.name || dep.moduleId} is required`}</p>
+                                      <p>{dep.reason || t('modules.isRequired', '{{module}} is required', { module: depModule?.metadata.name || dep.moduleId })}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 );
@@ -402,7 +404,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                           <div>
                             <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
                               <Puzzle className="h-3.5 w-3.5" />
-                              Enhanced by:
+                              {t('modules.enhancedBy', 'Enhanced by:')}
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {dependencies.filter(d => d.relationship === 'optional').map((dep) => {
@@ -423,8 +425,8 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                                     <TooltipContent>
                                       <p>
                                         {depEnabled
-                                          ? `Enhanced by ${depModule?.metadata.name || dep.moduleId}`
-                                          : dep.reason || `Enable ${depModule?.metadata.name || dep.moduleId} for more features`}
+                                          ? t('modules.enhancedByModule', 'Enhanced by {{module}}', { module: depModule?.metadata.name || dep.moduleId })
+                                          : dep.reason || t('modules.enableForFeatures', 'Enable {{module}} for more features', { module: depModule?.metadata.name || dep.moduleId })}
                                       </p>
                                     </TooltipContent>
                                   </Tooltip>
@@ -439,7 +441,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                           <div>
                             <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
                               <Lightbulb className="h-3.5 w-3.5 text-blue-500" />
-                              Recommended:
+                              {t('modules.recommended', 'Recommended:')}
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {dependencies.filter(d => d.relationship === 'recommendedWith').map((dep) => {
@@ -458,7 +460,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                                       </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>{dep.reason || `${depModule?.metadata.name || dep.moduleId} works well with this module`}</p>
+                                      <p>{dep.reason || t('modules.worksWellWith', '{{module}} works well with this module', { module: depModule?.metadata.name || dep.moduleId })}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 );
@@ -474,7 +476,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                       <Alert className="py-2 bg-purple-500/10 border-purple-500/20">
                         <Sparkles className="h-4 w-4 text-purple-500" />
                         <AlertDescription className="text-xs">
-                          Enhanced by: {getEnhancingModules(module.metadata.id)
+                          {t('modules.enhancedBy', 'Enhanced by:')} {getEnhancingModules(module.metadata.id)
                             .filter(id => isModuleEnabled(groupId, id))
                             .map(id => moduleMap.get(id)?.metadata.name || id)
                             .join(', ')}
@@ -487,7 +489,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                       <Alert variant="destructive" className="py-2">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertDescription className="text-xs">
-                          Enable {missingDeps.join(', ')} first
+                          {t('modules.enableFirst', 'Enable {{modules}} first', { modules: missingDeps.join(', ') })}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -497,13 +499,13 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                       <Alert className="py-2 bg-blue-500/10 border-blue-500/20">
                         <Info className="h-4 w-4 text-blue-500" />
                         <AlertDescription className="text-xs">
-                          Required by: {enabledDependents.join(', ')}
+                          {t('modules.requiredBy', 'Required by:')} {enabledDependents.join(', ')}
                         </AlertDescription>
                       </Alert>
                     )}
 
                     <div>
-                      <h4 className="text-sm font-medium mb-2">Capabilities:</h4>
+                      <h4 className="text-sm font-medium mb-2">{t('modules.capabilities', 'Capabilities:')}</h4>
                       <div className="flex flex-wrap gap-1">
                         {module.metadata.capabilities.map((cap) => (
                           <Badge key={cap.id} variant="secondary" className="text-xs">
@@ -521,12 +523,12 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
                         className="w-full"
                       >
                         <Settings className="h-4 w-4 mr-2" />
-                        Configure
+                        {t('modules.configure', 'Configure')}
                       </Button>
                     )}
 
                     {instance?.state === 'error' && (
-                      <p className="text-sm text-destructive">Error: {instance.lastError}</p>
+                      <p className="text-sm text-destructive">{t('modules.error', 'Error: {{message}}', { message: instance.lastError })}</p>
                     )}
                   </div>
                 </CardContent>
@@ -540,7 +542,7 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
       <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Configure {selectedModule?.metadata.name}</DialogTitle>
+            <DialogTitle>{t('modules.configureModule', 'Configure {{module}}', { module: selectedModule?.metadata.name })}</DialogTitle>
             <DialogDescription>{selectedModule?.metadata.description}</DialogDescription>
           </DialogHeader>
 
@@ -552,9 +554,9 @@ export default function ModuleSettings({ groupId }: ModuleSettingsProps) {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setConfigDialogOpen(false)}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
-            <Button onClick={handleSaveConfig}>Save Configuration</Button>
+            <Button onClick={handleSaveConfig}>{t('modules.saveConfiguration', 'Save Configuration')}</Button>
           </div>
         </DialogContent>
       </Dialog>

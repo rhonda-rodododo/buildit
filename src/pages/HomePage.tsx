@@ -232,7 +232,6 @@ export const HomePage: FC = () => {
     };
 
     loadSeedData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

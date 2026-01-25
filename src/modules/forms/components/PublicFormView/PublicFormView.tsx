@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 import type { RJSFSchema } from '@rjsf/utils';
@@ -90,6 +91,7 @@ interface PublicFormViewProps {
 }
 
 export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -111,7 +113,7 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
       await onSubmit(data.formData || {});
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit form');
+      setError(err instanceof Error ? err.message : t('publicFormView.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -120,7 +122,7 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
   if (form.status !== 'published') {
     return (
       <Card className="p-12 text-center">
-        <p className="text-muted-foreground">This form is not currently published.</p>
+        <p className="text-muted-foreground">{t('publicFormView.notPublished')}</p>
       </Card>
     );
   }
@@ -139,14 +141,14 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
       <Card className="p-12 text-center space-y-4">
         <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
         <div>
-          <h3 className="text-xl font-semibold">Thank you!</h3>
+          <h3 className="text-xl font-semibold">{t('publicFormView.thankYou')}</h3>
           <p className="text-muted-foreground mt-2">
-            {form.settings.confirmationMessage || 'Your submission has been received.'}
+            {form.settings.confirmationMessage || t('publicFormView.defaultConfirmation')}
           </p>
         </div>
         {safeRedirectUrl && (
           <Button onClick={handleRedirect}>
-            Continue
+            {t('publicFormView.continue')}
           </Button>
         )}
       </Card>
@@ -188,7 +190,7 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
 
             <div className="flex gap-2 mt-6">
               <Button type="submit" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit'}
+                {submitting ? t('publicFormView.submitting') : t('publicFormView.submit')}
               </Button>
             </div>
           </Form>
@@ -197,7 +199,7 @@ export function PublicFormView({ form, onSubmit }: PublicFormViewProps) {
 
       {!form.settings.hideBranding && (
         <div className="text-center text-xs text-muted-foreground">
-          Powered by BuildIt Network
+          {t('publicFormView.poweredBy')}
         </div>
       )}
     </div>

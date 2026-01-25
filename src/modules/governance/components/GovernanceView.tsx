@@ -1,4 +1,5 @@
 import { FC, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -11,6 +12,7 @@ interface GovernanceViewProps {
 }
 
 export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) => {
+  const { t } = useTranslation()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
   // Access raw state to avoid selector instability
@@ -33,22 +35,22 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Governance</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('governance.title')}</h2>
           <p className="text-muted-foreground">
-            Democratic decision-making and collective governance
+            {t('governance.description')}
           </p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Proposal
+          {t('governance.createProposal')}
         </Button>
       </div>
 
       <Tabs defaultValue="active">
         <TabsList>
-          <TabsTrigger value="active">Active Proposals</TabsTrigger>
-          <TabsTrigger value="voting">Voting</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="active">{t('governance.activeProposals')}</TabsTrigger>
+          <TabsTrigger value="voting">{t('governance.voting')}</TabsTrigger>
+          <TabsTrigger value="history">{t('governance.history')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="mt-6">
@@ -57,14 +59,14 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  Draft Proposals
+                  {t('governance.draftProposals')}
                 </CardTitle>
-                <CardDescription>Proposals under discussion</CardDescription>
+                <CardDescription>{t('governance.draftProposalsDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 {draftProposals.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No draft proposals
+                    {t('governance.noDraftProposals')}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -85,14 +87,14 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Vote className="h-5 w-5" />
-                  Open for Voting
+                  {t('governance.openForVoting')}
                 </CardTitle>
-                <CardDescription>Cast your vote</CardDescription>
+                <CardDescription>{t('governance.castYourVote')}</CardDescription>
               </CardHeader>
               <CardContent>
                 {votingProposals.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No active votes
+                    {t('governance.noActiveVotes')}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -100,7 +102,7 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
                       <div key={proposal.id} className="p-3 border rounded-lg hover:bg-muted/50">
                         <h4 className="font-medium">{proposal.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {proposal.votingMethod} - Ends {proposal.votingEndTime && new Date(proposal.votingEndTime).toLocaleDateString()}
+                          {proposal.votingMethod} - {t('governance.ends')} {proposal.votingEndTime && new Date(proposal.votingEndTime).toLocaleDateString()}
                         </p>
                       </div>
                     ))}
@@ -114,41 +116,41 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
         <TabsContent value="voting" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Voting Methods Available</CardTitle>
+              <CardTitle>{t('governance.votingMethods')}</CardTitle>
               <CardDescription>
-                Multiple democratic voting systems supported
+                {t('governance.votingMethodsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
               <div className="flex items-start gap-4 p-4 border rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium">Simple Majority</h4>
+                  <h4 className="font-medium">{t('governance.simpleMajority')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Traditional yes/no/abstain voting
+                    {t('governance.simpleMajorityDesc')}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 border rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium">Ranked Choice</h4>
+                  <h4 className="font-medium">{t('governance.rankedChoice')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Rank preferences for multiple options
+                    {t('governance.rankedChoiceDesc')}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 border rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium">Quadratic Voting</h4>
+                  <h4 className="font-medium">{t('governance.quadraticVoting')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Express preference intensity with token allocation
+                    {t('governance.quadraticVotingDesc')}
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 border rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium">Consensus</h4>
+                  <h4 className="font-medium">{t('governance.consensus')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Threshold-based consensus decision making
+                    {t('governance.consensusDesc')}
                   </p>
                 </div>
               </div>
@@ -161,14 +163,14 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
-                Decision History
+                {t('governance.decisionHistory')}
               </CardTitle>
-              <CardDescription>Audit trail of all decisions</CardDescription>
+              <CardDescription>{t('governance.auditTrail')}</CardDescription>
             </CardHeader>
             <CardContent>
               {decidedProposals.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No decision history yet
+                  {t('governance.noDecisionHistory')}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -176,7 +178,7 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
                     <div key={proposal.id} className="p-3 border rounded-lg">
                       <h4 className="font-medium">{proposal.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Decided on {new Date(proposal.updated).toLocaleDateString()}
+                        {t('governance.decidedOn')} {new Date(proposal.updated).toLocaleDateString()}
                       </p>
                     </div>
                   ))}

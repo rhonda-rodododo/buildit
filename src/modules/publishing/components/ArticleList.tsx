@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePublishingStore } from '../publishingStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +63,7 @@ export const ArticleList: FC<ArticleListProps> = ({
   onDeleteArticle,
   className,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ArticleStatus | 'all'>('all');
   const [sortBy, setSortBy] = useState<'updated' | 'published' | 'title'>('updated');
@@ -105,24 +107,24 @@ export const ArticleList: FC<ArticleListProps> = ({
   const getStatusBadge = (status: ArticleStatus) => {
     switch (status) {
       case 'published':
-        return <Badge className="bg-green-500/20 text-green-600">Published</Badge>;
+        return <Badge className="bg-green-500/20 text-green-600">{t('articleList.published')}</Badge>;
       case 'draft':
-        return <Badge variant="secondary">Draft</Badge>;
+        return <Badge variant="secondary">{t('articleList.draft')}</Badge>;
       case 'scheduled':
-        return <Badge className="bg-blue-500/20 text-blue-600">Scheduled</Badge>;
+        return <Badge className="bg-blue-500/20 text-blue-600">{t('articleList.scheduled')}</Badge>;
       case 'archived':
-        return <Badge variant="outline">Archived</Badge>;
+        return <Badge variant="outline">{t('articleList.archived')}</Badge>;
     }
   };
 
   const getVisibilityBadge = (visibility: Article['visibility']) => {
     switch (visibility) {
       case 'public':
-        return <Badge variant="outline" className="text-xs">Public</Badge>;
+        return <Badge variant="outline" className="text-xs">{t('articleList.public')}</Badge>;
       case 'subscribers':
-        return <Badge variant="outline" className="text-xs">Subscribers</Badge>;
+        return <Badge variant="outline" className="text-xs">{t('articleList.subscribers')}</Badge>;
       case 'paid':
-        return <Badge variant="outline" className="text-xs">Paid</Badge>;
+        return <Badge variant="outline" className="text-xs">{t('articleList.paidOnly')}</Badge>;
     }
   };
 
@@ -131,14 +133,16 @@ export const ArticleList: FC<ArticleListProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold">Articles</h2>
+          <h2 className="text-2xl font-bold">{t('articleList.title')}</h2>
           <p className="text-muted-foreground">
-            {articles.length} article{articles.length !== 1 ? 's' : ''}
+            {articles.length !== 1
+              ? t('articleList.articleCountPlural', { count: articles.length })
+              : t('articleList.articleCount', { count: articles.length })}
           </p>
         </div>
         <Button onClick={onCreateArticle}>
           <Plus className="h-4 w-4 mr-2" />
-          New Article
+          {t('articleList.newArticle')}
         </Button>
       </div>
 
@@ -149,7 +153,7 @@ export const ArticleList: FC<ArticleListProps> = ({
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search articles..."
+            placeholder={t('articleList.searchPlaceholder')}
             className="pl-10"
           />
         </div>
@@ -158,24 +162,24 @@ export const ArticleList: FC<ArticleListProps> = ({
           onValueChange={(v) => setStatusFilter(v as ArticleStatus | 'all')}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder={t('articleList.filterByStatus')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
+            <SelectItem value="all">{t('articleList.allStatus')}</SelectItem>
+            <SelectItem value="draft">{t('articleList.draft')}</SelectItem>
+            <SelectItem value="published">{t('articleList.published')}</SelectItem>
+            <SelectItem value="scheduled">{t('articleList.scheduled')}</SelectItem>
+            <SelectItem value="archived">{t('articleList.archived')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder={t('articleList.sortBy')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="updated">Last Updated</SelectItem>
-            <SelectItem value="published">Published Date</SelectItem>
-            <SelectItem value="title">Title</SelectItem>
+            <SelectItem value="updated">{t('articleList.lastUpdated')}</SelectItem>
+            <SelectItem value="published">{t('articleList.publishedDate')}</SelectItem>
+            <SelectItem value="title">{t('articleList.titleSort')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -184,13 +188,13 @@ export const ArticleList: FC<ArticleListProps> = ({
       {articles.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No articles yet</h3>
+          <h3 className="text-lg font-medium mb-2">{t('articleList.noArticles')}</h3>
           <p className="text-muted-foreground mb-4">
-            Get started by creating your first article.
+            {t('articleList.noArticlesDesc')}
           </p>
           <Button onClick={onCreateArticle}>
             <Plus className="h-4 w-4 mr-2" />
-            Create Article
+            {t('articleList.createArticle')}
           </Button>
         </div>
       ) : (
@@ -198,11 +202,11 @@ export const ArticleList: FC<ArticleListProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40%]">Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Visibility</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[40%]">{t('articleList.tableTitle')}</TableHead>
+                <TableHead>{t('articleList.tableStatus')}</TableHead>
+                <TableHead>{t('articleList.tableVisibility')}</TableHead>
+                <TableHead>{t('articleList.tableUpdated')}</TableHead>
+                <TableHead className="text-right">{t('articleList.tableActions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -214,7 +218,7 @@ export const ArticleList: FC<ArticleListProps> = ({
                         onClick={() => onEditArticle(article)}
                         className="font-medium hover:underline text-left"
                       >
-                        {article.title || 'Untitled'}
+                        {article.title || t('articleList.untitled')}
                       </button>
                       {article.tags.length > 0 && (
                         <div className="flex gap-1 mt-1">
@@ -256,23 +260,23 @@ export const ArticleList: FC<ArticleListProps> = ({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => onEditArticle(article)}>
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                          {t('articleList.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onPreviewArticle(article)}>
                           <Eye className="h-4 w-4 mr-2" />
-                          Preview
+                          {t('articleList.preview')}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         {article.status === 'draft' && (
                           <DropdownMenuItem onClick={() => publishArticle(article.id)}>
                             <Send className="h-4 w-4 mr-2" />
-                            Publish
+                            {t('articleList.publish')}
                           </DropdownMenuItem>
                         )}
                         {article.status === 'published' && (
                           <DropdownMenuItem onClick={() => unpublishArticle(article.id)}>
                             <Archive className="h-4 w-4 mr-2" />
-                            Unpublish
+                            {t('articleList.unpublish')}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
@@ -281,7 +285,7 @@ export const ArticleList: FC<ArticleListProps> = ({
                           onClick={() => onDeleteArticle(article.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
+                          {t('articleList.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Folder,
   Users,
@@ -56,11 +57,11 @@ const PERMISSION_ICONS: Record<DocumentPermission, typeof Eye> = {
   admin: Shield,
 }
 
-const PERMISSION_LABELS: Record<DocumentPermission, string> = {
-  view: 'View',
-  comment: 'Comment',
-  edit: 'Edit',
-  admin: 'Admin',
+const PERMISSION_LABEL_KEYS: Record<DocumentPermission, string> = {
+  view: 'folderPermissionsPanel.permissions.view',
+  comment: 'folderPermissionsPanel.permissions.comment',
+  edit: 'folderPermissionsPanel.permissions.edit',
+  admin: 'folderPermissionsPanel.permissions.admin',
 }
 
 export function FolderPermissionsPanel({
@@ -70,6 +71,7 @@ export function FolderPermissionsPanel({
   open,
   onOpenChange,
 }: FolderPermissionsPanelProps) {
+  const { t } = useTranslation()
   const folders = useDocumentsStore((state) => state.folders)
   const folder = folders.get(folderId)
   const getFolderPermissions = useDocumentsStore((state) => state.getFolderPermissions)
@@ -113,7 +115,7 @@ export function FolderPermissionsPanel({
       setAddingUser(false)
     } catch (err) {
       console.error('Failed to add permission:', err)
-      alert('Failed to add permission')
+      alert(t('folderPermissionsPanel.errors.addFailed'))
     } finally {
       setLoading(false)
     }
@@ -126,7 +128,7 @@ export function FolderPermissionsPanel({
       loadPermissions()
     } catch (err) {
       console.error('Failed to remove permission:', err)
-      alert('Failed to remove permission')
+      alert(t('folderPermissionsPanel.errors.removeFailed'))
     } finally {
       setLoading(false)
     }
@@ -169,10 +171,10 @@ export function FolderPermissionsPanel({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Folder className="h-5 w-5" />
-            Folder Permissions
+            {t('folderPermissionsPanel.title')}
           </DialogTitle>
           <DialogDescription>
-            Manage who can access "{folder.name}" and its documents
+            {t('folderPermissionsPanel.description', { name: folder.name })}
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +184,7 @@ export function FolderPermissionsPanel({
             <div className="flex items-center justify-between mb-2">
               <Label className="text-sm font-medium">
                 <Users className="inline h-4 w-4 mr-1" />
-                Users with Access
+                {t('folderPermissionsPanel.usersWithAccess')}
               </Label>
               {!addingUser && availableUsers.length > 0 && (
                 <Button
@@ -191,7 +193,7 @@ export function FolderPermissionsPanel({
                   onClick={() => setAddingUser(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add User
+                  {t('folderPermissionsPanel.addUser')}
                 </Button>
               )}
             </div>
@@ -200,9 +202,9 @@ export function FolderPermissionsPanel({
               {permissions.length === 0 ? (
                 <div className="text-center py-6 text-muted-foreground">
                   <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No specific permissions set</p>
+                  <p className="text-sm">{t('folderPermissionsPanel.emptyState.title')}</p>
                   <p className="text-xs mt-1">
-                    Folder is accessible to all group members
+                    {t('folderPermissionsPanel.emptyState.description')}
                   </p>
                 </div>
               ) : (
@@ -229,17 +231,17 @@ export function FolderPermissionsPanel({
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant="secondary" className="text-xs gap-1">
                                   <PermIcon className="h-3 w-3" />
-                                  {PERMISSION_LABELS[perm.permission]}
+                                  {t(PERMISSION_LABEL_KEYS[perm.permission])}
                                 </Badge>
                                 {perm.inheritToChildren && (
                                   <Badge
                                     variant="outline"
                                     className="text-xs gap-1 cursor-pointer"
                                     onClick={() => handleToggleInheritance(perm)}
-                                    title="Click to disable inheritance"
+                                    title={t('folderPermissionsPanel.disableInheritance')}
                                   >
                                     <GitBranch className="h-3 w-3" />
-                                    Inherited
+                                    {t('folderPermissionsPanel.inherited')}
                                   </Badge>
                                 )}
                               </div>
@@ -269,7 +271,7 @@ export function FolderPermissionsPanel({
             <Card>
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Add User Permission</Label>
+                  <Label className="text-sm font-medium">{t('folderPermissionsPanel.addPermission.title')}</Label>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -285,11 +287,11 @@ export function FolderPermissionsPanel({
                 <div className="space-y-3">
                   <div>
                     <Label htmlFor="select-user" className="text-xs text-muted-foreground">
-                      Select User
+                      {t('folderPermissionsPanel.addPermission.selectUser')}
                     </Label>
                     <Select value={selectedUser} onValueChange={setSelectedUser}>
                       <SelectTrigger id="select-user" className="mt-1">
-                        <SelectValue placeholder="Choose a user..." />
+                        <SelectValue placeholder={t('folderPermissionsPanel.addPermission.selectUserPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         {availableUsers.map((member) => (
@@ -303,7 +305,7 @@ export function FolderPermissionsPanel({
 
                   <div>
                     <Label htmlFor="select-permission" className="text-xs text-muted-foreground">
-                      Permission Level
+                      {t('folderPermissionsPanel.addPermission.permissionLevel')}
                     </Label>
                     <Select
                       value={selectedPermission}
@@ -313,10 +315,10 @@ export function FolderPermissionsPanel({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="view">View only</SelectItem>
-                        <SelectItem value="comment">View & Comment</SelectItem>
-                        <SelectItem value="edit">Edit</SelectItem>
-                        <SelectItem value="admin">Admin (full control)</SelectItem>
+                        <SelectItem value="view">{t('folderPermissionsPanel.permissionDescriptions.viewOnly')}</SelectItem>
+                        <SelectItem value="comment">{t('folderPermissionsPanel.permissionDescriptions.viewComment')}</SelectItem>
+                        <SelectItem value="edit">{t('folderPermissionsPanel.permissionDescriptions.edit')}</SelectItem>
+                        <SelectItem value="admin">{t('folderPermissionsPanel.permissionDescriptions.adminFull')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -324,10 +326,10 @@ export function FolderPermissionsPanel({
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="inherit-toggle" className="text-sm">
-                        Apply to subfolders
+                        {t('folderPermissionsPanel.addPermission.applyToSubfolders')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        Permission cascades to child folders and documents
+                        {t('folderPermissionsPanel.addPermission.cascadeDescription')}
                       </p>
                     </div>
                     <Switch
@@ -342,7 +344,7 @@ export function FolderPermissionsPanel({
                     disabled={!selectedUser || loading}
                     className="w-full"
                   >
-                    {loading ? 'Adding...' : 'Add Permission'}
+                    {loading ? t('folderPermissionsPanel.addPermission.adding') : t('folderPermissionsPanel.addPermission.addButton')}
                   </Button>
                 </div>
               </CardContent>
@@ -352,8 +354,7 @@ export function FolderPermissionsPanel({
           {/* Info about inheritance */}
           <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
             <GitBranch className="inline h-3 w-3 mr-1" />
-            Inherited permissions automatically apply to all documents and subfolders within this folder.
-            Click the "Inherited" badge on a permission to disable inheritance for that user.
+            {t('folderPermissionsPanel.inheritanceInfo')}
           </div>
         </div>
       </DialogContent>

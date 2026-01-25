@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDatabaseTemplateStore } from '../databaseTemplateStore';
 import { DatabaseTemplate } from '../types';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ interface TemplateGalleryProps {
 }
 
 export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: TemplateGalleryProps) {
+  const { t } = useTranslation();
   const {
     templates,
     isLoading,
@@ -68,12 +70,12 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
   });
 
   const categories = [
-    { value: 'all', label: 'All Templates', count: templates.length },
-    { value: 'general', label: 'General', count: templates.filter((t) => t.category === 'general').length },
-    { value: 'crm', label: 'CRM', count: templates.filter((t) => t.category === 'crm').length },
-    { value: 'project', label: 'Project', count: templates.filter((t) => t.category === 'project').length },
-    { value: 'inventory', label: 'Inventory', count: templates.filter((t) => t.category === 'inventory').length },
-    { value: 'custom', label: 'Custom', count: templates.filter((t) => t.category === 'custom').length },
+    { value: 'all', label: t('templateGallery.categories.all'), count: templates.length },
+    { value: 'general', label: t('templateGallery.categories.general'), count: templates.filter((tpl) => tpl.category === 'general').length },
+    { value: 'crm', label: t('templateGallery.categories.crm'), count: templates.filter((tpl) => tpl.category === 'crm').length },
+    { value: 'project', label: t('templateGallery.categories.project'), count: templates.filter((tpl) => tpl.category === 'project').length },
+    { value: 'inventory', label: t('templateGallery.categories.inventory'), count: templates.filter((tpl) => tpl.category === 'inventory').length },
+    { value: 'custom', label: t('templateGallery.categories.custom'), count: templates.filter((tpl) => tpl.category === 'custom').length },
   ];
 
   const handleCreateCustomTemplate = () => {
@@ -96,17 +98,17 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
       setShowTemplateBuilder(false);
       setEditingTemplate(null);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to save template');
+      alert(error instanceof Error ? error.message : t('templateGallery.errors.saveFailed'));
     }
   };
 
   const handleDeleteTemplate = async (template: DatabaseTemplate) => {
-    if (!confirm(`Are you sure you want to delete "${template.name}"?`)) return;
+    if (!confirm(t('templateGallery.confirmDelete', { name: template.name }))) return;
 
     try {
       await deleteTemplate(template.id);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to delete template');
+      alert(error instanceof Error ? error.message : t('templateGallery.errors.deleteFailed'));
     }
   };
 
@@ -116,20 +118,20 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Database Templates</h2>
+            <h2 className="text-2xl font-bold">{t('templateGallery.title')}</h2>
             <p className="text-muted-foreground">
-              Choose a template to get started or create your own
+              {t('templateGallery.description')}
             </p>
           </div>
           <div className="flex gap-2">
             {onCreateFromScratch && (
               <Button variant="outline" onClick={onCreateFromScratch}>
-                Start from Scratch
+                {t('templateGallery.startFromScratch')}
               </Button>
             )}
             <Button onClick={handleCreateCustomTemplate}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Template
+              {t('templateGallery.createTemplate')}
             </Button>
           </div>
         </div>
@@ -138,7 +140,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search templates..."
+            placeholder={t('templateGallery.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -159,10 +161,10 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
 
       {/* Template Grid */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading templates...</div>
+        <div className="text-center py-12 text-muted-foreground">{t('templateGallery.loading')}</div>
       ) : filteredTemplates.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          No templates found. {searchQuery && 'Try a different search term.'}
+          {t('templateGallery.noTemplates')} {searchQuery && t('templateGallery.tryDifferentSearch')}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -176,7 +178,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
                   </div>
                   {template.isBuiltIn && (
                     <Badge variant="secondary" className="ml-2">
-                      Built-in
+                      {t('templateGallery.builtIn')}
                     </Badge>
                   )}
                 </div>
@@ -184,15 +186,15 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
               <CardContent className="flex-1">
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Tables:</span>
+                    <span className="text-muted-foreground">{t('templateGallery.details.tables')}</span>
                     <span className="font-medium">{template.tables.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Relationships:</span>
+                    <span className="text-muted-foreground">{t('templateGallery.details.relationships')}</span>
                     <span className="font-medium">{template.relationships.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Category:</span>
+                    <span className="text-muted-foreground">{t('templateGallery.details.category')}</span>
                     <Badge variant="outline">{template.category}</Badge>
                   </div>
                 </div>
@@ -204,7 +206,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
                   onClick={() => onSelectTemplate(template)}
                 >
                   <Check className="h-4 w-4 mr-2" />
-                  Use Template
+                  {t('templateGallery.actions.useTemplate')}
                 </Button>
                 <Button
                   variant="outline"
@@ -249,7 +251,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
             <div className="space-y-6 py-4">
               {/* Tables */}
               <div>
-                <h3 className="font-semibold mb-3">Tables ({previewTemplate.tables.length})</h3>
+                <h3 className="font-semibold mb-3">{t('templateGallery.preview.tables', { count: previewTemplate.tables.length })}</h3>
                 <div className="space-y-3">
                   {previewTemplate.tables.map((table, index) => (
                     <Card key={index}>
@@ -261,7 +263,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-1">
-                          <p className="text-sm font-medium">Fields:</p>
+                          <p className="text-sm font-medium">{t('templateGallery.preview.fields')}</p>
                           <div className="flex flex-wrap gap-1">
                             {table.fields.map((field) => (
                               <Badge key={field.name} variant="outline">
@@ -280,7 +282,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
               {previewTemplate.relationships.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-3">
-                    Relationships ({previewTemplate.relationships.length})
+                    {t('templateGallery.preview.relationships', { count: previewTemplate.relationships.length })}
                   </h3>
                   <div className="space-y-2">
                     {previewTemplate.relationships.map((rel, index) => (
@@ -302,13 +304,13 @@ export function TemplateGallery({ onSelectTemplate, onCreateFromScratch }: Templ
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setPreviewTemplate(null)}>
-                Close
+                {t('templateGallery.actions.close')}
               </Button>
               <Button onClick={() => {
                 onSelectTemplate(previewTemplate);
                 setPreviewTemplate(null);
               }}>
-                Use This Template
+                {t('templateGallery.actions.useThisTemplate')}
               </Button>
             </DialogFooter>
           </DialogContent>

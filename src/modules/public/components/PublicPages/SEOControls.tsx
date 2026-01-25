@@ -3,6 +3,7 @@
  * Edit SEO metadata and indexability settings for public pages
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ interface SEOControlsProps {
 }
 
 export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate }: SEOControlsProps) {
+  const { t } = useTranslation();
   const handleUpdate = (updates: Partial<SEOMetadata>) => {
     onUpdate({ ...seo, ...updates });
   };
@@ -37,17 +39,17 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
       {/* Indexability Controls */}
       {onIndexabilityUpdate && (
         <Card className="p-6 space-y-4">
-          <h3 className="font-semibold">Indexability</h3>
+          <h3 className="font-semibold">{t('seoControls.indexability')}</h3>
           <p className="text-sm text-muted-foreground">
-            Control how search engines and AI systems can access this content.
+            {t('seoControls.indexabilityDesc')}
           </p>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="search-indexable">Search Engine Indexing</Label>
+                <Label htmlFor="search-indexable">{t('seoControls.searchEngine')}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Allow Google, Bing, DuckDuckGo and other search engines to index this page
+                  {t('seoControls.searchEngineDesc')}
                 </p>
               </div>
               <Switch
@@ -59,9 +61,9 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="ai-indexable">AI Training / Indexing</Label>
+                <Label htmlFor="ai-indexable">{t('seoControls.aiTraining')}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Allow AI crawlers (GPTBot, Claude, etc.) to use this content for training
+                  {t('seoControls.aiTrainingDesc')}
                 </p>
               </div>
               <Switch
@@ -74,9 +76,9 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="no-archive">Prevent Archiving</Label>
+                <Label htmlFor="no-archive">{t('seoControls.preventArchiving')}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Block archive.org and similar services from caching this page
+                  {t('seoControls.preventArchivingDesc')}
                 </p>
               </div>
               <Switch
@@ -89,7 +91,7 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
 
           {!currentIndexability.isSearchIndexable && (
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              Note: AI indexing is automatically disabled when search engine indexing is off.
+              {t('seoControls.aiDisabledNote')}
             </p>
           )}
         </Card>
@@ -97,48 +99,48 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
 
       {/* Basic SEO */}
       <Card className="p-6 space-y-4">
-        <h3 className="font-semibold">Basic SEO</h3>
+        <h3 className="font-semibold">{t('seoControls.basicSeo')}</h3>
 
         <div className="space-y-2">
-          <Label htmlFor="seo-title">Page Title</Label>
+          <Label htmlFor="seo-title">{t('seoControls.pageTitle')}</Label>
           <Input
             id="seo-title"
             value={seo.title || ''}
             onChange={(e) => handleUpdate({ title: e.target.value })}
-            placeholder="Page title for search engines"
+            placeholder={t('seoControls.pageTitlePlaceholder')}
             maxLength={60}
           />
           <p className="text-xs text-muted-foreground">
-            {(seo.title || '').length}/60 characters (optimal: 50-60)
+            {t('seoControls.characters', { count: (seo.title || '').length, max: 60, optimal: '50-60' })}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="seo-description">Meta Description</Label>
+          <Label htmlFor="seo-description">{t('seoControls.metaDescription')}</Label>
           <Textarea
             id="seo-description"
             value={seo.description || ''}
             onChange={(e) => handleUpdate({ description: e.target.value })}
-            placeholder="Brief description for search results"
+            placeholder={t('seoControls.metaDescPlaceholder')}
             maxLength={160}
             rows={3}
           />
           <p className="text-xs text-muted-foreground">
-            {(seo.description || '').length}/160 characters (optimal: 150-160)
+            {t('seoControls.characters', { count: (seo.description || '').length, max: 160, optimal: '150-160' })}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="seo-robots">Robots</Label>
+          <Label htmlFor="seo-robots">{t('seoControls.robots')}</Label>
           <Select value={seo.robots || 'index, follow'} onValueChange={(v) => handleUpdate({ robots: v })}>
             <SelectTrigger id="seo-robots">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="index, follow">Index, Follow (default)</SelectItem>
-              <SelectItem value="noindex, follow">No Index, Follow</SelectItem>
-              <SelectItem value="index, nofollow">Index, No Follow</SelectItem>
-              <SelectItem value="noindex, nofollow">No Index, No Follow</SelectItem>
+              <SelectItem value="index, follow">{t('seoControls.indexFollow')}</SelectItem>
+              <SelectItem value="noindex, follow">{t('seoControls.noIndexFollow')}</SelectItem>
+              <SelectItem value="index, nofollow">{t('seoControls.indexNoFollow')}</SelectItem>
+              <SelectItem value="noindex, nofollow">{t('seoControls.noIndexNoFollow')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -146,31 +148,31 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
 
       {/* Open Graph */}
       <Card className="p-6 space-y-4">
-        <h3 className="font-semibold">Open Graph (Social Sharing)</h3>
+        <h3 className="font-semibold">{t('seoControls.openGraph')}</h3>
 
         <div className="space-y-2">
-          <Label htmlFor="og-title">OG Title</Label>
+          <Label htmlFor="og-title">{t('seoControls.ogTitle')}</Label>
           <Input
             id="og-title"
             value={seo.ogTitle || ''}
             onChange={(e) => handleUpdate({ ogTitle: e.target.value })}
-            placeholder="Title for social media shares"
+            placeholder={t('seoControls.ogTitlePlaceholder')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="og-description">OG Description</Label>
+          <Label htmlFor="og-description">{t('seoControls.ogDescription')}</Label>
           <Textarea
             id="og-description"
             value={seo.ogDescription || ''}
             onChange={(e) => handleUpdate({ ogDescription: e.target.value })}
-            placeholder="Description for social media shares"
+            placeholder={t('seoControls.ogDescPlaceholder')}
             rows={2}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="og-image">OG Image URL</Label>
+          <Label htmlFor="og-image">{t('seoControls.ogImage')}</Label>
           <Input
             id="og-image"
             value={seo.ogImage || ''}
@@ -178,17 +180,17 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
             placeholder="https://example.com/image.jpg"
           />
           <p className="text-xs text-muted-foreground">
-            Recommended: 1200x630px
+            {t('seoControls.recommended', { size: '1200x630px' })}
           </p>
         </div>
       </Card>
 
       {/* Twitter Card */}
       <Card className="p-6 space-y-4">
-        <h3 className="font-semibold">Twitter Card</h3>
+        <h3 className="font-semibold">{t('seoControls.twitterCard')}</h3>
 
         <div className="space-y-2">
-          <Label htmlFor="twitter-card">Card Type</Label>
+          <Label htmlFor="twitter-card">{t('seoControls.cardType')}</Label>
           <Select
             value={seo.twitterCard || 'summary'}
             onValueChange={(v) => handleUpdate({ twitterCard: v as SEOMetadata['twitterCard'] })}
@@ -197,14 +199,14 @@ export function SEOControls({ seo, onUpdate, indexability, onIndexabilityUpdate 
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="summary">Summary</SelectItem>
-              <SelectItem value="summary_large_image">Summary Large Image</SelectItem>
+              <SelectItem value="summary">{t('seoControls.summary')}</SelectItem>
+              <SelectItem value="summary_large_image">{t('seoControls.summaryLargeImage')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="twitter-site">Twitter Site Handle</Label>
+          <Label htmlFor="twitter-site">{t('seoControls.twitterSite')}</Label>
           <Input
             id="twitter-site"
             value={seo.twitterSite || ''}

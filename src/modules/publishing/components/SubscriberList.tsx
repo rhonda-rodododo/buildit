@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePublishingStore } from '../publishingStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +58,7 @@ export const SubscriberList: FC<SubscriberListProps> = ({
   onBack,
   className,
 }) => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [tierFilter, setTierFilter] = useState<SubscriptionTier | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<SubscriptionStatus | 'all'>('active');
@@ -100,21 +102,21 @@ export const SubscriberList: FC<SubscriberListProps> = ({
       return (
         <Badge className="bg-yellow-500/20 text-yellow-600">
           <Crown className="h-3 w-3 mr-1" />
-          Paid
+          {t('subscriberList.paid')}
         </Badge>
       );
     }
-    return <Badge variant="secondary">Free</Badge>;
+    return <Badge variant="secondary">{t('subscriberList.free')}</Badge>;
   };
 
   const getStatusBadge = (status: SubscriptionStatus) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-500/20 text-green-600">Active</Badge>;
+        return <Badge className="bg-green-500/20 text-green-600">{t('subscriberList.active')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline">Cancelled</Badge>;
+        return <Badge variant="outline">{t('subscriberList.cancelled')}</Badge>;
       case 'expired':
-        return <Badge variant="destructive">Expired</Badge>;
+        return <Badge variant="destructive">{t('subscriberList.expired')}</Badge>;
     }
   };
 
@@ -139,12 +141,12 @@ export const SubscriberList: FC<SubscriberListProps> = ({
     a.download = 'subscribers.csv';
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Subscribers exported');
+    toast.success(t('subscriberList.exportedToast'));
   };
 
   const handleRemoveSubscriber = (subscriptionId: string) => {
     unsubscribe(subscriptionId);
-    toast.success('Subscriber removed');
+    toast.success(t('subscriberList.removedToast'));
   };
 
   return (
@@ -158,15 +160,15 @@ export const SubscriberList: FC<SubscriberListProps> = ({
             </Button>
           )}
           <div>
-            <h2 className="text-2xl font-bold">Subscribers</h2>
+            <h2 className="text-2xl font-bold">{t('subscriberList.title')}</h2>
             <p className="text-muted-foreground">
-              Manage your publication subscribers
+              {t('subscriberList.description')}
             </p>
           </div>
         </div>
         <Button variant="outline" onClick={handleExport}>
           <Download className="h-4 w-4 mr-2" />
-          Export CSV
+          {t('subscriberList.exportCSV')}
         </Button>
       </div>
 
@@ -174,19 +176,19 @@ export const SubscriberList: FC<SubscriberListProps> = ({
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Active</CardDescription>
+            <CardDescription>{t('subscriberList.totalActive')}</CardDescription>
             <CardTitle className="text-2xl">{activeCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Free Subscribers</CardDescription>
+            <CardDescription>{t('subscriberList.freeSubscribers')}</CardDescription>
             <CardTitle className="text-2xl">{freeCount}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Paid Subscribers</CardDescription>
+            <CardDescription>{t('subscriberList.paidSubscribers')}</CardDescription>
             <CardTitle className="text-2xl">{paidCount}</CardTitle>
           </CardHeader>
         </Card>
@@ -199,7 +201,7 @@ export const SubscriberList: FC<SubscriberListProps> = ({
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by pubkey or email..."
+            placeholder={t('subscriberList.searchPlaceholder')}
             className="pl-10"
           />
         </div>
@@ -208,12 +210,12 @@ export const SubscriberList: FC<SubscriberListProps> = ({
           onValueChange={(v) => setTierFilter(v as SubscriptionTier | 'all')}
         >
           <SelectTrigger className="w-32">
-            <SelectValue placeholder="Tier" />
+            <SelectValue placeholder={t('subscriberList.tierPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Tiers</SelectItem>
-            <SelectItem value="free">Free</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="all">{t('subscriberList.allTiers')}</SelectItem>
+            <SelectItem value="free">{t('subscriberList.free')}</SelectItem>
+            <SelectItem value="paid">{t('subscriberList.paid')}</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -221,13 +223,13 @@ export const SubscriberList: FC<SubscriberListProps> = ({
           onValueChange={(v) => setStatusFilter(v as SubscriptionStatus | 'all')}
         >
           <SelectTrigger className="w-36">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t('subscriberList.statusPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="all">{t('subscriberList.allStatus')}</SelectItem>
+            <SelectItem value="active">{t('subscriberList.active')}</SelectItem>
+            <SelectItem value="cancelled">{t('subscriberList.cancelled')}</SelectItem>
+            <SelectItem value="expired">{t('subscriberList.expired')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,9 +239,9 @@ export const SubscriberList: FC<SubscriberListProps> = ({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No subscribers yet</h3>
+            <h3 className="text-lg font-medium mb-2">{t('subscriberList.noSubscribers')}</h3>
             <p className="text-muted-foreground text-center max-w-sm">
-              When readers subscribe to your publication, they'll appear here.
+              {t('subscriberList.noSubscribersDesc')}
             </p>
           </CardContent>
         </Card>
@@ -248,12 +250,12 @@ export const SubscriberList: FC<SubscriberListProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Subscriber</TableHead>
-                <TableHead>Tier</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Notifications</TableHead>
-                <TableHead>Subscribed</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('subscriberList.subscriber')}</TableHead>
+                <TableHead>{t('subscriberList.tier')}</TableHead>
+                <TableHead>{t('subscriberList.status')}</TableHead>
+                <TableHead>{t('subscriberList.notifications')}</TableHead>
+                <TableHead>{t('subscriberList.subscribed')}</TableHead>
+                <TableHead className="text-right">{t('subscriberList.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -279,13 +281,13 @@ export const SubscriberList: FC<SubscriberListProps> = ({
                   <TableCell>
                     <div className="flex gap-2">
                       {sub.preferences.nostrNotifications && (
-                        <Badge variant="outline" className="text-xs">Nostr</Badge>
+                        <Badge variant="outline" className="text-xs">{t('subscriberList.nostr')}</Badge>
                       )}
                       {sub.preferences.emailNotifications && (
-                        <Badge variant="outline" className="text-xs">Email</Badge>
+                        <Badge variant="outline" className="text-xs">{t('subscriberList.email')}</Badge>
                       )}
                       {!sub.preferences.nostrNotifications && !sub.preferences.emailNotifications && (
-                        <span className="text-muted-foreground text-sm">None</span>
+                        <span className="text-muted-foreground text-sm">{t('subscriberList.none')}</span>
                       )}
                     </div>
                   </TableCell>
@@ -303,7 +305,7 @@ export const SubscriberList: FC<SubscriberListProps> = ({
                         {sub.subscriberEmail && (
                           <DropdownMenuItem>
                             <Mail className="h-4 w-4 mr-2" />
-                            Send Email
+                            {t('subscriberList.sendEmail')}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
@@ -312,7 +314,7 @@ export const SubscriberList: FC<SubscriberListProps> = ({
                           onClick={() => handleRemoveSubscriber(sub.id)}
                         >
                           <UserX className="h-4 w-4 mr-2" />
-                          Remove Subscriber
+                          {t('subscriberList.removeSubscriber')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

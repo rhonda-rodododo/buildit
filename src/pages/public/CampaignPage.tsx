@@ -5,6 +5,7 @@
 
 import { FC, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { PageMeta } from '@/components/PageMeta';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ interface CampaignData {
 }
 
 export const CampaignPage: FC = () => {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [campaign, setCampaign] = useState<CampaignData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,7 +118,7 @@ export const CampaignPage: FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <PublicHeader />
+        <PublicHeader t={t} />
         <div className="container mx-auto px-4 py-12 max-w-5xl">
           <div className="space-y-8">
             <div className="space-y-4">
@@ -134,14 +136,14 @@ export const CampaignPage: FC = () => {
   if (!campaign) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <PublicHeader />
+        <PublicHeader t={t} />
         <div className="container mx-auto px-4 py-12 max-w-5xl text-center">
-          <h1 className="text-3xl font-bold mb-4">Campaign Not Found</h1>
+          <h1 className="text-3xl font-bold mb-4">{t('publicCampaign.campaignNotFound')}</h1>
           <p className="text-muted-foreground mb-6">
-            The campaign you're looking for doesn't exist or is not public.
+            {t('publicCampaign.campaignNotFoundDesc')}
           </p>
           <Button asChild>
-            <Link to="/">Go Home</Link>
+            <Link to="/">{t('publicCampaign.goHome')}</Link>
           </Button>
         </div>
       </div>
@@ -156,7 +158,7 @@ export const CampaignPage: FC = () => {
         description={campaign.description}
         path={`/campaigns/${campaign.slug}`}
       />
-      <PublicHeader />
+      <PublicHeader t={t} />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
@@ -174,21 +176,21 @@ export const CampaignPage: FC = () => {
 
           <div className="flex flex-wrap gap-4">
             <Button size="lg" asChild>
-              <Link to="/login">Join the Campaign</Link>
+              <Link to="/login">{t('publicCampaign.joinCampaign')}</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="#contact">Contact Us</a>
+              <a href="#contact">{t('publicCampaign.contactUs')}</a>
             </Button>
             <Button size="lg" variant="ghost">
               <Share2 className="w-4 h-4 mr-2" />
-              Share
+              {t('publicCampaign.share')}
             </Button>
           </div>
 
           {campaign.memberCount && (
             <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
-              <span>{campaign.memberCount} members</span>
+              <span>{t('publicCampaign.members', { count: campaign.memberCount })}</span>
             </div>
           )}
         </div>
@@ -200,7 +202,7 @@ export const CampaignPage: FC = () => {
           <div className="md:col-span-2 space-y-8">
             {/* Mission */}
             <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+              <h2 className="text-2xl font-bold mb-4">{t('publicCampaign.ourMission')}</h2>
               <p className="text-muted-foreground leading-relaxed">
                 {campaign.mission}
               </p>
@@ -208,7 +210,7 @@ export const CampaignPage: FC = () => {
 
             {/* Demands */}
             <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">Our Demands</h2>
+              <h2 className="text-2xl font-bold mb-4">{t('publicCampaign.ourDemands')}</h2>
               <ul className="space-y-3">
                 {campaign.demands.map((demand, index) => (
                   <li key={index} className="flex items-start gap-3">
@@ -221,7 +223,7 @@ export const CampaignPage: FC = () => {
 
             {/* Recent Updates */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Recent Updates</h2>
+              <h2 className="text-2xl font-bold">{t('publicCampaign.recentUpdates')}</h2>
               {campaign.recentUpdates.map((update) => (
                 <Card key={update.id} className="p-6">
                   <div className="flex items-start justify-between gap-4 mb-3">
@@ -244,7 +246,7 @@ export const CampaignPage: FC = () => {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                Upcoming Events
+                {t('publicCampaign.upcomingEvents')}
               </h3>
               <div className="space-y-4">
                 {campaign.upcomingEvents.map((event) => (
@@ -269,24 +271,24 @@ export const CampaignPage: FC = () => {
 
             {/* Quick Links */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Learn More</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('publicCampaign.learnMore')}</h3>
               <div className="space-y-2">
                 <Button variant="ghost" className="w-full justify-start" asChild>
                   <Link to={`/campaigns/${campaign.slug}/wiki`}>
                     <BookOpen className="w-4 h-4 mr-2" />
-                    Knowledge Base
+                    {t('publicCampaign.knowledgeBase')}
                   </Link>
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" asChild>
                   <Link to={`/campaigns/${campaign.slug}/about`}>
                     <Globe className="w-4 h-4 mr-2" />
-                    About Us
+                    {t('publicCampaign.aboutUs')}
                   </Link>
                 </Button>
                 <Button variant="ghost" className="w-full justify-start" asChild>
                   <a href="#contact">
                     <Mail className="w-4 h-4 mr-2" />
-                    Contact
+                    {t('publicCampaign.contact')}
                   </a>
                 </Button>
               </div>
@@ -299,40 +301,40 @@ export const CampaignPage: FC = () => {
       <section id="contact" className="bg-muted/50 border-t">
         <div className="container mx-auto px-4 py-12 max-w-5xl">
           <div className="max-w-2xl mx-auto text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Get In Touch</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('publicCampaign.getInTouch')}</h2>
             <p className="text-muted-foreground">
-              Have questions or want to get involved? Send us a message!
+              {t('publicCampaign.getInTouchDesc')}
             </p>
           </div>
           <div className="max-w-xl mx-auto">
             <Card className="p-6">
               <form className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Name</label>
+                  <label className="block text-sm font-medium mb-2">{t('publicCampaign.name')}</label>
                   <input
                     type="text"
                     className="w-full px-3 py-2 border rounded-md bg-background"
-                    placeholder="Your name"
+                    placeholder={t('publicCampaign.yourName')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email</label>
+                  <label className="block text-sm font-medium mb-2">{t('publicCampaign.email')}</label>
                   <input
                     type="email"
                     className="w-full px-3 py-2 border rounded-md bg-background"
-                    placeholder="your@email.com"
+                    placeholder={t('publicCampaign.emailPlaceholder')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Message</label>
+                  <label className="block text-sm font-medium mb-2">{t('publicCampaign.message')}</label>
                   <textarea
                     className="w-full px-3 py-2 border rounded-md bg-background"
                     rows={4}
-                    placeholder="Your message..."
+                    placeholder={t('publicCampaign.messagePlaceholder')}
                   />
                 </div>
                 <Button type="submit" className="w-full">
-                  Send Message
+                  {t('publicCampaign.sendMessage')}
                 </Button>
               </form>
             </Card>
@@ -340,28 +342,28 @@ export const CampaignPage: FC = () => {
         </div>
       </section>
 
-      <PublicFooter />
+      <PublicFooter t={t} />
     </div>
   );
 };
 
 // Public Header Component
-const PublicHeader: FC = () => {
+const PublicHeader: FC<{ t: (key: string) => string }> = ({ t }) => {
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold">
-          BuildIt Network
+          {t('publicWiki.builditNetwork')}
         </Link>
         <div className="flex items-center gap-4">
           <Button variant="ghost" asChild>
-            <Link to="/campaigns">Campaigns</Link>
+            <Link to="/campaigns">{t('publicWiki.campaigns')}</Link>
           </Button>
           <Button variant="ghost" asChild>
-            <Link to="/wiki">Wiki</Link>
+            <Link to="/wiki">{t('publicCampaign.wiki')}</Link>
           </Button>
           <Button asChild>
-            <Link to="/login">Login</Link>
+            <Link to="/login">{t('publicWiki.login')}</Link>
           </Button>
         </div>
       </div>
@@ -370,35 +372,35 @@ const PublicHeader: FC = () => {
 };
 
 // Public Footer Component
-const PublicFooter: FC = () => {
+const PublicFooter: FC<{ t: (key: string) => string }> = ({ t }) => {
   return (
     <footer className="border-t bg-muted/30 mt-12">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="grid md:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-bold mb-3">BuildIt Network</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.builditNetwork')}</h3>
             <p className="text-sm text-muted-foreground">
-              Privacy-first organizing platform for activists, unions, and community groups.
+              {t('publicWiki.builditDesc')}
             </p>
           </div>
           <div>
-            <h3 className="font-bold mb-3">Resources</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.resources')}</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/wiki" className="text-muted-foreground hover:text-foreground">Knowledge Base</Link></li>
-              <li><Link to="/about" className="text-muted-foreground hover:text-foreground">About</Link></li>
-              <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+              <li><Link to="/wiki" className="text-muted-foreground hover:text-foreground">{t('publicWiki.knowledgeBase')}</Link></li>
+              <li><Link to="/about" className="text-muted-foreground hover:text-foreground">{t('publicWiki.about')}</Link></li>
+              <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">{t('publicWiki.privacyPolicy')}</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold mb-3">Contact</h3>
+            <h3 className="font-bold mb-3">{t('publicWiki.contact')}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Built with privacy & security first</li>
-              <li>Powered by Nostr protocol</li>
+              <li>{t('publicWiki.builtWithPrivacy')}</li>
+              <li>{t('publicWiki.poweredByNostr')}</li>
             </ul>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} BuildIt Network. Free and open source.</p>
+          <p>&copy; {new Date().getFullYear()} {t('publicWiki.builditNetwork')}. {t('publicWiki.freeOpenSource')}</p>
         </div>
       </div>
     </footer>

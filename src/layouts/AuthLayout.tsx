@@ -2,6 +2,8 @@ import { FC, Suspense } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { RouteLoader } from '@/components/ui/page-loader';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ModeToggle } from '@/components/mode-toggle';
 
 /**
  * Auth layout - wraps unauthenticated pages
@@ -18,6 +20,11 @@ export const AuthLayout: FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      {/* Language and theme controls */}
+      <div className="fixed top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher variant="ghost" />
+        <ModeToggle variant="ghost" />
+      </div>
       <Suspense fallback={<RouteLoader />}>
         <Outlet />
       </Suspense>

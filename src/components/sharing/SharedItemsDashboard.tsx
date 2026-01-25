@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { formatDistanceToNow } from 'date-fns'
 import {
   FileText,
@@ -71,6 +72,7 @@ interface SharedItem {
 }
 
 export function SharedItemsDashboard() {
+  const { t } = useTranslation()
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [permissionFilter, setPermissionFilter] = useState<PermissionFilter>('all')
 
@@ -171,7 +173,7 @@ export function SharedItemsDashboard() {
   }, [sharedItems])
 
   const handleDeleteShare = (item: SharedItem) => {
-    if (!confirm('Are you sure you want to revoke this share?')) return
+    if (!confirm(t('sharedItemsDashboard.confirmRevoke'))) return
 
     if (item.type === 'document') {
       // Find the document ID from the share link
@@ -188,12 +190,12 @@ export function SharedItemsDashboard() {
   }
 
   const getPermissionBadge = (permission: string) => {
-    const config: Record<string, { label: string; icon: typeof Eye; color: string }> = {
-      view: { label: 'View', icon: Eye, color: 'bg-blue-100 text-blue-700' },
-      comment: { label: 'Comment', icon: MessageSquare, color: 'bg-green-100 text-green-700' },
-      edit: { label: 'Edit', icon: Pencil, color: 'bg-orange-100 text-orange-700' },
-      download: { label: 'Download', icon: Download, color: 'bg-purple-100 text-purple-700' },
-      admin: { label: 'Admin', icon: Lock, color: 'bg-red-100 text-red-700' },
+    const config: Record<string, { labelKey: string; icon: typeof Eye; color: string }> = {
+      view: { labelKey: 'sharedItemsDashboard.permissions.view', icon: Eye, color: 'bg-blue-100 text-blue-700' },
+      comment: { labelKey: 'sharedItemsDashboard.permissions.comment', icon: MessageSquare, color: 'bg-green-100 text-green-700' },
+      edit: { labelKey: 'sharedItemsDashboard.permissions.edit', icon: Pencil, color: 'bg-orange-100 text-orange-700' },
+      download: { labelKey: 'sharedItemsDashboard.permissions.download', icon: Download, color: 'bg-purple-100 text-purple-700' },
+      admin: { labelKey: 'sharedItemsDashboard.permissions.admin', icon: Lock, color: 'bg-red-100 text-red-700' },
     }
 
     const cfg = config[permission] || config.view
@@ -202,7 +204,7 @@ export function SharedItemsDashboard() {
     return (
       <Badge variant="secondary" className={cn('gap-1', cfg.color)}>
         <Icon className="h-3 w-3" />
-        {cfg.label}
+        {t(cfg.labelKey)}
       </Badge>
     )
   }
@@ -211,9 +213,9 @@ export function SharedItemsDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Shared Items</h1>
+        <h1 className="text-2xl font-bold">{t('sharedItemsDashboard.title')}</h1>
         <p className="text-muted-foreground">
-          Manage all your shared documents and files in one place
+          {t('sharedItemsDashboard.description')}
         </p>
       </div>
 
@@ -221,25 +223,25 @@ export function SharedItemsDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Shares</CardDescription>
+            <CardDescription>{t('sharedItemsDashboard.totalShares')}</CardDescription>
             <CardTitle className="text-3xl">{stats.totalShares}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Public Links</CardDescription>
+            <CardDescription>{t('sharedItemsDashboard.publicLinks')}</CardDescription>
             <CardTitle className="text-3xl">{stats.publicLinks}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Expiring Soon</CardDescription>
+            <CardDescription>{t('sharedItemsDashboard.expiringSoon')}</CardDescription>
             <CardTitle className="text-3xl text-orange-600">{stats.expiringLinks}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Views</CardDescription>
+            <CardDescription>{t('sharedItemsDashboard.totalViews')}</CardDescription>
             <CardTitle className="text-3xl">{stats.totalViews}</CardTitle>
           </CardHeader>
         </Card>
@@ -249,27 +251,27 @@ export function SharedItemsDashboard() {
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">Filters:</span>
+          <span className="text-sm font-medium">{t('sharedItemsDashboard.filters')}</span>
         </div>
         <Select value={filterType} onValueChange={(v) => setFilterType(v as FilterType)}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder={t('sharedItemsDashboard.type')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="documents">Documents</SelectItem>
-            <SelectItem value="files">Files</SelectItem>
+            <SelectItem value="all">{t('sharedItemsDashboard.allTypes')}</SelectItem>
+            <SelectItem value="documents">{t('sharedItemsDashboard.documents')}</SelectItem>
+            <SelectItem value="files">{t('sharedItemsDashboard.files')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={permissionFilter} onValueChange={(v) => setPermissionFilter(v as PermissionFilter)}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Permission" />
+            <SelectValue placeholder={t('sharedItemsDashboard.permission')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Permissions</SelectItem>
-            <SelectItem value="view">View Only</SelectItem>
-            <SelectItem value="comment">Comment</SelectItem>
-            <SelectItem value="edit">Edit</SelectItem>
+            <SelectItem value="all">{t('sharedItemsDashboard.allPermissions')}</SelectItem>
+            <SelectItem value="view">{t('sharedItemsDashboard.viewOnly')}</SelectItem>
+            <SelectItem value="comment">{t('sharedItemsDashboard.comment')}</SelectItem>
+            <SelectItem value="edit">{t('sharedItemsDashboard.edit')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -280,12 +282,12 @@ export function SharedItemsDashboard() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Permission</TableHead>
-                <TableHead>Shared Via</TableHead>
-                <TableHead>Views</TableHead>
-                <TableHead>Expires</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.name')}</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.type')}</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.permission')}</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.sharedVia')}</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.views')}</TableHead>
+                <TableHead>{t('sharedItemsDashboard.tableHeaders.expires')}</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -293,7 +295,7 @@ export function SharedItemsDashboard() {
               {filteredItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No shared items found
+                    {t('sharedItemsDashboard.noSharedItems')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -325,18 +327,18 @@ export function SharedItemsDashboard() {
                             item.isPublic ? (
                               <>
                                 <Globe className="h-3 w-3 text-green-600" />
-                                <span className="text-sm">Public Link</span>
+                                <span className="text-sm">{t('sharedItemsDashboard.sharedVia.publicLink')}</span>
                               </>
                             ) : (
                               <>
                                 <Lock className="h-3 w-3 text-orange-600" />
-                                <span className="text-sm">Private Link</span>
+                                <span className="text-sm">{t('sharedItemsDashboard.sharedVia.privateLink')}</span>
                               </>
                             )
                           ) : (
                             <>
                               <Users className="h-3 w-3 text-blue-600" />
-                              <span className="text-sm">Direct</span>
+                              <span className="text-sm">{t('sharedItemsDashboard.sharedVia.direct')}</span>
                             </>
                           )}
                         </div>
@@ -350,12 +352,12 @@ export function SharedItemsDashboard() {
                             <Clock className={cn('h-3 w-3', isExpired ? 'text-red-600' : isExpiringSoon ? 'text-orange-600' : 'text-muted-foreground')} />
                             <span className={cn('text-sm', isExpired ? 'text-red-600' : isExpiringSoon ? 'text-orange-600' : '')}>
                               {isExpired
-                                ? 'Expired'
+                                ? t('sharedItemsDashboard.expired')
                                 : formatDistanceToNow(item.expiresAt, { addSuffix: true })}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-sm text-muted-foreground">Never</span>
+                          <span className="text-sm text-muted-foreground">{t('sharedItemsDashboard.never')}</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -368,14 +370,14 @@ export function SharedItemsDashboard() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>
                               <ExternalLink className="h-4 w-4 mr-2" />
-                              Open
+                              {t('sharedItemsDashboard.open')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDeleteShare(item)}
                               className="text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Revoke Share
+                              {t('sharedItemsDashboard.revokeShare')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

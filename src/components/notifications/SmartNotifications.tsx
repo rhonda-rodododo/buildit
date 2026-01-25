@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -235,6 +236,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
   currentEngagementLevel,
   className
 }) => {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<Notification[]>(
     DEMO_NOTIFICATIONS[currentEngagementLevel] || []
   );
@@ -298,9 +300,9 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
         <div className="flex items-center gap-3">
           <Bell className="w-6 h-6" />
           <div>
-            <h3 className="font-semibold">Smart Notifications</h3>
+            <h3 className="font-semibold">{t('smartNotifications.title')}</h3>
             <p className="text-xs text-muted-foreground" data-testid="notifications-personalization">
-              Personalized for {currentEngagementLevel}
+              {t('smartNotifications.personalized', { level: currentEngagementLevel })}
             </p>
           </div>
         </div>
@@ -312,7 +314,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
             onClick={() => setFilter('unread')}
             data-testid="notifications-filter-unread"
           >
-            Unread ({unreadCount})
+            {t('smartNotifications.filters.unread', { count: unreadCount })}
           </Button>
           <Button
             variant={filter === 'all' ? 'default' : 'outline'}
@@ -320,7 +322,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
             onClick={() => setFilter('all')}
             data-testid="notifications-filter-all"
           >
-            All
+            {t('smartNotifications.filters.all')}
           </Button>
           {unreadCount > 0 && (
             <Button
@@ -330,7 +332,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
               className="text-xs"
               data-testid="notifications-mark-all-read"
             >
-              Mark all read
+              {t('smartNotifications.filters.markAllRead')}
             </Button>
           )}
         </div>
@@ -342,7 +344,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
           <Card className="p-8 text-center">
             <Bell className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
             <p className="text-muted-foreground">
-              {filter === 'unread' ? 'All caught up! No unread notifications.' : 'No notifications yet'}
+              {filter === 'unread' ? t('smartNotifications.empty.allCaughtUp') : t('smartNotifications.empty.noNotifications')}
             </p>
           </Card>
         ) : (
@@ -378,7 +380,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
 
                       {notification.context?.relevanceScore && (
                         <Badge variant="outline" className="text-xs">
-                          {Math.round(notification.context.relevanceScore * 100)}% relevant
+                          {t('smartNotifications.relevance', { percent: Math.round(notification.context.relevanceScore * 100) })}
                         </Badge>
                       )}
                     </div>
@@ -399,7 +401,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
                             className="h-7 text-xs gap-1"
                           >
                             <Check className="w-3 h-3" />
-                            Mark read
+                            {t('smartNotifications.actions.markRead')}
                           </Button>
                         )}
                         <Button
@@ -409,7 +411,7 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
                           className="h-7 text-xs gap-1 ml-auto"
                         >
                           <X className="w-3 h-3" />
-                          Dismiss
+                          {t('smartNotifications.actions.dismiss')}
                         </Button>
                       </div>
                     )}
@@ -423,12 +425,12 @@ export const SmartNotifications: FC<SmartNotificationsProps> = ({
 
       {/* Info */}
       <Card className="p-3 bg-blue-500/5 border-blue-500/20">
-        <h4 className="text-xs font-medium mb-1">Smart Notification Features</h4>
+        <h4 className="text-xs font-medium mb-1">{t('smartNotifications.features.title')}</h4>
         <ul className="text-xs text-muted-foreground space-y-1">
-          <li>• Notifications personalized based on your engagement level</li>
-          <li>• Priority filtering puts urgent items first</li>
-          <li>• Relevance scoring shows why you're seeing each notification</li>
-          <li>• Context-aware: what you see changes as you grow as an organizer</li>
+          <li>• {t('smartNotifications.features.personalized')}</li>
+          <li>• {t('smartNotifications.features.priority')}</li>
+          <li>• {t('smartNotifications.features.relevance')}</li>
+          <li>• {t('smartNotifications.features.contextAware')}</li>
         </ul>
       </Card>
     </div>

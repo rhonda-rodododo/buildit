@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { PageMeta } from '@/components/PageMeta';
 import { Card } from '@/components/ui/card';
@@ -64,6 +65,7 @@ const DEMO_CONTACTS: Record<string, Contact> = {
 };
 
 export const ContactDetailPage: FC = () => {
+  const { t } = useTranslation();
   const { contactId } = useParams<{ contactId: string }>();
   const [contact, _setContact] = useState<Contact | null>(
     contactId ? DEMO_CONTACTS[contactId] : null
@@ -77,8 +79,8 @@ export const ContactDetailPage: FC = () => {
     return (
       <div className="space-y-6">
         <Card className="p-8 text-center">
-          <p className="text-muted-foreground">Contact not found</p>
-          <Button className="mt-4">Back to Contacts</Button>
+          <p className="text-muted-foreground">{t('contactDetailPage.notFound')}</p>
+          <Button className="mt-4">{t('contactDetailPage.backToContacts')}</Button>
         </Card>
       </div>
     );
@@ -111,9 +113,9 @@ export const ContactDetailPage: FC = () => {
       />
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Contact Details</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('contactDetailPage.title')}</h1>
         <p className="text-muted-foreground">
-          Complete history and communication with this contact
+          {t('contactDetailPage.description')}
         </p>
       </div>
 
@@ -139,11 +141,11 @@ export const ContactDetailPage: FC = () => {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="gap-2">
                   <Edit className="w-4 h-4" />
-                  Edit
+                  {t('contactDetailPage.actions.edit')}
                 </Button>
                 <Button size="sm" className="gap-2">
                   <MessageSquare className="w-4 h-4" />
-                  Send Message
+                  {t('contactDetailPage.actions.sendMessage')}
                 </Button>
               </div>
             </div>
@@ -173,13 +175,13 @@ export const ContactDetailPage: FC = () => {
               <div className="flex items-center gap-2 text-sm">
                 <UserPlus className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  Joined {format(contact.joinedDate, 'MMM d, yyyy')}
+                  {t('contactDetailInfo.joined', { date: format(contact.joinedDate, 'MMM d, yyyy') })}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  Last contact {format(contact.lastContact, 'MMM d, yyyy')}
+                  {t('contactDetailInfo.lastContact', { date: format(contact.lastContact, 'MMM d, yyyy') })}
                 </span>
               </div>
             </div>
@@ -202,7 +204,7 @@ export const ContactDetailPage: FC = () => {
             {contact.notes && (
               <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Latest Note:</strong> {contact.notes}
+                  <strong className="text-foreground">{t('contactDetailPage.info.latestNote')}</strong> {contact.notes}
                 </p>
               </div>
             )}
@@ -212,7 +214,7 @@ export const ContactDetailPage: FC = () => {
         {/* Custom Fields */}
         {contact.customFields && Object.keys(contact.customFields).length > 0 && (
           <div className="mt-6 pt-6 border-t">
-            <h3 className="text-sm font-semibold mb-3">Additional Information</h3>
+            <h3 className="text-sm font-semibold mb-3">{t('contactDetailPage.customFields.title')}</h3>
             <div className="grid grid-cols-3 gap-4">
               {Object.entries(contact.customFields).map(([key, value]) => (
                 <div key={key}>
@@ -232,11 +234,11 @@ export const ContactDetailPage: FC = () => {
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="activity" className="gap-2">
             <TrendingUp className="w-4 h-4" />
-            Activity Timeline
+            {t('contactDetailPage.tabs.activity')}
           </TabsTrigger>
           <TabsTrigger value="conversation" className="gap-2">
             <MessageSquare className="w-4 h-4" />
-            Conversation History
+            {t('contactDetailPage.tabs.conversation')}
           </TabsTrigger>
         </TabsList>
 

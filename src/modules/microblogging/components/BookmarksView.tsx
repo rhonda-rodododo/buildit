@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePostsStore } from '../postsStore';
 import { PostCard } from './PostCard';
 import { Card } from '@/components/ui/card';
@@ -34,6 +35,7 @@ interface BookmarksViewProps {
 }
 
 export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
+  const { t } = useTranslation();
   const { getBookmarkedPosts, bookmarks } = usePostsStore();
   const bookmarkedPosts = getBookmarkedPosts();
 
@@ -89,7 +91,7 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Bookmark className="w-5 h-5" />
-          <h2 className="text-xl font-semibold">Bookmarks</h2>
+          <h2 className="text-xl font-semibold">{t('bookmarksView.title')}</h2>
           <span className="text-sm text-muted-foreground">
             ({bookmarkedPosts.length})
           </span>
@@ -100,7 +102,7 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
           onClick={() => setShowNewCollectionDialog(true)}
         >
           <Folder className="w-4 h-4 mr-2" />
-          New Collection
+          {t('bookmarksView.newCollection')}
         </Button>
       </div>
 
@@ -111,7 +113,7 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search bookmarks..."
+              placeholder={t('bookmarksView.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -121,11 +123,11 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
           {/* Collection filter */}
           <Select value={selectedCollection} onValueChange={setSelectedCollection}>
             <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="All Collections" />
+              <SelectValue placeholder={t('bookmarksView.filter.allCollections')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Collections</SelectItem>
-              <SelectItem value="uncategorized">Uncategorized</SelectItem>
+              <SelectItem value="all">{t('bookmarksView.filter.allCollections')}</SelectItem>
+              <SelectItem value="uncategorized">{t('bookmarksView.filter.uncategorized')}</SelectItem>
               {collections.map((collection) => (
                 <SelectItem key={collection} value={collection}>
                   {collection}
@@ -146,11 +148,11 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
       ) : (
         <Card className="p-12 text-center">
           <Bookmark className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-medium mb-2">No bookmarks found</h3>
+          <h3 className="text-lg font-medium mb-2">{t('bookmarksView.empty.title')}</h3>
           <p className="text-sm text-muted-foreground">
             {searchQuery || selectedCollection !== 'all'
-              ? 'Try adjusting your filters'
-              : 'Start bookmarking posts to save them for later'}
+              ? t('bookmarksView.empty.adjustFilters')
+              : t('bookmarksView.empty.description')}
           </p>
         </Card>
       )}
@@ -159,20 +161,20 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
       <Dialog open={showNewCollectionDialog} onOpenChange={setShowNewCollectionDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Collection</DialogTitle>
+            <DialogTitle>{t('bookmarksView.dialog.title')}</DialogTitle>
             <DialogDescription>
-              Organize your bookmarks into collections
+              {t('bookmarksView.dialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Collection Name
+                {t('bookmarksView.dialog.nameLabel')}
               </label>
               <Input
                 value={newCollectionName}
                 onChange={(e) => setNewCollectionName(e.target.value)}
-                placeholder="e.g., Reading List, Important Posts"
+                placeholder={t('bookmarksView.dialog.namePlaceholder')}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleCreateCollection();
@@ -185,13 +187,13 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
                 variant="outline"
                 onClick={() => setShowNewCollectionDialog(false)}
               >
-                Cancel
+                {t('bookmarksView.dialog.cancel')}
               </Button>
               <Button
                 onClick={handleCreateCollection}
                 disabled={!newCollectionName.trim()}
               >
-                Create
+                {t('bookmarksView.dialog.create')}
               </Button>
             </div>
           </div>

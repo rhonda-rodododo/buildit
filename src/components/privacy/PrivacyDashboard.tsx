@@ -5,6 +5,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -45,6 +46,7 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
   riskLevel,
   className
 }) => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'normal' | 'covert'>(currentMode);
   const [settings, setSettings] = useState<PrivacySettings>({
     covertMode: currentMode === 'covert',
@@ -102,9 +104,9 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
 
   const getRiskLevelLabel = (level: typeof riskLevel) => {
     switch (level) {
-      case 'low': return 'Low Risk';
-      case 'medium': return 'Medium Risk';
-      case 'high': return 'High Risk - Use Covert Mode';
+      case 'low': return t('privacyDashboard.riskLow');
+      case 'medium': return t('privacyDashboard.riskMedium');
+      case 'high': return t('privacyDashboard.riskHigh');
     }
   };
 
@@ -118,9 +120,9 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <UserX className="w-6 h-6 text-purple-500" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-1">Covert Supporter Mode</h3>
+              <h3 className="text-lg font-semibold mb-1">{t('privacyDashboard.covertMode')}</h3>
               <p className="text-sm text-muted-foreground">
-                Maximum privacy for those who need to hide their involvement
+                {t('privacyDashboard.covertModeDesc')}
               </p>
             </div>
           </div>
@@ -137,10 +139,10 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <CheckCircle2 className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-1">
-                  Covert Mode Active
+                  {t('privacyDashboard.covertActive')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  All privacy settings enabled. Your activity is hidden from public view while you can still support the movement.
+                  {t('privacyDashboard.covertActiveDesc')}
                 </p>
               </div>
             </div>
@@ -153,10 +155,10 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-yellow-700 dark:text-yellow-300 mb-1">
-                  High Risk Detected
+                  {t('privacyDashboard.highRiskDetected')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Consider enabling Covert Mode for maximum protection.
+                  {t('privacyDashboard.highRiskAdvice')}
                 </p>
               </div>
             </div>
@@ -170,8 +172,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-primary" />
             <div>
-              <div className="text-sm font-medium">Current Risk Level</div>
-              <div className="text-xs text-muted-foreground">Based on your location and campaign</div>
+              <div className="text-sm font-medium">{t('privacyDashboard.riskLevel')}</div>
+              <div className="text-xs text-muted-foreground">{t('privacyDashboard.riskLevelDesc')}</div>
             </div>
           </div>
 
@@ -183,7 +185,7 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
 
       {/* Privacy Settings */}
       <div>
-        <h3 className="font-semibold mb-3">Privacy Controls</h3>
+        <h3 className="font-semibold mb-3">{t('privacyDashboard.privacyControls')}</h3>
         <div className="space-y-2">
           {/* Anonymous Voting */}
           <Card className="p-4">
@@ -191,8 +193,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <Lock className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Anonymous Voting</div>
-                  <div className="text-xs text-muted-foreground">Cast votes without revealing identity</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.anonymousVoting')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.anonymousVotingDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -208,8 +210,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <EyeOff className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Anonymous Reactions</div>
-                  <div className="text-xs text-muted-foreground">React to posts anonymously</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.anonymousReactions')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.anonymousReactionsDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -225,8 +227,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <Users className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Hide from Member Directory</div>
-                  <div className="text-xs text-muted-foreground">Don't appear in public member lists</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.hideFromDirectory')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.hideFromDirectoryDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -243,8 +245,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <MessageSquare className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Encrypted Messages Only</div>
-                  <div className="text-xs text-muted-foreground">Require end-to-end encryption</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.encryptedMessagesOnly')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.encryptedMessagesOnlyDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -260,8 +262,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <Eye className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Disable Read Receipts</div>
-                  <div className="text-xs text-muted-foreground">Don't show when you've read messages</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.disableReadReceipts')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.disableReadReceiptsDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -278,8 +280,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Hide Activity Status</div>
-                  <div className="text-xs text-muted-foreground">Don't show when you're online</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.hideActivityStatus')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.hideActivityStatusDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -296,8 +298,8 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-sm font-medium">Restrict Profile Visibility</div>
-                  <div className="text-xs text-muted-foreground">Only members can see your profile</div>
+                  <div className="text-sm font-medium">{t('privacyDashboard.settings.restrictProfileVisibility')}</div>
+                  <div className="text-xs text-muted-foreground">{t('privacyDashboard.settings.restrictProfileVisibilityDesc')}</div>
                 </div>
               </div>
               <Switch
@@ -315,15 +317,15 @@ export const PrivacyDashboard: FC<PrivacyDashboardProps> = ({
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">About Privacy Controls</h4>
+            <h4 className="text-sm font-medium mb-1">{t('privacyDashboard.aboutTitle')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
-              These settings protect you in high-risk organizing contexts where visibility could lead to retaliation.
+              {t('privacyDashboard.aboutDesc')}
             </p>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>Covert Mode:</strong> Maximum privacy - enables all protections</li>
-              <li>• <strong>Anonymous Actions:</strong> Participate without revealing identity</li>
-              <li>• <strong>Hidden Presence:</strong> Support the movement invisibly</li>
-              <li>• <strong>End-to-End Encryption:</strong> All communications are cryptographically secured</li>
+              <li>• <strong>{t('privacyDashboard.aboutCovert')}</strong> {t('privacyDashboard.aboutCovertDesc')}</li>
+              <li>• <strong>{t('privacyDashboard.aboutAnonymous')}</strong> {t('privacyDashboard.aboutAnonymousDesc')}</li>
+              <li>• <strong>{t('privacyDashboard.aboutHidden')}</strong> {t('privacyDashboard.aboutHiddenDesc')}</li>
+              <li>• <strong>{t('privacyDashboard.aboutEncryption')}</strong> {t('privacyDashboard.aboutEncryptionDesc')}</li>
             </ul>
           </div>
         </div>

@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -132,6 +133,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
   isAdmin = false,
   className
 }) => {
+  const { t } = useTranslation();
   // useMemo ensures mock data is only created once per component instance
   const initialAnomalies = useMemo(() => createMockAnomalies(), []);
   const [anomalies, setAnomalies] = useState<Anomaly[]>(initialAnomalies);
@@ -154,11 +156,11 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
 
   const getAnomalyTypeLabel = (type: Anomaly['type']) => {
     switch (type) {
-      case 'mass-access': return 'Mass Data Access';
-      case 'unusual-posting': return 'Unusual Posting';
-      case 'rapid-following': return 'Rapid Following';
-      case 'honeypot-trigger': return 'Honeypot Triggered';
-      case 'data-export': return 'Data Export';
+      case 'mass-access': return t('anomaly.types.massAccess');
+      case 'unusual-posting': return t('anomaly.types.unusualPosting');
+      case 'rapid-following': return t('anomaly.types.rapidFollowing');
+      case 'honeypot-trigger': return t('anomaly.types.honeypotTrigger');
+      case 'data-export': return t('anomaly.types.dataExport');
     }
   };
 
@@ -197,7 +199,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
           <ShieldAlert className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>Admin access required to view security anomalies</p>
+          <p>{t('anomaly.adminRequired')}</p>
         </div>
       </Card>
     );
@@ -207,9 +209,9 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold mb-2">Anomaly Detection</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('anomaly.title')}</h2>
         <p className="text-muted-foreground">
-          Monitor suspicious behavior patterns to identify potential infiltrators
+          {t('anomaly.description')}
         </p>
       </div>
 
@@ -220,14 +222,14 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
             <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <h4 className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">
-                {criticalCount} Critical {criticalCount === 1 ? 'Anomaly' : 'Anomalies'} Detected
+                {t('anomaly.criticalDetected', { count: criticalCount })}
               </h4>
               <p className="text-xs text-muted-foreground">
-                Immediate investigation required. These patterns indicate potential infiltration or data harvesting.
+                {t('anomaly.immediateAction')}
               </p>
             </div>
             <Button size="sm" variant="destructive">
-              Review Now
+              {t('anomaly.reviewNow')}
             </Button>
           </div>
         </Card>
@@ -240,7 +242,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
             <Activity className="w-4 h-4 text-muted-foreground" />
             <div className="text-2xl font-bold">{activeAnomalies.length}</div>
           </div>
-          <div className="text-xs text-muted-foreground">Active Anomalies</div>
+          <div className="text-xs text-muted-foreground">{t('anomaly.activeAnomalies')}</div>
         </Card>
 
         <Card className="p-4">
@@ -248,7 +250,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
             <AlertTriangle className="w-4 h-4 text-red-500" />
             <div className="text-2xl font-bold text-red-500">{criticalCount}</div>
           </div>
-          <div className="text-xs text-muted-foreground">Critical</div>
+          <div className="text-xs text-muted-foreground">{t('anomaly.critical')}</div>
         </Card>
 
         <Card className="p-4">
@@ -258,7 +260,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
               {anomalies.filter(a => a.status === 'investigating').length}
             </div>
           </div>
-          <div className="text-xs text-muted-foreground">Investigating</div>
+          <div className="text-xs text-muted-foreground">{t('anomaly.investigating')}</div>
         </Card>
 
         <Card className="p-4">
@@ -268,7 +270,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
               {anomalies.filter(a => a.status === 'resolved').length}
             </div>
           </div>
-          <div className="text-xs text-muted-foreground">Resolved</div>
+          <div className="text-xs text-muted-foreground">{t('anomaly.resolved')}</div>
         </Card>
       </div>
 
@@ -277,13 +279,13 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">Detection Systems Active</h4>
+            <h4 className="text-sm font-medium mb-1">{t('anomaly.detectionSystemsActive')}</h4>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>Mass Data Access:</strong> Detects rapid viewing of member profiles or documents</li>
-              <li>• <strong>Unusual Posting:</strong> Identifies spam-like or divisive posting patterns</li>
-              <li>• <strong>Rapid Following:</strong> Flags users building social graphs too quickly</li>
-              <li>• <strong>Honeypot Triggers:</strong> Hidden sensitive documents that only infiltrators access</li>
-              <li>• <strong>Data Export:</strong> Monitors bulk data downloads and exports</li>
+              <li>• <strong>{t('anomaly.types.massAccess')}:</strong> {t('anomaly.typeDesc.massAccess')}</li>
+              <li>• <strong>{t('anomaly.types.unusualPosting')}:</strong> {t('anomaly.typeDesc.unusualPosting')}</li>
+              <li>• <strong>{t('anomaly.types.rapidFollowing')}:</strong> {t('anomaly.typeDesc.rapidFollowing')}</li>
+              <li>• <strong>{t('anomaly.types.honeypotTrigger')}:</strong> {t('anomaly.typeDesc.honeypotTrigger')}</li>
+              <li>• <strong>{t('anomaly.types.dataExport')}:</strong> {t('anomaly.typeDesc.dataExport')}</li>
             </ul>
           </div>
         </div>
@@ -291,7 +293,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
 
       {/* Anomalies List */}
       <div>
-        <h3 className="font-semibold mb-3">Recent Anomalies</h3>
+        <h3 className="font-semibold mb-3">{t('anomaly.recentAnomalies')}</h3>
         <div className="space-y-3">
           {anomalies.map((anomaly) => (
             <Card
@@ -313,7 +315,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                         variant={getStatusColor(anomaly.status)}
                         className="shrink-0"
                       >
-                        {anomaly.status.replace('-', ' ')}
+                        {t(`anomaly.status.${anomaly.status === 'false-positive' ? 'falsePositive' : anomaly.status}`)}
                       </Badge>
                     </div>
 
@@ -323,12 +325,12 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                       </Badge>
                       <div className="flex items-center gap-1">
                         <div className={`w-2 h-2 rounded-full ${getSeverityColor(anomaly.severity)}`} />
-                        <span className="capitalize">{anomaly.severity}</span>
+                        <span className="capitalize">{t(`anomaly.severity.${anomaly.severity}`)}</span>
                       </div>
                       {anomaly.affectedResources && (
                         <>
                           <div>•</div>
-                          <div>{anomaly.affectedResources} resources affected</div>
+                          <div>{t('anomaly.resourcesAffected', { count: anomaly.affectedResources })}</div>
                         </>
                       )}
                       <div>•</div>
@@ -345,7 +347,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                         <AvatarFallback className="text-xs">{anomaly.userInitials}</AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium">{anomaly.userName}</span>
-                      <Badge variant="outline" className="text-xs">User ID: {anomaly.userId}</Badge>
+                      <Badge variant="outline" className="text-xs">{t('anomaly.userId')} {anomaly.userId}</Badge>
                     </div>
 
                     {/* Actions */}
@@ -356,20 +358,20 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                           variant="outline"
                           onClick={() => handleUpdateStatus(anomaly.id, 'investigating')}
                         >
-                          Start Investigation
+                          {t('anomaly.startInvestigation')}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleUpdateStatus(anomaly.id, 'false-positive')}
                         >
-                          Mark False Positive
+                          {t('anomaly.markFalsePositive')}
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
                         >
-                          Suspend User
+                          {t('anomaly.suspendUser')}
                         </Button>
                       </div>
                     )}
@@ -383,7 +385,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                           className="gap-1"
                         >
                           <CheckCircle className="w-3 h-3" />
-                          Mark Resolved
+                          {t('anomaly.markResolved')}
                         </Button>
                         <Button
                           size="sm"
@@ -392,7 +394,7 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
                           className="gap-1"
                         >
                           <XCircle className="w-3 h-3" />
-                          False Positive
+                          {t('anomaly.falsePositive')}
                         </Button>
                       </div>
                     )}
@@ -409,15 +411,14 @@ export const AnomalyDetection: FC<AnomalyDetectionProps> = ({
         <div className="flex items-start gap-3">
           <ShieldAlert className="w-5 h-5 text-purple-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">Honeypot Traps Active</h4>
+            <h4 className="text-sm font-medium mb-1">{t('anomaly.honeypotTrapsActive')}</h4>
             <p className="text-xs text-muted-foreground mb-2">
-              Honeypots are hidden documents or features that only infiltrators or bad actors would access.
-              They appear as "sensitive" information to attract suspicious users.
+              {t('anomaly.honeypotDesc')}
             </p>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>Fake Sensitive Documents:</strong> 3 active honeypots deployed</li>
-              <li>• <strong>Hidden Contact Lists:</strong> Detect unauthorized data harvesting</li>
-              <li>• <strong>Trap Questions:</strong> Survey questions that identify bad actors</li>
+              <li>• <strong>{t('anomaly.honeypotFakeDocs')}</strong> {t('anomaly.honeypotFakeDocsDesc')}</li>
+              <li>• <strong>{t('anomaly.honeypotHiddenContacts')}</strong> {t('anomaly.honeypotHiddenContactsDesc')}</li>
+              <li>• <strong>{t('anomaly.honeypotTrapQuestions')}</strong> {t('anomaly.honeypotTrapQuestionsDesc')}</li>
             </ul>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -12,6 +13,7 @@ import { UserHandle } from '@/components/user/UserHandle';
 import { Search, ShieldCheck } from 'lucide-react';
 
 export const UserDirectory: FC = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<DBIdentity[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<DBIdentity[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,9 +140,9 @@ export const UserDirectory: FC = () => {
       <PageMeta titleKey="crm.title" descriptionKey="meta.crm" path="/app/directory" />
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>User Directory</CardTitle>
+          <CardTitle>{t('userDirectory.title')}</CardTitle>
           <CardDescription>
-            Browse and connect with other users on BuildIt Network
+            {t('userDirectory.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -149,7 +151,7 @@ export const UserDirectory: FC = () => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               data-testid="directory-search-input"
-              placeholder="Search by username or name..."
+              placeholder={t('userDirectory.searchPlaceholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -161,12 +163,12 @@ export const UserDirectory: FC = () => {
             <div className="flex-1 min-w-[200px]">
               <Select value={filterVerified} onValueChange={(v) => setFilterVerified(v as 'all' | 'verified' | 'unverified')}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter by verification" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All users</SelectItem>
-                  <SelectItem value="verified">Verified only</SelectItem>
-                  <SelectItem value="unverified">Unverified only</SelectItem>
+                  <SelectItem value="all">{t('userDirectory.filters.allUsers')}</SelectItem>
+                  <SelectItem value="verified">{t('userDirectory.filters.verifiedOnly')}</SelectItem>
+                  <SelectItem value="unverified">{t('userDirectory.filters.unverifiedOnly')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -174,12 +176,12 @@ export const UserDirectory: FC = () => {
             <div className="flex-1 min-w-[200px]">
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'name' | 'username' | 'recent')}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="username">Username (A-Z)</SelectItem>
-                  <SelectItem value="name">Name (A-Z)</SelectItem>
-                  <SelectItem value="recent">Recently active</SelectItem>
+                  <SelectItem value="username">{t('userDirectory.sort.username')}</SelectItem>
+                  <SelectItem value="name">{t('userDirectory.sort.name')}</SelectItem>
+                  <SelectItem value="recent">{t('userDirectory.sort.recent')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -187,7 +189,9 @@ export const UserDirectory: FC = () => {
 
           {/* Results count */}
           <div className="text-sm text-muted-foreground">
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
+            {filteredUsers.length === 1
+              ? t('userDirectory.resultsCount', { count: filteredUsers.length })
+              : t('userDirectory.resultsCount_plural', { count: filteredUsers.length })}
           </div>
         </CardContent>
       </Card>
@@ -197,7 +201,7 @@ export const UserDirectory: FC = () => {
         {filteredUsers.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center text-muted-foreground">
-              No users found matching your search
+              {t('userDirectory.noUsersFound')}
             </CardContent>
           </Card>
         ) : (
@@ -222,7 +226,7 @@ export const UserDirectory: FC = () => {
                       {user.nip05Verified && (
                         <Badge variant="default" className="bg-green-600">
                           <ShieldCheck className="mr-1 h-3 w-3" />
-                          Verified
+                          {t('userDirectory.verified')}
                         </Badge>
                       )}
                     </div>
@@ -236,10 +240,10 @@ export const UserDirectory: FC = () => {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
-                      View Profile
+                      {t('userDirectory.actions.viewProfile')}
                     </Button>
                     <Button variant="default" size="sm">
-                      Message
+                      {t('userDirectory.actions.message')}
                     </Button>
                   </div>
                 </div>

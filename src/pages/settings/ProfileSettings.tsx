@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ import { toast } from 'sonner';
 import type { DBUsernameSettings } from '@/core/storage/db';
 
 export const ProfileSettings: FC = () => {
+  const { t } = useTranslation();
   const currentIdentity = useAuthStore(state => state.currentIdentity);
   const loadIdentities = useAuthStore(state => state.loadIdentities);
 
@@ -87,13 +89,13 @@ export const ProfileSettings: FC = () => {
       );
 
       if (result.success) {
-        toast.success('Username saved successfully');
+        toast.success(t('profile.usernameSaved'));
         await loadIdentities(); // Reload to get updated username
       } else {
-        toast.error(result.error || 'Failed to save username');
+        toast.error(result.error || t('profile.usernameSaveFailed'));
       }
     } catch (error) {
-      toast.error('Failed to save username');
+      toast.error(t('profile.usernameSaveFailed'));
       console.error(error);
     } finally {
       setSaving(false);
@@ -108,13 +110,13 @@ export const ProfileSettings: FC = () => {
       const success = await UsernameManager.setNIP05(currentIdentity.publicKey, nip05);
 
       if (success) {
-        toast.success('NIP-05 verified successfully');
+        toast.success(t('profile.nip05Verified'));
         await loadIdentities();
       } else {
-        toast.error('NIP-05 verification failed');
+        toast.error(t('profile.nip05Failed'));
       }
     } catch (error) {
-      toast.error('NIP-05 verification failed');
+      toast.error(t('profile.nip05Failed'));
       console.error(error);
     } finally {
       setVerifyingNIP05(false);
@@ -128,9 +130,9 @@ export const ProfileSettings: FC = () => {
       await UsernameManager.updateSettings(currentIdentity.publicKey, updates);
       const updated = await UsernameManager.getSettings(currentIdentity.publicKey);
       setSettings(updated);
-      toast.success('Privacy settings updated');
+      toast.success(t('profile.privacyUpdated'));
     } catch (error) {
-      toast.error('Failed to update settings');
+      toast.error(t('profile.privacyUpdateFailed'));
       console.error(error);
     }
   };
@@ -139,7 +141,7 @@ export const ProfileSettings: FC = () => {
     return (
       <div className="space-y-6">
         <Alert>
-          <AlertDescription>Please log in to manage your profile</AlertDescription>
+          <AlertDescription>{t('profile.pleaseLogin')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -151,15 +153,15 @@ export const ProfileSettings: FC = () => {
       {/* Username & Display Name */}
       <Card>
         <CardHeader>
-          <CardTitle>Username & Display Name</CardTitle>
+          <CardTitle>{t('profile.usernameAndDisplayName')}</CardTitle>
           <CardDescription>
-            Set a human-readable username to make it easier for others to find and mention you
+            {t('profile.usernameDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Username */}
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">{t('profile.username')}</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
@@ -185,19 +187,19 @@ export const ProfileSettings: FC = () => {
               <p className="text-sm text-red-600">{usernameError}</p>
             )}
             {usernameAvailable === false && !usernameError && (
-              <p className="text-sm text-red-600">Username already taken</p>
+              <p className="text-sm text-red-600">{t('profile.usernameTaken')}</p>
             )}
             {usernameAvailable === true && (
-              <p className="text-sm text-green-600">Username available</p>
+              <p className="text-sm text-green-600">{t('profile.usernameAvailable')}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              3-20 characters, lowercase letters, numbers, and hyphens only
+              {t('profile.usernameHint')}
             </p>
           </div>
 
           {/* Display Name */}
           <div className="space-y-2">
-            <Label htmlFor="displayName">Display Name (Optional)</Label>
+            <Label htmlFor="displayName">{t('profile.displayName')}</Label>
             <Input
               id="displayName"
               data-testid="display-name-input"
@@ -206,7 +208,7 @@ export const ProfileSettings: FC = () => {
               placeholder="Alice Martinez"
             />
             <p className="text-xs text-muted-foreground">
-              Your full name or preferred display name
+              {t('profile.displayNameHint')}
             </p>
           </div>
 
@@ -218,10 +220,10 @@ export const ProfileSettings: FC = () => {
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('profile.saving')}
               </>
             ) : (
-              'Save Username'
+              t('profile.saveUsername')
             )}
           </Button>
         </CardContent>
@@ -231,21 +233,21 @@ export const ProfileSettings: FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            NIP-05 Verification
+            {t('profile.nip05Verification')}
             {currentIdentity.nip05Verified && (
               <Badge variant="default" className="bg-green-600">
                 <ShieldCheck className="mr-1 h-3 w-3" />
-                Verified
+                {t('profile.verified')}
               </Badge>
             )}
           </CardTitle>
           <CardDescription>
-            Verify your identity with a domain name (username@domain.com)
+            {t('profile.nip05Description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nip05">NIP-05 Identifier</Label>
+            <Label htmlFor="nip05">{t('profile.nip05Identifier')}</Label>
             <Input
               id="nip05"
               data-testid="nip05-input"
@@ -255,7 +257,7 @@ export const ProfileSettings: FC = () => {
               type="text"
             />
             <p className="text-xs text-muted-foreground">
-              Enter your NIP-05 identifier to verify your identity
+              {t('profile.nip05Hint')}
             </p>
           </div>
 
@@ -263,10 +265,10 @@ export const ProfileSettings: FC = () => {
             {verifyingNIP05 ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                {t('profile.verifying')}
               </>
             ) : (
-              'Verify NIP-05'
+              t('profile.verifyNip05')
             )}
           </Button>
 
@@ -274,7 +276,7 @@ export const ProfileSettings: FC = () => {
             <Alert>
               <ShieldCheck className="h-4 w-4 text-green-600" />
               <AlertDescription>
-                Verified as <strong>{currentIdentity.nip05}</strong>
+                {t('profile.verifiedAs')} <strong>{currentIdentity.nip05}</strong>
               </AlertDescription>
             </Alert>
           )}
@@ -284,22 +286,22 @@ export const ProfileSettings: FC = () => {
       {/* Privacy Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Privacy Settings</CardTitle>
+          <CardTitle>{t('profile.privacySettings')}</CardTitle>
           <CardDescription>
-            Control who can find you and see your profile
+            {t('profile.privacyDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {loadingSettings ? (
-            <p className="text-sm text-muted-foreground">Loading settings...</p>
+            <p className="text-sm text-muted-foreground">{t('profile.loadingSettings')}</p>
           ) : (
             <>
               {/* Username Search */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Username Search</Label>
+                  <Label>{t('profile.usernameSearch')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Allow others to find you by username
+                    {t('profile.usernameSearchHint')}
                   </p>
                 </div>
                 <Switch
@@ -315,9 +317,9 @@ export const ProfileSettings: FC = () => {
               {/* Show in Directory */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Show in Directory</Label>
+                  <Label>{t('profile.showInDirectory')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Appear in the public user directory
+                    {t('profile.showInDirectoryHint')}
                   </p>
                 </div>
                 <Switch
@@ -332,7 +334,7 @@ export const ProfileSettings: FC = () => {
 
               {/* Profile Visibility */}
               <div className="space-y-2">
-                <Label>Profile Visibility</Label>
+                <Label>{t('profile.profileVisibility')}</Label>
                 <Select
                   value={settings?.visibleTo || 'public'}
                   onValueChange={value =>
@@ -343,14 +345,14 @@ export const ProfileSettings: FC = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public">Public (anyone can see)</SelectItem>
-                    <SelectItem value="groups">Groups only</SelectItem>
-                    <SelectItem value="friends">Friends only</SelectItem>
-                    <SelectItem value="none">Private (hidden)</SelectItem>
+                    <SelectItem value="public">{t('profile.visibilityPublic')}</SelectItem>
+                    <SelectItem value="groups">{t('profile.visibilityGroups')}</SelectItem>
+                    <SelectItem value="friends">{t('profile.visibilityFriends')}</SelectItem>
+                    <SelectItem value="none">{t('profile.visibilityPrivate')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Who can view your profile and posts
+                  {t('profile.visibilityHint')}
                 </p>
               </div>
             </>
@@ -361,17 +363,17 @@ export const ProfileSettings: FC = () => {
       {/* Public Key Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Public Key</CardTitle>
+          <CardTitle>{t('profile.publicKey')}</CardTitle>
           <CardDescription>
-            Your Nostr public key (npub)
+            {t('profile.publicKeyDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label>npub</Label>
+            <Label>{t('profile.npub')}</Label>
             <Input value={currentIdentity.npub} readOnly className="font-mono text-xs" />
             <p className="text-xs text-muted-foreground">
-              Your unique identifier on the Nostr network
+              {t('profile.npubHint')}
             </p>
           </div>
         </CardContent>

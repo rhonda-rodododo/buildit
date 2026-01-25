@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -44,6 +45,7 @@ const fieldFormSchema = z.object({
 type FieldFormData = z.infer<typeof fieldFormSchema>;
 
 export function FieldEditor({ groupId, entityType, field, open, onOpenChange, onSave }: FieldEditorProps) {
+  const { t } = useTranslation();
   const { currentIdentity } = useAuthStore();
   const [selectedWidget, setSelectedWidget] = useState<FieldType>(field?.widget.widget || 'text');
   const isEditing = !!field;
@@ -131,29 +133,29 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Field' : 'Create Custom Field'}</DialogTitle>
+          <DialogTitle>{isEditing ? t('customFieldEditor.title.edit') : t('customFieldEditor.title.create')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Field Name</Label>
+            <Label htmlFor="name">{t('customFieldEditor.fields.name')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="e.g., dietary_preferences"
+              placeholder={t('customFieldEditor.fields.namePlaceholder')}
               disabled={isEditing}
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="label">Label</Label>
-            <Input id="label" {...register('label')} placeholder="e.g., Dietary Preferences" />
+            <Label htmlFor="label">{t('customFieldEditor.fields.label')}</Label>
+            <Input id="label" {...register('label')} placeholder={t('customFieldEditor.fields.labelPlaceholder')} />
             {errors.label && <p className="text-sm text-destructive">{errors.label.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="widget">Field Type</Label>
+            <Label htmlFor="widget">{t('customFieldEditor.fields.fieldType')}</Label>
             <Select
               value={selectedWidget}
               onValueChange={(value) => setSelectedWidget(value as FieldType)}
@@ -174,26 +176,26 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
 
           <div className="flex items-center space-x-2">
             <Checkbox id="required" {...register('required')} />
-            <Label htmlFor="required">Required field</Label>
+            <Label htmlFor="required">{t('customFieldEditor.fields.required')}</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="placeholder">Placeholder</Label>
+            <Label htmlFor="placeholder">{t('customFieldEditor.fields.placeholder')}</Label>
             <Input id="placeholder" {...register('placeholder')} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="helpText">Help Text</Label>
+            <Label htmlFor="helpText">{t('customFieldEditor.fields.helpText')}</Label>
             <Input id="helpText" {...register('helpText')} />
           </div>
 
           {widgetDef.supportsOptions && (
             <div className="space-y-2">
-              <Label htmlFor="options">Options (JSON)</Label>
+              <Label htmlFor="options">{t('customFieldEditor.fields.options')}</Label>
               <Input
                 id="options"
                 {...register('options')}
-                placeholder='[{"value": "vegan", "label": "Vegan"}, {"value": "vegetarian", "label": "Vegetarian"}]'
+                placeholder={t('customFieldEditor.fields.optionsPlaceholder')}
               />
               {errors.options && <p className="text-sm text-destructive">{errors.options.message}</p>}
             </div>
@@ -203,7 +205,7 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minLength">Min Length</Label>
+                  <Label htmlFor="minLength">{t('customFieldEditor.fields.minLength')}</Label>
                   <Input
                     id="minLength"
                     type="number"
@@ -211,7 +213,7 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="maxLength">Max Length</Label>
+                  <Label htmlFor="maxLength">{t('customFieldEditor.fields.maxLength')}</Label>
                   <Input
                     id="maxLength"
                     type="number"
@@ -220,7 +222,7 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pattern">Pattern (regex)</Label>
+                <Label htmlFor="pattern">{t('customFieldEditor.fields.pattern')}</Label>
                 <Input id="pattern" {...register('pattern')} />
               </div>
             </>
@@ -229,11 +231,11 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
           {widgetDef.jsonSchemaType === 'number' && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="minimum">Minimum</Label>
+                <Label htmlFor="minimum">{t('customFieldEditor.fields.minimum')}</Label>
                 <Input id="minimum" type="number" {...register('minimum', { valueAsNumber: true })} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="maximum">Maximum</Label>
+                <Label htmlFor="maximum">{t('customFieldEditor.fields.maximum')}</Label>
                 <Input id="maximum" type="number" {...register('maximum', { valueAsNumber: true })} />
               </div>
             </div>
@@ -241,10 +243,10 @@ export function FieldEditor({ groupId, entityType, field, open, onOpenChange, on
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('customFieldEditor.actions.cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : isEditing ? 'Update' : 'Create'}
+              {isSubmitting ? t('customFieldEditor.actions.saving') : isEditing ? t('customFieldEditor.actions.update') : t('customFieldEditor.actions.create')}
             </Button>
           </DialogFooter>
         </form>

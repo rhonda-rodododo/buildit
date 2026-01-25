@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGroupsStore } from '@/stores/groupsStore'
 
 import { GroupSettingsDialog } from '@/components/groups/GroupSettingsDialog'
@@ -6,13 +7,14 @@ import { Outlet } from 'react-router-dom'
 
 
 export const GroupView: FC = () => {
+  const { t } = useTranslation()
   const { activeGroup } = useGroupsStore()
 
 
   if (!activeGroup) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
-        Select a group to view details
+        {t('groupView.selectGroup')}
       </div>
     )
   }
@@ -31,13 +33,13 @@ export const GroupView: FC = () => {
 
         {/* Group Info */}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-          <span className="capitalize">{activeGroup.privacy} group</span>
+          <span className="capitalize">{t('groupView.privacyLabel', { privacy: activeGroup.privacy })}</span>
           <span>•</span>
-          <span>{activeGroup.adminPubkeys.length} members</span>
+          <span>{t('groupView.memberCount', { count: activeGroup.adminPubkeys.length })}</span>
           {activeGroup.enabledModules.length > 0 && (
             <>
               <span>•</span>
-              <span>{activeGroup.enabledModules.length} modules enabled</span>
+              <span>{t('groupView.modulesEnabled', { count: activeGroup.enabledModules.length })}</span>
             </>
           )}
         </div>

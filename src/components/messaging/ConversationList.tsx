@@ -1,4 +1,5 @@
 import { FC, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMessagingStore } from '@/stores/messagingStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { getConversations } from '@/core/messaging/dm'
@@ -11,6 +12,7 @@ interface ConversationListProps {
 }
 
 export const ConversationList: FC<ConversationListProps> = ({ onSelectConversation}) => {
+  const { t } = useTranslation()
   const { conversations, setConversations, activeConversationId, setActiveConversation } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
 
@@ -41,15 +43,15 @@ export const ConversationList: FC<ConversationListProps> = ({ onSelectConversati
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
 
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
+    if (diffMins < 1) return t('conversationList.justNow')
+    if (diffMins < 60) return t('conversationList.minutesAgo', { count: diffMins })
+    if (diffHours < 24) return t('conversationList.hoursAgo', { count: diffHours })
+    if (diffDays < 7) return t('conversationList.daysAgo', { count: diffDays })
     return date.toLocaleDateString()
   }
 
   const getOtherParticipant = (participants: string[]) => {
-    return participants.find(p => p !== currentIdentity?.publicKey) || 'Unknown'
+    return participants.find(p => p !== currentIdentity?.publicKey) || t('conversationList.unknown')
   }
 
   const truncatePubkey = (pubkey: string) => {
@@ -57,15 +59,15 @@ export const ConversationList: FC<ConversationListProps> = ({ onSelectConversati
   }
 
   if (!currentIdentity) {
-    return <div>Please log in to view conversations</div>
+    return <div>{t('conversationList.loginRequired')}</div>
   }
 
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold mb-4">Conversations</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('conversationList.title')}</h2>
       {conversations.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground">
-          No conversations yet. Start a new one!
+          {t('conversationList.noConversations')}
         </Card>
       ) : (
         conversations.map((conv) => {

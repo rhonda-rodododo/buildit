@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   groupId,
   onCreated,
 }) => {
+  const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [votingMethod, setVotingMethod] = useState<VotingMethod>('simple')
@@ -37,7 +39,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   const handleCreate = async () => {
     const privateKey = getCurrentPrivateKey()
     if (!privateKey) {
-      setError('No active identity or app is locked. Please log in.')
+      setError(t('createProposalDialog.errors.noIdentity'))
       return
     }
 
@@ -73,7 +75,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
       onOpenChange(false)
       onCreated?.()
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to create proposal'
+      const errorMsg = err instanceof Error ? err.message : t('createProposalDialog.errors.createFailed')
       setError(errorMsg)
     } finally {
       setIsSubmitting(false)
@@ -84,9 +86,9 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Proposal</DialogTitle>
+          <DialogTitle>{t('createProposalDialog.title')}</DialogTitle>
           <DialogDescription>
-            Create a new proposal for democratic decision-making
+            {t('createProposalDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -99,50 +101,50 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           )}
 
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t('createProposalDialog.fields.titleLabel')}</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Proposal title..."
+              placeholder={t('createProposalDialog.fields.titlePlaceholder')}
               disabled={isSubmitting}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('createProposalDialog.fields.descriptionLabel')}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Detailed description of the proposal..."
+              placeholder={t('createProposalDialog.fields.descriptionPlaceholder')}
               rows={4}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="voting-method">Voting Method</Label>
+            <Label htmlFor="voting-method">{t('createProposalDialog.fields.votingMethodLabel')}</Label>
             <Select value={votingMethod} onValueChange={(v) => setVotingMethod(v as VotingMethod)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simple">Simple Majority (Yes/No/Abstain)</SelectItem>
-                <SelectItem value="ranked-choice">Ranked Choice Voting</SelectItem>
-                <SelectItem value="quadratic">Quadratic Voting</SelectItem>
-                <SelectItem value="consensus">Consensus</SelectItem>
+                <SelectItem value="simple">{t('createProposalDialog.votingMethods.simple')}</SelectItem>
+                <SelectItem value="ranked-choice">{t('createProposalDialog.votingMethods.rankedChoice')}</SelectItem>
+                <SelectItem value="quadratic">{t('createProposalDialog.votingMethods.quadratic')}</SelectItem>
+                <SelectItem value="consensus">{t('createProposalDialog.votingMethods.consensus')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {(votingMethod === 'ranked-choice' || votingMethod === 'quadratic') && (
             <div className="grid gap-2">
-              <Label htmlFor="options">Options (one per line)</Label>
+              <Label htmlFor="options">{t('createProposalDialog.fields.optionsLabel')}</Label>
               <Textarea
                 id="options"
                 value={options}
                 onChange={(e) => setOptions(e.target.value)}
-                placeholder="Option 1&#10;Option 2&#10;Option 3"
+                placeholder={t('createProposalDialog.fields.optionsPlaceholder')}
                 rows={4}
               />
             </div>
@@ -150,7 +152,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="quorum">Quorum (%)</Label>
+              <Label htmlFor="quorum">{t('createProposalDialog.fields.quorumLabel')}</Label>
               <Input
                 id="quorum"
                 type="number"
@@ -162,7 +164,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="threshold">Threshold (%)</Label>
+              <Label htmlFor="threshold">{t('createProposalDialog.fields.thresholdLabel')}</Label>
               <Input
                 id="threshold"
                 type="number"
@@ -175,7 +177,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="duration">Voting Duration (days)</Label>
+            <Label htmlFor="duration">{t('createProposalDialog.fields.durationLabel')}</Label>
             <Input
               id="duration"
               type="number"
@@ -188,10 +190,10 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-            Cancel
+            {t('createProposalDialog.buttons.cancel')}
           </Button>
           <Button onClick={handleCreate} disabled={!title || !description || isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create Proposal'}
+            {isSubmitting ? t('createProposalDialog.buttons.creating') : t('createProposalDialog.buttons.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

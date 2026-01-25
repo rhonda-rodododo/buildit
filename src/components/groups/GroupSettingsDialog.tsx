@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ interface GroupSettingsDialogProps {
 }
 
 export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigger }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,26 +28,26 @@ export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigg
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" size="sm">
-            Settings
+            {t('groupSettingsDialog.settings')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>{group.name} Settings</DialogTitle>
-          <DialogDescription>Manage group settings, modules, and members</DialogDescription>
+          <DialogTitle>{t('groupSettingsDialog.title', { groupName: group.name })}</DialogTitle>
+          <DialogDescription>{t('groupSettingsDialog.description')}</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="modules" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="w-full">
             <TabsTrigger value="modules" className="flex-1">
-              Modules
+              {t('groupSettingsDialog.tabs.modules')}
             </TabsTrigger>
             <TabsTrigger value="general" className="flex-1">
-              General
+              {t('groupSettingsDialog.tabs.general')}
             </TabsTrigger>
             <TabsTrigger value="members" className="flex-1">
-              Members
+              {t('groupSettingsDialog.tabs.members')}
             </TabsTrigger>
           </TabsList>
 
@@ -57,13 +59,13 @@ export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigg
             <TabsContent value="general" className="mt-0">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-medium">General Settings</h3>
+                  <h3 className="text-lg font-medium">{t('groupSettingsDialog.general.title')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Configure general group settings
+                    {t('groupSettingsDialog.general.description')}
                   </p>
                 </div>
                 {/* General settings deferred to Phase 2 */}
-                <p className="text-muted-foreground">General settings coming soon...</p>
+                <p className="text-muted-foreground">{t('groupSettingsDialog.general.comingSoon')}</p>
               </div>
             </TabsContent>
 

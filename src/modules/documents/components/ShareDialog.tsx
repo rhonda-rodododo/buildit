@@ -359,7 +359,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium">Permission</label>
+                  <label className="text-xs font-medium">{t('shareDialog.link.permission')}</label>
                   <Select
                     value={linkPermission}
                     onValueChange={(v) => setLinkPermission(v as DocumentPermission)}
@@ -368,25 +368,25 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="view">View only</SelectItem>
-                      <SelectItem value="comment">Can comment</SelectItem>
-                      <SelectItem value="edit">Can edit</SelectItem>
+                      <SelectItem value="view">{t('shareDialog.link.viewOnly')}</SelectItem>
+                      <SelectItem value="comment">{t('shareDialog.link.canComment')}</SelectItem>
+                      <SelectItem value="edit">{t('shareDialog.link.canEdit')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium">Expires</label>
+                  <label className="text-xs font-medium">{t('shareDialog.link.expires')}</label>
                   <Select value={linkExpiry} onValueChange={setLinkExpiry}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="never">Never</SelectItem>
-                      <SelectItem value="1">1 day</SelectItem>
-                      <SelectItem value="7">7 days</SelectItem>
-                      <SelectItem value="30">30 days</SelectItem>
-                      <SelectItem value="90">90 days</SelectItem>
+                      <SelectItem value="never">{t('shareDialog.link.never')}</SelectItem>
+                      <SelectItem value="1">{t('shareDialog.link.day1')}</SelectItem>
+                      <SelectItem value="7">{t('shareDialog.link.days7')}</SelectItem>
+                      <SelectItem value="30">{t('shareDialog.link.days30')}</SelectItem>
+                      <SelectItem value="90">{t('shareDialog.link.days90')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -394,14 +394,14 @@ export const ShareDialog: FC<ShareDialogProps> = ({
 
               <Button onClick={handleCreateLink} className="w-full">
                 <Link2 className="h-4 w-4 mr-2" />
-                Create Link
+                {t('shareDialog.link.createLink')}
               </Button>
             </div>
 
             {/* Active links */}
             {activeLinks.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium">Active Links</h4>
+                <h4 className="text-sm font-medium">{t('shareDialog.link.activeLinks')}</h4>
                 {activeLinks.map((link) => (
                   <div
                     key={link.id}
@@ -413,21 +413,21 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                         {link.isPublic ? (
                           <Badge variant="outline" className="text-xs">
                             <Globe className="h-3 w-3 mr-1" />
-                            Public
+                            {t('shareDialog.link.public')}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-xs">
                             <Lock className="h-3 w-3 mr-1" />
-                            Private
+                            {t('shareDialog.link.private')}
                           </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                        <span>{link.accessCount} views</span>
+                        <span>{t('shareDialog.link.views', { count: link.accessCount })}</span>
                         {link.expiresAt && (
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            Expires {formatDistanceToNow(link.expiresAt, { addSuffix: true })}
+                            {t('shareDialog.link.expiresIn', { time: formatDistanceToNow(link.expiresAt, { addSuffix: true }) })}
                           </span>
                         )}
                       </div>
@@ -461,7 +461,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
-                  Expired Links
+                  {t('shareDialog.link.expiredLinks')}
                 </h4>
                 {expiredLinks.map((link) => (
                   <div
@@ -471,7 +471,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                     <div className="flex-1">
                       <PermissionBadge permission={link.permission} />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Expired {formatDistanceToNow(link.expiresAt!, { addSuffix: true })}
+                        {t('shareDialog.link.expired', { time: formatDistanceToNow(link.expiresAt!, { addSuffix: true }) })}
                       </p>
                     </div>
                     <Button
@@ -488,7 +488,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
 
             {activeLinks.length === 0 && expiredLinks.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No share links created yet
+                {t('shareDialog.link.noLinks')}
               </p>
             )}
           </TabsContent>

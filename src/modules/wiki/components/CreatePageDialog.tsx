@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +19,7 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   groupId: _groupId, // Will be used when wiki store is implemented
   onCreated,
 }) => {
+  const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('')
@@ -40,45 +42,45 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Wiki Page</DialogTitle>
+          <DialogTitle>{t('createPageDialog.title')}</DialogTitle>
           <DialogDescription>
-            Create collaborative documentation for your community
+            {t('createPageDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t('createPageDialog.titleLabel')}</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Page title..."
+              placeholder={t('createPageDialog.titlePlaceholder')}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="category">Category (optional)</Label>
+            <Label htmlFor="category">{t('createPageDialog.categoryLabel')}</Label>
             <Input
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="e.g., Getting Started, Organizing, Legal"
+              placeholder={t('createPageDialog.categoryPlaceholder')}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Label htmlFor="tags">{t('createPageDialog.tagsLabel')}</Label>
             <Input
               id="tags"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="organizing, safety, resources"
+              placeholder={t('createPageDialog.tagsPlaceholder')}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label>Content (Markdown)</Label>
+            <Label>{t('createPageDialog.contentLabel')}</Label>
             <div data-color-mode="light">
               <MDEditor
                 value={content}
@@ -92,10 +94,10 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('createPageDialog.cancel')}
           </Button>
           <Button onClick={handleCreate} disabled={!title || !content}>
-            Create Page
+            {t('createPageDialog.createPage')}
           </Button>
         </DialogFooter>
       </DialogContent>

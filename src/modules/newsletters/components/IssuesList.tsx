@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNewslettersStore } from '../newslettersStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -60,6 +61,7 @@ export const IssuesList: FC<IssuesListProps> = ({
   onDeleteIssue,
   className,
 }) => {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<IssueStatus | 'all'>('all');
   const { getNewsletterIssues } = useNewslettersStore();
 
@@ -77,33 +79,33 @@ export const IssuesList: FC<IssuesListProps> = ({
   const getStatusBadge = (status: IssueStatus) => {
     switch (status) {
       case 'draft':
-        return <Badge variant="secondary">Draft</Badge>;
+        return <Badge variant="secondary">{t('issuesList.statuses.draft')}</Badge>;
       case 'scheduled':
         return (
           <Badge className="bg-blue-500/20 text-blue-600">
             <Clock className="h-3 w-3 mr-1" />
-            Scheduled
+            {t('issuesList.statuses.scheduled')}
           </Badge>
         );
       case 'sending':
         return (
           <Badge className="bg-yellow-500/20 text-yellow-600">
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            Sending
+            {t('issuesList.statuses.sending')}
           </Badge>
         );
       case 'sent':
         return (
           <Badge className="bg-green-500/20 text-green-600">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Sent
+            {t('issuesList.statuses.sent')}
           </Badge>
         );
       case 'failed':
         return (
           <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />
-            Failed
+            {t('issuesList.statuses.failed')}
           </Badge>
         );
     }
@@ -114,13 +116,13 @@ export const IssuesList: FC<IssuesListProps> = ({
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No issues yet</h3>
+          <h3 className="text-lg font-medium mb-2">{t('issuesList.noIssuesYet')}</h3>
           <p className="text-muted-foreground text-center max-w-sm mb-4">
-            Create your first newsletter issue to start engaging with your subscribers.
+            {t('issuesList.noIssuesDescription')}
           </p>
           <Button onClick={onCreateIssue}>
             <Plus className="h-4 w-4 mr-2" />
-            Create Issue
+            {t('issuesList.createIssue')}
           </Button>
         </CardContent>
       </Card>
@@ -132,15 +134,19 @@ export const IssuesList: FC<IssuesListProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold">Issues</h3>
+          <h3 className="text-lg font-semibold">{t('issuesList.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            {draftCount} draft{draftCount !== 1 ? 's' : ''},{' '}
-            {scheduledCount} scheduled, {sentCount} sent
+            {t('issuesList.stats', {
+              drafts: draftCount,
+              draftsPlural: draftCount !== 1 ? 's' : '',
+              scheduled: scheduledCount,
+              sent: sentCount
+            })}
           </p>
         </div>
         <Button onClick={onCreateIssue}>
           <Plus className="h-4 w-4 mr-2" />
-          New Issue
+          {t('issuesList.newIssue')}
         </Button>
       </div>
 
@@ -151,10 +157,10 @@ export const IssuesList: FC<IssuesListProps> = ({
         className="mb-4"
       >
         <TabsList>
-          <TabsTrigger value="all">All ({allIssues.length})</TabsTrigger>
-          <TabsTrigger value="draft">Drafts ({draftCount})</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled ({scheduledCount})</TabsTrigger>
-          <TabsTrigger value="sent">Sent ({sentCount})</TabsTrigger>
+          <TabsTrigger value="all">{t('issuesList.tabs.all', { count: allIssues.length })}</TabsTrigger>
+          <TabsTrigger value="draft">{t('issuesList.tabs.drafts', { count: draftCount })}</TabsTrigger>
+          <TabsTrigger value="scheduled">{t('issuesList.tabs.scheduled', { count: scheduledCount })}</TabsTrigger>
+          <TabsTrigger value="sent">{t('issuesList.tabs.sent', { count: sentCount })}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -163,11 +169,11 @@ export const IssuesList: FC<IssuesListProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Subject</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Recipients</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('issuesList.tableHeaders.subject')}</TableHead>
+              <TableHead>{t('issuesList.tableHeaders.status')}</TableHead>
+              <TableHead>{t('issuesList.tableHeaders.recipients')}</TableHead>
+              <TableHead>{t('issuesList.tableHeaders.created')}</TableHead>
+              <TableHead className="text-right">{t('issuesList.tableHeaders.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -175,7 +181,7 @@ export const IssuesList: FC<IssuesListProps> = ({
               <TableRow key={issue.id}>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{issue.subject || 'Untitled'}</p>
+                    <p className="font-medium">{issue.subject || t('issuesList.untitled')}</p>
                     {issue.previewText && (
                       <p className="text-sm text-muted-foreground truncate max-w-xs">
                         {issue.previewText}
@@ -229,19 +235,19 @@ export const IssuesList: FC<IssuesListProps> = ({
                       {(issue.status === 'draft' || issue.status === 'scheduled') && (
                         <DropdownMenuItem onClick={() => onEditIssue(issue)}>
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                          {t('issuesList.actions.edit')}
                         </DropdownMenuItem>
                       )}
                       {issue.status === 'draft' && (
                         <DropdownMenuItem onClick={() => onSendIssue(issue)}>
                           <Send className="h-4 w-4 mr-2" />
-                          Send Now
+                          {t('issuesList.actions.sendNow')}
                         </DropdownMenuItem>
                       )}
                       {issue.status === 'sent' && (
                         <DropdownMenuItem onClick={() => onEditIssue(issue)}>
                           <FileText className="h-4 w-4 mr-2" />
-                          View
+                          {t('issuesList.actions.view')}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
@@ -250,7 +256,7 @@ export const IssuesList: FC<IssuesListProps> = ({
                         onClick={() => onDeleteIssue(issue.id)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        {t('issuesList.actions.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

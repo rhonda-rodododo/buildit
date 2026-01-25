@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNewslettersStore } from '../newslettersStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,7 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
   onClose,
   className,
 }) => {
+  const { t } = useTranslation();
   const { getActiveSubscribers } = useNewslettersStore();
 
   // Form state
@@ -76,7 +78,7 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
         openOnClick: false,
       }),
       Placeholder.configure({
-        placeholder: 'Start writing your newsletter...',
+        placeholder: t('newsletterEditor.compose.editorPlaceholder'),
       }),
     ],
     content: issue?.content || '',
@@ -88,10 +90,8 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
   // Sync form state when issue changes
   useEffect(() => {
     if (issue) {
-      /* eslint-disable react-hooks/set-state-in-effect -- Form sync from prop, both setState calls are intentional */
       setSubject(issue.subject);
       setPreviewText(issue.previewText || '');
-      /* eslint-enable react-hooks/set-state-in-effect */
       editor?.commands.setContent(issue.content);
     }
   }, [issue, editor]);
@@ -106,8 +106,8 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
     };
     onSave(updates);
     setHasChanges(false);
-    toast.success('Draft saved');
-  }, [subject, previewText, editor, onSave]);
+    toast.success(t('newsletterEditor.toasts.draftSaved'));
+  }, [subject, previewText, editor, onSave, t]);
 
   // Auto-save on content change (debounced)
   useEffect(() => {
@@ -123,35 +123,35 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
   // Handle schedule
   const handleSchedule = () => {
     if (!scheduleDate) {
-      toast.error('Please select a date');
+      toast.error(t('newsletterEditor.toasts.selectDate'));
       return;
     }
 
     const dateTime = new Date(`${scheduleDate}T${scheduleTime}`);
     if (dateTime <= new Date()) {
-      toast.error('Scheduled time must be in the future');
+      toast.error(t('newsletterEditor.toasts.futureDateRequired'));
       return;
     }
 
     onSchedule(dateTime.getTime());
     setShowScheduleDialog(false);
-    toast.success('Newsletter scheduled');
+    toast.success(t('newsletterEditor.toasts.scheduled'));
   };
 
   // Handle send
   const handleSend = () => {
     if (!subject.trim()) {
-      toast.error('Please enter a subject');
+      toast.error(t('newsletterEditor.toasts.enterSubject'));
       return;
     }
 
     if (!editor?.getText().trim()) {
-      toast.error('Please add some content');
+      toast.error(t('newsletterEditor.toasts.addContent'));
       return;
     }
 
     if (activeSubscribers.length === 0) {
-      toast.error('No active subscribers to send to');
+      toast.error(t('newsletterEditor.toasts.noSubscribers'));
       return;
     }
 
@@ -172,30 +172,30 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
           </Button>
           <div>
             <h2 className="text-lg font-semibold">
-              {issue ? 'Edit Issue' : 'New Issue'}
+              {issue ? t('newsletterEditor.editIssue') : t('newsletterEditor.newIssue')}
             </h2>
             <p className="text-sm text-muted-foreground">{newsletter.name}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {hasChanges && (
-            <span className="text-sm text-muted-foreground">Unsaved changes</span>
+            <span className="text-sm text-muted-foreground">{t('newsletterEditor.unsavedChanges')}</span>
           )}
           <Button variant="outline" onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
-            Save Draft
+            {t('newsletterEditor.saveDraft')}
           </Button>
           <Button variant="outline" onClick={onPreview}>
             <Eye className="h-4 w-4 mr-2" />
-            Preview
+            {t('newsletterEditor.preview')}
           </Button>
           <Button variant="outline" onClick={() => setShowScheduleDialog(true)}>
             <Clock className="h-4 w-4 mr-2" />
-            Schedule
+            {t('newsletterEditor.schedule')}
           </Button>
           <Button onClick={handleSend} disabled={activeSubscribers.length === 0}>
             <Send className="h-4 w-4 mr-2" />
-            Send ({activeSubscribers.length})
+            {t('newsletterEditor.send', { count: activeSubscribers.length })}
           </Button>
         </div>
       </div>
@@ -205,14 +205,14 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
         <div className="max-w-3xl mx-auto p-8">
           <Tabs defaultValue="compose" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="compose">Compose</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="compose">{t('newsletterEditor.tabs.compose')}</TabsTrigger>
+              <TabsTrigger value="settings">{t('newsletterEditor.tabs.settings')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="compose" className="space-y-6">
               {/* Subject */}
               <div>
-                <Label htmlFor="subject">Subject Line</Label>
+                <Label htmlFor="subject">{t('newsletterEditor.compose.subjectLine')}</Label>
                 <Input
                   id="subject"
                   value={subject}
@@ -220,14 +220,14 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
                     setSubject(e.target.value);
                     setHasChanges(true);
                   }}
-                  placeholder="Your newsletter subject..."
+                  placeholder={t('newsletterEditor.compose.subjectPlaceholder')}
                   className="text-lg"
                 />
               </div>
 
               {/* Preview Text */}
               <div>
-                <Label htmlFor="previewText">Preview Text (Optional)</Label>
+                <Label htmlFor="previewText">{t('newsletterEditor.compose.previewText')}</Label>
                 <Input
                   id="previewText"
                   value={previewText}
@@ -235,16 +235,16 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
                     setPreviewText(e.target.value);
                     setHasChanges(true);
                   }}
-                  placeholder="First line shown in previews..."
+                  placeholder={t('newsletterEditor.compose.previewPlaceholder')}
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  This appears in the notification preview
+                  {t('newsletterEditor.compose.previewHint')}
                 </p>
               </div>
 
               {/* Editor */}
               <div>
-                <Label>Content</Label>
+                <Label>{t('newsletterEditor.compose.content')}</Label>
                 <Card className="mt-2">
                   <CardContent className="p-4">
                     {/* Editor Toolbar */}
@@ -343,30 +343,30 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
             <TabsContent value="settings" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Newsletter Theme</CardTitle>
+                  <CardTitle>{t('newsletterEditor.settings.theme')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Header Image URL</Label>
+                    <Label>{t('newsletterEditor.settings.headerImage')}</Label>
                     <Input
                       value={newsletter.headerImage || ''}
-                      placeholder="https://example.com/header.png"
+                      placeholder={t('newsletterEditor.settings.headerPlaceholder')}
                       disabled
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Edit in newsletter settings
+                      {t('newsletterEditor.settings.editInSettings')}
                     </p>
                   </div>
                   <div>
-                    <Label>Footer Text</Label>
+                    <Label>{t('newsletterEditor.settings.footerText')}</Label>
                     <Textarea
                       value={newsletter.footerText || ''}
-                      placeholder="Footer text..."
+                      placeholder={t('newsletterEditor.settings.footerPlaceholder')}
                       rows={2}
                       disabled
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Edit in newsletter settings
+                      {t('newsletterEditor.settings.editInSettings')}
                     </p>
                   </div>
                 </CardContent>
@@ -380,15 +380,17 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
       <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Schedule Newsletter</DialogTitle>
+            <DialogTitle>{t('newsletterEditor.scheduleDialog.title')}</DialogTitle>
             <DialogDescription>
-              Choose when to send this newsletter to {activeSubscribers.length}{' '}
-              subscriber{activeSubscribers.length !== 1 ? 's' : ''}.
+              {t('newsletterEditor.scheduleDialog.description', {
+                count: activeSubscribers.length,
+                plural: activeSubscribers.length !== 1 ? 's' : ''
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="scheduleDate">Date</Label>
+              <Label htmlFor="scheduleDate">{t('newsletterEditor.scheduleDialog.date')}</Label>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <Input
@@ -401,7 +403,7 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
               </div>
             </div>
             <div>
-              <Label htmlFor="scheduleTime">Time</Label>
+              <Label htmlFor="scheduleTime">{t('newsletterEditor.scheduleDialog.time')}</Label>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <Input
@@ -415,11 +417,11 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
-              Cancel
+              {t('newsletterEditor.cancel')}
             </Button>
             <Button onClick={handleSchedule}>
               <Clock className="h-4 w-4 mr-2" />
-              Schedule
+              {t('newsletterEditor.schedule')}
             </Button>
           </DialogFooter>
         </DialogContent>

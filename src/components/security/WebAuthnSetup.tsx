@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ interface WebAuthnSetupProps {
 type SetupStep = 'intro' | 'device-name' | 'registering' | 'success' | 'error';
 
 export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthnSetupProps) {
+  const { t } = useTranslation();
   const { addCredential, currentDeviceId } = useDeviceStore();
   const [step, setStep] = useState<SetupStep>('intro');
   const [deviceName, setDeviceName] = useState('');
@@ -45,7 +47,7 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
 
   const handleRegister = async () => {
     if (!deviceName.trim()) {
-      setError('Please enter a device name');
+      setError(t('webauthn.setup.enterDeviceName'));
       return;
     }
 
@@ -92,10 +94,10 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Set Up WebAuthn Protection
+                {t('webauthn.setup.title')}
               </DialogTitle>
               <DialogDescription>
-                Protect your keys with biometric authentication or a hardware security key
+                {t('webauthn.setup.description')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -104,39 +106,37 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
                 <AlertDescription>
                   {hasPlatformAuthenticator ? (
                     <>
-                      <strong>Biometric authentication available!</strong>
+                      <strong>{t('webauthn.setup.biometricAvailable')}</strong>
                       <br />
-                      You can use Touch ID, Face ID, Windows Hello, or your device's built-in
-                      authentication.
+                      {t('webauthn.setup.biometricDetails')}
                     </>
                   ) : (
                     <>
-                      <strong>Security key required</strong>
+                      <strong>{t('webauthn.setup.securityKeyRequired')}</strong>
                       <br />
-                      This device doesn't support biometric authentication. You'll need a
-                      hardware security key (like a YubiKey) to continue.
+                      {t('webauthn.setup.securityKeyDetails')}
                     </>
                   )}
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2 text-sm">
-                <p className="font-medium">Benefits:</p>
+                <p className="font-medium">{t('webauthn.setup.benefits')}</p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Protect your keys with biometrics or hardware security</li>
-                  <li>Prevent unauthorized access even if password is compromised</li>
-                  <li>Works across all your devices</li>
-                  <li>Industry-standard FIDO2/WebAuthn security</li>
+                  <li>{t('webauthn.setup.benefitBiometric')}</li>
+                  <li>{t('webauthn.setup.benefitUnauthorized')}</li>
+                  <li>{t('webauthn.setup.benefitDevices')}</li>
+                  <li>{t('webauthn.setup.benefitStandard')}</li>
                 </ul>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button onClick={handleStart}>
                 <Shield className="mr-2 h-4 w-4" />
-                Get Started
+                {t('webauthn.setup.getStarted')}
               </Button>
             </DialogFooter>
           </>
@@ -145,17 +145,17 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
         {step === 'device-name' && (
           <>
             <DialogHeader>
-              <DialogTitle>Name This Device</DialogTitle>
+              <DialogTitle>{t('webauthn.setup.nameDevice')}</DialogTitle>
               <DialogDescription>
-                Give this device a name so you can identify it later
+                {t('webauthn.setup.nameDeviceDesc')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="device-name">Device Name</Label>
+                <Label htmlFor="device-name">{t('webauthn.setup.deviceName')}</Label>
                 <Input
                   id="device-name"
-                  placeholder="My iPhone, Work Laptop, etc."
+                  placeholder={t('webauthn.setup.deviceNamePlaceholder')}
                   value={deviceName}
                   onChange={(e) => setDeviceName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
@@ -171,10 +171,10 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setStep('intro')}>
-                Back
+                {t('common.back')}
               </Button>
               <Button onClick={handleRegister} disabled={!deviceName.trim()}>
-                Continue
+                {t('common.continue')}
               </Button>
             </DialogFooter>
           </>
@@ -183,17 +183,17 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
         {step === 'registering' && (
           <>
             <DialogHeader>
-              <DialogTitle>Registering Credential</DialogTitle>
+              <DialogTitle>{t('webauthn.setup.registering')}</DialogTitle>
               <DialogDescription>
-                Follow the prompts on your device to complete registration
+                {t('webauthn.setup.registeringDesc')}
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground text-center">
                 {hasPlatformAuthenticator
-                  ? 'Use your fingerprint, face, or PIN to continue...'
-                  : 'Insert and touch your security key...'}
+                  ? t('webauthn.setup.useBiometric')
+                  : t('webauthn.setup.insertKey')}
               </p>
             </div>
           </>
@@ -204,25 +204,23 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-600">
                 <Check className="h-5 w-5" />
-                WebAuthn Set Up Successfully
+                {t('webauthn.setup.success')}
               </DialogTitle>
               <DialogDescription>
-                Your keys are now protected with {hasPlatformAuthenticator ? 'biometric authentication' : 'your security key'}
+                {hasPlatformAuthenticator ? t('webauthn.setup.successDescBiometric') : t('webauthn.setup.successDescKey')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Important:</strong> You'll now need to authenticate with WebAuthn
-                  whenever you access your keys. Make sure you can always access this device
-                  or have a backup authentication method.
+                  <strong>{t('webauthn.setup.successImportant')}</strong> {t('webauthn.setup.successWarning')}
                 </AlertDescription>
               </Alert>
               {credential && (
                 <div className="text-sm space-y-1">
-                  <p className="font-medium">Credential Details:</p>
-                  <p className="text-muted-foreground">Device: {deviceName}</p>
+                  <p className="font-medium">{t('webauthn.setup.credentialDetails')}</p>
+                  <p className="text-muted-foreground">{t('webauthn.setup.device')} {deviceName}</p>
                   <p className="text-muted-foreground font-mono text-xs">
                     ID: {credential.id.substring(0, 16)}...
                   </p>
@@ -230,7 +228,7 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
               )}
             </div>
             <DialogFooter>
-              <Button onClick={handleClose}>Done</Button>
+              <Button onClick={handleClose}>{t('common.done')}</Button>
             </DialogFooter>
           </>
         )}
@@ -240,10 +238,10 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-destructive">
                 <AlertTriangle className="h-5 w-5" />
-                Registration Failed
+                {t('webauthn.setup.failed')}
               </DialogTitle>
               <DialogDescription>
-                We couldn't register your WebAuthn credential
+                {t('webauthn.setup.failedDesc')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -252,21 +250,21 @@ export function WebAuthnSetup({ open, onOpenChange, npub, onComplete }: WebAuthn
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
               <div className="text-sm space-y-2">
-                <p className="font-medium">Troubleshooting:</p>
+                <p className="font-medium">{t('webauthn.setup.troubleshooting')}</p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Make sure your browser supports WebAuthn</li>
-                  <li>Try using a different authenticator</li>
-                  <li>Check that you haven't already registered this device</li>
-                  <li>Ensure your security key is properly inserted</li>
+                  <li>{t('webauthn.setup.troubleshootBrowser')}</li>
+                  <li>{t('webauthn.setup.troubleshootAuthenticator')}</li>
+                  <li>{t('webauthn.setup.troubleshootAlreadyRegistered')}</li>
+                  <li>{t('webauthn.setup.troubleshootInserted')}</li>
                 </ul>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button onClick={() => setStep('device-name')}>
-                Try Again
+                {t('webauthn.setup.tryAgain')}
               </Button>
             </DialogFooter>
           </>

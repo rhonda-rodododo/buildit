@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   BarChart3,
   HardDrive,
@@ -60,6 +61,7 @@ const FILE_TYPE_COLORS: Record<FileType, string> = {
 }
 
 export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashboardProps) {
+  const { t } = useTranslation()
   const [analytics, setAnalytics] = useState<FileAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -103,28 +105,28 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
 
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 7) return `${days}d ago`
+    if (minutes < 1) return t('files.time.justNow')
+    if (minutes < 60) return t('files.time.minutesAgo', { count: minutes })
+    if (hours < 24) return t('files.time.hoursAgo', { count: hours })
+    if (days < 7) return t('files.time.daysAgo', { count: days })
     return date.toLocaleDateString()
   }
 
   const getActionLabel = (action: FileActivityLog['action']) => {
     const labels: Record<FileActivityLog['action'], string> = {
-      upload: 'Uploaded',
-      download: 'Downloaded',
-      share: 'Shared',
-      delete: 'Deleted',
-      move: 'Moved',
-      rename: 'Renamed',
-      view: 'Viewed',
+      upload: t('files.actions.uploaded'),
+      download: t('files.actions.downloaded'),
+      share: t('files.actions.shared'),
+      delete: t('files.actions.deleted'),
+      move: t('files.actions.moved'),
+      rename: t('files.actions.renamed'),
+      view: t('files.actions.viewed'),
     }
     return labels[action]
   }
 
   const handleDeleteDuplicate = async (fileId: string) => {
-    if (!confirm('Delete this duplicate file?')) return
+    if (!confirm(t('files.deleteDuplicate'))) return
     try {
       await fileManager.deleteFile(fileId)
       loadAnalytics()
@@ -153,7 +155,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Failed to export sharing report:', err)
-      alert('Failed to export sharing report')
+      alert(t('files.failedExport'))
     } finally {
       setExporting(false)
     }
@@ -166,7 +168,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading analytics...</p>
+              <p className="text-muted-foreground">{t('files.loadingAnalytics')}</p>
             </div>
           </div>
         </DialogContent>
@@ -181,28 +183,28 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
           <div>
             <DialogTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              File Analytics
+              {t('files.analyticsTitle')}
             </DialogTitle>
           </div>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('files.refresh')}
           </Button>
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="overview">{t('files.overview')}</TabsTrigger>
+            <TabsTrigger value="activity">{t('files.activity')}</TabsTrigger>
             <TabsTrigger value="duplicates">
-              Duplicates
+              {t('files.duplicates')}
               {analytics?.duplicates && analytics.duplicates.length > 0 && (
                 <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 justify-center">
                   {analytics.duplicates.length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="shared">Shared</TabsTrigger>
+            <TabsTrigger value="shared">{t('files.shared')}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -213,7 +215,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <HardDrive className="h-4 w-4" />
-                    Storage Usage
+                    {t('files.storageUsage')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -223,7 +225,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                   {quota && (
                     <>
                       <p className="text-xs text-muted-foreground">
-                        of {formatSize(quota.totalBytes)} used
+                        {t('files.storageUsed', { size: formatSize(quota.totalBytes) })}
                       </p>
                       <Progress
                         value={(quota.usedBytes / quota.totalBytes) * 100}
@@ -239,7 +241,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <File className="h-4 w-4" />
-                    Total Files
+                    {t('files.totalFiles')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -247,7 +249,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                     {analytics?.totalFiles || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    files in this group
+                    {t('files.filesInGroup')}
                   </p>
                 </CardContent>
               </Card>
@@ -257,7 +259,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <Share2 className="h-4 w-4" />
-                    Shared Files
+                    {t('files.sharedFiles')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -265,7 +267,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                     {analytics?.sharedFilesCount || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    files shared with others
+                    {t('files.filesSharedWithOthers')}
                   </p>
                 </CardContent>
               </Card>
@@ -274,7 +276,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
             {/* Storage Breakdown by Type */}
             <Card className="mt-4">
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Storage by File Type</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('files.storageByType')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -310,7 +312,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                   {(!analytics?.storageByType ||
                     Object.values(analytics.storageByType).every(d => d.count === 0)) && (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      No files uploaded yet
+                      {t('files.noFilesUploaded')}
                     </p>
                   )}
                 </div>
@@ -321,8 +323,8 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
             {analytics?.mostAccessedFiles && analytics.mostAccessedFiles.length > 0 && (
               <Card className="mt-4">
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium">Most Accessed Files</CardTitle>
-                  <CardDescription>Files with the most share access</CardDescription>
+                  <CardTitle className="text-sm font-medium">{t('files.mostAccessedFiles')}</CardTitle>
+                  <CardDescription>{t('files.filesWithMostAccess')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -341,7 +343,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                             <span className="truncate max-w-[200px]">{file.name}</span>
                           </div>
                           <Badge variant="secondary">
-                            {item.accessCount} accesses
+                            {t('files.accesses', { count: item.accessCount })}
                           </Badge>
                         </div>
                       )
@@ -380,7 +382,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full">
-                  <p className="text-sm text-muted-foreground">No activity recorded yet</p>
+                  <p className="text-sm text-muted-foreground">{t('files.noActivityYet')}</p>
                 </div>
               )}
             </ScrollArea>
@@ -394,8 +396,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
                     <AlertTriangle className="h-4 w-4 text-yellow-600" />
                     <p className="text-sm text-yellow-600">
-                      Found {analytics.duplicates.length} duplicate file groups.
-                      Consider deleting duplicates to free up storage.
+                      {t('files.duplicatesFound', { count: analytics.duplicates.length })}
                     </p>
                   </div>
 
@@ -404,10 +405,10 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium flex items-center gap-2">
                           <Copy className="h-4 w-4" />
-                          Duplicate Group #{groupIndex + 1}
+                          {t('files.duplicateGroup', { index: groupIndex + 1 })}
                         </CardTitle>
                         <CardDescription>
-                          {group.files.length} identical files ({formatSize(group.files[0]?.size || 0)} each)
+                          {t('files.identicalFiles', { count: group.files.length, size: formatSize(group.files[0]?.size || 0) })}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -437,7 +438,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                                 </Button>
                               )}
                               {fileIndex === 0 && (
-                                <Badge variant="outline" className="ml-2">Keep</Badge>
+                                <Badge variant="outline" className="ml-2">{t('files.keep')}</Badge>
                               )}
                             </div>
                           ))}
@@ -449,9 +450,9 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
               ) : (
                 <div className="flex flex-col items-center justify-center h-full">
                   <Copy className="h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-sm text-muted-foreground">No duplicate files found</p>
+                  <p className="text-sm text-muted-foreground">{t('files.noDuplicates')}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Your storage is optimized!
+                    {t('files.storageOptimized')}
                   </p>
                 </div>
               )}
@@ -466,9 +467,9 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                   <div className="text-center py-8">
                     <Share2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-2xl font-bold">{analytics.sharedFilesCount}</p>
-                    <p className="text-sm text-muted-foreground">files shared</p>
+                    <p className="text-sm text-muted-foreground">{t('files.filesShared')}</p>
                     <p className="text-xs text-muted-foreground mt-4">
-                      View individual file shares in the file list.
+                      {t('files.viewFileShares')}
                     </p>
                     {/* Epic 58: Export sharing report button */}
                     <Button
@@ -479,16 +480,16 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                       disabled={exporting}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      {exporting ? 'Exporting...' : 'Export Sharing Report'}
+                      {exporting ? t('files.exporting') : t('files.exportSharingReport')}
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full">
                   <Share2 className="h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-sm text-muted-foreground">No files shared yet</p>
+                  <p className="text-sm text-muted-foreground">{t('files.noFilesShared')}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Share files to see them here
+                    {t('files.shareToSee')}
                   </p>
                 </div>
               )}

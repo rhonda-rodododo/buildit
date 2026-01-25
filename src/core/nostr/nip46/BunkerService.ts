@@ -22,7 +22,7 @@ import { getDB, type DBBunkerConnection } from '@/core/storage/db';
 import { logger } from '@/lib/logger';
 import type { Nip46Permission, Nip46Request, BunkerConnectionConfig } from '@/core/backup/types';
 import * as secp256k1 from '@noble/secp256k1';
-import { sha256 } from '@noble/hashes/sha2.js';
+import { sha256 } from '@noble/hashes/sha2';
 
 // Default permissions for new connections
 const DEFAULT_PERMISSIONS: Nip46Permission[] = [

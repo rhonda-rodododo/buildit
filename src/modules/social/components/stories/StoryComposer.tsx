@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -56,17 +57,12 @@ const BACKGROUND_PRESETS: StoryTextStyle[] = [
   { backgroundColor: '#2d3436', textColor: '#dfe6e9', fontSize: 'large', fontWeight: 'normal', textAlign: 'center' },
 ];
 
-const FONT_SIZES = [
-  { value: 'small', label: 'Small', className: 'text-lg' },
-  { value: 'medium', label: 'Medium', className: 'text-2xl' },
-  { value: 'large', label: 'Large', className: 'text-4xl' },
-];
-
 export const StoryComposer: FC<StoryComposerProps> = ({
   onStoryCreated,
   className,
   triggerButton,
 }) => {
+  const { t } = useTranslation();
   const { createStory } = useSocialStore();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -91,7 +87,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
 
   const handleSubmit = async () => {
     if (contentType === 'text' && !text.trim()) {
-      toast.error('Please enter some text for your story');
+      toast.error(t('storyComposer.toast.emptyText'));
       return;
     }
 
@@ -109,7 +105,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
       };
 
       await createStory(input);
-      toast.success('Story created! It will expire in 24 hours.');
+      toast.success(t('storyComposer.toast.success'));
 
       // Reset form
       setText('');
@@ -121,7 +117,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
       onStoryCreated?.();
     } catch (error) {
       console.error('Failed to create story:', error);
-      toast.error('Failed to create story');
+      toast.error(t('storyComposer.toast.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -146,13 +142,13 @@ export const StoryComposer: FC<StoryComposerProps> = ({
         {triggerButton || (
           <Button variant="outline" className={className}>
             <Plus className="w-4 h-4 mr-2" />
-            Add Story
+            {t('storyComposer.addStory')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create Story</DialogTitle>
+          <DialogTitle>{t('storyComposer.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
@@ -165,7 +161,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
               className="flex-1"
             >
               <Type className="w-4 h-4 mr-2" />
-              Text
+              {t('storyComposer.contentTypes.text')}
             </Button>
             <Button
               type="button"
@@ -173,10 +169,10 @@ export const StoryComposer: FC<StoryComposerProps> = ({
               onClick={() => setContentType('image')}
               className="flex-1"
               disabled
-              title="Image stories coming soon"
+              title={t('storyComposer.contentTypes.imageComingSoon')}
             >
               <ImageIcon className="w-4 h-4 mr-2" />
-              Image
+              {t('storyComposer.contentTypes.image')}
             </Button>
             <Button
               type="button"
@@ -184,10 +180,10 @@ export const StoryComposer: FC<StoryComposerProps> = ({
               onClick={() => setContentType('video')}
               className="flex-1"
               disabled
-              title="Video stories coming soon"
+              title={t('storyComposer.contentTypes.videoComingSoon')}
             >
               <Video className="w-4 h-4 mr-2" />
-              Video
+              {t('storyComposer.contentTypes.video')}
             </Button>
           </div>
 
@@ -211,7 +207,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
                     textStyle.textAlign === 'right' && 'text-right'
                   )}
                 >
-                  {text || 'Your story text...'}
+                  {text || t('storyComposer.preview.placeholder')}
                 </p>
               </div>
 
@@ -219,19 +215,19 @@ export const StoryComposer: FC<StoryComposerProps> = ({
               <Textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="What's on your mind?"
+                placeholder={t('storyComposer.textInput.placeholder')}
                 className="resize-none"
                 maxLength={280}
               />
               <p className="text-xs text-muted-foreground text-right">
-                {text.length}/280
+                {t('storyComposer.textInput.charCount', { current: text.length, max: 280 })}
               </p>
 
               {/* Background Presets */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Palette className="w-4 h-4" />
-                  Background
+                  {t('storyComposer.style.background')}
                 </Label>
                 <div className="flex flex-wrap gap-2">
                   {BACKGROUND_PRESETS.map((preset, index) => (
@@ -258,7 +254,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
               {/* Font Size */}
               <div className="flex gap-4">
                 <div className="flex-1 space-y-2">
-                  <Label>Font Size</Label>
+                  <Label>{t('storyComposer.style.fontSize')}</Label>
                   <Select
                     value={textStyle.fontSize}
                     onValueChange={(v) => handleFontSizeChange(v as 'small' | 'medium' | 'large')}
@@ -267,18 +263,16 @@ export const StoryComposer: FC<StoryComposerProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FONT_SIZES.map((size) => (
-                        <SelectItem key={size.value} value={size.value}>
-                          {size.label}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="small">{t('storyComposer.style.fontSizes.small')}</SelectItem>
+                      <SelectItem value="medium">{t('storyComposer.style.fontSizes.medium')}</SelectItem>
+                      <SelectItem value="large">{t('storyComposer.style.fontSizes.large')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Text Align */}
                 <div className="flex-1 space-y-2">
-                  <Label>Alignment</Label>
+                  <Label>{t('storyComposer.style.alignment')}</Label>
                   <div className="flex gap-1">
                     {(['left', 'center', 'right'] as const).map((align) => (
                       <Button
@@ -301,7 +295,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
           {/* Privacy Settings */}
           <div className="space-y-4 pt-4 border-t">
             <div className="space-y-2">
-              <Label>Who can see this story?</Label>
+              <Label>{t('storyComposer.privacy.label')}</Label>
               <Select
                 value={visibility}
                 onValueChange={(v) => setVisibility(v as StoryPrivacy['visibility'])}
@@ -313,25 +307,25 @@ export const StoryComposer: FC<StoryComposerProps> = ({
                   <SelectItem value="public">
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4" />
-                      Everyone
+                      {t('storyComposer.privacy.public')}
                     </div>
                   </SelectItem>
                   <SelectItem value="friends">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      Friends
+                      {t('storyComposer.privacy.friends')}
                     </div>
                   </SelectItem>
                   <SelectItem value="close-friends">
                     <div className="flex items-center gap-2">
                       <Heart className="w-4 h-4" />
-                      Close Friends
+                      {t('storyComposer.privacy.closeFriends')}
                     </div>
                   </SelectItem>
                   <SelectItem value="custom">
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4" />
-                      Custom
+                      {t('storyComposer.privacy.custom')}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -341,7 +335,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
             <div className="flex items-center justify-between">
               <Label htmlFor="allow-replies" className="flex items-center gap-2">
                 <MessageCircle className="w-4 h-4" />
-                Allow Replies
+                {t('storyComposer.allowReplies')}
               </Label>
               <Switch
                 id="allow-replies"
@@ -357,7 +351,7 @@ export const StoryComposer: FC<StoryComposerProps> = ({
             disabled={isSubmitting || (contentType === 'text' && !text.trim())}
             className="w-full"
           >
-            {isSubmitting ? 'Creating...' : 'Share Story'}
+            {isSubmitting ? t('storyComposer.submit.creating') : t('storyComposer.submit.share')}
           </Button>
         </div>
       </DialogContent>

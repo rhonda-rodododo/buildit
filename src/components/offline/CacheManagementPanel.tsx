@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HardDrive,
   Trash2,
@@ -48,6 +49,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
+  const { t } = useTranslation()
   const usage = useCacheStore((state) => state.usage)
   const config = useCacheStore((state) => state.config)
   const pruneConfig = useCacheStore((state) => state.pruneConfig)
@@ -110,10 +112,10 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-5 w-5" />
-            Storage Usage
+            {t('cache.storageUsage')}
           </CardTitle>
           <CardDescription>
-            Cached data for offline access
+            {t('cache.storageDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -121,18 +123,18 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className={usageColor}>
-                {formatBytes(usage.totalBytes)} used
+                {formatBytes(usage.totalBytes)} {t('cache.used')}
               </span>
               <span className="text-muted-foreground">
-                {formatBytes(usage.maxBytes)} limit
+                {formatBytes(usage.maxBytes)} {t('cache.limit')}
               </span>
             </div>
             <Progress value={usagePercent} className="h-2" />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{usage.itemCount} cached items</span>
+              <span>{usage.itemCount} {t('cache.cachedItems')}</span>
               {usage.oldestItemAge > 0 && (
                 <span>
-                  Oldest: {formatDistanceToNow(Date.now() - usage.oldestItemAge)} ago
+                  {t('cache.oldest')}: {formatDistanceToNow(Date.now() - usage.oldestItemAge)} {t('cache.ago')}
                 </span>
               )}
             </div>
@@ -142,19 +144,19 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="flex items-center gap-2">
               <Image className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Images & Media</span>
+              <span className="text-sm">{t('cache.imagesMedia')}</span>
             </div>
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Documents</span>
+              <span className="text-sm">{t('cache.documents')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">App Data</span>
+              <span className="text-sm">{t('cache.appData')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Archive className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Offline Queue</span>
+              <span className="text-sm">{t('cache.offlineQueue')}</span>
             </div>
           </div>
 
@@ -167,7 +169,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
               disabled={isProcessing}
             >
               <RefreshCw className={cn('h-4 w-4 mr-2', isProcessing && 'animate-spin')} />
-              Refresh
+              {t('cache.refresh')}
             </Button>
             <Button
               variant="outline"
@@ -176,7 +178,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
               disabled={isProcessing}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Free Space
+              {t('cache.freeSpace')}
             </Button>
             <Button
               variant="outline"
@@ -184,7 +186,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
               onClick={handleExport}
             >
               <Download className="h-4 w-4 mr-2" />
-              Export Data
+              {t('cache.exportData')}
             </Button>
           </div>
         </CardContent>
@@ -193,18 +195,18 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
       {/* Cache Settings Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Cache Settings</CardTitle>
+          <CardTitle>{t('cache.cacheSettings')}</CardTitle>
           <CardDescription>
-            Configure how long data is kept offline
+            {t('cache.cacheSettingsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Max cache size */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Maximum Cache Size</Label>
+              <Label>{t('cache.maxCacheSize')}</Label>
               <p className="text-xs text-muted-foreground">
-                Limit for cached files and images
+                {t('cache.maxCacheSizeDesc')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -229,9 +231,9 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           {/* Max cache age */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Cache Expiration</Label>
+              <Label>{t('cache.cacheExpiration')}</Label>
               <p className="text-xs text-muted-foreground">
-                Auto-delete cached items older than
+                {t('cache.cacheExpirationDesc')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -245,7 +247,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
                 min={1}
                 max={365}
               />
-              <span className="text-sm text-muted-foreground">days</span>
+              <span className="text-sm text-muted-foreground">{t('cache.days')}</span>
             </div>
           </div>
         </CardContent>
@@ -254,18 +256,18 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
       {/* Data Pruning Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Data Retention</CardTitle>
+          <CardTitle>{t('cache.dataRetention')}</CardTitle>
           <CardDescription>
-            Configure how long messages and posts are kept locally
+            {t('cache.dataRetentionDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Messages retention */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Messages</Label>
+              <Label>{t('cache.messages')}</Label>
               <p className="text-xs text-muted-foreground">
-                Keep local messages for
+                {t('cache.keepMessages')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -279,7 +281,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
                 min={7}
                 max={365}
               />
-              <span className="text-sm text-muted-foreground">days</span>
+              <span className="text-sm text-muted-foreground">{t('cache.days')}</span>
             </div>
           </div>
 
@@ -288,9 +290,9 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           {/* Posts retention */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Posts</Label>
+              <Label>{t('cache.posts')}</Label>
               <p className="text-xs text-muted-foreground">
-                Keep local posts for
+                {t('cache.keepPosts')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -304,7 +306,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
                 min={7}
                 max={365}
               />
-              <span className="text-sm text-muted-foreground">days</span>
+              <span className="text-sm text-muted-foreground">{t('cache.days')}</span>
             </div>
           </div>
 
@@ -313,9 +315,9 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           {/* Files retention */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Files</Label>
+              <Label>{t('files.title')}</Label>
               <p className="text-xs text-muted-foreground">
-                Keep cached files for
+                {t('cache.keepFiles')}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -329,7 +331,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
                 min={7}
                 max={365}
               />
-              <span className="text-sm text-muted-foreground">days</span>
+              <span className="text-sm text-muted-foreground">{t('cache.days')}</span>
             </div>
           </div>
 
@@ -337,9 +339,9 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
           <div className="flex items-center justify-between pt-4">
             <div className="text-sm text-muted-foreground">
               {lastPruneAt ? (
-                <>Last cleanup: {formatDistanceToNow(lastPruneAt, { addSuffix: true })}</>
+                <>{t('cache.lastCleanup')}: {formatDistanceToNow(lastPruneAt, { addSuffix: true })}</>
               ) : (
-                <>No cleanup performed yet</>
+                <>{t('cache.noCleanupYet')}</>
               )}
             </div>
             <Button
@@ -349,7 +351,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
               disabled={isProcessing}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Clean Up Now
+              {t('cache.cleanUpNow')}
             </Button>
           </div>
         </CardContent>
@@ -360,15 +362,15 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
             <AlertCircle className="h-5 w-5" />
-            Danger Zone
+            {t('cache.dangerZone')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Clear All Cache</Label>
+              <Label>{t('cache.clearAllCache')}</Label>
               <p className="text-xs text-muted-foreground">
-                Remove all cached data. You'll need to re-download content.
+                {t('cache.clearCacheDesc')}
               </p>
             </div>
             <Button
@@ -376,7 +378,7 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
               size="sm"
               onClick={() => setShowClearDialog(true)}
             >
-              Clear Cache
+              {t('cache.clearCache')}
             </Button>
           </div>
         </CardContent>
@@ -386,17 +388,15 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear All Cache?</AlertDialogTitle>
+            <AlertDialogTitle>{t('cache.clearCacheTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove all cached files, images, and temporary data.
-              Your messages, posts, and account data will not be affected.
-              Content will need to be re-downloaded when you access it again.
+              {t('cache.clearCacheDialogDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleClearCache}>
-              Clear Cache
+              {t('cache.clearCache')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -406,17 +406,15 @@ export function CacheManagementPanel({ className }: CacheManagementPanelProps) {
       <AlertDialog open={showPruneDialog} onOpenChange={setShowPruneDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Clean Up Old Data?</AlertDialogTitle>
+            <AlertDialogTitle>{t('cache.cleanUpTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove old messages, posts, and cached files based on
-              your retention settings. This helps free up storage space while
-              keeping recent data.
+              {t('cache.cleanUpDialogDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handlePruneData}>
-              Clean Up
+              {t('cache.cleanUp')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -23,8 +23,6 @@ export const  RootLayout: FC = () => {
       await initializeCurrentDevice();
     
     })();
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
     useEffect(() => {

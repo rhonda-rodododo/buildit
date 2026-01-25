@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   flexRender,
   getCoreRowModel,
@@ -43,6 +44,7 @@ export function EditableTableView({
   onRecordDelete,
   onRecordCreate,
 }: EditableTableViewProps) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -74,14 +76,14 @@ export function EditableTableView({
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
+            aria-label={t('editableTableView.selectAll')}
           />
         ),
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
+            aria-label={t('editableTableView.selectRow')}
             onClick={(e) => e.stopPropagation()}
           />
         ),
@@ -178,7 +180,7 @@ export function EditableTableView({
           {table.fields.slice(0, 3).map((field) => (
             <Input
               key={field.name}
-              placeholder={`Filter ${field.label}...`}
+              placeholder={t('editableTableView.filterPlaceholder', { label: field.label })}
               value={(reactTable.getColumn(field.name)?.getFilterValue() as string) ?? ''}
               onChange={(event) =>
                 reactTable.getColumn(field.name)?.setFilterValue(event.target.value)
@@ -191,17 +193,17 @@ export function EditableTableView({
           {selectedRowIds.length > 0 && (
             <>
               <span className="text-sm text-muted-foreground">
-                {selectedRowIds.length} selected
+                {t('editableTableView.selected', { count: selectedRowIds.length })}
               </span>
               <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
                 <Trash2 className="h-4 w-4 mr-1" />
-                Delete
+                {t('editableTableView.delete')}
               </Button>
             </>
           )}
           <Button variant="default" size="sm" onClick={onRecordCreate}>
             <Plus className="h-4 w-4 mr-1" />
-            Add Record
+            {t('editableTableView.addRecord')}
           </Button>
         </div>
       </div>
@@ -273,15 +275,16 @@ export function EditableTableView({
         </Table>
         {rows.length === 0 && (
           <div className="flex items-center justify-center h-40 text-muted-foreground">
-            No records found.
+            {t('editableTableView.noRecords')}
           </div>
         )}
       </div>
 
       {/* Stats */}
       <div className="text-sm text-muted-foreground">
-        Showing {rows.length} of {records.length} records
-        {selectedRowIds.length > 0 && ` • ${selectedRowIds.length} selected`}
+        {selectedRowIds.length > 0
+          ? t('editableTableView.showingSelected', { showing: rows.length, total: records.length, selected: selectedRowIds.length })
+          : t('editableTableView.showing', { showing: rows.length, total: records.length })}
       </div>
     </div>
   );

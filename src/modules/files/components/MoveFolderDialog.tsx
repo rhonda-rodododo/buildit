@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Folder, ChevronRight, Home } from 'lucide-react'
 import {
   Dialog,
@@ -34,6 +35,7 @@ export function MoveFolderDialog({
   onMove,
   onClose,
 }: MoveFolderDialogProps) {
+  const { t } = useTranslation()
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null)
   const allFolders = useFilesStore((state) =>
     Array.from(state.folders.values()).filter((f) => f.groupId === groupId)
@@ -96,7 +98,7 @@ export function MoveFolderDialog({
           <Folder className="h-4 w-4 shrink-0 text-blue-500" />
           <span className="truncate">{folder.name}</span>
           {isCurrent && (
-            <span className="ml-auto text-xs text-muted-foreground">(current)</span>
+            <span className="ml-auto text-xs text-muted-foreground">{t('moveFolderDialog.current')}</span>
           )}
         </button>
         {expanded && hasChildren && (
@@ -114,9 +116,9 @@ export function MoveFolderDialog({
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Move {selectedCount} file{selectedCount !== 1 ? 's' : ''}</DialogTitle>
+          <DialogTitle>{t('moveFolderDialog.title', { count: selectedCount })}</DialogTitle>
           <DialogDescription>
-            Select a destination folder for the selected files.
+            {t('moveFolderDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -138,9 +140,9 @@ export function MoveFolderDialog({
           >
             <span className="w-4" />
             <Home className="h-4 w-4 shrink-0" />
-            <span>Root (No folder)</span>
+            <span>{t('moveFolderDialog.root')}</span>
             {currentFolderId === null && (
-              <span className="ml-auto text-xs text-muted-foreground">(current)</span>
+              <span className="ml-auto text-xs text-muted-foreground">{t('moveFolderDialog.current')}</span>
             )}
           </button>
 
@@ -151,14 +153,14 @@ export function MoveFolderDialog({
 
           {allFolders.length === 0 && (
             <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-              No folders available
+              {t('moveFolderDialog.noFolders')}
             </div>
           )}
         </ScrollArea>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('moveFolderDialog.cancel')}
           </Button>
           <Button
             onClick={() => onMove(selectedFolder)}
@@ -167,7 +169,7 @@ export function MoveFolderDialog({
               (selectedFolder === null && currentFolderId === null)
             }
           >
-            Move Here
+            {t('moveFolderDialog.moveHere')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -5,6 +5,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -44,6 +45,7 @@ export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
   showAnonymousCounts = true,
   className
 }) => {
+  const { t } = useTranslation();
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
   const [isAnonymousMode, setIsAnonymousMode] = useState(defaultAnonymous);
 
@@ -58,10 +60,10 @@ export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
 
   const getReactionLabel = (type: Reaction['type']) => {
     switch (type) {
-      case 'like': return 'Support';
-      case 'love': return 'Solidarity';
-      case 'idea': return 'Great Idea';
-      case 'concern': return 'Concern';
+      case 'like': return t('anonymousReactions.reactions.support');
+      case 'love': return t('anonymousReactions.reactions.solidarity');
+      case 'idea': return t('anonymousReactions.reactions.greatIdea');
+      case 'concern': return t('anonymousReactions.reactions.concern');
     }
   };
 
@@ -103,8 +105,8 @@ export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary" />
             <div>
-              <div className="text-sm font-medium">Anonymous Mode</div>
-              <div className="text-xs text-muted-foreground">Your reactions won't be visible to others</div>
+              <div className="text-sm font-medium">{t('anonymousReactions.anonymousMode')}</div>
+              <div className="text-xs text-muted-foreground">{t('anonymousReactions.anonymousModeDesc')}</div>
             </div>
           </div>
 
@@ -115,7 +117,7 @@ export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
             className="gap-2"
           >
             {isAnonymousMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {isAnonymousMode ? 'Anonymous' : 'Public'}
+            {isAnonymousMode ? t('anonymousReactions.anonymous') : t('anonymousReactions.public')}
           </Button>
         </div>
       )}
@@ -148,14 +150,14 @@ export const AnonymousReactions: FC<AnonymousReactionsProps> = ({
       {showAnonymousCounts && anonymousCount > 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <EyeOff className="w-3 h-3" />
-          <span>{anonymousCount} anonymous {anonymousCount === 1 ? 'reaction' : 'reactions'}</span>
+          <span>{t('anonymousReactions.anonymousCount', { count: anonymousCount })}</span>
         </div>
       )}
 
       {userReaction && userReaction.anonymous && (
         <Badge variant="outline" className="gap-1 text-xs">
           <Shield className="w-3 h-3" />
-          Your reaction is anonymous
+          {t('anonymousReactions.yourReactionAnonymous')}
         </Badge>
       )}
     </div>

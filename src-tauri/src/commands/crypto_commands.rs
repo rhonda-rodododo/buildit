@@ -4,7 +4,7 @@ use crate::crypto::keyring::{KeyringError, KeyringManager, SecretType};
 use crate::AppState;
 use buildit_crypto::{
     derive_conversation_key as crypto_derive_conversation_key, generate_keypair as crypto_generate_keypair,
-    get_public_key, nip44_decrypt, nip44_encrypt, KeyPair,
+    get_public_key, nip44_decrypt_with_key, nip44_encrypt_with_key, KeyPair,
 };
 use serde::{Deserialize, Serialize};
 use tauri::State;
@@ -156,7 +156,7 @@ pub async fn encrypt_nip44(
         _ => return Ok(CommandResult::err("Invalid conversation key".to_string())),
     };
 
-    match nip44_encrypt(conversation_key, plaintext) {
+    match nip44_encrypt_with_key(conversation_key, plaintext) {
         Ok(ciphertext) => Ok(CommandResult::ok(ciphertext)),
         Err(e) => Ok(CommandResult::err(e.to_string())),
     }
@@ -173,7 +173,7 @@ pub async fn decrypt_nip44(
         _ => return Ok(CommandResult::err("Invalid conversation key".to_string())),
     };
 
-    match nip44_decrypt(conversation_key, ciphertext) {
+    match nip44_decrypt_with_key(conversation_key, ciphertext) {
         Ok(plaintext) => Ok(CommandResult::ok(plaintext)),
         Err(e) => Ok(CommandResult::err(e.to_string())),
     }

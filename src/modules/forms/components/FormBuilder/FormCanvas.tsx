@@ -3,6 +3,7 @@
  * Drop zone for form fields with drag-to-reorder
  */
 
+import { useTranslation } from 'react-i18next';
 import { useDroppable, useDraggable } from '@dnd-kit/core';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ function DraggableField({
   onSelect: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: field.id,
     data: { index },
@@ -55,7 +57,7 @@ function DraggableField({
           <div className="flex items-center justify-between gap-2">
             <div className="font-medium">{field.label}</div>
             {field.required && (
-              <span className="text-xs text-red-500">Required</span>
+              <span className="text-xs text-red-500">{t('formCanvas.required')}</span>
             )}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
@@ -63,12 +65,12 @@ function DraggableField({
           </div>
           {field.placeholder && (
             <div className="text-xs text-muted-foreground mt-1 italic">
-              Placeholder: {field.placeholder}
+              {t('formCanvas.placeholder', { value: field.placeholder })}
             </div>
           )}
           {field.options && field.options.length > 0 && (
             <div className="text-xs text-muted-foreground mt-2">
-              Options: {field.options.join(', ')}
+              {t('formCanvas.options', { value: field.options.join(', ') })}
             </div>
           )}
         </div>
@@ -90,6 +92,7 @@ function DraggableField({
 }
 
 export function FormCanvas({ fields, selectedFieldId, onFieldSelect, onFieldDelete }: FormCanvasProps) {
+  const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({
     id: 'form-canvas',
   });
@@ -104,8 +107,8 @@ export function FormCanvas({ fields, selectedFieldId, onFieldSelect, onFieldDele
       {fields.length === 0 ? (
         <div className="h-full flex items-center justify-center text-muted-foreground">
           <div className="text-center">
-            <p className="text-lg font-medium">Drag fields here to build your form</p>
-            <p className="text-sm mt-1">Select field types from the palette on the left</p>
+            <p className="text-lg font-medium">{t('formCanvas.emptyTitle')}</p>
+            <p className="text-sm mt-1">{t('formCanvas.emptyDescription')}</p>
           </div>
         </div>
       ) : (

@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import { Home, MessageSquare, Users, Settings, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,12 +9,13 @@ import { SheetClose } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 
 export const MobileNav: FC = () => {
+  const { t } = useTranslation();
   const { registry } = useModuleStore();
 
   const coreLinks = [
-    { to: '/app', label: 'Home', icon: Home, end: true },
-    { to: '/app/messages', label: 'Messages', icon: MessageSquare },
-    { to: '/app/groups', label: 'Groups', icon: Users },
+    { to: '/app', label: t('mobileNav.home'), icon: Home, end: true },
+    { to: '/app/messages', label: t('mobileNav.messages'), icon: MessageSquare },
+    { to: '/app/groups', label: t('mobileNav.groups'), icon: Users },
   ];
 
   // Get all installed modules
@@ -23,7 +25,7 @@ export const MobileNav: FC = () => {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">Menu</h2>
+        <h2 className="text-lg font-semibold">{t('mobileNav.menu')}</h2>
         <SheetClose asChild>
           <Button variant="ghost" size="icon">
             <X className="h-5 w-5" />
@@ -62,7 +64,7 @@ export const MobileNav: FC = () => {
             <Separator />
             <div className="space-y-2">
               <h3 className="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
-                Modules
+                {t('mobileNav.modules')}
               </h3>
               <nav className="space-y-1">
                 {modules
@@ -117,7 +119,7 @@ export const MobileNav: FC = () => {
               }
             >
               <Settings className="h-4 w-4" />
-              Settings
+              {t('mobileNav.settings')}
             </NavLink>
           </SheetClose>
         </div>

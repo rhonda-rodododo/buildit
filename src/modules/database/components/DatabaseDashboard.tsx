@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDatabaseStore } from '../databaseStore';
 import { databaseManager } from '../databaseManager';
 import { TableView } from './TableView';
@@ -21,6 +22,7 @@ interface DatabaseDashboardProps {
 }
 
 export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProps) {
+  const { t } = useTranslation();
   const {
     tables,
     currentTableId,
@@ -52,7 +54,7 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
   }, [currentTable?.id]);
 
   const handleCreateTable = async () => {
-    const name = prompt('Table name:');
+    const name = prompt(t('databaseDashboard.tableNamePrompt'));
     if (!name) return;
     const table = await databaseManager.createTable(groupId, userPubkey, name);
     setCurrentTable(table.id);
@@ -72,21 +74,21 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-4">
         <div className="text-center">
-          <h3 className="text-lg font-semibold">No tables yet</h3>
+          <h3 className="text-lg font-semibold">{t('databaseDashboard.noTablesTitle')}</h3>
           <p className="text-sm text-muted-foreground mt-2">
-            Create your first table to get started
+            {t('databaseDashboard.noTablesDescription')}
           </p>
         </div>
         <Button onClick={handleCreateTable}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Table
+          {t('databaseDashboard.createTable')}
         </Button>
       </div>
     );
   }
 
   if (!currentTable || !currentView) {
-    return <div className="p-4 text-muted-foreground">Loading...</div>;
+    return <div className="p-4 text-muted-foreground">{t('databaseDashboard.loading')}</div>;
   }
 
   return (
@@ -109,11 +111,11 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleCreateTable}>
             <Plus className="h-4 w-4 mr-2" />
-            New Table
+            {t('databaseDashboard.newTable')}
           </Button>
           <Button onClick={handleCreateRecord}>
             <Plus className="h-4 w-4 mr-2" />
-            New Record
+            {t('databaseDashboard.newRecord')}
           </Button>
         </div>
       </div>

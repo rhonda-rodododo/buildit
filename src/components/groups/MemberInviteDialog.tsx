@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
   onInviteSent,
   trigger,
 }) => {
+  const { t } = useTranslation()
   const { currentIdentity } = useAuthStore()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -69,7 +71,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
       setOpen(false)
     } catch (error) {
       console.error('Failed to send invitation:', error)
-      alert('Failed to send invitation')
+      alert(t('memberInviteDialog.failedToSend'))
     } finally {
       setLoading(false)
     }
@@ -104,7 +106,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
       onInviteSent?.()
     } catch (error) {
       console.error('Failed to generate invite link:', error)
-      alert('Failed to generate invite link')
+      alert(t('memberInviteDialog.failedToGenerate'))
     } finally {
       setLoading(false)
     }
@@ -140,15 +142,15 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
         {trigger || (
           <Button size="sm">
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite Members
+            {t('memberInviteDialog.inviteMembers')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite to {groupName}</DialogTitle>
+          <DialogTitle>{t('memberInviteDialog.inviteTo', { name: groupName })}</DialogTitle>
           <DialogDescription>
-            Invite new members to join this group
+            {t('memberInviteDialog.inviteDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -156,47 +158,47 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="direct" className="flex items-center gap-2">
               <UserPlus className="h-4 w-4" />
-              Direct
+              {t('memberInviteDialog.directTab')}
             </TabsTrigger>
             <TabsTrigger value="link" className="flex items-center gap-2">
               <Link2 className="h-4 w-4" />
-              Link
+              {t('memberInviteDialog.linkTab')}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="direct" className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="invitee-pubkey">Public Key or npub</Label>
+              <Label htmlFor="invitee-pubkey">{t('memberInviteDialog.publicKeyLabel')}</Label>
               <Input
                 id="invitee-pubkey"
                 value={inviteePubkey}
                 onChange={(e) => setInviteePubkey(e.target.value)}
-                placeholder="npub1... or hex public key"
+                placeholder={t('memberInviteDialog.publicKeyPlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="invite-role">Role</Label>
+              <Label htmlFor="invite-role">{t('memberInviteDialog.roleLabel')}</Label>
               <Select value={role} onValueChange={(v) => setRole(v as MemberRole)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="moderator">Moderator</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="read-only">Read Only</SelectItem>
+                  <SelectItem value="member">{t('memberInviteDialog.roles.member')}</SelectItem>
+                  <SelectItem value="moderator">{t('memberInviteDialog.roles.moderator')}</SelectItem>
+                  <SelectItem value="admin">{t('memberInviteDialog.roles.admin')}</SelectItem>
+                  <SelectItem value="read-only">{t('memberInviteDialog.roles.readOnly')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="invite-message">Message (optional)</Label>
+              <Label htmlFor="invite-message">{t('memberInviteDialog.messageLabel')}</Label>
               <Textarea
                 id="invite-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Add a personal message..."
+                placeholder={t('memberInviteDialog.messagePlaceholder')}
                 rows={3}
               />
             </div>
@@ -206,7 +208,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
               disabled={loading || !inviteePubkey.trim()}
               className="w-full"
             >
-              {loading ? 'Sending...' : 'Send Invitation'}
+              {loading ? t('memberInviteDialog.sending') : t('memberInviteDialog.sendInvitation')}
             </Button>
           </TabsContent>
 
@@ -214,32 +216,32 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
             {!generatedLink ? (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="link-role">Default Role</Label>
+                  <Label htmlFor="link-role">{t('memberInviteDialog.defaultRole')}</Label>
                   <Select value={linkRole} onValueChange={(v) => setLinkRole(v as MemberRole)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="read-only">Read Only</SelectItem>
+                      <SelectItem value="member">{t('memberInviteDialog.roles.member')}</SelectItem>
+                      <SelectItem value="read-only">{t('memberInviteDialog.roles.readOnly')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Role assigned to anyone who joins via this link
+                    {t('memberInviteDialog.roleDescription')}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="link-expiry">Expires In</Label>
+                  <Label htmlFor="link-expiry">{t('memberInviteDialog.expiresIn')}</Label>
                   <Select value={linkExpiry} onValueChange={setLinkExpiry}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 day</SelectItem>
-                      <SelectItem value="7">7 days</SelectItem>
-                      <SelectItem value="30">30 days</SelectItem>
-                      <SelectItem value="90">90 days</SelectItem>
+                      <SelectItem value="1">{t('memberInviteDialog.expiryOptions.1day')}</SelectItem>
+                      <SelectItem value="7">{t('memberInviteDialog.expiryOptions.7days')}</SelectItem>
+                      <SelectItem value="30">{t('memberInviteDialog.expiryOptions.30days')}</SelectItem>
+                      <SelectItem value="90">{t('memberInviteDialog.expiryOptions.90days')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -249,13 +251,13 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
                   disabled={loading}
                   className="w-full"
                 >
-                  {loading ? 'Generating...' : 'Generate Invite Link'}
+                  {loading ? t('memberInviteDialog.generating') : t('memberInviteDialog.generateInviteLink')}
                 </Button>
               </>
             ) : (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Invite Link</Label>
+                  <Label>{t('memberInviteDialog.inviteLink')}</Label>
                   <div className="flex gap-2">
                     <Input
                       value={generatedLink}
@@ -276,7 +278,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Share this link with people you want to invite
+                    {t('memberInviteDialog.shareLink')}
                   </p>
                 </div>
 
@@ -285,7 +287,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
                   onClick={() => setGeneratedLink('')}
                   className="w-full"
                 >
-                  Generate New Link
+                  {t('memberInviteDialog.generateNewLink')}
                 </Button>
               </div>
             )}

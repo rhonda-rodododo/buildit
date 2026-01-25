@@ -7,8 +7,8 @@
  */
 
 import { schnorr } from '@noble/curves/secp256k1';
-import { sha256 } from '@noble/hashes/sha2.js';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { sha256 } from '@noble/hashes/sha2';
+import { bytesToHex } from '@noble/hashes/utils';
 import type { NostrEvent, NostrFilter, QueryResult, ProcessEventResult, Env, EventRow } from './types';
 import {
   relayInfo,

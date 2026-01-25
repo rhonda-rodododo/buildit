@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Card } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
@@ -16,6 +17,8 @@ interface PublicPageRendererProps {
 }
 
 export function PublicPageRenderer({ page, showMetadata = false }: PublicPageRendererProps) {
+  const { t } = useTranslation();
+
   // Track page view analytics - deferred due to privacy implications
   useEffect(() => {
     // addAnalyticsEvent({
@@ -89,8 +92,8 @@ export function PublicPageRenderer({ page, showMetadata = false }: PublicPageRen
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Globe className="h-4 w-4" />
               <span>
-                Status: <strong>{page.status}</strong> • Type: <strong>{page.type}</strong> •
-                URL: <code className="bg-background px-2 py-0.5 rounded">/{page.slug}</code>
+                {t('publicPageRenderer.status')}: <strong>{page.status}</strong> • {t('publicPageRenderer.type')}: <strong>{page.type}</strong> •
+                {t('publicPageRenderer.url')}: <code className="bg-background px-2 py-0.5 rounded">/{page.slug}</code>
               </span>
             </div>
           </Card>
@@ -113,12 +116,12 @@ export function PublicPageRenderer({ page, showMetadata = false }: PublicPageRen
         {/* Metadata Footer */}
         {showMetadata && (
           <div className="text-xs text-muted-foreground border-t pt-4">
-            Created {new Date(page.created).toLocaleString()}
+            {t('publicPageRenderer.created')} {new Date(page.created).toLocaleString()}
             {page.publishedAt && (
-              <> • Published {new Date(page.publishedAt).toLocaleString()}</>
+              <> • {t('publicPageRenderer.published')} {new Date(page.publishedAt).toLocaleString()}</>
             )}
             {page.updated && (
-              <> • Updated {new Date(page.updated).toLocaleString()}</>
+              <> • {t('publicPageRenderer.updated')} {new Date(page.updated).toLocaleString()}</>
             )}
           </div>
         )}

@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useMemo, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDocumentsStore } from '../documentsStore'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -157,6 +158,7 @@ const CommentItem: FC<CommentItemProps> = ({
   mentionableUsers = [],
   onMentionClick,
 }) => {
+  const { t } = useTranslation()
   const [isReplying, setIsReplying] = useState(false)
   const [replyContent, setReplyContent] = useState('')
   const [showReplies, setShowReplies] = useState(true)
@@ -299,7 +301,7 @@ const CommentItem: FC<CommentItemProps> = ({
           </div>
           {comment.resolved && (
             <Badge variant="secondary" className="text-xs">
-              Resolved
+              {t('commentSidebar.resolved')}
             </Badge>
           )}
         </div>
@@ -314,17 +316,17 @@ const CommentItem: FC<CommentItemProps> = ({
             {!comment.resolved && (
               <DropdownMenuItem onClick={onResolve}>
                 <Check className="h-4 w-4 mr-2" />
-                Resolve
+                {t('commentSidebar.actions.resolve')}
               </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => setIsReplying(true)}>
               <Reply className="h-4 w-4 mr-2" />
-              Reply
+              {t('commentSidebar.actions.reply')}
             </DropdownMenuItem>
             {isOwner && (
               <DropdownMenuItem onClick={onDelete} className="text-destructive">
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                {t('commentSidebar.actions.delete')}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -348,7 +350,7 @@ const CommentItem: FC<CommentItemProps> = ({
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <AtSign className="h-3 w-3" />
           <span>
-            {comment.mentions.length} mentioned
+            {t('commentSidebar.mentioned', { count: comment.mentions.length })}
           </span>
         </div>
       )}
@@ -359,7 +361,7 @@ const CommentItem: FC<CommentItemProps> = ({
           <div className="relative">
             <Textarea
               ref={textareaRef}
-              placeholder="Write a reply... Use @ to mention users"
+              placeholder={t('commentSidebar.reply.placeholder')}
               value={replyContent}
               onChange={handleReplyChange}
               onKeyDown={handleKeyDown}
@@ -370,7 +372,7 @@ const CommentItem: FC<CommentItemProps> = ({
             {showMentionPopover && filteredUsers.length > 0 && (
               <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
                 <PopoverTrigger asChild>
-                  <span className="sr-only">Mention suggestions</span>
+                  <span className="sr-only">{t('commentSidebar.mentionSuggestions')}</span>
                 </PopoverTrigger>
                 <PopoverContent
                   className="w-64 p-0"
@@ -407,7 +409,7 @@ const CommentItem: FC<CommentItemProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
               <AtSign className="h-3 w-3 inline mr-1" />
-              Type @ to mention
+              {t('commentSidebar.reply.mentionHint')}
             </span>
             <div className="flex gap-2">
               <Button
@@ -419,10 +421,10 @@ const CommentItem: FC<CommentItemProps> = ({
                   setShowMentionPopover(false)
                 }}
               >
-                Cancel
+                {t('commentSidebar.reply.cancel')}
               </Button>
               <Button size="sm" onClick={handleSubmitReply} disabled={!replyContent.trim()}>
-                Reply
+                {t('commentSidebar.reply.submit')}
               </Button>
             </div>
           </div>
@@ -444,7 +446,7 @@ const CommentItem: FC<CommentItemProps> = ({
             ) : (
               <ChevronRight className="h-3 w-3" />
             )}
-            {replies.length} {replies.length === 1 ? 'reply' : 'replies'}
+            {replies.length === 1 ? t('commentSidebar.replies.one', { count: replies.length }) : t('commentSidebar.replies.other', { count: replies.length })}
           </button>
 
           {showReplies && (
@@ -481,6 +483,7 @@ export const CommentSidebar: FC<CommentSidebarProps> = ({
   mentionableUsers = [],
   onMention,
 }) => {
+  const { t } = useTranslation()
   const {
     getDocumentComments,
     getUnresolvedComments,
@@ -543,9 +546,9 @@ export const CommentSidebar: FC<CommentSidebarProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span className="font-medium text-sm">Comments</span>
+            <span className="font-medium text-sm">{t('commentSidebar.title')}</span>
           </div>
-          <Badge variant="secondary">{openCount} open</Badge>
+          <Badge variant="secondary">{t('commentSidebar.openCount', { count: openCount })}</Badge>
         </div>
 
         {/* Toggle resolved */}
@@ -559,12 +562,12 @@ export const CommentSidebar: FC<CommentSidebarProps> = ({
             {showResolved ? (
               <>
                 <ChevronDown className="h-3 w-3 mr-1" />
-                Hide {resolvedCount} resolved
+                {t('commentSidebar.hideResolved', { count: resolvedCount })}
               </>
             ) : (
               <>
                 <ChevronRight className="h-3 w-3 mr-1" />
-                Show {resolvedCount} resolved
+                {t('commentSidebar.showResolved', { count: resolvedCount })}
               </>
             )}
           </Button>
@@ -576,8 +579,8 @@ export const CommentSidebar: FC<CommentSidebarProps> = ({
         {rootComments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-20" />
-            <p className="text-sm">No comments yet</p>
-            <p className="text-xs">Select text to add a comment</p>
+            <p className="text-sm">{t('commentSidebar.empty.title')}</p>
+            <p className="text-xs">{t('commentSidebar.empty.description')}</p>
           </div>
         ) : (
           rootComments.map((comment) => (

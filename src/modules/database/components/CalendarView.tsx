@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import type { DatabaseRecord, DatabaseTable, DatabaseView } from '../types';
 
@@ -15,6 +16,7 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({ table, view, records, onRecordClick }: CalendarViewProps) {
+  const { t } = useTranslation();
   const [currentDate, setCurrentDate] = React.useState(new Date());
 
   // Get the date field from view config
@@ -63,7 +65,7 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
 
   // Handle missing date field after hooks
   if (!dateField) {
-    return <div className="p-4 text-muted-foreground">No date field configured</div>;
+    return <div className="p-4 text-muted-foreground">{t('calendarView.noDateField')}</div>;
   }
 
   const prevMonth = () => {
@@ -86,19 +88,19 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
             onClick={prevMonth}
             className="px-3 py-1 border rounded hover:bg-muted"
           >
-            Previous
+            {t('calendarView.previous')}
           </button>
           <button
             onClick={() => setCurrentDate(new Date())}
             className="px-3 py-1 border rounded hover:bg-muted"
           >
-            Today
+            {t('calendarView.today')}
           </button>
           <button
             onClick={nextMonth}
             className="px-3 py-1 border rounded hover:bg-muted"
           >
-            Next
+            {t('calendarView.next')}
           </button>
         </div>
       </div>
@@ -106,9 +108,9 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1">
         {/* Day headers */}
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+        {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((day) => (
           <div key={day} className="text-center font-semibold text-sm py-2">
-            {day}
+            {t(`calendarView.days.${day}`)}
           </div>
         ))}
 
@@ -136,13 +138,13 @@ export function CalendarView({ table, view, records, onRecordClick }: CalendarVi
                     onClick={() => onRecordClick?.(record)}
                   >
                     <CardContent className="p-1 text-xs truncate">
-                      {String(record.customFields[table.fields[0]?.name] || 'Untitled')}
+                      {String(record.customFields[table.fields[0]?.name] || t('calendarView.untitled'))}
                     </CardContent>
                   </Card>
                 ))}
                 {dayRecords.length > 3 && (
                   <div className="text-xs text-muted-foreground text-center">
-                    +{dayRecords.length - 3} more
+                    {t('calendarView.more', { count: dayRecords.length - 3 })}
                   </div>
                 )}
               </div>

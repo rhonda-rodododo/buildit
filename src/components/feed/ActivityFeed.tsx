@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePostsStore } from '@/modules/microblogging/postsStore';
 import { useEventsStore } from '@/modules/events/eventsStore';
 import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore';
@@ -42,6 +43,7 @@ interface ActivityFeedProps {
 }
 
 export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
+  const { t } = useTranslation();
   const { posts, refreshFeed: refreshPosts, isLoadingFeed: _isLoadingPosts } =
     usePostsStore();
   const eventsStore = useEventsStore();
@@ -225,13 +227,13 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex-1">
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="all" className="flex-1">
-              All Activity
+              {t('activityFeed.tabs.all')}
             </TabsTrigger>
             <TabsTrigger value="my-groups" className="flex-1">
-              My Groups
+              {t('activityFeed.tabs.myGroups')}
             </TabsTrigger>
             <TabsTrigger value="mentions" className="flex-1">
-              Mentions
+              {t('activityFeed.tabs.mentions')}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -244,7 +246,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
             disabled={isLoading}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('activityFeed.actions.refresh')}
           </Button>
 
           {/* Content type filter */}
@@ -252,46 +254,46 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Filter className="w-4 h-4 mr-2" />
-                Filter
+                {t('activityFeed.actions.filter')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Content Types</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('activityFeed.contentTypes.title')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
                 checked={contentTypeFilters.has('post')}
                 onCheckedChange={() => toggleContentType('post')}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Posts
+                {t('activityFeed.contentTypes.posts')}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={contentTypeFilters.has('event')}
                 onCheckedChange={() => toggleContentType('event')}
               >
                 <Calendar className="w-4 h-4 mr-2" />
-                Events
+                {t('activityFeed.contentTypes.events')}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={contentTypeFilters.has('mutual-aid')}
                 onCheckedChange={() => toggleContentType('mutual-aid')}
               >
                 <HandHeart className="w-4 h-4 mr-2" />
-                Mutual Aid
+                {t('activityFeed.contentTypes.mutualAid')}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={contentTypeFilters.has('proposal')}
                 onCheckedChange={() => toggleContentType('proposal')}
               >
                 <Vote className="w-4 h-4 mr-2" />
-                Proposals
+                {t('activityFeed.contentTypes.proposals')}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={contentTypeFilters.has('wiki-update')}
                 onCheckedChange={() => toggleContentType('wiki-update')}
               >
                 <BookOpen className="w-4 h-4 mr-2" />
-                Wiki Updates
+                {t('activityFeed.contentTypes.wikiUpdates')}
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -324,11 +326,11 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
         ) : filteredItems.length === 0 ? (
           // Empty state
           <div className="text-center py-12 border rounded-lg bg-muted/50">
-            <h3 className="text-lg font-semibold mb-2">No activity yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('activityFeed.empty.title')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {activeTab === 'all' && 'Be the first to share an update!'}
-              {activeTab === 'my-groups' && 'Join groups to see their activity'}
-              {activeTab === 'mentions' && 'No one has mentioned you yet'}
+              {activeTab === 'all' && t('activityFeed.empty.all')}
+              {activeTab === 'my-groups' && t('activityFeed.empty.myGroups')}
+              {activeTab === 'mentions' && t('activityFeed.empty.mentions')}
             </p>
           </div>
         ) : (
@@ -340,7 +342,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
             {filteredItems.length >= 20 && (
               <div className="flex justify-center pt-4">
                 <Button variant="outline" disabled={isLoading}>
-                  {isLoading ? 'Loading...' : 'Load More'}
+                  {isLoading ? t('activityFeed.actions.loading') : t('activityFeed.actions.loadMore')}
                 </Button>
               </div>
             )}

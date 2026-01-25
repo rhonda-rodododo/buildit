@@ -2,6 +2,16 @@
 
 This document describes the native app architecture for BuildIt Network.
 
+## Distribution Strategy
+
+**BuildIt Network is distributed exclusively as native applications:**
+
+- **iOS** - Native Swift app via App Store / TestFlight
+- **Android** - Native Kotlin app via Google Play
+- **Desktop** - Tauri-wrapped webapp for macOS, Windows, Linux
+
+**No standalone web app is published.** The webapp source (`src/`) is used only as the UI layer for the Tauri desktop application.
+
 ## Architecture Overview
 
 BuildIt Network has migrated from React Native + Expo to fully native implementations for better BLE mesh support, hardware security, and platform-specific optimizations.

@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -25,6 +26,7 @@ export const EventDetail: FC<EventDetailProps> = ({
   onOpenChange,
   onRSVPChange,
 }) => {
+  const { t } = useTranslation()
   // Capture time once on mount to avoid impure Date.now() during render
   const [mountTime] = useState(getCurrentTime);
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -54,10 +56,10 @@ export const EventDetail: FC<EventDetailProps> = ({
     }
 
     const labels = {
-      public: 'Public Event',
-      group: 'Group Only',
-      private: 'Private Event',
-      'direct-action': 'Direct Action',
+      public: t('eventDetail.privacy.public'),
+      group: t('eventDetail.privacy.group'),
+      private: t('eventDetail.privacy.private'),
+      'direct-action': t('eventDetail.privacy.directAction'),
     }
 
     return (
@@ -85,17 +87,17 @@ export const EventDetail: FC<EventDetailProps> = ({
           <div className="bg-muted/50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-muted-foreground">
-                <div className="font-medium text-foreground mb-1">RSVP Status</div>
+                <div className="font-medium text-foreground mb-1">{t('eventDetail.rsvpStatus')}</div>
                 <div className="flex gap-4">
-                  <span>{event.rsvpCounts.going} Going</span>
-                  <span>{event.rsvpCounts.maybe} Maybe</span>
-                  <span>{event.rsvpCounts.notGoing} Not Going</span>
+                  <span>{t('eventDetail.rsvpCounts.going', { count: event.rsvpCounts.going })}</span>
+                  <span>{t('eventDetail.rsvpCounts.maybe', { count: event.rsvpCounts.maybe })}</span>
+                  <span>{t('eventDetail.rsvpCounts.notGoing', { count: event.rsvpCounts.notGoing })}</span>
                 </div>
               </div>
               {event.capacity && (
                 <div className="text-sm text-muted-foreground">
                   <Users className="h-4 w-4 inline mr-1" />
-                  {event.rsvpCounts.going} / {event.capacity} capacity
+                  {t('eventDetail.capacity', { current: event.rsvpCounts.going, max: event.capacity })}
                 </div>
               )}
             </div>
@@ -111,11 +113,11 @@ export const EventDetail: FC<EventDetailProps> = ({
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="details" className="flex items-center gap-2">
                 <Info className="h-4 w-4" />
-                Details
+                {t('eventDetail.tabs.details')}
               </TabsTrigger>
               <TabsTrigger value="attendees" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Attendees
+                {t('eventDetail.tabs.attendees')}
               </TabsTrigger>
             </TabsList>
 
@@ -123,7 +125,7 @@ export const EventDetail: FC<EventDetailProps> = ({
               {/* Description */}
               {event.description && (
                 <div>
-                  <h3 className="font-medium mb-2">Description</h3>
+                  <h3 className="font-medium mb-2">{t('eventDetail.description')}</h3>
                   <p className="text-muted-foreground whitespace-pre-wrap">{event.description}</p>
                 </div>
               )}
@@ -134,7 +136,7 @@ export const EventDetail: FC<EventDetailProps> = ({
                   <div className="flex items-start gap-3">
                     <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <div className="font-medium">Start Time</div>
+                      <div className="font-medium">{t('eventDetail.startTime')}</div>
                       <div className="text-sm text-muted-foreground">
                         {formatDate(event.startTime)}
                       </div>
@@ -145,7 +147,7 @@ export const EventDetail: FC<EventDetailProps> = ({
                     <div className="flex items-start gap-3">
                       <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <div className="font-medium">End Time</div>
+                        <div className="font-medium">{t('eventDetail.endTime')}</div>
                         <div className="text-sm text-muted-foreground">
                           {formatDate(event.endTime)}
                         </div>
@@ -159,7 +161,7 @@ export const EventDetail: FC<EventDetailProps> = ({
                     <div className="flex items-start gap-3">
                       <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <div className="font-medium">Location</div>
+                        <div className="font-medium">{t('eventDetail.location')}</div>
                         <div className="text-sm text-muted-foreground">{event.location}</div>
                       </div>
                     </div>
@@ -171,9 +173,9 @@ export const EventDetail: FC<EventDetailProps> = ({
                       <div className="flex items-start gap-3">
                         <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                         <div>
-                          <div className="font-medium">Location</div>
+                          <div className="font-medium">{t('eventDetail.location')}</div>
                           <div className="text-sm text-muted-foreground">
-                            Reveals at {formatDate(event.locationRevealTime)}
+                            {t('eventDetail.locationReveals', { time: formatDate(event.locationRevealTime) })}
                           </div>
                         </div>
                       </div>
@@ -184,7 +186,7 @@ export const EventDetail: FC<EventDetailProps> = ({
               {/* Tags */}
               {event.tags.length > 0 && (
                 <div>
-                  <h3 className="font-medium mb-2">Tags</h3>
+                  <h3 className="font-medium mb-2">{t('eventDetail.tags')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {event.tags.map((tag, index) => (
                       <Badge key={index} variant="outline">
@@ -219,12 +221,12 @@ export const EventDetail: FC<EventDetailProps> = ({
           {/* Actions */}
           <div className="flex gap-2 pt-4 border-t">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              {t('eventDetail.actions.close')}
             </Button>
             {isCreator && (
               <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
                 <Pencil className="h-4 w-4 mr-2" />
-                Edit
+                {t('eventDetail.actions.edit')}
               </Button>
             )}
           </div>

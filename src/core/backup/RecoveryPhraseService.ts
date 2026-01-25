@@ -7,7 +7,7 @@
  */
 
 import * as bip39 from '@scure/bip39';
-import { wordlist as englishWordlist } from '@scure/bip39/wordlists/english.js';
+import { wordlist as englishWordlist } from '@scure/bip39/wordlists/english';
 import type { RecoveryPhraseValidation } from './types';
 
 // Cast to mutable array for bip39 functions (they don't mutate but expect mutable type)

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   flexRender,
   getCoreRowModel,
@@ -31,6 +32,7 @@ interface TableViewProps {
 }
 
 export function TableView({ table, records, onRecordClick }: TableViewProps) {
+  const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
@@ -88,7 +90,7 @@ export function TableView({ table, records, onRecordClick }: TableViewProps) {
         {table.fields.slice(0, 3).map((field) => (
           <Input
             key={field.name}
-            placeholder={`Filter ${field.label}...`}
+            placeholder={t('tableView.filterPlaceholder', { label: field.label })}
             value={(reactTable.getColumn(field.name)?.getFilterValue() as string) ?? ''}
             onChange={(event) =>
               reactTable.getColumn(field.name)?.setFilterValue(event.target.value)
@@ -133,7 +135,7 @@ export function TableView({ table, records, onRecordClick }: TableViewProps) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No records found.
+                  {t('tableView.noRecords')}
                 </TableCell>
               </TableRow>
             )}
@@ -144,12 +146,14 @@ export function TableView({ table, records, onRecordClick }: TableViewProps) {
       {/* Pagination */}
       <div className="flex items-center justify-between px-2">
         <div className="text-sm text-muted-foreground">
-          Showing {reactTable.getState().pagination.pageIndex * reactTable.getState().pagination.pageSize + 1}-
-          {Math.min(
-            (reactTable.getState().pagination.pageIndex + 1) * reactTable.getState().pagination.pageSize,
-            records.length
-          )}{' '}
-          of {records.length} records
+          {t('tableView.showing', {
+            from: reactTable.getState().pagination.pageIndex * reactTable.getState().pagination.pageSize + 1,
+            to: Math.min(
+              (reactTable.getState().pagination.pageIndex + 1) * reactTable.getState().pagination.pageSize,
+              records.length
+            ),
+            total: records.length
+          })}
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -169,7 +173,7 @@ export function TableView({ table, records, onRecordClick }: TableViewProps) {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-sm">
-            Page {reactTable.getState().pagination.pageIndex + 1} of {reactTable.getPageCount()}
+            {t('tableView.page', { current: reactTable.getState().pagination.pageIndex + 1, total: reactTable.getPageCount() })}
           </div>
           <Button
             variant="outline"

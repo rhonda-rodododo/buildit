@@ -4,6 +4,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import type { WikiUpdateFeedItem } from './types';
 import { Card } from '@/components/ui/card';
@@ -17,10 +18,11 @@ interface WikiUpdateFeedCardProps {
 }
 
 export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, className }) => {
+  const { t } = useTranslation();
   const { data: page } = item;
 
   const getActionLabel = () => {
-    return page.version === 1 ? 'created a wiki page' : 'updated a wiki page';
+    return page.version === 1 ? t('wikiUpdateFeedCard.createdPage') : t('wikiUpdateFeedCard.updatedPage');
   };
 
   const getPreview = (content: string, maxLength: number = 200) => {
@@ -76,7 +78,7 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-500" />
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Wiki Page
+            {t('wikiUpdateFeedCard.wikiPage')}
           </span>
         </div>
 
@@ -112,7 +114,7 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
               ))}
               {page.tags.length > 3 && (
                 <span className="text-xs text-muted-foreground">
-                  +{page.tags.length - 3} more
+                  {t('wikiUpdateFeedCard.moreTags', { count: page.tags.length - 3 })}
                 </span>
               )}
             </div>
@@ -121,13 +123,13 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 pt-2 border-t">
-          <Button className="flex-1">Read Page</Button>
+          <Button className="flex-1">{t('wikiUpdateFeedCard.readPage')}</Button>
           <Button variant="outline" className="flex-1">
-            Edit
+            {t('wikiUpdateFeedCard.edit')}
           </Button>
           {page.version > 1 && (
             <Button variant="ghost" className="flex-1">
-              History
+              {t('wikiUpdateFeedCard.history')}
             </Button>
           )}
         </div>

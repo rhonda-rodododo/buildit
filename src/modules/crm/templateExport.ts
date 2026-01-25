@@ -7,7 +7,7 @@
 import type { CRMMultiTableTemplate, CRMTableDefinition, CRMRelationshipDefinition } from './types';
 import { encryptDM, decryptDM } from '@/core/crypto/nip44';
 import { nip19 } from 'nostr-tools';
-import { hexToBytes } from '@noble/hashes/utils.js';
+import { hexToBytes } from '@noble/hashes/utils';
 import { logger } from '@/lib/logger';
 
 /**

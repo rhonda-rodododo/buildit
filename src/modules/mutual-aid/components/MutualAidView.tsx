@@ -1,33 +1,35 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Heart, Users } from 'lucide-react'
 
 export const MutualAidView: FC = () => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('browse')
 
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Mutual Aid</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('mutualAid.title')}</h2>
           <p className="text-muted-foreground">
-            Community support through resource sharing and solidarity
+            {t('mutualAid.description')}
           </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Create Request/Offer
+          {t('mutualAid.createRequest')}
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="browse">Browse</TabsTrigger>
-          <TabsTrigger value="my-items">My Items</TabsTrigger>
-          <TabsTrigger value="matches">Matches</TabsTrigger>
-          <TabsTrigger value="rides">Ride Share</TabsTrigger>
+          <TabsTrigger value="browse">{t('mutualAid.browse')}</TabsTrigger>
+          <TabsTrigger value="my-items">{t('mutualAid.myItems')}</TabsTrigger>
+          <TabsTrigger value="matches">{t('mutualAid.matches')}</TabsTrigger>
+          <TabsTrigger value="rides">{t('mutualAid.rideShare')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse" className="mt-6">
@@ -37,15 +39,15 @@ export const MutualAidView: FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Active Requests
+                  {t('mutualAid.requests')}
                 </CardTitle>
                 <CardDescription>
-                  Community members need your help
+                  {t('mutualAid.requestsDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
-                  No active requests
+                  {t('mutualAid.noRequests')}
                 </div>
               </CardContent>
             </Card>
@@ -55,15 +57,15 @@ export const MutualAidView: FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="h-5 w-5" />
-                  Available Offers
+                  {t('mutualAid.offers')}
                 </CardTitle>
                 <CardDescription>
-                  Resources available to help
+                  {t('mutualAid.offersDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
-                  No available offers
+                  {t('mutualAid.noOffers')}
                 </div>
               </CardContent>
             </Card>
@@ -72,27 +74,27 @@ export const MutualAidView: FC = () => {
 
         <TabsContent value="my-items" className="mt-6">
           <div className="text-center py-12 text-muted-foreground">
-            You haven't created any requests or offers yet
+            {t('mutualAid.noMyItems')}
           </div>
         </TabsContent>
 
         <TabsContent value="matches" className="mt-6">
           <div className="text-center py-12 text-muted-foreground">
-            No matches found. Create a request or offer to get started.
+            {t('mutualAid.noMatches')}
           </div>
         </TabsContent>
 
         <TabsContent value="rides" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Solidarity Ride Share</CardTitle>
+              <CardTitle>{t('mutualAid.solidarityRideShare')}</CardTitle>
               <CardDescription>
-                Coordinate transportation with community members
+                {t('mutualAid.rideShareDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
-                No ride shares available
+                {t('mutualAid.noRideShares')}
               </div>
             </CardContent>
           </Card>

@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,7 @@ interface PublicPageListProps {
 }
 
 export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPageListProps) {
+  const { t } = useTranslation();
   const pages = usePublicStore((state) => state.getPublicPages(groupId));
   const updatePage = usePublicStore((state) => state.updatePublicPage);
   const deletePage = usePublicStore((state) => state.deletePublicPage);
@@ -99,14 +101,14 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Public Pages</h2>
+          <h2 className="text-2xl font-bold">{t('publicPageList.title')}</h2>
           <p className="text-muted-foreground">
-            Create and manage SEO-optimized public pages
+            {t('publicPageList.subtitle')}
           </p>
         </div>
         <Button onClick={onCreate}>
           <Plus className="h-4 w-4 mr-2" />
-          New Page
+          {t('publicPageList.newPage')}
         </Button>
       </div>
 
@@ -114,13 +116,13 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
       {pages.length === 0 ? (
         <Card className="p-12 text-center">
           <Globe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No public pages yet</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('publicPageList.noPages')}</h3>
           <p className="text-muted-foreground mb-6">
-            Create your first public page to share with the world
+            {t('publicPageList.noPagesDescription')}
           </p>
           <Button onClick={onCreate}>
             <Plus className="h-4 w-4 mr-2" />
-            Create First Page
+            {t('publicPageList.createFirstPage')}
           </Button>
         </Card>
       ) : (
@@ -139,7 +141,7 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
 
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">URL:</span>
+                      <span className="font-medium">{t('publicPageList.url')}</span>
                       <code className="bg-muted px-2 py-1 rounded text-xs">
                         /{page.slug}
                       </code>
@@ -154,7 +156,7 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
                     </div>
 
                     <div>
-                      <span className="font-medium">Type:</span> {page.type}
+                      <span className="font-medium">{t('publicPageList.type')}</span> {page.type}
                     </div>
 
                     {page.seo.description && (
@@ -164,9 +166,9 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
                     )}
 
                     <div className="text-xs mt-2">
-                      Created {new Date(page.created).toLocaleDateString()}
+                      {t('publicPageList.created', { date: new Date(page.created).toLocaleDateString() })}
                       {page.publishedAt && (
-                        <> • Published {new Date(page.publishedAt).toLocaleDateString()}</>
+                        <> • {t('publicPageList.published', { date: new Date(page.publishedAt).toLocaleDateString() })}</>
                       )}
                     </div>
                   </div>
@@ -182,35 +184,35 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => onEdit(page)}>
                       <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                      {t('publicPageList.actions.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onView(page)}>
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      View
+                      {t('publicPageList.actions.view')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleTogglePublish(page)}>
                       {page.status === 'published' ? (
                         <>
                           <EyeOff className="h-4 w-4 mr-2" />
-                          Unpublish
+                          {t('publicPageList.actions.unpublish')}
                         </>
                       ) : (
                         <>
                           <Eye className="h-4 w-4 mr-2" />
-                          Publish
+                          {t('publicPageList.actions.publish')}
                         </>
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleCopyLink(page)}>
                       <Copy className="h-4 w-4 mr-2" />
-                      Copy Link
+                      {t('publicPageList.actions.copyLink')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(page)}
                       className="text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      {t('publicPageList.actions.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -224,16 +226,15 @@ export function PublicPageList({ groupId, onEdit, onCreate, onView }: PublicPage
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Page</AlertDialogTitle>
+            <AlertDialogTitle>{t('publicPageList.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{pageToDelete?.title}"? This action cannot be
-              undone.
+              {t('publicPageList.deleteDialog.description', { title: pageToDelete?.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('publicPageList.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive">
-              Delete
+              {t('publicPageList.deleteDialog.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

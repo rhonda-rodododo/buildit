@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -110,6 +111,7 @@ const DEMO_TASKS: Task[] = [
 ];
 
 export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<Task[]>(DEMO_TASKS);
   const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'completed'>('all');
 
@@ -145,14 +147,24 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
     return <Circle className="w-5 h-5 text-muted-foreground" />;
   };
 
+  const getFilterLabel = (f: string) => {
+    switch (f) {
+      case 'all': return t('taskManager.filter.all');
+      case 'pending': return t('taskManager.filter.pending');
+      case 'in-progress': return t('taskManager.filter.inProgress');
+      case 'completed': return t('taskManager.filter.completed');
+      default: return f;
+    }
+  };
+
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Task Queue</h3>
+          <h3 className="text-lg font-semibold">{t('taskManager.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            {tasks.filter(t => t.status !== 'completed').length} active tasks
+            {t('taskManager.activeCount', { count: tasks.filter(task => task.status !== 'completed').length })}
           </p>
         </div>
 
@@ -161,28 +173,28 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                Filter: {filter === 'all' ? 'All' : filter}
+                {t('taskManager.filter.label')} {getFilterLabel(filter)}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setFilter('all')}>
-                All Tasks
+                {t('taskManager.filter.allTasks')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFilter('pending')}>
-                Pending
+                {t('taskManager.filter.pending')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFilter('in-progress')}>
-                In Progress
+                {t('taskManager.filter.inProgress')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFilter('completed')}>
-                Completed
+                {t('taskManager.filter.completed')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
-            New Task
+            {t('taskManager.newTask')}
           </Button>
         </div>
       </div>
@@ -191,7 +203,7 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
       <div className="space-y-2">
         {filteredTasks.length === 0 ? (
           <Card className="p-8 text-center">
-            <p className="text-muted-foreground">No tasks found</p>
+            <p className="text-muted-foreground">{t('taskManager.empty')}</p>
           </Card>
         ) : (
           filteredTasks.map((task) => (
@@ -211,7 +223,7 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
                     <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
                       {task.title}
                       {task.automatedFollowUp && (
-                        <Bell className="w-3 h-3 inline-block ml-2 text-blue-500" aria-label="Automated follow-up" />
+                        <Bell className="w-3 h-3 inline-block ml-2 text-blue-500" aria-label={t('taskManager.automatedFollowUp.label')} />
                       )}
                     </h4>
 
@@ -222,14 +234,14 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit Task</DropdownMenuItem>
-                        <DropdownMenuItem>Reassign</DropdownMenuItem>
+                        <DropdownMenuItem>{t('taskManager.actions.edit')}</DropdownMenuItem>
+                        <DropdownMenuItem>{t('taskManager.actions.reassign')}</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleDeleteTask(task.id)}
                           className="text-destructive focus:text-destructive"
                         >
-                          Delete
+                          {t('taskManager.actions.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -252,7 +264,7 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
 
                     {task.contactName && (
                       <div className="flex items-center gap-1">
-                        <span>Contact: {task.contactName}</span>
+                        <span>{t('taskManager.metadata.contact', { name: task.contactName })}</span>
                       </div>
                     )}
 
@@ -265,7 +277,7 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
 
                     <div className={`flex items-center gap-1 ${getPriorityColor(task.priority)}`}>
                       <Clock className="w-3 h-3" />
-                      <span className="capitalize">{task.priority} priority</span>
+                      <span>{t(`taskManager.metadata.priority.${task.priority}`)}</span>
                     </div>
                   </div>
                 </div>
@@ -280,10 +292,9 @@ export const TaskManager: FC<TaskManagerProps> = ({ className }) => {
         <div className="flex items-start gap-3">
           <Bell className="w-5 h-5 text-blue-500 mt-0.5" />
           <div>
-            <h4 className="font-medium text-sm mb-1">Automated Follow-Ups</h4>
+            <h4 className="font-medium text-sm mb-1">{t('taskManager.automatedFollowUp.title')}</h4>
             <p className="text-xs text-muted-foreground">
-              Tasks marked with <Bell className="w-3 h-3 inline-block text-blue-500" /> are automatically created when contacts don't respond within 3 days.
-              You can configure automation rules in settings.
+              {t('taskManager.automatedFollowUp.description')}
             </p>
           </div>
         </div>

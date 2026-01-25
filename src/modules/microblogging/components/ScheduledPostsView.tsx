@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { usePostsStore } from '../postsStore';
 import type { ScheduledPost } from '../types';
@@ -51,6 +52,7 @@ interface ScheduledPostsViewProps {
 }
 
 export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) => {
+  const { t } = useTranslation();
   const {
     loadScheduledPosts,
     getScheduledPosts,
@@ -114,18 +116,18 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
 
   const getStatusBadge = (post: ScheduledPost) => {
     if (post.status === 'published') {
-      return <Badge variant="default">Published</Badge>;
+      return <Badge variant="default">{t('scheduledPostsView.statuses.published')}</Badge>;
     }
     if (post.status === 'cancelled') {
-      return <Badge variant="secondary">Cancelled</Badge>;
+      return <Badge variant="secondary">{t('scheduledPostsView.statuses.cancelled')}</Badge>;
     }
     if (post.status === 'failed') {
-      return <Badge variant="destructive">Failed</Badge>;
+      return <Badge variant="destructive">{t('scheduledPostsView.statuses.failed')}</Badge>;
     }
     if (isPast(new Date(post.scheduledFor))) {
-      return <Badge variant="outline" className="text-orange-500 border-orange-500">Due</Badge>;
+      return <Badge variant="outline" className="text-orange-500 border-orange-500">{t('scheduledPostsView.statuses.due')}</Badge>;
     }
-    return <Badge variant="outline">Scheduled</Badge>;
+    return <Badge variant="outline">{t('scheduledPostsView.statuses.scheduled')}</Badge>;
   };
 
   if (isLoading) {
@@ -133,7 +135,7 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
       <Card className={`p-8 ${className}`}>
         <div className="flex items-center justify-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm text-muted-foreground">Loading scheduled posts...</span>
+          <span className="text-sm text-muted-foreground">{t('scheduledPostsView.loading')}</span>
         </div>
       </Card>
     );
@@ -143,9 +145,9 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
     return (
       <Card className={`p-8 text-center ${className}`}>
         <CalendarClock className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">No scheduled posts</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('scheduledPostsView.noScheduledPosts')}</h3>
         <p className="text-sm text-muted-foreground">
-          Schedule posts to be published at a specific time by using the schedule option in the post composer.
+          {t('scheduledPostsView.noScheduledPostsDescription')}
         </p>
       </Card>
     );
@@ -192,7 +194,7 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
             {post.status === 'pending' && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label="More options">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label={t('scheduledPostsView.moreOptions')}>
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -206,18 +208,18 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
                     ) : (
                       <Send className="w-4 h-4 mr-2" />
                     )}
-                    Publish now
+                    {t('scheduledPostsView.actions.publishNow')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleEdit(post)}>
                     <Edit className="w-4 h-4 mr-2" />
-                    Edit
+                    {t('scheduledPostsView.actions.edit')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setDeleteConfirmPost(post)}
                     className="text-destructive"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Cancel
+                    {t('scheduledPostsView.actions.cancel')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -230,24 +232,24 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
       <Dialog open={!!editingPost} onOpenChange={(open) => !open && setEditingPost(null)}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Scheduled Post</DialogTitle>
+            <DialogTitle>{t('scheduledPostsView.editDialog.title')}</DialogTitle>
             <DialogDescription>
-              Update the content or reschedule this post.
+              {t('scheduledPostsView.editDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label htmlFor="edit-content" className="text-sm font-medium mb-2 block">Content</label>
+              <label htmlFor="edit-content" className="text-sm font-medium mb-2 block">{t('scheduledPostsView.editDialog.contentLabel')}</label>
               <Textarea
                 id="edit-content"
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 rows={4}
-                placeholder="What's on your mind?"
+                placeholder={t('scheduledPostsView.editDialog.contentPlaceholder')}
               />
             </div>
             <div>
-              <label htmlFor="edit-scheduled-for" className="text-sm font-medium mb-2 block">Scheduled for</label>
+              <label htmlFor="edit-scheduled-for" className="text-sm font-medium mb-2 block">{t('scheduledPostsView.editDialog.scheduledForLabel')}</label>
               <Input
                 id="edit-scheduled-for"
                 type="datetime-local"
@@ -257,10 +259,10 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setEditingPost(null)}>
-                Cancel
+                {t('scheduledPostsView.editDialog.cancelButton')}
               </Button>
               <Button onClick={handleSaveEdit} disabled={!editContent.trim()}>
-                Save changes
+                {t('scheduledPostsView.editDialog.saveButton')}
               </Button>
             </div>
           </div>
@@ -271,18 +273,18 @@ export const ScheduledPostsView: FC<ScheduledPostsViewProps> = ({ className }) =
       <AlertDialog open={!!deleteConfirmPost} onOpenChange={(open) => !open && setDeleteConfirmPost(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel scheduled post?</AlertDialogTitle>
+            <AlertDialogTitle>{t('scheduledPostsView.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will cancel the scheduled post. This action cannot be undone.
+              {t('scheduledPostsView.deleteDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep post</AlertDialogCancel>
+            <AlertDialogCancel>{t('scheduledPostsView.deleteDialog.keepPost')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteConfirmPost && handleCancel(deleteConfirmPost)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Cancel post
+              {t('scheduledPostsView.deleteDialog.cancelPost')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

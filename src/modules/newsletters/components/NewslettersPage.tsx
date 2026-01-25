@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useNewslettersStore } from '../newslettersStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -48,6 +49,7 @@ type ViewState =
 export const NewslettersPage: FC<NewslettersPageProps> = ({
   className,
 }) => {
+  const { t } = useTranslation();
   // Get groupId from route params and userPubkey from auth store
   const { groupId } = useParams<{ groupId: string }>();
   const currentIdentity = useAuthStore((state) => state.currentIdentity);
@@ -57,7 +59,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
   if (!groupId || !userPubkey) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Please select a group and log in to manage newsletters.</p>
+        <p className="text-muted-foreground">{t('newslettersPage.selectGroupLogin')}</p>
       </div>
     );
   }
@@ -98,7 +100,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
   // Create newsletter handler
   const handleCreateNewsletter = () => {
     if (!newName.trim()) {
-      toast.error('Please enter a newsletter name');
+      toast.error(t('newslettersPage.enterName'));
       return;
     }
 
@@ -116,7 +118,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
     setShowCreateNewsletter(false);
     setNewName('');
     setNewDescription('');
-    toast.success('Newsletter created');
+    toast.success(t('newslettersPage.created'));
   };
 
   // Create issue handler
@@ -125,7 +127,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
 
     const issue = createIssue({
       newsletterId: currentNewsletter.id,
-      subject: 'Untitled Issue',
+      subject: t('newslettersPage.untitledIssue'),
     });
 
     // Set author pubkey
@@ -145,7 +147,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
 
     try {
       await sendIssue(issue.id);
-      toast.success('Newsletter sent successfully');
+      toast.success(t('newslettersPage.sent'));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to send newsletter');
     }
@@ -155,7 +157,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
   const handleDeleteIssue = (issueId: string) => {
     deleteIssue(issueId);
     setShowDeleteConfirm(null);
-    toast.success('Issue deleted');
+    toast.success(t('newslettersPage.deleted'));
   };
 
   // No newsletter yet
@@ -163,50 +165,50 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
     return (
       <div className={`flex flex-col items-center justify-center h-full p-8 ${className}`}>
         <Mail className="h-16 w-16 text-muted-foreground mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Start a Newsletter</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('newslettersPage.startNewsletter')}</h2>
         <p className="text-muted-foreground text-center mb-6 max-w-md">
-          Create a newsletter to send updates to your subscribers via encrypted Nostr DMs.
+          {t('newslettersPage.startDescription')}
         </p>
         <Button onClick={() => setShowCreateNewsletter(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Newsletter
+          {t('newslettersPage.createNewsletter')}
         </Button>
 
         {/* Create Newsletter Dialog */}
         <Dialog open={showCreateNewsletter} onOpenChange={setShowCreateNewsletter}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Newsletter</DialogTitle>
+              <DialogTitle>{t('newslettersPage.createNewsletterTitle')}</DialogTitle>
               <DialogDescription>
-                Set up your newsletter to start sending updates.
+                {t('newslettersPage.createDescription')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="name">Newsletter Name</Label>
+                <Label htmlFor="name">{t('newslettersPage.newsletterName')}</Label>
                 <Input
                   id="name"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="My Awesome Newsletter"
+                  placeholder={t('newslettersPage.namePlaceholder')}
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('newslettersPage.description')}</Label>
                 <Textarea
                   id="description"
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="What will you share with your subscribers?"
+                  placeholder={t('newslettersPage.descriptionPlaceholder')}
                   rows={3}
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreateNewsletter(false)}>
-                Cancel
+                {t('newslettersPage.cancel')}
               </Button>
-              <Button onClick={handleCreateNewsletter}>Create Newsletter</Button>
+              <Button onClick={handleCreateNewsletter}>{t('newslettersPage.createNewsletter')}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -246,7 +248,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           }
         }}
         onPreview={() => {
-          toast.info('Preview coming soon');
+          toast.info(t('newslettersPage.previewComingSoon'));
         }}
         onClose={() => setViewState({ type: 'dashboard' })}
         className="h-full"
@@ -283,11 +285,11 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setViewState({ type: 'settings' })}>
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              {t('newslettersPage.settings')}
             </Button>
             <Button onClick={handleCreateIssue}>
               <Plus className="h-4 w-4 mr-2" />
-              New Issue
+              {t('newslettersPage.newIssue')}
             </Button>
           </div>
         </div>
@@ -296,25 +298,25 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
         <div className="grid gap-4 md:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Subscribers</CardDescription>
+              <CardDescription>{t('newslettersPage.stats.subscribers')}</CardDescription>
               <CardTitle className="text-3xl">{activeSubscribers.length}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Issues Sent</CardDescription>
+              <CardDescription>{t('newslettersPage.stats.issuesSent')}</CardDescription>
               <CardTitle className="text-3xl">{sentCount}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Drafts</CardDescription>
+              <CardDescription>{t('newslettersPage.stats.drafts')}</CardDescription>
               <CardTitle className="text-3xl">{draftCount}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total Issues</CardDescription>
+              <CardDescription>{t('newslettersPage.stats.totalIssues')}</CardDescription>
               <CardTitle className="text-3xl">{issues.length}</CardTitle>
             </CardHeader>
           </Card>
@@ -325,11 +327,11 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           <TabsList>
             <TabsTrigger value="issues">
               <FileText className="h-4 w-4 mr-2" />
-              Issues
+              {t('newslettersPage.tabs.issues')}
             </TabsTrigger>
             <TabsTrigger value="subscribers">
               <Users className="h-4 w-4 mr-2" />
-              Subscribers
+              {t('newslettersPage.tabs.subscribers')}
             </TabsTrigger>
           </TabsList>
 
@@ -353,20 +355,20 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
       <Dialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Issue</DialogTitle>
+            <DialogTitle>{t('newslettersPage.deleteIssue')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this issue? This action cannot be undone.
+              {t('newslettersPage.deleteConfirm')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(null)}>
-              Cancel
+              {t('newslettersPage.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={() => showDeleteConfirm && handleDeleteIssue(showDeleteConfirm)}
             >
-              Delete
+              {t('newslettersPage.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

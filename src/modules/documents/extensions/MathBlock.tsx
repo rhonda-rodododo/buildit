@@ -7,6 +7,7 @@ import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react'
 import katex from 'katex'
 import { FC, useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { sanitizeMathHtml } from '@/lib/security/sanitize'
 
 export interface MathBlockOptions {
@@ -35,6 +36,7 @@ interface MathBlockViewProps {
 }
 
 const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selected }) => {
+  const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState(!node.attrs.equation)
   const [localEquation, setLocalEquation] = useState(node.attrs.equation || '')
   const [renderedHtml, setRenderedHtml] = useState('')
@@ -84,7 +86,7 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
         {isEditing ? (
           <div className="space-y-2">
             <div className="text-xs text-muted-foreground mb-2">
-              Enter LaTeX equation (Shift+Enter to save, Escape to cancel)
+              {t('mathBlock.instructions')}
             </div>
             <textarea
               value={localEquation}
@@ -94,7 +96,7 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
               }}
               onKeyDown={handleKeyDown}
               className="w-full p-2 font-mono text-sm border rounded bg-background min-h-[60px]"
-              placeholder="E = mc^2"
+              placeholder={t('mathBlock.placeholder')}
               autoFocus
             />
             {error && (
@@ -116,13 +118,13 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
                 }}
                 className="px-3 py-1 text-sm rounded border hover:bg-muted"
               >
-                Cancel
+                {t('mathBlock.cancel')}
               </button>
               <button
                 onClick={handleSave}
                 className="px-3 py-1 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                Save
+                {t('mathBlock.save')}
               </button>
             </div>
           </div>
@@ -138,7 +140,7 @@ const MathBlockView: FC<MathBlockViewProps> = ({ node, updateAttributes, selecte
               />
             ) : (
               <div className="text-center text-muted-foreground italic">
-                Click to add equation
+                {t('mathBlock.clickToAdd')}
               </div>
             )}
           </div>

@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +25,7 @@ export const PollList: FC<PollListProps> = ({
   showCreateButton = true,
   initialTab = 'active',
 }) => {
+  const { t } = useTranslation();
   const { polls, loadPolls, getActivePolls, getMyPolls } = useSocialStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -77,12 +79,12 @@ export const PollList: FC<PollListProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <BarChart3 className="w-5 h-5" />
-          Polls
+          {t('pollList.title')}
         </h2>
         {showCreateButton && !showComposer && (
           <Button onClick={() => setShowComposer(true)} size="sm">
             <Plus className="w-4 h-4 mr-2" />
-            Create Poll
+            {t('pollList.createPoll')}
           </Button>
         )}
       </div>
@@ -102,7 +104,7 @@ export const PollList: FC<PollListProps> = ({
         <TabsList className="mb-4">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            Active
+            {t('pollList.tabs.active')}
             {activePolls.length > 0 && (
               <span className="ml-1 text-xs bg-primary/10 px-1.5 py-0.5 rounded-full">
                 {activePolls.length}
@@ -111,11 +113,11 @@ export const PollList: FC<PollListProps> = ({
           </TabsTrigger>
           <TabsTrigger value="my-polls" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
-            My Polls
+            {t('pollList.tabs.myPolls')}
           </TabsTrigger>
           <TabsTrigger value="ended" className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
-            Ended
+            {t('pollList.tabs.ended')}
           </TabsTrigger>
         </TabsList>
 
@@ -123,13 +125,13 @@ export const PollList: FC<PollListProps> = ({
           {displayedPolls.length === 0 ? (
             <EmptyState
               icon={<Clock className="w-12 h-12" />}
-              title="No active polls"
-              description="Be the first to create a poll and gather opinions from the community."
+              title={t('pollList.empty.active.title')}
+              description={t('pollList.empty.active.description')}
               action={
                 showCreateButton && (
                   <Button onClick={() => setShowComposer(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Poll
+                    {t('pollList.createPoll')}
                   </Button>
                 )
               }
@@ -145,13 +147,13 @@ export const PollList: FC<PollListProps> = ({
           {displayedPolls.length === 0 ? (
             <EmptyState
               icon={<BarChart3 className="w-12 h-12" />}
-              title="No polls yet"
-              description="You haven't created any polls yet. Start gathering opinions from your community!"
+              title={t('pollList.empty.myPolls.title')}
+              description={t('pollList.empty.myPolls.description')}
               action={
                 showCreateButton && (
                   <Button onClick={() => setShowComposer(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Poll
+                    {t('pollList.empty.myPolls.createFirst')}
                   </Button>
                 )
               }
@@ -167,8 +169,8 @@ export const PollList: FC<PollListProps> = ({
           {displayedPolls.length === 0 ? (
             <EmptyState
               icon={<CheckCircle2 className="w-12 h-12" />}
-              title="No ended polls"
-              description="Completed polls will appear here."
+              title={t('pollList.empty.ended.title')}
+              description={t('pollList.empty.ended.description')}
             />
           ) : (
             displayedPolls.map((poll) => (

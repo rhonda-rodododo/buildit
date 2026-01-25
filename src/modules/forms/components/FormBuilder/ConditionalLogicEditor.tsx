@@ -4,6 +4,7 @@
  * Uses JSON Schema if/then/else for conditional logic
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,6 +27,7 @@ interface ConditionalLogicEditorProps {
 }
 
 export function ConditionalLogicEditor({ field, allFields, onUpdate }: ConditionalLogicEditorProps) {
+  const { t } = useTranslation();
   const availableFields = allFields.filter(f => f.id !== field.id);
 
   const handleAddRule = () => {
@@ -54,7 +56,7 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-sm">Conditional Logic</h4>
+        <h4 className="font-medium text-sm">{t('conditionalLogicEditor.title')}</h4>
         {field.conditional ? (
           <Button variant="ghost" size="sm" onClick={handleRemoveRule}>
             <X className="h-4 w-4" />
@@ -62,7 +64,7 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
         ) : (
           <Button variant="outline" size="sm" onClick={handleAddRule}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Rule
+            {t('conditionalLogicEditor.addRule')}
           </Button>
         )}
       </div>
@@ -70,7 +72,7 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
       {field.conditional ? (
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label>When field</Label>
+            <Label>{t('conditionalLogicEditor.whenField')}</Label>
             <Select
               value={field.conditional.fieldId}
               onValueChange={(value) => {
@@ -95,7 +97,7 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
           </div>
 
           <div className="space-y-1">
-            <Label>Is</Label>
+            <Label>{t('conditionalLogicEditor.is')}</Label>
             <Select
               value={field.conditional.operator}
               onValueChange={(value) => {
@@ -110,17 +112,17 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="equals">Equals</SelectItem>
-                <SelectItem value="notEquals">Not Equals</SelectItem>
-                <SelectItem value="contains">Contains</SelectItem>
-                <SelectItem value="greaterThan">Greater Than</SelectItem>
-                <SelectItem value="lessThan">Less Than</SelectItem>
+                <SelectItem value="equals">{t('conditionalLogicEditor.operators.equals')}</SelectItem>
+                <SelectItem value="notEquals">{t('conditionalLogicEditor.operators.notEquals')}</SelectItem>
+                <SelectItem value="contains">{t('conditionalLogicEditor.operators.contains')}</SelectItem>
+                <SelectItem value="greaterThan">{t('conditionalLogicEditor.operators.greaterThan')}</SelectItem>
+                <SelectItem value="lessThan">{t('conditionalLogicEditor.operators.lessThan')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1">
-            <Label>Value</Label>
+            <Label>{t('conditionalLogicEditor.value')}</Label>
             <Input
               value={field.conditional.value.toString()}
               onChange={(e) => {
@@ -130,12 +132,12 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
                 };
                 onUpdate(updated);
               }}
-              placeholder="Enter value"
+              placeholder={t('conditionalLogicEditor.valuePlaceholder')}
             />
           </div>
 
           <div className="space-y-1">
-            <Label>Then</Label>
+            <Label>{t('conditionalLogicEditor.then')}</Label>
             <Select
               value={field.conditional.action || 'show'}
               onValueChange={(value) => {
@@ -150,21 +152,21 @@ export function ConditionalLogicEditor({ field, allFields, onUpdate }: Condition
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="show">Show this field</SelectItem>
-                <SelectItem value="hide">Hide this field</SelectItem>
-                <SelectItem value="require">Require this field</SelectItem>
+                <SelectItem value="show">{t('conditionalLogicEditor.actions.show')}</SelectItem>
+                <SelectItem value="hide">{t('conditionalLogicEditor.actions.hide')}</SelectItem>
+                <SelectItem value="require">{t('conditionalLogicEditor.actions.require')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       ) : (
         <div className="text-sm text-muted-foreground text-center py-4">
-          No conditional logic set
+          {t('conditionalLogicEditor.noLogic')}
         </div>
       )}
 
       <div className="text-xs text-muted-foreground">
-        Note: Conditional logic uses JSON Schema if/then/else syntax
+        {t('conditionalLogicEditor.note')}
       </div>
     </Card>
   );

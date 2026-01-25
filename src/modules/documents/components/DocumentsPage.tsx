@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useDocumentsStore } from '../documentsStore'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
@@ -83,6 +84,7 @@ type ViewMode = 'list' | 'grid'
 type SortMode = 'updated' | 'created' | 'name'
 
 export const DocumentsPage: FC = () => {
+  const { t } = useTranslation()
   const { groupId } = useParams<{ groupId: string }>()
   const currentIdentity = useAuthStore((state) => state.currentIdentity)
   const { groupMembers, loadGroupMembers } = useGroupsStore()
@@ -314,7 +316,7 @@ export const DocumentsPage: FC = () => {
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Failed to export sharing report:', err)
-      alert('Failed to export sharing report')
+      alert(t('documentsPage.failedToExport'))
     } finally {
       setExportingReport(false)
     }
@@ -323,7 +325,7 @@ export const DocumentsPage: FC = () => {
   const handleDelete = async () => {
     if (!currentDoc) return
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${currentDoc.title}"?`
+      t('documentsPage.deleteConfirm', { title: currentDoc.title })
     )
     if (!confirmed) return
 
@@ -426,11 +428,11 @@ export const DocumentsPage: FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setCurrentDocument(doc.id)}>
-                <Edit3 className="h-4 w-4 mr-2" /> Edit
+                <Edit3 className="h-4 w-4 mr-2" /> {t('documentsPage.listItem.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => toggleStar(doc.id)}>
                 <Star className="h-4 w-4 mr-2" />
-                {docIsStarred ? 'Remove from starred' : 'Add to starred'}
+                {docIsStarred ? t('documentsPage.listItem.removeFromStarred') : t('documentsPage.listItem.addToStarred')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -439,7 +441,7 @@ export const DocumentsPage: FC = () => {
                   await handleDuplicate()
                 }}
               >
-                <Copy className="h-4 w-4 mr-2" /> Duplicate
+                <Copy className="h-4 w-4 mr-2" /> {t('documentsPage.listItem.duplicate')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -504,7 +506,7 @@ export const DocumentsPage: FC = () => {
         {showFolderTree && groupId && (
           <div className="w-56 border-r flex flex-col">
             <div className="p-3 border-b flex items-center justify-between">
-              <span className="text-sm font-medium">Folders</span>
+              <span className="text-sm font-medium">{t('documentsPage.folders')}</span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -531,7 +533,7 @@ export const DocumentsPage: FC = () => {
                 onClick={() => setShowStarred(!showStarred)}
               >
                 <Star className={cn('h-4 w-4 mr-2', showStarred && 'fill-yellow-400 text-yellow-400')} />
-                Starred
+                {t('documentsPage.starred')}
               </Button>
             </div>
           </div>
@@ -560,7 +562,7 @@ export const DocumentsPage: FC = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isStarred(currentDoc.id) ? 'Remove from starred' : 'Add to starred'}
+                    {isStarred(currentDoc.id) ? t('documentsPage.listItem.removeFromStarred') : t('documentsPage.listItem.addToStarred')}
                   </TooltipContent>
                 </Tooltip>
 
@@ -568,7 +570,7 @@ export const DocumentsPage: FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="flex-1 text-lg font-semibold border-none shadow-none focus-visible:ring-0"
-                  placeholder="Document title"
+                  placeholder={t('documentsPage.documentTitlePlaceholder')}
                 />
 
                 <div className="flex items-center gap-1">
@@ -581,13 +583,13 @@ export const DocumentsPage: FC = () => {
                         onClick={toggleSuggestionMode}
                       >
                         <Edit3 className="h-4 w-4 mr-1" />
-                        {suggestionModeEnabled ? 'Suggesting' : 'Editing'}
+                        {suggestionModeEnabled ? t('documentsPage.editor.suggesting') : t('documentsPage.editor.editing')}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
                       {suggestionModeEnabled
-                        ? 'Changes tracked as suggestions'
-                        : 'Direct editing mode'}
+                        ? t('documentsPage.editor.suggestionModeTooltip')
+                        : t('documentsPage.editor.editModeTooltip')}
                     </TooltipContent>
                   </Tooltip>
 
@@ -603,7 +605,7 @@ export const DocumentsPage: FC = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {collaborationEnabled ? 'Real-time collaboration enabled' : 'Enable collaboration'}
+                      {collaborationEnabled ? t('documentsPage.editor.collaborationEnabled') : t('documentsPage.editor.enableCollaboration')}
                     </TooltipContent>
                   </Tooltip>
 
@@ -624,7 +626,7 @@ export const DocumentsPage: FC = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {showCommentSidebar ? 'Hide comments' : 'Show comments'}
+                      {showCommentSidebar ? t('documentsPage.editor.hideComments') : t('documentsPage.editor.showComments')}
                     </TooltipContent>
                   </Tooltip>
 
@@ -656,7 +658,7 @@ export const DocumentsPage: FC = () => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {collaborationEnabled ? 'Auto-saving with collaboration' : 'Save document'}
+                      {collaborationEnabled ? t('documentsPage.editor.autoSaving') : t('documentsPage.editor.saveDocument')}
                     </TooltipContent>
                   </Tooltip>
 
@@ -669,24 +671,24 @@ export const DocumentsPage: FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={handleDuplicate}>
-                        <Copy className="h-4 w-4 mr-2" /> Duplicate
+                        <Copy className="h-4 w-4 mr-2" /> {t('documentsPage.actions.duplicate')}
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <History className="h-4 w-4 mr-2" /> Version history
+                        <History className="h-4 w-4 mr-2" /> {t('documentsPage.actions.versionHistory')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => handleExport('html')}>
-                        <Download className="h-4 w-4 mr-2" /> Export HTML
+                        <Download className="h-4 w-4 mr-2" /> {t('documentsPage.actions.exportHtml')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExport('markdown')}>
-                        <Download className="h-4 w-4 mr-2" /> Export Markdown
+                        <Download className="h-4 w-4 mr-2" /> {t('documentsPage.actions.exportMarkdown')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                        <Download className="h-4 w-4 mr-2" /> Export PDF
+                        <Download className="h-4 w-4 mr-2" /> {t('documentsPage.actions.exportPdf')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        <Trash2 className="h-4 w-4 mr-2" /> {t('documentsPage.actions.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -723,7 +725,7 @@ export const DocumentsPage: FC = () => {
                           setShowTagInput(false)
                         }
                       }}
-                      placeholder="Add tag..."
+                      placeholder={t('documentsPage.tags.addTagPlaceholder')}
                       className="h-6 w-24 text-xs"
                       autoFocus
                     />
@@ -750,7 +752,7 @@ export const DocumentsPage: FC = () => {
                     onClick={() => setShowTagInput(true)}
                   >
                     <Plus className="h-3 w-3 mr-1" />
-                    Add tag
+                    {t('documentsPage.tags.addTag')}
                   </Button>
                 )}
               </div>
@@ -815,22 +817,22 @@ export const DocumentsPage: FC = () => {
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button onClick={() => { setTitle(''); setContent(''); setSelectedTemplate(''); }}>
-                        <Plus className="mr-2 h-4 w-4" /> New Document
+                        <Plus className="mr-2 h-4 w-4" /> {t('documentsPage.newDocument')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Create New Document</DialogTitle>
+                        <DialogTitle>{t('documentsPage.createNewDocument')}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <Input
-                          placeholder="Document title"
+                          placeholder={t('documentsPage.documentTitlePlaceholder')}
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                         />
                         <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Choose a template (optional)" />
+                            <SelectValue placeholder={t('documentsPage.chooseTemplate')} />
                           </SelectTrigger>
                           <SelectContent>
                             {documentTemplates.map((template) => (
@@ -841,7 +843,7 @@ export const DocumentsPage: FC = () => {
                           </SelectContent>
                         </Select>
                         <Button onClick={handleCreate} disabled={!title.trim() || isCreating} className="w-full">
-                          {isCreating ? 'Creating...' : 'Create Document'}
+                          {isCreating ? t('documentsPage.creating') : t('documentsPage.createDocument')}
                         </Button>
                       </div>
                     </DialogContent>
@@ -853,7 +855,7 @@ export const DocumentsPage: FC = () => {
                   <div className="relative w-64">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search documents..."
+                      placeholder={t('documentsPage.searchDocuments')}
                       className="pl-8"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -866,9 +868,9 @@ export const DocumentsPage: FC = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="updated">Last updated</SelectItem>
-                      <SelectItem value="created">Date created</SelectItem>
-                      <SelectItem value="name">Name</SelectItem>
+                      <SelectItem value="updated">{t('documentsPage.sort.lastUpdated')}</SelectItem>
+                      <SelectItem value="created">{t('documentsPage.sort.dateCreated')}</SelectItem>
+                      <SelectItem value="name">{t('documentsPage.sort.name')}</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -902,11 +904,11 @@ export const DocumentsPage: FC = () => {
                         disabled={exportingReport}
                       >
                         <FileSpreadsheet className="h-4 w-4 mr-1" />
-                        {exportingReport ? 'Exporting...' : 'Export Sharing'}
+                        {exportingReport ? t('documentsPage.exporting') : t('documentsPage.exportSharing')}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      Export CSV report of all document sharing permissions
+                      {t('documentsPage.exportTooltip')}
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -941,7 +943,7 @@ export const DocumentsPage: FC = () => {
                       ))}
                     {availableTags.length > 8 && (
                       <span className="text-xs text-muted-foreground">
-                        +{availableTags.length - 8} more
+                        {t('documentsPage.tags.moreCount', { count: availableTags.length - 8 })}
                       </span>
                     )}
                     {selectedTags.length > 0 && (
@@ -951,7 +953,7 @@ export const DocumentsPage: FC = () => {
                         className="h-6 px-2 text-xs"
                         onClick={() => setSelectedTags([])}
                       >
-                        Clear
+                        {t('documentsPage.tags.clear')}
                       </Button>
                     )}
                   </div>
@@ -966,14 +968,14 @@ export const DocumentsPage: FC = () => {
                       <FileX className="h-16 w-16 mx-auto mb-4 opacity-20" />
                       <p className="text-muted-foreground">
                         {searchQuery
-                          ? 'No documents match your search'
+                          ? t('documentsPage.emptyState.noSearchResults')
                           : showStarred
-                            ? 'No starred documents'
-                            : 'No documents yet'}
+                            ? t('documentsPage.emptyState.noStarred')
+                            : t('documentsPage.emptyState.noDocuments')}
                       </p>
                       {!searchQuery && !showStarred && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          Create a new document to get started
+                          {t('documentsPage.emptyState.noDocumentsHint')}
                         </p>
                       )}
                     </div>

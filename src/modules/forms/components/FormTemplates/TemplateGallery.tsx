@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ const CATEGORY_ICONS = {
 };
 
 export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGalleryProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<FormTemplate | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -51,9 +53,9 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Choose a Form Template</h2>
+        <h2 className="text-2xl font-bold">{t('templateGallery.title')}</h2>
         <p className="text-muted-foreground mt-1">
-          Start with a pre-built template or create a form from scratch
+          {t('templateGallery.description')}
         </p>
       </div>
 
@@ -61,7 +63,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search templates..."
+          placeholder={t('templateGallery.searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -78,9 +80,9 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
             <Plus className="h-6 w-6 text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold">Start from Scratch</h3>
+            <h3 className="font-semibold">{t('templateGallery.startFromScratch')}</h3>
             <p className="text-sm text-muted-foreground">
-              Create a custom form with your own fields
+              {t('templateGallery.startFromScratchDescription')}
             </p>
           </div>
         </div>
@@ -112,7 +114,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
                   {template.description}
                 </p>
                 <div className="text-xs text-muted-foreground">
-                  {Object.keys(template.schema.properties || {}).length} fields
+                  {t('templateGallery.fields', { count: Object.keys(template.schema.properties || {}).length })}
                 </div>
               </div>
             </Card>
@@ -133,7 +135,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
           {selectedTemplate && (
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium mb-2">Included Fields:</h4>
+                <h4 className="font-medium mb-2">{t('templateGallery.preview.includedFields')}</h4>
                 <div className="space-y-1">
                   {Object.entries(selectedTemplate.schema.properties || {}).map(([key, prop]) => {
                     const property = prop as { title?: string; type?: string };
@@ -143,7 +145,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
                         <span className="font-medium">{property.title || key}</span>
                         <span className="text-muted-foreground">({property.type})</span>
                         {isRequired && (
-                          <Badge variant="destructive" className="text-xs">Required</Badge>
+                          <Badge variant="destructive" className="text-xs">{t('templateGallery.preview.required')}</Badge>
                         )}
                       </div>
                     );
@@ -153,8 +155,7 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
 
               {selectedTemplate.schema.required && selectedTemplate.schema.required.length > 0 && (
                 <div className="text-sm text-muted-foreground">
-                  {selectedTemplate.schema.required.length} required field
-                  {selectedTemplate.schema.required.length !== 1 ? 's' : ''}
+                  {t('templateGallery.preview.requiredFields', { count: selectedTemplate.schema.required.length })}
                 </div>
               )}
             </div>
@@ -162,10 +163,10 @@ export function TemplateGallery({ onSelectTemplate, onCreateBlank }: TemplateGal
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setPreviewOpen(false)}>
-              Cancel
+              {t('templateGallery.preview.cancel')}
             </Button>
             <Button onClick={handleSelectTemplate}>
-              Use This Template
+              {t('templateGallery.preview.useTemplate')}
             </Button>
           </DialogFooter>
         </DialogContent>

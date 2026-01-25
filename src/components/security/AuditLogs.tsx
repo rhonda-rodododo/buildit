@@ -5,6 +5,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -189,6 +190,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
   isAdmin = false,
   className
 }) => {
+  const { t } = useTranslation();
   // useMemo ensures mock data is only created once per component instance
   const initialLogs = useMemo(() => createMockLogs(), []);
   const [logs, _setLogs] = useState<AuditLog[]>(initialLogs);
@@ -255,7 +257,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
           <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>Admin access required to view audit logs</p>
+          <p>{t('auditLogs.adminRequired')}</p>
         </div>
       </Card>
     );
@@ -266,14 +268,14 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold mb-2">Audit Logs</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('auditLogs.title')}</h2>
           <p className="text-muted-foreground">
-            Track all sensitive actions for security investigation
+            {t('auditLogs.description')}
           </p>
         </div>
         <Button onClick={handleExportLogs} className="gap-2">
           <Download className="w-4 h-4" />
-          Export Logs
+          {t('auditLogs.exportLogs')}
         </Button>
       </div>
 
@@ -282,13 +284,13 @@ export const AuditLogs: FC<AuditLogsProps> = ({
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium mb-1">What Gets Logged</h4>
+            <h4 className="text-sm font-medium mb-1">{t('auditLogs.whatGetsLogged')}</h4>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• <strong>Security Actions:</strong> Verifications, suspensions, permission changes</li>
-              <li>• <strong>Data Access:</strong> Profile views, document access, exports</li>
-              <li>• <strong>Content Changes:</strong> Creates, updates, deletes of sensitive content</li>
-              <li>• <strong>Failed Attempts:</strong> Unauthorized access, failed logins</li>
-              <li>• <strong>Metadata:</strong> IP address, user agent, timestamp for investigation</li>
+              <li>• <strong>{t('auditLogs.securityActions')}</strong> {t('auditLogs.securityActionsDesc')}</li>
+              <li>• <strong>{t('auditLogs.dataAccess')}</strong> {t('auditLogs.dataAccessDesc')}</li>
+              <li>• <strong>{t('auditLogs.contentChanges')}</strong> {t('auditLogs.contentChangesDesc')}</li>
+              <li>• <strong>{t('auditLogs.failedAttempts')}</strong> {t('auditLogs.failedAttemptsDesc')}</li>
+              <li>• <strong>{t('auditLogs.metadata')}</strong> {t('auditLogs.metadataDesc')}</li>
             </ul>
           </div>
         </div>
@@ -300,7 +302,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search logs by user, action, or resource..."
+            placeholder={t('auditLogs.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -315,14 +317,14 @@ export const AuditLogs: FC<AuditLogsProps> = ({
             onChange={(e) => setFilterType(e.target.value as AuditLog['actionType'] | 'all')}
             className="px-3 py-2 border rounded-md text-sm bg-background"
           >
-            <option value="all">All Types</option>
-            <option value="create">Create</option>
-            <option value="read">Read</option>
-            <option value="update">Update</option>
-            <option value="delete">Delete</option>
-            <option value="permission">Permission</option>
-            <option value="security">Security</option>
-            <option value="export">Export</option>
+            <option value="all">{t('auditLogs.allTypes')}</option>
+            <option value="create">{t('auditLogs.create')}</option>
+            <option value="read">{t('auditLogs.read')}</option>
+            <option value="update">{t('auditLogs.update')}</option>
+            <option value="delete">{t('auditLogs.deleteType')}</option>
+            <option value="permission">{t('auditLogs.permission')}</option>
+            <option value="security">{t('auditLogs.security')}</option>
+            <option value="export">{t('auditLogs.export')}</option>
           </select>
         </div>
       </div>
@@ -330,23 +332,23 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="p-3">
-          <div className="text-xs text-muted-foreground mb-1">Total Logs</div>
+          <div className="text-xs text-muted-foreground mb-1">{t('auditLogs.totalLogs')}</div>
           <div className="text-2xl font-bold">{logs.length}</div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs text-muted-foreground mb-1">Critical</div>
+          <div className="text-xs text-muted-foreground mb-1">{t('auditLogs.critical')}</div>
           <div className="text-2xl font-bold text-red-500">
             {logs.filter(l => l.severity === 'critical').length}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs text-muted-foreground mb-1">Failed Actions</div>
+          <div className="text-xs text-muted-foreground mb-1">{t('auditLogs.failedActions')}</div>
           <div className="text-2xl font-bold text-orange-500">
             {logs.filter(l => !l.success).length}
           </div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs text-muted-foreground mb-1">Last 24h</div>
+          <div className="text-xs text-muted-foreground mb-1">{t('auditLogs.last24h')}</div>
           <div className="text-2xl font-bold">
             {logsLast24h}
           </div>
@@ -356,7 +358,9 @@ export const AuditLogs: FC<AuditLogsProps> = ({
       {/* Logs List */}
       <div>
         <h3 className="font-semibold mb-3">
-          Recent Activity ({filteredLogs.length} {filteredLogs.length === 1 ? 'log' : 'logs'})
+          {t('auditLogs.recentActivity')} ({filteredLogs.length === 1
+            ? t('auditLogs.logCount', { count: filteredLogs.length })
+            : t('auditLogs.logsCount', { count: filteredLogs.length })})
         </h3>
         <div className="space-y-2">
           {filteredLogs.map((log) => (
@@ -405,12 +409,12 @@ export const AuditLogs: FC<AuditLogsProps> = ({
                   </div>
 
                   <p className="text-sm text-muted-foreground mb-2">
-                    Target: <strong>{log.targetResource}</strong> - {log.details}
+                    {t('auditLogs.target')} <strong>{log.targetResource}</strong> - {log.details}
                   </p>
 
                   {/* Metadata */}
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div>IP: {log.ipAddress}</div>
+                    <div>{t('auditLogs.ip')} {log.ipAddress}</div>
                     <div>•</div>
                     <div className="truncate max-w-xs" title={log.userAgent}>
                       {log.userAgent.split(' ')[0]}
@@ -425,7 +429,7 @@ export const AuditLogs: FC<AuditLogsProps> = ({
             <Card className="p-8">
               <div className="text-center text-muted-foreground">
                 <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No audit logs match your search criteria</p>
+                <p>{t('auditLogs.noLogsMatch')}</p>
               </div>
             </Card>
           )}

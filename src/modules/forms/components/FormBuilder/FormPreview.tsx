@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
 import { JSONSchema7 } from 'json-schema';
@@ -16,20 +17,21 @@ interface FormPreviewProps {
 }
 
 export function FormPreview({ schema, uiSchema }: FormPreviewProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({});
 
   return (
     <Card className="p-6 max-w-2xl mx-auto">
       <div className="mb-4">
-        <h3 className="font-semibold text-lg">Form Preview</h3>
+        <h3 className="font-semibold text-lg">{t('formPreview.title')}</h3>
         <p className="text-sm text-muted-foreground">
-          This is how your form will appear to users
+          {t('formPreview.description')}
         </p>
       </div>
 
       {Object.keys(schema.properties || {}).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p>Add fields to see the preview</p>
+          <p>{t('formPreview.addFields')}</p>
         </div>
       ) : (
         <Form
@@ -44,13 +46,13 @@ export function FormPreview({ schema, uiSchema }: FormPreviewProps) {
           }}
         >
           <div className="flex gap-2 mt-6">
-            <Button type="submit">Submit Preview</Button>
+            <Button type="submit">{t('formPreview.submitPreview')}</Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => setFormData({})}
             >
-              Reset
+              {t('formPreview.reset')}
             </Button>
           </div>
         </Form>
@@ -60,7 +62,7 @@ export function FormPreview({ schema, uiSchema }: FormPreviewProps) {
       {Object.keys(formData).length > 0 && (
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <div className="text-xs font-mono">
-            <div className="font-semibold mb-2">Current Form Data:</div>
+            <div className="font-semibold mb-2">{t('formPreview.currentFormData')}</div>
             <pre className="whitespace-pre-wrap">
               {JSON.stringify(formData, null, 2)}
             </pre>

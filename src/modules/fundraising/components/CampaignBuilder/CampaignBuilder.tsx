@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +30,7 @@ interface CampaignBuilderProps {
 }
 
 export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(campaign?.title || '');
   const [slug, setSlug] = useState(campaign?.slug || '');
   const [description, setDescription] = useState(campaign?.description || '');
@@ -63,19 +65,19 @@ export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderP
       <div className="border-b p-4 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">
-            {campaign ? 'Edit Campaign' : 'Create Campaign'}
+            {campaign ? t('campaignBuilder.editCampaign') : t('campaignBuilder.createCampaign')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Set up a fundraising campaign for your group
+            {t('campaignBuilder.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('campaignBuilder.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={!title || !slug || goal <= 0}>
             <Save className="h-4 w-4 mr-2" />
-            Save Campaign
+            {t('campaignBuilder.saveCampaign')}
           </Button>
         </div>
       </div>
@@ -85,10 +87,10 @@ export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderP
         <div className="max-w-2xl space-y-6">
           {/* Basic Info */}
           <Card className="p-6 space-y-4">
-            <h3 className="font-semibold">Basic Information</h3>
+            <h3 className="font-semibold">{t('campaignBuilder.basicInfo')}</h3>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Campaign Title *</Label>
+              <Label htmlFor="title">{t('campaignBuilder.campaignTitle')}</Label>
               <Input
                 id="title"
                 value={title}
@@ -96,47 +98,47 @@ export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderP
                   setTitle(e.target.value);
                   if (!campaign) handleSlugGeneration(e.target.value);
                 }}
-                placeholder="Strike Support Fund"
+                placeholder={t('campaignBuilder.titlePlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="slug">URL Slug *</Label>
+              <Label htmlFor="slug">{t('campaignBuilder.urlSlug')}</Label>
               <Input
                 id="slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="strike-support-fund"
+                placeholder={t('campaignBuilder.slugPlaceholder')}
               />
               <p className="text-xs text-muted-foreground">
-                URL: /campaigns/{slug || 'your-slug'}
+                {t('campaignBuilder.urlPreview', { slug: slug || 'your-slug' })}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">{t('campaignBuilder.category')}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as Campaign['category'])}>
                 <SelectTrigger id="category">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">General</SelectItem>
-                  <SelectItem value="bail">Bail Fund</SelectItem>
-                  <SelectItem value="strike">Strike Fund</SelectItem>
-                  <SelectItem value="mutual-aid">Mutual Aid</SelectItem>
-                  <SelectItem value="legal">Legal Defense</SelectItem>
-                  <SelectItem value="emergency">Emergency</SelectItem>
+                  <SelectItem value="general">{t('campaignBuilder.categories.general')}</SelectItem>
+                  <SelectItem value="bail">{t('campaignBuilder.categories.bail')}</SelectItem>
+                  <SelectItem value="strike">{t('campaignBuilder.categories.strike')}</SelectItem>
+                  <SelectItem value="mutual-aid">{t('campaignBuilder.categories.mutual-aid')}</SelectItem>
+                  <SelectItem value="legal">{t('campaignBuilder.categories.legal')}</SelectItem>
+                  <SelectItem value="emergency">{t('campaignBuilder.categories.emergency')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('campaignBuilder.description')}</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your fundraising campaign..."
+                placeholder={t('campaignBuilder.descriptionPlaceholder')}
                 rows={6}
               />
             </div>
@@ -144,11 +146,11 @@ export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderP
 
           {/* Goal */}
           <Card className="p-6 space-y-4">
-            <h3 className="font-semibold">Fundraising Goal</h3>
+            <h3 className="font-semibold">{t('campaignBuilder.fundraisingGoal')}</h3>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="goal">Goal Amount *</Label>
+                <Label htmlFor="goal">{t('campaignBuilder.goalAmount')}</Label>
                 <Input
                   id="goal"
                   type="number"
@@ -161,16 +163,16 @@ export function CampaignBuilder({ campaign, onSave, onCancel }: CampaignBuilderP
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
+                <Label htmlFor="currency">{t('campaignBuilder.currency')}</Label>
                 <Select value={currency} onValueChange={setCurrency}>
                   <SelectTrigger id="currency">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
-                    <SelectItem value="CAD">CAD ($)</SelectItem>
+                    <SelectItem value="USD">{t('campaignBuilder.currencies.usd')}</SelectItem>
+                    <SelectItem value="EUR">{t('campaignBuilder.currencies.eur')}</SelectItem>
+                    <SelectItem value="GBP">{t('campaignBuilder.currencies.gbp')}</SelectItem>
+                    <SelectItem value="CAD">{t('campaignBuilder.currencies.cad')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

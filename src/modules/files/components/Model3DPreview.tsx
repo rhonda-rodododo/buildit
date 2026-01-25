@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RotateCcw, ZoomIn, ZoomOut, Move3D, Box, Download } from 'lucide-react'
@@ -14,6 +15,7 @@ interface Model3DPreviewProps {
 }
 
 export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -136,7 +138,6 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
           })
 
           // Cast geometry to the correct type for Three.js Mesh constructor
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mesh = new THREE.Mesh(geometry as any, material)
 
           // Scale to fit view
@@ -218,11 +219,11 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-muted/10 p-8">
         <Box className="h-16 w-16 text-red-500 mb-4" />
-        <h3 className="text-lg font-medium mb-2">Failed to load 3D model</h3>
+        <h3 className="text-lg font-medium mb-2">{t('model3DPreview.failedToLoad')}</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center">{error}</p>
         <Button variant="outline" onClick={() => window.open(url, '_blank')}>
           <Download className="h-4 w-4 mr-2" />
-          Download Model
+          {t('model3DPreview.downloadModel')}
         </Button>
       </div>
     )
@@ -234,7 +235,7 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
         <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading 3D model...</p>
+            <p className="text-muted-foreground">{t('model3DPreview.loading')}</p>
           </div>
         </div>
       )}
@@ -243,7 +244,7 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
         <Badge variant="secondary" className="justify-center">
           <Move3D className="h-3 w-3 mr-1" />
-          3D Model
+          {t('model3DPreview.badge')}
         </Badge>
         {sceneRef && (
           <>
@@ -266,7 +267,7 @@ export function Model3DPreview({ url, filename }: Model3DPreviewProps) {
       {/* Instructions */}
       <div className="absolute bottom-4 left-4 z-10">
         <Badge variant="outline" className="bg-background/80">
-          Drag to rotate | Scroll to zoom | Shift+drag to pan
+          {t('model3DPreview.instructions')}
         </Badge>
       </div>
     </div>

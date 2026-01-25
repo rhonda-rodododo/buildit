@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { SmartNotifications } from '@/components/notifications/SmartNotifications';
 import { Card } from '@/components/ui/card';
@@ -19,17 +20,18 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 
 export const NotificationsDemoPage: FC = () => {
+  const { t } = useTranslation();
   const [currentLevel, setCurrentLevel] = useState<'Neutral' | 'Passive Support' | 'Active Support' | 'Core Organizer'>('Passive Support');
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <PageMeta title="Notifications Demo" descriptionKey="meta.notifications" />
+      <PageMeta titleKey="notificationsDemoPage.title" descriptionKey="meta.notifications" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Smart Notifications</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('notificationsDemoPage.title')}</h1>
           <p className="text-muted-foreground">
-            Context-aware notifications based on engagement level
+            {t('notificationsDemoPage.subtitle')}
           </p>
         </div>
 
@@ -37,23 +39,23 @@ export const NotificationsDemoPage: FC = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
-              Demo: Switch Level
+              {t('notificationsDemoPage.demoSwitchLevel')}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>View as...</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('notificationsDemoPage.viewAs')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setCurrentLevel('Neutral')}>
-              Neutral (30%)
+              {t('notificationsDemoLevels.neutral')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setCurrentLevel('Passive Support')}>
-              Passive Support (40%)
+              {t('notificationsDemoLevels.passiveSupport')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setCurrentLevel('Active Support')}>
-              Active Support (70%)
+              {t('notificationsDemoLevels.activeSupport')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setCurrentLevel('Core Organizer')}>
-              Core Organizer (100%)
+              {t('notificationsDemoLevels.coreOrganizer')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -66,19 +68,19 @@ export const NotificationsDemoPage: FC = () => {
       <Card className="p-4 bg-blue-500/5 border-blue-500/20">
         <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
           <Bell className="w-4 h-4 text-blue-500" />
-          How Smart Notifications Work
+          {t('notificationsDemoPage.explanation.title')}
         </h4>
         <p className="text-xs text-muted-foreground mb-2">
-          Notifications change based on your engagement level:
+          {t('notificationsDemoPage.explanation.description')}
         </p>
         <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-          <li>• <strong>Neutral:</strong> Beginner-friendly events, educational content</li>
-          <li>• <strong>Passive Support:</strong> Encouragement to attend actions, progress updates</li>
-          <li>• <strong>Active Support:</strong> Volunteer opportunities, urgent mobilizations</li>
-          <li>• <strong>Core Organizer:</strong> Leadership meetings, mentorship, security alerts</li>
+          <li>• <strong>{t('notificationsDemoLevels.neutral').split(' (')[0]}:</strong> {t('notificationsDemoPage.explanation.levels.neutral')}</li>
+          <li>• <strong>{t('notificationsDemoLevels.passiveSupport').split(' (')[0]}:</strong> {t('notificationsDemoPage.explanation.levels.passive')}</li>
+          <li>• <strong>{t('notificationsDemoLevels.activeSupport').split(' (')[0]}:</strong> {t('notificationsDemoPage.explanation.levels.active')}</li>
+          <li>• <strong>{t('notificationsDemoLevels.coreOrganizer').split(' (')[0]}:</strong> {t('notificationsDemoPage.explanation.levels.core')}</li>
         </ul>
         <p className="text-xs text-muted-foreground mt-2">
-          Each notification includes a relevance score showing why you're seeing it.
+          {t('notificationsDemoPage.explanation.footer')}
         </p>
       </Card>
     </div>

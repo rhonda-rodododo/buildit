@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
-import { bytesToHex } from '@noble/hashes/utils.js';
+import { bytesToHex } from '@noble/hashes/utils';
 import { db } from '../storage/db';
 import type {
   GroupEntity,

@@ -5,6 +5,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,7 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
   allowChangeVote = true,
   className
 }) => {
+  const { t } = useTranslation();
   const [voted, setVoted] = useState(hasVoted);
   const [selectedVote, setSelectedVote] = useState<string | null>(userVote || null);
   const [anonymousMode, setAnonymousMode] = useState(isAnonymous);
@@ -145,16 +147,16 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
         <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <Lock className="w-3 h-3" />
-            <span>Cryptographically anonymous</span>
+            <span>{t('anonymousVoting.privacy.cryptographic')}</span>
           </div>
           <div>•</div>
-          <div>{totalVoters} eligible voters</div>
+          <div>{t('anonymousVoting.privacy.eligibleVoters', { count: totalVoters })}</div>
           {totalAnonymous > 0 && (
             <>
               <div>•</div>
               <div className="flex items-center gap-1">
                 <EyeOff className="w-3 h-3" />
-                <span>{totalAnonymous} anonymous</span>
+                <span>{t('anonymousVoting.privacy.anonymous', { count: totalAnonymous })}</span>
               </div>
             </>
           )}
@@ -167,8 +169,8 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary" />
             <div>
-              <div className="text-sm font-medium">Cast Anonymous Vote</div>
-              <div className="text-xs text-muted-foreground">Your vote will be cryptographically sealed</div>
+              <div className="text-sm font-medium">{t('anonymousVoting.mode.title')}</div>
+              <div className="text-xs text-muted-foreground">{t('anonymousVoting.mode.description')}</div>
             </div>
           </div>
 
@@ -179,7 +181,7 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
             className="gap-2"
           >
             {anonymousMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {anonymousMode ? 'Anonymous' : 'Public'}
+            {anonymousMode ? t('anonymousVoting.mode.anonymous') : t('anonymousVoting.mode.public')}
           </Button>
         </div>
       )}
@@ -211,12 +213,12 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
                   {isSelected && (
                     <Badge variant="outline" className="gap-1">
                       <CheckCircle2 className="w-3 h-3" />
-                      Your vote
+                      {t('anonymousVoting.options.yourVote')}
                     </Badge>
                   )}
                 </div>
                 {resultsVisible && (
-                  <span className="text-sm font-medium">{option.votes} votes ({percentage.toFixed(0)}%)</span>
+                  <span className="text-sm font-medium">{t('anonymousVoting.results.votes', { count: option.votes, percent: percentage.toFixed(0) })}</span>
                 )}
               </div>
 
@@ -227,7 +229,7 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
                     {option.anonymousVotes > 0 && (
                       <span className="flex items-center gap-1">
                         <EyeOff className="w-3 h-3" />
-                        {option.anonymousVotes} anonymous
+                        {t('anonymousVoting.results.anonymousVotes', { count: option.anonymousVotes })}
                       </span>
                     )}
                   </div>
@@ -244,15 +246,15 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-medium text-sm mb-1">Vote Recorded</h4>
+              <h4 className="font-medium text-sm mb-1">{t('anonymousVoting.status.recorded')}</h4>
               <p className="text-xs text-muted-foreground mb-2">
-                Your {anonymousMode ? 'anonymous' : 'public'} vote has been cryptographically sealed and recorded.
-                {allowChangeVote && ' You can change your vote until the proposal closes.'}
+                {anonymousMode ? t('anonymousVoting.status.recordedAnonymous') : t('anonymousVoting.status.recordedPublic')}
+                {allowChangeVote && ` ${t('anonymousVoting.status.canChange')}`}
               </p>
               {anonymousMode && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Info className="w-3 h-3" />
-                  <span>Your identity is protected by zero-knowledge cryptography</span>
+                  <span>{t('anonymousVoting.status.identityProtected')}</span>
                 </div>
               )}
             </div>
@@ -269,7 +271,7 @@ export const AnonymousVoting: FC<AnonymousVotingProps> = ({
           className="w-full gap-2"
         >
           {resultsVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          {resultsVisible ? 'Hide Results' : 'Show Results'}
+          {resultsVisible ? t('anonymousVoting.results.hide') : t('anonymousVoting.results.show')}
         </Button>
       )}
     </div>

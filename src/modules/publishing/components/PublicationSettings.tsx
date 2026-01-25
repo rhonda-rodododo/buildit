@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePublishingStore } from '../publishingStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +42,7 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
   onClose,
   className,
 }) => {
+  const { t } = useTranslation();
   const { updatePublication } = usePublishingStore();
 
   // Form state
@@ -109,7 +111,7 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
     };
 
     updatePublication(publication.id, updates);
-    toast.success('Settings saved');
+    toast.success(t('publishing.settingsSaved'));
   };
 
   return (
@@ -118,15 +120,15 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          <h2 className="text-lg font-semibold">Publication Settings</h2>
+          <h2 className="text-lg font-semibold">{t('publishing.settings')}</h2>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
-            Save Changes
+            {t('publishing.saveChanges')}
           </Button>
         </div>
       </div>
@@ -135,73 +137,73 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
       <div className="flex-1 overflow-y-auto p-6">
         <Tabs defaultValue="general" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="theme">Theme</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-            <TabsTrigger value="social">Social</TabsTrigger>
+            <TabsTrigger value="general">{t('publishing.tabs.general')}</TabsTrigger>
+            <TabsTrigger value="theme">{t('publishing.tabs.theme')}</TabsTrigger>
+            <TabsTrigger value="content">{t('publishing.tabs.content')}</TabsTrigger>
+            <TabsTrigger value="subscriptions">{t('publishing.tabs.subscriptions')}</TabsTrigger>
+            <TabsTrigger value="social">{t('publishing.tabs.social')}</TabsTrigger>
           </TabsList>
 
           {/* General Settings */}
           <TabsContent value="general">
             <Card>
               <CardHeader>
-                <CardTitle>General Settings</CardTitle>
+                <CardTitle>{t('publishing.general.title')}</CardTitle>
                 <CardDescription>
-                  Basic information about your publication
+                  {t('publishing.general.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   <div>
-                    <Label htmlFor="name">Publication Name</Label>
+                    <Label htmlFor="name">{t('publishing.general.name')}</Label>
                     <Input
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="My Publication"
+                      placeholder={t('publishing.general.namePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t('publishing.general.descriptionLabel')}</Label>
                     <Textarea
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="What is your publication about?"
+                      placeholder={t('publishing.general.descriptionPlaceholder')}
                       rows={3}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="logo">Logo URL</Label>
+                    <Label htmlFor="logo">{t('publishing.general.logoUrl')}</Label>
                     <div className="flex gap-2">
                       <Input
                         id="logo"
                         value={logo}
                         onChange={(e) => setLogo(e.target.value)}
-                        placeholder="https://example.com/logo.png"
+                        placeholder={t('publishing.general.logoPlaceholder')}
                       />
                       {logo && (
                         <img
                           src={logo}
-                          alt="Logo preview"
+                          alt={t('publishing.general.logoPreview')}
                           className="h-10 w-10 rounded object-cover"
                         />
                       )}
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="coverImage">Cover Image URL</Label>
+                    <Label htmlFor="coverImage">{t('publishing.general.coverImageUrl')}</Label>
                     <Input
                       id="coverImage"
                       value={coverImage}
                       onChange={(e) => setCoverImage(e.target.value)}
-                      placeholder="https://example.com/cover.jpg"
+                      placeholder={t('publishing.general.coverImagePlaceholder')}
                     />
                     {coverImage && (
                       <img
                         src={coverImage}
-                        alt="Cover preview"
+                        alt={t('publishing.general.coverPreview')}
                         className="mt-2 h-32 w-full rounded-lg object-cover"
                       />
                     )}
@@ -217,16 +219,16 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Palette className="h-5 w-5" />
-                  <CardTitle>Theme & Appearance</CardTitle>
+                  <CardTitle>{t('publishing.theme.title')}</CardTitle>
                 </div>
                 <CardDescription>
-                  Customize how your publication looks
+                  {t('publishing.theme.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   <div>
-                    <Label htmlFor="primaryColor">Primary Color</Label>
+                    <Label htmlFor="primaryColor">{t('publishing.theme.primaryColor')}</Label>
                     <div className="flex gap-2">
                       <Input
                         id="primaryColor"
@@ -244,36 +246,36 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="fontFamily">Font Family</Label>
+                    <Label htmlFor="fontFamily">{t('publishing.theme.fontFamily')}</Label>
                     <Select value={fontFamily} onValueChange={(v) => setFontFamily(v as typeof fontFamily)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="sans">Sans-serif (Modern)</SelectItem>
-                        <SelectItem value="serif">Serif (Classic)</SelectItem>
-                        <SelectItem value="mono">Monospace (Technical)</SelectItem>
+                        <SelectItem value="sans">{t('publishing.theme.fontSans')}</SelectItem>
+                        <SelectItem value="serif">{t('publishing.theme.fontSerif')}</SelectItem>
+                        <SelectItem value="mono">{t('publishing.theme.fontMono')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="layout">Layout Style</Label>
+                    <Label htmlFor="layout">{t('publishing.theme.layout')}</Label>
                     <Select value={layout} onValueChange={(v) => setLayout(v as typeof layout)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="default">Default</SelectItem>
-                        <SelectItem value="magazine">Magazine</SelectItem>
-                        <SelectItem value="minimal">Minimal</SelectItem>
+                        <SelectItem value="default">{t('publishing.theme.layoutDefault')}</SelectItem>
+                        <SelectItem value="magazine">{t('publishing.theme.layoutMagazine')}</SelectItem>
+                        <SelectItem value="minimal">{t('publishing.theme.layoutMinimal')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Dark Mode</Label>
+                      <Label>{t('publishing.theme.darkMode')}</Label>
                       <p className="text-sm text-muted-foreground">
-                        Enable dark mode for your publication
+                        {t('publishing.theme.darkModeDesc')}
                       </p>
                     </div>
                     <Switch checked={darkMode} onCheckedChange={setDarkMode} />
@@ -289,16 +291,16 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Rss className="h-5 w-5" />
-                  <CardTitle>Content Settings</CardTitle>
+                  <CardTitle>{t('publishing.content.title')}</CardTitle>
                 </div>
                 <CardDescription>
-                  Control how content is published and displayed
+                  {t('publishing.content.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   <div>
-                    <Label>Default Article Visibility</Label>
+                    <Label>{t('publishing.content.defaultVisibility')}</Label>
                     <Select
                       value={defaultVisibility}
                       onValueChange={(v) => setDefaultVisibility(v as ArticleVisibility)}
@@ -307,26 +309,26 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="public">Public</SelectItem>
-                        <SelectItem value="subscribers">Subscribers Only</SelectItem>
-                        <SelectItem value="paid">Paid Subscribers Only</SelectItem>
+                        <SelectItem value="public">{t('publishing.content.visibilityPublic')}</SelectItem>
+                        <SelectItem value="subscribers">{t('publishing.content.visibilitySubscribers')}</SelectItem>
+                        <SelectItem value="paid">{t('publishing.content.visibilityPaid')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Allow Comments</Label>
+                      <Label>{t('publishing.content.allowComments')}</Label>
                       <p className="text-sm text-muted-foreground">
-                        Let readers comment on articles
+                        {t('publishing.content.allowCommentsDesc')}
                       </p>
                     </div>
                     <Switch checked={allowComments} onCheckedChange={setAllowComments} />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Enable RSS Feed</Label>
+                      <Label>{t('publishing.content.enableRss')}</Label>
                       <p className="text-sm text-muted-foreground">
-                        Generate RSS feed for your publication
+                        {t('publishing.content.enableRssDesc')}
                       </p>
                     </div>
                     <Switch checked={enableRss} onCheckedChange={setEnableRss} />
@@ -334,9 +336,9 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                   {enableRss && (
                     <div className="flex items-center justify-between ml-6">
                       <div>
-                        <Label>Full Content in RSS</Label>
+                        <Label>{t('publishing.content.fullRss')}</Label>
                         <p className="text-sm text-muted-foreground">
-                          Include full article content in RSS (vs excerpt only)
+                          {t('publishing.content.fullRssDesc')}
                         </p>
                       </div>
                       <Switch checked={rssFullContent} onCheckedChange={setRssFullContent} />
@@ -353,19 +355,19 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  <CardTitle>Subscription Settings</CardTitle>
+                  <CardTitle>{t('publishing.subscriptions.title')}</CardTitle>
                 </div>
                 <CardDescription>
-                  Configure subscriber features and monetization
+                  {t('publishing.subscriptions.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Email Notifications</Label>
+                      <Label>{t('publishing.subscriptions.emailNotifications')}</Label>
                       <p className="text-sm text-muted-foreground">
-                        Send email notifications to subscribers (requires email setup)
+                        {t('publishing.subscriptions.emailNotificationsDesc')}
                       </p>
                     </div>
                     <Switch
@@ -375,9 +377,9 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label>Paid Subscriptions</Label>
+                      <Label>{t('publishing.subscriptions.paidSubscriptions')}</Label>
                       <p className="text-sm text-muted-foreground">
-                        Enable paid subscription tier for premium content
+                        {t('publishing.subscriptions.paidSubscriptionsDesc')}
                       </p>
                     </div>
                     <Switch
@@ -387,7 +389,7 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                   </div>
                   {enablePaidSubscriptions && (
                     <div className="ml-6">
-                      <Label htmlFor="price">Monthly Price (USD)</Label>
+                      <Label htmlFor="price">{t('publishing.subscriptions.monthlyPrice')}</Label>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">$</span>
                         <Input
@@ -398,7 +400,7 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                           onChange={(e) => setSubscriptionPrice(Math.round(parseFloat(e.target.value) * 100))}
                           className="w-24"
                         />
-                        <span className="text-muted-foreground">/ month</span>
+                        <span className="text-muted-foreground">{t('publishing.subscriptions.perMonth')}</span>
                       </div>
                     </div>
                   )}
@@ -413,39 +415,39 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Share2 className="h-5 w-5" />
-                  <CardTitle>Social Links</CardTitle>
+                  <CardTitle>{t('publishing.social.title')}</CardTitle>
                 </div>
                 <CardDescription>
-                  Add social media links to your publication
+                  {t('publishing.social.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4">
                   <div>
-                    <Label htmlFor="twitter">Twitter / X</Label>
+                    <Label htmlFor="twitter">{t('publishing.social.twitter')}</Label>
                     <Input
                       id="twitter"
                       value={twitter}
                       onChange={(e) => setTwitter(e.target.value)}
-                      placeholder="@username"
+                      placeholder={t('publishing.social.twitterPlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="nostr">Nostr</Label>
+                    <Label htmlFor="nostr">{t('publishing.social.nostr')}</Label>
                     <Input
                       id="nostr"
                       value={nostr}
                       onChange={(e) => setNostr(e.target.value)}
-                      placeholder="npub..."
+                      placeholder={t('publishing.social.nostrPlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="website">Website</Label>
+                    <Label htmlFor="website">{t('publishing.social.website')}</Label>
                     <Input
                       id="website"
                       value={website}
                       onChange={(e) => setWebsite(e.target.value)}
-                      placeholder="https://example.com"
+                      placeholder={t('publishing.social.websitePlaceholder')}
                     />
                   </div>
                 </div>

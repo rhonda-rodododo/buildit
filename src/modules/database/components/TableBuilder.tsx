@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import type { DatabaseTableTemplate } from '../types';
 import type { CustomField, FieldType, FieldWidgetConfig, JSONSchemaField } from '@/modules/custom-fields/types';
@@ -38,6 +39,7 @@ interface TableBuilderProps {
 }
 
 export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(table?.name || '');
   const [description, setDescription] = useState(table?.description || '');
   const [fields, setFields] = useState<CustomField[]>(table?.fields || []);
@@ -46,12 +48,12 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
 
   const handleSaveTable = () => {
     if (!name.trim()) {
-      alert('Please enter a table name');
+      alert(t('tableBuilder.alerts.enterTableName'));
       return;
     }
 
     if (fields.length === 0) {
-      alert('Please add at least one field');
+      alert(t('tableBuilder.alerts.addAtLeastOneField'));
       return;
     }
 
@@ -102,9 +104,9 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{table ? 'Edit' : 'Create'} Table</DialogTitle>
+        <DialogTitle>{table ? t('tableBuilder.editTable') : t('tableBuilder.createTable')}</DialogTitle>
         <DialogDescription>
-          Define the structure and fields for this table
+          {t('tableBuilder.subtitle')}
         </DialogDescription>
       </DialogHeader>
 
@@ -112,22 +114,22 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
         {/* Table Info */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="table-name">Table Name</Label>
+            <Label htmlFor="table-name">{t('tableBuilder.tableName')}</Label>
             <Input
               id="table-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Contacts, Projects, Tasks"
+              placeholder={t('tableBuilder.tableNamePlaceholder')}
             />
           </div>
 
           <div>
-            <Label htmlFor="table-description">Description (optional)</Label>
+            <Label htmlFor="table-description">{t('tableBuilder.descriptionOptional')}</Label>
             <Textarea
               id="table-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this table for?"
+              placeholder={t('tableBuilder.descriptionPlaceholder')}
               rows={2}
             />
           </div>
@@ -136,10 +138,10 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
         {/* Fields */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Fields</Label>
+            <Label>{t('tableBuilder.fields')}</Label>
             <Button onClick={handleAddField} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add Field
+              {t('tableBuilder.addField')}
             </Button>
           </div>
 
@@ -147,7 +149,7 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-muted-foreground text-sm">
-                  No fields yet. Add your first field to define the table structure.
+                  {t('tableBuilder.noFields')}
                 </p>
               </CardContent>
             </Card>
@@ -171,7 +173,7 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
                               <div className="font-medium">{field.label}</div>
                               <div className="text-sm text-muted-foreground">
                                 {field.name} • {FIELD_TYPE_DEFINITIONS[field.widget.widget]?.label}
-                                {field.schema.required && ' • Required'}
+                                {field.schema.required && ` • ${t('tableBuilder.required')}`}
                               </div>
                             </div>
                             <div className="flex gap-2">
@@ -205,11 +207,11 @@ export function TableBuilder({ table, onSave, onCancel }: TableBuilderProps) {
 
       <DialogFooter>
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          {t('tableBuilder.cancel')}
         </Button>
         <Button onClick={handleSaveTable}>
           <Save className="h-4 w-4 mr-2" />
-          Save Table
+          {t('tableBuilder.saveTable')}
         </Button>
       </DialogFooter>
 
@@ -237,6 +239,7 @@ interface FieldEditorProps {
 }
 
 function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEditorProps) {
+  const { t } = useTranslation();
   const isEditing = !!field;
 
   const [name, setName] = useState(field?.name || '');
@@ -267,27 +270,27 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
 
   const handleSave = () => {
     if (!label.trim()) {
-      alert('Please enter a field label');
+      alert(t('tableBuilder.fieldEditor.alerts.enterLabel'));
       return;
     }
 
     if (!name.trim()) {
-      alert('Please enter a field name');
+      alert(t('tableBuilder.fieldEditor.alerts.enterName'));
       return;
     }
 
     if (!/^[a-z0-9_]+$/.test(name)) {
-      alert('Field name can only contain lowercase letters, numbers, and underscores');
+      alert(t('tableBuilder.fieldEditor.alerts.invalidName'));
       return;
     }
 
     if (!isEditing && existingFieldNames.includes(name)) {
-      alert('A field with this name already exists');
+      alert(t('tableBuilder.fieldEditor.alerts.duplicateName'));
       return;
     }
 
     if (fieldDef.supportsOptions && options.length === 0) {
-      alert('Please add at least one option');
+      alert(t('tableBuilder.fieldEditor.alerts.addOption'));
       return;
     }
 
@@ -335,39 +338,39 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit' : 'Add'} Field</DialogTitle>
+          <DialogTitle>{isEditing ? t('tableBuilder.fieldEditor.editField') : t('tableBuilder.fieldEditor.addField')}</DialogTitle>
           <DialogDescription>
-            Configure the field properties and validation
+            {t('tableBuilder.fieldEditor.subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <Label htmlFor="field-label">Label *</Label>
+            <Label htmlFor="field-label">{t('tableBuilder.fieldEditor.label')}</Label>
             <Input
               id="field-label"
               value={label}
               onChange={(e) => handleLabelChange(e.target.value)}
-              placeholder="e.g., Full Name, Email Address"
+              placeholder={t('tableBuilder.fieldEditor.labelPlaceholder')}
             />
           </div>
 
           <div>
-            <Label htmlFor="field-name">Field Name * (used in code)</Label>
+            <Label htmlFor="field-name">{t('tableBuilder.fieldEditor.fieldName')}</Label>
             <Input
               id="field-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., full_name, email_address"
+              placeholder={t('tableBuilder.fieldEditor.fieldNamePlaceholder')}
               disabled={isEditing}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Lowercase letters, numbers, and underscores only
+              {t('tableBuilder.fieldEditor.fieldNameHelp')}
             </p>
           </div>
 
           <div>
-            <Label htmlFor="field-type">Field Type *</Label>
+            <Label htmlFor="field-type">{t('tableBuilder.fieldEditor.fieldType')}</Label>
             <Select
               value={fieldType}
               onValueChange={(val) => setFieldType(val as FieldType)}
@@ -394,26 +397,26 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
               onChange={(e) => setRequired(e.target.checked)}
               className="h-4 w-4"
             />
-            <Label htmlFor="field-required">Required field</Label>
+            <Label htmlFor="field-required">{t('tableBuilder.fieldEditor.requiredField')}</Label>
           </div>
 
           <div>
-            <Label htmlFor="field-placeholder">Placeholder (optional)</Label>
+            <Label htmlFor="field-placeholder">{t('tableBuilder.fieldEditor.placeholder')}</Label>
             <Input
               id="field-placeholder"
               value={placeholder}
               onChange={(e) => setPlaceholder(e.target.value)}
-              placeholder="Placeholder text"
+              placeholder={t('tableBuilder.fieldEditor.placeholderPlaceholder')}
             />
           </div>
 
           <div>
-            <Label htmlFor="field-help">Help Text (optional)</Label>
+            <Label htmlFor="field-help">{t('tableBuilder.fieldEditor.helpText')}</Label>
             <Textarea
               id="field-help"
               value={helpText}
               onChange={(e) => setHelpText(e.target.value)}
-              placeholder="Additional guidance for users"
+              placeholder={t('tableBuilder.fieldEditor.helpTextPlaceholder')}
               rows={2}
             />
           </div>
@@ -422,7 +425,7 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
           {fieldDef.supportsOptions && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Options *</Label>
+                <Label>{t('tableBuilder.fieldEditor.options')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -430,13 +433,13 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
                   onClick={() => setOptions([...options, { value: '', label: '' }])}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Option
+                  {t('tableBuilder.fieldEditor.addOption')}
                 </Button>
               </div>
               {options.map((option, index) => (
                 <div key={index} className="flex gap-2">
                   <Input
-                    placeholder="Label"
+                    placeholder={t('tableBuilder.fieldEditor.optionLabel')}
                     value={option.label}
                     onChange={(e) => {
                       const newOptions = [...options];
@@ -446,7 +449,7 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
                     }}
                   />
                   <Input
-                    placeholder="Value"
+                    placeholder={t('tableBuilder.fieldEditor.optionValue')}
                     value={option.value}
                     onChange={(e) => {
                       const newOptions = [...options];
@@ -470,9 +473,9 @@ function FieldEditor({ field, existingFieldNames, onSave, onCancel }: FieldEdito
 
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('tableBuilder.cancel')}
           </Button>
-          <Button onClick={handleSave}>Save Field</Button>
+          <Button onClick={handleSave}>{t('tableBuilder.fieldEditor.saveField')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

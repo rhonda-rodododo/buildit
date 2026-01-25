@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +37,7 @@ export const PollCard: FC<PollCardProps> = ({
   showAuthor = false,
   compact = false,
 }) => {
+  const { t } = useTranslation();
   const { votePoll, hasVoted, myVotes } = useSocialStore();
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -48,9 +50,9 @@ export const PollCard: FC<PollCardProps> = ({
 
   // Calculate time remaining
   const timeRemaining = useMemo(() => {
-    if (!isActive) return 'Ended';
+    if (!isActive) return t('pollCard.status.ended');
     return formatDistance(poll.endsAt, Date.now(), { addSuffix: true });
-  }, [poll.endsAt, isActive]);
+  }, [poll.endsAt, isActive, t]);
 
   // Handle option selection
   const handleOptionToggle = (optionId: string) => {
@@ -99,7 +101,7 @@ export const PollCard: FC<PollCardProps> = ({
             <span className="font-semibold">{poll.question}</span>
           </div>
           <Badge variant={isActive ? 'default' : 'secondary'}>
-            {isActive ? 'Active' : 'Ended'}
+            {isActive ? t('pollCard.status.active') : t('pollCard.status.ended')}
           </Badge>
         </div>
 
@@ -107,7 +109,7 @@ export const PollCard: FC<PollCardProps> = ({
         <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
           <span className="flex items-center gap-1">
             <Users className="w-4 h-4" />
-            {poll.totalVotes} vote{poll.totalVotes !== 1 ? 's' : ''}
+            {t('pollCard.voteCount', { count: poll.totalVotes })}
           </span>
           <span className="flex items-center gap-1">
             {isActive ? <Timer className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
@@ -115,7 +117,7 @@ export const PollCard: FC<PollCardProps> = ({
           </span>
           <span className="flex items-center gap-1">
             {poll.isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {poll.isAnonymous ? 'Anonymous' : 'Public'}
+            {poll.isAnonymous ? t('pollCard.anonymous') : t('pollCard.public')}
           </span>
         </div>
       </CardHeader>
@@ -202,7 +204,7 @@ export const PollCard: FC<PollCardProps> = ({
                     <span>{option.text}</span>
                   </div>
                   {isUserVote && (
-                    <Badge variant="outline">Your vote</Badge>
+                    <Badge variant="outline">{t('pollCard.yourVote')}</Badge>
                   )}
                 </div>
               )}
@@ -213,7 +215,7 @@ export const PollCard: FC<PollCardProps> = ({
         {/* Results hidden notice */}
         {!showResults && !isActive && (
           <p className="text-sm text-muted-foreground text-center py-2">
-            Results will be revealed when the poll ends
+            {t('pollCard.resultsHidden')}
           </p>
         )}
       </CardContent>
@@ -226,7 +228,7 @@ export const PollCard: FC<PollCardProps> = ({
             disabled={selectedOptions.length === 0 || isVoting}
             className="w-full"
           >
-            {isVoting ? 'Voting...' : 'Vote'}
+            {isVoting ? t('pollCard.voting') : t('pollCard.vote')}
           </Button>
         </CardFooter>
       )}

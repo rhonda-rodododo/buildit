@@ -4,6 +4,7 @@
  */
 
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -33,6 +34,7 @@ export const DeliveryProgress: FC<DeliveryProgressProps> = ({
   onClose,
   className,
 }) => {
+  const { t } = useTranslation();
   const isComplete = issue.status === 'sent' || issue.status === 'failed';
   const hasFailed = issue.stats.failed > 0;
 
@@ -54,28 +56,28 @@ export const DeliveryProgress: FC<DeliveryProgressProps> = ({
             )}
             <CardTitle>
               {isDelivering
-                ? 'Sending Newsletter...'
+                ? t('deliveryProgress.sending')
                 : isComplete
-                ? 'Delivery Complete'
-                : 'Ready to Send'}
+                ? t('deliveryProgress.complete')
+                : t('deliveryProgress.readyToSend')}
             </CardTitle>
           </div>
           {isDelivering && (
             <Button variant="outline" size="sm" onClick={onCancel}>
               <StopCircle className="h-4 w-4 mr-2" />
-              Cancel
+              {t('deliveryProgress.cancel')}
             </Button>
           )}
         </div>
         <CardDescription>
-          {issue.subject || 'Untitled Newsletter'}
+          {issue.subject || t('deliveryProgress.untitled')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Progress Bar */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Progress</span>
+            <span className="text-sm font-medium">{t('deliveryProgress.progress')}</span>
             <span className="text-sm text-muted-foreground">
               {progress?.percentComplete || 0}%
             </span>
@@ -92,26 +94,26 @@ export const DeliveryProgress: FC<DeliveryProgressProps> = ({
             <p className="text-2xl font-bold text-green-600">
               {progress?.delivered || issue.stats.delivered || 0}
             </p>
-            <p className="text-sm text-muted-foreground">Delivered</p>
+            <p className="text-sm text-muted-foreground">{t('deliveryProgress.stats.delivered')}</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-yellow-600">
               {progress?.pending || issue.stats.pending || 0}
             </p>
-            <p className="text-sm text-muted-foreground">Pending</p>
+            <p className="text-sm text-muted-foreground">{t('deliveryProgress.stats.pending')}</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-red-600">
               {progress?.failed || issue.stats.failed || 0}
             </p>
-            <p className="text-sm text-muted-foreground">Failed</p>
+            <p className="text-sm text-muted-foreground">{t('deliveryProgress.stats.failed')}</p>
           </div>
         </div>
 
         {/* Current Activity */}
         {isDelivering && progress?.currentPubkey && (
           <div className="text-center py-2 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Sending to</p>
+            <p className="text-sm text-muted-foreground">{t('deliveryProgress.sendingTo')}</p>
             <p className="font-mono text-sm">
               {progress.currentPubkey.slice(0, 8)}...
               {progress.currentPubkey.slice(-8)}
@@ -122,14 +124,14 @@ export const DeliveryProgress: FC<DeliveryProgressProps> = ({
         {/* Total */}
         <div className="text-center pt-4 border-t">
           <p className="text-sm text-muted-foreground">
-            Total Recipients: {progress?.total || issue.stats.totalRecipients || 0}
+            {t('deliveryProgress.totalRecipients', { count: progress?.total || issue.stats.totalRecipients || 0 })}
           </p>
         </div>
 
         {/* Actions */}
         {isComplete && (
           <div className="flex justify-end pt-4">
-            <Button onClick={onClose}>Close</Button>
+            <Button onClick={onClose}>{t('deliveryProgress.close')}</Button>
           </div>
         )}
       </CardContent>

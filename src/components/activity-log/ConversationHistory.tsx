@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -166,6 +167,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
   currentUserName,
   className
 }) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>(DEMO_MESSAGES);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'group' | 'mention'>('all');
@@ -230,9 +232,9 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
 
   const getMessageTypeLabel = (type: Message['type']) => {
     switch (type) {
-      case 'direct': return 'Direct Message';
-      case 'group': return 'Group Message';
-      case 'mention': return 'Mentioned';
+      case 'direct': return t('conversationHistory.messageTypes.direct');
+      case 'group': return t('conversationHistory.messageTypes.group');
+      case 'mention': return t('conversationHistory.messageTypes.mention');
     }
   };
 
@@ -248,9 +250,9 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
             <AvatarFallback>{contactName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-lg font-semibold">Conversation with {contactName}</h3>
+            <h3 className="text-lg font-semibold">{t('conversationHistory.title', { name: contactName })}</h3>
             <p className="text-sm text-muted-foreground">
-              {filteredMessages.length} messages
+              {t('conversationHistory.messageCount', { count: filteredMessages.length })}
             </p>
           </div>
         </div>
@@ -260,26 +262,26 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2">
               <Filter className="w-4 h-4" />
-              {filterType === 'all' ? 'All Messages' : getMessageTypeLabel(filterType)}
+              {filterType === 'all' ? t('conversationHistory.filters.all') : getMessageTypeLabel(filterType)}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Filter Messages</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('conversationHistory.filters.label')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setFilterType('all')}>
-              All Messages
+              {t('conversationHistory.filters.all')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setFilterType('direct')}>
               <Mail className="w-4 h-4 mr-2" />
-              Direct Messages
+              {t('conversationHistory.filters.direct')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setFilterType('group')}>
               <Users className="w-4 h-4 mr-2" />
-              Group Messages
+              {t('conversationHistory.filters.group')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setFilterType('mention')}>
               <Hash className="w-4 h-4 mr-2" />
-              Mentions
+              {t('conversationHistory.filters.mentions')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -289,7 +291,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Search conversation..."
+          placeholder={t('conversationHistory.searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
@@ -301,7 +303,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
         <div className="space-y-4">
           {filteredMessages.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No messages found</p>
+              <p className="text-muted-foreground">{t('conversationHistory.noMessages')}</p>
             </div>
           ) : (
             filteredMessages.map((message, index) => {
@@ -375,7 +377,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
             <textarea
               className="w-full p-3 border rounded-lg bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               rows={3}
-              placeholder={`Send a message to ${contactName}...`}
+              placeholder={t('conversationHistory.sendPlaceholder', { name: contactName })}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -386,7 +388,7 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
               }}
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Press Enter to send, Shift+Enter for new line
+              {t('conversationHistory.sendHint')}
             </p>
           </div>
           <Button
@@ -395,32 +397,32 @@ export const ConversationHistory: FC<ConversationHistoryProps> = ({
             className="gap-2"
           >
             <Send className="w-4 h-4" />
-            Send
+            {t('conversationHistory.send')}
           </Button>
         </div>
       </Card>
 
       {/* Conversation Stats */}
       <Card className="p-4 bg-muted/50">
-        <h4 className="text-sm font-semibold mb-3">Conversation Summary</h4>
+        <h4 className="text-sm font-semibold mb-3">{t('conversationHistory.summary.title')}</h4>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold">
               {messages.filter(m => m.type === 'direct').length}
             </p>
-            <p className="text-xs text-muted-foreground">Direct Messages</p>
+            <p className="text-xs text-muted-foreground">{t('conversationHistory.summary.directMessages')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">
               {messages.filter(m => m.type === 'group' || m.type === 'mention').length}
             </p>
-            <p className="text-xs text-muted-foreground">Group Interactions</p>
+            <p className="text-xs text-muted-foreground">{t('conversationHistory.summary.groupInteractions')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">
               {daysSinceFirstContact}
             </p>
-            <p className="text-xs text-muted-foreground">Days Since First Contact</p>
+            <p className="text-xs text-muted-foreground">{t('conversationHistory.summary.daysSinceContact')}</p>
           </div>
         </div>
       </Card>

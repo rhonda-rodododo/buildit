@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ interface AddFriendDialogProps {
 }
 
 export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
+  const { t } = useTranslation();
   const { currentIdentity } = useAuthStore();
   const { addFriend, createInviteLink } = useFriendsStore();
 
@@ -70,7 +72,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
   // Handle username search and add
   const handleAddByUsername = async () => {
     if (!usernameQuery.trim()) {
-      toast.error('Please enter a username');
+      toast.error(t('addFriendDialog.toasts.enterUsername'));
       return;
     }
 
@@ -78,10 +80,10 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     try {
       // NIP-05 search deferred to Phase 2 - currently accepts pubkey
       await addFriend(usernameQuery, 'username', friendMessage || undefined);
-      toast.success('Friend request sent!');
+      toast.success(t('addFriendDialog.toasts.requestSent'));
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send friend request');
+      toast.error(error.message || t('addFriendDialog.toasts.requestSent'));
     } finally {
       setIsSearching(false);
     }
@@ -112,7 +114,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
       setIsScanning(true);
     } catch (error) {
       console.error('Failed to start QR scanner:', error);
-      toast.error('Failed to access camera');
+      toast.error(t('addFriendDialog.toasts.failedToAccessCamera'));
     }
   };
 
@@ -136,29 +138,29 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
 
       // Signature verification deferred to Phase 2
       if (!qrData.pubkey) {
-        throw new Error('Invalid QR code');
+        throw new Error(t('addFriendDialog.toasts.invalidQrCode'));
       }
 
       await addFriend(qrData.pubkey, 'qr', friendMessage || undefined);
-      toast.success('Friend request sent!');
+      toast.success(t('addFriendDialog.toasts.requestSent'));
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || 'Invalid QR code');
+      toast.error(error.message || t('addFriendDialog.toasts.invalidQrCode'));
     }
   };
 
   // Send email invite
   const handleEmailInvite = async () => {
     if (!email.trim()) {
-      toast.error('Please enter an email address');
+      toast.error(t('addFriendDialog.toasts.enterEmail'));
       return;
     }
 
     try {
       // Email invites require backend service (Phase 3)
-      toast.info('Email invites coming soon!');
+      toast.info(t('addFriendDialog.toasts.emailComingSoon'));
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send email invite');
+      toast.error(error.message || t('addFriendDialog.toasts.emailComingSoon'));
     }
   };
 
@@ -172,9 +174,9 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
 
       const fullLink = `${window.location.origin}/invite/${link.code}`;
       setInviteLink(fullLink);
-      toast.success('Invite link created!');
+      toast.success(t('addFriendDialog.toasts.inviteLinkCreated'));
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create invite link');
+      toast.error(error.message || t('addFriendDialog.toasts.inviteLinkCreated'));
     }
   };
 
@@ -182,7 +184,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
   const handleCopyInviteLink = () => {
     navigator.clipboard.writeText(inviteLink);
     setInviteLinkCopied(true);
-    toast.success('Link copied to clipboard!');
+    toast.success(t('addFriendDialog.toasts.linkCopied'));
     setTimeout(() => setInviteLinkCopied(false), 2000);
   };
 
@@ -197,47 +199,47 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Friend</DialogTitle>
-          <DialogDescription>Choose how you'd like to connect with your friend</DialogDescription>
+          <DialogTitle>{t('addFriendDialog.title')}</DialogTitle>
+          <DialogDescription>{t('addFriendDialog.description')}</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="username" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="username">
               <User className="h-4 w-4 mr-1" />
-              Username
+              {t('addFriendDialog.tabs.username')}
             </TabsTrigger>
             <TabsTrigger value="qr">
               <QrCode className="h-4 w-4 mr-1" />
-              QR Code
+              {t('addFriendDialog.tabs.qr')}
             </TabsTrigger>
             <TabsTrigger value="email">
               <Mail className="h-4 w-4 mr-1" />
-              Email
+              {t('addFriendDialog.tabs.email')}
             </TabsTrigger>
             <TabsTrigger value="link">
               <LinkIcon className="h-4 w-4 mr-1" />
-              Link
+              {t('addFriendDialog.tabs.link')}
             </TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Username Search */}
           <TabsContent value="username" className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username or Public Key</Label>
+              <Label htmlFor="username">{t('addFriendDialog.username.label')}</Label>
               <Input
                 id="username"
-                placeholder="Enter username or pubkey..."
+                placeholder={t('addFriendDialog.username.placeholder')}
                 value={usernameQuery}
                 onChange={(e) => setUsernameQuery(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Optional Message</Label>
+              <Label htmlFor="message">{t('addFriendDialog.username.messageLabel')}</Label>
               <Textarea
                 id="message"
-                placeholder="Say hello..."
+                placeholder={t('addFriendDialog.username.messagePlaceholder')}
                 value={friendMessage}
                 onChange={(e) => setFriendMessage(e.target.value)}
                 rows={3}
@@ -250,7 +252,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
               className="w-full"
               data-testid="send-friend-request-button"
             >
-              {isSearching ? 'Sending...' : 'Send Friend Request'}
+              {isSearching ? t('addFriendDialog.username.sending') : t('addFriendDialog.username.sendRequest')}
             </Button>
           </TabsContent>
 
@@ -259,24 +261,24 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Show QR */}
               <div className="space-y-2">
-                <Label>Your QR Code</Label>
+                <Label>{t('addFriendDialog.qr.yourQrCode')}</Label>
                 <div className="flex justify-center p-4 bg-white rounded-lg" data-testid="user-qr-code">
                   <QRCodeSVG value={qrData} size={200} />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  Let your friend scan this code
+                  {t('addFriendDialog.qr.letFriendScan')}
                 </p>
               </div>
 
               {/* Scan QR */}
               <div className="space-y-2">
-                <Label>Scan Friend's QR Code</Label>
+                <Label>{t('addFriendDialog.qr.scanFriendQr')}</Label>
                 <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
                   {!isScanning ? (
                     <div className="flex items-center justify-center h-full">
                       <Button onClick={startScanning} data-testid="start-qr-scan-button">
                         <Camera className="mr-2 h-4 w-4" />
-                        Start Scanning
+                        {t('addFriendDialog.qr.startScanning')}
                       </Button>
                     </div>
                   ) : (
@@ -294,7 +296,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
                   )}
                 </div>
                 {scanResult && (
-                  <p className="text-xs text-green-600">Scanned successfully!</p>
+                  <p className="text-xs text-green-600">{t('addFriendDialog.qr.scannedSuccessfully')}</p>
                 )}
               </div>
             </div>
@@ -303,21 +305,21 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
           {/* Tab 3: Email Invite */}
           <TabsContent value="email" className="space-y-4 pt-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Friend's Email</Label>
+              <Label htmlFor="email">{t('addFriendDialog.email.friendEmail')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="friend@example.com"
+                placeholder={t('addFriendDialog.email.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="invite-message">Invitation Message</Label>
+              <Label htmlFor="invite-message">{t('addFriendDialog.email.invitationMessage')}</Label>
               <Textarea
                 id="invite-message"
-                placeholder="I'd like to connect with you on BuildIt Network..."
+                placeholder={t('addFriendDialog.email.invitationPlaceholder')}
                 value={inviteMessage}
                 onChange={(e) => setInviteMessage(e.target.value)}
                 rows={4}
@@ -325,15 +327,14 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
             </div>
 
             <Button onClick={handleEmailInvite} className="w-full">
-              Send Email Invite
+              {t('addFriendDialog.email.sendEmailInvite')}
             </Button>
           </TabsContent>
 
           {/* Tab 4: Invite Link */}
           <TabsContent value="link" className="space-y-4 pt-4">
             <p className="text-sm text-muted-foreground">
-              Generate a shareable link that anyone can use to send you a friend request. Link
-              expires in 7 days and can be used up to 10 times.
+              {t('addFriendDialog.link.description')}
             </p>
 
             {!inviteLink ? (
@@ -342,18 +343,18 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
                 className="w-full"
                 data-testid="generate-invite-link-button"
               >
-                Generate Invite Link
+                {t('addFriendDialog.link.generateLink')}
               </Button>
             ) : (
               <div className="space-y-2">
-                <Label>Your Invite Link</Label>
+                <Label>{t('addFriendDialog.link.yourInviteLink')}</Label>
                 <div className="flex gap-2">
                   <Input value={inviteLink} readOnly />
                   <Button
                     size="icon"
                     variant="outline"
                     onClick={handleCopyInviteLink}
-                    title="Copy link"
+                    title={t('addFriendDialog.link.copyLink')}
                   >
                     {inviteLinkCopied ? (
                       <Check className="h-4 w-4 text-green-600" />
@@ -363,7 +364,7 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Share this link with friends. Expires in 7 days or after 10 uses.
+                  {t('addFriendDialog.link.expiresInfo')}
                 </p>
               </div>
             )}

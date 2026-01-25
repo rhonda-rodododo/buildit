@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import type { Notification } from '@/types/notification'
 
 export function NotificationCenter() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const {
     notifications,
@@ -48,7 +50,7 @@ export function NotificationCenter() {
         <DialogContent className="max-w-2xl max-h-[80vh]">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle>Notifications</DialogTitle>
+              <DialogTitle>{t('notificationCenter.title')}</DialogTitle>
               {notifications.length > 0 && (
                 <Button
                   variant="ghost"
@@ -57,7 +59,7 @@ export function NotificationCenter() {
                   disabled={unreadCount === 0}
                 >
                   <CheckCheck className="w-4 h-4 mr-2" />
-                  Mark all read
+                  {t('notificationCenter.markAllRead')}
                 </Button>
               )}
             </div>
@@ -67,13 +69,13 @@ export function NotificationCenter() {
             <Card className="p-4 mb-4 bg-accent">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Enable browser notifications</p>
+                  <p className="text-sm font-medium">{t('notificationCenter.enableBrowser.title')}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Get notified even when the app is in the background
+                    {t('notificationCenter.enableBrowser.description')}
                   </p>
                 </div>
                 <Button size="sm" onClick={handleRequestPermission}>
-                  Enable
+                  {t('notificationCenter.enableBrowser.button')}
                 </Button>
               </div>
             </Card>
@@ -83,7 +85,7 @@ export function NotificationCenter() {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Bell className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No notifications yet</p>
+                <p className="text-muted-foreground">{t('notificationCenter.empty')}</p>
               </div>
             ) : (
               notifications.map((notification) => (
@@ -109,7 +111,8 @@ interface NotificationItemProps {
 }
 
 function NotificationItem({ notification, onMarkRead, onRemove }: NotificationItemProps) {
-  const timeAgo = getTimeAgo(notification.timestamp)
+  const { t } = useTranslation()
+  const timeAgo = getTimeAgo(notification.timestamp, t)
 
   return (
     <Card
@@ -123,11 +126,11 @@ function NotificationItem({ notification, onMarkRead, onRemove }: NotificationIt
         </div>
         <div className="flex items-center gap-2">
           {!notification.read && (
-            <Button variant="ghost" size="sm" onClick={onMarkRead} aria-label="Mark as read">
+            <Button variant="ghost" size="sm" onClick={onMarkRead} aria-label={t('notificationCenter.markAsRead')}>
               <Check className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onRemove} aria-label="Remove notification">
+          <Button variant="ghost" size="sm" onClick={onRemove} aria-label={t('notificationCenter.removeNotification')}>
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
@@ -136,12 +139,12 @@ function NotificationItem({ notification, onMarkRead, onRemove }: NotificationIt
   )
 }
 
-function getTimeAgo(timestamp: number): string {
+function getTimeAgo(timestamp: number, t: (key: string, options?: Record<string, unknown>) => string): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000)
 
-  if (seconds < 60) return 'just now'
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
+  if (seconds < 60) return t('notificationCenter.timeAgo.justNow')
+  if (seconds < 3600) return t('notificationCenter.timeAgo.minutesAgo', { count: Math.floor(seconds / 60) })
+  if (seconds < 86400) return t('notificationCenter.timeAgo.hoursAgo', { count: Math.floor(seconds / 3600) })
+  if (seconds < 604800) return t('notificationCenter.timeAgo.daysAgo', { count: Math.floor(seconds / 86400) })
   return new Date(timestamp).toLocaleDateString()
 }

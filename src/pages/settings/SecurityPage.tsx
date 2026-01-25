@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageMeta } from '@/components/PageMeta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Shield, Fingerprint, Activity, Settings, AlertTriangle, Check, Lock, Smartphone, Key } from 'lucide-react';
 
 export function SecurityPage() {
+  const { t } = useTranslation();
   const [showWebAuthnSetup, setShowWebAuthnSetup] = useState(false);
   const { isWebAuthnSupported, currentDeviceId, devices, getDeviceCredentials } =
     useDeviceStore();
@@ -41,7 +43,6 @@ export function SecurityPage() {
       }
     };
     initDevice();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: only initialize device once on mount
   }, []);
 
   return (
@@ -49,9 +50,9 @@ export function SecurityPage() {
       <PageMeta titleKey="common.security" descriptionKey="meta.security" path="/app/settings/security" />
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Security & Devices</h1>
+        <h1 className="text-3xl font-bold">{t('securityPage.title')}</h1>
         <p className="text-muted-foreground mt-1">
-          Manage your devices, sessions, and security settings
+          {t('securityPage.description')}
         </p>
       </div>
 
@@ -63,24 +64,24 @@ export function SecurityPage() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Fingerprint className="h-5 w-5" />
-                  WebAuthn Protection
+                  {t('securityPage.webauthnProtection')}
                   {hasWebAuthn && (
                     <Badge variant="default" className="ml-2">
                       <Check className="h-3 w-3 mr-1" />
-                      Active
+                      {t('securityPage.active')}
                     </Badge>
                   )}
                 </CardTitle>
                 <CardDescription>
                   {hasWebAuthn
-                    ? 'Your keys are protected with WebAuthn'
-                    : 'Set up biometric authentication or hardware security keys'}
+                    ? t('securityPage.keysProtected')
+                    : t('securityPage.setupBiometric')}
                 </CardDescription>
               </div>
               {!hasWebAuthn && (
                 <Button onClick={() => setShowWebAuthnSetup(true)}>
                   <Shield className="mr-2 h-4 w-4" />
-                  Set Up WebAuthn
+                  {t('securityPage.setupWebauthn')}
                 </Button>
               )}
             </div>
@@ -88,7 +89,7 @@ export function SecurityPage() {
           {hasWebAuthn && (
             <CardContent>
               <div className="space-y-2">
-                <p className="text-sm font-medium">Registered Credentials</p>
+                <p className="text-sm font-medium">{t('securityPage.registeredCredentials')}</p>
                 {deviceCredentials.map((cred) => (
                   <div
                     key={cred.id}
@@ -96,7 +97,7 @@ export function SecurityPage() {
                   >
                     <div>
                       <p className="font-medium">
-                        {currentDevice?.name || 'This Device'}
+                        {currentDevice?.name || t('securityPage.thisDevice')}
                       </p>
                       <p className="text-xs text-muted-foreground font-mono">
                         {cred.id.substring(0, 32)}...
@@ -104,7 +105,7 @@ export function SecurityPage() {
                     </div>
                     {cred.lastUsed && (
                       <p className="text-xs text-muted-foreground">
-                        Last used:{' '}
+                        {t('securityPage.lastUsed')}{' '}
                         {new Date(cred.lastUsed).toLocaleDateString()}
                       </p>
                     )}
@@ -120,11 +121,9 @@ export function SecurityPage() {
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>WebAuthn not supported</strong>
+            <strong>{t('securityPage.webauthnNotSupported')}</strong>
             <br />
-            Your browser doesn't support WebAuthn. Please use a modern browser (Chrome,
-            Firefox, Safari, Edge) to enable biometric authentication and hardware security
-            keys.
+            {t('securityPage.webauthnNotSupportedDesc')}
           </AlertDescription>
         </Alert>
       )}
@@ -137,55 +136,55 @@ export function SecurityPage() {
               <TooltipTrigger asChild>
                 <TabsTrigger value="devices" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Smartphone className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Devices</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabDevices')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Devices</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabDevices')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="lock" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Lock className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Session</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabSession')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Session</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabSession')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="activity" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Activity className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Activity</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabActivity')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Activity</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabActivity')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="privacy" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Settings className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Privacy</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabPrivacy')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Privacy</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabPrivacy')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="tor" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Shield className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Tor</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabTor')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Tor</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabTor')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <TabsTrigger value="advanced" className="min-h-[44px] flex items-center justify-center gap-2 px-2 sm:px-3">
                   <Key className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline text-sm">Backup</span>
+                  <span className="hidden sm:inline text-sm">{t('securityPage.tabBackup')}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent className="sm:hidden">Backup & Multi-Device</TooltipContent>
+              <TooltipContent className="sm:hidden">{t('securityPage.tabBackupTooltip')}</TooltipContent>
             </Tooltip>
           </TabsList>
         </TooltipProvider>
@@ -237,7 +236,7 @@ export function SecurityPage() {
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Please unlock your identity to access multi-device features.
+                  {t('securityPage.unlockForMultiDevice')}
                 </AlertDescription>
               </Alert>
             )}

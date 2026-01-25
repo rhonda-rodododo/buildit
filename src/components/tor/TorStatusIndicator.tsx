@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import {
   Tooltip,
@@ -24,6 +25,7 @@ interface TorStatusIndicatorProps {
 }
 
 export function TorStatusIndicator({ detailed = false, className }: TorStatusIndicatorProps) {
+  const { t } = useTranslation();
   const { status, stats, warnings, initialize } = useTorStore();
 
   // Initialize Tor detection on mount
@@ -31,7 +33,6 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
     if (status === TorStatus.DISABLED) {
       initialize();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentional: only detect Tor once on mount
   }, []);
 
   const getStatusConfig = (status: TorStatus) => {
@@ -39,60 +40,60 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
       case TorStatus.DISABLED:
         return {
           icon: ShieldOff,
-          label: 'Tor Disabled',
+          label: t('torStatusIndicator.status.disabled'),
           color: 'text-muted-foreground',
           variant: 'outline' as const,
-          description: 'Not connected through Tor',
+          description: t('torStatusIndicator.description.disabled'),
         };
       case TorStatus.DETECTING:
         return {
           icon: Loader2,
-          label: 'Detecting',
+          label: t('torStatusIndicator.status.detecting'),
           color: 'text-muted-foreground',
           variant: 'outline' as const,
-          description: 'Detecting Tor Browser...',
+          description: t('torStatusIndicator.description.detecting'),
           animated: true,
         };
       case TorStatus.ENABLED:
         return {
           icon: Shield,
-          label: 'Tor Enabled',
+          label: t('torStatusIndicator.status.enabled'),
           color: 'text-blue-600',
           variant: 'secondary' as const,
-          description: 'Tor routing enabled',
+          description: t('torStatusIndicator.description.enabled'),
         };
       case TorStatus.CONNECTING:
         return {
           icon: Loader2,
-          label: 'Connecting',
+          label: t('torStatusIndicator.status.connecting'),
           color: 'text-yellow-600',
           variant: 'secondary' as const,
-          description: 'Connecting to .onion relays...',
+          description: t('torStatusIndicator.description.connecting'),
           animated: true,
         };
       case TorStatus.CONNECTED:
         return {
           icon: ShieldCheck,
-          label: 'Tor Active',
+          label: t('torStatusIndicator.status.connected'),
           color: 'text-green-600',
           variant: 'default' as const,
-          description: `Connected to ${stats.connectedOnionRelays} .onion relays`,
+          description: t('torStatusIndicator.description.connected', { count: stats.connectedOnionRelays }),
         };
       case TorStatus.ERROR:
         return {
           icon: ShieldAlert,
-          label: 'Tor Error',
+          label: t('torStatusIndicator.status.error'),
           color: 'text-destructive',
           variant: 'destructive' as const,
-          description: warnings[0] || 'Connection error',
+          description: warnings[0] || t('torStatusIndicator.description.error'),
         };
       default:
         return {
           icon: Shield,
-          label: 'Unknown',
+          label: t('torStatusIndicator.status.unknown'),
           color: 'text-muted-foreground',
           variant: 'outline' as const,
-          description: 'Unknown status',
+          description: t('torStatusIndicator.description.unknown'),
         };
     }
   };
@@ -122,15 +123,15 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
               <p className="font-medium">{config.description}</p>
               {status === TorStatus.CONNECTED && (
                 <div className="text-xs text-muted-foreground space-y-0.5">
-                  <p>Connected relays: {stats.connectedOnionRelays}/{stats.totalOnionRelays}</p>
+                  <p>{t('torStatusIndicator.stats.connectedRelays', { connected: stats.connectedOnionRelays, total: stats.totalOnionRelays })}</p>
                   {stats.avgOnionLatency > 0 && (
-                    <p>Avg latency: {Math.round(stats.avgOnionLatency)}ms</p>
+                    <p>{t('torStatusIndicator.stats.avgLatency', { latency: Math.round(stats.avgOnionLatency) })}</p>
                   )}
                 </div>
               )}
               {warnings.length > 0 && (
                 <div className="text-xs text-destructive mt-2">
-                  <p className="font-medium">Warnings:</p>
+                  <p className="font-medium">{t('torStatusIndicator.warnings.title')}</p>
                   <ul className="list-disc list-inside">
                     {warnings.slice(0, 2).map((warning, i) => (
                       <li key={i}>{warning}</li>
@@ -167,27 +168,27 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
         {status === TorStatus.CONNECTED && (
           <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-muted-foreground">Onion Relays</p>
+              <p className="text-muted-foreground">{t('torStatusIndicator.stats.onionRelays')}</p>
               <p className="font-medium">
                 {stats.connectedOnionRelays}/{stats.totalOnionRelays}
               </p>
             </div>
             {stats.avgOnionLatency > 0 && (
               <div>
-                <p className="text-muted-foreground">Avg Latency</p>
+                <p className="text-muted-foreground">{t('torStatusIndicator.stats.latency')}</p>
                 <p className="font-medium">{Math.round(stats.avgOnionLatency)}ms</p>
               </div>
             )}
             {stats.uptime > 0 && (
               <div>
-                <p className="text-muted-foreground">Uptime</p>
+                <p className="text-muted-foreground">{t('torStatusIndicator.stats.uptime')}</p>
                 <p className="font-medium">
-                  {Math.round(stats.uptime / 1000 / 60)} min
+                  {t('torStatusIndicator.stats.uptimeValue', { minutes: Math.round(stats.uptime / 1000 / 60) })}
                 </p>
               </div>
             )}
             <div>
-              <p className="text-muted-foreground">Data</p>
+              <p className="text-muted-foreground">{t('torStatusIndicator.stats.data')}</p>
               <p className="font-medium">
                 ↑ {formatBytes(stats.bytesSent)} / ↓ {formatBytes(stats.bytesReceived)}
               </p>
@@ -197,7 +198,7 @@ export function TorStatusIndicator({ detailed = false, className }: TorStatusInd
 
         {warnings.length > 0 && (
           <div className="mt-3 p-3 bg-destructive/10 rounded-md">
-            <p className="text-sm font-medium text-destructive mb-1">Security Warnings:</p>
+            <p className="text-sm font-medium text-destructive mb-1">{t('torStatusIndicator.warnings.securityWarnings')}</p>
             <ul className="text-sm text-destructive/90 space-y-1 list-disc list-inside">
               {warnings.map((warning, i) => (
                 <li key={i}>{warning}</li>

@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -36,6 +37,7 @@ interface CustomFieldsManagementProps {
 }
 
 export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsManagementProps) {
+  const { t } = useTranslation();
   const [fields, setFields] = useState<CustomField[]>([]);
   const [editingField, setEditingField] = useState<CustomField | undefined>();
   const [editorOpen, setEditorOpen] = useState(false);
@@ -51,7 +53,6 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
   }, [groupId, entityType]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Data loading pattern
     loadFields();
   }, [loadFields]);
 
@@ -103,14 +104,14 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Custom Fields for {entityType}</h3>
+        <h3 className="text-lg font-semibold">{t('customFieldsManagement.title', { entityType })}</h3>
         <div className="flex gap-2">
           {templates.length > 0 && (
             <div className="flex items-center gap-2">
-              <Label htmlFor="template">Apply Template:</Label>
+              <Label htmlFor="template">{t('customFieldsManagement.applyTemplate')}</Label>
               <Select value={selectedTemplate} onValueChange={handleApplyTemplate}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select template" />
+                  <SelectValue placeholder={t('customFieldsManagement.selectTemplate')} />
                 </SelectTrigger>
                 <SelectContent>
                   {templates.map((template) => (
@@ -124,14 +125,14 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
           )}
           <Button onClick={handleCreateField}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Field
+            {t('customFieldsManagement.addField')}
           </Button>
         </div>
       </div>
 
       {fields.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground">
-          No custom fields yet. Create one or apply a template to get started.
+          {t('customFieldsManagement.empty')}
         </Card>
       ) : (
         <div className="space-y-2">
@@ -141,8 +142,8 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
                 <div className="flex-1">
                   <h4 className="font-medium">{field.label}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Type: {field.widget.widget}
-                    {field.schema.required && ' • Required'}
+                    {t('customFieldsManagement.type', { widget: field.widget.widget })}
+                    {field.schema.required && ` • ${t('customFieldsManagement.required')}`}
                   </p>
                   {field.widget.helpText && (
                     <p className="text-sm text-muted-foreground mt-1">{field.widget.helpText}</p>
@@ -182,15 +183,14 @@ export function CustomFieldsManagement({ groupId, entityType }: CustomFieldsMana
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Custom Field</AlertDialogTitle>
+            <AlertDialogTitle>{t('customFieldsManagement.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{fieldToDelete?.label}"? This will remove the field
-              definition, but existing data will be preserved.
+              {t('customFieldsManagement.deleteDialog.description', { label: fieldToDelete?.label })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t('customFieldsManagement.deleteDialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>{t('customFieldsManagement.deleteDialog.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

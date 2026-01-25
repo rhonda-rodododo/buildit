@@ -3,6 +3,7 @@
  * Edit donation tiers for a campaign
  */
 
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,8 @@ interface TiersEditorProps {
 }
 
 export function TiersEditor({ tiers, onUpdate, currency }: TiersEditorProps) {
+  const { t } = useTranslation();
+
   const handleAddTier = () => {
     const newTier: Omit<DonationTier, 'id' | 'campaignId' | 'currentCount'> = {
       name: `Tier ${tiers.length + 1}`,
@@ -40,21 +43,21 @@ export function TiersEditor({ tiers, onUpdate, currency }: TiersEditorProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold">Donation Tiers</h3>
+          <h3 className="font-semibold">{t('tiersEditor.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            Create preset donation amounts with benefits
+            {t('tiersEditor.description')}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleAddTier}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Tier
+          {t('tiersEditor.addTier')}
         </Button>
       </div>
 
       {tiers.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
-          <p>No donation tiers yet</p>
-          <p className="text-sm">Add tiers to suggest donation amounts</p>
+          <p>{t('tiersEditor.empty.title')}</p>
+          <p className="text-sm">{t('tiersEditor.empty.description')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -64,32 +67,32 @@ export function TiersEditor({ tiers, onUpdate, currency }: TiersEditorProps) {
                 <div className="flex-1 space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label>Tier Name</Label>
+                      <Label>{t('tiersEditor.tierName')}</Label>
                       <Input
                         value={tier.name}
                         onChange={(e) => handleUpdateTier(index, { name: e.target.value })}
-                        placeholder="Supporter"
+                        placeholder={t('tiersEditor.tierNamePlaceholder')}
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label>Amount ({currency})</Label>
+                      <Label>{t('tiersEditor.amount', { currency })}</Label>
                       <Input
                         type="number"
                         min={0}
                         step={1}
                         value={tier.amount / 100}
                         onChange={(e) => handleUpdateTier(index, { amount: Math.round(parseFloat(e.target.value) * 100) })}
-                        placeholder="25.00"
+                        placeholder={t('tiersEditor.amountPlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <Label>Description (optional)</Label>
+                    <Label>{t('tiersEditor.descriptionLabel')}</Label>
                     <Input
                       value={tier.description || ''}
                       onChange={(e) => handleUpdateTier(index, { description: e.target.value })}
-                      placeholder="What supporters get at this level"
+                      placeholder={t('tiersEditor.descriptionPlaceholder')}
                     />
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import { FC, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useEvents } from '../hooks/useEvents'
 import { RSVPStatus } from '../types'
@@ -11,6 +12,7 @@ interface RSVPButtonProps {
 }
 
 export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVPChange }) => {
+  const { t } = useTranslation()
   const { rsvpToEvent } = useEvents()
   const [loading, setLoading] = useState(false)
 
@@ -23,7 +25,7 @@ export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVP
       onRSVPChange?.()
     } catch (error) {
       console.error('Failed to RSVP:', error)
-      alert('Failed to update RSVP')
+      alert(t('rsvpButton.failedUpdate'))
     } finally {
       setLoading(false)
     }
@@ -38,7 +40,7 @@ export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVP
         disabled={loading}
       >
         <Check className="h-4 w-4 mr-1" />
-        Going
+        {t('rsvpButton.going')}
       </Button>
       <Button
         variant={currentStatus === 'maybe' ? 'default' : 'outline'}
@@ -47,7 +49,7 @@ export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVP
         disabled={loading}
       >
         <HelpCircle className="h-4 w-4 mr-1" />
-        Maybe
+        {t('rsvpButton.maybe')}
       </Button>
       <Button
         variant={currentStatus === 'not-going' ? 'destructive' : 'outline'}
@@ -56,7 +58,7 @@ export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVP
         disabled={loading}
       >
         <X className="h-4 w-4 mr-1" />
-        Not Going
+        {t('rsvpButton.notGoing')}
       </Button>
     </div>
   )

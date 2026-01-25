@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,6 +52,7 @@ export const PollComposer: FC<PollComposerProps> = ({
   onCancel,
   className,
 }) => {
+  const { t } = useTranslation();
   const { createPoll } = useSocialStore();
 
   const [question, setQuestion] = useState('');
@@ -82,13 +84,13 @@ export const PollComposer: FC<PollComposerProps> = ({
   const handleSubmit = async () => {
     // Validation
     if (!question.trim()) {
-      toast.error('Please enter a question');
+      toast.error(t('pollComposer.toast.emptyQuestion'));
       return;
     }
 
     const filledOptions = options.filter((opt) => opt.trim());
     if (filledOptions.length < 2) {
-      toast.error('Please add at least 2 options');
+      toast.error(t('pollComposer.toast.minOptions'));
       return;
     }
 
@@ -105,7 +107,7 @@ export const PollComposer: FC<PollComposerProps> = ({
       };
 
       await createPoll(input);
-      toast.success('Poll created successfully');
+      toast.success(t('pollComposer.toast.success'));
 
       // Reset form
       setQuestion('');
@@ -118,7 +120,7 @@ export const PollComposer: FC<PollComposerProps> = ({
       onPollCreated?.();
     } catch (error) {
       console.error('Failed to create poll:', error);
-      toast.error('Failed to create poll');
+      toast.error(t('pollComposer.toast.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -129,29 +131,29 @@ export const PollComposer: FC<PollComposerProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BarChart3 className="w-5 h-5" />
-          Create Poll
+          {t('pollComposer.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Question */}
         <div className="space-y-2">
-          <Label htmlFor="poll-question">Question</Label>
+          <Label htmlFor="poll-question">{t('pollComposer.question.label')}</Label>
           <Input
             id="poll-question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="What do you want to ask?"
+            placeholder={t('pollComposer.question.placeholder')}
             disabled={isSubmitting}
             maxLength={280}
           />
           <p className="text-xs text-muted-foreground text-right">
-            {question.length}/280
+            {t('pollComposer.question.charCount', { current: question.length, max: 280 })}
           </p>
         </div>
 
         {/* Options */}
         <div className="space-y-3">
-          <Label>Options</Label>
+          <Label>{t('pollComposer.options.label')}</Label>
           {options.map((option, index) => (
             <div key={index} className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground w-6">
@@ -160,7 +162,7 @@ export const PollComposer: FC<PollComposerProps> = ({
               <Input
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
-                placeholder={`Option ${index + 1}`}
+                placeholder={t('pollComposer.options.placeholder', { number: index + 1 })}
                 disabled={isSubmitting}
                 maxLength={100}
               />
@@ -171,7 +173,7 @@ export const PollComposer: FC<PollComposerProps> = ({
                   size="icon"
                   onClick={() => handleRemoveOption(index)}
                   disabled={isSubmitting}
-                  aria-label={`Remove option ${index + 1}`}
+                  aria-label={t('pollComposer.options.removeAriaLabel', { number: index + 1 })}
                 >
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
@@ -188,7 +190,7 @@ export const PollComposer: FC<PollComposerProps> = ({
               className="w-full"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Option
+              {t('pollComposer.options.addOption')}
             </Button>
           )}
         </div>
@@ -197,7 +199,7 @@ export const PollComposer: FC<PollComposerProps> = ({
         <div className="grid grid-cols-2 gap-4">
           {/* Choice Type */}
           <div className="space-y-2">
-            <Label>Choice Type</Label>
+            <Label>{t('pollComposer.settings.choiceType.label')}</Label>
             <Select
               value={choiceType}
               onValueChange={(value) => setChoiceType(value as PollChoiceType)}
@@ -210,13 +212,13 @@ export const PollComposer: FC<PollComposerProps> = ({
                 <SelectItem value="single">
                   <div className="flex items-center gap-2">
                     <CircleDot className="w-4 h-4" />
-                    Single Choice
+                    {t('pollComposer.settings.choiceType.single')}
                   </div>
                 </SelectItem>
                 <SelectItem value="multiple">
                   <div className="flex items-center gap-2">
                     <ListChecks className="w-4 h-4" />
-                    Multiple Choice
+                    {t('pollComposer.settings.choiceType.multiple')}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -225,7 +227,7 @@ export const PollComposer: FC<PollComposerProps> = ({
 
           {/* Duration */}
           <div className="space-y-2">
-            <Label>Duration</Label>
+            <Label>{t('pollComposer.settings.duration.label')}</Label>
             <Select
               value={durationMinutes}
               onValueChange={setDurationMinutes}
@@ -254,12 +256,12 @@ export const PollComposer: FC<PollComposerProps> = ({
             <div className="space-y-0.5">
               <Label htmlFor="anonymous-votes" className="flex items-center gap-2">
                 {isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                Anonymous Voting
+                {t('pollComposer.privacy.anonymous.label')}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {isAnonymous
-                  ? 'Voters will remain anonymous'
-                  : 'Voters will be visible to poll creator'}
+                  ? t('pollComposer.privacy.anonymous.descriptionOn')
+                  : t('pollComposer.privacy.anonymous.descriptionOff')}
               </p>
             </div>
             <Switch
@@ -274,12 +276,12 @@ export const PollComposer: FC<PollComposerProps> = ({
             <div className="space-y-0.5">
               <Label htmlFor="show-results" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
-                Show Results Before End
+                {t('pollComposer.privacy.showResults.label')}
               </Label>
               <p className="text-xs text-muted-foreground">
                 {showResultsBeforeEnd
-                  ? 'Results visible while voting is open'
-                  : 'Results hidden until poll ends'}
+                  ? t('pollComposer.privacy.showResults.descriptionOn')
+                  : t('pollComposer.privacy.showResults.descriptionOff')}
               </p>
             </div>
             <Switch
@@ -300,14 +302,14 @@ export const PollComposer: FC<PollComposerProps> = ({
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              {t('pollComposer.actions.cancel')}
             </Button>
           )}
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !question.trim() || options.filter((o) => o.trim()).length < 2}
           >
-            {isSubmitting ? 'Creating...' : 'Create Poll'}
+            {isSubmitting ? t('pollComposer.actions.creating') : t('pollComposer.actions.create')}
           </Button>
         </div>
       </CardContent>

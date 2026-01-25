@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback, FC, Suspense, lazy } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Download, Share2, Clock, RotateCcw, Code2, Folder, File, FileText, Archive } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,7 @@ interface FilePreviewModalProps {
 }
 
 export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePreviewModalProps) {
+  const { t } = useTranslation()
   const [preview, setPreview] = useState<FilePreview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -119,12 +121,12 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
             {onShare && (
               <Button variant="outline" size="sm" onClick={onShare}>
                 <Share2 className="h-4 w-4 mr-2" />
-                Share
+                {t('filePreview.share')}
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
-              Download
+              {t('filePreview.download')}
             </Button>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-4 w-4" />
@@ -138,7 +140,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading preview...</p>
+                <p className="text-muted-foreground">{t('filePreview.loadingPreview')}</p>
               </div>
             </div>
           )}
@@ -146,7 +148,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
           {error && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-destructive">
-                <p className="font-semibold">Failed to load preview</p>
+                <p className="font-semibold">{t('filePreview.failedToLoad')}</p>
                 <p className="text-sm">{error}</p>
               </div>
             </div>
@@ -182,7 +184,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                     controls
                     className="max-w-full max-h-full"
                   >
-                    Your browser does not support the video tag.
+                    {t('filePreview.videoNotSupported')}
                   </video>
                 </div>
               )}
@@ -196,7 +198,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                       controls
                       className="w-full"
                     >
-                      Your browser does not support the audio tag.
+                      {t('filePreview.audioNotSupported')}
                     </audio>
                   </div>
                 </div>
@@ -247,15 +249,15 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
               {preview.type === 'office' && preview.url && (
                 <div className="flex flex-col items-center justify-center h-full bg-muted/10 p-8">
                   <FileText className="h-16 w-16 text-blue-500 mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Office Document</h3>
+                  <h3 className="text-lg font-medium mb-2">{t('filePreview.officeDocument')}</h3>
                   <p className="text-sm text-muted-foreground mb-4 text-center">
-                    Office documents can be viewed by downloading the file.
+                    {t('filePreview.officeDesc')}
                     <br />
-                    Open in Microsoft Office, Google Docs, or LibreOffice.
+                    {t('filePreview.officeApps')}
                   </p>
                   <Button onClick={handleDownload}>
                     <Download className="h-4 w-4 mr-2" />
-                    Download to View
+                    {t('filePreview.downloadToView')}
                   </Button>
                 </div>
               )}
@@ -265,16 +267,16 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                 <div className="h-full flex flex-col">
                   <div className="flex items-center gap-2 p-3 border-b bg-muted/30">
                     <Archive className="h-5 w-5 text-yellow-600" />
-                    <span className="font-medium">Archive Contents</span>
+                    <span className="font-medium">{t('filePreview.archiveContents')}</span>
                     <Badge variant="secondary" className="ml-auto">
-                      {preview.archiveContents.length} items
+                      {t('filePreview.itemsCount', { count: preview.archiveContents.length })}
                     </Badge>
                   </div>
                   <ScrollArea className="flex-1">
                     <div className="p-2">
                       {preview.archiveContents.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-8">
-                          Empty archive or unable to read contents
+                          {t('filePreview.emptyArchive')}
                         </p>
                       ) : (
                         <ArchiveContentsList entries={preview.archiveContents} />
@@ -291,7 +293,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-muted-foreground">Loading 3D viewer...</p>
+                        <p className="text-muted-foreground">{t('filePreview.loading3D')}</p>
                       </div>
                     </div>
                   }>
@@ -307,14 +309,14 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
               {preview.type === 'none' && (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center text-muted-foreground">
-                    <p>Preview not available for this file type</p>
+                    <p>{t('filePreview.noPreview')}</p>
                     <Button
                       variant="outline"
                       className="mt-4"
                       onClick={handleDownload}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Download to view
+                      {t('filePreview.downloadToViewShort')}
                     </Button>
                   </div>
                 </div>
@@ -326,34 +328,34 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
         {/* Metadata Tabs */}
         <Tabs defaultValue="details" className="border-t pt-4">
           <TabsList>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="versions">Versions</TabsTrigger>
+            <TabsTrigger value="details">{t('filePreview.detailsTab')}</TabsTrigger>
+            <TabsTrigger value="activity">{t('filePreview.activityTab')}</TabsTrigger>
+            <TabsTrigger value="versions">{t('filePreview.versionsTab')}</TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">File Type</p>
+                <p className="text-muted-foreground">{t('filePreview.fileType')}</p>
                 <p className="font-medium">{file.type}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Size</p>
+                <p className="text-muted-foreground">{t('filePreview.size')}</p>
                 <p className="font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Uploaded</p>
+                <p className="text-muted-foreground">{t('filePreview.uploaded')}</p>
                 <p className="font-medium">{new Date(file.createdAt).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Modified</p>
+                <p className="text-muted-foreground">{t('filePreview.modified')}</p>
                 <p className="font-medium">{new Date(file.updatedAt).toLocaleDateString()}</p>
               </div>
               {file.isEncrypted && (
                 <div className="col-span-2">
-                  <p className="text-muted-foreground">Encryption</p>
+                  <p className="text-muted-foreground">{t('filePreview.encryption')}</p>
                   <p className="font-medium text-green-600 flex items-center gap-2">
                     <span className="inline-block w-2 h-2 bg-green-600 rounded-full" />
-                    End-to-end encrypted
+                    {t('filePreview.e2eEncrypted')}
                   </p>
                 </div>
               )}
@@ -364,7 +366,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
               <div className="flex items-start gap-3">
                 <Clock className="h-4 w-4 mt-0.5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">File uploaded</p>
+                  <p className="font-medium">{t('filePreview.fileUploaded')}</p>
                   <p className="text-muted-foreground">
                     {new Date(file.createdAt).toLocaleString()}
                   </p>
@@ -374,7 +376,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                 <div className="flex items-start gap-3">
                   <Clock className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">File modified</p>
+                    <p className="font-medium">{t('filePreview.fileModified')}</p>
                     <p className="text-muted-foreground">
                       {new Date(file.updatedAt).toLocaleString()}
                     </p>
@@ -386,16 +388,16 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
           <TabsContent value="versions">
             {loadingVersions ? (
               <div className="flex items-center justify-center py-8">
-                <p className="text-sm text-muted-foreground">Loading versions...</p>
+                <p className="text-sm text-muted-foreground">{t('filePreview.loadingVersions')}</p>
               </div>
             ) : versions.length === 0 ? (
               <div className="flex items-center justify-center py-8">
-                <p className="text-sm text-muted-foreground">No version history available</p>
+                <p className="text-sm text-muted-foreground">{t('filePreview.noVersionHistory')}</p>
               </div>
             ) : (
               <div className="space-y-3">
                 <div className="text-sm">
-                  <p className="font-medium mb-2">Version History</p>
+                  <p className="font-medium mb-2">{t('filePreview.versionHistory')}</p>
                   {versions.map((version) => (
                     <div
                       key={version.id}
@@ -404,10 +406,10 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-medium">
-                            Version {version.version}
+                            {t('filePreview.version', { number: version.version })}
                             {version.version === file.version && (
                               <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                                Current
+                                {t('filePreview.current')}
                               </span>
                             )}
                           </p>
@@ -429,7 +431,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
                           onClick={() => handleRestoreVersion(version.version)}
                         >
                           <RotateCcw className="h-4 w-4 mr-1" />
-                          Restore
+                          {t('filePreview.restore')}
                         </Button>
                       )}
                     </div>

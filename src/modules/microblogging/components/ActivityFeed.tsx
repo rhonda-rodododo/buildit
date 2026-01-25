@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePostsStore } from '../postsStore';
 import type { PostFeedFilter, PostPrivacy, PostContentType } from '../types';
 import { PostCard } from './PostCard';
@@ -44,6 +45,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
   defaultFilter,
   className,
 }) => {
+  const { t } = useTranslation();
   const {
     posts,
     feedFilter,
@@ -109,49 +111,49 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
               onValueChange={handleFilterTypeChange}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Feed type" />
+                <SelectValue placeholder={t('activityFeed.feedType')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>All Activity</span>
+                    <span>{t('activityFeed.types.all')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="following">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>Following</span>
+                    <span>{t('activityFeed.types.following')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="group">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>Group Posts</span>
+                    <span>{t('activityFeed.types.group')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="mentions">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>Mentions</span>
+                    <span>{t('activityFeed.types.mentions')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="bookmarks">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
-                    <span>Bookmarks</span>
+                    <span>{t('activityFeed.types.bookmarks')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="scheduled">
                   <div className="flex items-center gap-2">
                     <CalendarClock className="w-4 h-4" />
-                    <span>Scheduled</span>
+                    <span>{t('activityFeed.types.scheduled')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="pinned">
                   <div className="flex items-center gap-2">
                     <Pin className="w-4 h-4" />
-                    <span>Pinned</span>
+                    <span>{t('activityFeed.types.pinned')}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -164,7 +166,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="w-4 h-4 mr-2" />
-              Filters
+              {t('activityFeed.filters')}
             </Button>
           </div>
 
@@ -176,7 +178,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
             disabled={isLoadingFeed}
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingFeed ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('activityFeed.refresh')}
           </Button>
         </div>
 
@@ -186,12 +188,12 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
             <Separator className="my-4" />
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium mb-2 block">Content Type</label>
+                <label className="text-sm font-medium mb-2 block">{t('activityFeed.contentType')}</label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { value: 'text', label: 'Text', icon: MessageSquare },
-                    { value: 'event-share', label: 'Events', icon: Calendar },
-                    { value: 'document-share', label: 'Documents', icon: FileText },
+                    { value: 'text', label: t('activityFeed.contentTypes.text'), icon: MessageSquare },
+                    { value: 'event-share', label: t('activityFeed.contentTypes.eventShare'), icon: Calendar },
+                    { value: 'document-share', label: t('activityFeed.contentTypes.documentShare'), icon: FileText },
                   ].map(({ value, label, icon: Icon }) => {
                     const isSelected = feedFilter.contentTypes?.includes(value as PostContentType);
                     return (
@@ -218,13 +220,13 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Privacy Level</label>
+                <label className="text-sm font-medium mb-2 block">{t('activityFeed.privacyLevel')}</label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { value: 'public', label: 'Public' },
-                    { value: 'group', label: 'Group' },
-                    { value: 'followers', label: 'Followers' },
-                    { value: 'encrypted', label: 'Encrypted' },
+                    { value: 'public', label: t('activityFeed.privacyLevels.public') },
+                    { value: 'group', label: t('activityFeed.privacyLevels.group') },
+                    { value: 'followers', label: t('activityFeed.privacyLevels.followers') },
+                    { value: 'encrypted', label: t('activityFeed.privacyLevels.encrypted') },
                   ].map(({ value, label }) => {
                     const isSelected = feedFilter.privacyLevels?.includes(value as PostPrivacy);
                     return (
@@ -250,10 +252,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Date Range</label>
+                <label className="text-sm font-medium mb-2 block">{t('activityFeed.dateRange')}</label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <label htmlFor="filter-date-from" className="text-xs text-muted-foreground mb-1 block">From</label>
+                    <label htmlFor="filter-date-from" className="text-xs text-muted-foreground mb-1 block">{t('activityFeed.from')}</label>
                     <Input
                       id="filter-date-from"
                       type="date"
@@ -265,7 +267,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <label htmlFor="filter-date-to" className="text-xs text-muted-foreground mb-1 block">To</label>
+                    <label htmlFor="filter-date-to" className="text-xs text-muted-foreground mb-1 block">{t('activityFeed.to')}</label>
                     <Input
                       id="filter-date-to"
                       type="date"
@@ -283,7 +285,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                       className="mt-5"
                       onClick={() => setFeedFilter({ dateFrom: undefined, dateTo: undefined })}
                     >
-                      Clear
+                      {t('activityFeed.clear')}
                     </Button>
                   )}
                 </div>
@@ -304,11 +306,11 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
         {filteredPosts.length === 0 && !isLoadingFeed && (
           <Card className="p-8 text-center">
             <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('activityFeed.noPosts.title')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
               {showComposer
-                ? "Be the first to share something!"
-                : "No activity to display with current filters."}
+                ? t('activityFeed.noPosts.beFirst')
+                : t('activityFeed.noPosts.noActivity')}
             </p>
             {showFilters && (
               <Button
@@ -323,7 +325,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
                   setShowFilters(false);
                 }}
               >
-                Clear Filters
+                {t('activityFeed.clearFilters')}
               </Button>
             )}
           </Card>
@@ -344,10 +346,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
               {isLoadingFeed ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
+                  {t('activityFeed.loading')}
                 </>
               ) : (
-                'Load More'
+                t('activityFeed.loadMore')
               )}
             </Button>
           </div>
@@ -358,7 +360,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({
           <Card className="p-8">
             <div className="flex items-center justify-center gap-3">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm text-muted-foreground">Loading feed...</span>
+              <span className="text-sm text-muted-foreground">{t('activityFeed.loadingFeed')}</span>
             </div>
           </Card>
         )}

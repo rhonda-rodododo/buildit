@@ -13,6 +13,7 @@
 import { Node, mergeAttributes, type RawCommands, type CommandProps } from '@tiptap/core'
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from '@tiptap/react'
 import { FC, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -35,6 +36,7 @@ import {
 
 // Secure Embed Node View Component
 const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
+  const { t } = useTranslation()
   const attrs = node.attrs as {
     src: string
     provider: string
@@ -57,10 +59,10 @@ const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
         >
           <div className="flex items-center gap-2 text-amber-600 mb-2">
             <AlertTriangle className="h-4 w-4" />
-            <span className="text-sm font-medium">Untrusted embed source</span>
+            <span className="text-sm font-medium">{t('secureEmbed.untrusted.title')}</span>
           </div>
           <p className="text-sm text-muted-foreground mb-2">
-            This content is from an untrusted source and cannot be embedded securely.
+            {t('secureEmbed.untrusted.description')}
           </p>
           <a
             href={src}
@@ -69,7 +71,7 @@ const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
             <ExternalLink className="h-3 w-3" />
-            Open in new tab
+            {t('secureEmbed.untrusted.openInNewTab')}
           </a>
         </div>
       </NodeViewWrapper>
@@ -89,7 +91,7 @@ const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
           // Click-to-load for privacy - don't auto-load third-party content
           <div className="absolute inset-0 bg-muted flex flex-col items-center justify-center gap-3">
             <div className="text-sm text-muted-foreground">
-              {provider.name} embed
+              {t('secureEmbed.embedName', { provider: provider.name })}
             </div>
             <Button
               variant="secondary"
@@ -97,7 +99,7 @@ const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
               onClick={() => setLoadEmbed(true)}
             >
               <Play className="h-4 w-4 mr-2" />
-              Load {provider.name}
+              {t('secureEmbed.loadEmbed', { provider: provider.name })}
             </Button>
             <a
               href={src}
@@ -106,7 +108,7 @@ const SecureEmbedView: FC<NodeViewProps> = ({ node, selected }) => {
               className="text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"
             >
               <ExternalLink className="h-3 w-3" />
-              Open externally
+              {t('secureEmbed.openExternally')}
             </a>
           </div>
         ) : (
@@ -132,6 +134,7 @@ interface EmbedInputProps {
 }
 
 export const EmbedInputDialog: FC<EmbedInputProps> = ({ onInsert, trigger }) => {
+  const { t } = useTranslation()
   const [url, setUrl] = useState('')
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -140,12 +143,12 @@ export const EmbedInputDialog: FC<EmbedInputProps> = ({ onInsert, trigger }) => 
 
   const handleInsert = useCallback(() => {
     if (!url.trim()) {
-      setError('Please enter a URL')
+      setError(t('secureEmbed.errors.enterUrl'))
       return
     }
 
     if (!detectedProvider) {
-      setError(`Unsupported provider. Supported: ${getSupportedProviderNames().join(', ')}`)
+      setError(t('secureEmbed.errors.unsupportedProvider', { providers: getSupportedProviderNames().join(', ') }))
       return
     }
 
@@ -153,7 +156,7 @@ export const EmbedInputDialog: FC<EmbedInputProps> = ({ onInsert, trigger }) => 
     setUrl('')
     setError(null)
     setOpen(false)
-  }, [url, detectedProvider, onInsert])
+  }, [url, detectedProvider, onInsert, t])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -162,12 +165,12 @@ export const EmbedInputDialog: FC<EmbedInputProps> = ({ onInsert, trigger }) => 
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Embed Media</DialogTitle>
+          <DialogTitle>{t('secureEmbed.dialog.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Input
-              placeholder="Paste URL (YouTube, Vimeo, SoundCloud, Spotify...)"
+              placeholder={t('secureEmbed.dialog.placeholder')}
               value={url}
               onChange={(e) => {
                 setUrl(e.target.value)
@@ -180,30 +183,30 @@ export const EmbedInputDialog: FC<EmbedInputProps> = ({ onInsert, trigger }) => 
             )}
             {detectedProvider && (
               <p className="text-sm text-muted-foreground mt-1">
-                Detected: {detectedProvider.provider.name}
+                {t('secureEmbed.dialog.detected', { provider: detectedProvider.provider.name })}
               </p>
             )}
           </div>
 
           <div className="text-xs text-muted-foreground">
-            <p className="font-medium mb-1">Supported providers:</p>
+            <p className="font-medium mb-1">{t('secureEmbed.dialog.supportedProviders')}</p>
             <ul className="list-disc list-inside space-y-0.5">
-              <li>YouTube (privacy-enhanced mode)</li>
-              <li>Vimeo (do-not-track mode)</li>
-              <li>PeerTube (any instance)</li>
-              <li>SoundCloud</li>
-              <li>Spotify</li>
-              <li>CodePen</li>
-              <li>CodeSandbox</li>
+              <li>{t('secureEmbed.dialog.providers.youtube')}</li>
+              <li>{t('secureEmbed.dialog.providers.vimeo')}</li>
+              <li>{t('secureEmbed.dialog.providers.peertube')}</li>
+              <li>{t('secureEmbed.dialog.providers.soundcloud')}</li>
+              <li>{t('secureEmbed.dialog.providers.spotify')}</li>
+              <li>{t('secureEmbed.dialog.providers.codepen')}</li>
+              <li>{t('secureEmbed.dialog.providers.codesandbox')}</li>
             </ul>
           </div>
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t('secureEmbed.dialog.cancel')}
             </Button>
             <Button onClick={handleInsert} disabled={!detectedProvider}>
-              Embed
+              {t('secureEmbed.dialog.embed')}
             </Button>
           </div>
         </div>
@@ -256,7 +259,6 @@ export const SecureEmbed = Node.create({
   },
 
   addCommands() {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const extension = this
     return {
       setSecureEmbed: (url: string) => ({ commands }: CommandProps) => {

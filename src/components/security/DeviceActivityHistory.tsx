@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +56,7 @@ const ACTIVITY_COLORS: Record<DeviceActivityType, string> = {
 };
 
 export function DeviceActivityHistory() {
+  const { t } = useTranslation();
   const { activities, devices, clearOldActivities } = useDeviceStore();
   const [filter, setFilter] = useState<DeviceActivityType | 'all'>('all');
 
@@ -77,7 +79,7 @@ export function DeviceActivityHistory() {
 
   const getDeviceName = (deviceId: string) => {
     const device = devices.get(deviceId);
-    return device?.name || 'Unknown Device';
+    return device?.name || t('deviceActivityHistory.unknownDevice');
   };
 
   return (
@@ -85,9 +87,9 @@ export function DeviceActivityHistory() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Activity History</CardTitle>
+            <CardTitle>{t('deviceActivityHistory.title')}</CardTitle>
             <CardDescription>
-              Recent security events and device activities
+              {t('deviceActivityHistory.description')}
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -96,7 +98,7 @@ export function DeviceActivityHistory() {
               size="sm"
               onClick={() => clearOldActivities(30)}
             >
-              Clear Old (30+ days)
+              {t('deviceActivityHistory.clearOld')}
             </Button>
           </div>
         </div>
@@ -110,7 +112,7 @@ export function DeviceActivityHistory() {
               className="cursor-pointer"
               onClick={() => setFilter('all')}
             >
-              All
+              {t('deviceActivityHistory.all')}
             </Badge>
             {Object.keys(ACTIVITY_ICONS).map((type) => (
               <Badge
@@ -133,13 +135,14 @@ export function DeviceActivityHistory() {
                   activity={activity}
                   deviceName={getDeviceName(activity.deviceId)}
                   formatTimestamp={formatTimestamp}
+                  viewMetadataText={t('deviceActivityHistory.viewMetadata')}
                 />
               ))}
 
               {filteredActivities.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <AlertTriangle className="mx-auto h-12 w-12 mb-2 opacity-50" />
-                  <p>No activity found</p>
+                  <p>{t('deviceActivityHistory.noActivity')}</p>
                 </div>
               )}
             </div>
@@ -154,9 +157,10 @@ interface ActivityItemProps {
   activity: DeviceActivity;
   deviceName: string;
   formatTimestamp: (timestamp: number) => string;
+  viewMetadataText: string;
 }
 
-function ActivityItem({ activity, deviceName, formatTimestamp }: ActivityItemProps) {
+function ActivityItem({ activity, deviceName, formatTimestamp, viewMetadataText }: ActivityItemProps) {
   const Icon = ACTIVITY_ICONS[activity.type] || AlertTriangle;
   const colorClass = ACTIVITY_COLORS[activity.type] || 'text-gray-600';
 
@@ -181,7 +185,7 @@ function ActivityItem({ activity, deviceName, formatTimestamp }: ActivityItemPro
           <div className="mt-2 text-xs text-muted-foreground">
             <details>
               <summary className="cursor-pointer hover:text-foreground">
-                View metadata
+                {viewMetadataText}
               </summary>
               <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
                 {JSON.stringify(activity.metadata, null, 2)}

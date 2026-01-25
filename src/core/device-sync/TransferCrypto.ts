@@ -10,7 +10,7 @@
  */
 
 import * as secp256k1 from '@noble/secp256k1';
-import { sha256 } from '@noble/hashes/sha2.js';
+import { sha256 } from '@noble/hashes/sha2';
 
 // PBKDF2 iterations for passphrase derivation
 // OWASP 2023 recommends minimum 310,000 for SHA-256

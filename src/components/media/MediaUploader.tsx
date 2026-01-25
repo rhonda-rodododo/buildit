@@ -1,4 +1,5 @@
 import { FC, useState, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Upload, X, AlertTriangle, Lock, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -41,6 +42,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
   allowEncryption = true,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const { currentIdentity } = useAuthStore();
   const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<MediaUploadProgress[]>([]);
@@ -66,7 +68,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
         file.type.startsWith('audio/') ? 'audio' : 'document';
 
       if (file.size > config.maxFileSize[mediaType]) {
-        alert(`File ${file.name} exceeds maximum size for ${mediaType}`);
+        alert(t('mediaUploader.alerts.fileTooLarge', { filename: file.name, type: mediaType }));
         return;
       }
     }
@@ -82,7 +84,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
 
   const handleUpload = async () => {
     if (!currentIdentity) {
-      alert('Please login first');
+      alert(t('mediaUploader.alerts.loginFirst'));
       return;
     }
 
@@ -207,7 +209,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
         />
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         <p className="text-sm text-muted-foreground">
-          Click to select {maxFiles > 1 ? 'files' : 'a file'} or drag and drop
+          {t('mediaUploader.dropzone', { type: maxFiles > 1 ? t('mediaUploader.files') : t('mediaUploader.aFile') })}
         </p>
       </div>
 
@@ -243,8 +245,8 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
                 <div className="space-y-1">
                   <Progress value={progress[index].progress} className="h-2" />
                   <p className="text-xs text-muted-foreground">
-                    {progress[index].status === 'complete' ? 'Complete' :
-                      progress[index].status === 'error' ? `Error: ${progress[index].error}` :
+                    {progress[index].status === 'complete' ? t('mediaUploader.status.complete') :
+                      progress[index].status === 'error' ? t('mediaUploader.status.error', { message: progress[index].error }) :
                       progress[index].status}
                   </p>
                 </div>
@@ -253,13 +255,13 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
               {/* Caption and Alt Text */}
               <div className="mt-3 space-y-2">
                 <Input
-                  placeholder="Caption (optional)"
+                  placeholder={t('mediaUploader.caption')}
                   value={captions[file.name] || ''}
                   onChange={(e) => setCaptions({ ...captions, [file.name]: e.target.value })}
                 />
                 {file.type.startsWith('image/') && (
                   <Input
-                    placeholder="Alt text for accessibility"
+                    placeholder={t('mediaUploader.altText')}
                     value={altTexts[file.name] || ''}
                     onChange={(e) => setAltTexts({ ...altTexts, [file.name]: e.target.value })}
                   />
@@ -273,37 +275,37 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
       {/* Settings */}
       {files.length > 0 && (
         <div className="space-y-4 border border-border rounded-lg p-4">
-          <h3 className="text-sm font-semibold">Upload Settings</h3>
+          <h3 className="text-sm font-semibold">{t('mediaUploader.settings.title')}</h3>
 
           {/* Privacy Level */}
           <div className="space-y-2">
-            <Label>Privacy Level</Label>
+            <Label>{t('mediaUploader.settings.privacyLevel')}</Label>
             <Select value={privacyLevel} onValueChange={(v) => setPrivacyLevel(v as MediaPrivacyLevel)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="group">Group Only</SelectItem>
-                <SelectItem value="private">Private</SelectItem>
-                <SelectItem value="encrypted">Encrypted</SelectItem>
+                <SelectItem value="public">{t('mediaUploader.privacy.public')}</SelectItem>
+                <SelectItem value="group">{t('mediaUploader.privacy.group')}</SelectItem>
+                <SelectItem value="private">{t('mediaUploader.privacy.private')}</SelectItem>
+                <SelectItem value="encrypted">{t('mediaUploader.privacy.encrypted')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Storage Provider */}
           <div className="space-y-2">
-            <Label>Storage Provider</Label>
+            <Label>{t('mediaUploader.settings.storageProvider')}</Label>
             <Select value={storageProvider} onValueChange={(v) => setStorageProvider(v as MediaStorageProvider)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="nip96">NIP-96 (HTTP Storage)</SelectItem>
-                <SelectItem value="nip94">NIP-94 (File Metadata)</SelectItem>
-                <SelectItem value="blossom">Blossom (Decentralized)</SelectItem>
-                <SelectItem value="ipfs">IPFS</SelectItem>
-                <SelectItem value="local">Local (Dev)</SelectItem>
+                <SelectItem value="nip96">{t('mediaUploader.storage.nip96')}</SelectItem>
+                <SelectItem value="nip94">{t('mediaUploader.storage.nip94')}</SelectItem>
+                <SelectItem value="blossom">{t('mediaUploader.storage.blossom')}</SelectItem>
+                <SelectItem value="ipfs">{t('mediaUploader.storage.ipfs')}</SelectItem>
+                <SelectItem value="local">{t('mediaUploader.storage.local')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -311,7 +313,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
           {/* Strip EXIF */}
           {files.some(f => isExifCapable(f)) && (
             <div className="flex items-center justify-between">
-              <Label htmlFor="strip-exif">Strip EXIF Data (Privacy)</Label>
+              <Label htmlFor="strip-exif">{t('mediaUploader.settings.stripExif')}</Label>
               <Switch
                 id="strip-exif"
                 checked={stripEXIF}
@@ -325,7 +327,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
-                <Label htmlFor="encrypt">Encrypt Media</Label>
+                <Label htmlFor="encrypt">{t('mediaUploader.settings.encryptMedia')}</Label>
               </div>
               <Switch
                 id="encrypt"
@@ -340,7 +342,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
-                <Label htmlFor="content-warning">Content Warning</Label>
+                <Label htmlFor="content-warning">{t('mediaUploader.settings.contentWarning')}</Label>
               </div>
               <Switch
                 id="content-warning"
@@ -350,7 +352,7 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
             </div>
             {contentWarning && (
               <Textarea
-                placeholder="Describe the sensitive content..."
+                placeholder={t('mediaUploader.contentWarningPlaceholder')}
                 rows={2}
               />
             )}
@@ -366,11 +368,11 @@ export const MediaUploader: FC<MediaUploaderProps> = ({
             disabled={progress.some(p => p.status === 'uploading' || p.status === 'processing')}
             className="flex-1"
           >
-            Upload {files.length > 1 ? `${files.length} Files` : 'File'}
+            {files.length > 1 ? t('mediaUploader.uploadFiles', { count: files.length }) : t('mediaUploader.uploadFile')}
           </Button>
           {onCancel && (
             <Button variant="outline" onClick={onCancel}>
-              Cancel
+              {t('mediaUploader.cancel')}
             </Button>
           )}
         </div>

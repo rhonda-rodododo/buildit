@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Upload,
   FolderPlus,
@@ -94,6 +95,7 @@ interface SearchFilters {
 }
 
 export function FilesPage() {
+  const { t } = useTranslation()
   const { groupId } = useGroupContext()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [searchQuery, setSearchQuery] = useState('')
@@ -197,7 +199,7 @@ export function FilesPage() {
       setSelectionMode(false)
     } catch (err) {
       console.error('Bulk download failed:', err)
-      alert('Failed to download files. Please try again.')
+      alert(t('filesPage.downloadFailed'))
     } finally {
       setBulkOperationInProgress(false)
     }
@@ -216,7 +218,7 @@ export function FilesPage() {
       setShowDeleteConfirm(false)
     } catch (err) {
       console.error('Bulk delete failed:', err)
-      alert('Failed to delete some files. Please try again.')
+      alert(t('filesPage.deleteFailed'))
     } finally {
       setBulkOperationInProgress(false)
     }
@@ -236,7 +238,7 @@ export function FilesPage() {
         setShowMoveDialog(false)
       } catch (err) {
         console.error('Bulk move failed:', err)
-        alert('Failed to move some files. Please try again.')
+        alert(t('filesPage.moveFailed'))
       } finally {
         setBulkOperationInProgress(false)
       }
@@ -418,7 +420,7 @@ export function FilesPage() {
       <div className="border-b bg-background p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Files</h1>
+            <h1 className="text-2xl font-bold">{t('files.title')}</h1>
             <p className="text-sm text-muted-foreground">
               {quota && (
                 <>
@@ -436,7 +438,7 @@ export function FilesPage() {
               onClick={() => setShowAnalytics(true)}
             >
               <BarChart3 className="mr-2 h-4 w-4" />
-              Analytics
+              {t('files.analytics')}
             </Button>
             {/* Epic 57: Selection mode toggle */}
             <Button
@@ -447,12 +449,12 @@ export function FilesPage() {
               {selectionMode ? (
                 <>
                   <X className="mr-2 h-4 w-4" />
-                  Cancel
+                  {t('common.cancel')}
                 </>
               ) : (
                 <>
                   <CheckSquare className="mr-2 h-4 w-4" />
-                  Select
+                  {t('files.select')}
                 </>
               )}
             </Button>
@@ -462,11 +464,11 @@ export function FilesPage() {
               onClick={() => setShowCreateFolder(true)}
             >
               <FolderPlus className="mr-2 h-4 w-4" />
-              New Folder
+              {t('files.newFolder')}
             </Button>
             <Button size="sm" onClick={() => setShowUploadZone(true)}>
               <Upload className="mr-2 h-4 w-4" />
-              Upload Files
+              {t('files.uploadFiles')}
             </Button>
           </div>
         </div>
@@ -482,8 +484,8 @@ export function FilesPage() {
                 />
                 <span className="text-sm font-medium">
                   {selectedFiles.size === 0
-                    ? 'Select files'
-                    : `${selectedFiles.size} file${selectedFiles.size !== 1 ? 's' : ''} selected`}
+                    ? t('files.selectFiles')
+                    : t('files.filesSelected', { count: selectedFiles.size })}
                 </span>
               </div>
             </div>
@@ -497,7 +499,7 @@ export function FilesPage() {
                   disabled={bulkOperationInProgress}
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  {selectedFiles.size > 1 ? 'Download ZIP' : 'Download'}
+                  {selectedFiles.size > 1 ? t('files.downloadZip') : t('files.download')}
                 </Button>
                 <Button
                   variant="outline"
@@ -506,7 +508,7 @@ export function FilesPage() {
                   disabled={bulkOperationInProgress}
                 >
                   <FolderInput className="mr-2 h-4 w-4" />
-                  Move
+                  {t('files.move')}
                 </Button>
                 {/* Epic 57: Bulk share */}
                 <Button
@@ -516,7 +518,7 @@ export function FilesPage() {
                   disabled={bulkOperationInProgress}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  Share
+                  {t('files.share')}
                 </Button>
                 <Button
                   variant="outline"
@@ -526,7 +528,7 @@ export function FilesPage() {
                   className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {t('common.delete')}
                 </Button>
               </div>
             )}
@@ -538,7 +540,7 @@ export function FilesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search files by name or content..."
+              placeholder={t('files.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -557,7 +559,7 @@ export function FilesPage() {
               onClick={handleContentSearch}
               disabled={isContentSearching}
             >
-              {isContentSearching ? 'Searching...' : 'Search Contents'}
+              {isContentSearching ? t('files.searching') : t('files.searchContents')}
             </Button>
           </div>
 
@@ -571,14 +573,14 @@ export function FilesPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="flex items-center justify-between px-2 py-1.5">
-                  <span className="text-xs font-medium text-muted-foreground">Recent Searches</span>
+                  <span className="text-xs font-medium text-muted-foreground">{t('files.recentSearches')}</span>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 text-xs"
                     onClick={handleClearRecentSearches}
                   >
-                    Clear
+                    {t('files.clear')}
                   </Button>
                 </div>
                 <DropdownMenuSeparator />
@@ -605,7 +607,7 @@ export function FilesPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
-                  <span className="text-xs font-medium text-muted-foreground">Saved Filters</span>
+                  <span className="text-xs font-medium text-muted-foreground">{t('files.savedFilters')}</span>
                 </div>
                 <DropdownMenuSeparator />
                 {savedFilters.map((filter) => (
@@ -641,7 +643,7 @@ export function FilesPage() {
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="relative">
                 <Filter className="h-4 w-4 mr-2" />
-                Filters
+                {t('files.filters')}
                 {hasActiveFilters && (
                   <Badge
                     variant="secondary"
@@ -655,18 +657,18 @@ export function FilesPage() {
             <PopoverContent className="w-80" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Filter Files</h4>
+                  <h4 className="font-medium">{t('files.filterFiles')}</h4>
                   {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearFilters}>
                       <X className="h-4 w-4 mr-1" />
-                      Clear
+                      {t('files.clear')}
                     </Button>
                   )}
                 </div>
 
                 {/* File Type Filter */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">File Type</label>
+                  <label className="text-sm font-medium">{t('files.fileType')}</label>
                   <Select
                     value={filters.type}
                     onValueChange={(value) => setFilters((f) => ({ ...f, type: value as FileType | 'all' }))}
@@ -678,43 +680,43 @@ export function FilesPage() {
                       <SelectItem value="all">
                         <span className="flex items-center gap-2">
                           <File className="h-4 w-4" />
-                          All Types
+                          {t('files.allTypes')}
                         </span>
                       </SelectItem>
                       <SelectItem value="image">
                         <span className="flex items-center gap-2">
                           <Image className="h-4 w-4" />
-                          Images
+                          {t('files.images')}
                         </span>
                       </SelectItem>
                       <SelectItem value="document">
                         <span className="flex items-center gap-2">
                           <FileText className="h-4 w-4" />
-                          Documents
+                          {t('files.documents')}
                         </span>
                       </SelectItem>
                       <SelectItem value="video">
                         <span className="flex items-center gap-2">
                           <Video className="h-4 w-4" />
-                          Videos
+                          {t('files.videos')}
                         </span>
                       </SelectItem>
                       <SelectItem value="audio">
                         <span className="flex items-center gap-2">
                           <Music className="h-4 w-4" />
-                          Audio
+                          {t('files.audio')}
                         </span>
                       </SelectItem>
                       <SelectItem value="archive">
                         <span className="flex items-center gap-2">
                           <Archive className="h-4 w-4" />
-                          Archives
+                          {t('files.archives')}
                         </span>
                       </SelectItem>
                       <SelectItem value="other">
                         <span className="flex items-center gap-2">
                           <File className="h-4 w-4" />
-                          Other
+                          {t('files.other')}
                         </span>
                       </SelectItem>
                     </SelectContent>
@@ -723,39 +725,39 @@ export function FilesPage() {
 
                 {/* File Size Filter */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">File Size</label>
+                  <label className="text-sm font-medium">{t('files.fileSize')}</label>
                   <Select
                     value={filters.size}
                     onValueChange={(value) => setFilters((f) => ({ ...f, size: value as SizeFilter }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="All sizes" />
+                      <SelectValue placeholder={t('files.allSizes')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Sizes</SelectItem>
-                      <SelectItem value="small">Small (&lt; 1 MB)</SelectItem>
-                      <SelectItem value="medium">Medium (1-100 MB)</SelectItem>
-                      <SelectItem value="large">Large (&gt; 100 MB)</SelectItem>
+                      <SelectItem value="all">{t('files.allSizes')}</SelectItem>
+                      <SelectItem value="small">{t('files.sizeSmall')}</SelectItem>
+                      <SelectItem value="medium">{t('files.sizeMedium')}</SelectItem>
+                      <SelectItem value="large">{t('files.sizeLarge')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Date Filter */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Modified</label>
+                  <label className="text-sm font-medium">{t('files.modified')}</label>
                   <Select
                     value={filters.date}
                     onValueChange={(value) => setFilters((f) => ({ ...f, date: value as DateFilter }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Any time" />
+                      <SelectValue placeholder={t('files.anyTime')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Any Time</SelectItem>
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">Past Week</SelectItem>
-                      <SelectItem value="month">Past Month</SelectItem>
-                      <SelectItem value="year">Past Year</SelectItem>
+                      <SelectItem value="all">{t('files.anyTime')}</SelectItem>
+                      <SelectItem value="today">{t('files.today')}</SelectItem>
+                      <SelectItem value="week">{t('files.pastWeek')}</SelectItem>
+                      <SelectItem value="month">{t('files.pastMonth')}</SelectItem>
+                      <SelectItem value="year">{t('files.pastYear')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -772,7 +774,7 @@ export function FilesPage() {
                     }}
                   >
                     <BookmarkPlus className="h-4 w-4 mr-2" />
-                    Save Filter
+                    {t('files.saveFilter')}
                   </Button>
                 )}
               </div>
@@ -800,10 +802,10 @@ export function FilesPage() {
         {/* Active filter badges */}
         {hasActiveFilters && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
+            <span className="text-sm text-muted-foreground">{t('files.activeFilters')}</span>
             {filters.type !== 'all' && (
               <Badge variant="secondary" className="gap-1">
-                Type: {filters.type}
+                {t('files.type')}: {filters.type}
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setFilters((f) => ({ ...f, type: 'all' }))}
@@ -812,7 +814,7 @@ export function FilesPage() {
             )}
             {filters.size !== 'all' && (
               <Badge variant="secondary" className="gap-1">
-                Size: {filters.size}
+                {t('files.size')}: {filters.size}
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setFilters((f) => ({ ...f, size: 'all' }))}
@@ -821,7 +823,7 @@ export function FilesPage() {
             )}
             {filters.date !== 'all' && (
               <Badge variant="secondary" className="gap-1">
-                Modified: {filters.date}
+                {t('files.modified')}: {filters.date}
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setFilters((f) => ({ ...f, date: 'all' }))}
@@ -830,7 +832,7 @@ export function FilesPage() {
             )}
             {contentSearchResults && (
               <Badge variant="secondary" className="gap-1">
-                Content matches: {contentSearchResults.size}
+                {t('files.contentMatches')}: {contentSearchResults.size}
                 <X
                   className="h-3 w-3 cursor-pointer"
                   onClick={() => setContentSearchResults(null)}
@@ -878,19 +880,19 @@ export function FilesPage() {
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selectedFiles.size} file{selectedFiles.size !== 1 ? 's' : ''}?</AlertDialogTitle>
+            <AlertDialogTitle>{t('files.deleteFilesTitle', { count: selectedFiles.size })}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The selected files will be permanently deleted.
+              {t('files.deleteFilesDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={bulkOperationInProgress}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={bulkOperationInProgress}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkDelete}
               disabled={bulkOperationInProgress}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {bulkOperationInProgress ? 'Deleting...' : 'Delete'}
+              {bulkOperationInProgress ? t('files.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -932,33 +934,33 @@ export function FilesPage() {
       <Dialog open={showSaveFilterDialog} onOpenChange={setShowSaveFilterDialog}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Save Search Filter</DialogTitle>
+            <DialogTitle>{t('files.saveSearchFilter')}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="filter-name">Filter Name</Label>
+            <Label htmlFor="filter-name">{t('files.filterName')}</Label>
             <Input
               id="filter-name"
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
-              placeholder="e.g., 'Large videos this month'"
+              placeholder={t('files.filterNamePlaceholder')}
               className="mt-2"
             />
             <div className="mt-4 text-sm text-muted-foreground">
-              <p>This filter will save:</p>
+              <p>{t('files.filterWillSave')}</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
-                {searchQuery && <li>Search: "{searchQuery}"</li>}
-                {filters.type !== 'all' && <li>Type: {filters.type}</li>}
-                {filters.size !== 'all' && <li>Size: {filters.size}</li>}
-                {filters.date !== 'all' && <li>Modified: {filters.date}</li>}
+                {searchQuery && <li>{t('files.search')}: "{searchQuery}"</li>}
+                {filters.type !== 'all' && <li>{t('files.type')}: {filters.type}</li>}
+                {filters.size !== 'all' && <li>{t('files.size')}: {filters.size}</li>}
+                {filters.date !== 'all' && <li>{t('files.modified')}: {filters.date}</li>}
               </ul>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSaveFilterDialog(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleSaveFilter} disabled={!filterName.trim()}>
-              Save Filter
+              {t('files.saveFilter')}
             </Button>
           </DialogFooter>
         </DialogContent>

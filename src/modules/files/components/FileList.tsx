@@ -5,7 +5,8 @@
  */
 
 import { useState, useMemo } from 'react'
-import { hexToBytes } from '@noble/hashes/utils.js'
+import { useTranslation } from 'react-i18next'
+import { hexToBytes } from '@noble/hashes/utils'
 import { Folder, File, Image, Video, Music, FileText, Archive, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -51,6 +52,7 @@ export function FileList({
   selectedFiles = new Set(),
   onSelectionChange,
 }: FileListProps) {
+  const { t } = useTranslation()
   const { groupId } = useGroupContext()
   const setCurrentFolder = useFilesStore((state) => state.setCurrentFolder)
   const groups = useGroupsStore((state) => state.groups)
@@ -97,13 +99,13 @@ export function FileList({
   }, [groups, groupId])
 
   const handleDeleteFile = async (fileId: string) => {
-    if (confirm('Delete this file?')) {
+    if (confirm(t('fileList.confirmDeleteFile'))) {
       await fileManager.deleteFile(fileId)
     }
   }
 
   const handleDeleteFolder = async (folderId: string) => {
-    if (confirm('Delete this folder and all its contents?')) {
+    if (confirm(t('fileList.confirmDeleteFolder'))) {
       await fileManager.deleteFolder(folderId)
     }
   }
@@ -146,7 +148,7 @@ export function FileList({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleDeleteFolder(folder.id)}>
-                    Delete
+                    {t('fileList.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -194,19 +196,19 @@ export function FileList({
                         e.stopPropagation()
                         handleDownload(file.id, file.name)
                       }}>
-                        Download
+                        {t('fileList.download')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation()
                         setShareFileId(file.id)
                       }}>
-                        Share
+                        {t('fileList.share')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={(e) => {
                         e.stopPropagation()
                         handleDeleteFile(file.id)
                       }}>
-                        Delete
+                        {t('fileList.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -297,19 +299,19 @@ export function FileList({
                     e.stopPropagation()
                     handleDownload(file.id, file.name)
                   }}>
-                    Download
+                    {t('fileList.download')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={(e) => {
                     e.stopPropagation()
                     setShareFileId(file.id)
                   }}>
-                    Share
+                    {t('fileList.share')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={(e) => {
                     e.stopPropagation()
                     handleDeleteFile(file.id)
                   }}>
-                    Delete
+                    {t('fileList.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

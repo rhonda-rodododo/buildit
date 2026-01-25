@@ -4,6 +4,7 @@
  */
 
 import { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Search, Archive, Pin } from 'lucide-react';
 import { useConversationsStore } from '../conversationsStore';
 import { useFriendsStore } from '@/modules/friends/friendsStore';
@@ -18,6 +19,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn, getCurrentTime } from '@/lib/utils';
 
 export const ConversationsPage: FC = () => {
+  const { t } = useTranslation();
   const {
     getConversations,
     getConversationStats,
@@ -86,10 +88,10 @@ export const ConversationsPage: FC = () => {
         {/* Header */}
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold">Messages</h1>
+            <h1 className="text-2xl font-bold">{t('conversationsPage.title')}</h1>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              New Chat
+              {t('conversationsPage.newChat')}
             </Button>
           </div>
 
@@ -99,7 +101,7 @@ export const ConversationsPage: FC = () => {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search conversations..."
+              placeholder={t('conversationsPage.searchPlaceholder')}
               className="pl-9"
               data-testid="search-conversations"
             />
@@ -110,25 +112,25 @@ export const ConversationsPage: FC = () => {
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
           <TabsList className="w-full justify-start rounded-none border-b px-4">
             <TabsTrigger value="all">
-              All
+              {t('conversationsPage.tabs.all')}
               <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
                 {stats.total}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="dms">
-              DMs
+              {t('conversationsPage.tabs.dms')}
               <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
                 {stats.dms}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="groups">
-              Groups
+              {t('conversationsPage.tabs.groups')}
               <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
                 {stats.groupChats + stats.multiParty}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="unread">
-              Unread
+              {t('conversationsPage.tabs.unread')}
               {stats.unread > 0 && (
                 <Badge variant="destructive" className="ml-2 h-5 px-1.5 text-xs">
                   {stats.unread}
@@ -137,7 +139,7 @@ export const ConversationsPage: FC = () => {
             </TabsTrigger>
             <TabsTrigger value="archived">
               <Archive className="h-4 w-4 mr-2" />
-              Archived
+              {t('conversationsPage.tabs.archived')}
             </TabsTrigger>
           </TabsList>
 
@@ -146,9 +148,9 @@ export const ConversationsPage: FC = () => {
               <div className="divide-y divide-border">
                 {filteredConversations.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-64 text-center">
-                    <p className="text-muted-foreground mb-2">No conversations yet</p>
+                    <p className="text-muted-foreground mb-2">{t('conversationsPage.empty.title')}</p>
                     <p className="text-sm text-muted-foreground">
-                      Start a new conversation to get started
+                      {t('conversationsPage.empty.description')}
                     </p>
                   </div>
                 ) : (
@@ -157,7 +159,7 @@ export const ConversationsPage: FC = () => {
                       conversation.type === 'dm' ? conversation.participants[0] : null;
                     const presence = otherParticipant ? getPresence(otherParticipant) : undefined;
 
-                    const displayName = conversation.name || 'Conversation';
+                    const displayName = conversation.name || t('conversationsPage.conversation');
 
                     return (
                       <button
@@ -200,7 +202,7 @@ export const ConversationsPage: FC = () => {
                                 : 'text-muted-foreground'
                             )}
                           >
-                            {conversation.lastMessagePreview || 'No messages yet'}
+                            {conversation.lastMessagePreview || t('conversationsPage.noMessages')}
                           </p>
                         </div>
 

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import { useTranslation } from "react-i18next";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { getRoutes } from "./routes";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -135,6 +136,7 @@ async function doInitialize(): Promise<boolean> {
 }
 
 const RootLayout: React.FC = () => {
+  const { t } = useTranslation();
   // Start initialization (non-blocking)
   const [isAppInitialized, setIsAppInitialized] = React.useState(false);
   const [initError, setInitError] = React.useState<string | null>(null);
@@ -147,7 +149,7 @@ const RootLayout: React.FC = () => {
         if (result) {
           setIsAppInitialized(true);
         } else {
-          setInitError("Failed to initialize application. Please refresh the page.");
+          setInitError(t("mainApp.initFailed"));
         }
       })
       .catch((error) => {
@@ -162,7 +164,6 @@ const RootLayout: React.FC = () => {
     if (isAppInitialized) {
       log.info("Recreating router after app initialization");
       const routes = getRoutes();
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: router must update after initialization
       setRouter(createBrowserRouter(routes));
     }
   }, [isAppInitialized]);
@@ -173,13 +174,13 @@ const RootLayout: React.FC = () => {
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="text-center space-y-4 max-w-md">
           <div className="text-5xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-destructive">Initialization Error</h1>
+          <h1 className="text-2xl font-bold text-destructive">{t("mainApp.initError")}</h1>
           <p className="text-muted-foreground">{initError}</p>
           <button
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             onClick={() => window.location.reload()}
           >
-            Retry
+            {t("mainApp.retry")}
           </button>
         </div>
       </div>
@@ -192,7 +193,7 @@ const RootLayout: React.FC = () => {
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Initializing...</p>
+          <p className="text-muted-foreground">{t("mainApp.initializing")}</p>
         </div>
       </div>
     );

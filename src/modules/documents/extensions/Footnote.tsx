@@ -8,6 +8,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
 import { FC, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { secureRandomInt } from '@/lib/utils'
 import { X } from 'lucide-react'
 
@@ -40,6 +41,7 @@ interface FootnoteViewProps {
 }
 
 const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNode, selected }) => {
+  const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState(false)
   const [localContent, setLocalContent] = useState(node.attrs.content || '')
   const [showTooltip, setShowTooltip] = useState(false)
@@ -75,7 +77,7 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
           <sup
             onClick={() => setIsEditing(true)}
             className="cursor-pointer text-blue-600 hover:text-blue-800 font-medium ml-0.5 select-none"
-            title={`Footnote ${node.attrs.number}: ${node.attrs.content || 'Click to add'}`}
+            title={`${t('footnote.title', { number: node.attrs.number })}: ${node.attrs.content || t('footnote.clickToAdd')}`}
           >
             [{node.attrs.number}]
           </sup>
@@ -92,7 +94,7 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
               "
             >
               <div className="font-medium text-xs text-muted-foreground mb-1">
-                Footnote {node.attrs.number}
+                {t('footnote.title', { number: node.attrs.number })}
               </div>
               <div className="text-sm">{node.attrs.content}</div>
               {/* Arrow */}
@@ -124,11 +126,11 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
           "
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-sm">Footnote {node.attrs.number}</span>
+            <span className="font-medium text-sm">{t('footnote.title', { number: node.attrs.number })}</span>
             <button
               onClick={deleteNode}
               className="p-1 rounded hover:bg-muted text-destructive"
-              title="Delete footnote"
+              title={t('footnote.deleteFootnote')}
               type="button"
             >
               <X className="h-4 w-4" />
@@ -139,13 +141,13 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
             value={localContent}
             onChange={(e) => setLocalContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter footnote content..."
+            placeholder={t('footnote.enterContent')}
             className="w-full p-2 text-sm border rounded bg-background min-h-[80px] resize-none"
             autoFocus
           />
 
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-muted-foreground">Ctrl+Enter to save</span>
+            <span className="text-xs text-muted-foreground">{t('footnote.ctrlEnterToSave')}</span>
             <div className="flex gap-2">
               <button
                 onClick={() => {
@@ -155,14 +157,14 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
                 className="px-2 py-1 text-xs rounded border hover:bg-muted"
                 type="button"
               >
-                Cancel
+                {t('footnote.cancel')}
               </button>
               <button
                 onClick={handleSave}
                 className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90"
                 type="button"
               >
-                Save
+                {t('footnote.save')}
               </button>
             </div>
           </div>
@@ -235,7 +237,6 @@ export const Footnote = Node.create<FootnoteOptions>({
   },
 
   addNodeView() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return ReactNodeViewRenderer(FootnoteView as any)
   },
 

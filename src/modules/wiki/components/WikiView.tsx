@@ -1,4 +1,5 @@
 import { FC, useState, Suspense, lazy, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, Plus, Search } from 'lucide-react'
@@ -13,6 +14,7 @@ interface WikiViewProps {
 }
 
 export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
+  const { t } = useTranslation()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -39,14 +41,14 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Knowledge Base</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('wikiView.title')}</h2>
           <p className="text-muted-foreground">
-            Collaborative documentation and resources
+            {t('wikiView.subtitle')}
           </p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          New Page
+          {t('wikiView.newPage')}
         </Button>
       </div>
 
@@ -54,7 +56,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search wiki..."
+            placeholder={t('wikiView.searchPlaceholder')}
             className="pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -66,7 +68,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
         <Card>
           <CardContent className="py-12">
             <div className="text-center text-muted-foreground">
-              {searchQuery ? 'No pages found matching your search' : 'No wiki pages yet. Create your first page to get started!'}
+              {searchQuery ? t('wikiView.noResults') : t('wikiView.empty')}
             </div>
           </CardContent>
         </Card>
@@ -97,7 +99,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
                   </div>
                 )}
                 <div className="text-xs text-muted-foreground mt-2">
-                  Updated {new Date(page.updated).toLocaleDateString()}
+                  {t('wikiView.updated', { date: new Date(page.updated).toLocaleDateString() })}
                 </div>
               </CardContent>
             </Card>

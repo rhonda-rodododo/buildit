@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow, format } from 'date-fns';
 import { getCurrentTime } from '@/lib/utils';
 import type { ProposalFeedItem } from './types';
@@ -25,6 +26,7 @@ interface ProposalFeedCardProps {
 }
 
 export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className }) => {
+  const { t } = useTranslation();
   const { data: proposal } = item;
 
   const getStatusBadge = () => {
@@ -33,49 +35,49 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-muted text-muted-foreground rounded">
             <FileText className="w-3 h-3" />
-            Draft
+            {t('proposalFeedCard.statuses.draft')}
           </span>
         );
       case 'discussion':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-500/10 text-blue-500 rounded">
             <MessageSquare className="w-3 h-3" />
-            Discussion
+            {t('proposalFeedCard.statuses.discussion')}
           </span>
         );
       case 'voting':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-purple-500/10 text-purple-500 rounded">
             <Vote className="w-3 h-3" />
-            Voting
+            {t('proposalFeedCard.statuses.voting')}
           </span>
         );
       case 'decided':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded">
             <CheckCircle2 className="w-3 h-3" />
-            Decided
+            {t('proposalFeedCard.statuses.decided')}
           </span>
         );
       case 'cancelled':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-red-500/10 text-red-500 rounded">
             <Clock className="w-3 h-3" />
-            Cancelled
+            {t('proposalFeedCard.statuses.cancelled')}
           </span>
         );
     }
   };
 
   const getVotingMethodLabel = (method: string) => {
-    const labels: Record<string, string> = {
-      simple: 'Simple Majority',
-      'ranked-choice': 'Ranked Choice',
-      quadratic: 'Quadratic Voting',
-      dhondt: "D'Hondt Method",
-      consensus: 'Consensus',
+    const methodKeys: Record<string, string> = {
+      simple: 'proposalFeedCard.votingMethods.simple',
+      'ranked-choice': 'proposalFeedCard.votingMethods.rankedChoice',
+      quadratic: 'proposalFeedCard.votingMethods.quadratic',
+      dhondt: 'proposalFeedCard.votingMethods.dhondt',
+      consensus: 'proposalFeedCard.votingMethods.consensus',
     };
-    return labels[method] || method;
+    return methodKeys[method] ? t(methodKeys[method]) : method;
   };
 
   const getVotingMethodIcon = () => {
@@ -104,7 +106,7 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-sm truncate">{proposal.authorPubkey}</span>
-              <span className="text-xs text-muted-foreground">created a proposal</span>
+              <span className="text-xs text-muted-foreground">{t('proposalFeedCard.createdProposal')}</span>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(proposal.created, { addSuffix: true })}
               </span>
@@ -122,7 +124,7 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
         <div className="flex items-center gap-2">
           <Vote className="w-5 h-5 text-purple-500" />
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Governance Proposal
+            {t('proposalFeedCard.governanceProposal')}
           </span>
         </div>
 
@@ -148,10 +150,10 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
               <Clock className="w-4 h-4" />
               <span className="text-xs">
                 {votingDeadlinePassed ? (
-                  <span className="text-destructive">Voting ended</span>
+                  <span className="text-destructive">{t('proposalFeedCard.votingEnded')}</span>
                 ) : (
                   <>
-                    Deadline:{' '}
+                    {t('proposalFeedCard.deadline')}{' '}
                     {formatDistanceToNow(proposal.votingDeadline, { addSuffix: true })}
                   </>
                 )}
@@ -163,7 +165,7 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
         {/* Voting deadline details */}
         {proposal.votingDeadline && isVotingActive && !votingDeadlinePassed && (
           <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded text-sm">
-            <span className="font-medium">Voting ends:</span>{' '}
+            <span className="font-medium">{t('proposalFeedCard.votingEnds')}</span>{' '}
             {format(proposal.votingDeadline, 'MMM d, yyyy • h:mm a')}
           </div>
         )}
@@ -172,27 +174,27 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
         <div className="flex items-center gap-2 pt-2 border-t">
           {proposal.status === 'draft' && (
             <>
-              <Button className="flex-1">Review</Button>
+              <Button className="flex-1">{t('proposalFeedCard.actions.review')}</Button>
               <Button variant="outline" className="flex-1">
-                Edit
+                {t('proposalFeedCard.actions.edit')}
               </Button>
             </>
           )}
 
           {proposal.status === 'discussion' && (
             <>
-              <Button className="flex-1">Join Discussion</Button>
+              <Button className="flex-1">{t('proposalFeedCard.actions.joinDiscussion')}</Button>
               <Button variant="outline" className="flex-1">
-                View Details
+                {t('proposalFeedCard.actions.viewDetails')}
               </Button>
             </>
           )}
 
           {proposal.status === 'voting' && !votingDeadlinePassed && (
             <>
-              <Button className="flex-1">Cast Vote</Button>
+              <Button className="flex-1">{t('proposalFeedCard.actions.castVote')}</Button>
               <Button variant="outline" className="flex-1">
-                View Proposal
+                {t('proposalFeedCard.actions.viewProposal')}
               </Button>
             </>
           )}
@@ -200,10 +202,10 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
           {(proposal.status === 'decided' || votingDeadlinePassed) && (
             <>
               <Button variant="outline" className="flex-1">
-                View Results
+                {t('proposalFeedCard.actions.viewResults')}
               </Button>
               <Button variant="ghost" className="flex-1">
-                Details
+                {t('proposalFeedCard.actions.details')}
               </Button>
             </>
           )}

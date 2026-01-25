@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ interface CreateThreadDialogProps {
 }
 
 export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThreadDialogProps) {
+  const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
   const [isCreating, setIsCreating] = useState(false)
@@ -80,18 +82,18 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Thread</DialogTitle>
+          <DialogTitle>{t('createThreadDialog.title')}</DialogTitle>
           <DialogDescription>
-            Start a new conversation thread in this group
+            {t('createThreadDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="thread-title">Title</Label>
+            <Label htmlFor="thread-title">{t('createThreadDialog.titleLabel')}</Label>
             <Input
               id="thread-title"
-              placeholder="e.g., Meeting Notes, Ideas, Announcements"
+              placeholder={t('createThreadDialog.titlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isCreating}
@@ -99,10 +101,10 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="thread-category">Category (Optional)</Label>
+            <Label htmlFor="thread-category">{t('createThreadDialog.categoryLabel')}</Label>
             <Input
               id="thread-category"
-              placeholder="e.g., General, Planning, Resources"
+              placeholder={t('createThreadDialog.categoryPlaceholder')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={isCreating}
@@ -112,10 +114,10 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>
-            Cancel
+            {t('createThreadDialog.cancel')}
           </Button>
           <Button onClick={handleCreate} disabled={!title.trim() || isCreating}>
-            {isCreating ? 'Creating...' : 'Create Thread'}
+            {isCreating ? t('createThreadDialog.creating') : t('createThreadDialog.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

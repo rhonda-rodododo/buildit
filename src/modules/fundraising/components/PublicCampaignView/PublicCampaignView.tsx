@@ -3,6 +3,7 @@
  * Public-facing fundraising campaign page
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -18,6 +19,7 @@ interface PublicCampaignViewProps {
 }
 
 export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaignViewProps) {
+  const { t } = useTranslation();
   const progress = (campaign.currentAmount / campaign.goal) * 100;
   const raised = (campaign.currentAmount / 100).toFixed(2);
   const goal = (campaign.goal / 100).toFixed(2);
@@ -40,12 +42,12 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
                 {currencySymbol}{raised}
               </div>
               <div className="text-muted-foreground">
-                of {currencySymbol}{goal} goal
+                {t('publicCampaignView.goal', { goal: `${currencySymbol}${goal}` })}
               </div>
             </div>
             <Progress value={Math.min(progress, 100)} className="h-3" />
             <div className="text-sm text-muted-foreground">
-              {progress.toFixed(0)}% funded
+              {t('publicCampaignView.funded', { percent: progress.toFixed(0) })}
             </div>
           </div>
 
@@ -57,7 +59,7 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
       {/* Donation Tiers */}
       {tiers.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Support This Campaign</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('publicCampaignView.supportCampaign')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tiers.map((tier) => (
               <Card
@@ -81,7 +83,7 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
 
                   {tier.limited && tier.maxCount && (
                     <div className="text-xs text-muted-foreground">
-                      {tier.currentCount} / {tier.maxCount} claimed
+                      {t('publicCampaignView.claimed', { current: tier.currentCount, max: tier.maxCount })}
                     </div>
                   )}
 
@@ -90,7 +92,7 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
                     disabled={tier.limited && tier.maxCount !== undefined && tier.currentCount >= tier.maxCount}
                   >
                     <DollarSign className="h-4 w-4 mr-2" />
-                    Donate
+                    {t('publicCampaignView.donate')}
                   </Button>
                 </div>
               </Card>
@@ -104,13 +106,13 @@ export function PublicCampaignView({ campaign, tiers, onDonate }: PublicCampaign
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold">Custom Amount</h3>
+              <h3 className="font-semibold">{t('publicCampaignView.customAmount.title')}</h3>
               <p className="text-sm text-muted-foreground">
-                Enter a custom donation amount
+                {t('publicCampaignView.customAmount.description')}
               </p>
             </div>
             <Button onClick={() => onDonate()}>
-              Donate Custom Amount
+              {t('publicCampaignView.customAmount.button')}
             </Button>
           </div>
         </Card>

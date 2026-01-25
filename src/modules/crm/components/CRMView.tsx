@@ -1,22 +1,25 @@
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Users, Plus, Table, Columns, Calendar } from 'lucide-react'
 
 export const CRMView: FC = () => {
+  const { t } = useTranslation()
+
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Contact Database</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('crmView.title')}</h2>
           <p className="text-muted-foreground">
-            Organize and manage community relationships
+            {t('crmView.subtitle')}
           </p>
         </div>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Add Contact
+          {t('crmView.addContact')}
         </Button>
       </div>
 
@@ -24,15 +27,15 @@ export const CRMView: FC = () => {
         <TabsList>
           <TabsTrigger value="table">
             <Table className="h-4 w-4 mr-2" />
-            Table View
+            {t('crmView.views.table')}
           </TabsTrigger>
           <TabsTrigger value="board">
             <Columns className="h-4 w-4 mr-2" />
-            Board View
+            {t('crmView.views.board')}
           </TabsTrigger>
           <TabsTrigger value="calendar">
             <Calendar className="h-4 w-4 mr-2" />
-            Calendar View
+            {t('crmView.views.calendar')}
           </TabsTrigger>
         </TabsList>
 
@@ -41,15 +44,15 @@ export const CRMView: FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Contacts
+                {t('crmView.contacts.title')}
               </CardTitle>
               <CardDescription>
-                Manage contacts with custom fields and privacy controls
+                {t('crmView.contacts.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12 text-muted-foreground">
-                No contacts yet. Add your first contact to get started.
+                {t('crmView.contacts.emptyState')}
               </div>
             </CardContent>
           </Card>
@@ -57,39 +60,39 @@ export const CRMView: FC = () => {
 
         <TabsContent value="board" className="mt-6">
           <div className="text-center py-12 text-muted-foreground">
-            Board view - organize contacts by status or category
+            {t('crmView.emptyStates.board')}
           </div>
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-6">
           <div className="text-center py-12 text-muted-foreground">
-            Calendar view - see contacts by date-based fields
+            {t('crmView.emptyStates.calendar')}
           </div>
         </TabsContent>
       </Tabs>
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Available Templates</CardTitle>
-          <CardDescription>Pre-configured fields for common use cases</CardDescription>
+          <CardTitle>{t('crmView.templates.title')}</CardTitle>
+          <CardDescription>{t('crmView.templates.description')}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="p-3 border rounded-lg">
-            <h4 className="font-medium">Union Organizing</h4>
+            <h4 className="font-medium">{t('crmView.templates.unionOrganizing.title')}</h4>
             <p className="text-sm text-muted-foreground mt-1">
-              Track organizing conversations and commitments
+              {t('crmView.templates.unionOrganizing.description')}
             </p>
           </div>
           <div className="p-3 border rounded-lg">
-            <h4 className="font-medium">Fundraising</h4>
+            <h4 className="font-medium">{t('crmView.templates.fundraising.title')}</h4>
             <p className="text-sm text-muted-foreground mt-1">
-              Donor management and campaign tracking
+              {t('crmView.templates.fundraising.description')}
             </p>
           </div>
           <div className="p-3 border rounded-lg">
-            <h4 className="font-medium">Legal Tracking</h4>
+            <h4 className="font-medium">{t('crmView.templates.legalTracking.title')}</h4>
             <p className="text-sm text-muted-foreground mt-1">
-              Case management for legal support work
+              {t('crmView.templates.legalTracking.description')}
             </p>
           </div>
         </CardContent>

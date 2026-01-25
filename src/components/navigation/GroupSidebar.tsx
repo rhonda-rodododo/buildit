@@ -1,4 +1,5 @@
 import { FC, createElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import { ArrowLeft, LayoutDashboard, MessageSquare, Users, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,7 @@ interface GroupSidebarProps {
 }
 
 export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
+  const { t } = useTranslation();
   const { groupId, group, availableModules, isModuleEnabled, isLoading, error } = useGroupContext();
 
   if (isLoading) {
@@ -28,7 +30,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
     return (
       <aside className={cn('w-64 border-r bg-muted/10 p-4', className)}>
         <div className="text-sm text-muted-foreground">
-          {error || 'Group not found'}
+          {error || t('groupSidebar.groupNotFound')}
         </div>
       </aside>
     );
@@ -57,7 +59,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
         className="flex items-center gap-2 px-3 py-2 mb-4 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Network
+        {t('groupSidebar.backToNetwork')}
       </NavLink>
 
       {/* Group name */}
@@ -79,9 +81,9 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
                 : 'hover:bg-muted'
             )
           }
-        > 
+        >
           <LayoutDashboard className="h-4 w-4" />
-          Dashboard
+          {t('groupSidebar.dashboard')}
         </NavLink>
 
         {/* Feed link */}
@@ -97,7 +99,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
           }
         >
           <MessageSquare className="h-4 w-4" />
-          Feed
+          {t('groupSidebar.feed')}
         </NavLink>
 
         {/* Members link */}
@@ -113,7 +115,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
           }
         >
           <Users className="h-4 w-4" />
-          Members
+          {t('groupSidebar.members')}
         </NavLink>
 
         {/* Divider */}
@@ -156,7 +158,7 @@ export const GroupSidebar: FC<GroupSidebarProps> = ({ className }) => {
           }
         >
           <Settings className="h-4 w-4" />
-          Settings
+          {t('groupSidebar.settings')}
         </NavLink>
       </nav>
     </aside>

@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export function SubmissionsList({
   onMarkProcessed,
   onExport,
 }: SubmissionsListProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'unprocessed' | 'spam'>('all');
 
@@ -51,14 +53,16 @@ export function SubmissionsList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Form Submissions</h3>
+          <h3 className="text-lg font-semibold">{t('submissionsList.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            {submissions.length} total submission{submissions.length !== 1 ? 's' : ''}
+            {submissions.length === 1
+              ? t('submissionsList.totalCount', { count: submissions.length })
+              : t('submissionsList.totalCount_plural', { count: submissions.length })}
           </p>
         </div>
         <Button onClick={onExport}>
           <Download className="h-4 w-4 mr-2" />
-          Export
+          {t('submissionsList.export')}
         </Button>
       </div>
 
@@ -67,7 +71,7 @@ export function SubmissionsList({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email..."
+            placeholder={t('submissionsList.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -78,19 +82,19 @@ export function SubmissionsList({
             variant={filterStatus === 'all' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('all')}
           >
-            All
+            {t('submissionsList.filters.all')}
           </Button>
           <Button
             variant={filterStatus === 'unprocessed' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('unprocessed')}
           >
-            Unprocessed
+            {t('submissionsList.filters.unprocessed')}
           </Button>
           <Button
             variant={filterStatus === 'spam' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('spam')}
           >
-            Spam
+            {t('submissionsList.filters.spam')}
           </Button>
         </div>
       </div>
@@ -100,18 +104,18 @@ export function SubmissionsList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Submitted</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>{t('submissionsList.tableHeaders.submitted')}</TableHead>
+              <TableHead>{t('submissionsList.tableHeaders.name')}</TableHead>
+              <TableHead>{t('submissionsList.tableHeaders.email')}</TableHead>
+              <TableHead>{t('submissionsList.tableHeaders.status')}</TableHead>
+              <TableHead>{t('submissionsList.tableHeaders.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredSubmissions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  No submissions found
+                  {t('submissionsList.noSubmissions')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -125,19 +129,19 @@ export function SubmissionsList({
                     {format(submission.submittedAt, 'MMM d, yyyy h:mm a')}
                   </TableCell>
                   <TableCell>
-                    {submission.submittedByName || submission.submittedBy || 'Anonymous'}
+                    {submission.submittedByName || submission.submittedBy || t('submissionsList.anonymous')}
                   </TableCell>
                   <TableCell>{submission.submittedByEmail || '-'}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       {submission.flaggedAsSpam && (
-                        <Badge variant="destructive">Spam</Badge>
+                        <Badge variant="destructive">{t('submissionsList.status.spam')}</Badge>
                       )}
                       {submission.processed && (
-                        <Badge variant="secondary">Processed</Badge>
+                        <Badge variant="secondary">{t('submissionsList.status.processed')}</Badge>
                       )}
                       {!submission.processed && !submission.flaggedAsSpam && (
-                        <Badge>New</Badge>
+                        <Badge>{t('submissionsList.status.new')}</Badge>
                       )}
                     </div>
                   </TableCell>
@@ -148,7 +152,7 @@ export function SubmissionsList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onFlagSpam(submission.id)}
-                          title="Flag as spam"
+                          title={t('submissionsList.actions.flagSpam')}
                         >
                           <Flag className="h-4 w-4" />
                         </Button>
@@ -158,7 +162,7 @@ export function SubmissionsList({
                           variant="ghost"
                           size="sm"
                           onClick={() => onMarkProcessed(submission.id)}
-                          title="Mark as processed"
+                          title={t('submissionsList.actions.markProcessed')}
                         >
                           <Check className="h-4 w-4" />
                         </Button>

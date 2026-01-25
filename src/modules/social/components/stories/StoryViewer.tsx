@@ -4,6 +4,7 @@
  */
 
 import { FC, useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export const StoryViewer: FC<StoryViewerProps> = ({
   initialStoryIndex = 0,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { viewStory, replyToStory, deleteStory, myStoryViews } = useSocialStore();
   const { currentIdentity } = useAuthStore();
 
@@ -257,7 +259,7 @@ export const StoryViewer: FC<StoryViewerProps> = ({
                       className="text-destructive"
                       onClick={handleDelete}
                     >
-                      Delete Story
+                      {t('storyViewer.deleteStory')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -354,11 +356,11 @@ export const StoryViewer: FC<StoryViewerProps> = ({
               <div className="flex items-center gap-4 text-white">
                 <div className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  <span className="text-sm">{currentStory.viewCount} views</span>
+                  <span className="text-sm">{t('storyViewer.views', { count: currentStory.viewCount })}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm">{currentStory.replyCount} replies</span>
+                  <span className="text-sm">{t('storyViewer.replies', { count: currentStory.replyCount })}</span>
                 </div>
               </div>
             ) : currentStory.privacy.allowReplies ? (
@@ -383,7 +385,7 @@ export const StoryViewer: FC<StoryViewerProps> = ({
                   <Input
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Reply..."
+                    placeholder={t('storyViewer.replyPlaceholder')}
                     className="bg-white/20 border-0 text-white placeholder:text-white/70"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {

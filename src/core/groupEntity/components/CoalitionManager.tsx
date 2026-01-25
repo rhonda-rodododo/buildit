@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Users, Plus, Trash2, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ interface CoalitionManagerProps {
 }
 
 export function CoalitionManager({ groupId }: CoalitionManagerProps) {
+  const { t } = useTranslation();
   const { coalitions, createCoalition, deleteCoalition } = useGroupEntityStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState('');
@@ -53,7 +55,7 @@ export function CoalitionManager({ groupId }: CoalitionManagerProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this coalition?')) return;
+    if (!confirm(t('coalitionManager.confirmDelete'))) return;
 
     try {
       await deleteCoalition(id);
@@ -73,59 +75,58 @@ export function CoalitionManager({ groupId }: CoalitionManagerProps) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Coalitions
+              {t('coalitionManager.title')}
             </CardTitle>
             <CardDescription>
-              Multi-group chats for coordinating across organizations
+              {t('coalitionManager.description')}
             </CardDescription>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                New Coalition
+                {t('coalitionManager.newCoalition')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create Coalition</DialogTitle>
+                <DialogTitle>{t('coalitionManager.createDialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Build a multi-group coalition for cross-organizational coordination
+                  {t('coalitionManager.createDialog.description')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Coalition Name</Label>
+                  <Label htmlFor="name">{t('coalitionManager.createDialog.nameLabel')}</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Climate Justice Coalition"
+                    placeholder={t('coalitionManager.createDialog.namePlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t('coalitionManager.createDialog.descriptionLabel')}</Label>
                   <Textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="What is this coalition working on?"
+                    placeholder={t('coalitionManager.createDialog.descriptionPlaceholder')}
                     rows={3}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Participating Groups</Label>
+                  <Label>{t('coalitionManager.createDialog.groupsLabel')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Note: Group selection will be fully implemented in production.
-                    For MVP, coalition is created with your current group.
+                    {t('coalitionManager.createDialog.groupsNote')}
                   </p>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                    Cancel
+                    {t('coalitionManager.buttons.cancel')}
                   </Button>
                   <Button onClick={handleCreate} disabled={!name.trim()}>
-                    Create Coalition
+                    {t('coalitionManager.buttons.create')}
                   </Button>
                 </div>
               </div>
@@ -137,9 +138,9 @@ export function CoalitionManager({ groupId }: CoalitionManagerProps) {
         {filteredCoalitions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p>No coalitions yet</p>
+            <p>{t('coalitionManager.empty.title')}</p>
             <p className="text-sm mt-1">
-              Create a coalition to coordinate with other organizations
+              {t('coalitionManager.empty.description')}
             </p>
           </div>
         ) : (
@@ -149,6 +150,7 @@ export function CoalitionManager({ groupId }: CoalitionManagerProps) {
                 key={coalition.id}
                 coalition={coalition}
                 onDelete={handleDelete}
+                t={t}
               />
             ))}
           </div>
@@ -161,9 +163,10 @@ export function CoalitionManager({ groupId }: CoalitionManagerProps) {
 interface CoalitionCardProps {
   coalition: Coalition;
   onDelete: (id: string) => void;
+  t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-function CoalitionCard({ coalition, onDelete }: CoalitionCardProps) {
+function CoalitionCard({ coalition, onDelete, t }: CoalitionCardProps) {
   return (
     <div className="border rounded-lg p-4">
       <div className="flex items-start justify-between">
@@ -173,10 +176,10 @@ function CoalitionCard({ coalition, onDelete }: CoalitionCardProps) {
             <p className="text-sm text-muted-foreground mt-1">{coalition.description}</p>
           )}
           <div className="flex items-center gap-2 mt-2">
-            <Badge variant="secondary">{coalition.groupIds.length} groups</Badge>
+            <Badge variant="secondary">{t('coalitionManager.badges.groups', { count: coalition.groupIds.length })}</Badge>
             {coalition.individualPubkeys.length > 0 && (
               <Badge variant="outline">
-                {coalition.individualPubkeys.length} individuals
+                {t('coalitionManager.badges.individuals', { count: coalition.individualPubkeys.length })}
               </Badge>
             )}
           </div>

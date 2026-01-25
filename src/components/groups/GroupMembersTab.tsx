@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,12 +37,7 @@ const roleIcons: Record<MemberRole, React.ReactNode> = {
   'read-only': <Eye className="h-3.5 w-3.5" />,
 }
 
-const roleLabels: Record<MemberRole, string> = {
-  admin: 'Admin',
-  moderator: 'Moderator',
-  member: 'Member',
-  'read-only': 'Read Only',
-}
+// Role labels are handled via i18n: t('groupMembersTab.roles.{role}')
 
 const roleBadgeVariants: Record<MemberRole, 'default' | 'secondary' | 'outline'> = {
   admin: 'default',
@@ -55,6 +51,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
   groupName,
   adminPubkeys,
 }) => {
+  const { t } = useTranslation()
   const { currentIdentity } = useAuthStore()
   const [members, setMembers] = useState<DBGroupMember[]>([])
   const [pendingInvites, setPendingInvites] = useState<DBGroupInvitation[]>([])
@@ -98,7 +95,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       )
     } catch (error) {
       console.error('Failed to update role:', error)
-      alert('Failed to update member role')
+      alert(t('groupMembersTab.alerts.failedToUpdateRole'))
     }
   }
 
@@ -111,7 +108,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       setRemovingMember(null)
     } catch (error) {
       console.error('Failed to remove member:', error)
-      alert('Failed to remove member')
+      alert(t('groupMembersTab.alerts.failedToRemoveMember'))
     }
   }
 
@@ -124,12 +121,12 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       setRevokingInvite(null)
     } catch (error) {
       console.error('Failed to revoke invite:', error)
-      alert('Failed to revoke invitation')
+      alert(t('groupMembersTab.alerts.failedToRevokeInvite'))
     }
   }
 
   if (loading) {
-    return <div className="text-center py-8 text-muted-foreground">Loading members...</div>
+    return <div className="text-center py-8 text-muted-foreground">{t('groupMembersTab.loading')}</div>
   }
 
   return (
@@ -137,9 +134,9 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       {/* Header with Invite Button */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium">Members</h3>
+          <h3 className="text-lg font-medium">{t('groupMembersTab.title')}</h3>
           <p className="text-sm text-muted-foreground">
-            {members.length} member{members.length !== 1 ? 's' : ''} in this group
+            {t('groupMembersTab.memberCount', { count: members.length })}
           </p>
         </div>
         {isAdmin && (
@@ -158,7 +155,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
           <div className="space-y-3">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              Pending Invitations ({pendingInvites.length})
+              {t('groupMembersTab.pendingInvitations', { count: pendingInvites.length })}
             </h4>
             <div className="space-y-2">
               {pendingInvites.map((invite) => (
@@ -170,17 +167,17 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
                     {invite.inviteePubkey ? (
                       <UserHandle pubkey={invite.inviteePubkey} format="display-name" />
                     ) : invite.code ? (
-                      <span className="font-mono text-sm">Invite Link: {invite.code}</span>
+                      <span className="font-mono text-sm">{t('groupMembersTab.inviteLink', { code: invite.code })}</span>
                     ) : (
-                      <span className="text-muted-foreground">Unknown</span>
+                      <span className="text-muted-foreground">{t('groupMembersTab.unknown')}</span>
                     )}
                     <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                       <Badge variant="outline" className="text-xs">
-                        {roleLabels[invite.role]}
+                        {t(`groupMembersTab.roles.${invite.role}`)}
                       </Badge>
                       {invite.expiresAt && (
                         <span>
-                          Expires {formatDistanceToNow(invite.expiresAt, { addSuffix: true })}
+                          {t('groupMembersTab.expires', { time: formatDistanceToNow(invite.expiresAt, { addSuffix: true }) })}
                         </span>
                       )}
                     </div>
@@ -232,7 +229,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
                     />
                     {isCurrentUser && (
                       <Badge variant="secondary" className="text-xs">
-                        You
+                        {t('groupMembersTab.you')}
                       </Badge>
                     )}
                   </div>
@@ -242,10 +239,10 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
                       className="gap-1 text-xs"
                     >
                       {roleIcons[member.role]}
-                      {roleLabels[member.role]}
+                      {t(`groupMembersTab.roles.${member.role}`)}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      Joined {formatDistanceToNow(member.joined, { addSuffix: true })}
+                      {t('groupMembersTab.joined', { time: formatDistanceToNow(member.joined, { addSuffix: true }) })}
                     </span>
                   </div>
                 </div>
@@ -261,10 +258,10 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="moderator">Moderator</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="read-only">Read Only</SelectItem>
+                      <SelectItem value="admin">{t('groupMembersTab.roles.admin')}</SelectItem>
+                      <SelectItem value="moderator">{t('groupMembersTab.roles.moderator')}</SelectItem>
+                      <SelectItem value="member">{t('groupMembersTab.roles.member')}</SelectItem>
+                      <SelectItem value="read-only">{t('groupMembersTab.roles.read-only')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button
@@ -283,7 +280,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
 
         {members.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
-            No members found. Be the first to invite someone!
+            {t('groupMembersTab.noMembers')}
           </div>
         )}
       </div>
@@ -292,19 +289,18 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       <AlertDialog open={!!removingMember} onOpenChange={() => setRemovingMember(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Member</AlertDialogTitle>
+            <AlertDialogTitle>{t('groupMembersTab.removeDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this member from the group? They will need to be
-              re-invited to rejoin.
+              {t('groupMembersTab.removeDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('groupMembersTab.removeDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemoveMember}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Remove
+              {t('groupMembersTab.removeDialog.remove')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -314,15 +310,14 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
       <AlertDialog open={!!revokingInvite} onOpenChange={() => setRevokingInvite(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Revoke Invitation</AlertDialogTitle>
+            <AlertDialogTitle>{t('groupMembersTab.revokeDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to revoke this invitation? The invite link or direct
-              invite will no longer work.
+              {t('groupMembersTab.revokeDialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRevokeInvite}>Revoke</AlertDialogAction>
+            <AlertDialogCancel>{t('groupMembersTab.revokeDialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRevokeInvite}>{t('groupMembersTab.revokeDialog.revoke')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

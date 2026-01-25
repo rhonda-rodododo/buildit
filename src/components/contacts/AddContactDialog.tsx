@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import { useContactsStore } from '@/stores/contactsStore';
 import { nip19 } from 'nostr-tools';
 
 export const AddContactDialog: FC = () => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [npubOrHex, setNpubOrHex] = useState('');
   const [petname, setPetname] = useState('');
@@ -41,7 +43,7 @@ export const AddContactDialog: FC = () => {
 
       // Validate hex pubkey
       if (!/^[0-9a-f]{64}$/i.test(pubkey)) {
-        setError('Invalid pubkey format. Use npub or hex format.');
+        setError(t('addContactDialog.invalidPubkey'));
         return;
       }
 
@@ -59,38 +61,38 @@ export const AddContactDialog: FC = () => {
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="w-4 h-4 mr-2" />
-          Add Contact
+          {t('addContactDialog.trigger')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Contact</DialogTitle>
+          <DialogTitle>{t('addContactDialog.title')}</DialogTitle>
           <DialogDescription>
-            Enter a Nostr public key (npub or hex) to add them to your contacts
+            {t('addContactDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="pubkey">Public Key (npub or hex)</Label>
+            <Label htmlFor="pubkey">{t('addContactDialog.pubkeyLabel')}</Label>
             <Input
               id="pubkey"
-              placeholder="npub1... or hex pubkey"
+              placeholder={t('addContactDialog.pubkeyPlaceholder')}
               value={npubOrHex}
               onChange={(e) => setNpubOrHex(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="petname">Petname (optional)</Label>
+            <Label htmlFor="petname">{t('addContactDialog.petnameLabel')}</Label>
             <Input
               id="petname"
-              placeholder="alice"
+              placeholder={t('addContactDialog.petnamePlaceholder')}
               value={petname}
               onChange={(e) => setPetname(e.target.value)}
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button onClick={handleAdd} className="w-full">
-            Add Contact
+            {t('addContactDialog.submit')}
           </Button>
         </div>
       </DialogContent>

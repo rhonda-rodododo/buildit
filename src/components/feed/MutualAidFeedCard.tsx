@@ -4,6 +4,7 @@
  */
 
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { getCurrentTime } from '@/lib/utils';
 import type { MutualAidFeedItem } from './types';
@@ -25,10 +26,13 @@ interface MutualAidFeedCardProps {
 }
 
 export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className }) => {
+  const { t } = useTranslation();
   const { data: request } = item;
 
   const getTypeLabel = () => {
-    return request.type === 'request' ? 'requesting help' : 'offering help';
+    return request.type === 'request'
+      ? t('mutualAidFeedCard.typeLabels.requesting')
+      : t('mutualAidFeedCard.typeLabels.offering');
   };
 
   const getStatusBadge = () => {
@@ -37,35 +41,35 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded">
             <Clock className="w-3 h-3" />
-            Open
+            {t('mutualAidFeedCard.status.open')}
           </span>
         );
       case 'matched':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-500/10 text-blue-500 rounded">
             <CheckCircle2 className="w-3 h-3" />
-            Matched
+            {t('mutualAidFeedCard.status.matched')}
           </span>
         );
       case 'in-progress':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-yellow-500/10 text-yellow-500 rounded">
             <Clock className="w-3 h-3" />
-            In Progress
+            {t('mutualAidFeedCard.status.inProgress')}
           </span>
         );
       case 'fulfilled':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-purple-500/10 text-purple-500 rounded">
             <CheckCircle2 className="w-3 h-3" />
-            Fulfilled
+            {t('mutualAidFeedCard.status.fulfilled')}
           </span>
         );
       case 'closed':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-muted text-muted-foreground rounded">
             <XCircle className="w-3 h-3" />
-            Closed
+            {t('mutualAidFeedCard.status.closed')}
           </span>
         );
     }
@@ -160,14 +164,14 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
             <div className="flex items-center gap-1 text-muted-foreground">
               <Clock className="w-4 h-4" />
               <span className="text-xs">
-                Expires {formatDistanceToNow(request.expiresAt, { addSuffix: true })}
+                {t('mutualAidFeedCard.expires', { time: formatDistanceToNow(request.expiresAt, { addSuffix: true }) })}
               </span>
             </div>
           )}
 
           {/* Expired indicator */}
           {isExpired && (
-            <span className="text-xs text-destructive font-medium">Expired</span>
+            <span className="text-xs text-destructive font-medium">{t('mutualAidFeedCard.expired')}</span>
           )}
         </div>
 
@@ -176,21 +180,21 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
           <div className="flex items-center gap-2 pt-2 border-t">
             {request.type === 'request' ? (
               <>
-                <Button className="flex-1">Offer Help</Button>
+                <Button className="flex-1">{t('mutualAidFeedCard.actions.offerHelp')}</Button>
                 <Button variant="outline" className="flex-1">
-                  Message
+                  {t('mutualAidFeedCard.actions.message')}
                 </Button>
               </>
             ) : (
               <>
-                <Button className="flex-1">Request This</Button>
+                <Button className="flex-1">{t('mutualAidFeedCard.actions.requestThis')}</Button>
                 <Button variant="outline" className="flex-1">
-                  Message
+                  {t('mutualAidFeedCard.actions.message')}
                 </Button>
               </>
             )}
             <Button variant="ghost" size="sm">
-              Details
+              {t('mutualAidFeedCard.actions.details')}
             </Button>
           </div>
         )}
@@ -199,7 +203,7 @@ export const MutualAidFeedCard: FC<MutualAidFeedCardProps> = ({ item, className 
         {(request.status === 'matched' || request.status === 'fulfilled') && (
           <div className="pt-2 border-t">
             <Button variant="outline" className="w-full">
-              View Details
+              {t('mutualAidFeedCard.actions.viewDetails')}
             </Button>
           </div>
         )}

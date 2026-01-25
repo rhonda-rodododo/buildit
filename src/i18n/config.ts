@@ -1,9 +1,16 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import en from './locales/en.json'
-import es from './locales/es.json'
-import fr from './locales/fr.json'
-import ar from './locales/ar.json'
+import en from '@buildit/i18n/locales/en.json'
+import es from '@buildit/i18n/locales/es.json'
+import fr from '@buildit/i18n/locales/fr.json'
+import ar from '@buildit/i18n/locales/ar.json'
+import zhCN from '@buildit/i18n/locales/zh-CN.json'
+import vi from '@buildit/i18n/locales/vi.json'
+import ko from '@buildit/i18n/locales/ko.json'
+import ru from '@buildit/i18n/locales/ru.json'
+import pt from '@buildit/i18n/locales/pt.json'
+import ht from '@buildit/i18n/locales/ht.json'
+import tl from '@buildit/i18n/locales/tl.json'
 
 export const defaultNS = 'translation'
 
@@ -20,6 +27,27 @@ export const resources = {
   ar: {
     translation: ar,
   },
+  'zh-CN': {
+    translation: zhCN,
+  },
+  vi: {
+    translation: vi,
+  },
+  ko: {
+    translation: ko,
+  },
+  ru: {
+    translation: ru,
+  },
+  pt: {
+    translation: pt,
+  },
+  ht: {
+    translation: ht,
+  },
+  tl: {
+    translation: tl,
+  },
 } as const
 
 export const languages = [
@@ -27,6 +55,13 @@ export const languages = [
   { code: 'es', name: 'Spanish', nativeName: 'Español', dir: 'ltr' },
   { code: 'fr', name: 'French', nativeName: 'Français', dir: 'ltr' },
   { code: 'ar', name: 'Arabic', nativeName: 'العربية', dir: 'rtl' },
+  { code: 'zh-CN', name: 'Chinese (Simplified)', nativeName: '简体中文', dir: 'ltr' },
+  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', dir: 'ltr' },
+  { code: 'ko', name: 'Korean', nativeName: '한국어', dir: 'ltr' },
+  { code: 'ru', name: 'Russian', nativeName: 'Русский', dir: 'ltr' },
+  { code: 'pt', name: 'Portuguese', nativeName: 'Português', dir: 'ltr' },
+  { code: 'ht', name: 'Haitian Creole', nativeName: 'Kreyòl Ayisyen', dir: 'ltr' },
+  { code: 'tl', name: 'Tagalog', nativeName: 'Tagalog', dir: 'ltr' },
 ] as const
 
 export type LanguageCode = keyof typeof resources
