@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BLE Mesh Routing Test Vectors",
+  "description": "Test cases for BLE mesh multi-hop routing",
+  "version": "1.0.0",
+  "constants": {
+    "MAX_HOPS": 10,
+    "DEFAULT_TTL": 5,
+    "SEEN_MESSAGE_EXPIRY_MS": 300000
+  },
+  "testCases": [
+    {
+      "id": "route-001",
+      "description": "Direct delivery - recipient is self",
+      "input": {
+        "message": {
+          "messageId": "msg-001",
+          "senderId": "device-A",
+          "recipientId": "device-B",
+          "ttl": 5,
+          "hopCount": 0
+        },
+        "receiverDeviceId": "device-B"
+      },
+      "expected": {
+        "action": "DELIVER",
+        "forward": false
+      }
+    },
+    {
+      "id": "route-002",
+      "description": "Forward to peers - recipient not self",
+      "input": {
+        "message": {
+          "messageId": "msg-002",
+          "senderId": "device-A",
+          "recipientId": "device-C",
+          "ttl": 5,
+          "hopCount": 0
+        },
+        "receiverDeviceId": "device-B",
+        "connectedPeers": ["device-A", "device-C", "device-D"],
+        "meshRoutingEnabled": true
+      },
+      "expected": {
+        "action": "FORWARD",
+        "forwardTo": ["device-C", "device-D"],
+        "excludedPeers": ["device-A"],
+        "newHopCount": 1,
+        "note": "Don't forward back to sender"
+      }
+    },
+    {
+      "id": "route-003",
+      "description": "Broadcast message",
+      "input": {
+        "message": {
+          "messageId": "msg-003",
+          "senderId": "device-A",
+          "recipientId": null,
+          "type": "BROADCAST",
+          "ttl": 5,
+          "hopCount": 0
+        },
+        "receiverDeviceId": "device-B",
+        "connectedPeers": ["device-A", "device-C", "device-D"],
+        "meshRoutingEnabled": true
+      },
+      "expected": {
+        "action": "DELIVER_AND_FORWARD",
+        "forwardTo": ["device-C", "device-D"],
+        "note": "Deliver locally AND forward to all peers except sender"
+      }
+    },
+    {
+      "id": "route-004",
+      "description": "TTL exceeded - drop message",
+      "input": {
+        "message": {
+          "messageId": "msg-004",
+          "senderId": "device-A",
+          "recipientId": "device-Z",
+          "ttl": 5,
+          "hopCount": 5
+        },
+        "receiverDeviceId": "device-B",
+        "meshRoutingEnabled": true
+      },
+      "expected": {
+        "action": "DROP",
+        "reason": "TTL_EXCEEDED"
+      }
+    },
+    {
+      "id": "route-005",
+      "description": "Duplicate message - drop",
+      "input": {
+        "message": {
+          "messageId": "msg-005",
+          "senderId": "device-A",
+          "recipientId": "device-C",
+          "ttl": 5,
+          "hopCount": 1
+        },
+        "receiverDeviceId": "device-B",
+        "seenMessages": ["msg-005"]
+      },
+      "expected": {
+        "action": "DROP",
+        "reason": "DUPLICATE"
+      }
+    },
+    {
+      "id": "route-006",
+      "description": "Mesh routing disabled - only deliver to self",
+      "input": {
+        "message": {
+          "messageId": "msg-006",
+          "senderId": "device-A",
+          "recipientId": "device-C",
+          "ttl": 5,
+          "hopCount": 0
+        },
+        "receiverDeviceId": "device-B",
+        "connectedPeers": ["device-A", "device-C"],
+        "meshRoutingEnabled": false
+      },
+      "expected": {
+        "action": "DROP",
+        "reason": "NOT_RECIPIENT_AND_ROUTING_DISABLED"
+      }
+    },
+    {
+      "id": "route-007",
+      "description": "Max hops boundary",
+      "input": {
+        "message": {
+          "messageId": "msg-007",
+          "senderId": "device-A",
+          "recipientId": "device-Z",
+          "ttl": 10,
+          "hopCount": 9
+        },
+        "receiverDeviceId": "device-B",
+        "connectedPeers": ["device-C"],
+        "meshRoutingEnabled": true
+      },
+      "expected": {
+        "action": "FORWARD",
+        "newHopCount": 10,
+        "note": "Last possible hop before TTL exceeded"
+      }
+    }
+  ],
+  "deduplicationTests": [
+    {
+      "id": "dedup-001",
+      "description": "First occurrence - not duplicate",
+      "input": {
+        "messageId": "new-msg",
+        "seenMessages": []
+      },
+      "expected": {
+        "isDuplicate": false,
+        "addToSeen": true
+      }
+    },
+    {
+      "id": "dedup-002",
+      "description": "Second occurrence - duplicate",
+      "input": {
+        "messageId": "old-msg",
+        "seenMessages": ["old-msg"]
+      },
+      "expected": {
+        "isDuplicate": true
+      }
+    },
+    {
+      "id": "dedup-003",
+      "description": "Expired entry - not duplicate",
+      "input": {
+        "messageId": "expired-msg",
+        "seenMessages": [
+          {
+            "id": "expired-msg",
+            "seenAt": "NOW - 6 minutes"
+          }
+        ],
+        "expiryMs": 300000
+      },
+      "expected": {
+        "isDuplicate": false,
+        "note": "Entry older than 5 minutes should be cleaned up"
+      }
+    }
+  ],
+  "multiHopScenarios": [
+    {
+      "id": "multihop-001",
+      "description": "3-hop delivery: A → B → C → D",
+      "topology": {
+        "devices": ["A", "B", "C", "D"],
+        "connections": [
+          ["A", "B"],
+          ["B", "C"],
+          ["C", "D"]
+        ]
+      },
+      "message": {
+        "senderId": "A",
+        "recipientId": "D",
+        "ttl": 5
+      },
+      "expected": {
+        "path": ["A", "B", "C", "D"],
+        "hopCount": 3,
+        "delivered": true
+      }
+    },
+    {
+      "id": "multihop-002",
+      "description": "Multiple paths - message deduplicated",
+      "topology": {
+        "devices": ["A", "B", "C", "D"],
+        "connections": [
+          ["A", "B"],
+          ["A", "C"],
+          ["B", "D"],
+          ["C", "D"]
+        ]
+      },
+      "message": {
+        "senderId": "A",
+        "recipientId": "D",
+        "ttl": 5
+      },
+      "expected": {
+        "deliveredOnce": true,
+        "duplicatesDropped": 1,
+        "note": "D receives from both B and C, but delivers only once"
+      }
+    },
+    {
+      "id": "multihop-003",
+      "description": "Unreachable destination",
+      "topology": {
+        "devices": ["A", "B", "C", "D"],
+        "connections": [
+          ["A", "B"],
+          ["C", "D"]
+        ]
+      },
+      "message": {
+        "senderId": "A",
+        "recipientId": "D",
+        "ttl": 5
+      },
+      "expected": {
+        "delivered": false,
+        "note": "No path from A to D"
+      }
+    },
+    {
+      "id": "multihop-004",
+      "description": "TTL prevents reaching distant node",
+      "topology": {
+        "devices": ["A", "B", "C", "D", "E", "F"],
+        "connections": [
+          ["A", "B"],
+          ["B", "C"],
+          ["C", "D"],
+          ["D", "E"],
+          ["E", "F"]
+        ]
+      },
+      "message": {
+        "senderId": "A",
+        "recipientId": "F",
+        "ttl": 3
+      },
+      "expected": {
+        "delivered": false,
+        "maxReached": "D",
+        "note": "TTL of 3 only allows reaching D (3 hops)"
+      }
+    }
+  ],
+  "storeAndForwardTests": [
+    {
+      "id": "store-001",
+      "description": "Queue message when recipient offline",
+      "input": {
+        "message": {
+          "recipientId": "device-C"
+        },
+        "recipientOnline": false,
+        "storeAndForwardEnabled": true
+      },
+      "expected": {
+        "action": "QUEUE",
+        "retryOnReconnect": true
+      }
+    },
+    {
+      "id": "store-002",
+      "description": "Deliver queued message on reconnect",
+      "input": {
+        "queuedMessages": [
+          { "messageId": "queued-001", "recipientId": "device-C" }
+        ],
+        "event": "PEER_CONNECTED",
+        "connectedPeer": "device-C"
+      },
+      "expected": {
+        "action": "SEND_QUEUED",
+        "messagesToSend": ["queued-001"]
+      }
+    },
+    {
+      "id": "store-003",
+      "description": "Expire old queued messages",
+      "input": {
+        "queuedMessages": [
+          { "messageId": "old-001", "createdAt": "NOW - 8 days" },
+          { "messageId": "recent-001", "createdAt": "NOW - 1 day" }
+        ],
+        "maxAge": 604800000
+      },
+      "expected": {
+        "expiredMessages": ["old-001"],
+        "remainingMessages": ["recent-001"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BLE Message Chunking Test Vectors",
+  "description": "Test cases for BLE message chunking and reassembly",
+  "version": "1.0.0",
+  "constants": {
+    "MAX_MTU": 512,
+    "CHUNK_HEADER_SIZE": 21,
+    "CHUNK_PAYLOAD_SIZE": 491,
+    "COMPRESSION_THRESHOLD": 100
+  },
+  "testCases": [
+    {
+      "id": "chunk-001",
+      "description": "Small message - no chunking needed",
+      "input": {
+        "message": "Hello, World!",
+        "messageId": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "totalChunks": 1,
+        "compressed": false,
+        "chunks": [
+          {
+            "chunkIndex": 0,
+            "totalChunks": 1,
+            "flags": { "isLast": true, "isCompressed": false },
+            "payloadLength": 13
+          }
+        ]
+      }
+    },
+    {
+      "id": "chunk-002",
+      "description": "Message exactly at payload size boundary",
+      "input": {
+        "messageLength": 491,
+        "messagePattern": "a",
+        "messageId": "550e8400-e29b-41d4-a716-446655440001"
+      },
+      "expected": {
+        "totalChunks": 1,
+        "compressed": true,
+        "note": "491 bytes > 100 bytes threshold, so compression applied"
+      }
+    },
+    {
+      "id": "chunk-003",
+      "description": "Message requiring 2 chunks",
+      "input": {
+        "messageLength": 500,
+        "messagePattern": "x",
+        "messageId": "550e8400-e29b-41d4-a716-446655440002"
+      },
+      "expected": {
+        "totalChunks": 2,
+        "compressed": true,
+        "chunks": [
+          {
+            "chunkIndex": 0,
+            "flags": { "isLast": false, "isCompressed": true }
+          },
+          {
+            "chunkIndex": 1,
+            "flags": { "isLast": true, "isCompressed": true }
+          }
+        ]
+      }
+    },
+    {
+      "id": "chunk-004",
+      "description": "Maximum message size (100KB)",
+      "input": {
+        "messageLength": 102400,
+        "messagePattern": "y",
+        "messageId": "550e8400-e29b-41d4-a716-446655440003"
+      },
+      "expected": {
+        "compressed": true,
+        "note": "Number of chunks depends on compression ratio"
+      }
+    },
+    {
+      "id": "chunk-005",
+      "description": "Message exceeding maximum size",
+      "input": {
+        "messageLength": 102401,
+        "messagePattern": "z",
+        "messageId": "550e8400-e29b-41d4-a716-446655440004"
+      },
+      "expected": {
+        "error": true,
+        "errorType": "MESSAGE_TOO_LARGE"
+      }
+    },
+    {
+      "id": "chunk-006",
+      "description": "Binary header encoding - first chunk",
+      "input": {
+        "chunkIndex": 0,
+        "totalChunks": 3,
+        "isLast": false,
+        "isCompressed": true,
+        "messageId": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "headerBytes": {
+          "0-1": "0x0000",
+          "2-3": "0x0003",
+          "4": "0x02",
+          "5-20": "550e8400e29b41d4a716446655440000"
+        },
+        "note": "Byte 4: bit 0 = 0 (not last), bit 1 = 1 (compressed) = 0x02"
+      }
+    },
+    {
+      "id": "chunk-007",
+      "description": "Binary header encoding - last chunk",
+      "input": {
+        "chunkIndex": 2,
+        "totalChunks": 3,
+        "isLast": true,
+        "isCompressed": true,
+        "messageId": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "headerBytes": {
+          "0-1": "0x0002",
+          "2-3": "0x0003",
+          "4": "0x03",
+          "5-20": "550e8400e29b41d4a716446655440000"
+        },
+        "note": "Byte 4: bit 0 = 1 (last), bit 1 = 1 (compressed) = 0x03"
+      }
+    }
+  ],
+  "reassemblyTests": [
+    {
+      "id": "reassembly-001",
+      "description": "Successful reassembly",
+      "input": {
+        "chunks": [
+          { "chunkIndex": 0, "totalChunks": 2, "isLast": false },
+          { "chunkIndex": 1, "totalChunks": 2, "isLast": true }
+        ],
+        "allSameMessageId": true
+      },
+      "expected": {
+        "success": true
+      }
+    },
+    {
+      "id": "reassembly-002",
+      "description": "Out-of-order chunks",
+      "input": {
+        "chunks": [
+          { "chunkIndex": 1, "totalChunks": 2, "isLast": true },
+          { "chunkIndex": 0, "totalChunks": 2, "isLast": false }
+        ],
+        "allSameMessageId": true
+      },
+      "expected": {
+        "success": true,
+        "note": "Receiver should buffer and reassemble in order"
+      }
+    },
+    {
+      "id": "reassembly-003",
+      "description": "Missing chunk",
+      "input": {
+        "chunks": [
+          { "chunkIndex": 0, "totalChunks": 3, "isLast": false },
+          { "chunkIndex": 2, "totalChunks": 3, "isLast": true }
+        ],
+        "allSameMessageId": true,
+        "timeout": 30000
+      },
+      "expected": {
+        "success": false,
+        "errorType": "REASSEMBLY_TIMEOUT"
+      }
+    },
+    {
+      "id": "reassembly-004",
+      "description": "Duplicate chunk",
+      "input": {
+        "chunks": [
+          { "chunkIndex": 0, "totalChunks": 2, "isLast": false },
+          { "chunkIndex": 0, "totalChunks": 2, "isLast": false },
+          { "chunkIndex": 1, "totalChunks": 2, "isLast": true }
+        ],
+        "allSameMessageId": true
+      },
+      "expected": {
+        "success": true,
+        "note": "Duplicate chunks should be ignored"
+      }
+    },
+    {
+      "id": "reassembly-005",
+      "description": "Mixed message IDs",
+      "input": {
+        "chunks": [
+          { "chunkIndex": 0, "messageId": "a", "totalChunks": 2 },
+          { "chunkIndex": 0, "messageId": "b", "totalChunks": 2 },
+          { "chunkIndex": 1, "messageId": "a", "totalChunks": 2 },
+          { "chunkIndex": 1, "messageId": "b", "totalChunks": 2 }
+        ]
+      },
+      "expected": {
+        "success": true,
+        "reassembledMessages": 2,
+        "note": "Should track reassembly per messageId"
+      }
+    }
+  ],
+  "compressionTests": [
+    {
+      "id": "compress-001",
+      "description": "Below threshold - no compression",
+      "input": {
+        "message": "Short message",
+        "length": 13
+      },
+      "expected": {
+        "compressed": false,
+        "reason": "Below 100-byte threshold"
+      }
+    },
+    {
+      "id": "compress-002",
+      "description": "At threshold - compression applied",
+      "input": {
+        "messageLength": 100,
+        "messagePattern": "a"
+      },
+      "expected": {
+        "compressed": true
+      }
+    },
+    {
+      "id": "compress-003",
+      "description": "Highly compressible content",
+      "input": {
+        "messageLength": 1000,
+        "messagePattern": "aaaaaaaaaa"
+      },
+      "expected": {
+        "compressed": true,
+        "compressionRatio": "high",
+        "note": "Repeated content compresses very well"
+      }
+    },
+    {
+      "id": "compress-004",
+      "description": "Random content - poor compression",
+      "input": {
+        "messageLength": 1000,
+        "messageType": "random"
+      },
+      "expected": {
+        "compressed": true,
+        "compressionRatio": "low",
+        "note": "Random data compresses poorly; may be larger than original"
+      }
+    }
+  ]
+}

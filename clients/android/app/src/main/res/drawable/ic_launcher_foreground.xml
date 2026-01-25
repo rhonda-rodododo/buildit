@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- BuildIt logo - simplified mesh network icon -->
+    <group android:translateX="24" android:translateY="24">
+        <!-- Center node -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,30m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0"/>
+        <!-- Top node -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,8m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+        <!-- Bottom node -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,52m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+        <!-- Left node -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M8,30m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+        <!-- Right node -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M52,30m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0"/>
+        <!-- Connection lines -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:pathData="M30,22 L30,13"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:pathData="M30,38 L30,47"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:pathData="M22,30 L13,30"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:pathData="M38,30 L47,30"/>
+        <!-- Diagonal connections -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeAlpha="0.6"
+            android:pathData="M13,13 L22,22"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeAlpha="0.6"
+            android:pathData="M47,13 L38,22"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeAlpha="0.6"
+            android:pathData="M13,47 L22,38"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="1.5"
+            android:strokeAlpha="0.6"
+            android:pathData="M47,47 L38,38"/>
+    </group>
+</vector>

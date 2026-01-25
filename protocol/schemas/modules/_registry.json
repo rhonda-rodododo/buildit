@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/_registry.json",
+  "title": "ModuleRegistry",
+  "description": "Registry of all BuildIt module schemas and their versions",
+  "type": "object",
+
+  "properties": {
+    "registryVersion": {
+      "const": "1.0.0"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+
+  "modules": {
+    "custom-fields": {
+      "name": "Custom Fields",
+      "description": "Foundational module for extensible field definitions",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "custom-fields/v1.json",
+      "coreDependency": true
+    },
+    "messaging": {
+      "name": "Messaging",
+      "description": "Direct messages and group threads",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "messaging/v1.json",
+      "coreDependency": true
+    },
+    "events": {
+      "name": "Events",
+      "description": "Event scheduling and RSVP management",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "events/v1.json",
+      "coreDependency": false
+    },
+    "governance": {
+      "name": "Governance",
+      "description": "Proposals, voting, and decision-making",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "governance/v1.json",
+      "coreDependency": false
+    },
+    "mutual-aid": {
+      "name": "Mutual Aid",
+      "description": "Resource sharing and request management",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "mutual-aid/v1.json",
+      "coreDependency": false
+    },
+    "wiki": {
+      "name": "Wiki",
+      "description": "Collaborative knowledge base",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "wiki/v1.json",
+      "coreDependency": false
+    }
+  },
+
+  "deprecations": [],
+
+  "compatibilityPolicy": {
+    "supportWindow": "6 months",
+    "coreMessagingSupport": "indefinite",
+    "breakingChangeNotice": "30 days minimum"
+  }
+}

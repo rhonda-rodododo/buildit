@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/events/v1.json",
+  "title": "EventsModule",
+  "description": "Schema for BuildIt Events module",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Event": {
+      "type": "object",
+      "description": "An event with time, location, and RSVP tracking",
+      "required": ["id", "title", "startAt", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version that created this content",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique event identifier"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Event title"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192,
+          "description": "Event description (markdown supported)"
+        },
+        "startAt": {
+          "type": "integer",
+          "description": "Start time as Unix timestamp (seconds)"
+        },
+        "endAt": {
+          "type": "integer",
+          "description": "End time as Unix timestamp (seconds)"
+        },
+        "allDay": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is an all-day event"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone identifier (e.g., 'America/New_York')"
+        },
+        "location": {
+          "$ref": "#/$defs/Location"
+        },
+        "virtualUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "URL for virtual attendance"
+        },
+        "rsvpDeadline": {
+          "type": "integer",
+          "description": "RSVP deadline as Unix timestamp"
+        },
+        "maxAttendees": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of attendees"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["group", "public", "private"],
+          "default": "group",
+          "description": "Who can see this event"
+        },
+        "recurrence": {
+          "$ref": "#/$defs/RecurrenceRule"
+        },
+        "attachments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Attachment" },
+          "maxItems": 10
+        },
+        "customFields": {
+          "type": "object",
+          "description": "Custom field values (requires custom-fields module)",
+          "additionalProperties": true
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator's public key (hex)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix seconds)"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Last update timestamp (Unix seconds)"
+        }
+      }
+    },
+
+    "Location": {
+      "type": "object",
+      "description": "Physical location for an event",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Location name"
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Street address"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[latitude, longitude]"
+        },
+        "instructions": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Access instructions"
+        }
+      }
+    },
+
+    "RecurrenceRule": {
+      "type": "object",
+      "description": "iCal-style recurrence rule",
+      "required": ["frequency"],
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["daily", "weekly", "monthly", "yearly"]
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of occurrences"
+        },
+        "until": {
+          "type": "integer",
+          "description": "End date as Unix timestamp"
+        },
+        "byDay": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+          }
+        }
+      }
+    },
+
+    "RSVP": {
+      "type": "object",
+      "description": "RSVP response to an event",
+      "required": ["eventId", "pubkey", "status", "respondedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "eventId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["going", "maybe", "not_going"]
+        },
+        "guestCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Additional guests"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "respondedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Attachment": {
+      "type": "object",
+      "required": ["type", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["image", "file", "link"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "description": "File size in bytes"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "event": {
+      "kind": 40001,
+      "description": "BuildIt event creation/update",
+      "contentSchema": { "$ref": "#/$defs/Event" },
+      "requiredTags": ["d", "module"]
+    },
+    "rsvp": {
+      "kind": 40002,
+      "description": "RSVP response to event",
+      "contentSchema": { "$ref": "#/$defs/RSVP" },
+      "requiredTags": ["e", "p", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_event",
+      "description": "Event with only required fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Community Meeting",
+        "startAt": 1706198400,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "full_event",
+      "description": "Event with all fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Weekly Sync",
+        "description": "Our regular team sync meeting",
+        "startAt": 1706198400,
+        "endAt": 1706202000,
+        "allDay": false,
+        "timezone": "America/New_York",
+        "location": {
+          "name": "Community Center",
+          "address": "123 Main St",
+          "coordinates": [40.7128, -74.006]
+        },
+        "virtualUrl": "https://meet.example.com/weekly",
+        "rsvpDeadline": 1706112000,
+        "maxAttendees": 50,
+        "visibility": "group",
+        "recurrence": {
+          "frequency": "weekly",
+          "interval": 1,
+          "byDay": ["TU"]
+        },
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706000000
+      }
+    },
+    {
+      "name": "future_version_event",
+      "description": "Event from hypothetical v1.1 with unknown fields",
+      "readerVersion": "1.0.0",
+      "valid": true,
+      "parseResult": "partial",
+      "input": {
+        "_v": "1.1.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "Future Event",
+        "startAt": 1706198400,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000,
+        "futureField": "some new feature",
+        "anotherNewField": { "nested": true }
+      },
+      "expectedUnknownFields": ["futureField", "anotherNewField"]
+    }
+  ]
+}

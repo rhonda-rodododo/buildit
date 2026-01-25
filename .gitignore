@@ -1,17 +1,10 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 # Dependencies
-node_modules
-dist
-dist-ssr
-dev-dist
+node_modules/
+.bun/
+
+# Build outputs
+dist/
+build/
 *.local
 
 # Environment
@@ -19,35 +12,55 @@ dev-dist
 .env.local
 .env.*.local
 
-# Editor directories and files
+# IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
 
-# Testing
-coverage
-.nyc_output
-test-results
-playwright-report
-playwright-report-tauri
-playwright/.cache
-lighthouse-audit/
+# OS
+.DS_Store
+Thumbs.db
 
-# Playwright MCP
-.playwright-mcp/
+# Logs
+logs/
+*.log
 
-# Build
-build
-.cache
+# Test outputs
+coverage/
+playwright-report/
+playwright-report-tauri/
+test-results/
+
+# Platform-specific
+# iOS
+clients/ios/*.xcodeproj/project.xcworkspace/
+clients/ios/*.xcodeproj/xcuserdata/
+clients/ios/DerivedData/
+clients/ios/Pods/
+
+# Android
+clients/android/.gradle/
+clients/android/build/
+clients/android/app/build/
+clients/android/local.properties
 
 # Tauri
-src-tauri/target
-src-tauri/Cargo.lock
-src-tauri/WixTools
-src-tauri/bundle
+clients/desktop/target/
+clients/desktop/src-tauri/target/
+
+# Rust
+packages/crypto/target/
+
+# Generated (can be regenerated from schemas)
+clients/web/src/generated/
+clients/ios/Sources/Generated/
+clients/android/app/src/main/java/network/buildit/generated/
+
+# Temporary
+*.tmp
+*.temp
+.cache/

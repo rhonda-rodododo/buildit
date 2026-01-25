@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/events.json",
+  "title": "NostrEventKinds",
+  "description": "Nostr event kind definitions for BuildIt Network",
+  "type": "object",
+  "$defs": {
+    "metadata": {
+      "kind": 0,
+      "description": "User profile metadata",
+      "contentSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 256 },
+          "displayName": { "type": "string", "maxLength": 256 },
+          "about": { "type": "string", "maxLength": 4096 },
+          "picture": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "banner": { "type": "string", "format": "uri", "maxLength": 2048 },
+          "nip05": { "type": "string", "maxLength": 256 },
+          "lud16": { "type": "string", "maxLength": 256 },
+          "website": { "type": "string", "format": "uri", "maxLength": 2048 }
+        }
+      }
+    },
+    "shortTextNote": {
+      "kind": 1,
+      "description": "Public short text note",
+      "contentSchema": {
+        "type": "string",
+        "maxLength": 65535
+      }
+    },
+    "contactList": {
+      "kind": 3,
+      "description": "Contact/following list",
+      "tagsSchema": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "minItems": 2,
+          "items": [
+            { "const": "p" },
+            { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            { "type": "string", "format": "uri" },
+            { "type": "string" }
+          ]
+        }
+      }
+    },
+    "encryptedDmLegacy": {
+      "kind": 4,
+      "description": "NIP-04 encrypted direct message (deprecated)",
+      "contentSchema": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9+/=]+\\?iv=[A-Za-z0-9+/=]+$"
+      }
+    },
+    "reaction": {
+      "kind": 7,
+      "description": "Reaction to an event",
+      "contentSchema": {
+        "type": "string",
+        "maxLength": 32
+      },
+      "requiredTags": ["e", "p"]
+    },
+    "seal": {
+      "kind": 13,
+      "description": "NIP-17 seal (encrypted rumor)",
+      "contentSchema": {
+        "type": "string",
+        "description": "NIP-44 encrypted JSON of rumor event"
+      }
+    },
+    "dmRumor": {
+      "kind": 14,
+      "description": "NIP-17 DM rumor (unsigned inner message)",
+      "contentSchema": {
+        "type": "string",
+        "maxLength": 65535
+      },
+      "signature": "NONE"
+    },
+    "readReceipt": {
+      "kind": 15,
+      "description": "Read receipt for messages",
+      "contentSchema": {
+        "type": "object",
+        "properties": {
+          "lastRead": { "type": "string" },
+          "readAt": { "type": "integer" }
+        }
+      }
+    },
+    "deliveryReceipt": {
+      "kind": 16,
+      "description": "Delivery confirmation",
+      "requiredTags": ["e", "p", "status"]
+    },
+    "typingIndicator": {
+      "kind": 25,
+      "description": "Ephemeral typing indicator",
+      "ephemeral": true,
+      "contentSchema": {
+        "type": "object",
+        "properties": {
+          "typing": { "type": "boolean" }
+        }
+      }
+    },
+    "giftWrap": {
+      "kind": 1059,
+      "description": "NIP-17/59 gift wrap (encrypted seal)",
+      "contentSchema": {
+        "type": "string",
+        "description": "NIP-44 encrypted JSON of seal event"
+      },
+      "requiredTags": ["p"]
+    },
+    "nip46Request": {
+      "kind": 24133,
+      "description": "NIP-46 remote signing request",
+      "contentSchema": {
+        "type": "string",
+        "description": "NIP-44 encrypted JSON of request"
+      },
+      "requiredTags": ["p"]
+    },
+    "nip46Response": {
+      "kind": 24134,
+      "description": "NIP-46 remote signing response",
+      "contentSchema": {
+        "type": "string",
+        "description": "NIP-44 encrypted JSON of response"
+      },
+      "requiredTags": ["p"]
+    },
+    "deviceTransferHandshake": {
+      "kind": 24242,
+      "description": "BuildIt device transfer handshake",
+      "ephemeral": true,
+      "requiredTags": ["p", "session"]
+    },
+    "deviceTransferPayload": {
+      "kind": 24243,
+      "description": "BuildIt device transfer key payload",
+      "ephemeral": true,
+      "contentSchema": {
+        "type": "string",
+        "description": "NIP-44 encrypted transfer payload"
+      },
+      "requiredTags": ["p", "session"]
+    },
+    "deviceTransferAck": {
+      "kind": 24244,
+      "description": "BuildIt device transfer acknowledgment",
+      "ephemeral": true,
+      "requiredTags": ["p", "session", "status"]
+    }
+  },
+  "kindRegistry": {
+    "0": { "$ref": "#/$defs/metadata" },
+    "1": { "$ref": "#/$defs/shortTextNote" },
+    "3": { "$ref": "#/$defs/contactList" },
+    "4": { "$ref": "#/$defs/encryptedDmLegacy" },
+    "7": { "$ref": "#/$defs/reaction" },
+    "13": { "$ref": "#/$defs/seal" },
+    "14": { "$ref": "#/$defs/dmRumor" },
+    "15": { "$ref": "#/$defs/readReceipt" },
+    "16": { "$ref": "#/$defs/deliveryReceipt" },
+    "25": { "$ref": "#/$defs/typingIndicator" },
+    "1059": { "$ref": "#/$defs/giftWrap" },
+    "24133": { "$ref": "#/$defs/nip46Request" },
+    "24134": { "$ref": "#/$defs/nip46Response" },
+    "24242": { "$ref": "#/$defs/deviceTransferHandshake" },
+    "24243": { "$ref": "#/$defs/deviceTransferPayload" },
+    "24244": { "$ref": "#/$defs/deviceTransferAck" }
+  }
+}

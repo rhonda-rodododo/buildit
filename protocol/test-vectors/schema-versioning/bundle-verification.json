@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Schema Bundle Verification Test Vectors",
+  "description": "Test vectors for schema bundle signature verification and application",
+
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-25",
+    "specification": "../spec/08-schema-versioning.md"
+  },
+
+  "trustedSigners": [
+    {
+      "name": "Test Signer 1",
+      "publicKey": "ed25519:npub1test111111111111111111111111111111111111111111111111",
+      "secretKey": "nsec1test111111111111111111111111111111111111111111111111",
+      "note": "ONLY FOR TESTING - Never use in production"
+    }
+  ],
+
+  "testSuites": [
+    {
+      "name": "Bundle Signature Verification",
+      "description": "Tests for Ed25519 signature verification of schema bundles",
+      "cases": [
+        {
+          "name": "valid_bundle_signature",
+          "description": "Bundle with valid Ed25519 signature",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {
+              "events": {
+                "version": "1.0.0",
+                "schema": {}
+              }
+            },
+            "signature": "ed25519:VALID_SIGNATURE_HERE",
+            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+          },
+          "expected": {
+            "signatureValid": true,
+            "signerTrusted": true,
+            "shouldApply": true
+          }
+        },
+        {
+          "name": "invalid_signature",
+          "description": "Bundle with tampered signature",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {},
+            "signature": "ed25519:INVALID_TAMPERED_SIGNATURE",
+            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+          },
+          "expected": {
+            "signatureValid": false,
+            "shouldApply": false,
+            "error": "INVALID_SIGNATURE"
+          }
+        },
+        {
+          "name": "untrusted_signer",
+          "description": "Bundle signed by untrusted key",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {},
+            "signature": "ed25519:VALID_BUT_UNTRUSTED",
+            "signedBy": "npub1untrusted00000000000000000000000000000000000000000"
+          },
+          "expected": {
+            "signatureValid": true,
+            "signerTrusted": false,
+            "shouldApply": false,
+            "error": "UNTRUSTED_SIGNER"
+          }
+        },
+        {
+          "name": "missing_signature",
+          "description": "Bundle without signature",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {}
+          },
+          "expected": {
+            "shouldApply": false,
+            "error": "MISSING_SIGNATURE"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bundle Version Checking",
+      "description": "Tests for bundle freshness and version requirements",
+      "cases": [
+        {
+          "name": "newer_bundle",
+          "description": "Bundle is newer than current",
+          "currentBundle": {
+            "version": "1.0.0",
+            "createdAt": 1706000000000
+          },
+          "newBundle": {
+            "bundleVersion": "1.1.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0"
+          },
+          "clientVersion": "0.2.0",
+          "expected": {
+            "shouldApply": true
+          }
+        },
+        {
+          "name": "older_bundle",
+          "description": "Bundle is older than current",
+          "currentBundle": {
+            "version": "1.1.0",
+            "createdAt": 1706198400000
+          },
+          "newBundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706000000000,
+            "minClientVersion": "0.1.0"
+          },
+          "clientVersion": "0.2.0",
+          "expected": {
+            "shouldApply": false,
+            "reason": "BUNDLE_OUTDATED"
+          }
+        },
+        {
+          "name": "same_timestamp",
+          "description": "Bundle has same timestamp as current",
+          "currentBundle": {
+            "version": "1.0.0",
+            "createdAt": 1706198400000
+          },
+          "newBundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0"
+          },
+          "clientVersion": "0.2.0",
+          "expected": {
+            "shouldApply": false,
+            "reason": "BUNDLE_NOT_NEWER"
+          }
+        },
+        {
+          "name": "client_too_old",
+          "description": "Client version below bundle requirement",
+          "currentBundle": null,
+          "newBundle": {
+            "bundleVersion": "2.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.5.0"
+          },
+          "clientVersion": "0.3.0",
+          "expected": {
+            "shouldApply": false,
+            "error": "CLIENT_UPDATE_REQUIRED",
+            "requiredVersion": "0.5.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bundle Application",
+      "description": "Tests for applying schema bundles",
+      "cases": [
+        {
+          "name": "apply_new_module",
+          "description": "Bundle adds a new module schema",
+          "initialModules": ["events", "messaging"],
+          "bundle": {
+            "bundleVersion": "1.1.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {
+              "governance": {
+                "version": "1.0.0",
+                "schema": {
+                  "$defs": {
+                    "Proposal": {}
+                  }
+                }
+              }
+            }
+          },
+          "expected": {
+            "modulesAfter": ["events", "messaging", "governance"],
+            "governanceVersion": "1.0.0"
+          }
+        },
+        {
+          "name": "update_existing_module",
+          "description": "Bundle updates an existing module schema",
+          "initialModules": {
+            "events": "1.0.0"
+          },
+          "bundle": {
+            "bundleVersion": "1.2.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {
+              "events": {
+                "version": "1.1.0",
+                "minReaderVersion": "1.0.0",
+                "schema": {}
+              }
+            }
+          },
+          "expected": {
+            "eventsVersionAfter": "1.1.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BLE Schema Sync",
+      "description": "Tests for schema bundle exchange over BLE",
+      "cases": [
+        {
+          "name": "peer_has_newer_bundle",
+          "description": "Peer advertises newer schema bundle",
+          "myDeviceInfo": {
+            "schemaBundleVersion": "1.0.0",
+            "schemaBundleCreatedAt": 1706000000000
+          },
+          "peerDeviceInfo": {
+            "schemaBundleVersion": "1.2.0",
+            "schemaBundleCreatedAt": 1706198400000
+          },
+          "expected": {
+            "shouldRequestBundle": true
+          }
+        },
+        {
+          "name": "peer_has_older_bundle",
+          "description": "Peer has older schema bundle",
+          "myDeviceInfo": {
+            "schemaBundleVersion": "1.2.0",
+            "schemaBundleCreatedAt": 1706198400000
+          },
+          "peerDeviceInfo": {
+            "schemaBundleVersion": "1.0.0",
+            "schemaBundleCreatedAt": 1706000000000
+          },
+          "expected": {
+            "shouldRequestBundle": false,
+            "shouldOfferBundle": true
+          }
+        },
+        {
+          "name": "same_bundle_version",
+          "description": "Both devices have same bundle",
+          "myDeviceInfo": {
+            "schemaBundleVersion": "1.0.0",
+            "schemaBundleCreatedAt": 1706000000000
+          },
+          "peerDeviceInfo": {
+            "schemaBundleVersion": "1.0.0",
+            "schemaBundleCreatedAt": 1706000000000
+          },
+          "expected": {
+            "shouldRequestBundle": false,
+            "shouldOfferBundle": false
+          }
+        }
+      ]
+    }
+  ]
+}

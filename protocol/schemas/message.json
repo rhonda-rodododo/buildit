@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/message.json",
+  "title": "TransportMessage",
+  "description": "Message format for BuildIt Network transport layer",
+  "type": "object",
+  "required": ["id", "event", "transport", "status", "ttl", "hopCount", "createdAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique message ID (UUID v4)"
+    },
+    "event": {
+      "$ref": "#/$defs/nostrEvent",
+      "description": "Wrapped Nostr event"
+    },
+    "transport": {
+      "type": "string",
+      "enum": ["ble-mesh", "nostr-relay", "lora-mesh", "mesh-radio"],
+      "description": "Transport type"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "sent", "relayed", "delivered", "failed"],
+      "description": "Delivery status"
+    },
+    "ttl": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Time-to-live (max hops)"
+    },
+    "hopCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Current hop count"
+    },
+    "createdAt": {
+      "type": "integer",
+      "description": "Creation timestamp (milliseconds)"
+    },
+    "lastRelayedAt": {
+      "type": "integer",
+      "description": "Last relay timestamp (milliseconds)"
+    },
+    "senderId": {
+      "type": "string",
+      "description": "Sender device ID"
+    },
+    "recipientId": {
+      "type": "string",
+      "description": "Recipient device ID (null for broadcast)"
+    },
+    "compressed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether payload is compressed"
+    },
+    "encrypted": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether content is encrypted"
+    }
+  },
+  "$defs": {
+    "nostrEvent": {
+      "type": "object",
+      "required": ["id", "pubkey", "created_at", "kind", "tags", "content", "sig"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Event ID (32-byte hex)"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Public key (32-byte hex)"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Unix timestamp (seconds)"
+        },
+        "kind": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Event kind"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "Event tags"
+        },
+        "content": {
+          "type": "string",
+          "description": "Event content"
+        },
+        "sig": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{128}$",
+          "description": "Signature (64-byte hex)"
+        }
+      }
+    }
+  }
+}

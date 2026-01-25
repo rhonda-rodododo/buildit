@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Version Negotiation Test Vectors",
+  "description": "Test vectors for cross-version parsing and display mode determination",
+
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-25",
+    "specification": "../spec/10-version-negotiation.md"
+  },
+
+  "testSuites": [
+    {
+      "name": "Version Comparison",
+      "description": "Tests for semantic version comparison",
+      "cases": [
+        {
+          "name": "exact_match",
+          "description": "Reader version equals writer version",
+          "input": {
+            "writerVersion": "1.0.0",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "1.0.0"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "reader_newer_patch",
+          "description": "Reader has newer patch version",
+          "input": {
+            "writerVersion": "1.0.0",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "1.0.5"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "reader_newer_minor",
+          "description": "Reader has newer minor version",
+          "input": {
+            "writerVersion": "1.0.0",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "1.2.0"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "reader_newer_major",
+          "description": "Reader has newer major version",
+          "input": {
+            "writerVersion": "1.0.0",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "2.0.0"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "reader_older_but_above_minReader",
+          "description": "Reader is older than writer but meets minReaderVersion",
+          "input": {
+            "writerVersion": "1.5.0",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "1.2.0"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "reader_older_below_minReader_same_major",
+          "description": "Reader below minReaderVersion but same major",
+          "input": {
+            "writerVersion": "1.5.0",
+            "minReaderVersion": "1.3.0",
+            "readerVersion": "1.2.0"
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "partial"
+          }
+        },
+        {
+          "name": "reader_older_different_major",
+          "description": "Reader is a major version behind",
+          "input": {
+            "writerVersion": "2.0.0",
+            "minReaderVersion": "2.0.0",
+            "readerVersion": "1.5.0"
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "placeholder"
+          }
+        },
+        {
+          "name": "writer_uses_high_minReader",
+          "description": "Writer specifies high minReaderVersion",
+          "input": {
+            "writerVersion": "2.5.0",
+            "minReaderVersion": "2.3.0",
+            "readerVersion": "2.0.0"
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "partial"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Display Mode Determination",
+      "description": "Tests for UI display mode selection",
+      "cases": [
+        {
+          "name": "full_display_compatible",
+          "description": "All fields parsed, full UI",
+          "input": {
+            "canFullyParse": true,
+            "missingRequiredFields": [],
+            "unknownFields": []
+          },
+          "expected": {
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "partial_display_unknown_fields",
+          "description": "Some unknown fields, partial UI with hint",
+          "input": {
+            "canFullyParse": false,
+            "missingRequiredFields": [],
+            "unknownFields": ["futureField", "anotherNewField"]
+          },
+          "expected": {
+            "displayMode": "partial"
+          }
+        },
+        {
+          "name": "placeholder_missing_required",
+          "description": "Missing required fields, show placeholder",
+          "input": {
+            "canFullyParse": false,
+            "missingRequiredFields": ["title", "startAt"],
+            "unknownFields": []
+          },
+          "expected": {
+            "displayMode": "placeholder"
+          }
+        },
+        {
+          "name": "partial_with_some_missing",
+          "description": "One optional required missing, still partial",
+          "input": {
+            "canFullyParse": false,
+            "missingRequiredFields": [],
+            "unknownFields": ["newRequiredField"]
+          },
+          "expected": {
+            "displayMode": "partial"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Message Parsing",
+      "description": "Tests for parsing versioned messages",
+      "cases": [
+        {
+          "name": "parse_current_version",
+          "description": "Parse message from current version",
+          "moduleId": "events",
+          "readerVersion": "1.0.0",
+          "input": {
+            "_v": "1.0.0",
+            "_module": "events",
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "title": "Community Meeting",
+            "startAt": 1706198400,
+            "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            "createdAt": 1706112000
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full",
+            "parsed": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "title": "Community Meeting",
+              "startAt": 1706198400
+            }
+          }
+        },
+        {
+          "name": "parse_future_version_with_unknown_fields",
+          "description": "Parse message from future version with extra fields",
+          "moduleId": "events",
+          "readerVersion": "1.0.0",
+          "input": {
+            "_v": "1.5.0",
+            "_minReader": "1.0.0",
+            "_module": "events",
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "title": "Future Event",
+            "startAt": 1706198400,
+            "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            "createdAt": 1706112000,
+            "futureFeature": true,
+            "newMetadata": {
+              "nested": "value"
+            }
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full",
+            "unknownFields": ["futureFeature", "newMetadata"],
+            "parsed": {
+              "id": "550e8400-e29b-41d4-a716-446655440001",
+              "title": "Future Event",
+              "startAt": 1706198400
+            }
+          }
+        },
+        {
+          "name": "parse_future_version_requiring_update",
+          "description": "Parse message from version requiring newer reader",
+          "moduleId": "events",
+          "readerVersion": "1.0.0",
+          "input": {
+            "_v": "2.0.0",
+            "_minReader": "1.5.0",
+            "_module": "events",
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "title": "Event V2",
+            "startAt": 1706198400,
+            "location": {
+              "name": "Community Center",
+              "coordinates": [40.7128, -74.006]
+            },
+            "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            "createdAt": 1706112000
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "partial",
+            "parsed": {
+              "id": "550e8400-e29b-41d4-a716-446655440002",
+              "title": "Event V2",
+              "startAt": 1706198400
+            }
+          }
+        },
+        {
+          "name": "parse_unknown_module",
+          "description": "Parse message from unknown module",
+          "moduleId": "unknown-future-module",
+          "readerVersion": "1.0.0",
+          "input": {
+            "_v": "1.0.0",
+            "_module": "unknown-future-module",
+            "someField": "value",
+            "anotherField": 123
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "unknown_module",
+            "parsed": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown Field Preservation",
+      "description": "Tests for preserving unknown fields during relay",
+      "cases": [
+        {
+          "name": "preserve_simple_unknown_field",
+          "description": "Unknown string field preserved",
+          "input": {
+            "_v": "2.0.0",
+            "knownField": "value",
+            "unknownString": "preserved"
+          },
+          "expected": {
+            "roundTrip": {
+              "_v": "2.0.0",
+              "knownField": "value",
+              "unknownString": "preserved"
+            }
+          }
+        },
+        {
+          "name": "preserve_nested_unknown_field",
+          "description": "Unknown nested object preserved",
+          "input": {
+            "_v": "2.0.0",
+            "knownField": "value",
+            "unknownObject": {
+              "nested": {
+                "deeply": {
+                  "value": 123
+                }
+              }
+            }
+          },
+          "expected": {
+            "roundTrip": {
+              "_v": "2.0.0",
+              "knownField": "value",
+              "unknownObject": {
+                "nested": {
+                  "deeply": {
+                    "value": 123
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "preserve_array_unknown_field",
+          "description": "Unknown array preserved",
+          "input": {
+            "_v": "2.0.0",
+            "knownField": "value",
+            "unknownArray": [1, 2, {"nested": true}]
+          },
+          "expected": {
+            "roundTrip": {
+              "_v": "2.0.0",
+              "knownField": "value",
+              "unknownArray": [1, 2, {"nested": true}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relay Behavior",
+      "description": "Tests for mesh relay of unparseable messages",
+      "cases": [
+        {
+          "name": "relay_unparseable_message",
+          "description": "Node relays message it cannot parse",
+          "input": {
+            "envelope": {
+              "type": "RELAY",
+              "messageId": "msg-001",
+              "ttl": 5,
+              "hopCount": 1,
+              "payload": {
+                "_v": "99.0.0",
+                "_module": "future-module",
+                "data": "encrypted-content"
+              }
+            }
+          },
+          "expected": {
+            "shouldRelay": true,
+            "relayedEnvelope": {
+              "type": "RELAY",
+              "messageId": "msg-001",
+              "ttl": 5,
+              "hopCount": 2,
+              "payload": {
+                "_v": "99.0.0",
+                "_module": "future-module",
+                "data": "encrypted-content"
+              }
+            }
+          }
+        },
+        {
+          "name": "dont_relay_expired_ttl",
+          "description": "Node does not relay message with TTL exhausted",
+          "input": {
+            "envelope": {
+              "type": "RELAY",
+              "messageId": "msg-002",
+              "ttl": 3,
+              "hopCount": 3,
+              "payload": {}
+            }
+          },
+          "expected": {
+            "shouldRelay": false
+          }
+        }
+      ]
+    }
+  ]
+}

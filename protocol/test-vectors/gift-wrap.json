@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NIP-17 Gift Wrap Test Vectors",
+  "description": "Test cases for NIP-17 gift-wrapped private messages",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "giftwrap-001",
+      "description": "Basic gift wrap creation",
+      "input": {
+        "senderPrivateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "senderPublicKey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipientPublicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "message": "Hello, this is a private message!"
+      },
+      "expected": {
+        "rumorKind": 14,
+        "rumorHasNoSignature": true,
+        "sealKind": 13,
+        "sealPubkey": "SENDER_PUBKEY",
+        "giftWrapKind": 1059,
+        "giftWrapPubkey": "EPHEMERAL_RANDOM",
+        "giftWrapHasPTag": true,
+        "pTagValue": "RECIPIENT_PUBKEY"
+      }
+    },
+    {
+      "id": "giftwrap-002",
+      "description": "Gift wrap unwrapping",
+      "input": {
+        "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000002",
+        "giftWrap": {
+          "kind": 1059,
+          "pubkey": "EPHEMERAL_KEY",
+          "content": "ENCRYPTED_SEAL",
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]]
+        }
+      },
+      "expected": {
+        "sealDecrypted": true,
+        "sealVerified": true,
+        "rumorDecrypted": true,
+        "senderPubkey": "EXTRACTED_FROM_SEAL",
+        "messageContent": "ORIGINAL_MESSAGE"
+      }
+    },
+    {
+      "id": "giftwrap-003",
+      "description": "Timestamp randomization",
+      "input": {
+        "currentTimestamp": 1700000000,
+        "iterations": 100
+      },
+      "expected": {
+        "rumorTimestampRange": {
+          "min": "currentTimestamp - 172800",
+          "max": "currentTimestamp + 172800"
+        },
+        "sealTimestampRange": {
+          "min": "currentTimestamp - 172800",
+          "max": "currentTimestamp + 172800"
+        },
+        "note": "Timestamps should be randomized within ±2 days (172800 seconds)"
+      }
+    },
+    {
+      "id": "giftwrap-004",
+      "description": "Ephemeral key uniqueness",
+      "input": {
+        "createMultipleGiftWraps": 10,
+        "sameMessage": true,
+        "sameRecipient": true
+      },
+      "expected": {
+        "allGiftWrapPubkeysUnique": true,
+        "note": "Each gift wrap should use a different ephemeral key"
+      }
+    },
+    {
+      "id": "giftwrap-005",
+      "description": "Invalid gift wrap - wrong recipient",
+      "input": {
+        "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000003",
+        "giftWrapIntendedFor": "0000000000000000000000000000000000000000000000000000000000000002"
+      },
+      "expected": {
+        "decryptionFails": true,
+        "errorType": "DECRYPTION_FAILED"
+      }
+    },
+    {
+      "id": "giftwrap-006",
+      "description": "Seal signature verification",
+      "input": {
+        "tamperWithSealSignature": true
+      },
+      "expected": {
+        "sealDecrypted": true,
+        "sealVerified": false,
+        "action": "REJECT_MESSAGE"
+      }
+    },
+    {
+      "id": "giftwrap-007",
+      "description": "Prototype pollution prevention",
+      "input": {
+        "maliciousPayload": "{\"__proto__\": {\"isAdmin\": true}, \"content\": \"malicious\"}",
+        "parseMethod": "safeJsonParse"
+      },
+      "expected": {
+        "prototypeUnmodified": true,
+        "parseSucceeds": true
+      }
+    }
+  ],
+  "validationTests": [
+    {
+      "id": "validate-001",
+      "description": "Valid rumor schema",
+      "input": {
+        "event": {
+          "kind": 14,
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1700000000,
+          "content": "Hello!",
+          "tags": [["p", "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"]],
+          "id": "0000000000000000000000000000000000000000000000000000000000000001",
+          "sig": ""
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "id": "validate-002",
+      "description": "Invalid rumor - wrong kind",
+      "input": {
+        "event": {
+          "kind": 1,
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1700000000,
+          "content": "Hello!",
+          "tags": [],
+          "id": "0000000000000000000000000000000000000000000000000000000000000001",
+          "sig": ""
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errorField": "kind",
+        "expectedKind": 14
+      }
+    },
+    {
+      "id": "validate-003",
+      "description": "Valid seal schema",
+      "input": {
+        "event": {
+          "kind": 13,
+          "pubkey": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "created_at": 1700000000,
+          "content": "ENCRYPTED_CONTENT",
+          "tags": [],
+          "id": "VALID_ID",
+          "sig": "VALID_SIG"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "mustHaveSignature": true
+      }
+    },
+    {
+      "id": "validate-004",
+      "description": "Valid gift wrap schema",
+      "input": {
+        "event": {
+          "kind": 1059,
+          "pubkey": "EPHEMERAL_KEY",
+          "created_at": 1700000000,
+          "content": "ENCRYPTED_CONTENT",
+          "tags": [["p", "RECIPIENT_KEY"]],
+          "id": "VALID_ID",
+          "sig": "VALID_SIG"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "mustHavePTag": true
+      }
+    },
+    {
+      "id": "validate-005",
+      "description": "Invalid gift wrap - missing p tag",
+      "input": {
+        "event": {
+          "kind": 1059,
+          "pubkey": "EPHEMERAL_KEY",
+          "created_at": 1700000000,
+          "content": "ENCRYPTED_CONTENT",
+          "tags": [],
+          "id": "VALID_ID",
+          "sig": "VALID_SIG"
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errorField": "tags",
+        "missingTag": "p"
+      }
+    }
+  ],
+  "securityTests": [
+    {
+      "id": "security-001",
+      "description": "Sender pubkey extraction - use seal.pubkey not giftWrap.pubkey",
+      "input": {
+        "giftWrapPubkey": "EPHEMERAL_KEY",
+        "sealPubkey": "ACTUAL_SENDER"
+      },
+      "expected": {
+        "senderPubkey": "ACTUAL_SENDER",
+        "note": "MUST use seal.pubkey as the verified sender identity"
+      }
+    },
+    {
+      "id": "security-002",
+      "description": "Constant-time MAC comparison",
+      "input": {
+        "correctMac": "AAAA",
+        "incorrectMac": "AAAB"
+      },
+      "expected": {
+        "usesConstantTimeCompare": true,
+        "note": "Must not leak timing information about MAC validity"
+      }
+    },
+    {
+      "id": "security-003",
+      "description": "Memory clearing after use",
+      "input": {
+        "sensitiveData": ["ephemeralPrivateKey", "conversationKey", "decryptedContent"]
+      },
+      "expected": {
+        "clearedAfterUse": true,
+        "note": "Sensitive data should be zeroed when no longer needed"
+      }
+    }
+  ]
+}

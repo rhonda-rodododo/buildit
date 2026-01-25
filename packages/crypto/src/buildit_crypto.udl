@@ -1,0 +1,132 @@
+namespace buildit_crypto {
+    // Key derivation
+    [Throws=CryptoError]
+    sequence<u8> derive_master_key(string password, sequence<u8> salt);
+
+    [Throws=CryptoError]
+    sequence<u8> derive_database_key(sequence<u8> master_key);
+
+    [Throws=CryptoError]
+    sequence<u8> derive_conversation_key(sequence<u8> private_key, string recipient_pubkey);
+
+    // Key generation
+    KeyPair generate_keypair();
+
+    [Throws=CryptoError]
+    string get_public_key(sequence<u8> private_key);
+
+    // NIP-44 encryption
+    [Throws=CryptoError]
+    string nip44_encrypt(sequence<u8> private_key, string recipient_pubkey, string plaintext);
+
+    [Throws=CryptoError]
+    string nip44_decrypt(sequence<u8> private_key, string sender_pubkey, string ciphertext);
+
+    // NIP-17 gift wrap
+    [Throws=CryptoError]
+    NostrEvent create_rumor(
+        string sender_pubkey,
+        string recipient_pubkey,
+        string content,
+        i64 created_at
+    );
+
+    [Throws=CryptoError]
+    NostrEvent create_seal(
+        sequence<u8> sender_private_key,
+        string recipient_pubkey,
+        NostrEvent rumor,
+        i64 created_at
+    );
+
+    [Throws=CryptoError]
+    NostrEvent create_gift_wrap(
+        string recipient_pubkey,
+        NostrEvent seal,
+        i64 created_at
+    );
+
+    [Throws=CryptoError]
+    UnwrapResult unwrap_gift_wrap(
+        sequence<u8> recipient_private_key,
+        NostrEvent gift_wrap
+    );
+
+    // Nostr events
+    [Throws=CryptoError]
+    NostrEvent sign_event(sequence<u8> private_key, UnsignedEvent event);
+
+    boolean verify_event(NostrEvent event);
+
+    [Throws=CryptoError]
+    string compute_event_id(UnsignedEvent event);
+
+    // AES-GCM for key storage
+    [Throws=CryptoError]
+    EncryptedData aes_encrypt(sequence<u8> key, sequence<u8> plaintext);
+
+    [Throws=CryptoError]
+    sequence<u8> aes_decrypt(sequence<u8> key, EncryptedData encrypted);
+
+    // Utilities
+    sequence<u8> generate_salt(u32 length);
+
+    string bytes_to_hex(sequence<u8> bytes);
+
+    [Throws=CryptoError]
+    sequence<u8> hex_to_bytes(string hex_string);
+
+    i64 randomize_timestamp(i64 timestamp, u32 range_seconds);
+};
+
+[Error]
+enum CryptoError {
+    "InvalidKey",
+    "InvalidPublicKey",
+    "InvalidSignature",
+    "EncryptionFailed",
+    "DecryptionFailed",
+    "InvalidPlaintextLength",
+    "InvalidCiphertext",
+    "InvalidPadding",
+    "InvalidMac",
+    "InvalidHex",
+    "InvalidJson",
+    "SigningFailed",
+    "KeyDerivationFailed",
+    "RandomGenerationFailed",
+};
+
+dictionary KeyPair {
+    sequence<u8> private_key;
+    string public_key;
+};
+
+dictionary UnsignedEvent {
+    string pubkey;
+    i64 created_at;
+    i32 kind;
+    sequence<sequence<string>> tags;
+    string content;
+};
+
+dictionary NostrEvent {
+    string id;
+    string pubkey;
+    i64 created_at;
+    i32 kind;
+    sequence<sequence<string>> tags;
+    string content;
+    string sig;
+};
+
+dictionary UnwrapResult {
+    NostrEvent rumor;
+    string sender_pubkey;
+    boolean seal_verified;
+};
+
+dictionary EncryptedData {
+    sequence<u8> ciphertext;
+    sequence<u8> nonce;
+};

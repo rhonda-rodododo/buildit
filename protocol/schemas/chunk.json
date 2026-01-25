@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/chunk.json",
+  "title": "BLEChunk",
+  "description": "BLE message chunk format for BuildIt Network",
+  "type": "object",
+  "required": ["chunkIndex", "totalChunks", "flags", "messageId", "payload"],
+  "properties": {
+    "chunkIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535,
+      "description": "Index of this chunk (0-based)"
+    },
+    "totalChunks": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Total number of chunks"
+    },
+    "flags": {
+      "type": "object",
+      "required": ["isLast", "isCompressed"],
+      "properties": {
+        "isLast": {
+          "type": "boolean",
+          "description": "True if this is the final chunk"
+        },
+        "isCompressed": {
+          "type": "boolean",
+          "description": "True if payload is DEFLATE compressed"
+        }
+      },
+      "description": "Chunk flags"
+    },
+    "messageId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Message ID (16-byte UUID)"
+    },
+    "payload": {
+      "type": "string",
+      "contentEncoding": "base64",
+      "maxLength": 656,
+      "description": "Chunk payload (base64, max 491 bytes decoded)"
+    }
+  },
+  "examples": [
+    {
+      "chunkIndex": 0,
+      "totalChunks": 3,
+      "flags": {
+        "isLast": false,
+        "isCompressed": true
+      },
+      "messageId": "550e8400-e29b-41d4-a716-446655440000",
+      "payload": "eJzLSM3JyQcABiwCFQ=="
+    }
+  ],
+  "$defs": {
+    "binaryChunkFormat": {
+      "description": "Binary representation of chunk header (21 bytes)",
+      "type": "object",
+      "properties": {
+        "bytes_0_1": {
+          "description": "chunkIndex as uint16 big-endian"
+        },
+        "bytes_2_3": {
+          "description": "totalChunks as uint16 big-endian"
+        },
+        "byte_4": {
+          "description": "flags byte (bit 0 = isLast, bit 1 = isCompressed)"
+        },
+        "bytes_5_20": {
+          "description": "messageId as 16 raw bytes (UUID binary)"
+        },
+        "bytes_21_plus": {
+          "description": "payload bytes (0-491 bytes)"
+        }
+      }
+    }
+  }
+}

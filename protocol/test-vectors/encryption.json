@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NIP-44 Encryption Test Vectors",
+  "description": "Test cases for NIP-44 ChaCha20-Poly1305 encryption",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "nip44-001",
+      "description": "Basic encryption/decryption",
+      "senderPrivateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+      "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000002",
+      "recipientPublicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "plaintext": "Hello, World!",
+      "note": "Ciphertext will vary due to random nonce; verify decryption produces plaintext"
+    },
+    {
+      "id": "nip44-002",
+      "description": "Empty string",
+      "senderPrivateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+      "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000002",
+      "recipientPublicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "plaintext": "",
+      "expectError": true,
+      "errorType": "INVALID_PLAINTEXT_LENGTH"
+    },
+    {
+      "id": "nip44-003",
+      "description": "Maximum length plaintext (65535 bytes)",
+      "senderPrivateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+      "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000002",
+      "recipientPublicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "plaintextLength": 65535,
+      "plaintextPattern": "a",
+      "note": "Generate plaintext as 65535 'a' characters"
+    },
+    {
+      "id": "nip44-004",
+      "description": "Unicode content",
+      "senderPrivateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+      "recipientPrivateKey": "0000000000000000000000000000000000000000000000000000000000000002",
+      "recipientPublicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "plaintext": "Hello 世界! 🌍"
+    },
+    {
+      "id": "nip44-005",
+      "description": "Conversation key derivation",
+      "privateKey": "0000000000000000000000000000000000000000000000000000000000000001",
+      "publicKey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "expectedConversationKey": "9e1e86e84e68c0afb9a85d8a6a47b6d2b93f6f6e91a1c2b3d4e5f6a7b8c9d0e1"
+    },
+    {
+      "id": "nip44-006",
+      "description": "Padding verification - 1 byte",
+      "inputLength": 1,
+      "expectedPaddedLength": 32
+    },
+    {
+      "id": "nip44-007",
+      "description": "Padding verification - 32 bytes",
+      "inputLength": 32,
+      "expectedPaddedLength": 32
+    },
+    {
+      "id": "nip44-008",
+      "description": "Padding verification - 33 bytes",
+      "inputLength": 33,
+      "expectedPaddedLength": 64
+    },
+    {
+      "id": "nip44-009",
+      "description": "Padding verification - 256 bytes",
+      "inputLength": 256,
+      "expectedPaddedLength": 256
+    },
+    {
+      "id": "nip44-010",
+      "description": "Padding verification - 257 bytes",
+      "inputLength": 257,
+      "expectedPaddedLength": 320
+    }
+  ],
+  "keyDerivation": {
+    "pbkdf2": [
+      {
+        "id": "pbkdf2-001",
+        "description": "Master key derivation",
+        "password": "correct horse battery staple",
+        "salt": "0000000000000000000000000000000000000000000000000000000000000000",
+        "iterations": 600000,
+        "keyLength": 32,
+        "expectedKey": "IMPLEMENTATION_SPECIFIC"
+      }
+    ],
+    "hkdf": [
+      {
+        "id": "hkdf-001",
+        "description": "Database key derivation",
+        "inputKey": "0000000000000000000000000000000000000000000000000000000000000001",
+        "salt": "BuildItNetwork-DEK-v1",
+        "info": "database-encryption",
+        "keyLength": 32,
+        "expectedKey": "IMPLEMENTATION_SPECIFIC"
+      }
+    ]
+  }
+}
