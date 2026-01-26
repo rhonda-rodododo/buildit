@@ -12,7 +12,7 @@ This audit reveals **significant schema drift** between the protocol specificati
 | Module | Web Manual | Web Generated | iOS | Android | Cross-Client Risk |
 |--------|-----------|---------------|-----|---------|-------------------|
 | **Events** | ✅ FIXED | ✅ | ✅ | ✅ | LOW |
-| **Messaging** | ✅ | ✅ | ❌ CRITICAL | ✅ | HIGH |
+| **Messaging** | ✅ | ✅ | ✅ FIXED | ✅ | LOW |
 | **Mutual Aid** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
 | **Governance** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
 | **Wiki** | ✅ FIXED | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
@@ -36,21 +36,17 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ---
 
-### 2. iOS Messaging - Missing Codable
+### 2. ~~iOS Messaging - Missing Codable~~ ✅ FIXED
 
-**Location**: `clients/ios/Sources/Generated/Schemas/messaging.swift`
+**Status**: RESOLVED (2026-01-26)
 
-**Issue**: Generated structs are NOT `Codable` but MessagingService.swift tries to encode them.
+**Changes made**:
+- Updated codegen tool to post-process quicktype Swift output
+- Added Codable, Sendable conformance to all generated structs and enums
+- Added CodingKeys for snake_case JSON mapping (v -> _v, replyTo -> reply_to, etc.)
+- All messaging types now properly encode/decode
 
-```swift
-// This will crash at runtime:
-let message = DirectMessage(...)
-let messageData = try encoder.encode(message)  // ❌ DirectMessage not Codable!
-```
-
-**Impact**: iOS cannot send or receive any messages.
-
-**Fix**: Add `Codable` conformance to all messaging types or update quicktype config.
+**Commit**: `fix(codegen): add Codable conformance and CodingKeys to Swift output`
 
 ---
 
@@ -157,7 +153,7 @@ quicktype generates duplicate interfaces:
 | Task | Module | Effort | Files | Status |
 |------|--------|--------|-------|--------|
 | ~~Replace web events manual types~~ | Events | 4h | `types.ts`, `eventManager.ts`, `eventsStore.ts` | ✅ Done |
-| Add iOS Codable conformance | Messaging | 2h | `messaging.swift` or codegen | Pending |
+| ~~Add iOS Codable conformance~~ | Messaging | 2h | `codegen/src/index.ts` | ✅ Done |
 | ~~Replace web wiki manual types~~ | Wiki | 3h | `types.ts`, store, components | ✅ Done |
 | Add `_v` to iOS/Android models | All | 2h | All model files | Pending |
 
@@ -216,7 +212,7 @@ Currently web-only features.
 After fixes, verify:
 
 - [x] Web events can be created and synced to iOS/Android (web side fixed)
-- [ ] iOS can send/receive messages without crashes
+- [x] iOS can send/receive messages without crashes (Codable conformance added)
 - [x] Wiki pages sync correctly between all clients (web side fixed)
 - [ ] Timestamps are correct (not off by 1000x)
 - [x] Schema version `_v` is included in all serialized data (web side)
