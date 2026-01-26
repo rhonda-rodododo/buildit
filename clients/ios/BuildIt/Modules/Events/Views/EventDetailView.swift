@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Events
+
 /// Detailed view for an event
 public struct EventDetailView: View {
     let event: EventEntity
@@ -53,11 +56,11 @@ public struct EventDetailView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Event Details")
+            .navigationTitle("events_details".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button(L10n.Common.done) {
                         dismiss()
                     }
                 }
@@ -71,8 +74,8 @@ public struct EventDetailView: View {
             .task {
                 await loadData()
             }
-            .alert("Error", isPresented: .constant(errorMessage != nil)) {
-                Button("OK") {
+            .alert(L10n.Common.error, isPresented: .constant(errorMessage != nil)) {
+                Button("common_ok".localized) {
                     errorMessage = nil
                 }
             } message: {
@@ -96,7 +99,7 @@ public struct EventDetailView: View {
                 )
 
                 if let endAt = event.endAt {
-                    Text("to")
+                    Text("events_to".localized)
                         .foregroundColor(.secondary)
                     Label(
                         endAt.formatted(date: .abbreviated, time: .shortened),
@@ -111,20 +114,20 @@ public struct EventDetailView: View {
 
     private var eventDetails: some View {
         VStack(alignment: .leading, spacing: 12) {
-            DetailRow(icon: "person.fill", title: "Organizer", value: event.createdBy.prefix(8) + "...")
+            DetailRow(icon: "person.fill", title: "events_organizer".localized, value: event.createdBy.prefix(8) + "...")
 
             if let timezone = event.timezone {
-                DetailRow(icon: "clock.fill", title: "Timezone", value: timezone)
+                DetailRow(icon: "clock.fill", title: "events_timezone".localized, value: timezone)
             }
 
             if let maxAttendees = event.maxAttendees {
-                DetailRow(icon: "person.3.fill", title: "Capacity", value: "\(maxAttendees) people")
+                DetailRow(icon: "person.3.fill", title: "events_capacity".localized, value: "events_peopleCount".localized(maxAttendees))
             }
 
             if let rsvpDeadline = event.rsvpDeadline {
                 DetailRow(
                     icon: "clock.badge.checkmark",
-                    title: "RSVP By",
+                    title: "events_rsvpBy".localized,
                     value: rsvpDeadline.formatted(date: .abbreviated, time: .shortened)
                 )
             }
@@ -133,7 +136,7 @@ public struct EventDetailView: View {
 
     private func eventDescription(_ description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Description")
+            Text("events_description".localized)
                 .font(.headline)
             Text(description)
                 .font(.body)
@@ -142,7 +145,7 @@ public struct EventDetailView: View {
 
     private var locationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Location")
+            Text("events_location".localized)
                 .font(.headline)
 
             if let locationName = event.locationName {
@@ -165,7 +168,7 @@ public struct EventDetailView: View {
                 Link(destination: URL(string: virtualURL)!) {
                     HStack {
                         Image(systemName: "video.fill")
-                        Text("Join Virtual Meeting")
+                        Text("events_joinVirtual".localized)
                     }
                 }
                 .buttonStyle(.bordered)
@@ -175,25 +178,25 @@ public struct EventDetailView: View {
 
     private var rsvpSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Attendance")
+            Text("events_attendance".localized)
                 .font(.headline)
 
             // RSVP counts
             HStack(spacing: 20) {
-                RSVPCountBadge(icon: "checkmark.circle.fill", count: rsvpCounts.going, label: "Going", color: .green)
-                RSVPCountBadge(icon: "questionmark.circle.fill", count: rsvpCounts.maybe, label: "Maybe", color: .orange)
-                RSVPCountBadge(icon: "xmark.circle.fill", count: rsvpCounts.notGoing, label: "Can't Go", color: .gray)
+                RSVPCountBadge(icon: "checkmark.circle.fill", count: rsvpCounts.going, label: "events_going".localized, color: .green)
+                RSVPCountBadge(icon: "questionmark.circle.fill", count: rsvpCounts.maybe, label: "events_maybe".localized, color: .orange)
+                RSVPCountBadge(icon: "xmark.circle.fill", count: rsvpCounts.notGoing, label: "events_cantGo".localized, color: .gray)
             }
 
             // Current RSVP status
             if let rsvp = currentRsvp {
                 HStack {
-                    Text("Your response:")
+                    Text("events_yourResponse".localized)
                         .foregroundColor(.secondary)
                     Text(rsvp.status.rawValue.capitalized)
                         .fontWeight(.semibold)
                     Spacer()
-                    Button("Change") {
+                    Button("events_change".localized) {
                         showRsvpSheet = true
                     }
                     .buttonStyle(.bordered)
@@ -207,7 +210,7 @@ public struct EventDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "calendar.badge.plus")
-                        Text("RSVP to Event")
+                        Text("events_rsvpToEvent".localized)
                     }
                     .frame(maxWidth: .infinity)
                 }

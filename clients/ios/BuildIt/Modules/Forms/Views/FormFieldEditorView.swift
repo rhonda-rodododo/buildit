@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Forms
+
 // MARK: - Form Field Editor View
 
 struct FormFieldEditorView: View {
@@ -115,36 +117,36 @@ struct FormFieldEditorView: View {
                 // Delete
                 Section {
                     Button(role: .destructive, action: { showDeleteConfirmation = true }) {
-                        Label("Delete Field", systemImage: "trash")
+                        Label("forms_deleteField".localized, systemImage: "trash")
                             .foregroundColor(.red)
                     }
                 }
             }
-            .navigationTitle("Edit Field")
+            .navigationTitle("forms_editField".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
+                    Button("forms_save".localized) {
                         saveField()
                     }
                     .fontWeight(.semibold)
                     .disabled(!isValid)
                 }
             }
-            .confirmationDialog("Delete Field?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-                Button("Delete", role: .destructive) {
+            .confirmationDialog("forms_deleteFieldConfirm".localized, isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+                Button("forms_delete".localized, role: .destructive) {
                     onDelete()
                     dismiss()
                 }
-                Button("Cancel", role: .cancel) { }
+                Button(L10n.Common.cancel, role: .cancel) { }
             } message: {
-                Text("This cannot be undone.")
+                Text("forms_cannotBeUndone".localized)
             }
         }
     }
@@ -152,7 +154,7 @@ struct FormFieldEditorView: View {
     // MARK: - Sections
 
     private var basicSettingsSection: some View {
-        Section("Basic Settings") {
+        Section("forms_basicSettings".localized) {
             HStack {
                 Image(systemName: field.type.icon)
                     .foregroundColor(.accentColor)
@@ -162,23 +164,23 @@ struct FormFieldEditorView: View {
                     .foregroundColor(.secondary)
             }
 
-            TextField("Label", text: $label)
+            TextField("forms_label".localized, text: $label)
 
-            TextField("Description (optional)", text: $description)
+            TextField("forms_descriptionFieldOptional".localized, text: $description)
 
             if showsPlaceholder {
-                TextField("Placeholder text (optional)", text: $placeholder)
+                TextField("forms_placeholderTextOptional".localized, text: $placeholder)
             }
 
-            Toggle("Required", isOn: $required)
+            Toggle("forms_required".localized, isOn: $required)
         }
     }
 
     private var optionsSection: some View {
-        Section("Options") {
+        Section("forms_options".localized) {
             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                 HStack {
-                    TextField("Option \(index + 1)", text: Binding(
+                    TextField("forms_option".localized(index + 1), text: Binding(
                         get: { option.label },
                         set: { newValue in
                             var updatedOption = options[index]
@@ -202,57 +204,57 @@ struct FormFieldEditorView: View {
             }
 
             Button(action: addOption) {
-                Label("Add Option", systemImage: "plus.circle")
+                Label("forms_addOption".localized, systemImage: "plus.circle")
             }
         }
     }
 
     private var scaleConfigSection: some View {
-        Section("Scale Settings") {
+        Section("forms_scaleSettings".localized) {
             if field.type == .rating {
-                Stepper("Max Stars: \(scaleMax)", value: $scaleMax, in: 3...10)
+                Stepper("forms_maxStars".localized(scaleMax), value: $scaleMax, in: 3...10)
             } else {
-                Stepper("Min: \(scaleMin)", value: $scaleMin, in: 0...99)
-                Stepper("Max: \(scaleMax)", value: $scaleMax, in: (scaleMin + 1)...100)
-                Stepper("Step: \(scaleStep)", value: $scaleStep, in: 1...10)
+                Stepper("forms_minValue".localized(scaleMin), value: $scaleMin, in: 0...99)
+                Stepper("forms_maxValue".localized(scaleMax), value: $scaleMax, in: (scaleMin + 1)...100)
+                Stepper("forms_step".localized(scaleStep), value: $scaleStep, in: 1...10)
 
-                TextField("Min Label (optional)", text: $scaleMinLabel)
-                TextField("Max Label (optional)", text: $scaleMaxLabel)
+                TextField("forms_minLabelOptional".localized, text: $scaleMinLabel)
+                TextField("forms_maxLabelOptional".localized, text: $scaleMaxLabel)
             }
         }
     }
 
     private var validationSection: some View {
-        Section("Validation") {
+        Section("forms_validation".localized) {
             if field.type == .text || field.type == .textarea || field.type == .email || field.type == .phone || field.type == .url {
                 // Length validation
-                Toggle("Minimum Length", isOn: $hasMinLength)
+                Toggle("forms_minimumLength".localized, isOn: $hasMinLength)
                 if hasMinLength {
-                    Stepper("\(minLength) characters", value: $minLength, in: 1...1000)
+                    Stepper("forms_characters".localized(minLength), value: $minLength, in: 1...1000)
                 }
 
-                Toggle("Maximum Length", isOn: $hasMaxLength)
+                Toggle("forms_maximumLength".localized, isOn: $hasMaxLength)
                 if hasMaxLength {
-                    Stepper("\(maxLength) characters", value: $maxLength, in: 1...10000)
+                    Stepper("forms_characters".localized(maxLength), value: $maxLength, in: 1...10000)
                 }
             }
 
             if field.type == .number {
                 // Value validation
-                Toggle("Minimum Value", isOn: $hasMinValue)
+                Toggle("forms_minimumValue".localized, isOn: $hasMinValue)
                 if hasMinValue {
                     HStack {
-                        Text("Min:")
+                        Text("forms_min".localized + ":")
                         TextField("", value: $minValue, format: .number)
                             .textFieldStyle(.roundedBorder)
                             .keyboardType(.decimalPad)
                     }
                 }
 
-                Toggle("Maximum Value", isOn: $hasMaxValue)
+                Toggle("forms_maximumValue".localized, isOn: $hasMaxValue)
                 if hasMaxValue {
                     HStack {
-                        Text("Max:")
+                        Text("forms_max".localized + ":")
                         TextField("", value: $maxValue, format: .number)
                             .textFieldStyle(.roundedBorder)
                             .keyboardType(.decimalPad)
@@ -263,49 +265,49 @@ struct FormFieldEditorView: View {
     }
 
     private var defaultValueSection: some View {
-        Section("Default Value") {
+        Section("forms_defaultValue".localized) {
             switch field.type {
             case .text, .textarea, .email, .phone, .url:
-                TextField("Default value (optional)", text: $defaultValue)
+                TextField("forms_defaultValueOptional".localized, text: $defaultValue)
 
             case .number:
-                TextField("Default value", text: $defaultValue)
+                TextField("forms_defaultValue".localized, text: $defaultValue)
                     .keyboardType(.decimalPad)
 
             case .select, .radio:
-                Picker("Default", selection: $defaultValue) {
-                    Text("None").tag("")
+                Picker("forms_defaultValue".localized, selection: $defaultValue) {
+                    Text("forms_none".localized).tag("")
                     ForEach(options) { option in
                         Text(option.label).tag(option.value)
                     }
                 }
 
             case .checkbox:
-                Toggle("Default checked", isOn: Binding(
+                Toggle("forms_defaultChecked".localized, isOn: Binding(
                     get: { defaultValue == "true" },
                     set: { defaultValue = $0 ? "true" : "false" }
                 ))
 
             case .rating, .scale:
-                Stepper("Default: \(Int(Double(defaultValue) ?? 0))", value: Binding(
+                Stepper("forms_defaultValueLabel".localized(Int(Double(defaultValue) ?? 0)), value: Binding(
                     get: { Int(Double(defaultValue) ?? 0) },
                     set: { defaultValue = String($0) }
                 ), in: scaleMin...scaleMax)
 
             default:
-                Text("No default value available")
+                Text("forms_noDefaultAvailable".localized)
                     .foregroundColor(.secondary)
             }
         }
     }
 
     private var conditionalLogicSection: some View {
-        Section("Conditional Logic") {
+        Section("forms_conditionalLogic".localized) {
             Button(action: { showConditionalLogic = true }) {
-                Label("Add Condition", systemImage: "arrow.branch")
+                Label("forms_addCondition".localized, systemImage: "arrow.branch")
             }
 
-            Text("Show or hide this field based on other answers")
+            Text("forms_conditionalLogicHint".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

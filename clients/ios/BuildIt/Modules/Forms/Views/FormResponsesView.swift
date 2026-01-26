@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Forms
+
 // MARK: - Form Responses View
 
 struct FormResponsesView: View {
@@ -23,16 +25,16 @@ struct FormResponsesView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Tab selector
-                Picker("View", selection: $selectedTab) {
-                    Text("Responses (\(responses.count))").tag(0)
-                    Text("Summary").tag(1)
+                Picker("forms_view".localized, selection: $selectedTab) {
+                    Text("\("forms_responses".localized) (\(responses.count))").tag(0)
+                    Text("forms_summary".localized).tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding()
 
                 if isLoading {
                     Spacer()
-                    ProgressView("Loading responses...")
+                    ProgressView("forms_loadingResponses".localized)
                     Spacer()
                 } else if selectedTab == 0 {
                     responsesListView
@@ -40,11 +42,11 @@ struct FormResponsesView: View {
                     summaryView
                 }
             }
-            .navigationTitle("Responses")
+            .navigationTitle("forms_responses".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
+                    Button("forms_done".localized) {
                         dismiss()
                     }
                 }
@@ -52,11 +54,11 @@ struct FormResponsesView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: exportResponses) {
-                            Label("Export CSV", systemImage: "square.and.arrow.up")
+                            Label("forms_exportCsv".localized, systemImage: "square.and.arrow.up")
                         }
 
                         Button(action: refreshData) {
-                            Label("Refresh", systemImage: "arrow.clockwise")
+                            Label("forms_refresh".localized, systemImage: "arrow.clockwise")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -69,13 +71,13 @@ struct FormResponsesView: View {
             .task {
                 await loadData()
             }
-            .alert("Error", isPresented: .init(
+            .alert("forms_error".localized, isPresented: .init(
                 get: { errorMessage != nil },
                 set: { if !$0 { errorMessage = nil } }
             )) {
-                Button("OK") { errorMessage = nil }
+                Button("forms_ok".localized) { errorMessage = nil }
             } message: {
-                Text(errorMessage ?? "An error occurred")
+                Text(errorMessage ?? L10n.Common.error)
             }
         }
     }
@@ -90,11 +92,11 @@ struct FormResponsesView: View {
                         .font(.system(size: 64))
                         .foregroundColor(.secondary)
 
-                    Text("No Responses Yet")
+                    Text("forms_noResponsesYet".localized)
                         .font(.title2)
                         .fontWeight(.semibold)
 
-                    Text("Responses will appear here when people submit the form")
+                    Text("forms_responsesWillAppear".localized)
                         .font(.body)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -138,7 +140,7 @@ struct FormResponsesView: View {
 
     private var overviewSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Overview")
+            Text("forms_overview".localized)
                 .font(.headline)
 
             LazyVGrid(columns: [
@@ -146,27 +148,27 @@ struct FormResponsesView: View {
                 GridItem(.flexible())
             ], spacing: 16) {
                 StatCard(
-                    title: "Total Responses",
+                    title: "forms_totalResponses".localized,
                     value: "\(responses.count)",
                     icon: "person.3"
                 )
 
                 StatCard(
-                    title: "Completion Rate",
+                    title: "forms_completionRate".localized,
                     value: "\(Int((statistics?.completionRate ?? 1.0) * 100))%",
                     icon: "checkmark.circle"
                 )
 
                 if let avgTime = statistics?.averageCompletionTime {
                     StatCard(
-                        title: "Avg. Time",
+                        title: "forms_avgTime".localized,
                         value: formatDuration(avgTime),
                         icon: "clock"
                     )
                 }
 
                 StatCard(
-                    title: "Fields",
+                    title: "forms_fieldsSection".localized,
                     value: "\(form.fields.count)",
                     icon: "list.bullet"
                 )
@@ -201,11 +203,11 @@ struct FormResponsesView: View {
     private func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration / 60)
         if minutes < 1 {
-            return "<1 min"
+            return "forms_lessThanOneMin".localized
         } else if minutes == 1 {
-            return "1 min"
+            return "forms_oneMin".localized
         } else {
-            return "\(minutes) mins"
+            return "forms_minutes".localized(minutes)
         }
     }
 }
@@ -221,7 +223,7 @@ struct ResponseRow: View {
             HStack {
                 // Respondent info
                 if response.respondent.anonymous {
-                    Label("Anonymous", systemImage: "person.fill.questionmark")
+                    Label("forms_anonymous".localized, systemImage: "person.fill.questionmark")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 } else if let name = response.respondent.displayName {
@@ -257,7 +259,7 @@ struct ResponseRow: View {
             }
 
             if response.answers.count > 2 {
-                Text("+ \(response.answers.count - 2) more fields")
+                Text("forms_moreFields".localized(response.answers.count - 2))
                     .font(.caption)
                     .foregroundColor(.accentColor)
             }
@@ -317,7 +319,7 @@ struct FieldStatsView: View {
 
                 Spacer()
 
-                Text("\(stats.responseCount) responses")
+                Text("forms_responsesCount".localized(stats.responseCount))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -334,7 +336,7 @@ struct FieldStatsView: View {
 
             default:
                 // For text fields, just show response count
-                Text("Text responses collected")
+                Text("forms_textResponsesCollected".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -392,7 +394,7 @@ struct FieldStatsView: View {
                     Text(String(format: "%.1f", avg))
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("Average")
+                    Text("forms_average".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -403,7 +405,7 @@ struct FieldStatsView: View {
                     Text(String(format: "%.0f", min))
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("Min")
+                    Text("forms_min".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -414,7 +416,7 @@ struct FieldStatsView: View {
                     Text(String(format: "%.0f", max))
                         .font(.title3)
                         .fontWeight(.bold)
-                    Text("Max")
+                    Text("forms_max".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -452,11 +454,11 @@ struct ResponseDetailView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Response Details")
+            .navigationTitle("forms_responseDetails".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button("forms_done".localized) {
                         dismiss()
                     }
                 }
@@ -466,13 +468,13 @@ struct ResponseDetailView: View {
 
     private var respondentSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Submitted by")
+            Text("forms_submittedBy".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             HStack {
                 if response.respondent.anonymous {
-                    Label("Anonymous", systemImage: "person.fill.questionmark")
+                    Label("forms_anonymous".localized, systemImage: "person.fill.questionmark")
                 } else if let name = response.respondent.displayName {
                     Label(name, systemImage: "person")
                 } else if let pubkey = response.respondent.pubkey {

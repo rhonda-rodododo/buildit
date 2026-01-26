@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Forms
+
 // MARK: - Form Builder View
 
 struct FormBuilderView: View {
@@ -62,11 +64,11 @@ struct FormBuilderView: View {
                 }
                 .padding()
             }
-            .navigationTitle(editingForm == nil ? "New Form" : "Edit Form")
+            .navigationTitle(editingForm == nil ? "forms_newForm".localized : "forms_editForm".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         isPresented = false
                     }
                 }
@@ -74,18 +76,18 @@ struct FormBuilderView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: saveDraft) {
-                            Label("Save Draft", systemImage: "square.and.arrow.down")
+                            Label("forms_saveDraft".localized, systemImage: "square.and.arrow.down")
                         }
 
                         Button(action: { showPublishConfirmation = true }) {
-                            Label("Publish", systemImage: "paperplane")
+                            Label("forms_publish".localized, systemImage: "paperplane")
                         }
                         .disabled(!isValid)
                     } label: {
                         if isSubmitting {
                             ProgressView()
                         } else {
-                            Text("Save")
+                            Text("forms_save".localized)
                                 .fontWeight(.semibold)
                         }
                     }
@@ -110,19 +112,19 @@ struct FormBuilderView: View {
                     }
                 )
             }
-            .alert("Publish Form", isPresented: $showPublishConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Publish") { publishForm() }
+            .alert("forms_publishForm".localized, isPresented: $showPublishConfirmation) {
+                Button(L10n.Common.cancel, role: .cancel) { }
+                Button("forms_publish".localized) { publishForm() }
             } message: {
-                Text("This will make the form available for responses. You can still pause or close it later.")
+                Text("forms_publishFormMessage".localized)
             }
-            .alert("Error", isPresented: .init(
+            .alert("forms_error".localized, isPresented: .init(
                 get: { errorMessage != nil },
                 set: { if !$0 { errorMessage = nil } }
             )) {
-                Button("OK") { errorMessage = nil }
+                Button("forms_ok".localized) { errorMessage = nil }
             } message: {
-                Text(errorMessage ?? "An error occurred")
+                Text(errorMessage ?? L10n.Common.error)
             }
             .onAppear {
                 if let form = editingForm {
@@ -136,14 +138,14 @@ struct FormBuilderView: View {
 
     private var basicInfoSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Basic Information")
+            Text("forms_basicInformation".localized)
                 .font(.headline)
 
-            TextField("Form Title", text: $title)
+            TextField("forms_formTitle".localized, text: $title)
                 .textFieldStyle(.roundedBorder)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Description (optional)")
+                Text("forms_descriptionOptional".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -160,13 +162,13 @@ struct FormBuilderView: View {
     private var fieldsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Fields")
+                Text("forms_fieldsSection".localized)
                     .font(.headline)
 
                 Spacer()
 
                 Button(action: { showAddField = true }) {
-                    Label("Add Field", systemImage: "plus.circle.fill")
+                    Label("forms_addField".localized, systemImage: "plus.circle.fill")
                 }
             }
 
@@ -176,11 +178,11 @@ struct FormBuilderView: View {
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
 
-                    Text("No fields yet")
+                    Text("forms_noFieldsYet".localized)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
 
-                    Button("Add Your First Field") {
+                    Button("forms_addYourFirstField".localized) {
                         showAddField = true
                     }
                     .buttonStyle(.bordered)
@@ -205,12 +207,12 @@ struct FormBuilderView: View {
 
     private var settingsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Settings")
+            Text("forms_settingsSection".localized)
                 .font(.headline)
 
             // Visibility
             HStack {
-                Label("Visibility", systemImage: "eye")
+                Label("forms_visibility".localized, systemImage: "eye")
 
                 Spacer()
 
@@ -226,10 +228,10 @@ struct FormBuilderView: View {
 
             // Anonymous
             Toggle(isOn: $anonymous) {
-                Label("Anonymous Responses", systemImage: "eye.slash")
+                Label("forms_anonymousResponses".localized, systemImage: "eye.slash")
             }
 
-            Text("Respondent identities will be hidden")
+            Text("forms_respondentIdentitiesHidden".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.leading, 28)
@@ -238,10 +240,10 @@ struct FormBuilderView: View {
 
             // Multiple Responses
             Toggle(isOn: $allowMultiple) {
-                Label("Allow Multiple Responses", systemImage: "arrow.triangle.2.circlepath")
+                Label("forms_allowMultipleResponses".localized, systemImage: "arrow.triangle.2.circlepath")
             }
 
-            Text("Users can submit more than one response")
+            Text("forms_usersCanSubmitMore".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.leading, 28)
@@ -251,7 +253,7 @@ struct FormBuilderView: View {
     private var scheduleSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Schedule")
+                Text("forms_schedule".localized)
                     .font(.headline)
 
                 Spacer()
@@ -262,9 +264,9 @@ struct FormBuilderView: View {
 
             if hasSchedule {
                 VStack(alignment: .leading, spacing: 12) {
-                    DatePicker("Opens", selection: $opensAt)
+                    DatePicker("forms_opens".localized, selection: $opensAt)
 
-                    DatePicker("Closes", selection: $closesAt)
+                    DatePicker("forms_close".localized, selection: $closesAt)
                 }
                 .padding(.leading, 4)
             }
@@ -272,7 +274,7 @@ struct FormBuilderView: View {
             Divider()
 
             HStack {
-                Text("Max Responses")
+                Text("forms_maxResponses".localized)
                     .font(.subheadline)
 
                 Spacer()
@@ -282,7 +284,7 @@ struct FormBuilderView: View {
             }
 
             if hasMaxResponses {
-                Stepper("\(maxResponses) responses", value: $maxResponses, in: 1...10000, step: 10)
+                Stepper("forms_responsesLimit".localized(maxResponses), value: $maxResponses, in: 1...10000, step: 10)
                     .padding(.leading, 4)
             }
         }
@@ -290,7 +292,7 @@ struct FormBuilderView: View {
 
     private var confirmationSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Confirmation Message")
+            Text("forms_confirmationMessage".localized)
                 .font(.headline)
 
             TextEditor(text: $confirmationMessage)
@@ -300,7 +302,7 @@ struct FormBuilderView: View {
                         .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
                 )
 
-            Text("Shown to respondents after they submit")
+            Text("forms_shownAfterSubmit".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -362,7 +364,7 @@ struct FormBuilderView: View {
 
     private func saveDraft() {
         guard isValid else {
-            errorMessage = "Please provide a title and at least one field"
+            errorMessage = "forms_titleAndFieldRequired".localized
             return
         }
 
@@ -388,7 +390,7 @@ struct FormBuilderView: View {
 
     private func publishForm() {
         guard isValid else {
-            errorMessage = "Please provide a title and at least one field"
+            errorMessage = "forms_titleAndFieldRequired".localized
             return
         }
 
@@ -512,7 +514,7 @@ struct AddFieldSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Text Fields") {
+                Section("forms_textFields".localized) {
                     ForEach([FormFieldType.text, .textarea, .email, .phone, .url], id: \.self) { type in
                         FieldTypeRow(type: type, isSelected: selectedType == type) {
                             addField(type: type)
@@ -520,7 +522,7 @@ struct AddFieldSheet: View {
                     }
                 }
 
-                Section("Choice Fields") {
+                Section("forms_choiceFields".localized) {
                     ForEach([FormFieldType.select, .multiselect, .radio, .checkbox], id: \.self) { type in
                         FieldTypeRow(type: type, isSelected: selectedType == type) {
                             addField(type: type)
@@ -528,7 +530,7 @@ struct AddFieldSheet: View {
                     }
                 }
 
-                Section("Date & Time") {
+                Section("forms_dateAndTime".localized) {
                     ForEach([FormFieldType.date, .time, .datetime], id: \.self) { type in
                         FieldTypeRow(type: type, isSelected: selectedType == type) {
                             addField(type: type)
@@ -536,7 +538,7 @@ struct AddFieldSheet: View {
                     }
                 }
 
-                Section("Number & Rating") {
+                Section("forms_numberAndRating".localized) {
                     ForEach([FormFieldType.number, .rating, .scale], id: \.self) { type in
                         FieldTypeRow(type: type, isSelected: selectedType == type) {
                             addField(type: type)
@@ -544,17 +546,17 @@ struct AddFieldSheet: View {
                     }
                 }
 
-                Section("Other") {
+                Section("forms_other".localized) {
                     FieldTypeRow(type: .file, isSelected: selectedType == .file) {
                         addField(type: .file)
                     }
                 }
             }
-            .navigationTitle("Add Field")
+            .navigationTitle("forms_addField".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         dismiss()
                     }
                 }

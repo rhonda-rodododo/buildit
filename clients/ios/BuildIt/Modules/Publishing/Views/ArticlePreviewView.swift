@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Publishing
+
 struct ArticlePreviewView: View {
     let title: String
     let subtitle: String?
@@ -61,11 +63,11 @@ struct ArticlePreviewView: View {
                     .background(Color(.systemGray6))
                 }
             }
-            .navigationTitle("Preview")
+            .navigationTitle("publishing_preview".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button("publishing_done".localized) {
                         dismiss()
                     }
                 }
@@ -96,7 +98,7 @@ struct ArticlePreviewView: View {
                                 VStack {
                                     Image(systemName: "photo")
                                         .font(.largeTitle)
-                                    Text("Failed to load image")
+                                    Text("publishing_failedToLoadImage".localized)
                                         .font(.caption)
                                 }
                                 .foregroundColor(.secondary)
@@ -111,7 +113,7 @@ struct ArticlePreviewView: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 // Title
-                Text(title.isEmpty ? "Untitled Article" : title)
+                Text(title.isEmpty ? "publishing_untitledArticle".localized : title)
                     .font(previewMode == .mobile ? .title2 : .largeTitle)
                     .fontWeight(.bold)
                     .fixedSize(horizontal: false, vertical: true)

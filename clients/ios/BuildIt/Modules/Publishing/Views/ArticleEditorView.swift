@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Publishing
+
 struct ArticleEditorView: View {
     @ObservedObject var service: PublishingService
     let article: Article?
@@ -55,9 +57,9 @@ struct ArticleEditorView: View {
             VStack(spacing: 0) {
                 // Editor mode toggle
                 Picker("Mode", selection: $editorMode) {
-                    Text("Edit").tag(EditorMode.edit)
-                    Text("Preview").tag(EditorMode.preview)
-                    Text("Split").tag(EditorMode.split)
+                    Text("publishing_edit".localized).tag(EditorMode.edit)
+                    Text("publishing_preview".localized).tag(EditorMode.preview)
+                    Text("publishing_split".localized).tag(EditorMode.split)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -72,11 +74,11 @@ struct ArticleEditorView: View {
                     splitView
                 }
             }
-            .navigationTitle(isNewArticle ? "New Article" : "Edit Article")
+            .navigationTitle(isNewArticle ? "publishing_newArticle".localized : "publishing_editArticle".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button("publishing_cancel".localized) {
                         if hasUnsavedChanges {
                             showingDiscardAlert = true
                         } else {
@@ -90,13 +92,13 @@ struct ArticleEditorView: View {
                         Button {
                             saveAsDraft()
                         } label: {
-                            Label("Save Draft", systemImage: "doc")
+                            Label("publishing_saveDraft".localized, systemImage: "doc")
                         }
 
                         Button {
                             showingPreview = true
                         } label: {
-                            Label("Preview", systemImage: "eye")
+                            Label("publishing_preview".localized, systemImage: "eye")
                         }
 
                         Divider()
@@ -104,32 +106,32 @@ struct ArticleEditorView: View {
                         Button {
                             showingScheduler = true
                         } label: {
-                            Label("Schedule", systemImage: "clock")
+                            Label("publishing_schedule".localized, systemImage: "clock")
                         }
 
                         Button {
                             publishNow()
                         } label: {
-                            Label("Publish Now", systemImage: "arrow.up.circle")
+                            Label("publishing_publishNow".localized, systemImage: "arrow.up.circle")
                         }
                     } label: {
                         if isSaving {
                             ProgressView()
                         } else {
-                            Text("Save")
+                            Text("publishing_save".localized)
                                 .fontWeight(.semibold)
                         }
                     }
                     .disabled(title.isEmpty)
                 }
             }
-            .alert("Discard Changes?", isPresented: $showingDiscardAlert) {
-                Button("Discard", role: .destructive) {
+            .alert("publishing_discardChanges".localized, isPresented: $showingDiscardAlert) {
+                Button("publishing_discard".localized, role: .destructive) {
                     dismiss()
                 }
-                Button("Keep Editing", role: .cancel) { }
+                Button("publishing_keepEditing".localized, role: .cancel) { }
             } message: {
-                Text("You have unsaved changes that will be lost.")
+                Text("publishing_unsavedChangesMessage".localized)
             }
             .sheet(isPresented: $showingPreview) {
                 ArticlePreviewView(
@@ -163,12 +165,12 @@ struct ArticleEditorView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 // Title
-                TextField("Article Title", text: $title, axis: .vertical)
+                TextField("publishing_articleTitle".localized, text: $title, axis: .vertical)
                     .font(.title.bold())
                     .focused($focusedField, equals: .title)
 
                 // Subtitle
-                TextField("Subtitle (optional)", text: $subtitle, axis: .vertical)
+                TextField("publishing_subtitleOptional".localized, text: $subtitle, axis: .vertical)
                     .font(.title3)
                     .foregroundColor(.secondary)
                     .focused($focusedField, equals: .subtitle)
@@ -211,7 +213,7 @@ struct ArticleEditorView: View {
                 }
 
                 // Title
-                Text(title.isEmpty ? "Untitled" : title)
+                Text(title.isEmpty ? "publishing_untitled".localized : title)
                     .font(.largeTitle.bold())
 
                 // Subtitle
@@ -315,11 +317,11 @@ struct ArticleEditorView: View {
                     .frame(height: 20)
 
                 Menu {
-                    Button("Heading 1") { insertMarkdown("# ", "") }
-                    Button("Heading 2") { insertMarkdown("## ", "") }
-                    Button("Heading 3") { insertMarkdown("### ", "") }
+                    Button("publishing_heading1".localized) { insertMarkdown("# ", "") }
+                    Button("publishing_heading2".localized) { insertMarkdown("## ", "") }
+                    Button("publishing_heading3".localized) { insertMarkdown("### ", "") }
                 } label: {
-                    Label("Heading", systemImage: "textformat.size")
+                    Label("publishing_heading".localized, systemImage: "textformat.size")
                         .font(.caption)
                 }
 
@@ -341,11 +343,11 @@ struct ArticleEditorView: View {
         VStack(alignment: .leading, spacing: 16) {
             // Cover image
             VStack(alignment: .leading, spacing: 8) {
-                Text("Cover Image")
+                Text("publishing_coverImage".localized)
                     .font(.headline)
 
                 HStack {
-                    TextField("Image URL", text: $coverImage)
+                    TextField("publishing_imageUrl".localized, text: $coverImage)
                         .textFieldStyle(.roundedBorder)
 
                     if !coverImage.isEmpty {
@@ -362,19 +364,19 @@ struct ArticleEditorView: View {
             // Tags
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Tags")
+                    Text("publishing_tags".localized)
                         .font(.headline)
 
                     Spacer()
 
-                    Button("Add") {
+                    Button("publishing_add".localized) {
                         showingTagEditor = true
                     }
                     .font(.caption)
                 }
 
                 if tags.isEmpty {
-                    Text("No tags added")
+                    Text("publishing_noTagsAdded".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 } else {
@@ -398,15 +400,15 @@ struct ArticleEditorView: View {
                     }
                 }
             }
-            .alert("Add Tag", isPresented: $showingTagEditor) {
-                TextField("Tag name", text: $newTag)
-                Button("Add") {
+            .alert("publishing_addTag".localized, isPresented: $showingTagEditor) {
+                TextField("publishing_tagName".localized, text: $newTag)
+                Button("publishing_add".localized) {
                     if !newTag.isEmpty && !tags.contains(newTag) {
                         tags.append(newTag)
                         newTag = ""
                     }
                 }
-                Button("Cancel", role: .cancel) {
+                Button(L10n.Common.cancel, role: .cancel) {
                     newTag = ""
                 }
             }
@@ -414,7 +416,7 @@ struct ArticleEditorView: View {
             // Excerpt
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Excerpt")
+                    Text("publishing_excerpt".localized)
                         .font(.headline)
 
                     Spacer()
@@ -424,17 +426,17 @@ struct ArticleEditorView: View {
                         .foregroundColor(excerpt.count > 1024 ? .red : .secondary)
                 }
 
-                TextField("Brief description...", text: $excerpt, axis: .vertical)
+                TextField("publishing_briefDescription".localized, text: $excerpt, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(3...6)
             }
 
             // Visibility
             VStack(alignment: .leading, spacing: 8) {
-                Text("Visibility")
+                Text("publishing_visibility".localized)
                     .font(.headline)
 
-                Picker("Visibility", selection: $visibility) {
+                Picker("publishing_visibility".localized, selection: $visibility) {
                     ForEach([ArticleVisibility.public, .group, .private], id: \.self) { vis in
                         Label(vis.displayName, systemImage: vis.icon)
                             .tag(vis)
@@ -449,9 +451,9 @@ struct ArticleEditorView: View {
             } label: {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("SEO Settings")
+                        Text("publishing_seoSettings".localized)
                             .font(.headline)
-                        Text(seo.isConfigured ? "Configured" : "Not configured")
+                        Text(seo.isConfigured ? "publishing_configured".localized : "publishing_notConfigured".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -466,9 +468,9 @@ struct ArticleEditorView: View {
 
             // Canonical URL
             VStack(alignment: .leading, spacing: 8) {
-                Text("Canonical URL")
+                Text("publishing_canonicalUrl".localized)
                     .font(.headline)
-                Text("Set if cross-posting from another source")
+                Text("publishing_canonicalUrlHint".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -657,7 +659,7 @@ struct ScheduleView: View {
         NavigationStack {
             Form {
                 DatePicker(
-                    "Publish Date",
+                    "publishing_publishDate".localized,
                     selection: $date,
                     in: Date()...,
                     displayedComponents: [.date, .hourAndMinute]
@@ -665,22 +667,22 @@ struct ScheduleView: View {
                 .datePickerStyle(.graphical)
 
                 Section {
-                    Text("Article will be automatically published at the scheduled time.")
+                    Text("publishing_articleAutoPublished".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
-            .navigationTitle("Schedule Publication")
+            .navigationTitle("publishing_schedulePublication".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Schedule") {
+                    Button("publishing_schedule".localized) {
                         onSchedule()
                         dismiss()
                     }
@@ -704,8 +706,8 @@ struct SEOEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Meta Title") {
-                    TextField("Custom title for search engines", text: Binding(
+                Section("publishing_metaTitle".localized) {
+                    TextField("publishing_customTitleSeo".localized, text: Binding(
                         get: { seo.metaTitle ?? "" },
                         set: { seo.metaTitle = $0.isEmpty ? nil : $0 }
                     ))
@@ -718,7 +720,7 @@ struct SEOEditorView: View {
                         Spacer()
 
                         if seo.metaTitle == nil {
-                            Button("Use Title") {
+                            Button("publishing_useTitle".localized) {
                                 seo.metaTitle = title
                             }
                             .font(.caption)
@@ -726,8 +728,8 @@ struct SEOEditorView: View {
                     }
                 }
 
-                Section("Meta Description") {
-                    TextField("Description for search results", text: Binding(
+                Section("publishing_metaDescription".localized) {
+                    TextField("publishing_descriptionSearchResults".localized, text: Binding(
                         get: { seo.metaDescription ?? "" },
                         set: { seo.metaDescription = $0.isEmpty ? nil : $0 }
                     ), axis: .vertical)
@@ -741,7 +743,7 @@ struct SEOEditorView: View {
                         Spacer()
 
                         if seo.metaDescription == nil && !excerpt.isEmpty {
-                            Button("Use Excerpt") {
+                            Button("publishing_useExcerpt".localized) {
                                 seo.metaDescription = String(excerpt.prefix(160))
                             }
                             .font(.caption)
@@ -749,8 +751,8 @@ struct SEOEditorView: View {
                     }
                 }
 
-                Section("Open Graph Image") {
-                    TextField("Image URL for social sharing", text: Binding(
+                Section("publishing_openGraphImage".localized) {
+                    TextField("publishing_imageSocialSharing".localized, text: Binding(
                         get: { seo.ogImage ?? "" },
                         set: { seo.ogImage = $0.isEmpty ? nil : $0 }
                     ))
@@ -758,7 +760,7 @@ struct SEOEditorView: View {
                     .autocapitalization(.none)
                 }
 
-                Section("Keywords") {
+                Section("publishing_keywords".localized) {
                     ForEach(seo.keywords, id: \.self) { keyword in
                         HStack {
                             Text(keyword)
@@ -773,9 +775,9 @@ struct SEOEditorView: View {
                     }
 
                     HStack {
-                        TextField("Add keyword", text: $newKeyword)
+                        TextField("publishing_addKeyword".localized, text: $newKeyword)
 
-                        Button("Add") {
+                        Button("publishing_add".localized) {
                             if !newKeyword.isEmpty && !seo.keywords.contains(newKeyword) {
                                 seo.keywords.append(newKeyword)
                                 newKeyword = ""
@@ -784,16 +786,16 @@ struct SEOEditorView: View {
                         .disabled(newKeyword.isEmpty || seo.keywords.count >= 10)
                     }
 
-                    Text("\(seo.keywords.count)/10 keywords")
+                    Text("\(seo.keywords.count)/10 \("publishing_keywords".localized)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
-            .navigationTitle("SEO Settings")
+            .navigationTitle("publishing_seoSettings".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button("publishing_done".localized) {
                         dismiss()
                     }
                 }

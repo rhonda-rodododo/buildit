@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Events
+
 /// View for creating a new event
 public struct CreateEventView: View {
     let service: EventsService
@@ -35,62 +38,62 @@ public struct CreateEventView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                Section("Event Details") {
-                    TextField("Title", text: $title)
+                Section("events_details".localized) {
+                    TextField("events_title".localized, text: $title)
 
-                    TextField("Description", text: $description, axis: .vertical)
+                    TextField("events_description".localized, text: $description, axis: .vertical)
                         .lineLimit(3...6)
                 }
 
-                Section("Date & Time") {
-                    DatePicker("Starts", selection: $startDate)
+                Section("events_dateTime".localized) {
+                    DatePicker("events_starts".localized, selection: $startDate)
 
-                    DatePicker("Ends", selection: $endDate)
+                    DatePicker("events_ends".localized, selection: $endDate)
 
-                    Toggle("All Day Event", isOn: $allDay)
+                    Toggle("events_allDay".localized, isOn: $allDay)
                 }
 
-                Section("Location") {
-                    TextField("Location Name", text: $locationName)
+                Section("events_location".localized) {
+                    TextField("events_locationName".localized, text: $locationName)
 
-                    TextField("Address", text: $locationAddress, axis: .vertical)
+                    TextField("events_address".localized, text: $locationAddress, axis: .vertical)
                         .lineLimit(2...4)
 
-                    TextField("Virtual Meeting URL", text: $virtualURL)
+                    TextField("events_virtualURL".localized, text: $virtualURL)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                 }
 
-                Section("RSVP Settings") {
-                    TextField("Max Attendees (optional)", text: $maxAttendees)
+                Section("events_rsvpSettings".localized) {
+                    TextField("events_maxAttendees".localized, text: $maxAttendees)
                         .keyboardType(.numberPad)
 
-                    Toggle("Set RSVP Deadline", isOn: $hasRsvpDeadline)
+                    Toggle("events_setRsvpDeadline".localized, isOn: $hasRsvpDeadline)
 
                     if hasRsvpDeadline {
-                        DatePicker("RSVP By", selection: $rsvpDeadline)
+                        DatePicker("events_rsvpBy".localized, selection: $rsvpDeadline)
                     }
                 }
             }
-            .navigationTitle("Create Event")
+            .navigationTitle(Strings.createEvent)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         dismiss()
                     }
                     .disabled(isCreating)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Create") {
+                    Button(L10n.Common.create) {
                         createEvent()
                     }
                     .disabled(title.isEmpty || isCreating)
                 }
             }
-            .alert("Error", isPresented: .constant(errorMessage != nil)) {
-                Button("OK") {
+            .alert(L10n.Common.error, isPresented: .constant(errorMessage != nil)) {
+                Button("common_ok".localized) {
                     errorMessage = nil
                 }
             } message: {

@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Governance
+
 struct CreateProposalView: View {
     @ObservedObject var service: GovernanceService
     @Binding var isPresented: Bool
@@ -31,11 +34,11 @@ struct CreateProposalView: View {
         NavigationStack {
             Form {
                 // Basic Info
-                Section("Basic Information") {
-                    TextField("Title", text: $title)
+                Section("governance_basicInfo".localized) {
+                    TextField("governance_title".localized, text: $title)
 
                     VStack(alignment: .leading) {
-                        Text("Description")
+                        Text("governance_description".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -43,7 +46,7 @@ struct CreateProposalView: View {
                             .frame(minHeight: 100)
                     }
 
-                    Picker("Type", selection: $selectedType) {
+                    Picker("governance_type".localized, selection: $selectedType) {
                         ForEach(ProposalType.allCases, id: \.self) { type in
                             Label(type.displayName, systemImage: type.icon)
                                 .tag(type)
@@ -52,8 +55,8 @@ struct CreateProposalView: View {
                 }
 
                 // Voting Configuration
-                Section("Voting Configuration") {
-                    Picker("Voting System", selection: $votingSystem) {
+                Section("governance_votingConfig".localized) {
+                    Picker("governance_votingSystem".localized, selection: $votingSystem) {
                         ForEach([VotingSystem.simpleMajority, .supermajority, .approval], id: \.self) { system in
                             VStack(alignment: .leading) {
                                 Text(system.displayName)
@@ -62,7 +65,7 @@ struct CreateProposalView: View {
                         }
                     }
 
-                    Toggle("Include Discussion Period", isOn: $includeDiscussion)
+                    Toggle("governance_includeDiscussion".localized, isOn: $includeDiscussion)
 
                     if includeDiscussion {
                         Stepper("Discussion: \(discussionDuration) day\(discussionDuration == 1 ? "" : "s")", value: $discussionDuration, in: 1...30)
@@ -72,13 +75,13 @@ struct CreateProposalView: View {
                 }
 
                 // Options
-                Section("Voting Options") {
-                    Toggle("Use Custom Options", isOn: $useCustomOptions)
+                Section("governance_votingOptions".localized) {
+                    Toggle("governance_useCustomOptions".localized, isOn: $useCustomOptions)
 
                     if useCustomOptions {
                         ForEach($customOptions) { $option in
                             HStack {
-                                TextField("Option", text: $option.label)
+                                TextField("governance_option".localized, text: $option.label)
 
                                 Button(action: { removeOption(option) }) {
                                     Image(systemName: "minus.circle.fill")
@@ -89,27 +92,27 @@ struct CreateProposalView: View {
                         }
 
                         Button(action: addOption) {
-                            Label("Add Option", systemImage: "plus.circle")
+                            Label("governance_addOption".localized, systemImage: "plus.circle")
                         }
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Default options: Yes, No" + (allowAbstain ? ", Abstain" : ""))
+                            Text("governance_defaultOptions".localized + (allowAbstain ? ", " + "governance_abstain".localized : ""))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
 
-                            Toggle("Allow Abstain", isOn: $allowAbstain)
+                            Toggle("governance_allowAbstain".localized, isOn: $allowAbstain)
                         }
                     }
                 }
 
                 // Tags
-                Section("Tags (optional)") {
-                    TextField("budget, policy, urgent (comma-separated)", text: $tags)
+                Section("governance_tagsOptional".localized) {
+                    TextField("governance_tagsPlaceholder".localized, text: $tags)
                         .textInputAutocapitalization(.never)
                 }
 
                 // Preview
-                Section("Preview") {
+                Section("governance_preview".localized) {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: selectedType.icon)
@@ -119,7 +122,7 @@ struct CreateProposalView: View {
                                 .foregroundColor(.secondary)
                         }
 
-                        Text(title.isEmpty ? "Proposal Title" : title)
+                        Text(title.isEmpty ? "governance_proposalTitle".localized : title)
                             .font(.headline)
                             .foregroundColor(title.isEmpty ? .secondary : .primary)
 
@@ -127,9 +130,9 @@ struct CreateProposalView: View {
                             Label(votingSystem.displayName, systemImage: "hand.raised")
                             Spacer()
                             if includeDiscussion {
-                                Text("\(discussionDuration)d discussion + \(votingDuration)d voting")
+                                Text("governance_discussionPlusVoting".localized(discussionDuration, votingDuration))
                             } else {
-                                Text("\(votingDuration) day voting")
+                                Text("governance_dayVoting".localized(votingDuration))
                             }
                         }
                         .font(.caption)
@@ -144,17 +147,17 @@ struct CreateProposalView: View {
                     }
                 }
             }
-            .navigationTitle("New Proposal")
+            .navigationTitle("governance_newProposal".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         isPresented = false
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Create") {
+                    Button(L10n.Common.create) {
                         createProposal()
                     }
                     .fontWeight(.semibold)

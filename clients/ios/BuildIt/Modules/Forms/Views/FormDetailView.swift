@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+private typealias Strings = L10n.Forms
+
 // MARK: - Form Detail View
 
 struct FormDetailView: View {
@@ -38,37 +40,37 @@ struct FormDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Form")
+        .navigationTitle("forms_form".localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     if form.createdBy == currentUserId {
                         Button(action: { showEditForm = true }) {
-                            Label("Edit", systemImage: "pencil")
+                            Label("forms_edit".localized, systemImage: "pencil")
                         }
 
                         Button(action: { showResponses = true }) {
-                            Label("View Responses", systemImage: "list.bullet.rectangle")
+                            Label("forms_viewResponses".localized, systemImage: "list.bullet.rectangle")
                         }
 
                         if form.status == .active {
                             Button(action: pauseForm) {
-                                Label("Pause", systemImage: "pause")
+                                Label("forms_pause".localized, systemImage: "pause")
                             }
 
                             Button(action: closeForm) {
-                                Label("Close", systemImage: "xmark.circle")
+                                Label("forms_close".localized, systemImage: "xmark.circle")
                             }
                         } else if form.status == .paused {
                             Button(action: resumeForm) {
-                                Label("Resume", systemImage: "play")
+                                Label("forms_resume".localized, systemImage: "play")
                             }
                         }
                     }
 
                     Button(action: shareForm) {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label("forms_share".localized, systemImage: "square.and.arrow.up")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -87,13 +89,13 @@ struct FormDetailView: View {
         .sheet(isPresented: $showEditForm) {
             FormBuilderView(service: service, isPresented: $showEditForm, editingForm: form)
         }
-        .alert("Error", isPresented: .init(
+        .alert("forms_error".localized, isPresented: .init(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )) {
-            Button("OK") { errorMessage = nil }
+            Button("forms_ok".localized) { errorMessage = nil }
         } message: {
-            Text(errorMessage ?? "An error occurred")
+            Text(errorMessage ?? L10n.Common.error)
         }
     }
 
@@ -107,7 +109,7 @@ struct FormDetailView: View {
                 Spacer()
 
                 if form.anonymous {
-                    Label("Anonymous", systemImage: "eye.slash")
+                    Label("forms_anonymous".localized, systemImage: "eye.slash")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -125,16 +127,16 @@ struct FormDetailView: View {
 
             // Form info
             HStack(spacing: 16) {
-                Label("\(form.fields.count) fields", systemImage: "list.bullet")
+                Label("\(form.fields.count) \("forms_fields".localized)", systemImage: "list.bullet")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
-                Label("\(form.responseCount) responses", systemImage: "person.3")
+                Label("\(form.responseCount) \("forms_responses".localized)", systemImage: "person.3")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
                 if form.requiredFieldCount > 0 {
-                    Label("\(form.requiredFieldCount) required", systemImage: "asterisk")
+                    Label("\(form.requiredFieldCount) \("forms_required".localized)", systemImage: "asterisk")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -183,7 +185,7 @@ struct FormDetailView: View {
                         ProgressView()
                             .tint(.white)
                     }
-                    Text("Submit")
+                    Text("forms_submit".localized)
                         .fontWeight(.semibold)
                 }
                 .frame(maxWidth: .infinity)
@@ -205,7 +207,7 @@ struct FormDetailView: View {
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
 
-            Text("Form Closed")
+            Text("forms_formClosed".localized)
                 .font(.title2)
                 .fontWeight(.semibold)
 
@@ -221,21 +223,21 @@ struct FormDetailView: View {
     private var closedReason: String {
         switch form.status {
         case .draft:
-            return "This form is still being drafted"
+            return "forms_stillBeingDrafted".localized
         case .paused:
-            return "This form has been paused by the creator"
+            return "forms_pausedByCreator".localized
         case .closed:
-            return "This form has been closed"
+            return "forms_formHasBeenClosed".localized
         case .archived:
-            return "This form has been archived"
+            return "forms_formHasBeenArchived".localized
         default:
             if let closes = form.closesAt, closes < Date() {
-                return "This form closed on \(formatDate(closes))"
+                return "forms_formClosedOn".localized(formatDate(closes))
             }
             if let max = form.maxResponses, form.responseCount >= max {
-                return "This form has reached its maximum number of responses"
+                return "forms_reachedMaxResponses".localized
             }
-            return "This form is not accepting responses"
+            return "forms_notAcceptingResponses".localized
         }
     }
 
@@ -473,7 +475,7 @@ struct FormFieldView: View {
 
         case .select:
             Picker("", selection: $textValue) {
-                Text("Select...").tag("")
+                Text("forms_select".localized).tag("")
                 ForEach(field.options ?? [], id: \.id) { option in
                     Text(option.label).tag(option.value)
                 }
@@ -533,7 +535,7 @@ struct FormFieldView: View {
             }) {
                 HStack {
                     Image(systemName: "paperclip")
-                    Text(textValue.isEmpty ? "Attach File" : textValue)
+                    Text(textValue.isEmpty ? "forms_attachFile".localized : textValue)
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -610,7 +612,7 @@ struct SubmissionConfirmationView: View {
                 .font(.system(size: 80))
                 .foregroundColor(.green)
 
-            Text("Response Submitted")
+            Text("forms_responseSubmitted".localized)
                 .font(.title)
                 .fontWeight(.bold)
 
@@ -620,7 +622,7 @@ struct SubmissionConfirmationView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Done") {
+            Button("forms_done".localized) {
                 dismiss()
                 onDismiss()
             }

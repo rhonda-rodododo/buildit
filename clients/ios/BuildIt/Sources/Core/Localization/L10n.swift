@@ -23746,6 +23746,331 @@ public enum L10n {
             NSLocalizedString("mobile_publishing_untitled", comment: "")
         }
 
+        /// New Article
+        public static var publishingNewArticle: String {
+            NSLocalizedString("mobile_publishing_newArticle", comment: "")
+        }
+
+        /// Edit Article
+        public static var publishingEditArticle: String {
+            NSLocalizedString("mobile_publishing_editArticle", comment: "")
+        }
+
+        /// Cancel
+        public static var publishingCancel: String {
+            NSLocalizedString("mobile_publishing_cancel", comment: "")
+        }
+
+        /// Save
+        public static var publishingSave: String {
+            NSLocalizedString("mobile_publishing_save", comment: "")
+        }
+
+        /// Save Draft
+        public static var publishingSaveDraft: String {
+            NSLocalizedString("mobile_publishing_saveDraft", comment: "")
+        }
+
+        /// Preview
+        public static var publishingPreview: String {
+            NSLocalizedString("mobile_publishing_preview", comment: "")
+        }
+
+        /// Schedule
+        public static var publishingSchedule: String {
+            NSLocalizedString("mobile_publishing_schedule", comment: "")
+        }
+
+        /// Publish Now
+        public static var publishingPublishNow: String {
+            NSLocalizedString("mobile_publishing_publishNow", comment: "")
+        }
+
+        /// Discard Changes?
+        public static var publishingDiscardChanges: String {
+            NSLocalizedString("mobile_publishing_discardChanges", comment: "")
+        }
+
+        /// Discard
+        public static var publishingDiscard: String {
+            NSLocalizedString("mobile_publishing_discard", comment: "")
+        }
+
+        /// Keep Editing
+        public static var publishingKeepEditing: String {
+            NSLocalizedString("mobile_publishing_keepEditing", comment: "")
+        }
+
+        /// You have unsaved changes that will be lost.
+        public static var publishingUnsavedChangesMessage: String {
+            NSLocalizedString("mobile_publishing_unsavedChangesMessage", comment: "")
+        }
+
+        /// Edit
+        public static var publishingEdit: String {
+            NSLocalizedString("mobile_publishing_edit", comment: "")
+        }
+
+        /// Split
+        public static var publishingSplit: String {
+            NSLocalizedString("mobile_publishing_split", comment: "")
+        }
+
+        /// Article Title
+        public static var publishingArticleTitle: String {
+            NSLocalizedString("mobile_publishing_articleTitle", comment: "")
+        }
+
+        /// Subtitle (optional)
+        public static var publishingSubtitleOptional: String {
+            NSLocalizedString("mobile_publishing_subtitleOptional", comment: "")
+        }
+
+        /// Cover Image
+        public static var publishingCoverImage: String {
+            NSLocalizedString("mobile_publishing_coverImage", comment: "")
+        }
+
+        /// Image URL
+        public static var publishingImageUrl: String {
+            NSLocalizedString("mobile_publishing_imageUrl", comment: "")
+        }
+
+        /// Tags
+        public static var publishingTags: String {
+            NSLocalizedString("mobile_publishing_tags", comment: "")
+        }
+
+        /// Add
+        public static var publishingAdd: String {
+            NSLocalizedString("mobile_publishing_add", comment: "")
+        }
+
+        /// No tags added
+        public static var publishingNoTagsAdded: String {
+            NSLocalizedString("mobile_publishing_noTagsAdded", comment: "")
+        }
+
+        /// Add Tag
+        public static var publishingAddTag: String {
+            NSLocalizedString("mobile_publishing_addTag", comment: "")
+        }
+
+        /// Tag name
+        public static var publishingTagName: String {
+            NSLocalizedString("mobile_publishing_tagName", comment: "")
+        }
+
+        /// Excerpt
+        public static var publishingExcerpt: String {
+            NSLocalizedString("mobile_publishing_excerpt", comment: "")
+        }
+
+        /// Brief description...
+        public static var publishingBriefDescription: String {
+            NSLocalizedString("mobile_publishing_briefDescription", comment: "")
+        }
+
+        /// Visibility
+        public static var publishingVisibility: String {
+            NSLocalizedString("mobile_publishing_visibility", comment: "")
+        }
+
+        /// SEO Settings
+        public static var publishingSeoSettings: String {
+            NSLocalizedString("mobile_publishing_seoSettings", comment: "")
+        }
+
+        /// Configured
+        public static var publishingConfigured: String {
+            NSLocalizedString("mobile_publishing_configured", comment: "")
+        }
+
+        /// Not configured
+        public static var publishingNotConfigured: String {
+            NSLocalizedString("mobile_publishing_notConfigured", comment: "")
+        }
+
+        /// Canonical URL
+        public static var publishingCanonicalUrl: String {
+            NSLocalizedString("mobile_publishing_canonicalUrl", comment: "")
+        }
+
+        /// Set if cross-posting from another source
+        public static var publishingCanonicalUrlHint: String {
+            NSLocalizedString("mobile_publishing_canonicalUrlHint", comment: "")
+        }
+
+        /// Heading
+        public static var publishingHeading: String {
+            NSLocalizedString("mobile_publishing_heading", comment: "")
+        }
+
+        /// Heading 1
+        public static var publishingHeading1: String {
+            NSLocalizedString("mobile_publishing_heading1", comment: "")
+        }
+
+        /// Heading 2
+        public static var publishingHeading2: String {
+            NSLocalizedString("mobile_publishing_heading2", comment: "")
+        }
+
+        /// Heading 3
+        public static var publishingHeading3: String {
+            NSLocalizedString("mobile_publishing_heading3", comment: "")
+        }
+
+        /// Bold
+        public static var publishingBold: String {
+            NSLocalizedString("mobile_publishing_bold", comment: "")
+        }
+
+        /// Italic
+        public static var publishingItalic: String {
+            NSLocalizedString("mobile_publishing_italic", comment: "")
+        }
+
+        /// Strike
+        public static var publishingStrike: String {
+            NSLocalizedString("mobile_publishing_strike", comment: "")
+        }
+
+        /// Quote
+        public static var publishingQuote: String {
+            NSLocalizedString("mobile_publishing_quote", comment: "")
+        }
+
+        /// Code
+        public static var publishingCode: String {
+            NSLocalizedString("mobile_publishing_code", comment: "")
+        }
+
+        /// List
+        public static var publishingList: String {
+            NSLocalizedString("mobile_publishing_list", comment: "")
+        }
+
+        /// Numbered
+        public static var publishingNumbered: String {
+            NSLocalizedString("mobile_publishing_numbered", comment: "")
+        }
+
+        /// Link
+        public static var publishingLink: String {
+            NSLocalizedString("mobile_publishing_link", comment: "")
+        }
+
+        /// Image
+        public static var publishingImage: String {
+            NSLocalizedString("mobile_publishing_image", comment: "")
+        }
+
+        /// Schedule Publication
+        public static var publishingSchedulePublication: String {
+            NSLocalizedString("mobile_publishing_schedulePublication", comment: "")
+        }
+
+        /// Publish Date
+        public static var publishingPublishDate: String {
+            NSLocalizedString("mobile_publishing_publishDate", comment: "")
+        }
+
+        /// Article will be automatically published at the scheduled time.
+        public static var publishingArticleAutoPublished: String {
+            NSLocalizedString("mobile_publishing_articleAutoPublished", comment: "")
+        }
+
+        /// Meta Title
+        public static var publishingMetaTitle: String {
+            NSLocalizedString("mobile_publishing_metaTitle", comment: "")
+        }
+
+        /// Custom title for search engines
+        public static var publishingCustomTitleSeo: String {
+            NSLocalizedString("mobile_publishing_customTitleSeo", comment: "")
+        }
+
+        /// Use Title
+        public static var publishingUseTitle: String {
+            NSLocalizedString("mobile_publishing_useTitle", comment: "")
+        }
+
+        /// Meta Description
+        public static var publishingMetaDescription: String {
+            NSLocalizedString("mobile_publishing_metaDescription", comment: "")
+        }
+
+        /// Description for search results
+        public static var publishingDescriptionSearchResults: String {
+            NSLocalizedString("mobile_publishing_descriptionSearchResults", comment: "")
+        }
+
+        /// Use Excerpt
+        public static var publishingUseExcerpt: String {
+            NSLocalizedString("mobile_publishing_useExcerpt", comment: "")
+        }
+
+        /// Open Graph Image
+        public static var publishingOpenGraphImage: String {
+            NSLocalizedString("mobile_publishing_openGraphImage", comment: "")
+        }
+
+        /// Image URL for social sharing
+        public static var publishingImageSocialSharing: String {
+            NSLocalizedString("mobile_publishing_imageSocialSharing", comment: "")
+        }
+
+        /// Keywords
+        public static var publishingKeywords: String {
+            NSLocalizedString("mobile_publishing_keywords", comment: "")
+        }
+
+        /// Add keyword
+        public static var publishingAddKeyword: String {
+            NSLocalizedString("mobile_publishing_addKeyword", comment: "")
+        }
+
+        /// Done
+        public static var publishingDone: String {
+            NSLocalizedString("mobile_publishing_done", comment: "")
+        }
+
+        /// Untitled Article
+        public static var publishingUntitledArticle: String {
+            NSLocalizedString("mobile_publishing_untitledArticle", comment: "")
+        }
+
+        /// Failed to load image
+        public static var publishingFailedToLoadImage: String {
+            NSLocalizedString("mobile_publishing_failedToLoadImage", comment: "")
+        }
+
+        /// %d min read
+        public static var publishingMinRead: String {
+            NSLocalizedString("mobile_publishing_minRead", comment: "")
+        }
+
+        /// %d words
+        public static var publishingWords: String {
+            NSLocalizedString("mobile_publishing_words", comment: "")
+        }
+
+        /// Mobile
+        public static var publishingMobile: String {
+            NSLocalizedString("mobile_publishing_mobile", comment: "")
+        }
+
+        /// Tablet
+        public static var publishingTablet: String {
+            NSLocalizedString("mobile_publishing_tablet", comment: "")
+        }
+
+        /// Desktop
+        public static var publishingDesktop: String {
+            NSLocalizedString("mobile_publishing_desktop", comment: "")
+        }
+
         /// No campaigns yet
         public static var fundraisingNoCampaigns: String {
             NSLocalizedString("mobile_fundraising_noCampaigns", comment: "")
@@ -25309,6 +25634,306 @@ public enum L10n {
         /// Select...
         public static var formsSelect: String {
             NSLocalizedString("mobile_forms_select", comment: "")
+        }
+
+        /// Save
+        public static var formsSave: String {
+            NSLocalizedString("mobile_forms_save", comment: "")
+        }
+
+        /// Error
+        public static var formsError: String {
+            NSLocalizedString("mobile_forms_error", comment: "")
+        }
+
+        /// OK
+        public static var formsOk: String {
+            NSLocalizedString("mobile_forms_ok", comment: "")
+        }
+
+        /// Summary
+        public static var formsSummary: String {
+            NSLocalizedString("mobile_forms_summary", comment: "")
+        }
+
+        /// Loading responses...
+        public static var formsLoadingResponses: String {
+            NSLocalizedString("mobile_forms_loadingResponses", comment: "")
+        }
+
+        /// No Responses Yet
+        public static var formsNoResponsesYet: String {
+            NSLocalizedString("mobile_forms_noResponsesYet", comment: "")
+        }
+
+        /// Responses will appear here when people submit the form
+        public static var formsResponsesWillAppear: String {
+            NSLocalizedString("mobile_forms_responsesWillAppear", comment: "")
+        }
+
+        /// Export CSV
+        public static var formsExportCsv: String {
+            NSLocalizedString("mobile_forms_exportCsv", comment: "")
+        }
+
+        /// Refresh
+        public static var formsRefresh: String {
+            NSLocalizedString("mobile_forms_refresh", comment: "")
+        }
+
+        /// Response Details
+        public static var formsResponseDetails: String {
+            NSLocalizedString("mobile_forms_responseDetails", comment: "")
+        }
+
+        /// Submitted by
+        public static var formsSubmittedBy: String {
+            NSLocalizedString("mobile_forms_submittedBy", comment: "")
+        }
+
+        /// Overview
+        public static var formsOverview: String {
+            NSLocalizedString("mobile_forms_overview", comment: "")
+        }
+
+        /// Total Responses
+        public static var formsTotalResponses: String {
+            NSLocalizedString("mobile_forms_totalResponses", comment: "")
+        }
+
+        /// Completion Rate
+        public static var formsCompletionRate: String {
+            NSLocalizedString("mobile_forms_completionRate", comment: "")
+        }
+
+        /// Avg. Time
+        public static var formsAvgTime: String {
+            NSLocalizedString("mobile_forms_avgTime", comment: "")
+        }
+
+        /// %d responses
+        public static var formsResponsesCount: String {
+            NSLocalizedString("mobile_forms_responsesCount", comment: "")
+        }
+
+        /// Text responses collected
+        public static var formsTextResponsesCollected: String {
+            NSLocalizedString("mobile_forms_textResponsesCollected", comment: "")
+        }
+
+        /// Average
+        public static var formsAverage: String {
+            NSLocalizedString("mobile_forms_average", comment: "")
+        }
+
+        /// Min
+        public static var formsMin: String {
+            NSLocalizedString("mobile_forms_min", comment: "")
+        }
+
+        /// Max
+        public static var formsMax: String {
+            NSLocalizedString("mobile_forms_max", comment: "")
+        }
+
+        /// Selected: %d
+        public static var formsSelectedValue: String {
+            NSLocalizedString("mobile_forms_selectedValue", comment: "")
+        }
+
+        /// + %d more fields
+        public static var formsMoreFields: String {
+            NSLocalizedString("mobile_forms_moreFields", comment: "")
+        }
+
+        /// <1 min
+        public static var formsLessThanOneMin: String {
+            NSLocalizedString("mobile_forms_lessThanOneMin", comment: "")
+        }
+
+        /// 1 min
+        public static var formsOneMin: String {
+            NSLocalizedString("mobile_forms_oneMin", comment: "")
+        }
+
+        /// %d mins
+        public static var formsMinutes: String {
+            NSLocalizedString("mobile_forms_minutes", comment: "")
+        }
+
+        /// Edit Field
+        public static var formsEditField: String {
+            NSLocalizedString("mobile_forms_editField", comment: "")
+        }
+
+        /// Delete Field
+        public static var formsDeleteField: String {
+            NSLocalizedString("mobile_forms_deleteField", comment: "")
+        }
+
+        /// Delete Field?
+        public static var formsDeleteFieldConfirm: String {
+            NSLocalizedString("mobile_forms_deleteFieldConfirm", comment: "")
+        }
+
+        /// This cannot be undone.
+        public static var formsCannotBeUndone: String {
+            NSLocalizedString("mobile_forms_cannotBeUndone", comment: "")
+        }
+
+        /// Delete
+        public static var formsDelete: String {
+            NSLocalizedString("mobile_forms_delete", comment: "")
+        }
+
+        /// Basic Settings
+        public static var formsBasicSettings: String {
+            NSLocalizedString("mobile_forms_basicSettings", comment: "")
+        }
+
+        /// Label
+        public static var formsLabel: String {
+            NSLocalizedString("mobile_forms_label", comment: "")
+        }
+
+        /// Description (optional)
+        public static var formsDescriptionFieldOptional: String {
+            NSLocalizedString("mobile_forms_descriptionFieldOptional", comment: "")
+        }
+
+        /// Placeholder text (optional)
+        public static var formsPlaceholderTextOptional: String {
+            NSLocalizedString("mobile_forms_placeholderTextOptional", comment: "")
+        }
+
+        /// Options
+        public static var formsOptions: String {
+            NSLocalizedString("mobile_forms_options", comment: "")
+        }
+
+        /// Option %d
+        public static var formsOption: String {
+            NSLocalizedString("mobile_forms_option", comment: "")
+        }
+
+        /// Add Option
+        public static var formsAddOption: String {
+            NSLocalizedString("mobile_forms_addOption", comment: "")
+        }
+
+        /// Scale Settings
+        public static var formsScaleSettings: String {
+            NSLocalizedString("mobile_forms_scaleSettings", comment: "")
+        }
+
+        /// Max Stars: %d
+        public static var formsMaxStars: String {
+            NSLocalizedString("mobile_forms_maxStars", comment: "")
+        }
+
+        /// Min: %d
+        public static var formsMinValue: String {
+            NSLocalizedString("mobile_forms_minValue", comment: "")
+        }
+
+        /// Max: %d
+        public static var formsMaxValue: String {
+            NSLocalizedString("mobile_forms_maxValue", comment: "")
+        }
+
+        /// Step: %d
+        public static var formsStep: String {
+            NSLocalizedString("mobile_forms_step", comment: "")
+        }
+
+        /// Min Label (optional)
+        public static var formsMinLabelOptional: String {
+            NSLocalizedString("mobile_forms_minLabelOptional", comment: "")
+        }
+
+        /// Max Label (optional)
+        public static var formsMaxLabelOptional: String {
+            NSLocalizedString("mobile_forms_maxLabelOptional", comment: "")
+        }
+
+        /// Validation
+        public static var formsValidation: String {
+            NSLocalizedString("mobile_forms_validation", comment: "")
+        }
+
+        /// Minimum Length
+        public static var formsMinimumLength: String {
+            NSLocalizedString("mobile_forms_minimumLength", comment: "")
+        }
+
+        /// Maximum Length
+        public static var formsMaximumLength: String {
+            NSLocalizedString("mobile_forms_maximumLength", comment: "")
+        }
+
+        /// %d characters
+        public static var formsCharacters: String {
+            NSLocalizedString("mobile_forms_characters", comment: "")
+        }
+
+        /// Minimum Value
+        public static var formsMinimumValue: String {
+            NSLocalizedString("mobile_forms_minimumValue", comment: "")
+        }
+
+        /// Maximum Value
+        public static var formsMaximumValue: String {
+            NSLocalizedString("mobile_forms_maximumValue", comment: "")
+        }
+
+        /// Default Value
+        public static var formsDefaultValue: String {
+            NSLocalizedString("mobile_forms_defaultValue", comment: "")
+        }
+
+        /// Default value (optional)
+        public static var formsDefaultValueOptional: String {
+            NSLocalizedString("mobile_forms_defaultValueOptional", comment: "")
+        }
+
+        /// Default checked
+        public static var formsDefaultChecked: String {
+            NSLocalizedString("mobile_forms_defaultChecked", comment: "")
+        }
+
+        /// Default: %d
+        public static var formsDefaultValueLabel: String {
+            NSLocalizedString("mobile_forms_defaultValueLabel", comment: "")
+        }
+
+        /// No default value available
+        public static var formsNoDefaultAvailable: String {
+            NSLocalizedString("mobile_forms_noDefaultAvailable", comment: "")
+        }
+
+        /// Conditional Logic
+        public static var formsConditionalLogic: String {
+            NSLocalizedString("mobile_forms_conditionalLogic", comment: "")
+        }
+
+        /// Add Condition
+        public static var formsAddCondition: String {
+            NSLocalizedString("mobile_forms_addCondition", comment: "")
+        }
+
+        /// Show or hide this field based on other answers
+        public static var formsConditionalLogicHint: String {
+            NSLocalizedString("mobile_forms_conditionalLogicHint", comment: "")
+        }
+
+        /// Please provide a title and at least one field
+        public static var formsTitleAndFieldRequired: String {
+            NSLocalizedString("mobile_forms_titleAndFieldRequired", comment: "")
+        }
+
+        /// None
+        public static var formsNone: String {
+            NSLocalizedString("mobile_forms_none", comment: "")
         }
 
         /// All
