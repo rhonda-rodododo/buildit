@@ -3,6 +3,7 @@ package network.buildit.modules.wiki.data.local
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -55,6 +56,7 @@ enum class EditType {
 data class WikiPageEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val groupId: String,
     val slug: String,
     val title: String,
@@ -112,6 +114,7 @@ data class WikiPageEntity(
 data class WikiCategoryEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val groupId: String,
     val name: String,
     val slug: String,
@@ -139,6 +142,7 @@ data class WikiCategoryEntity(
 data class PageRevisionEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val pageId: String,
     val version: Int,
     val title: String,

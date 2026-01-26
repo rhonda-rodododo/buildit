@@ -1,6 +1,8 @@
 package network.buildit.modules.mutualaid.data.local
 
 import androidx.room.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Categories for mutual aid requests/offers.
@@ -69,6 +71,7 @@ enum class FulfillmentStatus(val displayName: String) {
 @Entity(tableName = "aid_requests")
 data class AidRequestEntity(
     @PrimaryKey val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val groupId: String?,
     val title: String,
     val description: String?,
@@ -117,6 +120,7 @@ data class AidRequestEntity(
 @Entity(tableName = "aid_offers")
 data class AidOfferEntity(
     @PrimaryKey val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val groupId: String?,
     val title: String,
     val description: String?,
@@ -169,6 +173,7 @@ data class AidOfferEntity(
 )
 data class FulfillmentEntity(
     @PrimaryKey val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val requestId: String,
     val fulfillerId: String,
     val status: FulfillmentStatus,

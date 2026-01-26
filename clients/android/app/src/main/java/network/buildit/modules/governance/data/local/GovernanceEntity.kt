@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -115,6 +116,7 @@ data class VoteOption(
 data class ProposalEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val groupId: String,
     val title: String,
     val description: String?,
@@ -189,6 +191,7 @@ data class ProposalEntity(
 data class VoteEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val proposalId: String,
     val voterId: String,
     val choiceJson: String, // JSON encoded list of option IDs
@@ -227,6 +230,7 @@ data class VoteEntity(
 data class DelegationEntity(
     @PrimaryKey
     val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val delegatorId: String,
     val delegateId: String,
     val scope: DelegationScope,
@@ -269,6 +273,7 @@ enum class DelegationScope {
 data class ProposalResultEntity(
     @PrimaryKey
     val proposalId: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
     val outcome: ProposalOutcome,
     val winningOptionsJson: String, // JSON encoded list of option IDs
     val voteCountsJson: String, // JSON encoded map of option ID to count

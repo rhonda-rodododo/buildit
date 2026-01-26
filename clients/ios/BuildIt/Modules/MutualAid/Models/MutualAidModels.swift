@@ -198,6 +198,7 @@ public struct AidLocation: Codable, Sendable {
 
 /// A mutual aid request
 public struct AidRequest: Codable, Identifiable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public var groupId: String?
     public var title: String
@@ -221,7 +222,16 @@ public struct AidRequest: Codable, Identifiable, Sendable {
     public var requesterName: String?
     public var fulfillmentCount: Int = 0
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, title, description, category, status, urgency
+        case requesterId, anonymousRequest, location, neededBy
+        case quantityNeeded, quantityFulfilled, unit, tags
+        case createdAt, updatedAt, closedAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         groupId: String? = nil,
         title: String,
@@ -241,6 +251,7 @@ public struct AidRequest: Codable, Identifiable, Sendable {
         updatedAt: Date? = nil,
         closedAt: Date? = nil
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.groupId = groupId
         self.title = title
@@ -280,6 +291,7 @@ public struct AidOffer: Codable, Identifiable, Sendable {
         case withdrawn
     }
 
+    public let schemaVersion: String
     public let id: String
     public var groupId: String?
     public var title: String
@@ -299,7 +311,15 @@ public struct AidOffer: Codable, Identifiable, Sendable {
     // Local-only
     public var offererName: String?
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, title, description, category, status
+        case offererId, location, availableFrom, availableUntil
+        case quantity, unit, tags, createdAt, updatedAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         groupId: String? = nil,
         title: String,
@@ -316,6 +336,7 @@ public struct AidOffer: Codable, Identifiable, Sendable {
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.groupId = groupId
         self.title = title
@@ -351,6 +372,7 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
         case declined
     }
 
+    public let schemaVersion: String
     public let id: String
     public var requestId: String
     public var fulfillerId: String
@@ -364,7 +386,14 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
     // Local-only
     public var fulfillerName: String?
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, requestId, fulfillerId, status
+        case quantity, message, scheduledFor, completedAt, createdAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         requestId: String,
         fulfillerId: String,
@@ -375,6 +404,7 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
         completedAt: Date? = nil,
         createdAt: Date = Date()
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.requestId = requestId
         self.fulfillerId = fulfillerId

@@ -252,6 +252,7 @@ public struct TimePeriod: Codable, Sendable {
 
 /// A proposal for group decision-making
 public struct Proposal: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let groupId: String
     public let title: String
@@ -272,7 +273,17 @@ public struct Proposal: Identifiable, Codable, Sendable {
     public var updatedAt: Date?
     public let tags: [String]
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, title, description, type, status
+        case votingSystem, options, quorum, threshold
+        case discussionPeriod, votingPeriod
+        case allowAbstain, anonymousVoting, allowDelegation
+        case createdBy, createdAt, updatedAt, tags
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         groupId: String,
         title: String,
@@ -293,6 +304,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
         updatedAt: Date? = nil,
         tags: [String] = []
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.groupId = groupId
         self.title = title
@@ -325,6 +337,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
 
 /// A vote cast on a proposal
 public struct Vote: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let proposalId: String
     public let voterId: String
@@ -334,7 +347,14 @@ public struct Vote: Identifiable, Codable, Sendable {
     public let comment: String?
     public let castAt: Date
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, proposalId, voterId, choice
+        case weight, delegatedFrom, comment, castAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         proposalId: String,
         voterId: String,
@@ -344,6 +364,7 @@ public struct Vote: Identifiable, Codable, Sendable {
         comment: String? = nil,
         castAt: Date = Date()
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.proposalId = proposalId
         self.voterId = voterId
@@ -357,6 +378,7 @@ public struct Vote: Identifiable, Codable, Sendable {
 
 /// Vote delegation for liquid democracy
 public struct Delegation: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let delegatorId: String
     public let delegateId: String
@@ -374,7 +396,15 @@ public struct Delegation: Identifiable, Codable, Sendable {
         case proposal
     }
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, delegatorId, delegateId, scope
+        case categoryTags, proposalId, validFrom, validUntil
+        case revoked, createdAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         delegatorId: String,
         delegateId: String,
@@ -386,6 +416,7 @@ public struct Delegation: Identifiable, Codable, Sendable {
         revoked: Bool = false,
         createdAt: Date = Date()
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.delegatorId = delegatorId
         self.delegateId = delegateId
@@ -409,6 +440,7 @@ public struct Delegation: Identifiable, Codable, Sendable {
 
 /// Result of a completed proposal vote
 public struct ProposalResult: Codable, Sendable {
+    public let schemaVersion: String
     public let proposalId: String
     public let outcome: ProposalOutcome
     public let winningOptions: [String]
@@ -420,7 +452,15 @@ public struct ProposalResult: Codable, Sendable {
     public let thresholdMet: Bool
     public let calculatedAt: Date
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case proposalId, outcome, winningOptions, voteCounts
+        case totalVotes, totalEligible, participation
+        case quorumMet, thresholdMet, calculatedAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         proposalId: String,
         outcome: ProposalOutcome,
         winningOptions: [String] = [],
@@ -432,6 +472,7 @@ public struct ProposalResult: Codable, Sendable {
         thresholdMet: Bool,
         calculatedAt: Date = Date()
     ) {
+        self.schemaVersion = schemaVersion
         self.proposalId = proposalId
         self.outcome = outcome
         self.winningOptions = winningOptions

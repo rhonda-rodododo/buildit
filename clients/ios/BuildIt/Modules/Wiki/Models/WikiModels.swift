@@ -66,6 +66,7 @@ public enum EditType: String, Codable, Sendable {
 
 /// A wiki page in the knowledge base
 public struct WikiPage: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let groupId: String
     public let slug: String
@@ -86,7 +87,16 @@ public struct WikiPage: Identifiable, Codable, Sendable {
     public var publishedAt: Date?
     public var archivedAt: Date?
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, slug, title, content, summary
+        case version, parentId, categoryId, status, visibility
+        case tags, createdBy, lastEditedBy, contributors
+        case createdAt, updatedAt, publishedAt, archivedAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         groupId: String,
         slug: String,
@@ -107,6 +117,7 @@ public struct WikiPage: Identifiable, Codable, Sendable {
         publishedAt: Date? = nil,
         archivedAt: Date? = nil
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.groupId = groupId
         self.slug = slug
@@ -145,6 +156,7 @@ public struct WikiPage: Identifiable, Codable, Sendable {
 
 /// A category for organizing wiki pages
 public struct WikiCategory: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let groupId: String
     public let name: String
@@ -159,7 +171,15 @@ public struct WikiCategory: Identifiable, Codable, Sendable {
     public let createdAt: Date
     public var updatedAt: Date?
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, name, slug, description
+        case parentId, icon, color, order, pageCount
+        case createdBy, createdAt, updatedAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         groupId: String,
         name: String,
@@ -174,6 +194,7 @@ public struct WikiCategory: Identifiable, Codable, Sendable {
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.groupId = groupId
         self.name = name
@@ -192,6 +213,7 @@ public struct WikiCategory: Identifiable, Codable, Sendable {
 
 /// A historical revision of a wiki page
 public struct PageRevision: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
     public let id: String
     public let pageId: String
     public let version: Int
@@ -204,7 +226,15 @@ public struct PageRevision: Identifiable, Codable, Sendable {
     public let revertedFrom: Int?
     public let createdAt: Date
 
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, pageId, version, title, content
+        case summary, diff, editedBy, editType
+        case revertedFrom, createdAt
+    }
+
     public init(
+        schemaVersion: String = "1.0.0",
         id: String = UUID().uuidString,
         pageId: String,
         version: Int,
@@ -217,6 +247,7 @@ public struct PageRevision: Identifiable, Codable, Sendable {
         revertedFrom: Int? = nil,
         createdAt: Date = Date()
     ) {
+        self.schemaVersion = schemaVersion
         self.id = id
         self.pageId = pageId
         self.version = version

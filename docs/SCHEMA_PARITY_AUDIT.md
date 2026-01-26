@@ -69,13 +69,18 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ---
 
-### 4. Missing Schema Version (`_v`) Everywhere
+### 4. ~~Missing Schema Version (`_v`) Everywhere~~ ✅ FIXED
 
-**Issue**: iOS and Android implementations don't include `_v` field required by protocol.
+**Status**: RESOLVED (2026-01-26)
 
-**Impact**: Cannot track schema evolution or handle graceful degradation.
+**Changes made**:
+- Added `schemaVersion: String` field with `CodingKeys` mapping to `_v` in iOS models
+- Added `@SerialName("_v") val schemaVersion: String = "1.0.0"` to Android models
+- Updated: MutualAidModels.swift, GovernanceModels.swift, WikiModels.swift
+- Updated: MutualAidEntity.kt, GovernanceEntity.kt, WikiEntity.kt
+- Events and Messaging already had schemaVersion in both platforms
 
-**Fix**: Add `_v: String` field to all iOS/Android models.
+**Commit**: `fix(schema): add _v schema version to iOS/Android models`
 
 ---
 
@@ -155,7 +160,7 @@ quicktype generates duplicate interfaces:
 | ~~Replace web events manual types~~ | Events | 4h | `types.ts`, `eventManager.ts`, `eventsStore.ts` | ✅ Done |
 | ~~Add iOS Codable conformance~~ | Messaging | 2h | `codegen/src/index.ts` | ✅ Done |
 | ~~Replace web wiki manual types~~ | Wiki | 3h | `types.ts`, store, components | ✅ Done |
-| Add `_v` to iOS/Android models | All | 2h | All model files | Pending |
+| ~~Add `_v` to iOS/Android models~~ | All | 2h | All model files | ✅ Done |
 
 ### Phase 2: High Priority (Next Sprint)
 
@@ -215,7 +220,7 @@ After fixes, verify:
 - [x] iOS can send/receive messages without crashes (Codable conformance added)
 - [x] Wiki pages sync correctly between all clients (web side fixed)
 - [ ] Timestamps are correct (not off by 1000x)
-- [x] Schema version `_v` is included in all serialized data (web side)
+- [x] Schema version `_v` is included in all serialized data (all clients)
 - [x] All enum values serialize with correct format (underscore vs hyphen)
 - [ ] Location data preserves all nested fields
 
