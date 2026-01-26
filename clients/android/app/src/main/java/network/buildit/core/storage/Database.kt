@@ -63,9 +63,12 @@ import javax.inject.Singleton
         network.buildit.modules.governance.data.local.ProposalResultEntity::class,
         network.buildit.modules.wiki.data.local.WikiPageEntity::class,
         network.buildit.modules.wiki.data.local.WikiCategoryEntity::class,
-        network.buildit.modules.wiki.data.local.PageRevisionEntity::class
+        network.buildit.modules.wiki.data.local.PageRevisionEntity::class,
+        network.buildit.modules.contacts.data.local.ContactNoteEntity::class,
+        network.buildit.modules.contacts.data.local.ContactTagEntity::class,
+        network.buildit.modules.contacts.data.local.ContactTagAssignmentEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -92,6 +95,9 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun wikiPagesDao(): network.buildit.modules.wiki.data.local.WikiPagesDao
     abstract fun wikiCategoriesDao(): network.buildit.modules.wiki.data.local.WikiCategoriesDao
     abstract fun pageRevisionsDao(): network.buildit.modules.wiki.data.local.PageRevisionsDao
+    abstract fun contactNotesDao(): network.buildit.modules.contacts.data.local.ContactNotesDao
+    abstract fun contactTagsDao(): network.buildit.modules.contacts.data.local.ContactTagsDao
+    abstract fun contactTagAssignmentsDao(): network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao
 }
 
 /**
@@ -476,6 +482,14 @@ class Converters {
     @TypeConverter
     fun toEditType(value: String): network.buildit.modules.wiki.data.local.EditType =
         network.buildit.modules.wiki.data.local.EditType.valueOf(value)
+
+    // Contact Notes converters
+    @TypeConverter
+    fun fromNoteCategory(value: network.buildit.modules.contacts.data.local.NoteCategory): String = value.name
+
+    @TypeConverter
+    fun toNoteCategory(value: String): network.buildit.modules.contacts.data.local.NoteCategory =
+        network.buildit.modules.contacts.data.local.NoteCategory.valueOf(value)
 }
 
 // ============== DAOs ==============
@@ -822,4 +836,13 @@ object DatabaseModule {
 
     @Provides
     fun providePageRevisionsDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.PageRevisionsDao = database.pageRevisionsDao()
+
+    @Provides
+    fun provideContactNotesDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactNotesDao = database.contactNotesDao()
+
+    @Provides
+    fun provideContactTagsDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactTagsDao = database.contactTagsDao()
+
+    @Provides
+    fun provideContactTagAssignmentsDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao = database.contactTagAssignmentsDao()
 }
