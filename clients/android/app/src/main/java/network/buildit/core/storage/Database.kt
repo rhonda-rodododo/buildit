@@ -56,9 +56,13 @@ import javax.inject.Singleton
         network.buildit.modules.messaging.data.local.MessageReactionEntity::class,
         network.buildit.modules.mutualaid.data.local.AidRequestEntity::class,
         network.buildit.modules.mutualaid.data.local.AidOfferEntity::class,
-        network.buildit.modules.mutualaid.data.local.FulfillmentEntity::class
+        network.buildit.modules.mutualaid.data.local.FulfillmentEntity::class,
+        network.buildit.modules.governance.data.local.ProposalEntity::class,
+        network.buildit.modules.governance.data.local.VoteEntity::class,
+        network.buildit.modules.governance.data.local.DelegationEntity::class,
+        network.buildit.modules.governance.data.local.ProposalResultEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -78,6 +82,10 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun aidRequestsDao(): network.buildit.modules.mutualaid.data.local.AidRequestsDao
     abstract fun aidOffersDao(): network.buildit.modules.mutualaid.data.local.AidOffersDao
     abstract fun fulfillmentsDao(): network.buildit.modules.mutualaid.data.local.FulfillmentsDao
+    abstract fun proposalsDao(): network.buildit.modules.governance.data.local.ProposalsDao
+    abstract fun votesDao(): network.buildit.modules.governance.data.local.VotesDao
+    abstract fun delegationsDao(): network.buildit.modules.governance.data.local.DelegationsDao
+    abstract fun proposalResultsDao(): network.buildit.modules.governance.data.local.ProposalResultsDao
 }
 
 // ============== Entities ==============
@@ -385,6 +393,56 @@ class Converters {
     @TypeConverter
     fun toFulfillmentStatus(value: String): network.buildit.modules.mutualaid.data.local.FulfillmentStatus =
         network.buildit.modules.mutualaid.data.local.FulfillmentStatus.valueOf(value)
+
+    // Governance converters
+    @TypeConverter
+    fun fromProposalType(value: network.buildit.modules.governance.data.local.ProposalType): String = value.name
+
+    @TypeConverter
+    fun toProposalType(value: String): network.buildit.modules.governance.data.local.ProposalType =
+        network.buildit.modules.governance.data.local.ProposalType.valueOf(value)
+
+    @TypeConverter
+    fun fromProposalStatus(value: network.buildit.modules.governance.data.local.ProposalStatus): String = value.name
+
+    @TypeConverter
+    fun toProposalStatus(value: String): network.buildit.modules.governance.data.local.ProposalStatus =
+        network.buildit.modules.governance.data.local.ProposalStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromVotingSystem(value: network.buildit.modules.governance.data.local.VotingSystem): String = value.name
+
+    @TypeConverter
+    fun toVotingSystem(value: String): network.buildit.modules.governance.data.local.VotingSystem =
+        network.buildit.modules.governance.data.local.VotingSystem.valueOf(value)
+
+    @TypeConverter
+    fun fromQuorumType(value: network.buildit.modules.governance.data.local.QuorumType?): String? = value?.name
+
+    @TypeConverter
+    fun toQuorumType(value: String?): network.buildit.modules.governance.data.local.QuorumType? =
+        value?.let { network.buildit.modules.governance.data.local.QuorumType.valueOf(it) }
+
+    @TypeConverter
+    fun fromThresholdType(value: network.buildit.modules.governance.data.local.ThresholdType?): String? = value?.name
+
+    @TypeConverter
+    fun toThresholdType(value: String?): network.buildit.modules.governance.data.local.ThresholdType? =
+        value?.let { network.buildit.modules.governance.data.local.ThresholdType.valueOf(it) }
+
+    @TypeConverter
+    fun fromDelegationScope(value: network.buildit.modules.governance.data.local.DelegationScope): String = value.name
+
+    @TypeConverter
+    fun toDelegationScope(value: String): network.buildit.modules.governance.data.local.DelegationScope =
+        network.buildit.modules.governance.data.local.DelegationScope.valueOf(value)
+
+    @TypeConverter
+    fun fromProposalOutcome(value: network.buildit.modules.governance.data.local.ProposalOutcome): String = value.name
+
+    @TypeConverter
+    fun toProposalOutcome(value: String): network.buildit.modules.governance.data.local.ProposalOutcome =
+        network.buildit.modules.governance.data.local.ProposalOutcome.valueOf(value)
 }
 
 // ============== DAOs ==============
