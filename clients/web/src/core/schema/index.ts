@@ -9,6 +9,7 @@
  * - Version comparison utilities
  * - Compatibility status checking
  * - Module-specific parsers
+ * - BLE schema sync for offline distribution
  */
 
 // Types
@@ -47,3 +48,13 @@ export {
   getHighestVersion,
   moduleParsers
 } from './parser'
+
+// BLE Sync
+export {
+  SchemaSyncMessageType,
+  BLESchemaSyncManager,
+  type SchemaSyncMessage,
+  type VersionResponsePayload,
+  type BundleChunkPayload,
+  type ChunkAckPayload
+} from './bleSync'

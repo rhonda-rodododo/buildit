@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CrossVersionParsingTestVectors",
+  "description": "Test vectors for validating cross-version schema parsing across all BuildIt clients",
+
+  "testSuiteVersion": "1.0.0",
+  "createdAt": "2026-01-25",
+
+  "testCases": [
+    {
+      "id": "cv-001",
+      "name": "Current version message",
+      "description": "Message with current schema version should parse fully",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.0.0",
+        "content": "Hello, world!",
+        "replyTo": null,
+        "attachments": []
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": false,
+        "unknownFields": []
+      }
+    },
+    {
+      "id": "cv-002",
+      "name": "Future minor version with unknown fields",
+      "description": "Message from v1.1.0 with new optional fields should parse partially",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.1.0",
+        "content": "Hello with new features!",
+        "replyTo": null,
+        "attachments": [],
+        "futureFeature": "some new capability",
+        "anotherNewField": { "nested": true }
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": true,
+        "unknownFields": ["futureFeature", "anotherNewField"],
+        "preservedUnknownFields": {
+          "futureFeature": "some new capability",
+          "anotherNewField": { "nested": true }
+        }
+      }
+    },
+    {
+      "id": "cv-003",
+      "name": "Future patch version",
+      "description": "Patch version increment should be fully compatible",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.0.5",
+        "content": "Message from patch version"
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": false,
+        "unknownFields": []
+      }
+    },
+    {
+      "id": "cv-004",
+      "name": "Future major version",
+      "description": "Major version increment may have breaking changes",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "2.0.0",
+        "content": "Message from major version bump",
+        "newRequiredField": "required in v2"
+      },
+      "expected": {
+        "canParse": false,
+        "isPartial": true,
+        "updateRequired": true,
+        "unknownFields": ["newRequiredField"]
+      }
+    },
+    {
+      "id": "cv-005",
+      "name": "Older version message",
+      "description": "Messages from older versions should always be fully readable",
+      "module": "messaging",
+      "readerVersion": "1.1.0",
+      "input": {
+        "_v": "1.0.0",
+        "content": "Old message format"
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": false,
+        "unknownFields": []
+      }
+    },
+    {
+      "id": "cv-006",
+      "name": "Event with unknown fields",
+      "description": "Event from newer version with additional fields",
+      "module": "events",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.1.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Community Meeting",
+        "startAt": 1706198400,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000,
+        "coHostIds": ["fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"],
+        "virtualPlatform": "jitsi"
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": true,
+        "unknownFields": ["coHostIds", "virtualPlatform"],
+        "preservedUnknownFields": {
+          "coHostIds": ["fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"],
+          "virtualPlatform": "jitsi"
+        }
+      }
+    },
+    {
+      "id": "cv-007",
+      "name": "Document with revision metadata",
+      "description": "Document from newer version with editing tracking",
+      "module": "documents",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.2.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Team Guidelines",
+        "content": "# Guidelines\n\nOur team follows...",
+        "type": "markdown",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000,
+        "editHistory": [
+          { "version": 1, "editedAt": 1706112000, "editedBy": "abc123" },
+          { "version": 2, "editedAt": 1706200000, "editedBy": "def456" }
+        ],
+        "collaborativeEditingEnabled": true
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": true,
+        "unknownFields": ["editHistory", "collaborativeEditingEnabled"]
+      }
+    },
+    {
+      "id": "cv-008",
+      "name": "Missing version field",
+      "description": "Content without _v field should default to 1.0.0",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "content": "Message without version field"
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": false,
+        "inferredVersion": "1.0.0",
+        "unknownFields": []
+      }
+    },
+    {
+      "id": "cv-009",
+      "name": "Core messaging from any version",
+      "description": "Core messaging content must ALWAYS be readable (crisis resilience)",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "coreModuleTest": true,
+      "input": {
+        "_v": "5.0.0",
+        "content": "Emergency: Meet at safe house",
+        "urgency": "critical",
+        "autoDestruct": 3600
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": true,
+        "contentReadable": true,
+        "note": "Core messaging content field must ALWAYS be readable regardless of version"
+      }
+    },
+    {
+      "id": "cv-010",
+      "name": "Relay forwarding preserves unknown fields",
+      "description": "When relaying content, unknown fields must be preserved exactly",
+      "module": "messaging",
+      "readerVersion": "1.0.0",
+      "input": {
+        "_v": "1.5.0",
+        "content": "Message to relay",
+        "e2eeVersion": 2,
+        "forwardingMetadata": {
+          "originalSender": "abc123",
+          "hopCount": 3,
+          "routingHints": ["relay1", "relay2"]
+        }
+      },
+      "expected": {
+        "canParse": true,
+        "isPartial": true,
+        "relayOutput": {
+          "_v": "1.5.0",
+          "content": "Message to relay",
+          "e2eeVersion": 2,
+          "forwardingMetadata": {
+            "originalSender": "abc123",
+            "hopCount": 3,
+            "routingHints": ["relay1", "relay2"]
+          }
+        },
+        "note": "Relay must output identical JSON for unknown fields"
+      }
+    }
+  ],
+
+  "validationRules": [
+    {
+      "rule": "unknown-field-preservation",
+      "description": "All unknown fields must be stored in _unknownFields and restored when serializing",
+      "priority": "critical"
+    },
+    {
+      "rule": "core-messaging-always-readable",
+      "description": "The 'content' field in messaging module must ALWAYS be parseable regardless of schema version",
+      "priority": "critical",
+      "applies_to": ["messaging"]
+    },
+    {
+      "rule": "version-comparison",
+      "description": "Version comparison: same major = compatible, different major = may be incompatible",
+      "priority": "high"
+    },
+    {
+      "rule": "default-version",
+      "description": "Content without _v field should be treated as version 1.0.0",
+      "priority": "medium"
+    }
+  ],
+
+  "clientImplementationNotes": {
+    "web": "Use parseVersionedContent() from @/core/schema/parser.ts",
+    "ios": "Use VersionedContentParser from Core/Schema/",
+    "android": "Use VersionedContentParser from core.schema package"
+  }
+}
