@@ -48,18 +48,18 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
           {/* Avatar */}
           <Avatar className="w-10 h-10">
             <AvatarImage
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${page.updatedBy}`}
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${page.lastEditedBy ?? page.createdBy}`}
             />
-            <AvatarFallback>{page.updatedBy.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{(page.lastEditedBy ?? page.createdBy).slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
 
           {/* Editor info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm truncate">{page.updatedBy}</span>
+              <span className="font-semibold text-sm truncate">{page.lastEditedBy ?? page.createdBy}</span>
               <span className="text-xs text-muted-foreground">{getActionLabel()}</span>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(page.updated, { addSuffix: true })}
+                {formatDistanceToNow(page.updatedAt, { addSuffix: true })}
               </span>
             </div>
           </div>
@@ -93,10 +93,10 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
         {/* Details */}
         <div className="flex items-center gap-4 text-sm flex-wrap">
           {/* Category */}
-          {page.category && (
+          {page.categoryId && (
             <div className="flex items-center gap-1">
               <FolderOpen className="w-4 h-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">{page.category}</span>
+              <span className="text-xs text-muted-foreground">{page.categoryId}</span>
             </div>
           )}
 

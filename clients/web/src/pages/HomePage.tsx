@@ -182,45 +182,56 @@ export const HomePage: FC = () => {
       if (Object.keys(pages).length === 0) {
         const seedPages = [
           {
+            _v: '1.0.0',
             id: 'wiki-1',
             groupId: 'organizing-collective',
             title: 'Security Best Practices',
+            slug: 'security-best-practices',
             content: '# Security Culture for Activists\n\n## Digital Security\n- Use encrypted messaging (Signal, Wire)\n- Enable 2FA on all accounts\n- Use VPN when organizing online\n\n## Operational Security\n- Need-to-know information sharing\n- Secure meeting locations\n- Counter-surveillance awareness\n\n## Legal Know Your Rights\n- Right to remain silent\n- Right to legal representation\n- Do not consent to searches',
-            category: 'security',
+            categoryId: 'security',
             tags: ['security', 'opsec', 'digital-security', 'legal'],
+            status: 'published' as const,
+            visibility: 'group' as const,
             version: 3,
-            created: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago - Fixed: use 'created' not 'createdAt'
-            updated: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday - Fixed: use 'updated' not 'updatedAt'
-            updatedBy: userPubkey,
-            isPublic: false,
+            createdAt: now - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+            createdBy: userPubkey,
+            updatedAt: now - 1 * 24 * 60 * 60 * 1000, // updated yesterday
+            lastEditedBy: userPubkey,
             indexability: DEFAULT_INDEXABILITY,
           },
           {
+            _v: '1.0.0',
             id: 'wiki-2',
             groupId: 'organizing-collective',
             title: 'Power Mapping Guide',
+            slug: 'power-mapping-guide',
             content: '# How to Power Map\n\nPower mapping helps identify targets, allies, and opponents in campaigns.\n\n## Steps:\n1. Identify decision-makers\n2. Map relationships and influence\n3. Find pressure points\n4. Build coalition of allies\n5. Design escalating tactics',
-            category: 'strategy',
+            categoryId: 'strategy',
             tags: ['organizing', 'strategy', 'power-mapping'],
+            status: 'published' as const,
+            visibility: 'group' as const,
             version: 1,
-            created: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
-            updated: now - 7 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
-            updatedBy: userPubkey,
-            isPublic: false,
+            createdAt: now - 7 * 24 * 60 * 60 * 1000,
+            createdBy: userPubkey,
+            updatedAt: now - 7 * 24 * 60 * 60 * 1000,
             indexability: DEFAULT_INDEXABILITY,
           },
           {
+            _v: '1.0.0',
             id: 'wiki-3',
             groupId: 'organizing-collective',
             title: 'Consensus Decision Making',
+            slug: 'consensus-decision-making',
             content: '# Consensus Process\n\n## Overview\nConsensus is a decision-making process that seeks agreement from all participants.\n\n## Process\n1. **Proposal**: Present idea clearly\n2. **Clarifying Questions**: Ensure understanding\n3. **Discussion**: Concerns and amendments\n4. **Temperature Check**: Gauge support\n5. **Call for Consensus**: Test for agreement\n6. **Blocks**: Address fundamental objections',
-            category: 'governance',
+            categoryId: 'governance',
             tags: ['consensus', 'governance', 'decision-making'],
+            status: 'published' as const,
+            visibility: 'group' as const,
             version: 2,
-            created: now - 20 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
-            updated: now - 4 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
-            updatedBy: userPubkey,
-            isPublic: false,
+            createdAt: now - 20 * 24 * 60 * 60 * 1000,
+            createdBy: userPubkey,
+            updatedAt: now - 4 * 24 * 60 * 60 * 1000,
+            lastEditedBy: userPubkey,
             indexability: DEFAULT_INDEXABILITY,
           },
         ];

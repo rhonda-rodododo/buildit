@@ -21,9 +21,11 @@ export const wikiSeeds: ModuleSeed[] = [
       const examplePages: DBWikiPage[] = [
         // GETTING STARTED
         {
+          _v: '1.0.0',
           id: `wiki-welcome-${groupId}`,
           groupId,
           title: 'Welcome to Our Wiki',
+          slug: 'welcome-to-our-wiki',
           content: `# Welcome to Our Wiki 📚
 
 This is your group's collaborative knowledge base. Use this space to document strategies, share skills, and build institutional memory.
@@ -55,21 +57,24 @@ Check out these key pages:
 Remember: Everything here is version controlled. Don't worry about breaking things - we can always revert changes!
 
 ✊ Power to the people!`,
-          category: 'Getting Started',
+          categoryId: 'getting-started',
           tags: ['welcome', 'documentation', 'guide'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
 
         // COMMUNITY GUIDELINES
         {
+          _v: '1.0.0',
           id: `wiki-coc-${groupId}`,
           groupId,
           title: 'Code of Conduct',
+          slug: 'code-of-conduct',
           content: `# Code of Conduct
 
 Our community is dedicated to providing a harassment-free, empowering experience for everyone.
@@ -120,21 +125,24 @@ Report concerns to:
 - Anonymous form: [link to form]
 
 All reports handled with care and confidentiality.`,
-          category: 'Community',
+          categoryId: 'community',
           tags: ['code-of-conduct', 'community', 'guidelines', 'accountability'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
 
         // SECURITY
         {
+          _v: '1.0.0',
           id: `wiki-security-${groupId}`,
           groupId,
           title: 'Security Culture Guide',
+          slug: 'security-culture-guide',
           content: `# Security Culture Guide 🔒
 
 Security culture protects our movements from surveillance, infiltration, and repression.
@@ -203,21 +211,24 @@ Security culture protects our movements from surveillance, infiltration, and rep
 ## Remember
 
 Security culture isn't paranoia - it's community care. We protect each other.`,
-          category: 'Security',
+          categoryId: 'security',
           tags: ['security', 'opsec', 'digital-security', 'action-planning'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
 
         // ORGANIZING RESOURCES
         {
+          _v: '1.0.0',
           id: `wiki-toolkit-${groupId}`,
           groupId,
           title: 'Organizing Toolkit',
+          slug: 'organizing-toolkit',
           content: `# Organizing Toolkit 🛠️
 
 Essential resources for effective organizing.
@@ -310,21 +321,24 @@ Understand who has power and how to build counter-power.
 - Local legal collective
 
 Remember: We keep us safe! 🤝`,
-          category: 'Resources',
+          categoryId: 'resources',
           tags: ['organizing', 'toolkit', 'strategy', 'tactics', 'training'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
 
         // MEETING PROTOCOLS
         {
+          _v: '1.0.0',
           id: `wiki-meetings-${groupId}`,
           groupId,
           title: 'Meeting Protocols',
+          slug: 'meeting-protocols',
           content: `# Meeting Protocols
 
 How we run effective, inclusive meetings.
@@ -428,21 +442,24 @@ See [[Governance]] module for voting methods.
 ## Remember
 
 Good meetings build power and relationships! 💪`,
-          category: 'Governance',
+          categoryId: 'governance',
           tags: ['meetings', 'facilitation', 'decision-making', 'protocols'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
 
         // LEGAL RESOURCES
         {
+          _v: '1.0.0',
           id: `wiki-legal-${groupId}`,
           groupId,
           title: 'Know Your Rights',
+          slug: 'know-your-rights',
           content: `# Know Your Rights
 
 Legal information for activists (consult a lawyer for legal advice).
@@ -536,13 +553,14 @@ Legal information for activists (consult a lawyer for legal advice).
 ## Remember
 
 You have the right to remain silent and you should use it! 🤐`,
-          category: 'Legal',
+          categoryId: 'legal',
           tags: ['legal', 'rights', 'police', 'arrest', 'jail-support'],
+          status: 'published',
+          visibility: 'group',
           version: 1,
-          created: now,
-          updated: now,
-          updatedBy: userPubkey,
-          isPublic: false,
+          createdAt: now,
+          createdBy: userPubkey,
+          updatedAt: now,
           indexability: DEFAULT_INDEXABILITY,
         },
       ];

@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useWikiStore } from '../wikiStore';
 import type { WikiPage, WikiCategory } from '../types';
+import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
 describe('wikiStore', () => {
   beforeEach(() => {
@@ -16,25 +17,34 @@ describe('wikiStore', () => {
   });
 
   const createMockPage = (overrides: Partial<WikiPage> = {}): WikiPage => ({
+    _v: '1.0.0',
     id: `page-${Date.now()}-${Math.random()}`,
     groupId: 'group-1',
     title: 'Test Page',
+    slug: 'test-page',
     content: 'Test content',
-    category: 'general',
+    categoryId: 'general',
     tags: [],
+    status: 'draft',
+    visibility: 'group',
     version: 1,
-    created: Date.now(),
-    updated: Date.now(),
-    updatedBy: 'user-1',
+    createdAt: Date.now(),
+    createdBy: 'user-1',
+    updatedAt: Date.now(),
+    indexability: DEFAULT_INDEXABILITY,
     ...overrides,
   });
 
   const createMockCategory = (overrides: Partial<WikiCategory> = {}): WikiCategory => ({
+    _v: '1.0.0',
     id: `category-${Date.now()}-${Math.random()}`,
     groupId: 'group-1',
     name: 'Test Category',
+    slug: 'test-category',
     description: 'A test category',
     pageCount: 0,
+    createdAt: Date.now(),
+    createdBy: 'user-1',
     ...overrides,
   });
 
@@ -81,14 +91,14 @@ describe('wikiStore', () => {
         expect(pages['page-1'].title).toBe('Updated');
       });
 
-      it('should update the updated timestamp', () => {
+      it('should update the updatedAt timestamp', () => {
         const { addPage, updatePage } = useWikiStore.getState();
-        addPage(createMockPage({ id: 'page-1', updated: 1000 }));
+        addPage(createMockPage({ id: 'page-1', updatedAt: 1000 }));
 
         updatePage('page-1', { content: 'New content' });
 
         const { pages } = useWikiStore.getState();
-        expect(pages['page-1'].updated).toBeGreaterThan(1000);
+        expect(pages['page-1'].updatedAt).toBeGreaterThan(1000);
       });
 
       it('should increment version number', () => {
@@ -176,9 +186,9 @@ describe('wikiStore', () => {
     describe('getPagesByGroup', () => {
       it('should filter pages by group', () => {
         const { addPage, getPagesByGroup } = useWikiStore.getState();
-        addPage(createMockPage({ id: 'p1', groupId: 'group-1', updated: 1000 }));
-        addPage(createMockPage({ id: 'p2', groupId: 'group-2', updated: 2000 }));
-        addPage(createMockPage({ id: 'p3', groupId: 'group-1', updated: 3000 }));
+        addPage(createMockPage({ id: 'p1', groupId: 'group-1', updatedAt: 1000 }));
+        addPage(createMockPage({ id: 'p2', groupId: 'group-2', updatedAt: 2000 }));
+        addPage(createMockPage({ id: 'p3', groupId: 'group-1', updatedAt: 3000 }));
 
         const pages = getPagesByGroup('group-1');
 
@@ -186,11 +196,11 @@ describe('wikiStore', () => {
         expect(pages.every((p) => p.groupId === 'group-1')).toBe(true);
       });
 
-      it('should sort pages by updated date descending', () => {
+      it('should sort pages by updatedAt date descending', () => {
         const { addPage, getPagesByGroup } = useWikiStore.getState();
-        addPage(createMockPage({ id: 'p1', groupId: 'group-1', updated: 1000 }));
-        addPage(createMockPage({ id: 'p2', groupId: 'group-1', updated: 3000 }));
-        addPage(createMockPage({ id: 'p3', groupId: 'group-1', updated: 2000 }));
+        addPage(createMockPage({ id: 'p1', groupId: 'group-1', updatedAt: 1000 }));
+        addPage(createMockPage({ id: 'p2', groupId: 'group-1', updatedAt: 3000 }));
+        addPage(createMockPage({ id: 'p3', groupId: 'group-1', updatedAt: 2000 }));
 
         const pages = getPagesByGroup('group-1');
 
@@ -201,17 +211,17 @@ describe('wikiStore', () => {
     });
 
     describe('getPagesByCategory', () => {
-      it('should filter pages by group and category', () => {
+      it('should filter pages by group and categoryId', () => {
         const { addPage, getPagesByCategory } = useWikiStore.getState();
-        addPage(createMockPage({ id: 'p1', groupId: 'group-1', category: 'docs' }));
-        addPage(createMockPage({ id: 'p2', groupId: 'group-1', category: 'guides' }));
-        addPage(createMockPage({ id: 'p3', groupId: 'group-1', category: 'docs' }));
-        addPage(createMockPage({ id: 'p4', groupId: 'group-2', category: 'docs' }));
+        addPage(createMockPage({ id: 'p1', groupId: 'group-1', categoryId: 'docs' }));
+        addPage(createMockPage({ id: 'p2', groupId: 'group-1', categoryId: 'guides' }));
+        addPage(createMockPage({ id: 'p3', groupId: 'group-1', categoryId: 'docs' }));
+        addPage(createMockPage({ id: 'p4', groupId: 'group-2', categoryId: 'docs' }));
 
         const docPages = getPagesByCategory('group-1', 'docs');
 
         expect(docPages).toHaveLength(2);
-        expect(docPages.every((p) => p.category === 'docs')).toBe(true);
+        expect(docPages.every((p) => p.categoryId === 'docs')).toBe(true);
         expect(docPages.every((p) => p.groupId === 'group-1')).toBe(true);
       });
     });

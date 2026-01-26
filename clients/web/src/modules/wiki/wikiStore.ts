@@ -16,7 +16,7 @@ interface WikiState {
   // Getters
   getPage: (id: string) => WikiPage | undefined
   getPagesByGroup: (groupId: string) => WikiPage[]
-  getPagesByCategory: (groupId: string, category: string) => WikiPage[]
+  getPagesByCategory: (groupId: string, categoryId: string) => WikiPage[]
   searchPages: (groupId: string, query: string) => WikiPage[]
   getCategories: (groupId: string) => WikiCategory[]
 }
@@ -42,7 +42,7 @@ export const useWikiStore = create<WikiState>((set, get) => ({
         [id]: {
           ...existing,
           ...updates,
-          updated: Date.now(),
+          updatedAt: Date.now(),
           version: existing.version + 1,
         },
       },
@@ -71,13 +71,13 @@ export const useWikiStore = create<WikiState>((set, get) => ({
   getPagesByGroup: (groupId) => {
     return Object.values(get().pages)
       .filter(p => p.groupId === groupId)
-      .sort((a, b) => b.updated - a.updated)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
   },
 
-  getPagesByCategory: (groupId, category) => {
+  getPagesByCategory: (groupId, categoryId) => {
     return Object.values(get().pages)
-      .filter(p => p.groupId === groupId && p.category === category)
-      .sort((a, b) => b.updated - a.updated)
+      .filter(p => p.groupId === groupId && p.categoryId === categoryId)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
   },
 
   searchPages: (groupId, query) => {
@@ -89,7 +89,7 @@ export const useWikiStore = create<WikiState>((set, get) => ({
          p.content.toLowerCase().includes(lowercaseQuery) ||
          p.tags.some(t => t.toLowerCase().includes(lowercaseQuery)))
       )
-      .sort((a, b) => b.updated - a.updated)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
   },
 
   getCategories: (groupId) => {

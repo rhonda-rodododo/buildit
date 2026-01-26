@@ -25,7 +25,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
   const pages = useMemo(() => {
     const allPages = Object.values(pagesRecord)
       .filter(p => p.groupId === groupId)
-      .sort((a, b) => b.updated - a.updated)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
 
     if (!searchQuery) return allPages
 
@@ -81,8 +81,8 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
                   <BookOpen className="h-5 w-5" />
                   {page.title}
                 </CardTitle>
-                {page.category && (
-                  <CardDescription>{page.category}</CardDescription>
+                {page.categoryId && (
+                  <CardDescription>{page.categoryId}</CardDescription>
                 )}
               </CardHeader>
               <CardContent>
@@ -99,7 +99,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
                   </div>
                 )}
                 <div className="text-xs text-muted-foreground mt-2">
-                  {t('wikiView.updated', { date: new Date(page.updated).toLocaleDateString() })}
+                  {t('wikiView.updated', { date: new Date(page.updatedAt).toLocaleDateString() })}
                 </div>
               </CardContent>
             </Card>

@@ -22,7 +22,7 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
   const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [category, setCategory] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [tags, setTags] = useState('')
 
   const handleCreate = async () => {
@@ -31,7 +31,7 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
     // Reset form
     setTitle('')
     setContent('')
-    setCategory('')
+    setCategoryId('')
     setTags('')
 
     onOpenChange(false)
@@ -60,11 +60,11 @@ export const CreatePageDialog: FC<CreatePageDialogProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="category">{t('createPageDialog.categoryLabel')}</Label>
+            <Label htmlFor="categoryId">{t('createPageDialog.categoryLabel')}</Label>
             <Input
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              id="categoryId"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
               placeholder={t('createPageDialog.categoryPlaceholder')}
             />
           </div>
