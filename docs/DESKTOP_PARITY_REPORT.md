@@ -296,6 +296,57 @@ get_public_key_from_private // Derive pubkey
 
 ---
 
+## 8. Codegen Parity Analysis
+
+### Critical Gap: Desktop Missing Codegen
+
+The desktop Rust backend **does not use generated types** from protocol schemas. This is a significant parity issue.
+
+| Platform | Codegen Status | Generated Modules |
+|----------|----------------|-------------------|
+| Web (TypeScript) | ✅ Complete | 14/14 modules |
+| iOS (Swift) | ⚠️ Partial | 2/14 modules |
+| Android (Kotlin) | ⚠️ Partial | 2/14 modules |
+| Desktop (Rust) | ❌ Missing | 0/14 modules |
+
+### Current Desktop Type Definitions
+
+The desktop Rust code uses **manually defined types** in:
+
+- `src/nostr/types.rs` - NostrMessage, Filter, Subscription, RelayEvent
+- `src/ble/mesh.rs` - MeshMessage, routing structs
+- `src/ble/manager.rs` - BleStatus, connection types
+- `src/commands/*.rs` - Command response wrappers
+
+### Recommended Action
+
+Add Rust code generation to `tools/codegen/`:
+
+```typescript
+// Add to tools/codegen/src/index.ts targets array
+{
+  name: 'rust',
+  lang: 'rust',
+  outputDir: join(REPO_ROOT, 'clients/desktop/src/generated/schemas'),
+  ext: '.rs',
+}
+```
+
+**Options:**
+1. **quicktype-rs** - Native quicktype support for Rust (serde-compatible)
+2. **typeshare** - Rust macro-based approach (generates from Rust to other langs)
+3. **schemars** - Rust library that can generate Rust from JSON Schema
+
+### Risk Assessment
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Schema drift | Desktop sends incompatible data to mobile | Add Rust codegen |
+| Manual type errors | Protocol violations | Automated validation |
+| Maintenance burden | Duplicate type definitions | Single source of truth |
+
+---
+
 ## Appendix A: Test Vectors
 
 All crypto operations should pass test vectors from `protocol/test-vectors/`:
