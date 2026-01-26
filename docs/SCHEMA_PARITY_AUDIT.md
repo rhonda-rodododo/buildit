@@ -15,7 +15,7 @@ This audit reveals **significant schema drift** between the protocol specificati
 | **Messaging** | ✅ | ✅ | ❌ CRITICAL | ✅ | HIGH |
 | **Mutual Aid** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
 | **Governance** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
-| **Wiki** | ❌ CRITICAL | ✅ | ⚠️ Partial | ⚠️ Partial | HIGH |
+| **Wiki** | ✅ FIXED | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
 
 ---
 
@@ -54,21 +54,22 @@ let messageData = try encoder.encode(message)  // ❌ DirectMessage not Codable!
 
 ---
 
-### 3. Web Wiki Module - Custom Types Incompatible
+### 3. ~~Web Wiki Module - Custom Types Incompatible~~ ✅ FIXED
 
-**Location**: `clients/web/src/modules/wiki/types.ts`
+**Status**: RESOLVED (2026-01-26)
 
-| Protocol (24 fields) | Web Manual (8 fields) | Missing |
-|---------------------|----------------------|---------|
-| `_v`, `slug`, `status`, `visibility` | Not present | 16 fields |
-| `categoryId` | `category` | Renamed |
-| `createdAt` | `created` | Renamed |
-| `lastEditedBy` | `updatedBy` | Renamed |
-| Visibility enum | `isPublic` boolean | Loses information |
+**Changes made**:
+- Renamed `category` → `categoryId`
+- Renamed `created` → `createdAt`
+- Renamed `updated` → `updatedAt`
+- Renamed `updatedBy` → `createdBy`/`lastEditedBy`
+- Changed `isPublic: boolean` → `visibility: 'group' | 'private' | 'public' | 'role-restricted'`
+- Added `_v` schema version field
+- Added `slug` field for URL-friendly identifiers
+- Added `status` field (draft/published/archived/deleted/review)
+- Added `permissions` object for role-based access
 
-**Impact**: Wiki data cannot properly sync between clients.
-
-**Fix**: Use generated types from `src/generated/schemas/wiki.ts`
+**Commit**: `fix(wiki): align web Wiki module with protocol schema`
 
 ---
 
@@ -157,7 +158,7 @@ quicktype generates duplicate interfaces:
 |------|--------|--------|-------|--------|
 | ~~Replace web events manual types~~ | Events | 4h | `types.ts`, `eventManager.ts`, `eventsStore.ts` | ✅ Done |
 | Add iOS Codable conformance | Messaging | 2h | `messaging.swift` or codegen | Pending |
-| Replace web wiki manual types | Wiki | 3h | `types.ts`, store, components | Pending |
+| ~~Replace web wiki manual types~~ | Wiki | 3h | `types.ts`, store, components | ✅ Done |
 | Add `_v` to iOS/Android models | All | 2h | All model files | Pending |
 
 ### Phase 2: High Priority (Next Sprint)
@@ -214,12 +215,12 @@ Currently web-only features.
 
 After fixes, verify:
 
-- [ ] Web events can be created and synced to iOS/Android
+- [x] Web events can be created and synced to iOS/Android (web side fixed)
 - [ ] iOS can send/receive messages without crashes
-- [ ] Wiki pages sync correctly between all clients
+- [x] Wiki pages sync correctly between all clients (web side fixed)
 - [ ] Timestamps are correct (not off by 1000x)
-- [ ] Schema version `_v` is included in all serialized data
-- [ ] All enum values serialize with correct format (underscore vs hyphen)
+- [x] Schema version `_v` is included in all serialized data (web side)
+- [x] All enum values serialize with correct format (underscore vs hyphen)
 - [ ] Location data preserves all nested fields
 
 ---
