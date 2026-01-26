@@ -4,6 +4,8 @@
 // Main chat interface showing conversations and messages.
 
 import SwiftUI
+import PhotosUI
+import UniformTypeIdentifiers
 
 /// Main chat view showing list of conversations
 struct ChatView: View {
@@ -247,6 +249,11 @@ struct ConversationView: View {
 
             // Input bar
             HStack(spacing: 12) {
+                // Attachment button
+                AttachmentButton { attachments in
+                    handleAttachments(attachments)
+                }
+
                 TextField("Message", text: $messageText, axis: .vertical)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 12)
@@ -311,25 +318,103 @@ struct ConversationView: View {
             loadMessages()
         }
     }
+
+    private func handleAttachments(_ attachments: [AttachmentData]) {
+        for attachment in attachments {
+            Task {
+                await viewModel.sendAttachment(attachment, to: conversation.participantPublicKey)
+                loadMessages()
+            }
+        }
+    }
 }
 
-/// QR Code scanner view placeholder
-struct QRCodeScannerView: View {
-    let onScan: (String) -> Void
+/// Attachment button with menu for photos, files, etc.
+struct AttachmentButton: View {
+    let onAttach: ([AttachmentData]) -> Void
+
+    @State private var showPhotoPicker = false
+    @State private var showFilePicker = false
 
     var body: some View {
-        VStack {
-            Text("QR Scanner")
-                .font(.headline)
-
-            Text("Camera access required")
-                .foregroundColor(.secondary)
-
-            // In production, this would use AVFoundation to scan QR codes
-            Button("Simulate Scan") {
-                onScan("npub1...")
+        Menu {
+            Button {
+                showPhotoPicker = true
+            } label: {
+                Label("Photo & Video", systemImage: "photo")
             }
-            .padding()
+
+            Button {
+                showFilePicker = true
+            } label: {
+                Label("Document", systemImage: "doc")
+            }
+        } label: {
+            Image(systemName: "plus.circle.fill")
+                .font(.title2)
+                .foregroundColor(.blue)
+        }
+        .photosPicker(
+            isPresented: $showPhotoPicker,
+            selection: .constant([]),
+            matching: .any(of: [.images, .videos])
+        )
+        .fileImporter(
+            isPresented: $showFilePicker,
+            allowedContentTypes: [.item],
+            allowsMultipleSelection: true
+        ) { result in
+            switch result {
+            case .success(let urls):
+                let attachments = urls.compactMap { url -> AttachmentData? in
+                    guard url.startAccessingSecurityScopedResource() else { return nil }
+                    defer { url.stopAccessingSecurityScopedResource() }
+
+                    guard let data = try? Data(contentsOf: url) else { return nil }
+                    return AttachmentData(
+                        fileName: url.lastPathComponent,
+                        mimeType: url.mimeType,
+                        data: data
+                    )
+                }
+                onAttach(attachments)
+            case .failure:
+                break
+            }
+        }
+    }
+}
+
+/// Attachment data model
+struct AttachmentData {
+    let fileName: String
+    let mimeType: String
+    let data: Data
+
+    var isImage: Bool {
+        mimeType.hasPrefix("image/")
+    }
+
+    var isVideo: Bool {
+        mimeType.hasPrefix("video/")
+    }
+}
+
+/// URL extension for MIME type
+extension URL {
+    var mimeType: String {
+        let pathExtension = self.pathExtension.lowercased()
+        switch pathExtension {
+        case "jpg", "jpeg": return "image/jpeg"
+        case "png": return "image/png"
+        case "gif": return "image/gif"
+        case "heic": return "image/heic"
+        case "mp4": return "video/mp4"
+        case "mov": return "video/quicktime"
+        case "pdf": return "application/pdf"
+        case "doc", "docx": return "application/msword"
+        case "txt": return "text/plain"
+        default: return "application/octet-stream"
         }
     }
 }
