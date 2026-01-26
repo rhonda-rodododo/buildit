@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Fundraising
+
 /// Campaign creation wizard
 public struct CreateCampaignView: View {
     @Environment(\.dismiss) private var dismiss
@@ -29,7 +32,9 @@ public struct CreateCampaignView: View {
     @State private var isSubmitting = false
     @State private var errorMessage: String?
 
-    private let steps = ["Basic Info", "Goal & Timing", "Options", "Review"]
+    private var steps: [String] {
+        ["fundraising_basicInfo".localized, "fundraising_goalTiming".localized, "fundraising_options".localized, "fundraising_review".localized]
+    }
 
     public init(service: FundraisingService, onComplete: @escaping () -> Void) {
         self.service = service
@@ -102,7 +107,7 @@ public struct CreateCampaignView: View {
                         Button {
                             withAnimation { currentStep -= 1 }
                         } label: {
-                            Label("Back", systemImage: "chevron.left")
+                            Label("fundraising_back".localized, systemImage: "chevron.left")
                         }
                         .buttonStyle(.bordered)
                     }
@@ -115,7 +120,7 @@ public struct CreateCampaignView: View {
                                 withAnimation { currentStep += 1 }
                             }
                         } label: {
-                            Label("Next", systemImage: "chevron.right")
+                            Label("fundraising_next".localized, systemImage: "chevron.right")
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(!canProceed)
@@ -126,7 +131,7 @@ public struct CreateCampaignView: View {
                             if isSubmitting {
                                 ProgressView()
                             } else {
-                                Label("Create Campaign", systemImage: "checkmark.circle")
+                                Label("fundraising_createCampaign".localized, systemImage: "checkmark.circle")
                             }
                         }
                         .buttonStyle(.borderedProminent)
@@ -135,11 +140,11 @@ public struct CreateCampaignView: View {
                 }
                 .padding()
             }
-            .navigationTitle("New Campaign")
+            .navigationTitle("fundraising_newCampaign".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
             }
         }
@@ -167,12 +172,12 @@ public struct CreateCampaignView: View {
         switch currentStep {
         case 0:
             if title.trimmingCharacters(in: .whitespaces).isEmpty {
-                errorMessage = "Please enter a campaign title"
+                errorMessage = "fundraising_pleaseEnterTitle".localized
                 return false
             }
         case 1:
             guard let goalAmount = Double(goal), goalAmount > 0 else {
-                errorMessage = "Please enter a valid goal amount"
+                errorMessage = "fundraising_pleaseEnterValidGoal".localized
                 return false
             }
         default:
@@ -244,7 +249,7 @@ struct StepProgressBar: View {
 
                 Spacer()
 
-                Text("Step \(currentStep + 1) of \(totalSteps)")
+                Text("fundraising_stepOf".localized(currentStep + 1, totalSteps))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -259,20 +264,20 @@ struct BasicInfoStep: View {
 
     var body: some View {
         Form {
-            Section("Campaign Title") {
-                TextField("What are you fundraising for?", text: $title)
+            Section("fundraising_campaignTitle".localized) {
+                TextField("fundraising_whatAreYouFundraising".localized, text: $title)
                     .font(.title3)
 
-                Text("Choose a clear, compelling title that describes your cause")
+                Text("fundraising_chooseClearTitle".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
-            Section("Description") {
-                TextField("Tell your story...", text: $description, axis: .vertical)
+            Section("fundraising_description".localized) {
+                TextField("fundraising_tellYourStory".localized, text: $description, axis: .vertical)
                     .lineLimit(5...10)
 
-                Text("Explain why this campaign matters and how the funds will be used")
+                Text("fundraising_explainWhy".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -291,9 +296,9 @@ struct GoalTimingStep: View {
 
     var body: some View {
         Form {
-            Section("Fundraising Goal") {
+            Section("fundraising_fundraisingGoal".localized) {
                 HStack {
-                    Picker("Currency", selection: $currency) {
+                    Picker("fundraising_currency".localized, selection: $currency) {
                         ForEach(currencies, id: \.self) { curr in
                             Text(curr).tag(curr)
                         }
@@ -301,29 +306,29 @@ struct GoalTimingStep: View {
                     .labelsHidden()
                     .frame(width: 80)
 
-                    TextField("Amount", text: $goal)
+                    TextField("fundraising_amount".localized, text: $goal)
                         .keyboardType(.decimalPad)
                         .font(.title2)
                 }
 
-                Text("Set a realistic but ambitious goal")
+                Text("fundraising_setRealisticGoal".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
-            Section("Timeline") {
-                Toggle("Set a deadline", isOn: $hasDeadline)
+            Section("fundraising_timeline".localized) {
+                Toggle("fundraising_setDeadline".localized, isOn: $hasDeadline)
 
                 if hasDeadline {
                     DatePicker(
-                        "Campaign ends",
+                        "fundraising_campaignEnds".localized,
                         selection: $deadline,
                         in: Date()...,
                         displayedComponents: .date
                     )
 
                     let days = Calendar.current.dateComponents([.day], from: Date(), to: deadline).day ?? 0
-                    Text("Campaign will run for \(days) days")
+                    Text("fundraising_campaignRunDays".localized(days))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -348,8 +353,8 @@ struct OptionsStep: View {
 
     var body: some View {
         Form {
-            Section("Visibility") {
-                Picker("Who can see this campaign?", selection: $visibility) {
+            Section("fundraising_visibility".localized) {
+                Picker("fundraising_whoCanSee".localized, selection: $visibility) {
                     ForEach(CampaignVisibility.allCases, id: \.self) { vis in
                         Label(vis.displayName, systemImage: vis.icon)
                             .tag(vis)
@@ -357,8 +362,8 @@ struct OptionsStep: View {
                 }
             }
 
-            Section("Donation Tiers") {
-                Toggle("Use suggested donation tiers", isOn: $useTiers)
+            Section("fundraising_donationTiers".localized) {
+                Toggle("fundraising_useSuggestedTiers".localized, isOn: $useTiers)
 
                 if useTiers {
                     ForEach($tiers) { $tier in
@@ -368,34 +373,34 @@ struct OptionsStep: View {
                     Button {
                         tiers.append(DonationTier(amount: 0))
                     } label: {
-                        Label("Add Tier", systemImage: "plus.circle")
+                        Label("fundraising_addTier".localized, systemImage: "plus.circle")
                     }
                 }
             }
 
-            Section("Cryptocurrency") {
-                Toggle("Accept crypto payments", isOn: $enableCrypto)
+            Section("fundraising_cryptocurrency".localized) {
+                Toggle("fundraising_acceptCryptoPayments".localized, isOn: $enableCrypto)
 
                 if enableCrypto {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
                             Image(systemName: "bitcoinsign.circle")
                                 .foregroundColor(.orange)
-                            TextField("Bitcoin Address", text: $bitcoinAddress)
+                            TextField("fundraising_bitcoinAddress".localized, text: $bitcoinAddress)
                                 .font(.caption)
                         }
 
                         HStack {
                             Image(systemName: "diamond")
                                 .foregroundColor(.purple)
-                            TextField("Ethereum Address", text: $ethereumAddress)
+                            TextField("fundraising_ethereumAddress".localized, text: $ethereumAddress)
                                 .font(.caption)
                         }
 
                         HStack {
                             Image(systemName: "bolt.circle")
                                 .foregroundColor(.yellow)
-                            TextField("Lightning Address", text: $lightningAddress)
+                            TextField("fundraising_lightningAddress".localized, text: $lightningAddress)
                                 .font(.caption)
                         }
 
@@ -405,13 +410,13 @@ struct OptionsStep: View {
                             if isGeneratingAddresses {
                                 ProgressView()
                             } else {
-                                Label("Generate Addresses", systemImage: "wand.and.stars")
+                                Label("fundraising_generateAddresses".localized, systemImage: "wand.and.stars")
                             }
                         }
                         .disabled(isGeneratingAddresses)
                     }
 
-                    Text("Note: Crypto address generation is a placeholder. Connect your wallet for real addresses.")
+                    Text("fundraising_cryptoNote".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -441,12 +446,12 @@ struct TierEditor: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField("Tier Name", text: Binding(
+                TextField("fundraising_tierName".localized, text: Binding(
                     get: { tier.name ?? "" },
                     set: { tier.name = $0.isEmpty ? nil : $0 }
                 ))
 
-                TextField("Amount", text: $amountText)
+                TextField("fundraising_amount".localized, text: $amountText)
                     .keyboardType(.decimalPad)
                     .frame(width: 80)
                     .onChange(of: amountText) { _, newValue in
@@ -459,7 +464,7 @@ struct TierEditor: View {
                     }
             }
 
-            TextField("Description (optional)", text: Binding(
+            TextField("fundraising_tierDescriptionOptional".localized, text: Binding(
                 get: { tier.description ?? "" },
                 set: { tier.description = $0.isEmpty ? nil : $0 }
             ))
@@ -484,7 +489,7 @@ struct ReviewStep: View {
 
     var body: some View {
         Form {
-            Section("Campaign Preview") {
+            Section("fundraising_campaignPreview".localized) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(title)
                         .font(.title2)
@@ -498,27 +503,27 @@ struct ReviewStep: View {
                 }
             }
 
-            Section("Details") {
-                ReviewRow(label: "Goal", value: formatCurrency(Double(goal) ?? 0))
-                ReviewRow(label: "Visibility", value: visibility.displayName)
+            Section("fundraising_details".localized) {
+                ReviewRow(label: "fundraising_goal".localized, value: formatCurrency(Double(goal) ?? 0))
+                ReviewRow(label: "fundraising_visibility".localized, value: visibility.displayName)
 
                 if hasDeadline {
-                    ReviewRow(label: "Deadline", value: deadline.formatted(date: .abbreviated, time: .omitted))
+                    ReviewRow(label: "fundraising_deadline".localized, value: deadline.formatted(date: .abbreviated, time: .omitted))
                 } else {
-                    ReviewRow(label: "Deadline", value: "No deadline")
+                    ReviewRow(label: "fundraising_deadline".localized, value: "fundraising_noDeadline".localized)
                 }
 
-                ReviewRow(label: "Donation Tiers", value: useTiers ? "\(tiers.count) tiers" : "None")
-                ReviewRow(label: "Crypto Payments", value: enableCrypto ? "Enabled" : "Disabled")
+                ReviewRow(label: "fundraising_donationTiers".localized, value: useTiers ? "fundraising_tiersCount".localized(tiers.count) : "fundraising_none".localized)
+                ReviewRow(label: "fundraising_cryptoPayments".localized, value: enableCrypto ? "fundraising_enabled".localized : "fundraising_disabled".localized)
             }
 
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Your campaign will start as a draft", systemImage: "info.circle")
+                    Label("fundraising_campaignStartsAsDraft".localized, systemImage: "info.circle")
                         .font(.caption)
                         .foregroundColor(.secondary)
 
-                    Text("You can launch it when you're ready from the campaign details page.")
+                    Text("fundraising_launchWhenReady".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

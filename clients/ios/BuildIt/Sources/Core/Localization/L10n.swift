@@ -24111,6 +24111,236 @@ public enum L10n {
             NSLocalizedString("mobile_fundraising_showQrCode", comment: "")
         }
 
+        /// Donate
+        public static var fundraisingDonate: String {
+            NSLocalizedString("mobile_fundraising_donate", comment: "")
+        }
+
+        /// Choose an amount
+        public static var fundraisingChooseAmount: String {
+            NSLocalizedString("mobile_fundraising_chooseAmount", comment: "")
+        }
+
+        /// Enter custom amount
+        public static var fundraisingEnterCustomAmount: String {
+            NSLocalizedString("mobile_fundraising_enterCustomAmount", comment: "")
+        }
+
+        /// Your information
+        public static var fundraisingYourInformation: String {
+            NSLocalizedString("mobile_fundraising_yourInformation", comment: "")
+        }
+
+        /// Your name (optional)
+        public static var fundraisingYourNameOptional: String {
+            NSLocalizedString("mobile_fundraising_yourNameOptional", comment: "")
+        }
+
+        /// Leave a message (optional)
+        public static var fundraisingLeaveMessageOptional: String {
+            NSLocalizedString("mobile_fundraising_leaveMessageOptional", comment: "")
+        }
+
+        /// Donate anonymously
+        public static var fundraisingDonateAnonymously: String {
+            NSLocalizedString("mobile_fundraising_donateAnonymously", comment: "")
+        }
+
+        /// Your name won't be shown publicly, but the campaign organizer may see it for record-keeping.
+        public static var fundraisingAnonymousOrganizerNote: String {
+            NSLocalizedString("mobile_fundraising_anonymousOrganizerNote", comment: "")
+        }
+
+        /// Payment method
+        public static var fundraisingPaymentMethod: String {
+            NSLocalizedString("mobile_fundraising_paymentMethod", comment: "")
+        }
+
+        /// Select cryptocurrency
+        public static var fundraisingSelectCryptocurrency: String {
+            NSLocalizedString("mobile_fundraising_selectCryptocurrency", comment: "")
+        }
+
+        /// Send
+        public static var fundraisingSend: String {
+            NSLocalizedString("mobile_fundraising_send", comment: "")
+        }
+
+        /// to complete your donation
+        public static var fundraisingToCompleteDonation: String {
+            NSLocalizedString("mobile_fundraising_toCompleteDonation", comment: "")
+        }
+
+        /// QR Code
+        public static var fundraisingQrCode: String {
+            NSLocalizedString("mobile_fundraising_qrCode", comment: "")
+        }
+
+        /// Lightning Invoice
+        public static var fundraisingLightningInvoice: String {
+            NSLocalizedString("mobile_fundraising_lightningInvoice", comment: "")
+        }
+
+        /// Address
+        public static var fundraisingAddress: String {
+            NSLocalizedString("mobile_fundraising_address", comment: "")
+        }
+
+        /// Copy Address
+        public static var fundraisingCopyAddressButton: String {
+            NSLocalizedString("mobile_fundraising_copyAddressButton", comment: "")
+        }
+
+        /// Copied!
+        public static var fundraisingCopied: String {
+            NSLocalizedString("mobile_fundraising_copied", comment: "")
+        }
+
+        /// I've sent the payment
+        public static var fundraisingSentPayment: String {
+            NSLocalizedString("mobile_fundraising_sentPayment", comment: "")
+        }
+
+        /// Your donation will be recorded once the payment is confirmed on the network.
+        public static var fundraisingPaymentConfirmNote: String {
+            NSLocalizedString("mobile_fundraising_paymentConfirmNote", comment: "")
+        }
+
+        /// Pay with %@
+        public static var fundraisingPayWith: String {
+            NSLocalizedString("mobile_fundraising_payWith", comment: "")
+        }
+
+        /// of %@
+        public static var fundraisingOf: String {
+            NSLocalizedString("mobile_fundraising_of", comment: "")
+        }
+
+        /// Analytics
+        public static var fundraisingAnalytics: String {
+            NSLocalizedString("mobile_fundraising_analytics", comment: "")
+        }
+
+        /// Overview
+        public static var fundraisingOverview: String {
+            NSLocalizedString("mobile_fundraising_overview", comment: "")
+        }
+
+        /// Donations
+        public static var fundraisingDonations: String {
+            NSLocalizedString("mobile_fundraising_donations", comment: "")
+        }
+
+        /// Expenses
+        public static var fundraisingExpenses: String {
+            NSLocalizedString("mobile_fundraising_expenses", comment: "")
+        }
+
+        /// Campaign Progress
+        public static var fundraisingCampaignProgress: String {
+            NSLocalizedString("mobile_fundraising_campaignProgress", comment: "")
+        }
+
+        /// Raised
+        public static var fundraisingRaised: String {
+            NSLocalizedString("mobile_fundraising_raised", comment: "")
+        }
+
+        /// %@ to go
+        public static var fundraisingToGo: String {
+            NSLocalizedString("mobile_fundraising_toGo", comment: "")
+        }
+
+        /// Goal reached!
+        public static var fundraisingGoalReached: String {
+            NSLocalizedString("mobile_fundraising_goalReached", comment: "")
+        }
+
+        /// Total Raised
+        public static var fundraisingTotalRaised: String {
+            NSLocalizedString("mobile_fundraising_totalRaised", comment: "")
+        }
+
+        /// Total Donors
+        public static var fundraisingTotalDonors: String {
+            NSLocalizedString("mobile_fundraising_totalDonors", comment: "")
+        }
+
+        /// Average Donation
+        public static var fundraisingAverageDonation: String {
+            NSLocalizedString("mobile_fundraising_averageDonation", comment: "")
+        }
+
+        /// Largest Donation
+        public static var fundraisingLargestDonation: String {
+            NSLocalizedString("mobile_fundraising_largestDonation", comment: "")
+        }
+
+        /// Donations Over Time
+        public static var fundraisingDonationsOverTime: String {
+            NSLocalizedString("mobile_fundraising_donationsOverTime", comment: "")
+        }
+
+        /// Chart coming soon
+        public static var fundraisingChartComingSoon: String {
+            NSLocalizedString("mobile_fundraising_chartComingSoon", comment: "")
+        }
+
+        /// Payment Methods
+        public static var fundraisingPaymentMethods: String {
+            NSLocalizedString("mobile_fundraising_paymentMethods", comment: "")
+        }
+
+        /// Top Donors
+        public static var fundraisingTopDonors: String {
+            NSLocalizedString("mobile_fundraising_topDonors", comment: "")
+        }
+
+        /// No donations yet
+        public static var fundraisingNoDonationsYet: String {
+            NSLocalizedString("mobile_fundraising_noDonationsYet", comment: "")
+        }
+
+        /// Donations will appear here
+        public static var fundraisingDonationsWillAppear: String {
+            NSLocalizedString("mobile_fundraising_donationsWillAppear", comment: "")
+        }
+
+        /// Total Expenses
+        public static var fundraisingTotalExpenses: String {
+            NSLocalizedString("mobile_fundraising_totalExpenses", comment: "")
+        }
+
+        /// Transactions
+        public static var fundraisingTransactions: String {
+            NSLocalizedString("mobile_fundraising_transactions", comment: "")
+        }
+
+        /// No expenses recorded
+        public static var fundraisingNoExpensesRecorded: String {
+            NSLocalizedString("mobile_fundraising_noExpensesRecorded", comment: "")
+        }
+
+        /// Expenses will appear here
+        public static var fundraisingExpensesWillAppear: String {
+            NSLocalizedString("mobile_fundraising_expensesWillAppear", comment: "")
+        }
+
+        /// Step %d of %d
+        public static var fundraisingStepOf: String {
+            NSLocalizedString("mobile_fundraising_stepOf", comment: "")
+        }
+
+        /// Please enter a campaign title
+        public static var fundraisingPleaseEnterTitle: String {
+            NSLocalizedString("mobile_fundraising_pleaseEnterTitle", comment: "")
+        }
+
+        /// Please enter a valid goal amount
+        public static var fundraisingPleaseEnterValidGoal: String {
+            NSLocalizedString("mobile_fundraising_pleaseEnterValidGoal", comment: "")
+        }
+
         /// View
         public static var mutualaidView: String {
             NSLocalizedString("mobile_mutualaid_view", comment: "")

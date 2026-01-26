@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Fundraising
+
 /// Donation flow view
 public struct DonateView: View {
     @Environment(\.dismiss) private var dismiss
@@ -47,7 +50,7 @@ public struct DonateView: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.accentColor)
 
-                            Text("of \(formatCurrency(campaign.goal))")
+                            Text("fundraising_of".localized(formatCurrency(campaign.goal)))
                                 .foregroundColor(.secondary)
                         }
                         .font(.subheadline)
@@ -58,7 +61,7 @@ public struct DonateView: View {
 
                     // Amount selection
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Choose an amount")
+                        Text("fundraising_chooseAmount".localized)
                             .font(.headline)
 
                         // Tier buttons
@@ -101,7 +104,7 @@ public struct DonateView: View {
                         }
 
                         // Custom amount toggle
-                        Toggle("Enter custom amount", isOn: $customAmount)
+                        Toggle("fundraising_enterCustomAmount".localized, isOn: $customAmount)
                             .onChange(of: customAmount) { _, newValue in
                                 if newValue {
                                     selectedTier = nil
@@ -165,22 +168,22 @@ public struct DonateView: View {
 
                     // Donor info
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Your information")
+                        Text("fundraising_yourInformation".localized)
                             .font(.headline)
 
-                        TextField("Your name (optional)", text: $donorName)
+                        TextField("fundraising_yourNameOptional".localized, text: $donorName)
                             .textContentType(.name)
                             .padding()
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
 
-                        TextField("Leave a message (optional)", text: $message, axis: .vertical)
+                        TextField("fundraising_leaveMessageOptional".localized, text: $message, axis: .vertical)
                             .lineLimit(3...5)
                             .padding()
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
 
-                        Toggle("Donate anonymously", isOn: $anonymous)
+                        Toggle("fundraising_donateAnonymously".localized, isOn: $anonymous)
                             .onChange(of: anonymous) { _, newValue in
                                 if newValue {
                                     donorName = ""
@@ -188,7 +191,7 @@ public struct DonateView: View {
                             }
 
                         if anonymous {
-                            Text("Your name won't be shown publicly, but the campaign organizer may see it for record-keeping.")
+                            Text("fundraising_anonymousOrganizerNote".localized)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -199,7 +202,7 @@ public struct DonateView: View {
 
                     // Payment method
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Payment method")
+                        Text("fundraising_paymentMethod".localized)
                             .font(.headline)
 
                         ForEach(PaymentMethod.allCases, id: \.self) { method in
@@ -213,7 +216,7 @@ public struct DonateView: View {
 
                         if paymentMethod == .crypto {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Select cryptocurrency")
+                                Text("fundraising_selectCryptocurrency".localized)
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
 
@@ -257,7 +260,7 @@ public struct DonateView: View {
                         } else {
                             HStack {
                                 Image(systemName: "heart.fill")
-                                Text("Donate \(formatCurrency(donationAmount))")
+                                Text("fundraising_donate".localized + " " + formatCurrency(donationAmount))
                             }
                             .font(.headline)
                             .frame(maxWidth: .infinity)
@@ -270,11 +273,11 @@ public struct DonateView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Donate")
+            .navigationTitle("fundraising_donate".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
             }
             .sheet(isPresented: $showCryptoPayment) {
@@ -498,14 +501,14 @@ struct CryptoPaymentSheet: View {
             VStack(spacing: 24) {
                 // Amount display
                 VStack(spacing: 4) {
-                    Text("Send")
+                    Text("fundraising_send".localized)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
 
                     Text(formatCryptoAmount())
                         .font(.system(size: 36, weight: .bold))
 
-                    Text("to complete your donation")
+                    Text("fundraising_toCompleteDonation".localized)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -524,7 +527,7 @@ struct CryptoPaymentSheet: View {
                                     .font(.system(size: 80))
                                     .foregroundColor(.secondary)
 
-                                Text("QR Code")
+                                Text("fundraising_qrCode".localized)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -532,7 +535,7 @@ struct CryptoPaymentSheet: View {
 
                     // Address display
                     VStack(spacing: 8) {
-                        Text(cryptoType == .lightning ? "Lightning Invoice" : "Address")
+                        Text(cryptoType == .lightning ? "fundraising_lightningInvoice".localized : "fundraising_address".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -551,7 +554,7 @@ struct CryptoPaymentSheet: View {
                                 copied = false
                             }
                         } label: {
-                            Label(copied ? "Copied!" : "Copy Address", systemImage: copied ? "checkmark" : "doc.on.doc")
+                            Label(copied ? "fundraising_copied".localized : "fundraising_copyAddressButton".localized, systemImage: copied ? "checkmark" : "doc.on.doc")
                         }
                         .buttonStyle(.bordered)
                     }
@@ -563,24 +566,24 @@ struct CryptoPaymentSheet: View {
                 Button {
                     onPaymentConfirmed()
                 } label: {
-                    Text("I've sent the payment")
+                    Text("fundraising_sentPayment".localized)
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
 
-                Text("Your donation will be recorded once the payment is confirmed on the network.")
+                Text("fundraising_paymentConfirmNote".localized)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding()
-            .navigationTitle("Pay with \(cryptoType.displayName)")
+            .navigationTitle("fundraising_payWith".localized(cryptoType.displayName))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
             }
             .task {

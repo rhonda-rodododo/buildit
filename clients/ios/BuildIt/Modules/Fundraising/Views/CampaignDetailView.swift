@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Fundraising
+
 /// Detailed view of a campaign
 public struct CampaignDetailView: View {
     @Environment(\.dismiss) private var dismiss
@@ -37,7 +40,7 @@ public struct CampaignDetailView: View {
                     // Description
                     if let description = campaign.description {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("About")
+                            Text("fundraising_about".localized)
                                 .font(.headline)
 
                             Text(description)
@@ -52,7 +55,7 @@ public struct CampaignDetailView: View {
                     // Donation tiers
                     if !campaign.tiers.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Donation Tiers")
+                            Text("fundraising_donationTiers".localized)
                                 .font(.headline)
 
                             ForEach(campaign.tiers) { tier in
@@ -77,7 +80,7 @@ public struct CampaignDetailView: View {
                     // Recent donations
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Recent Donations")
+                            Text("fundraising_recentDonations".localized)
                                 .font(.headline)
 
                             Spacer()
@@ -91,7 +94,7 @@ public struct CampaignDetailView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                         } else if donations.isEmpty {
-                            Text("Be the first to donate!")
+                            Text("fundraising_beFirstToDonate".localized)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity)
@@ -102,7 +105,7 @@ public struct CampaignDetailView: View {
                             }
 
                             if donations.count > 5 {
-                                Button("View all \(donations.count) donations") {
+                                Button("fundraising_viewAllDonations".localized(donations.count)) {
                                     // Navigate to full donations list
                                 }
                                 .font(.subheadline)
@@ -117,7 +120,7 @@ public struct CampaignDetailView: View {
                     // Updates
                     if !campaign.updates.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Updates")
+                            Text("fundraising_updates".localized)
                                 .font(.headline)
 
                             ForEach(campaign.updates) { update in
@@ -134,7 +137,7 @@ public struct CampaignDetailView: View {
                         Button {
                             showDonateSheet = true
                         } label: {
-                            Label("Donate Now", systemImage: "heart.fill")
+                            Label("fundraising_donateNow".localized, systemImage: "heart.fill")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -154,11 +157,11 @@ public struct CampaignDetailView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Campaign")
+            .navigationTitle("fundraising_campaign".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
 
                 ToolbarItemGroup(placement: .primaryAction) {
@@ -218,7 +221,7 @@ struct CampaignHeroSection: View {
                         .fontWeight(.bold)
 
                     if let creatorName = campaign.creatorName {
-                        Text("by \(creatorName)")
+                        Text("fundraising_by".localized(creatorName))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -240,14 +243,14 @@ struct CampaignHeroSection: View {
             if let days = campaign.daysRemaining, days > 0 {
                 HStack {
                     Image(systemName: "clock")
-                    Text("\(days) days remaining")
+                    Text("fundraising_daysRemaining".localized(days))
                 }
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             } else if campaign.hasEnded {
                 HStack {
                     Image(systemName: "checkmark.circle")
-                    Text("Campaign ended")
+                    Text("fundraising_campaignEnded".localized)
                 }
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -290,7 +293,7 @@ struct GoalMeter: View {
                     Text("\(Int(progress * 100))%")
                         .font(.system(size: 32, weight: .bold))
 
-                    Text("funded")
+                    Text("fundraising_funded".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -304,7 +307,7 @@ struct GoalMeter: View {
                     .fontWeight(.bold)
                     .foregroundColor(.accentColor)
 
-                Text("raised of \(formatCurrency(goal)) goal")
+                Text("fundraising_raisedOfGoal".localized(formatCurrency(goal)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -337,7 +340,7 @@ struct CampaignStatsSection: View {
         HStack(spacing: 0) {
             StatBox(
                 value: "\(campaign.donorCount)",
-                label: "Donors",
+                label: "fundraising_donors".localized,
                 icon: "person.2"
             )
 
@@ -345,7 +348,7 @@ struct CampaignStatsSection: View {
 
             StatBox(
                 value: formatAmount(campaign.raised / max(Double(campaign.donorCount), 1)),
-                label: "Avg. Donation",
+                label: "fundraising_avgDonation".localized,
                 icon: "chart.bar"
             )
 
@@ -353,7 +356,7 @@ struct CampaignStatsSection: View {
 
             StatBox(
                 value: campaign.daysRemaining.map { "\($0)" } ?? "--",
-                label: "Days Left",
+                label: "fundraising_daysLeftLabel".localized,
                 icon: "clock"
             )
         }
@@ -454,7 +457,7 @@ struct CryptoPaymentSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Pay with Crypto", systemImage: "bitcoinsign.circle")
+            Label("fundraising_payWithCrypto".localized, systemImage: "bitcoinsign.circle")
                 .font(.headline)
 
             if let btc = cryptoPayment.bitcoinAddress {
@@ -629,7 +632,7 @@ struct ShareCampaignSheet: View {
                 VStack(spacing: 12) {
                     ShareOptionButton(
                         icon: "link",
-                        title: "Copy Link",
+                        title: "fundraising_copyLink".localized,
                         color: .accentColor
                     ) {
                         // Copy campaign link
@@ -638,7 +641,7 @@ struct ShareCampaignSheet: View {
 
                     ShareOptionButton(
                         icon: "message",
-                        title: "Share via Message",
+                        title: "fundraising_shareViaMessage".localized,
                         color: .green
                     ) {
                         // Open share sheet
@@ -646,7 +649,7 @@ struct ShareCampaignSheet: View {
 
                     ShareOptionButton(
                         icon: "qrcode",
-                        title: "Show QR Code",
+                        title: "fundraising_showQrCode".localized,
                         color: .purple
                     ) {
                         // Show QR code
@@ -656,11 +659,11 @@ struct ShareCampaignSheet: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("Share Campaign")
+            .navigationTitle("fundraising_shareCampaign".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
             }
         }

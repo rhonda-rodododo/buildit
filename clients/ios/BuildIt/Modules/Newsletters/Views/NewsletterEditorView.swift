@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Newsletters
+
 /// View for composing a newsletter issue
 public struct NewsletterEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -31,11 +34,11 @@ public struct NewsletterEditorView: View {
             VStack(spacing: 0) {
                 // Subject and preheader
                 VStack(spacing: 12) {
-                    TextField("Subject", text: $viewModel.subject)
+                    TextField("newsletters_subject".localized, text: $viewModel.subject)
                         .font(.headline)
                         .textFieldStyle(.plain)
 
-                    TextField("Preview text (optional)", text: $viewModel.preheader)
+                    TextField("newsletters_previewTextOptional".localized, text: $viewModel.preheader)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .textFieldStyle(.plain)
@@ -45,9 +48,9 @@ public struct NewsletterEditorView: View {
                 .padding()
 
                 // Content type toggle
-                Picker("Format", selection: $viewModel.contentType) {
-                    Text("Markdown").tag(ContentType.markdown)
-                    Text("HTML").tag(ContentType.html)
+                Picker("newsletters_format".localized, selection: $viewModel.contentType) {
+                    Text("newsletters_markdown".localized).tag(ContentType.markdown)
+                    Text("newsletters_html".localized).tag(ContentType.html)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -62,11 +65,11 @@ public struct NewsletterEditorView: View {
                 // Actions bar
                 actionsBar
             }
-            .navigationTitle(viewModel.isEditing ? "Edit Issue" : "New Issue")
+            .navigationTitle(viewModel.isEditing ? "newsletters_editIssue".localized : "newsletters_newIssue".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
 
                 ToolbarItem(placement: .primaryAction) {
@@ -74,20 +77,20 @@ public struct NewsletterEditorView: View {
                         Button {
                             Task { await viewModel.saveDraft() }
                         } label: {
-                            Label("Save Draft", systemImage: "square.and.arrow.down")
+                            Label("newsletters_saveDraft".localized, systemImage: "square.and.arrow.down")
                         }
 
                         if viewModel.canSend {
                             Button {
                                 viewModel.showingSendConfirmation = true
                             } label: {
-                                Label("Send Now", systemImage: "paperplane")
+                                Label("newsletters_sendNow".localized, systemImage: "paperplane")
                             }
 
                             Button {
                                 viewModel.showingSchedule = true
                             } label: {
-                                Label("Schedule", systemImage: "calendar.badge.clock")
+                                Label("newsletters_scheduleButton".localized, systemImage: "calendar.badge.clock")
                             }
                         }
 
@@ -97,7 +100,7 @@ public struct NewsletterEditorView: View {
                             Button(role: .destructive) {
                                 viewModel.showingDeleteConfirmation = true
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label("newsletters_delete".localized, systemImage: "trash")
                             }
                         }
                     } label: {
@@ -105,9 +108,9 @@ public struct NewsletterEditorView: View {
                     }
                 }
             }
-            .alert("Send Newsletter", isPresented: $viewModel.showingSendConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Send") {
+            .alert("newsletters_sendNewsletter".localized, isPresented: $viewModel.showingSendConfirmation) {
+                Button("newsletters_cancel".localized, role: .cancel) { }
+                Button("newsletters_send".localized) {
                     Task {
                         await viewModel.sendNow()
                         dismiss()
@@ -115,11 +118,11 @@ public struct NewsletterEditorView: View {
                     }
                 }
             } message: {
-                Text("This will send the newsletter to all active subscribers. This action cannot be undone.")
+                Text("newsletters_sendConfirmation".localized)
             }
-            .alert("Delete Issue", isPresented: $viewModel.showingDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
+            .alert("newsletters_deleteIssue".localized, isPresented: $viewModel.showingDeleteConfirmation) {
+                Button("newsletters_cancel".localized, role: .cancel) { }
+                Button("newsletters_delete".localized, role: .destructive) {
                     Task {
                         await viewModel.deleteIssue()
                         dismiss()
@@ -127,7 +130,7 @@ public struct NewsletterEditorView: View {
                     }
                 }
             } message: {
-                Text("Are you sure you want to delete this issue?")
+                Text("newsletters_deleteConfirmation".localized)
             }
             .sheet(isPresented: $viewModel.showingSchedule) {
                 ScheduleIssueView(
@@ -165,7 +168,7 @@ public struct NewsletterEditorView: View {
             Button {
                 viewModel.showingPreview = true
             } label: {
-                Label("Preview", systemImage: "eye")
+                Label("newsletters_preview".localized, systemImage: "eye")
             }
 
             Spacer()
@@ -184,7 +187,7 @@ public struct NewsletterEditorView: View {
                     onComplete()
                 }
             } label: {
-                Text("Save")
+                Text("newsletters_save".localized)
             }
             .buttonStyle(.bordered)
             .disabled(!viewModel.isValid || viewModel.isSaving)
@@ -354,9 +357,9 @@ struct ScheduleIssueView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Schedule Send") {
+                Section("newsletters_scheduleSend".localized) {
                     DatePicker(
-                        "Send at",
+                        "newsletters_sendAt".localized,
                         selection: $scheduledDate,
                         in: Date()...,
                         displayedComponents: [.date, .hourAndMinute]
@@ -364,19 +367,19 @@ struct ScheduleIssueView: View {
                 }
 
                 Section {
-                    Text("The newsletter will be sent automatically at the scheduled time")
+                    Text("newsletters_newsletterSentAutomatically".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
-            .navigationTitle("Schedule")
+            .navigationTitle("newsletters_scheduleTitle".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Schedule") {
+                    Button("newsletters_scheduleButton".localized) {
                         onSchedule()
                         dismiss()
                     }
@@ -426,11 +429,11 @@ struct IssuePreviewView: View {
                     }
                 }
             }
-            .navigationTitle("Preview")
+            .navigationTitle("newsletters_preview".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
             }
         }

@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Fundraising
+
 /// Campaign analytics view
 public struct CampaignAnalyticsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -28,10 +31,10 @@ public struct CampaignAnalyticsView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Tab picker
-                Picker("View", selection: $selectedTab) {
-                    Text("Overview").tag(0)
-                    Text("Donations").tag(1)
-                    Text("Expenses").tag(2)
+                Picker("common_view".localized, selection: $selectedTab) {
+                    Text("fundraising_overview".localized).tag(0)
+                    Text("fundraising_donations".localized).tag(1)
+                    Text("fundraising_expenses".localized).tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -60,11 +63,11 @@ public struct CampaignAnalyticsView: View {
                         .padding()
                 }
             }
-            .navigationTitle("Analytics")
+            .navigationTitle("fundraising_analytics".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
 
                 ToolbarItem(placement: .primaryAction) {
@@ -119,7 +122,7 @@ struct OverviewTab: View {
 
                 // Progress over time chart placeholder
                 ChartPlaceholder(
-                    title: "Donations Over Time",
+                    title: "fundraising_donationsOverTime".localized,
                     icon: "chart.line.uptrend.xyaxis"
                 )
 
@@ -148,7 +151,7 @@ struct ProgressCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("Campaign Progress")
+                Text("fundraising_campaignProgress".localized)
                     .font(.headline)
                 Spacer()
                 CampaignStatusBadge(status: campaign.status)
@@ -180,7 +183,7 @@ struct ProgressCard: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Raised")
+                    Text("fundraising_raised".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(formatCurrency(campaign.raised))
@@ -192,7 +195,7 @@ struct ProgressCard: View {
                 Spacer()
 
                 VStack(alignment: .center, spacing: 2) {
-                    Text("Donors")
+                    Text("fundraising_donors".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text("\(campaign.donorCount)")
@@ -203,7 +206,7 @@ struct ProgressCard: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("Goal")
+                    Text("fundraising_goal".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text(formatCurrency(campaign.goal))
@@ -213,11 +216,11 @@ struct ProgressCard: View {
             }
 
             if campaign.amountRemaining > 0 {
-                Text("\(formatCurrency(campaign.amountRemaining)) to go")
+                Text("fundraising_toGo".localized(formatCurrency(campaign.amountRemaining)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             } else {
-                Label("Goal reached!", systemImage: "checkmark.circle.fill")
+                Label("fundraising_goalReached".localized, systemImage: "checkmark.circle.fill")
                     .font(.subheadline)
                     .foregroundColor(.green)
             }
@@ -256,28 +259,28 @@ struct MetricsGrid: View {
             GridItem(.flexible())
         ], spacing: 12) {
             MetricCard(
-                title: "Total Raised",
+                title: "fundraising_totalRaised".localized,
                 value: formatCurrency(analytics.totalRaised),
                 icon: "dollarsign.circle",
                 color: .green
             )
 
             MetricCard(
-                title: "Total Donors",
+                title: "fundraising_totalDonors".localized,
                 value: "\(analytics.totalDonors)",
                 icon: "person.2",
                 color: .blue
             )
 
             MetricCard(
-                title: "Average Donation",
+                title: "fundraising_averageDonation".localized,
                 value: formatCurrency(analytics.averageDonation),
                 icon: "chart.bar",
                 color: .orange
             )
 
             MetricCard(
-                title: "Largest Donation",
+                title: "fundraising_largestDonation".localized,
                 value: formatCurrency(analytics.largestDonation),
                 icon: "star.fill",
                 color: .yellow
@@ -345,7 +348,7 @@ struct ChartPlaceholder: View {
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
 
-                    Text("Chart coming soon")
+                    Text("fundraising_chartComingSoon".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -364,7 +367,7 @@ struct PaymentMethodBreakdown: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Payment Methods")
+            Text("fundraising_paymentMethods".localized)
                 .font(.headline)
 
             ForEach(breakdown.sorted(by: { $0.value > $1.value }), id: \.key) { method, amount in
@@ -403,7 +406,7 @@ struct TopDonorsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Top Donors")
+            Text("fundraising_topDonors".localized)
                 .font(.headline)
 
             ForEach(donors.prefix(5).indices, id: \.self) { index in
@@ -461,8 +464,8 @@ struct DonationsTab: View {
         if donations.isEmpty {
             FundraisingEmptyStateView(
                 icon: "heart",
-                title: "No donations yet",
-                message: "Donations will appear here"
+                title: "fundraising_noDonationsYet".localized,
+                message: "fundraising_donationsWillAppear".localized
             )
         } else {
             List {
@@ -566,15 +569,15 @@ struct ExpensesTab: View {
         if expenses.isEmpty {
             FundraisingEmptyStateView(
                 icon: "receipt",
-                title: "No expenses recorded",
-                message: "Expenses will appear here"
+                title: "fundraising_noExpensesRecorded".localized,
+                message: "fundraising_expensesWillAppear".localized
             )
         } else {
             List {
                 // Total summary
                 Section {
                     HStack {
-                        Text("Total Expenses")
+                        Text("fundraising_totalExpenses".localized)
                             .fontWeight(.medium)
                         Spacer()
                         Text(formatCurrency(expenses.reduce(0) { $0 + $1.amount }))
@@ -584,7 +587,7 @@ struct ExpensesTab: View {
                 }
 
                 // Expense list
-                Section("Transactions") {
+                Section("fundraising_transactions".localized) {
                     ForEach(expenses) { expense in
                         ExpenseListRow(expense: expense, currency: currency)
                     }
