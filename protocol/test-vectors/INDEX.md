@@ -91,6 +91,9 @@ JSON serialization for application data structures.
 |------|-----------|-------------|
 | `events.json` | 10 | Events module data structures |
 | `messaging.json` | 8 | Messaging module data structures |
+| `mutual-aid.json` | 10 | Mutual Aid module (requests, offers, fulfillments, rideshares, resources) |
+| `governance.json` | 12 | Governance module (proposals, votes, delegations, results) |
+| `wiki.json` | 15 | Wiki module (pages, categories, revisions, comments, suggestions) |
 
 **Key Tests:**
 - Required vs optional fields
@@ -99,6 +102,8 @@ JSON serialization for application data structures.
 - Deterministic serialization (field ordering)
 - Maximum field lengths
 - Nested objects and arrays
+- Cross-client type compatibility
+- Enum value serialization (hyphen-case)
 
 ### 6. Legacy/Original Files
 
@@ -112,8 +117,9 @@ JSON serialization for application data structures.
 
 ## Statistics
 
-- **Total Test Vectors:** ~130+
+- **Total Test Vectors:** ~170+
 - **Test Categories:** 6
+- **Schema Modules:** 5 (Events, Messaging, Mutual Aid, Governance, Wiki)
 - **Protocols Covered:** NIP-01, NIP-17, NIP-44, BLE, Custom Schemas
 - **Client Targets:** 3 (Desktop/Rust, iOS/Swift, Android/Kotlin)
 
@@ -229,9 +235,16 @@ Critical security tests included:
 
 ## Version History
 
+- **1.1.0** (2026-01-26): Added schema test vectors for all modules
+  - Mutual Aid module (requests, offers, fulfillments, rideshares, resources)
+  - Governance module (proposals, votes, delegations, results)
+  - Wiki module (pages, categories, revisions, comments, suggestions)
+  - Complete enum value coverage
+  - Cross-client type validation
+
 - **1.0.0** (2026-01-25): Initial comprehensive test vector release
   - NIP-44 encryption/decryption
   - NIP-17 gift wrap
   - Event signing/verification
   - BLE chunking/reassembly/compression
-  - Schema serialization
+  - Schema serialization (events, messaging)

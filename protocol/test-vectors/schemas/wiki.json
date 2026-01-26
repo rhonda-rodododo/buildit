@@ -1,0 +1,401 @@
+{
+  "version": "1.0.0",
+  "description": "Wiki module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "wiki-page-001",
+      "description": "Complete wiki page - all fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "page-550e8400-e29b-41d4-a716-446655440000",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "slug": "getting-started-guide",
+        "title": "Getting Started Guide",
+        "content": "# Welcome to Our Collective\n\nThis guide will help you get oriented.\n\n## First Steps\n\n1. Introduce yourself in the welcome thread\n2. Read the community agreements\n3. Attend a new member orientation\n\n## Key Resources\n\n- [[community-agreements]] - Our shared values\n- [[meeting-schedule]] - Regular meetings\n- [[contact-directory]] - Who to reach out to",
+        "summary": "A comprehensive guide for new members joining our collective.",
+        "version": 3,
+        "parentId": null,
+        "categoryId": "cat-550e8400-e29b-41d4-a716-446655440000",
+        "status": "published",
+        "visibility": "group",
+        "permissions": {
+          "editRoles": ["admin", "editor"],
+          "viewRoles": null,
+          "allowComments": true,
+          "allowSuggestions": true
+        },
+        "tags": ["onboarding", "guide", "new-members"],
+        "aliases": ["welcome", "start-here", "new-member-guide"],
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "lastEditedBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "contributors": [
+          "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+          "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        ],
+        "createdAt": 1703980800,
+        "updatedAt": 1704067200,
+        "publishedAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "permissions_object_correct": true,
+        "aliases_array_preserved": true,
+        "contributors_array_preserved": true
+      }
+    },
+    {
+      "id": "wiki-page-002",
+      "description": "Minimal wiki page - required fields only",
+      "input": {
+        "_v": "1.0.0",
+        "id": "page-550e8400-e29b-41d4-a716-446655440001",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "slug": "meeting-notes-jan-2024",
+        "title": "Meeting Notes - January 2024",
+        "content": "Notes from the January general meeting.",
+        "version": 1,
+        "status": "draft",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "optional_fields_absent": true,
+        "deserialization_succeeds": true
+      }
+    },
+    {
+      "id": "wiki-page-003",
+      "description": "Locked page with metadata",
+      "input": {
+        "_v": "1.0.0",
+        "id": "page-550e8400-e29b-41d4-a716-446655440002",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "slug": "community-agreements",
+        "title": "Community Agreements",
+        "content": "Our shared commitments...",
+        "version": 5,
+        "status": "published",
+        "visibility": "public",
+        "lockedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "lockedAt": 1704067200,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1703894400,
+        "metadata": {
+          "importance": "critical",
+          "review_frequency": "quarterly",
+          "last_review_date": "2024-01-01"
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "locked_fields_present": true,
+        "metadata_preserved": true
+      }
+    },
+    {
+      "id": "wiki-page-004",
+      "description": "Page with role-restricted visibility",
+      "input": {
+        "_v": "1.0.0",
+        "id": "page-550e8400-e29b-41d4-a716-446655440003",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "slug": "admin-procedures",
+        "title": "Administrative Procedures",
+        "content": "Internal admin documentation...",
+        "version": 2,
+        "status": "published",
+        "visibility": "role-restricted",
+        "permissions": {
+          "editRoles": ["admin"],
+          "viewRoles": ["admin", "coordinator"],
+          "allowComments": false,
+          "allowSuggestions": false
+        },
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1703894400
+      },
+      "expected": {
+        "json_valid": true,
+        "visibility_role_restricted": true,
+        "view_roles_preserved": true
+      }
+    },
+    {
+      "id": "wiki-category-001",
+      "description": "Wiki category with all fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "cat-550e8400-e29b-41d4-a716-446655440000",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "name": "Onboarding",
+        "slug": "onboarding",
+        "description": "Resources for new members",
+        "parentId": null,
+        "icon": "person.badge.plus",
+        "color": "#4CAF50",
+        "order": 1,
+        "pageCount": 5,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1703894400,
+        "updatedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "page_count_integer": true
+      }
+    },
+    {
+      "id": "wiki-category-002",
+      "description": "Nested wiki category",
+      "input": {
+        "_v": "1.0.0",
+        "id": "cat-550e8400-e29b-41d4-a716-446655440001",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "name": "Guides",
+        "slug": "onboarding-guides",
+        "parentId": "cat-550e8400-e29b-41d4-a716-446655440000",
+        "order": 0,
+        "pageCount": 3,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1703894400
+      },
+      "expected": {
+        "json_valid": true,
+        "parent_id_present": true
+      }
+    },
+    {
+      "id": "wiki-revision-001",
+      "description": "Page revision with diff",
+      "input": {
+        "_v": "1.0.0",
+        "id": "rev-550e8400-e29b-41d4-a716-446655440000",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "version": 3,
+        "title": "Getting Started Guide",
+        "content": "# Welcome to Our Collective\n\nThis guide will help you get oriented...",
+        "summary": "Added section on key resources and fixed typos",
+        "diff": "@@ -10,3 +10,10 @@\n 3. Attend a new member orientation\n+\n+## Key Resources\n+\n+- [[community-agreements]] - Our shared values\n+- [[meeting-schedule]] - Regular meetings\n+- [[contact-directory]] - Who to reach out to",
+        "editedBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "editType": "edit",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "diff_preserved": true,
+        "edit_type_correct": true
+      }
+    },
+    {
+      "id": "wiki-revision-002",
+      "description": "Revert revision",
+      "input": {
+        "_v": "1.0.0",
+        "id": "rev-550e8400-e29b-41d4-a716-446655440001",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440001",
+        "version": 4,
+        "title": "Meeting Notes - January 2024",
+        "content": "Original content restored...",
+        "summary": "Reverted vandalism",
+        "editedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "editType": "revert",
+        "revertedFrom": 2,
+        "createdAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "edit_type_revert": true,
+        "reverted_from_present": true
+      }
+    },
+    {
+      "id": "wiki-link-001",
+      "description": "Inter-page wiki link",
+      "input": {
+        "_v": "1.0.0",
+        "sourcePageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "targetPageId": "page-550e8400-e29b-41d4-a716-446655440002",
+        "targetSlug": "community-agreements",
+        "context": "...please read the [[community-agreements]] before...",
+        "isBroken": false,
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "both_page_ids_present": true,
+        "context_preserved": true
+      }
+    },
+    {
+      "id": "wiki-link-002",
+      "description": "Broken wiki link",
+      "input": {
+        "_v": "1.0.0",
+        "sourcePageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "targetPageId": null,
+        "targetSlug": "old-deleted-page",
+        "isBroken": true,
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "is_broken_true": true,
+        "target_page_id_null": true
+      }
+    },
+    {
+      "id": "wiki-comment-001",
+      "description": "Page comment with reply",
+      "input": {
+        "_v": "1.0.0",
+        "id": "cmt-550e8400-e29b-41d4-a716-446655440000",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "parentId": null,
+        "content": "This section could use more detail about the orientation process.",
+        "authorId": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "resolved": false,
+        "createdAt": 1704081600
+      },
+      "expected": {
+        "json_valid": true,
+        "parent_id_null_for_root": true,
+        "resolved_false": true
+      }
+    },
+    {
+      "id": "wiki-comment-002",
+      "description": "Resolved comment thread",
+      "input": {
+        "_v": "1.0.0",
+        "id": "cmt-550e8400-e29b-41d4-a716-446655440001",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "parentId": null,
+        "content": "There's a typo in the first paragraph.",
+        "authorId": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "resolved": true,
+        "resolvedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "resolvedAt": 1704153600,
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "resolved_true": true,
+        "resolved_by_present": true,
+        "resolved_at_present": true
+      }
+    },
+    {
+      "id": "wiki-suggestion-001",
+      "description": "Pending edit suggestion",
+      "input": {
+        "_v": "1.0.0",
+        "id": "sug-550e8400-e29b-41d4-a716-446655440000",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "baseVersion": 3,
+        "title": null,
+        "content": "# Welcome to Our Collective\n\nThis comprehensive guide will help you get oriented and feel at home.\n\n## First Steps...",
+        "summary": "Improved introduction paragraph for clarity",
+        "diff": "@@ -1,5 +1,5 @@\n # Welcome to Our Collective\n \n-This guide will help you get oriented.\n+This comprehensive guide will help you get oriented and feel at home.\n \n ## First Steps",
+        "suggestedBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "status": "pending",
+        "createdAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "status_pending": true,
+        "diff_preserved": true,
+        "base_version_present": true
+      }
+    },
+    {
+      "id": "wiki-suggestion-002",
+      "description": "Approved and merged suggestion",
+      "input": {
+        "_v": "1.0.0",
+        "id": "sug-550e8400-e29b-41d4-a716-446655440001",
+        "pageId": "page-550e8400-e29b-41d4-a716-446655440000",
+        "baseVersion": 2,
+        "content": "Updated content...",
+        "summary": "Added contact information",
+        "suggestedBy": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "status": "merged",
+        "reviewedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "reviewedAt": 1704067200,
+        "reviewComment": "Great addition, merged with minor formatting fixes",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "status_merged": true,
+        "review_fields_present": true
+      }
+    },
+    {
+      "id": "wiki-page-005",
+      "description": "Page with unicode and markdown",
+      "input": {
+        "_v": "1.0.0",
+        "id": "page-550e8400-e29b-41d4-a716-446655440005",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "slug": "international-solidarity",
+        "title": "Solidaridad Internacional 🌍",
+        "content": "# 国际团结\n\n## Международная солидарность\n\nConnecting movements across borders.\n\n### Key Partners\n\n| Organization | Country | Focus |\n|-------------|---------|-------|\n| Ejemplo | España | Labor |\n| Пример | Россия | Housing |",
+        "version": 1,
+        "status": "published",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "utf8_preserved": true,
+        "emoji_preserved": true,
+        "markdown_tables_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "wiki_page": {
+      "required_fields": ["_v", "id", "groupId", "slug", "title", "content", "version", "status", "createdBy", "createdAt"],
+      "optional_fields": ["summary", "parentId", "categoryId", "visibility", "permissions", "tags", "aliases", "lastEditedBy", "contributors", "lockedBy", "lockedAt", "updatedAt", "publishedAt", "archivedAt", "deletedAt", "metadata"]
+    },
+    "wiki_category": {
+      "required_fields": ["_v", "id", "groupId", "name", "slug", "createdBy", "createdAt"],
+      "optional_fields": ["description", "parentId", "icon", "color", "order", "pageCount", "updatedAt"]
+    },
+    "page_revision": {
+      "required_fields": ["_v", "id", "pageId", "version", "content", "editedBy", "createdAt"],
+      "optional_fields": ["title", "summary", "diff", "editType", "revertedFrom"]
+    },
+    "wiki_link": {
+      "required_fields": ["_v", "sourcePageId", "targetSlug", "createdAt"],
+      "optional_fields": ["targetPageId", "context", "isBroken"]
+    },
+    "page_comment": {
+      "required_fields": ["_v", "id", "pageId", "content", "authorId", "createdAt"],
+      "optional_fields": ["parentId", "resolved", "resolvedBy", "resolvedAt", "editedAt", "deletedAt"]
+    },
+    "edit_suggestion": {
+      "required_fields": ["_v", "id", "pageId", "baseVersion", "content", "suggestedBy", "status", "createdAt"],
+      "optional_fields": ["title", "summary", "diff", "reviewedBy", "reviewedAt", "reviewComment"]
+    }
+  },
+  "enum_values": {
+    "page_status": ["draft", "review", "published", "archived", "deleted"],
+    "page_visibility": ["public", "group", "private", "role-restricted"],
+    "edit_type": ["create", "edit", "revert", "merge", "move"],
+    "suggestion_status": ["pending", "approved", "rejected", "merged", "superseded"]
+  },
+  "serialization_notes": [
+    "Slug must be lowercase, alphanumeric with hyphens only",
+    "Content supports full Markdown including tables and code blocks",
+    "Wiki links in content use [[slug]] syntax",
+    "Version numbers start at 1 and increment",
+    "Permissions object can have null viewRoles for group-visible pages",
+    "Contributors array preserves order (first is original author)"
+  ]
+}

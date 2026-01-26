@@ -1,0 +1,364 @@
+{
+  "version": "1.0.0",
+  "description": "Governance module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "governance-proposal-001",
+      "description": "Complete proposal - all fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "prop-550e8400-e29b-41d4-a716-446655440000",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "title": "Adopt New Bylaws for Collective",
+        "description": "Proposal to adopt updated bylaws with enhanced democratic processes.\n\n## Key Changes\n1. Ranked choice voting for elections\n2. Quorum reduced to 40%\n3. New conflict resolution process",
+        "type": "policy",
+        "status": "voting",
+        "votingSystem": "simple-majority",
+        "options": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "description": "Adopt the new bylaws",
+            "color": "green",
+            "order": 0
+          },
+          {
+            "id": "no",
+            "label": "No",
+            "description": "Reject the proposal",
+            "color": "red",
+            "order": 1
+          },
+          {
+            "id": "abstain",
+            "label": "Abstain",
+            "description": "Neither for nor against",
+            "color": "gray",
+            "order": 2
+          }
+        ],
+        "quorum": {
+          "type": "percentage",
+          "value": 50,
+          "countAbstentions": true
+        },
+        "threshold": {
+          "type": "simple-majority",
+          "percentage": 50.01
+        },
+        "discussionPeriod": {
+          "startsAt": 1704067200,
+          "endsAt": 1704326400
+        },
+        "votingPeriod": {
+          "startsAt": 1704326400,
+          "endsAt": 1704585600
+        },
+        "allowAbstain": true,
+        "anonymousVoting": false,
+        "allowDelegation": true,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000,
+        "attachments": [
+          {
+            "type": "document",
+            "name": "Proposed Bylaws v2.pdf",
+            "url": "nostr:nevent1abc...",
+            "mimeType": "application/pdf",
+            "size": 245678
+          }
+        ],
+        "tags": ["bylaws", "governance", "policy"],
+        "customFields": {
+          "requires_legal_review": true,
+          "effective_date": "2024-02-01"
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "options_array_correct": true,
+        "attachments_preserved": true
+      }
+    },
+    {
+      "id": "governance-proposal-002",
+      "description": "Election proposal with ranked choice",
+      "input": {
+        "_v": "1.0.0",
+        "id": "prop-550e8400-e29b-41d4-a716-446655440001",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "title": "Elect Steering Committee 2024",
+        "type": "election",
+        "status": "voting",
+        "votingSystem": "ranked-choice",
+        "options": [
+          { "id": "alice", "label": "Alice Chen", "order": 0 },
+          { "id": "bob", "label": "Bob Martinez", "order": 1 },
+          { "id": "carol", "label": "Carol Williams", "order": 2 },
+          { "id": "dave", "label": "Dave Johnson", "order": 3 }
+        ],
+        "votingPeriod": {
+          "startsAt": 1704326400,
+          "endsAt": 1704585600
+        },
+        "allowAbstain": false,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "voting_system_ranked_choice": true,
+        "multiple_options": true
+      }
+    },
+    {
+      "id": "governance-proposal-003",
+      "description": "Budget proposal with supermajority",
+      "input": {
+        "_v": "1.0.0",
+        "id": "prop-550e8400-e29b-41d4-a716-446655440002",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "title": "Approve Q1 2024 Operating Budget",
+        "description": "Allocate $50,000 for Q1 operations",
+        "type": "budget",
+        "status": "discussion",
+        "votingSystem": "supermajority",
+        "options": [
+          { "id": "yes", "label": "Approve Budget", "order": 0 },
+          { "id": "no", "label": "Reject Budget", "order": 1 }
+        ],
+        "threshold": {
+          "type": "supermajority",
+          "percentage": 66.67
+        },
+        "votingPeriod": {
+          "startsAt": 1704585600,
+          "endsAt": 1704844800
+        },
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "threshold_supermajority": true
+      }
+    },
+    {
+      "id": "governance-vote-001",
+      "description": "Simple vote with signature",
+      "input": {
+        "_v": "1.0.0",
+        "id": "vote-550e8400-e29b-41d4-a716-446655440000",
+        "proposalId": "prop-550e8400-e29b-41d4-a716-446655440000",
+        "voterId": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "choice": ["yes"],
+        "weight": 1.0,
+        "comment": "I support this proposal because it improves our democratic processes.",
+        "castAt": 1704412800,
+        "signature": "304402203e4b0ec7f2e8b3d4a5c6f7e8d9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b902204a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6"
+      },
+      "expected": {
+        "json_valid": true,
+        "choice_single_value": true,
+        "signature_present": true
+      }
+    },
+    {
+      "id": "governance-vote-002",
+      "description": "Ranked choice vote",
+      "input": {
+        "_v": "1.0.0",
+        "id": "vote-550e8400-e29b-41d4-a716-446655440001",
+        "proposalId": "prop-550e8400-e29b-41d4-a716-446655440001",
+        "voterId": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "choice": ["alice", "carol", "bob", "dave"],
+        "weight": 1.0,
+        "castAt": 1704412800
+      },
+      "expected": {
+        "json_valid": true,
+        "choice_is_array": true,
+        "ranking_preserved": true
+      }
+    },
+    {
+      "id": "governance-vote-003",
+      "description": "Delegated vote",
+      "input": {
+        "_v": "1.0.0",
+        "id": "vote-550e8400-e29b-41d4-a716-446655440002",
+        "proposalId": "prop-550e8400-e29b-41d4-a716-446655440000",
+        "voterId": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "choice": ["yes"],
+        "weight": 3.0,
+        "delegatedFrom": [
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+          "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        ],
+        "castAt": 1704412800
+      },
+      "expected": {
+        "json_valid": true,
+        "weight_reflects_delegation": true,
+        "delegators_preserved": true
+      }
+    },
+    {
+      "id": "governance-delegation-001",
+      "description": "Category-scoped delegation",
+      "input": {
+        "_v": "1.0.0",
+        "id": "del-550e8400-e29b-41d4-a716-446655440000",
+        "delegatorId": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "delegateId": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "scope": "category",
+        "categoryTags": ["budget", "finance"],
+        "validFrom": 1704067200,
+        "validUntil": 1735689600,
+        "revoked": false,
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "scope_category": true,
+        "category_tags_preserved": true
+      }
+    },
+    {
+      "id": "governance-delegation-002",
+      "description": "All-scope delegation (liquid democracy)",
+      "input": {
+        "_v": "1.0.0",
+        "id": "del-550e8400-e29b-41d4-a716-446655440001",
+        "delegatorId": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "delegateId": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "scope": "all",
+        "validFrom": 1704067200,
+        "revoked": false,
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "scope_all": true,
+        "no_category_tags": true
+      }
+    },
+    {
+      "id": "governance-result-001",
+      "description": "Proposal result - passed",
+      "input": {
+        "_v": "1.0.0",
+        "proposalId": "prop-550e8400-e29b-41d4-a716-446655440000",
+        "outcome": "passed",
+        "winningOptions": ["yes"],
+        "voteCounts": {
+          "yes": 45,
+          "no": 12,
+          "abstain": 8
+        },
+        "totalVotes": 65,
+        "totalEligible": 100,
+        "participation": 65.0,
+        "quorumMet": true,
+        "thresholdMet": true,
+        "calculatedAt": 1704585700
+      },
+      "expected": {
+        "json_valid": true,
+        "outcome_passed": true,
+        "vote_counts_correct": true,
+        "participation_percentage": true
+      }
+    },
+    {
+      "id": "governance-result-002",
+      "description": "Proposal result - no quorum",
+      "input": {
+        "_v": "1.0.0",
+        "proposalId": "prop-550e8400-e29b-41d4-a716-446655440003",
+        "outcome": "no-quorum",
+        "winningOptions": [],
+        "voteCounts": {
+          "yes": 30,
+          "no": 10
+        },
+        "totalVotes": 40,
+        "totalEligible": 100,
+        "participation": 40.0,
+        "quorumMet": false,
+        "thresholdMet": true,
+        "calculatedAt": 1704585700
+      },
+      "expected": {
+        "json_valid": true,
+        "outcome_no_quorum": true,
+        "quorum_met_false": true
+      }
+    },
+    {
+      "id": "governance-proposal-004",
+      "description": "Consensus voting proposal",
+      "input": {
+        "_v": "1.0.0",
+        "id": "prop-550e8400-e29b-41d4-a716-446655440004",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "title": "Adopt Solidarity Statement",
+        "type": "resolution",
+        "status": "voting",
+        "votingSystem": "consensus",
+        "options": [
+          { "id": "agree", "label": "Stand Aside", "order": 0 },
+          { "id": "block", "label": "Block", "order": 1 }
+        ],
+        "votingPeriod": {
+          "startsAt": 1704326400,
+          "endsAt": 1704585600
+        },
+        "allowAbstain": true,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "voting_system_consensus": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "proposal": {
+      "required_fields": ["_v", "id", "groupId", "title", "type", "status", "votingSystem", "options", "votingPeriod", "createdBy", "createdAt"],
+      "optional_fields": ["description", "quorum", "threshold", "discussionPeriod", "allowAbstain", "anonymousVoting", "allowDelegation", "updatedAt", "attachments", "tags", "customFields"]
+    },
+    "vote": {
+      "required_fields": ["_v", "id", "proposalId", "voterId", "choice", "castAt"],
+      "optional_fields": ["weight", "delegatedFrom", "comment", "signature"]
+    },
+    "delegation": {
+      "required_fields": ["_v", "id", "delegatorId", "delegateId", "scope", "createdAt"],
+      "optional_fields": ["categoryTags", "proposalId", "validFrom", "validUntil", "revoked"]
+    },
+    "result": {
+      "required_fields": ["_v", "proposalId", "outcome", "voteCounts", "totalVotes", "calculatedAt"],
+      "optional_fields": ["winningOptions", "totalEligible", "participation", "quorumMet", "thresholdMet"]
+    }
+  },
+  "enum_values": {
+    "proposal_type": ["general", "policy", "budget", "election", "amendment", "action", "resolution"],
+    "proposal_status": ["draft", "discussion", "voting", "passed", "rejected", "expired", "withdrawn", "implemented"],
+    "voting_system": ["simple-majority", "supermajority", "ranked-choice", "approval", "quadratic", "d-hondt", "consensus", "modified-consensus"],
+    "quorum_type": ["percentage", "absolute", "none"],
+    "threshold_type": ["simple-majority", "supermajority", "unanimous", "custom"],
+    "delegation_scope": ["all", "category", "proposal"],
+    "outcome": ["passed", "rejected", "no-quorum", "tie", "expired"],
+    "attachment_type": ["file", "url", "document"]
+  },
+  "serialization_notes": [
+    "Vote choice can be single string or array (for ranked choice)",
+    "Weight defaults to 1.0 if not specified",
+    "Signature is optional but recommended for auditability",
+    "Period objects require both startsAt and endsAt",
+    "Vote counts is a map of option ID to count"
+  ]
+}
