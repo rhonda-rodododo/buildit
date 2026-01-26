@@ -53,9 +53,12 @@ import javax.inject.Singleton
         network.buildit.modules.events.data.local.RsvpEntity::class,
         network.buildit.modules.messaging.data.local.MessagingMetadataEntity::class,
         network.buildit.modules.messaging.data.local.ReadReceiptEntity::class,
-        network.buildit.modules.messaging.data.local.MessageReactionEntity::class
+        network.buildit.modules.messaging.data.local.MessageReactionEntity::class,
+        network.buildit.modules.mutualaid.data.local.AidRequestEntity::class,
+        network.buildit.modules.mutualaid.data.local.AidOfferEntity::class,
+        network.buildit.modules.mutualaid.data.local.FulfillmentEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -72,6 +75,9 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun messagingMetadataDao(): network.buildit.modules.messaging.data.local.MessagingMetadataDao
     abstract fun messagingReadReceiptDao(): network.buildit.modules.messaging.data.local.MessagingReadReceiptDao
     abstract fun messagingReactionDao(): network.buildit.modules.messaging.data.local.MessagingReactionDao
+    abstract fun aidRequestsDao(): network.buildit.modules.mutualaid.data.local.AidRequestsDao
+    abstract fun aidOffersDao(): network.buildit.modules.mutualaid.data.local.AidOffersDao
+    abstract fun fulfillmentsDao(): network.buildit.modules.mutualaid.data.local.FulfillmentsDao
 }
 
 // ============== Entities ==============
@@ -350,6 +356,35 @@ class Converters {
 
     @TypeConverter
     fun toUploadStatus(value: String): UploadStatus = UploadStatus.valueOf(value)
+
+    // Mutual Aid converters
+    @TypeConverter
+    fun fromAidCategory(value: network.buildit.modules.mutualaid.data.local.AidCategory): String = value.name
+
+    @TypeConverter
+    fun toAidCategory(value: String): network.buildit.modules.mutualaid.data.local.AidCategory =
+        network.buildit.modules.mutualaid.data.local.AidCategory.valueOf(value)
+
+    @TypeConverter
+    fun fromRequestStatus(value: network.buildit.modules.mutualaid.data.local.RequestStatus): String = value.name
+
+    @TypeConverter
+    fun toRequestStatus(value: String): network.buildit.modules.mutualaid.data.local.RequestStatus =
+        network.buildit.modules.mutualaid.data.local.RequestStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromUrgencyLevel(value: network.buildit.modules.mutualaid.data.local.UrgencyLevel): String = value.name
+
+    @TypeConverter
+    fun toUrgencyLevel(value: String): network.buildit.modules.mutualaid.data.local.UrgencyLevel =
+        network.buildit.modules.mutualaid.data.local.UrgencyLevel.valueOf(value)
+
+    @TypeConverter
+    fun fromFulfillmentStatus(value: network.buildit.modules.mutualaid.data.local.FulfillmentStatus): String = value.name
+
+    @TypeConverter
+    fun toFulfillmentStatus(value: String): network.buildit.modules.mutualaid.data.local.FulfillmentStatus =
+        network.buildit.modules.mutualaid.data.local.FulfillmentStatus.valueOf(value)
 }
 
 // ============== DAOs ==============
