@@ -1,0 +1,19 @@
+{
+  "name": "@buildit/i18n-codegen",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generates iOS and Android localization files from web i18n sources",
+  "scripts": {
+    "generate": "bun run src/index.ts",
+    "validate": "bun run src/index.ts --validate",
+    "watch": "bun run src/index.ts --watch"
+  },
+  "dependencies": {
+    "glob": "^11.0.0",
+    "typescript": "^5.7.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

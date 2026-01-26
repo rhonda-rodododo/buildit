@@ -39,6 +39,12 @@ android {
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
         }
+
+        // Supported locales for i18n
+        resourceConfigurations += listOf(
+            "en", "es", "fr", "ar", "zh-rCN",
+            "vi", "ko", "ru", "pt", "ht", "tl"
+        )
     }
 
     // JNI libraries directory
