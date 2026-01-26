@@ -147,6 +147,8 @@ function getRendererOptions(lang: string): Record<string, string> {
         'just-types': 'true',
         'struct-or-class': 'struct',
         'access-level': 'public',
+        // Note: quicktype doesn't add Codable with just-types
+        // We post-process Swift output to add conformances
       };
     case 'kotlin':
       return {
@@ -157,6 +159,122 @@ function getRendererOptions(lang: string): Record<string, string> {
     default:
       return {};
   }
+}
+
+/**
+ * Convert camelCase to snake_case
+ * Handles consecutive uppercase letters (e.g., targetID -> target_id)
+ */
+function toSnakeCase(str: string): string {
+  return str
+    // Insert underscore before sequences of uppercase letters followed by lowercase
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    // Insert underscore before uppercase letters that follow lowercase
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .toLowerCase();
+}
+
+/**
+ * Check if a property name needs a CodingKey (camelCase -> snake_case)
+ */
+function needsCodingKey(propName: string): boolean {
+  // Special cases that need explicit mapping
+  if (propName === 'v') return true; // maps to _v
+  // Check if has uppercase letters (camelCase)
+  return /[A-Z]/.test(propName);
+}
+
+/**
+ * Get the JSON key for a Swift property
+ */
+function getJsonKey(propName: string): string {
+  if (propName === 'v') return '_v';
+  return toSnakeCase(propName);
+}
+
+/**
+ * Post-process Swift code to add Codable, Sendable conformance
+ * and proper CodingKeys for snake_case JSON property names
+ */
+function postProcessSwift(code: string): string {
+  // Add Codable, Sendable to struct declarations
+  let processed = code.replace(
+    /public struct (\w+) \{/g,
+    'public struct $1: Codable, Sendable {'
+  );
+
+  // Add Codable, Sendable to enum declarations
+  processed = processed.replace(
+    /public enum (\w+): String \{/g,
+    'public enum $1: String, Codable, Sendable {'
+  );
+
+  // For enums that don't have ": String"
+  processed = processed.replace(
+    /public enum (\w+) \{(\s+case )/g,
+    'public enum $1: String, Codable, Sendable {$2'
+  );
+
+  // Process each struct by finding balanced braces
+  const lines = processed.split('\n');
+  const result: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Check if this is a struct with Codable, Sendable
+    const structMatch = line.match(/^public struct (\w+): Codable, Sendable \{$/);
+    if (structMatch) {
+      // Collect all lines of this struct
+      const structLines: string[] = [line];
+      let braceCount = 1;
+      let j = i + 1;
+
+      while (j < lines.length && braceCount > 0) {
+        structLines.push(lines[j]);
+        braceCount += (lines[j].match(/\{/g) || []).length;
+        braceCount -= (lines[j].match(/\}/g) || []).length;
+        j++;
+      }
+
+      // Extract property names from the struct
+      const structBody = structLines.join('\n');
+      const properties: string[] = [];
+      const propMatches = structBody.matchAll(/public (?:let|var) (\w+):/g);
+      for (const match of propMatches) {
+        properties.push(match[1]);
+      }
+
+      // Check if any properties need CodingKeys
+      const propsNeedingKeys = properties.filter(needsCodingKey);
+      if (propsNeedingKeys.length > 0) {
+        // Generate CodingKeys enum
+        const codingKeysLines = properties.map((prop) => {
+          if (needsCodingKey(prop)) {
+            return `        case ${prop} = "${getJsonKey(prop)}"`;
+          }
+          return `        case ${prop}`;
+        });
+
+        const codingKeys = `
+    enum CodingKeys: String, CodingKey {
+${codingKeysLines.join('\n')}
+    }`;
+
+        // Insert before the final closing brace
+        structLines.splice(structLines.length - 1, 0, codingKeys);
+      }
+
+      result.push(...structLines);
+      i = j;
+    } else {
+      result.push(line);
+      i++;
+    }
+  }
+
+  return result.join('\n');
 }
 
 async function main() {
@@ -311,6 +429,8 @@ export const ${constPrefix}_MIN_READER_VERSION = '${minReaderVersion}';
       );
 
     case 'swift':
+      // Post-process Swift to add Codable, Sendable conformance
+      const processedSwift = postProcessSwift(generatedCode);
       return (
         header +
         `import Foundation
@@ -321,7 +441,7 @@ public enum ${pascalModule}Schema {
 }
 
 ` +
-        generatedCode
+        processedSwift
       );
 
     case 'kotlin':
