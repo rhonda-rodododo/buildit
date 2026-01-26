@@ -441,9 +441,10 @@ async function generateTypeScriptIndex(schemaFiles: string[]) {
 
 /**
  * Validate test vectors for cross-version parsing
+ * Only processes test vector files with schema versioning structure
  */
 async function validateTestVectors() {
-  console.log('Validating test vectors...\n');
+  console.log('Validating schema versioning test vectors...\n');
 
   const vectorFiles = await glob(`${TEST_VECTORS_DIR}/*.json`);
 
@@ -455,10 +456,22 @@ async function validateTestVectors() {
   let totalTests = 0;
   let passedTests = 0;
   let failedTests = 0;
+  let skippedFiles = 0;
 
   for (const file of vectorFiles) {
     const content = await readFile(file, 'utf-8');
     const vectors = JSON.parse(content);
+
+    // Only process files with schema versioning test structure
+    // These have testCases with input/expected and module fields
+    const isSchemaVersioningTest = vectors.testCases?.some((tc: any) =>
+      tc.module && (tc.expected?.canParse !== undefined || tc.expected?.unknownFields)
+    );
+
+    if (!isSchemaVersioningTest) {
+      skippedFiles++;
+      continue; // Skip non-schema-versioning test files
+    }
 
     console.log(`📄 ${basename(file)}`);
 
@@ -471,7 +484,7 @@ async function validateTestVectors() {
       totalTests++;
 
       try {
-        // Validate test case structure
+        // Validate test case structure for schema versioning tests
         if (!testCase.id || !testCase.name || !testCase.input || !testCase.expected) {
           throw new Error('Missing required test case fields');
         }
@@ -521,6 +534,9 @@ async function validateTestVectors() {
   }
 
   console.log(`\nResults: ${passedTests}/${totalTests} passed, ${failedTests} failed`);
+  if (skippedFiles > 0) {
+    console.log(`(Skipped ${skippedFiles} non-schema-versioning test files)`);
+  }
 
   if (failedTests > 0) {
     process.exit(1);

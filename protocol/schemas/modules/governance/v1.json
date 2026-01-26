@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/governance/v1.json",
+  "title": "GovernanceModuleSchema",
+  "description": "Schema for proposals, voting, and decision-making processes",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "Proposal": {
+      "type": "object",
+      "description": "A proposal for group decision-making",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version for graceful degradation",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the proposal"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Group this proposal belongs to"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Proposal title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed proposal description (markdown supported)"
+        },
+        "type": {
+          "$ref": "#/$defs/ProposalType"
+        },
+        "status": {
+          "$ref": "#/$defs/ProposalStatus"
+        },
+        "votingSystem": {
+          "$ref": "#/$defs/VotingSystem"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoteOption"
+          },
+          "minItems": 2,
+          "description": "Available voting options"
+        },
+        "quorum": {
+          "$ref": "#/$defs/QuorumRequirement"
+        },
+        "threshold": {
+          "$ref": "#/$defs/PassingThreshold"
+        },
+        "discussionPeriod": {
+          "type": "object",
+          "properties": {
+            "startsAt": { "type": "integer" },
+            "endsAt": { "type": "integer" }
+          },
+          "required": ["startsAt", "endsAt"],
+          "description": "Discussion period before voting"
+        },
+        "votingPeriod": {
+          "type": "object",
+          "properties": {
+            "startsAt": { "type": "integer" },
+            "endsAt": { "type": "integer" }
+          },
+          "required": ["startsAt", "endsAt"],
+          "description": "Active voting period"
+        },
+        "allowAbstain": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow abstention votes"
+        },
+        "anonymousVoting": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether votes are anonymous"
+        },
+        "allowDelegation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow vote delegation"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hex public key of creator"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of last update"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProposalAttachment"
+          },
+          "description": "Supporting documents"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categorization tags"
+        },
+        "customFields": {
+          "type": "object",
+          "description": "Custom field values"
+        }
+      },
+      "required": ["_v", "id", "groupId", "title", "type", "status", "votingSystem", "options", "votingPeriod", "createdBy", "createdAt"]
+    },
+
+    "ProposalType": {
+      "type": "string",
+      "enum": [
+        "general",
+        "policy",
+        "budget",
+        "election",
+        "amendment",
+        "action",
+        "resolution"
+      ],
+      "description": "Type of proposal"
+    },
+
+    "ProposalStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "discussion",
+        "voting",
+        "passed",
+        "rejected",
+        "expired",
+        "withdrawn",
+        "implemented"
+      ],
+      "description": "Current status of the proposal"
+    },
+
+    "VotingSystem": {
+      "type": "string",
+      "enum": [
+        "simple-majority",
+        "supermajority",
+        "ranked-choice",
+        "approval",
+        "quadratic",
+        "d-hondt",
+        "consensus",
+        "modified-consensus"
+      ],
+      "description": "Voting system to use"
+    },
+
+    "VoteOption": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "description": {
+          "type": "string",
+          "description": "Option description"
+        },
+        "color": {
+          "type": "string",
+          "description": "Display color"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Display order"
+        }
+      },
+      "required": ["id", "label"]
+    },
+
+    "QuorumRequirement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["percentage", "absolute", "none"],
+          "description": "Type of quorum"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Quorum value (percentage 0-100 or absolute count)"
+        },
+        "countAbstentions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether abstentions count toward quorum"
+        }
+      },
+      "required": ["type"]
+    },
+
+    "PassingThreshold": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["simple-majority", "supermajority", "unanimous", "custom"],
+          "description": "Type of threshold"
+        },
+        "percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Required percentage to pass"
+        }
+      },
+      "required": ["type"]
+    },
+
+    "Vote": {
+      "type": "object",
+      "description": "A vote cast on a proposal",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "proposalId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "voterId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Voter's public key (may be encrypted for anonymous votes)"
+        },
+        "choice": {
+          "oneOf": [
+            { "type": "string", "format": "uuid" },
+            { "type": "array", "items": { "type": "string", "format": "uuid" } }
+          ],
+          "description": "Selected option(s) - single for simple, array for ranked-choice"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1,
+          "description": "Vote weight (for weighted voting)"
+        },
+        "delegatedFrom": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "description": "Delegators whose votes this represents"
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Optional vote comment"
+        },
+        "castAt": {
+          "type": "integer",
+          "description": "Unix timestamp when vote was cast"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Cryptographic signature of the vote"
+        }
+      },
+      "required": ["_v", "id", "proposalId", "voterId", "choice", "castAt"]
+    },
+
+    "Delegation": {
+      "type": "object",
+      "description": "Vote delegation from one member to another",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "delegatorId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Person delegating their vote"
+        },
+        "delegateId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Person receiving the delegation"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["all", "category", "proposal"],
+          "description": "Scope of the delegation"
+        },
+        "categoryTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categories for category-scoped delegation"
+        },
+        "proposalId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Specific proposal for proposal-scoped delegation"
+        },
+        "validFrom": {
+          "type": "integer"
+        },
+        "validUntil": {
+          "type": "integer"
+        },
+        "revoked": {
+          "type": "boolean",
+          "default": false
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "delegatorId", "delegateId", "scope", "createdAt"]
+    },
+
+    "ProposalAttachment": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["file", "url", "document"]
+        },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "mimeType": { "type": "string" },
+        "size": { "type": "integer" }
+      },
+      "required": ["type", "name"]
+    },
+
+    "ProposalResult": {
+      "type": "object",
+      "description": "Final result of a completed proposal",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "proposalId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["passed", "rejected", "no-quorum", "tie", "expired"]
+        },
+        "winningOptions": {
+          "type": "array",
+          "items": { "type": "string", "format": "uuid" },
+          "description": "Winning option(s)"
+        },
+        "voteCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "number" },
+          "description": "Vote counts per option"
+        },
+        "totalVotes": {
+          "type": "integer"
+        },
+        "totalEligible": {
+          "type": "integer"
+        },
+        "participation": {
+          "type": "number",
+          "description": "Participation percentage"
+        },
+        "quorumMet": {
+          "type": "boolean"
+        },
+        "thresholdMet": {
+          "type": "boolean"
+        },
+        "calculatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "proposalId", "outcome", "voteCounts", "totalVotes", "calculatedAt"]
+    }
+  }
+}

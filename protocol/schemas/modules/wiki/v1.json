@@ -1,0 +1,486 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/wiki/v1.json",
+  "title": "WikiModuleSchema",
+  "description": "Schema for collaborative knowledge base and wiki pages",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "WikiPage": {
+      "type": "object",
+      "description": "A wiki page in the knowledge base",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version for graceful degradation",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the page"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Group this page belongs to"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "maxLength": 200,
+          "description": "URL-friendly identifier"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Page title"
+        },
+        "content": {
+          "type": "string",
+          "description": "Page content in markdown"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Brief summary for search results and previews"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Current version number of the page"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent page for hierarchical organization"
+        },
+        "categoryId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Category this page belongs to"
+        },
+        "status": {
+          "$ref": "#/$defs/PageStatus"
+        },
+        "visibility": {
+          "$ref": "#/$defs/PageVisibility"
+        },
+        "permissions": {
+          "$ref": "#/$defs/PagePermissions"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categorization tags"
+        },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Alternative slugs that redirect to this page"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Public key of the original creator"
+        },
+        "lastEditedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Public key of the last editor"
+        },
+        "contributors": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "description": "All contributors to this page"
+        },
+        "lockedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "User who has the page locked for editing"
+        },
+        "lockedAt": {
+          "type": "integer",
+          "description": "Timestamp when page was locked"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of last update"
+        },
+        "publishedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when page was published"
+        },
+        "archivedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when page was archived"
+        },
+        "deletedAt": {
+          "type": "integer",
+          "description": "Unix timestamp for soft delete"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Custom metadata fields"
+        }
+      },
+      "required": ["_v", "id", "groupId", "slug", "title", "content", "version", "status", "createdBy", "createdAt"]
+    },
+
+    "PageStatus": {
+      "type": "string",
+      "enum": ["draft", "review", "published", "archived", "deleted"],
+      "description": "Current status of the page"
+    },
+
+    "PageVisibility": {
+      "type": "string",
+      "enum": ["public", "group", "private", "role-restricted"],
+      "default": "group",
+      "description": "Who can view this page"
+    },
+
+    "PagePermissions": {
+      "type": "object",
+      "properties": {
+        "editRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Roles that can edit this page"
+        },
+        "viewRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Roles that can view this page (for role-restricted)"
+        },
+        "allowComments": {
+          "type": "boolean",
+          "default": true
+        },
+        "allowSuggestions": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+
+    "PageRevision": {
+      "type": "object",
+      "description": "A historical revision of a wiki page",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Edit summary describing the changes"
+        },
+        "diff": {
+          "type": "string",
+          "description": "Unified diff from previous version"
+        },
+        "editedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "editType": {
+          "type": "string",
+          "enum": ["create", "edit", "revert", "merge", "move"],
+          "default": "edit"
+        },
+        "revertedFrom": {
+          "type": "integer",
+          "description": "Version number if this is a revert"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "pageId", "version", "content", "editedBy", "createdAt"]
+    },
+
+    "WikiCategory": {
+      "type": "object",
+      "description": "A category for organizing wiki pages",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent category for hierarchical organization"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier"
+        },
+        "color": {
+          "type": "string",
+          "description": "Display color"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Display order"
+        },
+        "pageCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of pages in this category"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "groupId", "name", "slug", "createdBy", "createdAt"]
+    },
+
+    "WikiLink": {
+      "type": "object",
+      "description": "A link between wiki pages",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "sourcePageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "targetPageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "targetSlug": {
+          "type": "string",
+          "description": "Slug of target page (for broken link detection)"
+        },
+        "context": {
+          "type": "string",
+          "description": "Text around the link for context"
+        },
+        "isBroken": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether target page exists"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "sourcePageId", "targetSlug", "createdAt"]
+    },
+
+    "PageComment": {
+      "type": "object",
+      "description": "A comment on a wiki page",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent comment for threaded replies"
+        },
+        "content": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "resolved": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this comment thread is resolved"
+        },
+        "resolvedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "resolvedAt": {
+          "type": "integer"
+        },
+        "editedAt": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "deletedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "pageId", "content", "authorId", "createdAt"]
+    },
+
+    "EditSuggestion": {
+      "type": "object",
+      "description": "A suggested edit to a wiki page",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "baseVersion": {
+          "type": "integer",
+          "description": "Version this suggestion is based on"
+        },
+        "title": {
+          "type": "string",
+          "description": "Suggested title (if changed)"
+        },
+        "content": {
+          "type": "string",
+          "description": "Suggested content"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Description of the suggested changes"
+        },
+        "diff": {
+          "type": "string",
+          "description": "Unified diff showing changes"
+        },
+        "suggestedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected", "merged", "superseded"],
+          "default": "pending"
+        },
+        "reviewedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reviewedAt": {
+          "type": "integer"
+        },
+        "reviewComment": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "pageId", "baseVersion", "content", "suggestedBy", "status", "createdAt"]
+    },
+
+    "WikiSearch": {
+      "type": "object",
+      "description": "Search result from the wiki",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "pageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "Relevant excerpt with search terms highlighted"
+        },
+        "score": {
+          "type": "number",
+          "description": "Search relevance score"
+        },
+        "matchedTags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "categoryName": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "pageId", "title", "slug", "score"]
+    }
+  }
+}

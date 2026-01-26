@@ -1,0 +1,548 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/mutual-aid/v1.json",
+  "title": "MutualAidModuleSchema",
+  "description": "Schema for resource sharing, requests, offers, and community support",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "AidRequest": {
+      "type": "object",
+      "description": "A request for mutual aid",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version for graceful degradation",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the request"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Group this request belongs to"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Brief title of the request"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the need"
+        },
+        "category": {
+          "$ref": "#/$defs/AidCategory"
+        },
+        "status": {
+          "$ref": "#/$defs/RequestStatus"
+        },
+        "urgency": {
+          "$ref": "#/$defs/UrgencyLevel"
+        },
+        "requesterId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Public key of the person making the request"
+        },
+        "anonymousRequest": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide requester identity from public"
+        },
+        "location": {
+          "$ref": "#/$defs/Location"
+        },
+        "neededBy": {
+          "type": "integer",
+          "description": "Unix timestamp of when the need must be fulfilled"
+        },
+        "recurringNeed": {
+          "$ref": "#/$defs/RecurringNeed"
+        },
+        "fulfillments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Fulfillment"
+          },
+          "description": "Fulfillment responses"
+        },
+        "quantityNeeded": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Quantity needed (if applicable)"
+        },
+        "quantityFulfilled": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "Quantity already fulfilled"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit for quantity (e.g., 'meals', 'hours', 'dollars')"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categorization tags"
+        },
+        "customFields": {
+          "type": "object",
+          "description": "Custom field values from custom-fields module"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of last update"
+        },
+        "closedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when request was closed"
+        }
+      },
+      "required": ["_v", "id", "groupId", "title", "category", "status", "requesterId", "createdAt"]
+    },
+
+    "AidOffer": {
+      "type": "object",
+      "description": "An offer of mutual aid",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/AidCategory"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "claimed", "expired", "withdrawn"],
+          "default": "active"
+        },
+        "offererId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "location": {
+          "$ref": "#/$defs/Location"
+        },
+        "availableFrom": {
+          "type": "integer",
+          "description": "Unix timestamp when offer becomes available"
+        },
+        "availableUntil": {
+          "type": "integer",
+          "description": "Unix timestamp when offer expires"
+        },
+        "recurringAvailability": {
+          "$ref": "#/$defs/RecurringNeed"
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string"
+        },
+        "claimedBy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OfferClaim"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "customFields": {
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "groupId", "title", "category", "status", "offererId", "createdAt"]
+    },
+
+    "AidCategory": {
+      "type": "string",
+      "enum": [
+        "food",
+        "housing",
+        "transportation",
+        "rideshare",
+        "medical",
+        "mental-health",
+        "childcare",
+        "pet-care",
+        "legal",
+        "financial",
+        "employment",
+        "education",
+        "technology",
+        "translation",
+        "supplies",
+        "clothing",
+        "furniture",
+        "household",
+        "safety",
+        "other"
+      ],
+      "description": "Category of aid"
+    },
+
+    "RequestStatus": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in-progress",
+        "partially-fulfilled",
+        "fulfilled",
+        "closed",
+        "expired",
+        "cancelled"
+      ]
+    },
+
+    "UrgencyLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Urgency level of the request"
+    },
+
+    "Location": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["point", "area", "flexible", "remote"]
+        },
+        "address": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+            "lng": { "type": "number", "minimum": -180, "maximum": 180 }
+          }
+        },
+        "radius": {
+          "type": "number",
+          "description": "Radius in kilometers for area type"
+        },
+        "privacyLevel": {
+          "type": "string",
+          "enum": ["exact", "approximate", "city-only", "hidden"],
+          "default": "approximate"
+        }
+      }
+    },
+
+    "RecurringNeed": {
+      "type": "object",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["daily", "weekly", "biweekly", "monthly", "custom"]
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "daysOfWeek": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 6 }
+        },
+        "endDate": {
+          "type": "integer"
+        },
+        "occurrences": {
+          "type": "integer"
+        }
+      },
+      "required": ["frequency"]
+    },
+
+    "Fulfillment": {
+      "type": "object",
+      "description": "A fulfillment response to a request",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "requestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "fulfillerId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["offered", "accepted", "in-progress", "completed", "cancelled", "declined"]
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "message": {
+          "type": "string"
+        },
+        "scheduledFor": {
+          "type": "integer"
+        },
+        "completedAt": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "feedback": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "requestId", "fulfillerId", "status", "createdAt"]
+    },
+
+    "OfferClaim": {
+      "type": "object",
+      "properties": {
+        "claimerId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "declined", "completed"]
+        },
+        "claimedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["claimerId", "status", "claimedAt"]
+    },
+
+    "RideShare": {
+      "type": "object",
+      "description": "A solidarity rideshare offer or request",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["offer", "request"]
+        },
+        "driverId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Driver's public key (for offers)"
+        },
+        "requesterId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Requester's public key (for requests)"
+        },
+        "origin": {
+          "$ref": "#/$defs/Location"
+        },
+        "destination": {
+          "$ref": "#/$defs/Location"
+        },
+        "departureTime": {
+          "type": "integer"
+        },
+        "flexibility": {
+          "type": "integer",
+          "description": "Flexibility in minutes"
+        },
+        "availableSeats": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "recurring": {
+          "$ref": "#/$defs/RecurringNeed"
+        },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "smokingAllowed": { "type": "boolean" },
+            "petsAllowed": { "type": "boolean" },
+            "wheelchairAccessible": { "type": "boolean" },
+            "carSeatAvailable": { "type": "boolean" },
+            "luggageSpace": { "type": "string", "enum": ["none", "small", "medium", "large"] }
+          }
+        },
+        "passengers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "passengerId": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "status": { "type": "string", "enum": ["requested", "confirmed", "cancelled"] },
+              "pickup": { "$ref": "#/$defs/Location" },
+              "dropoff": { "$ref": "#/$defs/Location" }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "full", "departed", "completed", "cancelled"]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "groupId", "type", "origin", "destination", "departureTime", "status", "createdAt"]
+    },
+
+    "ResourceDirectory": {
+      "type": "object",
+      "description": "Community resource directory entry",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/AidCategory"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "website": { "type": "string", "format": "uri" }
+          }
+        },
+        "location": {
+          "$ref": "#/$defs/Location"
+        },
+        "hours": {
+          "type": "string"
+        },
+        "eligibility": {
+          "type": "string"
+        },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false
+        },
+        "verifiedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "verifiedAt": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "groupId", "name", "category", "createdBy", "createdAt"]
+    }
+  }
+}

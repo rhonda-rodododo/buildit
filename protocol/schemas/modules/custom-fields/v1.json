@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/custom-fields/v1.json",
+  "title": "CustomFieldsModuleSchema",
+  "description": "Foundational module for extensible field definitions across BuildIt modules",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "FieldDefinition": {
+      "type": "object",
+      "description": "Definition of a custom field",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version for graceful degradation",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the field"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Display name for the field"
+        },
+        "type": {
+          "$ref": "#/$defs/FieldType"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the field is required"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Help text for the field"
+        },
+        "defaultValue": {
+          "description": "Default value for the field"
+        },
+        "options": {
+          "$ref": "#/$defs/FieldOptions"
+        },
+        "validation": {
+          "$ref": "#/$defs/FieldValidation"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Display order of the field"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Group that owns this field definition"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "Module this field belongs to (events, mutual-aid, etc.)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of last update"
+        }
+      },
+      "required": ["_v", "id", "name", "type"]
+    },
+
+    "FieldType": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "number",
+        "currency",
+        "date",
+        "datetime",
+        "time",
+        "select",
+        "multiselect",
+        "checkbox",
+        "toggle",
+        "radio",
+        "file",
+        "image",
+        "url",
+        "email",
+        "phone",
+        "location",
+        "relationship",
+        "user",
+        "color",
+        "rating",
+        "slider",
+        "tags"
+      ],
+      "description": "Type of the field"
+    },
+
+    "FieldOptions": {
+      "type": "object",
+      "description": "Type-specific configuration options",
+      "properties": {
+        "choices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldChoice"
+          },
+          "description": "Options for select/multiselect/radio fields"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum value for number/slider fields"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum value for number/slider fields"
+        },
+        "step": {
+          "type": "number",
+          "description": "Step value for number/slider fields"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum length for text fields"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum length for text fields"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text for input fields"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Prefix for display (e.g., currency symbol)"
+        },
+        "suffix": {
+          "type": "string",
+          "description": "Suffix for display (e.g., unit)"
+        },
+        "allowMultiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple file uploads"
+        },
+        "acceptedTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted MIME types for file fields"
+        },
+        "maxFileSize": {
+          "type": "integer",
+          "description": "Maximum file size in bytes"
+        },
+        "relationshipModule": {
+          "type": "string",
+          "description": "Target module for relationship fields"
+        },
+        "relationshipType": {
+          "type": "string",
+          "enum": ["one-to-one", "one-to-many", "many-to-many"],
+          "description": "Type of relationship"
+        },
+        "maxRating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5,
+          "description": "Maximum rating value"
+        },
+        "colorFormat": {
+          "type": "string",
+          "enum": ["hex", "rgb", "hsl"],
+          "default": "hex",
+          "description": "Color format for color fields"
+        }
+      }
+    },
+
+    "FieldChoice": {
+      "type": "object",
+      "description": "A choice option for select/multiselect/radio fields",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Internal value"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label"
+        },
+        "color": {
+          "type": "string",
+          "description": "Optional color for the choice"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier"
+        },
+        "order": {
+          "type": "integer",
+          "description": "Display order"
+        }
+      },
+      "required": ["value", "label"]
+    },
+
+    "FieldValidation": {
+      "type": "object",
+      "description": "Validation rules for the field",
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern for text validation"
+        },
+        "patternMessage": {
+          "type": "string",
+          "description": "Custom error message for pattern validation"
+        },
+        "customValidation": {
+          "type": "string",
+          "description": "Custom validation function name"
+        }
+      }
+    },
+
+    "FieldValue": {
+      "type": "object",
+      "description": "A stored field value",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "default": "1.0.0"
+        },
+        "fieldId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Reference to the field definition"
+        },
+        "entityId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Entity this value belongs to (event, request, etc.)"
+        },
+        "entityType": {
+          "type": "string",
+          "description": "Type of entity (event, aid-request, etc.)"
+        },
+        "value": {
+          "description": "The actual value (type depends on field type)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of last update"
+        }
+      },
+      "required": ["_v", "fieldId", "entityId", "entityType", "value"]
+    },
+
+    "FieldTemplate": {
+      "type": "object",
+      "description": "A reusable template of field definitions",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "Template name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Template description"
+        },
+        "category": {
+          "type": "string",
+          "description": "Template category (events, mutual-aid, etc.)"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldDefinition"
+          },
+          "description": "Field definitions in this template"
+        },
+        "isBuiltIn": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is a system-provided template"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Hex public key of creator"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      },
+      "required": ["_v", "id", "name", "category", "fields"]
+    }
+  }
+}
