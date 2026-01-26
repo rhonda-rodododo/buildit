@@ -44,6 +44,61 @@ enum class RequestStatus(val displayName: String) {
 }
 
 /**
+ * Location type for aid requests/offers.
+ */
+enum class LocationType {
+    POINT,
+    AREA,
+    FLEXIBLE,
+    REMOTE
+}
+
+/**
+ * Privacy level for location data.
+ */
+enum class LocationPrivacyLevel {
+    EXACT,
+    APPROXIMATE,
+    CITY_ONLY,
+    HIDDEN
+}
+
+/**
+ * Coordinates for a location.
+ */
+@Serializable
+data class Coordinates(
+    val lat: Double,
+    val lng: Double
+)
+
+/**
+ * Nested location object matching protocol schema.
+ * Used as an embedded object in Room entities.
+ */
+data class AidLocation(
+    val type: LocationType = LocationType.POINT,
+    val address: String? = null,
+    val city: String? = null,
+    val region: String? = null,
+    val postalCode: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val radius: Double? = null,
+    val privacyLevel: LocationPrivacyLevel? = null
+) {
+    val displayName: String
+        get() {
+            if (type == LocationType.REMOTE) return "Remote"
+            if (type == LocationType.FLEXIBLE) return "Flexible"
+            return listOfNotNull(city, region).joinToString(", ").ifEmpty { "Not specified" }
+        }
+
+    val hasCoordinates: Boolean
+        get() = latitude != null && longitude != null
+}
+
+/**
  * Urgency level for requests.
  */
 enum class UrgencyLevel(val displayName: String, val priority: Int) {
@@ -80,11 +135,7 @@ data class AidRequestEntity(
     val urgency: UrgencyLevel,
     val requesterId: String,
     val anonymousRequest: Boolean = false,
-    val locationCity: String?,
-    val locationRegion: String?,
-    val locationType: String?, // "point", "area", "flexible", "remote"
-    val latitude: Double?,
-    val longitude: Double?,
+    @Embedded(prefix = "location_") val location: AidLocation? = null,
     val neededBy: Long?, // Unix timestamp
     val quantityNeeded: Double?,
     val quantityFulfilled: Double = 0.0,
@@ -107,11 +158,7 @@ data class AidRequestEntity(
         }
 
     val locationDisplay: String
-        get() {
-            if (locationType == "remote") return "Remote"
-            if (locationType == "flexible") return "Flexible"
-            return listOfNotNull(locationCity, locationRegion).joinToString(", ").ifEmpty { "Not specified" }
-        }
+        get() = location?.displayName ?: "Not specified"
 }
 
 /**
@@ -127,11 +174,7 @@ data class AidOfferEntity(
     val category: AidCategory,
     val status: String, // "active", "claimed", "expired", "withdrawn"
     val offererId: String,
-    val locationCity: String?,
-    val locationRegion: String?,
-    val locationType: String?,
-    val latitude: Double?,
-    val longitude: Double?,
+    @Embedded(prefix = "location_") val location: AidLocation? = null,
     val availableFrom: Long?,
     val availableUntil: Long?,
     val quantity: Double?,
@@ -149,11 +192,7 @@ data class AidOfferEntity(
         }
 
     val locationDisplay: String
-        get() {
-            if (locationType == "remote") return "Remote"
-            if (locationType == "flexible") return "Flexible"
-            return listOfNotNull(locationCity, locationRegion).joinToString(", ").ifEmpty { "Not specified" }
-        }
+        get() = location?.displayName ?: "Not specified"
 }
 
 /**
@@ -282,16 +321,37 @@ enum class PassengerStatus {
 }
 
 /**
+ * Serializable location for JSON storage (used in RidePassenger).
+ */
+@Serializable
+data class SerializableLocation(
+    val type: String? = null,
+    val address: String? = null,
+    val city: String? = null,
+    val region: String? = null,
+    val postalCode: String? = null,
+    @SerialName("lat") val latitude: Double? = null,
+    @SerialName("lng") val longitude: Double? = null,
+    val radius: Double? = null,
+    val privacyLevel: String? = null
+) {
+    val displayName: String
+        get() {
+            if (type == "remote") return "Remote"
+            if (type == "flexible") return "Flexible"
+            return listOfNotNull(city, region).joinToString(", ").ifEmpty { "Not specified" }
+        }
+}
+
+/**
  * A passenger in a rideshare (stored as JSON array).
  */
 @Serializable
 data class RidePassenger(
     val passengerId: String,
     val status: PassengerStatus,
-    val pickupCity: String? = null,
-    val pickupRegion: String? = null,
-    val dropoffCity: String? = null,
-    val dropoffRegion: String? = null
+    val pickup: SerializableLocation? = null,
+    val dropoff: SerializableLocation? = null
 )
 
 /**
@@ -308,14 +368,8 @@ data class RideShareEntity(
     val type: RideType,
     val driverId: String?,
     val requesterId: String?,
-    val originCity: String?,
-    val originRegion: String?,
-    val originLatitude: Double?,
-    val originLongitude: Double?,
-    val destinationCity: String?,
-    val destinationRegion: String?,
-    val destinationLatitude: Double?,
-    val destinationLongitude: Double?,
+    @Embedded(prefix = "origin_") val origin: AidLocation? = null,
+    @Embedded(prefix = "destination_") val destination: AidLocation? = null,
     val departureTime: Long,
     val flexibility: Int?, // minutes
     val availableSeats: Int?,
@@ -334,10 +388,10 @@ data class RideShareEntity(
         }
 
     val originDisplay: String
-        get() = listOfNotNull(originCity, originRegion).joinToString(", ").ifEmpty { "Not specified" }
+        get() = origin?.displayName ?: "Not specified"
 
     val destinationDisplay: String
-        get() = listOfNotNull(destinationCity, destinationRegion).joinToString(", ").ifEmpty { "Not specified" }
+        get() = destination?.displayName ?: "Not specified"
 }
 
 /**
@@ -357,11 +411,7 @@ data class ResourceDirectoryEntity(
     val contactPhone: String?,
     val contactEmail: String?,
     val contactWebsite: String?,
-    val locationCity: String?,
-    val locationRegion: String?,
-    val locationType: String?,
-    val latitude: Double?,
-    val longitude: Double?,
+    @Embedded(prefix = "location_") val location: AidLocation? = null,
     val hours: String?,
     val eligibility: String?,
     val languagesJson: String?, // JSON encoded List<String>
@@ -374,7 +424,7 @@ data class ResourceDirectoryEntity(
     val updatedAt: Long? = null
 ) {
     val locationDisplay: String
-        get() = listOfNotNull(locationCity, locationRegion).joinToString(", ").ifEmpty { "Not specified" }
+        get() = location?.displayName ?: "Not specified"
 }
 
 /**
@@ -418,4 +468,16 @@ class MutualAidConverters {
 
     @TypeConverter
     fun toRideStatus(value: String): RideStatus = RideStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromLocationType(value: LocationType?): String? = value?.name
+
+    @TypeConverter
+    fun toLocationType(value: String?): LocationType? = value?.let { LocationType.valueOf(it) }
+
+    @TypeConverter
+    fun fromLocationPrivacyLevel(value: LocationPrivacyLevel?): String? = value?.name
+
+    @TypeConverter
+    fun toLocationPrivacyLevel(value: String?): LocationPrivacyLevel? = value?.let { LocationPrivacyLevel.valueOf(it) }
 }

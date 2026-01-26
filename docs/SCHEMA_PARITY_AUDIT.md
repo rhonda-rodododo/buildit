@@ -118,16 +118,18 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ---
 
-### 7. Android Location Flattening (Mutual Aid)
+### 7. ~~Android Location Flattening (Mutual Aid)~~ ✅ FIXED
 
-**Issue**: Protocol has nested Location object, Android flattens to individual fields.
+**Status**: RESOLVED (2026-01-26)
 
-```kotlin
-// Protocol: location: { name, address, coordinates, radius, privacyLevel }
-// Android: locationCity, locationRegion, latitude, longitude (no radius, privacyLevel)
-```
+**Changes made**:
+- Created `AidLocation` data class with all protocol fields (type, address, city, region, postalCode, latitude, longitude, radius, privacyLevel)
+- Updated entities to use `@Embedded(prefix = "...")` for Room storage
+- Updated AidRequestEntity, AidOfferEntity, RideShareEntity, ResourceDirectoryEntity
+- Added TypeConverters for LocationType and LocationPrivacyLevel enums
+- Updated RidePassenger to use SerializableLocation for pickup/dropoff
 
-**Impact**: Loses location privacy and radius data.
+**Commit**: `fix(android): replace flattened location with nested AidLocation`
 
 ---
 
@@ -175,7 +177,7 @@ quicktype generates duplicate interfaces:
 | ~~Add missing Mutual Aid types~~ | Mutual Aid | 4h | iOS/Android models | ✅ Done |
 | ~~Add missing Governance types~~ | Governance | 3h | iOS/Android models | ✅ Done |
 | ~~Add missing Wiki types~~ | Wiki | 3h | iOS/Android models | ✅ Done |
-| Un-flatten Android location | Mutual Aid | 2h | `AidRequestEntity.kt` |
+| ~~Un-flatten Android location~~ | Mutual Aid | 2h | `MutualAidEntity.kt` | ✅ Done |
 
 ### Phase 3: Standardization (Next Quarter)
 
@@ -228,7 +230,7 @@ After fixes, verify:
 - [x] Timestamps are correct (not off by 1000x) - Android fixed
 - [x] Schema version `_v` is included in all serialized data (all clients)
 - [x] All enum values serialize with correct format (underscore vs hyphen)
-- [ ] Location data preserves all nested fields
+- [x] Location data preserves all nested fields (Android fixed)
 
 ---
 
