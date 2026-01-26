@@ -11,7 +11,7 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 | Module | Web Manual | Web Generated | iOS | Android | Cross-Client Risk |
 |--------|-----------|---------------|-----|---------|-------------------|
-| **Events** | ❌ CRITICAL | ✅ | ✅ | ✅ | HIGH |
+| **Events** | ✅ FIXED | ✅ | ✅ | ✅ | LOW |
 | **Messaging** | ✅ | ✅ | ❌ CRITICAL | ✅ | HIGH |
 | **Mutual Aid** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
 | **Governance** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
@@ -21,24 +21,18 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ## Critical Issues (Must Fix)
 
-### 1. Web Events Module - Complete Mismatch
+### 1. ~~Web Events Module - Complete Mismatch~~ ✅ FIXED
 
-**Location**: `clients/web/src/modules/events/types.ts`
+**Status**: RESOLVED (2026-01-26)
 
-| Protocol Field | Web Manual | Issue |
-|----------------|-----------|-------|
-| `startAt` | `startTime` | Field rename breaks wire format |
-| `endAt` | `endTime` | Field rename breaks wire format |
-| `maxAttendees` | `capacity` | Breaking change |
-| `visibility` | `privacy` + `direct-action` | Extra enum value not in protocol |
-| `location` | `string` | Should be structured object |
-| `_v` | Missing | No schema version tracking |
-| `pubkey` (RSVP) | `userPubkey` | Field rename |
-| `not_going` | `not-going` | Underscore vs hyphen |
+**Changes made**:
+- Removed `direct-action` privacy level (mapped to `private` for backward compat)
+- Removed `locationRevealTime` field
+- Changed RSVP status from `not-going` to `not_going`
+- Updated `eventManager.ts` to serialize with protocol field names (`_v`, `startAt`, `endAt`, `visibility`, `maxAttendees`)
+- Added backward compatibility parsing for legacy events
 
-**Impact**: Events created on web cannot sync to iOS/Android properly.
-
-**Fix**: Replace manual types with generated types from `src/generated/schemas/events.ts`
+**Commit**: `fix(events): align web Events module with protocol schema`
 
 ---
 
@@ -159,12 +153,12 @@ quicktype generates duplicate interfaces:
 
 ### Phase 1: Critical Fixes (Blocks Release)
 
-| Task | Module | Effort | Files |
-|------|--------|--------|-------|
-| Replace web events manual types | Events | 4h | `types.ts`, `eventManager.ts`, `eventsStore.ts` |
-| Add iOS Codable conformance | Messaging | 2h | `messaging.swift` or codegen |
-| Replace web wiki manual types | Wiki | 3h | `types.ts`, store, components |
-| Add `_v` to iOS/Android models | All | 2h | All model files |
+| Task | Module | Effort | Files | Status |
+|------|--------|--------|-------|--------|
+| ~~Replace web events manual types~~ | Events | 4h | `types.ts`, `eventManager.ts`, `eventsStore.ts` | ✅ Done |
+| Add iOS Codable conformance | Messaging | 2h | `messaging.swift` or codegen | Pending |
+| Replace web wiki manual types | Wiki | 3h | `types.ts`, store, components | Pending |
+| Add `_v` to iOS/Android models | All | 2h | All model files | Pending |
 
 ### Phase 2: High Priority (Next Sprint)
 
@@ -188,15 +182,11 @@ quicktype generates duplicate interfaces:
 
 ## Decision Points Needed
 
-### 1. `direct-action` Privacy Level
+### 1. ~~`direct-action` Privacy Level~~ ✅ RESOLVED
 
-**Current state**: Only in web events module, not in protocol.
+**Decision**: Option B - Removed from web, mapped to `private` for backward compatibility.
 
-**Options**:
-- A) Add to protocol schema → regenerate all clients
-- B) Remove from web → use `private` + customFields for direct-action features
-
-**Recommendation**: Option A if direct-action is a core feature, Option B if experimental.
+Legacy events with `direct-action` will be parsed and treated as `private`.
 
 ### 2. Extra Web Fields (Events)
 
