@@ -134,6 +134,13 @@ cargo test --features test-vectors
 
 Test vectors should be loaded from JSON and validated in Rust test functions.
 
+Generated Rust types are available at:
+```rust
+use buildit_crypto::generated::schemas::messaging::DirectMessage;
+use buildit_crypto::generated::schemas::events::Event;
+use buildit_crypto::generated::schemas::governance::Proposal;
+```
+
 ### Swift (iOS)
 
 ```bash
