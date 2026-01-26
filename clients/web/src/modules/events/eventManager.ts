@@ -354,25 +354,44 @@ export class EventManager {
       const dTag = nostrEvent.tags.find((t) => t[0] === 'd')?.[1]
       if (!dTag) return
 
-      const content = JSON.parse(nostrEvent.content)
+      // Validate content is parseable JSON
+      let content: Record<string, unknown>
+      try {
+        content = JSON.parse(nostrEvent.content)
+      } catch {
+        // Not a valid JSON event (likely not a BuildIt event)
+        return
+      }
+
+      // Validate required BuildIt event fields
+      if (typeof content.title !== 'string' || typeof content.startTime !== 'number') {
+        // Missing required fields, not a valid BuildIt event
+        return
+      }
+
+      // Validate privacy is a valid value
+      const validPrivacy = ['public', 'group', 'private', 'direct-action'] as const
+      const privacy = validPrivacy.includes(content.privacy as typeof validPrivacy[number])
+        ? (content.privacy as 'public' | 'group' | 'private' | 'direct-action')
+        : 'group'
 
       const event: Event = {
         id: dTag,
         groupId: nostrEvent.tags.find((t) => t[0] === 'group')?.[1],
-        title: content.title,
-        description: content.description,
-        location: content.location,
-        startTime: content.startTime,
-        endTime: content.endTime,
-        privacy: content.privacy,
-        capacity: content.capacity,
+        title: content.title as string,
+        description: typeof content.description === 'string' ? content.description : '',
+        location: typeof content.location === 'string' ? content.location : undefined,
+        startTime: content.startTime as number,
+        endTime: typeof content.endTime === 'number' ? content.endTime : undefined,
+        privacy,
+        capacity: typeof content.capacity === 'number' ? content.capacity : undefined,
         createdBy: nostrEvent.pubkey,
         createdAt: nostrEvent.created_at * 1000,
         updatedAt: nostrEvent.created_at * 1000,
-        tags: content.tags || [],
-        imageUrl: content.imageUrl,
-        locationRevealTime: content.locationRevealTime,
-        coHosts: content.coHosts || [],
+        tags: Array.isArray(content.tags) ? (content.tags as string[]) : [],
+        imageUrl: typeof content.imageUrl === 'string' ? content.imageUrl : undefined,
+        locationRevealTime: typeof content.locationRevealTime === 'number' ? content.locationRevealTime : undefined,
+        coHosts: Array.isArray(content.coHosts) ? (content.coHosts as string[]) : [],
       }
 
       // Upsert to database

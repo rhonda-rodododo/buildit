@@ -44,9 +44,13 @@ export const useEventsStore = create<EventsState>()(
 
       setEvents: (events) => set({ events }),
 
-      addEvent: (event) => set((state) => ({
-        events: [...state.events, event],
-      })),
+      addEvent: (event) => set((state) => {
+        // Check if event already exists by ID to prevent duplicates
+        if (state.events.some((e) => e.id === event.id)) {
+          return state
+        }
+        return { events: [...state.events, event] }
+      }),
 
       updateEvent: (eventId, updates) => set((state) => ({
         events: state.events.map((e) =>

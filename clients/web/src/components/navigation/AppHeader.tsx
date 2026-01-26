@@ -7,7 +7,7 @@ import { SyncStatusIndicator } from '@/components/offline/SyncStatusIndicator';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { AppSidebar } from './AppSidebar';
 import { LogoutWarningDialog } from '@/components/auth/LogoutWarningDialog';
 import { WindowControls } from '@/components/desktop';
@@ -82,6 +82,7 @@ export const AppHeader: FC = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72 p-0">
+                <SheetTitle className="sr-only">{t('nav.navigationMenu', 'Navigation Menu')}</SheetTitle>
                 <AppSidebar
                   className="w-full h-full border-r-0"
                   onLinkClick={() => setMobileMenuOpen(false)}

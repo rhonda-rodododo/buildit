@@ -30,9 +30,9 @@ export const EventList: FC<EventListProps> = ({ groupId, showUpcomingOnly = fals
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {displayEvents.map((event, i) => (
+        {displayEvents.map((event) => (
           <EventCard
-            key={event.id + i}
+            key={event.id}
             event={event}
             onClick={() => setSelectedEventId(event.id)}
           />
