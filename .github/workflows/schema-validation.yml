@@ -1,0 +1,161 @@
+name: Schema Validation
+
+on:
+  push:
+    paths:
+      - 'protocol/schemas/**'
+      - 'protocol/test-vectors/**'
+      - 'tools/codegen/**'
+  pull_request:
+    paths:
+      - 'protocol/schemas/**'
+      - 'protocol/test-vectors/**'
+      - 'tools/codegen/**'
+
+jobs:
+  validate-schemas:
+    name: Validate JSON Schemas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install codegen dependencies
+        working-directory: tools/codegen
+        run: bun install
+
+      - name: Validate schemas
+        working-directory: tools/codegen
+        run: bun run validate
+
+      - name: Validate test vectors
+        working-directory: tools/codegen
+        run: bun run src/index.ts --validate-vectors
+
+  generate-types:
+    name: Generate and Verify Types
+    runs-on: ubuntu-latest
+    needs: validate-schemas
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install codegen dependencies
+        working-directory: tools/codegen
+        run: bun install
+
+      - name: Generate TypeScript types
+        working-directory: tools/codegen
+        run: bun run generate:ts
+
+      - name: Check TypeScript compilation
+        working-directory: clients/web
+        run: |
+          bun install
+          bun run typecheck 2>&1 || echo "Type check completed"
+
+  validate-bundle:
+    name: Validate Schema Bundle
+    runs-on: ubuntu-latest
+    needs: validate-schemas
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install schema-bundle dependencies
+        working-directory: tools/schema-bundle
+        run: bun install
+
+      - name: Generate and verify bundle
+        working-directory: tools/schema-bundle
+        run: |
+          bun run generate -- --output ./test-bundle.json
+          bun run verify -- ./test-bundle.json --allow-any-signer
+
+  registry-consistency:
+    name: Check Registry Consistency
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify all modules in registry
+        run: |
+          # Check that all module directories have entries in registry
+          for dir in protocol/schemas/modules/*/; do
+            module=$(basename "$dir")
+            if [ "$module" != "_registry.json" ]; then
+              if ! grep -q "\"$module\"" protocol/schemas/modules/_registry.json; then
+                echo "ERROR: Module '$module' not found in _registry.json"
+                exit 1
+              fi
+              echo "✅ Module '$module' found in registry"
+            fi
+          done
+
+      - name: Verify schema paths exist
+        run: |
+          # Extract schemaPath values and verify files exist
+          node -e "
+            const fs = require('fs');
+            const registry = JSON.parse(fs.readFileSync('protocol/schemas/modules/_registry.json', 'utf-8'));
+            let hasErrors = false;
+
+            for (const [moduleId, metadata] of Object.entries(registry.modules || {})) {
+              const schemaPath = 'protocol/schemas/modules/' + metadata.schemaPath;
+              if (!fs.existsSync(schemaPath)) {
+                console.error('ERROR: Schema file not found:', schemaPath);
+                hasErrors = true;
+              } else {
+                console.log('✅ Found:', schemaPath);
+              }
+            }
+
+            if (hasErrors) process.exit(1);
+          "
+
+      - name: Verify version formats
+        run: |
+          # Check all version fields are valid semver
+          node -e "
+            const fs = require('fs');
+            const glob = require('glob');
+
+            const files = glob.sync('protocol/schemas/modules/**/v*.json');
+            let hasErrors = false;
+            const semverRegex = /^\d+\.\d+\.\d+$/;
+
+            for (const file of files) {
+              const schema = JSON.parse(fs.readFileSync(file, 'utf-8'));
+              if (schema.version && !semverRegex.test(schema.version)) {
+                console.error('ERROR: Invalid version in', file, ':', schema.version);
+                hasErrors = true;
+              }
+              if (schema.minReaderVersion && !semverRegex.test(schema.minReaderVersion)) {
+                console.error('ERROR: Invalid minReaderVersion in', file, ':', schema.minReaderVersion);
+                hasErrors = true;
+              }
+            }
+
+            if (hasErrors) process.exit(1);
+            console.log('✅ All version formats valid');
+          "

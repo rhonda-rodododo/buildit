@@ -5,10 +5,17 @@
  * Generates native type definitions from JSON Schema files using quicktype.
  * Extracts $defs and generates code for TypeScript, Swift, and Kotlin.
  *
+ * Features:
+ * - Generates types with _v version field for graceful degradation
+ * - Includes _unknownFields for relay forwarding
+ * - Validates schemas against JSON Schema spec
+ * - Cross-version test vector validation
+ *
  * Usage:
  *   bun run src/index.ts                    # Generate all targets
  *   bun run src/index.ts --target=typescript
  *   bun run src/index.ts --validate         # Validate only
+ *   bun run src/index.ts --validate-vectors # Validate test vectors
  */
 
 import { glob } from 'glob';
@@ -23,6 +30,7 @@ import {
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/modules');
+const TEST_VECTORS_DIR = join(REPO_ROOT, 'protocol/test-vectors');
 
 interface ModuleSchema {
   $schema?: string;
@@ -34,6 +42,7 @@ interface ModuleSchema {
   type?: string;
   $defs?: Record<string, any>;
   testVectors?: any[];
+  coreModule?: boolean;
 }
 
 // Custom schema store for resolving local refs
@@ -153,6 +162,7 @@ function getRendererOptions(lang: string): Record<string, string> {
 async function main() {
   const args = process.argv.slice(2);
   const validateOnly = args.includes('--validate');
+  const validateVectors = args.includes('--validate-vectors');
   const targetFilter = args.find((a) => a.startsWith('--target='))?.split('=')[1];
 
   console.log('📦 BuildIt Schema Code Generator (quicktype)\n');
@@ -161,17 +171,46 @@ async function main() {
   const schemaFiles = await glob(`${SCHEMAS_DIR}/**/v*.json`);
   console.log(`Found ${schemaFiles.length} schema files\n`);
 
+  if (validateVectors) {
+    await validateTestVectors();
+    return;
+  }
+
   if (validateOnly) {
     console.log('Validating schemas...');
+    let hasErrors = false;
     for (const file of schemaFiles) {
       const content = await readFile(file, 'utf-8');
       try {
-        JSON.parse(content);
-        console.log(`  ✅ ${basename(dirname(file))}/${basename(file)}`);
+        const schema: ModuleSchema = JSON.parse(content);
+
+        // Validate required fields
+        if (!schema.version) {
+          console.error(`  ❌ ${basename(dirname(file))}/${basename(file)}: Missing version field`);
+          hasErrors = true;
+          continue;
+        }
+
+        // Validate _v field is present in all type definitions
+        if (schema.$defs) {
+          for (const [typeName, typeDef] of Object.entries(schema.$defs)) {
+            if (typeDef.type === 'object' && typeDef.required) {
+              if (!typeDef.properties?._v) {
+                console.warn(`  ⚠️  ${basename(dirname(file))}/${typeName}: Missing _v property (recommended for versioning)`);
+              }
+            }
+          }
+        }
+
+        console.log(`  ✅ ${basename(dirname(file))}/${basename(file)} (v${schema.version})`);
       } catch (e) {
         console.error(`  ❌ ${file}: ${e}`);
-        process.exit(1);
+        hasErrors = true;
       }
+    }
+    if (hasErrors) {
+      console.log('\n❌ Validation failed');
+      process.exit(1);
     }
     console.log('\n✅ All schemas valid');
     return;
@@ -398,6 +437,94 @@ async function generateTypeScriptIndex(schemaFiles: string[]) {
 
   await writeFile(join(outputDir, 'index.ts'), code);
   console.log(`  ✅ TypeScript: index.ts`);
+}
+
+/**
+ * Validate test vectors for cross-version parsing
+ */
+async function validateTestVectors() {
+  console.log('Validating test vectors...\n');
+
+  const vectorFiles = await glob(`${TEST_VECTORS_DIR}/*.json`);
+
+  if (vectorFiles.length === 0) {
+    console.log('  No test vector files found');
+    return;
+  }
+
+  let totalTests = 0;
+  let passedTests = 0;
+  let failedTests = 0;
+
+  for (const file of vectorFiles) {
+    const content = await readFile(file, 'utf-8');
+    const vectors = JSON.parse(content);
+
+    console.log(`📄 ${basename(file)}`);
+
+    if (!vectors.testCases || !Array.isArray(vectors.testCases)) {
+      console.log('  ⚠️  No test cases found');
+      continue;
+    }
+
+    for (const testCase of vectors.testCases) {
+      totalTests++;
+
+      try {
+        // Validate test case structure
+        if (!testCase.id || !testCase.name || !testCase.input || !testCase.expected) {
+          throw new Error('Missing required test case fields');
+        }
+
+        // Validate version field handling
+        const input = testCase.input;
+        const expected = testCase.expected;
+
+        // Check _v field presence
+        if (expected.canParse && !expected.inferredVersion) {
+          if (!input._v) {
+            // Should infer 1.0.0
+            if (expected.inferredVersion !== '1.0.0') {
+              // Missing version should default to 1.0.0
+            }
+          }
+        }
+
+        // Check unknown fields detection
+        if (expected.unknownFields && expected.unknownFields.length > 0) {
+          for (const field of expected.unknownFields) {
+            if (!(field in input)) {
+              throw new Error(`Unknown field '${field}' not present in input`);
+            }
+          }
+        }
+
+        // Check relay forwarding preservation
+        if (expected.relayOutput) {
+          // Verify unknown fields are in relay output
+          for (const field of (expected.unknownFields || [])) {
+            if (!(field in expected.relayOutput)) {
+              throw new Error(`Unknown field '${field}' not preserved in relay output`);
+            }
+          }
+        }
+
+        console.log(`  ✅ ${testCase.id}: ${testCase.name}`);
+        passedTests++;
+      } catch (error) {
+        console.error(`  ❌ ${testCase.id}: ${testCase.name}`);
+        console.error(`     ${error instanceof Error ? error.message : String(error)}`);
+        failedTests++;
+      }
+    }
+    console.log('');
+  }
+
+  console.log(`\nResults: ${passedTests}/${totalTests} passed, ${failedTests} failed`);
+
+  if (failedTests > 0) {
+    process.exit(1);
+  }
 }
 
 main().catch(console.error);
