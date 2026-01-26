@@ -60,9 +60,12 @@ import javax.inject.Singleton
         network.buildit.modules.governance.data.local.ProposalEntity::class,
         network.buildit.modules.governance.data.local.VoteEntity::class,
         network.buildit.modules.governance.data.local.DelegationEntity::class,
-        network.buildit.modules.governance.data.local.ProposalResultEntity::class
+        network.buildit.modules.governance.data.local.ProposalResultEntity::class,
+        network.buildit.modules.wiki.data.local.WikiPageEntity::class,
+        network.buildit.modules.wiki.data.local.WikiCategoryEntity::class,
+        network.buildit.modules.wiki.data.local.PageRevisionEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -86,7 +89,15 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun votesDao(): network.buildit.modules.governance.data.local.VotesDao
     abstract fun delegationsDao(): network.buildit.modules.governance.data.local.DelegationsDao
     abstract fun proposalResultsDao(): network.buildit.modules.governance.data.local.ProposalResultsDao
+    abstract fun wikiPagesDao(): network.buildit.modules.wiki.data.local.WikiPagesDao
+    abstract fun wikiCategoriesDao(): network.buildit.modules.wiki.data.local.WikiCategoriesDao
+    abstract fun pageRevisionsDao(): network.buildit.modules.wiki.data.local.PageRevisionsDao
 }
+
+/**
+ * Type alias for the WikiModule's AppDatabase reference.
+ */
+typealias AppDatabase = BuildItDatabase
 
 // ============== Entities ==============
 
@@ -443,6 +454,28 @@ class Converters {
     @TypeConverter
     fun toProposalOutcome(value: String): network.buildit.modules.governance.data.local.ProposalOutcome =
         network.buildit.modules.governance.data.local.ProposalOutcome.valueOf(value)
+
+    // Wiki converters
+    @TypeConverter
+    fun fromPageStatus(value: network.buildit.modules.wiki.data.local.PageStatus): String = value.name
+
+    @TypeConverter
+    fun toPageStatus(value: String): network.buildit.modules.wiki.data.local.PageStatus =
+        network.buildit.modules.wiki.data.local.PageStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromPageVisibility(value: network.buildit.modules.wiki.data.local.PageVisibility): String = value.name
+
+    @TypeConverter
+    fun toPageVisibility(value: String): network.buildit.modules.wiki.data.local.PageVisibility =
+        network.buildit.modules.wiki.data.local.PageVisibility.valueOf(value)
+
+    @TypeConverter
+    fun fromEditType(value: network.buildit.modules.wiki.data.local.EditType): String = value.name
+
+    @TypeConverter
+    fun toEditType(value: String): network.buildit.modules.wiki.data.local.EditType =
+        network.buildit.modules.wiki.data.local.EditType.valueOf(value)
 }
 
 // ============== DAOs ==============
@@ -780,4 +813,13 @@ object DatabaseModule {
 
     @Provides
     fun provideMessagingReactionDao(database: BuildItDatabase): network.buildit.modules.messaging.data.local.MessagingReactionDao = database.messagingReactionDao()
+
+    @Provides
+    fun provideWikiPagesDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.WikiPagesDao = database.wikiPagesDao()
+
+    @Provides
+    fun provideWikiCategoriesDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.WikiCategoriesDao = database.wikiCategoriesDao()
+
+    @Provides
+    fun providePageRevisionsDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.PageRevisionsDao = database.pageRevisionsDao()
 }
