@@ -14,6 +14,7 @@
 mod aes;
 mod duress;
 mod error;
+pub mod generated;
 mod keys;
 mod nip17;
 mod nip44;
