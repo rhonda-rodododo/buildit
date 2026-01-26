@@ -135,6 +135,104 @@ function pascalCase(str: string): string {
     .join('');
 }
 
+/**
+ * Post-process TypeScript code to deduplicate identical interfaces
+ * quicktype generates duplicates like OptionElement/VoteOption when the same
+ * schema is referenced from different places
+ */
+function postProcessTypeScript(code: string): string {
+  // Known duplicates mapping: less descriptive name -> canonical name
+  // The canonical name is the one defined in the $defs of the schema
+  // Build a dynamic duplicate map based on what's actually in the code
+  // The key is the auto-generated name (e.g., "FooElement", "FooObject")
+  // The value is the canonical schema name (e.g., "Foo")
+  const baseDuplicates: [string, string][] = [
+    // Governance
+    ['OptionElement', 'VoteOption'],
+    ['QuorumObject', 'QuorumRequirement'],
+    ['ThresholdObject', 'PassingThreshold'],
+    // Events
+    ['LocationObject', 'Location'],
+    ['RecurrenceObject', 'RecurrenceRule'],
+    // Database
+    ['ColumnElement', 'Column'],
+    ['FilterElement', 'Filter'],
+    ['SortElement', 'Sort'],
+    ['ColumnOptionObject', 'ColumnOption'],
+    // Custom Fields
+    ['FieldElement', 'FieldDefinition'],
+    ['FieldOptionsObject', 'FieldOptions'],
+    ['FieldValidationObject', 'FieldValidation'],
+    // Forms
+    ['FormFieldElement', 'FormField'],
+    // Fundraising
+    ['TierElement', 'DonationTier'],
+    ['UpdateElement', 'CampaignUpdate'],
+    // Mutual Aid
+    ['FulfillmentElement', 'Fulfillment'],
+    ['ClaimedByElement', 'OfferClaim'],
+    ['RecurringNeedObject', 'RecurringNeed'],
+    ['RecurringAvailabilityObject', 'RecurringAvailability'],
+    ['DestinationObject', 'Destination'],
+    ['RecurringObject', 'Recurring'],
+    // CRM
+    ['AddressObject', 'Address'],
+    // Wiki
+    ['PermissionsObject', 'Permissions'],
+    // Publishing
+    ['SEOObject', 'SEO'],
+  ];
+
+  // Also check for AttachmentElement which could map to different canonical names
+  // depending on the schema (Attachment in events, ProposalAttachment in governance)
+  const attachmentCanonicals = ['Attachment', 'ProposalAttachment', 'DocumentAttachment'];
+  for (const canonical of attachmentCanonicals) {
+    if (new RegExp(`export interface ${canonical}\\s*\\{`).test(code)) {
+      baseDuplicates.push(['AttachmentElement', canonical]);
+      break;
+    }
+  }
+
+  const duplicateMap: Record<string, string> = Object.fromEntries(baseDuplicates);
+
+  let processed = code;
+
+  // For each duplicate, replace usages and remove the duplicate definition
+  for (const [duplicate, canonical] of Object.entries(duplicateMap)) {
+    // Skip if duplicate or canonical is too short (avoid accidental matches)
+    if (duplicate.length < 5 || canonical.length < 5) continue;
+
+    // Check if both exist in the code - must be interfaces specifically
+    const hasDuplicate = new RegExp(`export interface ${duplicate}\\s*\\{`).test(processed);
+    const hasCanonical = new RegExp(`export interface ${canonical}\\s*\\{`).test(processed);
+
+    if (hasDuplicate && hasCanonical) {
+      // Remove the duplicate interface definition
+      // Pattern: optional SINGLE-LINE doc comment + interface definition ending with }
+      // Use [^*] to avoid matching across multiple JSDoc blocks
+      const interfacePattern = new RegExp(
+        `(\\/\\*\\*(?:[^*]|\\*(?!\\/))*\\*\\/\\s*)?` +  // optional JSDoc (non-greedy, single block)
+        `export interface ${duplicate} \\{` +           // interface declaration
+        `[\\s\\S]*?` +                                  // interface body (non-greedy)
+        `\\n\\}\\s*\\n`,                                // closing brace on its own line
+        'g'
+      );
+      processed = processed.replace(interfacePattern, '\n');
+
+      // Replace usages of the duplicate name with the canonical name
+      // Only replace type references (after : or in generics), not enum/interface declarations
+      processed = processed.replace(new RegExp(`:\\s*${duplicate}(\\s*[;,\\[\\]\\}])`, 'g'), `: ${canonical}$1`);
+      processed = processed.replace(new RegExp(`<${duplicate}>`, 'g'), `<${canonical}>`);
+      processed = processed.replace(new RegExp(`${duplicate}\\[\\]`, 'g'), `${canonical}[]`);
+    }
+  }
+
+  // Clean up multiple consecutive newlines
+  processed = processed.replace(/\n{3,}/g, '\n\n');
+
+  return processed;
+}
+
 function getRendererOptions(lang: string): Record<string, string> {
   switch (lang) {
     case 'typescript':
@@ -476,7 +574,8 @@ function formatOutput(
 `;
 
   switch (lang) {
-    case 'typescript':
+    case 'typescript': {
+      const processedTS = postProcessTypeScript(generatedCode);
       return (
         header +
         `// Version constants
@@ -484,8 +583,9 @@ export const ${constPrefix}_VERSION = '${version}';
 export const ${constPrefix}_MIN_READER_VERSION = '${minReaderVersion}';
 
 ` +
-        generatedCode
+        processedTS
       );
+    }
 
     case 'swift':
       // Post-process Swift to add Codable, Sendable conformance
