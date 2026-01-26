@@ -85,8 +85,7 @@ export function useEvents(groupId?: string) {
         return userGroupIds.has(event.groupId)
 
       case 'private':
-      case 'direct-action':
-        // Private/direct-action events visible to:
+        // Private events visible to:
         // - Creator
         // - Co-hosts
         // - Group members (if event has groupId)
@@ -158,9 +157,6 @@ export function useEvents(groupId?: string) {
       if (updates.endTime) {
         eventUpdates.endTime = updates.endTime.getTime()
       }
-      if (updates.locationRevealTime) {
-        eventUpdates.locationRevealTime = updates.locationRevealTime.getTime()
-      }
 
       const event = await eventManager.updateEvent(
         eventId,
@@ -218,10 +214,10 @@ export function useEvents(groupId?: string) {
       // Send confirmation notification
       const event = getEventById(eventId)
       if (event) {
-        const statusLabels = {
+        const statusLabels: Record<string, string> = {
           going: 'Going',
           maybe: 'Maybe',
-          'not-going': 'Not Going',
+          not_going: 'Not Going',
         }
         addNotification({
           type: 'event_rsvp',

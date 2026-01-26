@@ -41,7 +41,6 @@ export class EventManager {
       updatedAt: now,
       tags: formData.tags || [],
       imageUrl: formData.imageUrl,
-      locationRevealTime: formData.locationRevealTime?.getTime(),
       coHosts: [],
     }
 
@@ -70,7 +69,6 @@ export class EventManager {
       updatedAt: event.updatedAt,
       tags: event.tags?.join(',') || '',
       imageUrl: event.imageUrl,
-      locationRevealTime: event.locationRevealTime,
     })
 
     return event
@@ -111,7 +109,6 @@ export class EventManager {
       updatedAt: Date.now(),
       tags: updates.tags || (existingEvent.tags ? existingEvent.tags.split(',') : []),
       imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : existingEvent.imageUrl,
-      locationRevealTime: updates.locationRevealTime !== undefined ? updates.locationRevealTime : existingEvent.locationRevealTime,
       coHosts: updates.coHosts || [],
     }
 
@@ -131,7 +128,6 @@ export class EventManager {
       updatedAt: updatedEvent.updatedAt,
       tags: updatedEvent.tags.join(','),
       imageUrl: updatedEvent.imageUrl,
-      locationRevealTime: updatedEvent.locationRevealTime,
     })
 
     return updatedEvent
@@ -238,17 +234,18 @@ export class EventManager {
    * Create Nostr event for an event
    */
   private async createNostrEvent(event: Event, privateKey: string): Promise<NostrEvent> {
+    // Serialize to protocol format (using protocol field names)
     const content = JSON.stringify({
+      _v: '1.0.0', // Schema version
       title: event.title,
       description: event.description,
-      location: event.privacy === 'direct-action' ? undefined : event.location,
-      startTime: event.startTime,
-      endTime: event.endTime,
-      privacy: event.privacy,
-      capacity: event.capacity,
+      location: event.location,
+      startAt: event.startTime, // Protocol uses startAt
+      endAt: event.endTime, // Protocol uses endAt
+      visibility: event.privacy, // Protocol uses visibility
+      maxAttendees: event.capacity, // Protocol uses maxAttendees
       tags: event.tags,
       imageUrl: event.imageUrl,
-      locationRevealTime: event.locationRevealTime,
       coHosts: event.coHosts,
     })
 
@@ -266,7 +263,7 @@ export class EventManager {
       tags.push(['end', event.endTime.toString()])
     }
 
-    if (event.location && event.privacy !== 'direct-action') {
+    if (event.location) {
       tags.push(['location', event.location])
     }
 
@@ -363,17 +360,32 @@ export class EventManager {
         return
       }
 
+      // Support both protocol field names (startAt) and legacy names (startTime)
+      const startTime = typeof content.startAt === 'number' ? content.startAt :
+                        typeof content.startTime === 'number' ? content.startTime : undefined
+      const endTime = typeof content.endAt === 'number' ? content.endAt :
+                      typeof content.endTime === 'number' ? content.endTime : undefined
+
       // Validate required BuildIt event fields
-      if (typeof content.title !== 'string' || typeof content.startTime !== 'number') {
+      if (typeof content.title !== 'string' || startTime === undefined) {
         // Missing required fields, not a valid BuildIt event
         return
       }
 
-      // Validate privacy is a valid value
-      const validPrivacy = ['public', 'group', 'private', 'direct-action'] as const
-      const privacy = validPrivacy.includes(content.privacy as typeof validPrivacy[number])
-        ? (content.privacy as 'public' | 'group' | 'private' | 'direct-action')
-        : 'group'
+      // Support both protocol (visibility) and legacy (privacy) field names
+      // Map 'direct-action' to 'private' for backward compatibility
+      const rawVisibility = content.visibility ?? content.privacy
+      const validPrivacy = ['public', 'group', 'private'] as const
+      let privacy: 'public' | 'group' | 'private' = 'group'
+      if (rawVisibility === 'direct-action') {
+        privacy = 'private' // Map legacy direct-action to private
+      } else if (validPrivacy.includes(rawVisibility as typeof validPrivacy[number])) {
+        privacy = rawVisibility as typeof validPrivacy[number]
+      }
+
+      // Support both protocol (maxAttendees) and legacy (capacity) field names
+      const capacity = typeof content.maxAttendees === 'number' ? content.maxAttendees :
+                       typeof content.capacity === 'number' ? content.capacity : undefined
 
       const event: Event = {
         id: dTag,
@@ -381,16 +393,15 @@ export class EventManager {
         title: content.title as string,
         description: typeof content.description === 'string' ? content.description : '',
         location: typeof content.location === 'string' ? content.location : undefined,
-        startTime: content.startTime as number,
-        endTime: typeof content.endTime === 'number' ? content.endTime : undefined,
+        startTime,
+        endTime,
         privacy,
-        capacity: typeof content.capacity === 'number' ? content.capacity : undefined,
+        capacity,
         createdBy: nostrEvent.pubkey,
         createdAt: nostrEvent.created_at * 1000,
         updatedAt: nostrEvent.created_at * 1000,
         tags: Array.isArray(content.tags) ? (content.tags as string[]) : [],
         imageUrl: typeof content.imageUrl === 'string' ? content.imageUrl : undefined,
-        locationRevealTime: typeof content.locationRevealTime === 'number' ? content.locationRevealTime : undefined,
         coHosts: Array.isArray(content.coHosts) ? (content.coHosts as string[]) : [],
       }
 
@@ -409,7 +420,6 @@ export class EventManager {
             updatedAt: event.updatedAt,
             tags: event.tags.join(','),
             imageUrl: event.imageUrl,
-            locationRevealTime: event.locationRevealTime,
           })
         }
       } else {
@@ -428,7 +438,6 @@ export class EventManager {
           updatedAt: event.updatedAt,
           tags: event.tags.join(','),
           imageUrl: event.imageUrl,
-          locationRevealTime: event.locationRevealTime,
         })
       }
     } catch (error) {

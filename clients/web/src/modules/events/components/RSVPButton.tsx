@@ -52,9 +52,9 @@ export const RSVPButton: FC<RSVPButtonProps> = ({ eventId, currentStatus, onRSVP
         {t('rsvpButton.maybe')}
       </Button>
       <Button
-        variant={currentStatus === 'not-going' ? 'destructive' : 'outline'}
+        variant={currentStatus === 'not_going' ? 'destructive' : 'outline'}
         size="sm"
-        onClick={() => handleRSVP('not-going')}
+        onClick={() => handleRSVP('not_going')}
         disabled={loading}
       >
         <X className="h-4 w-4 mr-1" />

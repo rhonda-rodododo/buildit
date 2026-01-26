@@ -11,7 +11,6 @@ import { AttendeeList } from './AttendeeList'
 import { EditEventDialog } from './EditEventDialog'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
-import { getCurrentTime } from '@/lib/utils'
 
 interface EventDetailProps {
   event: EventWithRSVPs | null
@@ -27,8 +26,6 @@ export const EventDetail: FC<EventDetailProps> = ({
   onRSVPChange,
 }) => {
   const { t } = useTranslation()
-  // Capture time once on mount to avoid impure Date.now() during render
-  const [mountTime] = useState(getCurrentTime);
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const { currentIdentity } = useAuthStore()
   const isCreator = currentIdentity?.publicKey === event?.createdBy
@@ -40,26 +37,17 @@ export const EventDetail: FC<EventDetailProps> = ({
   }
 
 
-  const shouldShowLocation = () => {
-    if (event.privacy === 'direct-action') {
-      return event.locationRevealTime && mountTime >= event.locationRevealTime
-    }
-    return true
-  }
-
   const getPrivacyInfo = () => {
     const icons = {
       public: <Globe className="h-4 w-4" />,
       group: <Lock className="h-4 w-4" />,
       private: <Lock className="h-4 w-4" />,
-      'direct-action': <Lock className="h-4 w-4" />,
     }
 
     const labels = {
       public: t('eventDetail.privacy.public'),
       group: t('eventDetail.privacy.group'),
       private: t('eventDetail.privacy.private'),
-      'direct-action': t('eventDetail.privacy.directAction'),
     }
 
     return (
@@ -157,7 +145,7 @@ export const EventDetail: FC<EventDetailProps> = ({
                 </div>
 
                 <div className="space-y-3">
-                  {shouldShowLocation() && event.location && (
+                  {event.location && (
                     <div className="flex items-start gap-3">
                       <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
@@ -166,20 +154,6 @@ export const EventDetail: FC<EventDetailProps> = ({
                       </div>
                     </div>
                   )}
-
-                  {event.privacy === 'direct-action' &&
-                    event.locationRevealTime &&
-                    !shouldShowLocation() && (
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <div className="font-medium">{t('eventDetail.location')}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {t('eventDetail.locationReveals', { time: formatDate(event.locationRevealTime) })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
                 </div>
               </div>
 

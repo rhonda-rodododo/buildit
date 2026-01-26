@@ -101,17 +101,16 @@ export const eventsSeeds: ModuleSeed[] = [
           tags: 'training,legal,nlg,private',
         },
 
-        // Direct action (location reveal on day-of)
+        // Private direct action event (location shared privately with attendees)
         {
           id: `event-direct-action-${groupId}`,
           groupId,
           title: 'Direct Action: Housing Justice',
-          description: 'Coordinated action to prevent an eviction. This is a direct action event - location will be revealed 2 hours before start time. Be prepared for possible arrests. Know your rights.',
+          description: 'Coordinated action to prevent an eviction. Location will be shared privately with confirmed attendees. Be prepared for possible arrests. Know your rights.',
           startTime: now + 20 * day,
           endTime: now + 20 * day + 4 * hour,
-          location: 'Location to be revealed 2 hours before',
-          locationRevealTime: now + 20 * day - 2 * hour,
-          privacy: 'direct-action',
+          location: 'Location shared with confirmed attendees only',
+          privacy: 'private',
           capacity: 50,
           createdBy: userPubkey,
           createdAt: now,

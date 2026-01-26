@@ -2,14 +2,16 @@ import { z } from 'zod'
 import type { CustomFieldValues } from '@/modules/custom-fields/types'
 
 /**
- * Event privacy levels determining encryption and visibility
+ * Event privacy/visibility levels determining encryption and visibility
+ * Maps to protocol's 'visibility' field
  */
-export type EventPrivacy = 'public' | 'group' | 'private' | 'direct-action'
+export type EventPrivacy = 'public' | 'group' | 'private'
 
 /**
  * RSVP status for event attendees
+ * Uses underscore format to match protocol schema
  */
-export type RSVPStatus = 'going' | 'maybe' | 'not-going'
+export type RSVPStatus = 'going' | 'maybe' | 'not_going'
 
 /**
  * Event schema with Zod validation
@@ -20,17 +22,15 @@ export const EventSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
   location: z.string().optional(),
-  startTime: z.number(), // Unix timestamp
-  endTime: z.number().optional(), // Unix timestamp
-  privacy: z.enum(['public', 'group', 'private', 'direct-action']),
-  capacity: z.number().optional(), // Max attendees
+  startTime: z.number(), // Unix timestamp (maps to protocol's startAt)
+  endTime: z.number().optional(), // Unix timestamp (maps to protocol's endAt)
+  privacy: z.enum(['public', 'group', 'private']), // Maps to protocol's visibility
+  capacity: z.number().optional(), // Max attendees (maps to protocol's maxAttendees)
   createdBy: z.string(), // Pubkey of creator
   createdAt: z.number(),
   updatedAt: z.number(),
   tags: z.array(z.string()).default([]),
   imageUrl: z.string().url().optional(),
-  // Direct action specific: time-delayed location reveal
-  locationRevealTime: z.number().optional(),
   // Co-hosting support
   coHosts: z.array(z.string()).default([]), // Pubkeys
   // Custom fields (dynamic fields from custom-fields module)
@@ -44,9 +44,9 @@ export type Event = z.infer<typeof EventSchema>
  */
 export const RSVPSchema = z.object({
   eventId: z.string(),
-  userPubkey: z.string(),
-  status: z.enum(['going', 'maybe', 'not-going']),
-  timestamp: z.number(),
+  userPubkey: z.string(), // Maps to protocol's pubkey
+  status: z.enum(['going', 'maybe', 'not_going']), // Underscore format matches protocol
+  timestamp: z.number(), // Maps to protocol's respondedAt
   note: z.string().optional(),
 })
 
@@ -87,7 +87,6 @@ export interface CreateEventFormData {
   capacity?: number
   tags?: string[]
   imageUrl?: string
-  locationRevealTime?: Date
   groupId?: string
   customFields?: CustomFieldValues
 }

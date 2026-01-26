@@ -13,17 +13,16 @@ export interface DBEvent {
   groupId?: string;
   title: string;
   description: string;
-  startTime: number;
-  endTime?: number;
+  startTime: number; // Maps to protocol's startAt
+  endTime?: number; // Maps to protocol's endAt
   location?: string;
-  privacy: 'public' | 'group' | 'private' | 'direct-action';
-  capacity?: number;
+  privacy: 'public' | 'group' | 'private'; // Maps to protocol's visibility
+  capacity?: number; // Maps to protocol's maxAttendees
   createdBy: string;
   createdAt: number;
   updatedAt: number;
   tags: string; // comma-separated
   imageUrl?: string;
-  locationRevealTime?: number;
 }
 
 /**
@@ -32,9 +31,9 @@ export interface DBEvent {
 export interface DBRSVP {
   id?: number; // auto-increment
   eventId: string;
-  userPubkey: string;
-  status: 'going' | 'maybe' | 'not-going';
-  timestamp: number;
+  userPubkey: string; // Maps to protocol's pubkey
+  status: 'going' | 'maybe' | 'not_going'; // Underscore format matches protocol
+  timestamp: number; // Maps to protocol's respondedAt
   note?: string;
 }
 

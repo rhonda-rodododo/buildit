@@ -139,7 +139,7 @@ export const useEventsStore = create<EventsState>()(
         const rsvpCounts = {
           going: rsvps.filter((r) => r.status === 'going').length,
           maybe: rsvps.filter((r) => r.status === 'maybe').length,
-          notGoing: rsvps.filter((r) => r.status === 'not-going').length,
+          notGoing: rsvps.filter((r) => r.status === 'not_going').length,
         }
 
         const userRSVP = userPubkey

@@ -24,7 +24,6 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
         return <Globe className="h-3 w-3" />
       case 'group':
       case 'private':
-      case 'direct-action':
         return <Lock className="h-3 w-3" />
     }
   }
@@ -37,8 +36,6 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
         return t('eventCard.privacyLabels.group')
       case 'private':
         return t('eventCard.privacyLabels.private')
-      case 'direct-action':
-        return t('eventCard.privacyLabels.directAction')
     }
   }
 
@@ -69,17 +66,10 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
           {formatDate(event.startTime)}
         </div>
 
-        {event.location && event.privacy !== 'direct-action' && (
+        {event.location && (
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 mr-2" />
             {event.location}
-          </div>
-        )}
-
-        {event.privacy === 'direct-action' && event.locationRevealTime && (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 mr-2" />
-            {t('eventCard.locationReveals', { date: formatDate(event.locationRevealTime) })}
           </div>
         )}
 

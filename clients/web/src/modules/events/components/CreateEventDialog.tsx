@@ -158,9 +158,6 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
                 <SelectItem value="public">{t('createEventDialog.privacy.public')}</SelectItem>
                 <SelectItem value="group">{t('createEventDialog.privacy.group')}</SelectItem>
                 <SelectItem value="private">{t('createEventDialog.privacy.private')}</SelectItem>
-                <SelectItem value="direct-action">
-                  {t('createEventDialog.privacy.directAction')}
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -181,25 +178,6 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
               placeholder={t('createEventDialog.fields.capacityPlaceholder')}
             />
           </div>
-
-          {formData.privacy === 'direct-action' && (
-            <div className="space-y-2">
-              <Label htmlFor="revealTime">{t('createEventDialog.fields.revealTimeLabel')}</Label>
-              <Input
-                type="datetime-local"
-                value={formData.locationRevealTime?.toISOString().slice(0, 16) || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    locationRevealTime: e.target.value ? new Date(e.target.value) : undefined,
-                  })
-                }
-              />
-              <p className="text-xs text-muted-foreground">
-                {t('createEventDialog.fields.revealTimeHelp')}
-              </p>
-            </div>
-          )}
 
           {customFields.length > 0 && (
             <>

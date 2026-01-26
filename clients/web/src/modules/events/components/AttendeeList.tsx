@@ -66,12 +66,12 @@ export const AttendeeList: FC<AttendeeListProps> = ({
         })),
     },
     {
-      status: 'not-going',
+      status: 'not_going',
       label: 'Not Going',
       icon: <X className="h-3.5 w-3.5" />,
       variant: 'outline',
       attendees: rsvps
-        .filter((r) => r.status === 'not-going')
+        .filter((r) => r.status === 'not_going')
         .map((r) => ({
           pubkey: r.userPubkey,
           note: r.note,

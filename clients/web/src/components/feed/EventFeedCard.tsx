@@ -19,8 +19,6 @@ import {
   Users,
   Lock,
   Globe,
-  Shield,
-  Clock,
 } from 'lucide-react';
 
 interface EventFeedCardProps {
@@ -39,7 +37,7 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
     ? getUserRSVP(event.id, currentIdentity.publicKey)
     : undefined;
 
-  const handleRSVP = useCallback((status: 'going' | 'maybe' | 'not-going') => {
+  const handleRSVP = useCallback((status: 'going' | 'maybe' | 'not_going') => {
     if (!currentIdentity) return;
     updateRSVP(event.id, currentIdentity.publicKey, status);
   }, [event.id, currentIdentity, updateRSVP]);
@@ -56,8 +54,6 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
         return <Users className="w-3 h-3" />;
       case 'private':
         return <Lock className="w-3 h-3" />;
-      case 'direct-action':
-        return <Shield className="w-3 h-3" />;
     }
   };
 
@@ -69,8 +65,6 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
         return t('eventFeedCard.privacy.group');
       case 'private':
         return t('eventFeedCard.privacy.private');
-      case 'direct-action':
-        return t('eventFeedCard.privacy.directAction');
     }
   };
 
@@ -154,20 +148,10 @@ export const EventFeedCard: FC<EventFeedCardProps> = ({ item, className }) => {
           </div>
 
           {/* Location */}
-          {event.location && !event.locationRevealTime && (
+          {event.location && (
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="w-4 h-4 text-muted-foreground" />
               <span>{event.location}</span>
-            </div>
-          )}
-
-          {/* Location reveal time for direct actions */}
-          {event.locationRevealTime && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span>
-                {t('eventFeedCard.locationReveal', { time: formatDistanceToNow(event.locationRevealTime) })}
-              </span>
             </div>
           )}
 

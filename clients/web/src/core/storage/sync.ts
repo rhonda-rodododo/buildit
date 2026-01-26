@@ -141,7 +141,6 @@ async function syncEvent(nostrEvent: NostrEvent, groupId: string): Promise<void>
       updatedAt: nostrEvent.created_at * 1000,
       tags: content.tags?.join(',') || '',
       imageUrl: content.imageUrl,
-      locationRevealTime: content.locationRevealTime,
     };
 
     // Check if event exists
@@ -177,7 +176,7 @@ async function syncRSVP(nostrEvent: NostrEvent): Promise<void> {
     const rsvpData = {
       eventId: eventIdTag,
       userPubkey: nostrEvent.pubkey,
-      status: statusTag as 'going' | 'maybe' | 'not-going',
+      status: statusTag as 'going' | 'maybe' | 'not_going',
       timestamp: nostrEvent.created_at * 1000,
       note: nostrEvent.content,
     };

@@ -39,15 +39,8 @@ export function generateICalEvent(event: Event): string {
     `DESCRIPTION:${escapeText(event.description)}`
   )
 
-  // Only include location if it's not a direct action event or if location is revealed
-  if (event.location && event.privacy !== 'direct-action') {
-    lines.push(`LOCATION:${escapeText(event.location)}`)
-  } else if (
-    event.privacy === 'direct-action' &&
-    event.locationRevealTime &&
-    Date.now() >= event.locationRevealTime &&
-    event.location
-  ) {
+  // Include location if available
+  if (event.location) {
     lines.push(`LOCATION:${escapeText(event.location)}`)
   }
 
@@ -128,7 +121,7 @@ export function generateICalCalendar(events: Event[]): string {
       `DESCRIPTION:${escapeText(event.description)}`
     )
 
-    if (event.location && event.privacy !== 'direct-action') {
+    if (event.location) {
       lines.push(`LOCATION:${escapeText(event.location)}`)
     }
 

@@ -53,9 +53,6 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
         capacity: event.capacity,
         tags: event.tags,
         imageUrl: event.imageUrl,
-        locationRevealTime: event.locationRevealTime
-          ? new Date(event.locationRevealTime)
-          : undefined,
         groupId: event.groupId,
       })
       setCustomFieldValues(event.customFields || {})
@@ -180,9 +177,6 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
                 <SelectItem value="public">{t('editEventDialog.privacy.public')}</SelectItem>
                 <SelectItem value="group">{t('editEventDialog.privacy.group')}</SelectItem>
                 <SelectItem value="private">{t('editEventDialog.privacy.private')}</SelectItem>
-                <SelectItem value="direct-action">
-                  {t('editEventDialog.privacy.directAction')}
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -203,25 +197,6 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
               placeholder={t('editEventDialog.fields.capacityPlaceholder')}
             />
           </div>
-
-          {formData.privacy === 'direct-action' && (
-            <div className="space-y-2">
-              <Label htmlFor="edit-revealTime">{t('editEventDialog.fields.revealTimeLabel')}</Label>
-              <Input
-                type="datetime-local"
-                value={formData.locationRevealTime ? formatDateForInput(formData.locationRevealTime) : ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    locationRevealTime: e.target.value ? new Date(e.target.value) : undefined,
-                  })
-                }
-              />
-              <p className="text-xs text-muted-foreground">
-                {t('editEventDialog.fields.revealTimeHelp')}
-              </p>
-            </div>
-          )}
 
           {customFields.length > 0 && (
             <>

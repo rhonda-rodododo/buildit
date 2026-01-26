@@ -91,7 +91,7 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
                           {event.endTime &&
                             ` - ${format(new Date(event.endTime), 'p')}`}
                         </p>
-                        {event.location && event.privacy !== 'direct-action' && (
+                        {event.location && (
                           <p className="text-sm text-muted-foreground mt-1">
                             📍 {event.location}
                           </p>
