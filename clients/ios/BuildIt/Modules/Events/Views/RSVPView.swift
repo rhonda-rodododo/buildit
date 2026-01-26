@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Events
+
 /// View for RSVP submission
 public struct RSVPView: View {
     let event: EventEntity
@@ -38,37 +41,37 @@ public struct RSVPView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                Section("Your Response") {
-                    Picker("Status", selection: $selectedStatus) {
-                        Label("Going", systemImage: "checkmark.circle.fill")
+                Section("events_yourResponseTitle".localized) {
+                    Picker("events_status".localized, selection: $selectedStatus) {
+                        Label("events_going".localized, systemImage: "checkmark.circle.fill")
                             .tag(Status.going)
-                        Label("Maybe", systemImage: "questionmark.circle.fill")
+                        Label("events_maybe".localized, systemImage: "questionmark.circle.fill")
                             .tag(Status.maybe)
-                        Label("Can't Go", systemImage: "xmark.circle.fill")
+                        Label("events_cantGo".localized, systemImage: "xmark.circle.fill")
                             .tag(Status.notGoing)
                     }
                     .pickerStyle(.segmented)
                 }
 
                 if selectedStatus == .going {
-                    Section("Additional Guests") {
-                        TextField("Number of guests", text: $guestCount)
+                    Section("events_additionalGuests".localized) {
+                        TextField("events_numberOfGuests".localized, text: $guestCount)
                             .keyboardType(.numberPad)
 
-                        Text("Including yourself")
+                        Text("events_includingYourself".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
 
-                Section("Note (Optional)") {
-                    TextField("Add a note", text: $note, axis: .vertical)
+                Section("events_noteOptional".localized) {
+                    TextField("events_addNote".localized, text: $note, axis: .vertical)
                         .lineLimit(3...6)
                 }
 
                 if let maxAttendees = event.maxAttendees {
                     Section {
-                        Text("This event has a capacity limit of \(maxAttendees) attendees.")
+                        Text("events_capacityLimit".localized(maxAttendees))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -77,36 +80,36 @@ public struct RSVPView: View {
                 if let rsvpDeadline = event.rsvpDeadline {
                     Section {
                         if rsvpDeadline > Date() {
-                            Text("RSVP by \(rsvpDeadline.formatted(date: .abbreviated, time: .shortened))")
+                            Text("events_rsvpBy".localized + " " + rsvpDeadline.formatted(date: .abbreviated, time: .shortened))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         } else {
-                            Text("RSVP deadline has passed")
+                            Text("events_rsvpDeadlinePassed".localized)
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
                     }
                 }
             }
-            .navigationTitle("RSVP")
+            .navigationTitle("events_rsvp".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
+                    Button(L10n.Common.cancel) {
                         dismiss()
                     }
                     .disabled(isSubmitting)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Submit") {
+                    Button("events_submit".localized) {
                         submitRsvp()
                     }
                     .disabled(isSubmitting)
                 }
             }
-            .alert("Error", isPresented: .constant(errorMessage != nil)) {
-                Button("OK") {
+            .alert(L10n.Common.error, isPresented: .constant(errorMessage != nil)) {
+                Button("common_ok".localized) {
                     errorMessage = nil
                 }
             } message: {

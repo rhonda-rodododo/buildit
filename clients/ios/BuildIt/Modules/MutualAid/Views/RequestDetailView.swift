@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.MutualAid
+
 /// Detailed view of an aid request
 public struct RequestDetailView: View {
     @Environment(\.dismiss) private var dismiss
@@ -43,11 +46,11 @@ public struct RequestDetailView: View {
                             .fontWeight(.bold)
 
                         if !request.anonymousRequest, let name = request.requesterName {
-                            Text("Posted by \(name)")
+                            Text("mutualaid_postedBy".localized(name))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         } else if request.anonymousRequest {
-                            Text("Posted anonymously")
+                            Text("mutualaid_postedAnonymously".localized)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -63,7 +66,7 @@ public struct RequestDetailView: View {
                     // Description
                     if let description = request.description {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Description")
+                            Text("mutualaid_description".localized)
                                 .font(.headline)
 
                             Text(description)
@@ -77,30 +80,30 @@ public struct RequestDetailView: View {
 
                     // Details
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Details")
+                        Text("mutualaid_details".localized)
                             .font(.headline)
 
                         if let location = request.location {
-                            DetailRow(icon: "location", label: "Location", value: location.displayString)
+                            DetailRow(icon: "location", label: "mutualaid_location".localized, value: location.displayString)
                         }
 
                         if let neededBy = request.neededBy {
-                            DetailRow(icon: "clock", label: "Needed by", value: neededBy.formatted(date: .abbreviated, time: .shortened))
+                            DetailRow(icon: "clock", label: "mutualaid_neededBy".localized, value: neededBy.formatted(date: .abbreviated, time: .shortened))
                         }
 
                         if let qty = request.quantityNeeded {
                             let unit = request.unit ?? "units"
-                            DetailRow(icon: "number", label: "Needed", value: "\(Int(qty)) \(unit)")
+                            DetailRow(icon: "number", label: "mutualaid_needed".localized, value: "\(Int(qty)) \(unit)")
 
                             if request.quantityFulfilled > 0 {
-                                DetailRow(icon: "checkmark.circle", label: "Fulfilled", value: "\(Int(request.quantityFulfilled)) \(unit)")
+                                DetailRow(icon: "checkmark.circle", label: "mutualaid_fulfilled".localized, value: "\(Int(request.quantityFulfilled)) \(unit)")
 
                                 ProgressView(value: request.progressPercentage)
                                     .tint(.green)
                             }
                         }
 
-                        DetailRow(icon: "tag", label: "Status", value: request.status.displayName)
+                        DetailRow(icon: "tag", label: "mutualaid_status".localized, value: request.status.displayName)
                     }
                     .padding()
                     .background(Color(.systemBackground))
@@ -109,7 +112,7 @@ public struct RequestDetailView: View {
                     // Fulfillments
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Responses")
+                            Text("mutualaid_requests".localized)
                                 .font(.headline)
 
                             Spacer()
@@ -123,7 +126,7 @@ public struct RequestDetailView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                         } else if fulfillments.isEmpty {
-                            Text("No one has offered to help yet")
+                            Text("mutualaid_noOneOfferedYet".localized)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .frame(maxWidth: .infinity)
@@ -143,7 +146,7 @@ public struct RequestDetailView: View {
                         Button {
                             showOfferSheet = true
                         } label: {
-                            Label("Offer to Help", systemImage: "hand.raised")
+                            Label("mutualaid_offerToHelp".localized, systemImage: "hand.raised")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -163,11 +166,11 @@ public struct RequestDetailView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Request")
+            .navigationTitle("mutualaid_request".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
             }
             .sheet(isPresented: $showOfferSheet) {
@@ -267,12 +270,12 @@ struct FulfillmentStatusBadge: View {
 
     private var statusText: String {
         switch status {
-        case .offered: return "Offered"
-        case .accepted: return "Accepted"
-        case .inProgress: return "In Progress"
-        case .completed: return "Completed"
-        case .cancelled: return "Cancelled"
-        case .declined: return "Declined"
+        case .offered: return "mutualaid_offered".localized
+        case .accepted: return "mutualaid_accepted".localized
+        case .inProgress: return "mutualaid_inProgress".localized
+        case .completed: return L10n.Common.completed
+        case .cancelled: return "mutualaid_cancelled".localized
+        case .declined: return "mutualaid_declined".localized
         }
     }
 
@@ -306,15 +309,15 @@ struct OfferFulfillmentSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Your offer") {
-                    TextField("Message (optional)", text: $message, axis: .vertical)
+                Section("mutualaid_yourOffer".localized) {
+                    TextField("mutualaid_messageOptional".localized, text: $message, axis: .vertical)
                         .lineLimit(3...6)
                 }
 
                 if request.quantityNeeded != nil {
-                    Section("How much can you provide?") {
+                    Section("mutualaid_howMuchCanYouProvide".localized) {
                         HStack {
-                            TextField("Quantity", text: $quantity)
+                            TextField("mutualaid_quantity".localized, text: $quantity)
                                 .keyboardType(.decimalPad)
 
                             if let unit = request.unit {
@@ -325,11 +328,11 @@ struct OfferFulfillmentSheet: View {
                     }
                 }
 
-                Section("When?") {
-                    Toggle("Schedule a time", isOn: $hasSchedule)
+                Section("mutualaid_when".localized) {
+                    Toggle("mutualaid_scheduleTime".localized, isOn: $hasSchedule)
 
                     if hasSchedule {
-                        DatePicker("Date & Time", selection: $scheduledDate)
+                        DatePicker("mutualaid_dateTime".localized, selection: $scheduledDate)
                     }
                 }
 
@@ -340,15 +343,15 @@ struct OfferFulfillmentSheet: View {
                     }
                 }
             }
-            .navigationTitle("Offer to Help")
+            .navigationTitle("mutualaid_offerToHelp".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Send") {
+                    Button("mutualaid_send".localized) {
                         Task { await submitOffer() }
                     }
                     .disabled(isSubmitting)
@@ -411,7 +414,7 @@ public struct OfferDetailView: View {
                             Spacer()
 
                             if offer.isActive {
-                                Text("Available")
+                                Text("mutualaid_available".localized)
                                     .font(.caption2)
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 8)
@@ -427,7 +430,7 @@ public struct OfferDetailView: View {
                             .fontWeight(.bold)
 
                         if let name = offer.offererName {
-                            Text("Offered by \(name)")
+                            Text("mutualaid_offeredBy".localized(name))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -443,7 +446,7 @@ public struct OfferDetailView: View {
                     // Description
                     if let description = offer.description {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Description")
+                            Text("mutualaid_description".localized)
                                 .font(.headline)
 
                             Text(description)
@@ -457,24 +460,24 @@ public struct OfferDetailView: View {
 
                     // Details
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Details")
+                        Text("mutualaid_details".localized)
                             .font(.headline)
 
                         if let location = offer.location {
-                            DetailRow(icon: "location", label: "Location", value: location.displayString)
+                            DetailRow(icon: "location", label: "mutualaid_location".localized, value: location.displayString)
                         }
 
                         if let from = offer.availableFrom {
-                            DetailRow(icon: "calendar", label: "Available from", value: from.formatted(date: .abbreviated, time: .omitted))
+                            DetailRow(icon: "calendar", label: "mutualaid_availableFrom".localized, value: from.formatted(date: .abbreviated, time: .omitted))
                         }
 
                         if let until = offer.availableUntil {
-                            DetailRow(icon: "calendar.badge.clock", label: "Until", value: until.formatted(date: .abbreviated, time: .omitted))
+                            DetailRow(icon: "calendar.badge.clock", label: "mutualaid_until".localized, value: until.formatted(date: .abbreviated, time: .omitted))
                         }
 
                         if let qty = offer.quantity {
                             let unit = offer.unit ?? "units"
-                            DetailRow(icon: "number", label: "Quantity", value: "\(Int(qty)) \(unit)")
+                            DetailRow(icon: "number", label: "mutualaid_quantity".localized, value: "\(Int(qty)) \(unit)")
                         }
                     }
                     .padding()
@@ -486,7 +489,7 @@ public struct OfferDetailView: View {
                         Button {
                             // Would open a DM with the offerer
                         } label: {
-                            Label("Contact Offerer", systemImage: "message")
+                            Label("mutualaid_contactOfferer".localized, systemImage: "message")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -499,11 +502,11 @@ public struct OfferDetailView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Offer")
+            .navigationTitle("mutualaid_offer".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
             }
         }

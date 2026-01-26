@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Wiki
+
 struct WikiPageView: View {
     let page: WikiPage
     let service: WikiService
@@ -42,15 +45,15 @@ struct WikiPageView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: { showToc.toggle() }) {
-                        Label("Table of Contents", systemImage: "list.bullet")
+                        Label("wiki_tableOfContents".localized, systemImage: "list.bullet")
                     }
 
                     Button(action: { showHistory = true }) {
-                        Label("View History", systemImage: "clock.arrow.circlepath")
+                        Label("wiki_viewHistory".localized, systemImage: "clock.arrow.circlepath")
                     }
 
                     ShareLink(item: "[\(page.title)](\(page.slug))") {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label("wiki_share".localized, systemImage: "square.and.arrow.up")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -116,7 +119,7 @@ struct WikiPageView: View {
             }
             .padding(.vertical, 8)
         } label: {
-            Label("Table of Contents", systemImage: "list.bullet")
+            Label("wiki_tableOfContents".localized, systemImage: "list.bullet")
                 .font(.headline)
         }
         .padding(.horizontal)
@@ -131,7 +134,7 @@ struct WikiPageView: View {
             // Contributors
             if !page.contributors.isEmpty {
                 HStack {
-                    Text("\(page.contributors.count) contributor\(page.contributors.count == 1 ? "" : "s")")
+                    Text("wiki_contributors".localized(page.contributors.count))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -141,7 +144,7 @@ struct WikiPageView: View {
             VStack(alignment: .leading, spacing: 4) {
                 if let updated = page.updatedAt {
                     HStack {
-                        Text("Last updated:")
+                        Text("wiki_lastUpdated".localized)
                             .foregroundColor(.secondary)
                         Text(formatDate(updated))
                     }
@@ -149,7 +152,7 @@ struct WikiPageView: View {
                 }
 
                 HStack {
-                    Text("Created:")
+                    Text("wiki_created".localized)
                         .foregroundColor(.secondary)
                     Text(formatDate(page.createdAt))
                 }
@@ -387,9 +390,9 @@ struct RevisionHistoryView: View {
         NavigationStack {
             Group {
                 if isLoading {
-                    ProgressView("Loading history...")
+                    ProgressView("wiki_loadingHistory".localized)
                 } else if revisions.isEmpty {
-                    Text("No revision history available")
+                    Text("wiki_noRevisionHistory".localized)
                         .foregroundColor(.secondary)
                 } else {
                     List(revisions) { revision in
@@ -398,11 +401,11 @@ struct RevisionHistoryView: View {
                     .listStyle(.plain)
                 }
             }
-            .navigationTitle("Revision History")
+            .navigationTitle("wiki_revisionHistory".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Common.done) { dismiss() }
                 }
             }
             .task {

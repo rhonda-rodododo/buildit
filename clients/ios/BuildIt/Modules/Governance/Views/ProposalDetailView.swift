@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Governance
+
 struct ProposalDetailView: View {
     let proposal: Proposal
     @ObservedObject var service: GovernanceService
@@ -57,7 +60,7 @@ struct ProposalDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Proposal")
+        .navigationTitle("governance_proposal".localized)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.loadData()
@@ -105,7 +108,7 @@ struct ProposalDetailView: View {
 
     private func descriptionSection(_ description: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Description")
+            Text("governance_description".localized)
                 .font(.headline)
 
             Text(description)
@@ -118,33 +121,33 @@ struct ProposalDetailView: View {
 
     private var votingInfoSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Voting Details")
+            Text("governance_votingDetails".localized)
                 .font(.headline)
 
             VStack(spacing: 8) {
-                InfoRow(icon: "hand.raised", title: "Voting System", value: proposal.votingSystem.displayName)
+                InfoRow(icon: "hand.raised", title: "governance_votingSystem".localized, value: proposal.votingSystem.displayName)
 
                 if let quorum = proposal.quorum, quorum.type != .none {
                     let quorumText = quorum.type == .percentage ? "\(Int(quorum.value ?? 0))%" : "\(Int(quorum.value ?? 0)) votes"
-                    InfoRow(icon: "person.3", title: "Quorum", value: quorumText)
+                    InfoRow(icon: "person.3", title: "governance_quorum".localized, value: quorumText)
                 }
 
                 if let threshold = proposal.threshold {
-                    let thresholdText = threshold.type == .supermajority ? "2/3 majority" : "Simple majority"
-                    InfoRow(icon: "checkmark.circle", title: "Threshold", value: thresholdText)
+                    let thresholdText = threshold.type == .supermajority ? "governance_supermajority".localized : "governance_simpleMajority".localized
+                    InfoRow(icon: "checkmark.circle", title: "governance_threshold".localized, value: thresholdText)
                 }
 
                 // Voting period
                 InfoRow(
                     icon: "calendar",
-                    title: "Voting Period",
+                    title: "governance_votingPeriod".localized,
                     value: formatPeriod(proposal.votingPeriod)
                 )
 
                 if proposal.canVote {
                     InfoRow(
                         icon: "clock",
-                        title: "Time Remaining",
+                        title: "governance_timeRemaining".localized,
                         value: formatTimeRemaining(proposal.votingPeriod.remainingTime),
                         valueColor: .orange
                     )
@@ -157,7 +160,7 @@ struct ProposalDetailView: View {
 
     private var resultsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Current Results")
+            Text("governance_currentResults".localized)
                 .font(.headline)
 
             let totalVotes = viewModel.voteCounts.values.reduce(0, +)
@@ -174,7 +177,7 @@ struct ProposalDetailView: View {
                 )
             }
 
-            Text("\(totalVotes) vote\(totalVotes == 1 ? "" : "s") cast")
+            Text("governance_votesCast".localized(totalVotes))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -184,7 +187,7 @@ struct ProposalDetailView: View {
 
     private var votingSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Cast Your Vote")
+            Text("governance_castYourVote".localized)
                 .font(.headline)
 
             ForEach(proposal.options.sorted(by: { $0.order < $1.order })) { option in
@@ -198,11 +201,11 @@ struct ProposalDetailView: View {
 
             // Comment field
             VStack(alignment: .leading, spacing: 4) {
-                Text("Comment (optional)")
+                Text("governance_commentOptional".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
-                TextField("Add a comment to your vote...", text: $voteComment, axis: .vertical)
+                TextField("governance_addCommentPlaceholder".localized, text: $voteComment, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(3...6)
             }
@@ -211,7 +214,7 @@ struct ProposalDetailView: View {
             Button(action: castVote) {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
-                    Text("Submit Vote")
+                    Text("governance_submitVote".localized)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -231,13 +234,13 @@ struct ProposalDetailView: View {
                 .font(.system(size: 48))
                 .foregroundColor(.green)
 
-            Text("You have voted")
+            Text("governance_youHaveVoted".localized)
                 .font(.headline)
 
             if let userVote = viewModel.userVote,
                let optionId = userVote.choice.first,
                let option = proposal.options.first(where: { $0.id == optionId }) {
-                Text("Your vote: \(option.label)")
+                Text("governance_yourVote".localized(option.label))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -270,12 +273,12 @@ struct ProposalDetailView: View {
         let days = hours / 24
 
         if days > 0 {
-            return "\(days) day\(days == 1 ? "" : "s") remaining"
+            return "governance_daysRemaining".localized(days)
         } else if hours > 0 {
-            return "\(hours) hour\(hours == 1 ? "" : "s") remaining"
+            return "governance_hoursRemaining".localized(hours)
         } else {
             let minutes = Int(interval / 60)
-            return "\(max(1, minutes)) minute\(minutes == 1 ? "" : "s") remaining"
+            return "governance_minutesRemaining".localized(max(1, minutes))
         }
     }
 }

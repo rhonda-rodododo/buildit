@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.MutualAid
+
 /// View for creating a new aid request
 public struct CreateRequestView: View {
     @Environment(\.dismiss) private var dismiss
@@ -36,13 +39,13 @@ public struct CreateRequestView: View {
         NavigationStack {
             Form {
                 // Basic Info
-                Section("What do you need?") {
-                    TextField("Title", text: $title)
+                Section("mutualaid_whatDoYouNeed".localized) {
+                    TextField("mutualaid_title".localized, text: $title)
 
-                    TextField("Description (optional)", text: $description, axis: .vertical)
+                    TextField("mutualaid_descriptionOptional".localized, text: $description, axis: .vertical)
                         .lineLimit(3...6)
 
-                    Picker("Category", selection: $category) {
+                    Picker("mutualaid_category".localized, selection: $category) {
                         ForEach(AidCategory.allCases, id: \.self) { cat in
                             Label(cat.displayName, systemImage: cat.icon)
                                 .tag(cat)
@@ -51,8 +54,8 @@ public struct CreateRequestView: View {
                 }
 
                 // Urgency
-                Section("How urgent?") {
-                    Picker("Urgency", selection: $urgency) {
+                Section("mutualaid_howUrgent".localized) {
+                    Picker("mutualaid_urgency".localized, selection: $urgency) {
                         ForEach(UrgencyLevel.allCases, id: \.self) { level in
                             HStack {
                                 Circle()
@@ -67,21 +70,21 @@ public struct CreateRequestView: View {
                 }
 
                 // Location
-                Section("Where?") {
-                    Toggle("Location is flexible", isOn: $locationFlexible)
+                Section("mutualaid_where".localized) {
+                    Toggle("mutualaid_locationFlexible".localized, isOn: $locationFlexible)
 
                     if !locationFlexible {
-                        TextField("City or area", text: $locationCity)
+                        TextField("mutualaid_cityOrArea".localized, text: $locationCity)
                     }
                 }
 
                 // Timeline
-                Section("When do you need it?") {
-                    Toggle("Has deadline", isOn: $hasDeadline)
+                Section("mutualaid_whenDoYouNeedIt".localized) {
+                    Toggle("mutualaid_hasDeadline".localized, isOn: $hasDeadline)
 
                     if hasDeadline {
                         DatePicker(
-                            "Needed by",
+                            "mutualaid_neededBy".localized,
                             selection: Binding(
                                 get: { neededByDate ?? Date() },
                                 set: { neededByDate = $0 }
@@ -92,26 +95,26 @@ public struct CreateRequestView: View {
                 }
 
                 // Quantity
-                Section("How much?") {
-                    Toggle("Specify quantity", isOn: $hasQuantity)
+                Section("mutualaid_howMuch".localized) {
+                    Toggle("mutualaid_specifyQuantity".localized, isOn: $hasQuantity)
 
                     if hasQuantity {
                         HStack {
-                            TextField("Amount", text: $quantityNeeded)
+                            TextField("mutualaid_amount".localized, text: $quantityNeeded)
                                 .keyboardType(.decimalPad)
                                 .frame(width: 100)
 
-                            TextField("Unit (e.g., meals, hours)", text: $unit)
+                            TextField("mutualaid_unitExample".localized, text: $unit)
                         }
                     }
                 }
 
                 // Privacy
-                Section("Privacy") {
-                    Toggle("Post anonymously", isOn: $anonymousRequest)
+                Section("mutualaid_privacy".localized) {
+                    Toggle("mutualaid_postAnonymously".localized, isOn: $anonymousRequest)
 
                     if anonymousRequest {
-                        Text("Your identity will be hidden from the public. Only people who respond will be able to contact you.")
+                        Text("mutualaid_anonymousHint".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -125,15 +128,15 @@ public struct CreateRequestView: View {
                     }
                 }
             }
-            .navigationTitle("New Request")
+            .navigationTitle("mutualaid_newRequest".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Post") {
+                    Button("mutualaid_post".localized) {
                         Task { await submitRequest() }
                     }
                     .disabled(!isValid || isSubmitting)
@@ -233,13 +236,13 @@ public struct CreateOfferView: View {
         NavigationStack {
             Form {
                 // Basic Info
-                Section("What can you offer?") {
-                    TextField("Title", text: $title)
+                Section("mutualaid_whatCanYouOffer".localized) {
+                    TextField("mutualaid_title".localized, text: $title)
 
-                    TextField("Description (optional)", text: $description, axis: .vertical)
+                    TextField("mutualaid_descriptionOptional".localized, text: $description, axis: .vertical)
                         .lineLimit(3...6)
 
-                    Picker("Category", selection: $category) {
+                    Picker("mutualaid_category".localized, selection: $category) {
                         ForEach(AidCategory.allCases, id: \.self) { cat in
                             Label(cat.displayName, systemImage: cat.icon)
                                 .tag(cat)
@@ -248,23 +251,23 @@ public struct CreateOfferView: View {
                 }
 
                 // Location
-                Section("Where?") {
-                    Toggle("Can help remotely/anywhere", isOn: $locationFlexible)
+                Section("mutualaid_where".localized) {
+                    Toggle("mutualaid_canHelpRemotely".localized, isOn: $locationFlexible)
 
                     if !locationFlexible {
-                        TextField("City or area", text: $locationCity)
+                        TextField("mutualaid_cityOrArea".localized, text: $locationCity)
                     }
                 }
 
                 // Availability
-                Section("When are you available?") {
-                    DatePicker("Starting", selection: $availableFrom, displayedComponents: .date)
+                Section("mutualaid_whenAreYouAvailable".localized) {
+                    DatePicker("mutualaid_starting".localized, selection: $availableFrom, displayedComponents: .date)
 
-                    Toggle("Has end date", isOn: $hasEndDate)
+                    Toggle("mutualaid_hasEndDate".localized, isOn: $hasEndDate)
 
                     if hasEndDate {
                         DatePicker(
-                            "Until",
+                            "mutualaid_until".localized,
                             selection: Binding(
                                 get: { availableUntil ?? Date().addingTimeInterval(86400 * 30) },
                                 set: { availableUntil = $0 }
@@ -275,16 +278,16 @@ public struct CreateOfferView: View {
                 }
 
                 // Quantity
-                Section("How much can you offer?") {
-                    Toggle("Specify quantity", isOn: $hasQuantity)
+                Section("mutualaid_howMuchCanYouOffer".localized) {
+                    Toggle("mutualaid_specifyQuantity".localized, isOn: $hasQuantity)
 
                     if hasQuantity {
                         HStack {
-                            TextField("Amount", text: $quantity)
+                            TextField("mutualaid_amount".localized, text: $quantity)
                                 .keyboardType(.decimalPad)
                                 .frame(width: 100)
 
-                            TextField("Unit (e.g., meals, hours)", text: $unit)
+                            TextField("mutualaid_unitExample".localized, text: $unit)
                         }
                     }
                 }
@@ -297,15 +300,15 @@ public struct CreateOfferView: View {
                     }
                 }
             }
-            .navigationTitle("New Offer")
+            .navigationTitle("mutualaid_newOffer".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Post") {
+                    Button("mutualaid_post".localized) {
                         Task { await submitOffer() }
                     }
                     .disabled(!isValid || isSubmitting)

@@ -23186,6 +23186,216 @@ public enum L10n {
             NSLocalizedString("mobile_governance_minutesLeft", comment: "")
         }
 
+        /// Proposal
+        public static var governanceProposal: String {
+            NSLocalizedString("mobile_governance_proposal", comment: "")
+        }
+
+        /// Description
+        public static var governanceDescription: String {
+            NSLocalizedString("mobile_governance_description", comment: "")
+        }
+
+        /// Voting Details
+        public static var governanceVotingDetails: String {
+            NSLocalizedString("mobile_governance_votingDetails", comment: "")
+        }
+
+        /// Voting System
+        public static var governanceVotingSystem: String {
+            NSLocalizedString("mobile_governance_votingSystem", comment: "")
+        }
+
+        /// Quorum
+        public static var governanceQuorum: String {
+            NSLocalizedString("mobile_governance_quorum", comment: "")
+        }
+
+        /// Threshold
+        public static var governanceThreshold: String {
+            NSLocalizedString("mobile_governance_threshold", comment: "")
+        }
+
+        /// Voting Period
+        public static var governanceVotingPeriod: String {
+            NSLocalizedString("mobile_governance_votingPeriod", comment: "")
+        }
+
+        /// Time Remaining
+        public static var governanceTimeRemaining: String {
+            NSLocalizedString("mobile_governance_timeRemaining", comment: "")
+        }
+
+        /// Current Results
+        public static var governanceCurrentResults: String {
+            NSLocalizedString("mobile_governance_currentResults", comment: "")
+        }
+
+        /// %d vote(s) cast
+        public static var governanceVotesCast: String {
+            NSLocalizedString("mobile_governance_votesCast", comment: "")
+        }
+
+        /// Cast Your Vote
+        public static var governanceCastYourVote: String {
+            NSLocalizedString("mobile_governance_castYourVote", comment: "")
+        }
+
+        /// Comment (optional)
+        public static var governanceCommentOptional: String {
+            NSLocalizedString("mobile_governance_commentOptional", comment: "")
+        }
+
+        /// Add a comment to your vote...
+        public static var governanceAddCommentPlaceholder: String {
+            NSLocalizedString("mobile_governance_addCommentPlaceholder", comment: "")
+        }
+
+        /// Submit Vote
+        public static var governanceSubmitVote: String {
+            NSLocalizedString("mobile_governance_submitVote", comment: "")
+        }
+
+        /// You have voted
+        public static var governanceYouHaveVoted: String {
+            NSLocalizedString("mobile_governance_youHaveVoted", comment: "")
+        }
+
+        /// Your vote: %@
+        public static var governanceYourVote: String {
+            NSLocalizedString("mobile_governance_yourVote", comment: "")
+        }
+
+        /// %d day(s) remaining
+        public static var governanceDaysRemaining: String {
+            NSLocalizedString("mobile_governance_daysRemaining", comment: "")
+        }
+
+        /// %d hour(s) remaining
+        public static var governanceHoursRemaining: String {
+            NSLocalizedString("mobile_governance_hoursRemaining", comment: "")
+        }
+
+        /// %d minute(s) remaining
+        public static var governanceMinutesRemaining: String {
+            NSLocalizedString("mobile_governance_minutesRemaining", comment: "")
+        }
+
+        /// Basic Information
+        public static var governanceBasicInfo: String {
+            NSLocalizedString("mobile_governance_basicInfo", comment: "")
+        }
+
+        /// Title
+        public static var governanceTitle: String {
+            NSLocalizedString("mobile_governance_title", comment: "")
+        }
+
+        /// Type
+        public static var governanceType: String {
+            NSLocalizedString("mobile_governance_type", comment: "")
+        }
+
+        /// Voting Configuration
+        public static var governanceVotingConfig: String {
+            NSLocalizedString("mobile_governance_votingConfig", comment: "")
+        }
+
+        /// Include Discussion Period
+        public static var governanceIncludeDiscussion: String {
+            NSLocalizedString("mobile_governance_includeDiscussion", comment: "")
+        }
+
+        /// Discussion: %d day(s)
+        public static var governanceDiscussionDays: String {
+            NSLocalizedString("mobile_governance_discussionDays", comment: "")
+        }
+
+        /// Voting: %d day(s)
+        public static var governanceVotingDays: String {
+            NSLocalizedString("mobile_governance_votingDays", comment: "")
+        }
+
+        /// Voting Options
+        public static var governanceVotingOptions: String {
+            NSLocalizedString("mobile_governance_votingOptions", comment: "")
+        }
+
+        /// Use Custom Options
+        public static var governanceUseCustomOptions: String {
+            NSLocalizedString("mobile_governance_useCustomOptions", comment: "")
+        }
+
+        /// Option
+        public static var governanceOption: String {
+            NSLocalizedString("mobile_governance_option", comment: "")
+        }
+
+        /// Add Option
+        public static var governanceAddOption: String {
+            NSLocalizedString("mobile_governance_addOption", comment: "")
+        }
+
+        /// Yes, No
+        public static var governanceDefaultOptions: String {
+            NSLocalizedString("mobile_governance_defaultOptions", comment: "")
+        }
+
+        /// Abstain
+        public static var governanceAbstain: String {
+            NSLocalizedString("mobile_governance_abstain", comment: "")
+        }
+
+        /// Allow Abstain
+        public static var governanceAllowAbstain: String {
+            NSLocalizedString("mobile_governance_allowAbstain", comment: "")
+        }
+
+        /// Tags (Optional)
+        public static var governanceTagsOptional: String {
+            NSLocalizedString("mobile_governance_tagsOptional", comment: "")
+        }
+
+        /// Add tags separated by commas
+        public static var governanceTagsPlaceholder: String {
+            NSLocalizedString("mobile_governance_tagsPlaceholder", comment: "")
+        }
+
+        /// Preview
+        public static var governancePreview: String {
+            NSLocalizedString("mobile_governance_preview", comment: "")
+        }
+
+        /// Proposal Title
+        public static var governanceProposalTitle: String {
+            NSLocalizedString("mobile_governance_proposalTitle", comment: "")
+        }
+
+        /// %dd discussion + %dd voting
+        public static var governanceDiscussionPlusVoting: String {
+            NSLocalizedString("mobile_governance_discussionPlusVoting", comment: "")
+        }
+
+        /// %dd voting
+        public static var governanceDayVoting: String {
+            NSLocalizedString("mobile_governance_dayVoting", comment: "")
+        }
+
+        /// New Proposal
+        public static var governanceNewProposal: String {
+            NSLocalizedString("mobile_governance_newProposal", comment: "")
+        }
+
+        /// 2\/3 majority
+        public static var governanceSupermajority: String {
+            NSLocalizedString("mobile_governance_supermajority", comment: "")
+        }
+
+        /// Simple majority
+        public static var governanceSimpleMajority: String {
+            NSLocalizedString("mobile_governance_simpleMajority", comment: "")
+        }
+
         /// View
         public static var newslettersView: String {
             NSLocalizedString("mobile_newsletters_view", comment: "")
@@ -23346,6 +23556,121 @@ public enum L10n {
             NSLocalizedString("mobile_newsletters_import", comment: "")
         }
 
+        /// New Issue
+        public static var newslettersNewIssue: String {
+            NSLocalizedString("mobile_newsletters_newIssue", comment: "")
+        }
+
+        /// Edit Issue
+        public static var newslettersEditIssue: String {
+            NSLocalizedString("mobile_newsletters_editIssue", comment: "")
+        }
+
+        /// Subject
+        public static var newslettersSubject: String {
+            NSLocalizedString("mobile_newsletters_subject", comment: "")
+        }
+
+        /// Preview text (optional)
+        public static var newslettersPreviewTextOptional: String {
+            NSLocalizedString("mobile_newsletters_previewTextOptional", comment: "")
+        }
+
+        /// Format
+        public static var newslettersFormat: String {
+            NSLocalizedString("mobile_newsletters_format", comment: "")
+        }
+
+        /// Markdown
+        public static var newslettersMarkdown: String {
+            NSLocalizedString("mobile_newsletters_markdown", comment: "")
+        }
+
+        /// HTML
+        public static var newslettersHtml: String {
+            NSLocalizedString("mobile_newsletters_html", comment: "")
+        }
+
+        /// Save Draft
+        public static var newslettersSaveDraft: String {
+            NSLocalizedString("mobile_newsletters_saveDraft", comment: "")
+        }
+
+        /// Send Now
+        public static var newslettersSendNow: String {
+            NSLocalizedString("mobile_newsletters_sendNow", comment: "")
+        }
+
+        /// Schedule
+        public static var newslettersScheduleButton: String {
+            NSLocalizedString("mobile_newsletters_scheduleButton", comment: "")
+        }
+
+        /// Delete
+        public static var newslettersDelete: String {
+            NSLocalizedString("mobile_newsletters_delete", comment: "")
+        }
+
+        /// Save
+        public static var newslettersSave: String {
+            NSLocalizedString("mobile_newsletters_save", comment: "")
+        }
+
+        /// Preview
+        public static var newslettersPreview: String {
+            NSLocalizedString("mobile_newsletters_preview", comment: "")
+        }
+
+        /// Send Newsletter
+        public static var newslettersSendNewsletter: String {
+            NSLocalizedString("mobile_newsletters_sendNewsletter", comment: "")
+        }
+
+        /// This will send the newsletter to all active subscribers. This action cannot be undone.
+        public static var newslettersSendConfirmation: String {
+            NSLocalizedString("mobile_newsletters_sendConfirmation", comment: "")
+        }
+
+        /// Cancel
+        public static var newslettersCancel: String {
+            NSLocalizedString("mobile_newsletters_cancel", comment: "")
+        }
+
+        /// Send
+        public static var newslettersSend: String {
+            NSLocalizedString("mobile_newsletters_send", comment: "")
+        }
+
+        /// Delete Issue
+        public static var newslettersDeleteIssue: String {
+            NSLocalizedString("mobile_newsletters_deleteIssue", comment: "")
+        }
+
+        /// Are you sure you want to delete this issue?
+        public static var newslettersDeleteConfirmation: String {
+            NSLocalizedString("mobile_newsletters_deleteConfirmation", comment: "")
+        }
+
+        /// Schedule
+        public static var newslettersScheduleTitle: String {
+            NSLocalizedString("mobile_newsletters_scheduleTitle", comment: "")
+        }
+
+        /// Schedule Send
+        public static var newslettersScheduleSend: String {
+            NSLocalizedString("mobile_newsletters_scheduleSend", comment: "")
+        }
+
+        /// Send at
+        public static var newslettersSendAt: String {
+            NSLocalizedString("mobile_newsletters_sendAt", comment: "")
+        }
+
+        /// The newsletter will be sent automatically at the scheduled time
+        public static var newslettersNewsletterSentAutomatically: String {
+            NSLocalizedString("mobile_newsletters_newsletterSentAutomatically", comment: "")
+        }
+
         /// Loading articles...
         public static var publishingLoadingArticles: String {
             NSLocalizedString("mobile_publishing_loadingArticles", comment: "")
@@ -23451,6 +23776,341 @@ public enum L10n {
             NSLocalizedString("mobile_fundraising_daysLeft", comment: "")
         }
 
+        /// New Campaign
+        public static var fundraisingNewCampaign: String {
+            NSLocalizedString("mobile_fundraising_newCampaign", comment: "")
+        }
+
+        /// Campaign
+        public static var fundraisingCampaign: String {
+            NSLocalizedString("mobile_fundraising_campaign", comment: "")
+        }
+
+        /// Basic Info
+        public static var fundraisingBasicInfo: String {
+            NSLocalizedString("mobile_fundraising_basicInfo", comment: "")
+        }
+
+        /// Goal & Timing
+        public static var fundraisingGoalTiming: String {
+            NSLocalizedString("mobile_fundraising_goalTiming", comment: "")
+        }
+
+        /// Options
+        public static var fundraisingOptions: String {
+            NSLocalizedString("mobile_fundraising_options", comment: "")
+        }
+
+        /// Review
+        public static var fundraisingReview: String {
+            NSLocalizedString("mobile_fundraising_review", comment: "")
+        }
+
+        /// Back
+        public static var fundraisingBack: String {
+            NSLocalizedString("mobile_fundraising_back", comment: "")
+        }
+
+        /// Next
+        public static var fundraisingNext: String {
+            NSLocalizedString("mobile_fundraising_next", comment: "")
+        }
+
+        /// Create Campaign
+        public static var fundraisingCreateCampaign: String {
+            NSLocalizedString("mobile_fundraising_createCampaign", comment: "")
+        }
+
+        /// Campaign Title
+        public static var fundraisingCampaignTitle: String {
+            NSLocalizedString("mobile_fundraising_campaignTitle", comment: "")
+        }
+
+        /// What are you fundraising for?
+        public static var fundraisingWhatAreYouFundraising: String {
+            NSLocalizedString("mobile_fundraising_whatAreYouFundraising", comment: "")
+        }
+
+        /// Choose a clear, compelling title that describes your cause
+        public static var fundraisingChooseClearTitle: String {
+            NSLocalizedString("mobile_fundraising_chooseClearTitle", comment: "")
+        }
+
+        /// Description
+        public static var fundraisingDescription: String {
+            NSLocalizedString("mobile_fundraising_description", comment: "")
+        }
+
+        /// Tell your story...
+        public static var fundraisingTellYourStory: String {
+            NSLocalizedString("mobile_fundraising_tellYourStory", comment: "")
+        }
+
+        /// Explain why this campaign matters and how the funds will be used
+        public static var fundraisingExplainWhy: String {
+            NSLocalizedString("mobile_fundraising_explainWhy", comment: "")
+        }
+
+        /// Fundraising Goal
+        public static var fundraisingFundraisingGoal: String {
+            NSLocalizedString("mobile_fundraising_fundraisingGoal", comment: "")
+        }
+
+        /// Currency
+        public static var fundraisingCurrency: String {
+            NSLocalizedString("mobile_fundraising_currency", comment: "")
+        }
+
+        /// Amount
+        public static var fundraisingAmount: String {
+            NSLocalizedString("mobile_fundraising_amount", comment: "")
+        }
+
+        /// Set a realistic but ambitious goal
+        public static var fundraisingSetRealisticGoal: String {
+            NSLocalizedString("mobile_fundraising_setRealisticGoal", comment: "")
+        }
+
+        /// Timeline
+        public static var fundraisingTimeline: String {
+            NSLocalizedString("mobile_fundraising_timeline", comment: "")
+        }
+
+        /// Set a deadline
+        public static var fundraisingSetDeadline: String {
+            NSLocalizedString("mobile_fundraising_setDeadline", comment: "")
+        }
+
+        /// Campaign ends
+        public static var fundraisingCampaignEnds: String {
+            NSLocalizedString("mobile_fundraising_campaignEnds", comment: "")
+        }
+
+        /// Campaign will run for %d days
+        public static var fundraisingCampaignRunDays: String {
+            NSLocalizedString("mobile_fundraising_campaignRunDays", comment: "")
+        }
+
+        /// Visibility
+        public static var fundraisingVisibility: String {
+            NSLocalizedString("mobile_fundraising_visibility", comment: "")
+        }
+
+        /// Who can see this campaign?
+        public static var fundraisingWhoCanSee: String {
+            NSLocalizedString("mobile_fundraising_whoCanSee", comment: "")
+        }
+
+        /// Donation Tiers
+        public static var fundraisingDonationTiers: String {
+            NSLocalizedString("mobile_fundraising_donationTiers", comment: "")
+        }
+
+        /// Use suggested donation tiers
+        public static var fundraisingUseSuggestedTiers: String {
+            NSLocalizedString("mobile_fundraising_useSuggestedTiers", comment: "")
+        }
+
+        /// Add Tier
+        public static var fundraisingAddTier: String {
+            NSLocalizedString("mobile_fundraising_addTier", comment: "")
+        }
+
+        /// Tier Name
+        public static var fundraisingTierName: String {
+            NSLocalizedString("mobile_fundraising_tierName", comment: "")
+        }
+
+        /// Description (optional)
+        public static var fundraisingTierDescriptionOptional: String {
+            NSLocalizedString("mobile_fundraising_tierDescriptionOptional", comment: "")
+        }
+
+        /// Cryptocurrency
+        public static var fundraisingCryptocurrency: String {
+            NSLocalizedString("mobile_fundraising_cryptocurrency", comment: "")
+        }
+
+        /// Accept crypto payments
+        public static var fundraisingAcceptCryptoPayments: String {
+            NSLocalizedString("mobile_fundraising_acceptCryptoPayments", comment: "")
+        }
+
+        /// Bitcoin Address
+        public static var fundraisingBitcoinAddress: String {
+            NSLocalizedString("mobile_fundraising_bitcoinAddress", comment: "")
+        }
+
+        /// Ethereum Address
+        public static var fundraisingEthereumAddress: String {
+            NSLocalizedString("mobile_fundraising_ethereumAddress", comment: "")
+        }
+
+        /// Lightning Address
+        public static var fundraisingLightningAddress: String {
+            NSLocalizedString("mobile_fundraising_lightningAddress", comment: "")
+        }
+
+        /// Generate Addresses
+        public static var fundraisingGenerateAddresses: String {
+            NSLocalizedString("mobile_fundraising_generateAddresses", comment: "")
+        }
+
+        /// Note: Crypto address generation is a placeholder. Connect your wallet for real addresses.
+        public static var fundraisingCryptoNote: String {
+            NSLocalizedString("mobile_fundraising_cryptoNote", comment: "")
+        }
+
+        /// Campaign Preview
+        public static var fundraisingCampaignPreview: String {
+            NSLocalizedString("mobile_fundraising_campaignPreview", comment: "")
+        }
+
+        /// Details
+        public static var fundraisingDetails: String {
+            NSLocalizedString("mobile_fundraising_details", comment: "")
+        }
+
+        /// Goal
+        public static var fundraisingGoal: String {
+            NSLocalizedString("mobile_fundraising_goal", comment: "")
+        }
+
+        /// Deadline
+        public static var fundraisingDeadline: String {
+            NSLocalizedString("mobile_fundraising_deadline", comment: "")
+        }
+
+        /// No deadline
+        public static var fundraisingNoDeadline: String {
+            NSLocalizedString("mobile_fundraising_noDeadline", comment: "")
+        }
+
+        /// %d tiers
+        public static var fundraisingTiersCount: String {
+            NSLocalizedString("mobile_fundraising_tiersCount", comment: "")
+        }
+
+        /// None
+        public static var fundraisingNone: String {
+            NSLocalizedString("mobile_fundraising_none", comment: "")
+        }
+
+        /// Crypto Payments
+        public static var fundraisingCryptoPayments: String {
+            NSLocalizedString("mobile_fundraising_cryptoPayments", comment: "")
+        }
+
+        /// Enabled
+        public static var fundraisingEnabled: String {
+            NSLocalizedString("mobile_fundraising_enabled", comment: "")
+        }
+
+        /// Disabled
+        public static var fundraisingDisabled: String {
+            NSLocalizedString("mobile_fundraising_disabled", comment: "")
+        }
+
+        /// Your campaign will start as a draft
+        public static var fundraisingCampaignStartsAsDraft: String {
+            NSLocalizedString("mobile_fundraising_campaignStartsAsDraft", comment: "")
+        }
+
+        /// You can launch it when you're ready from the campaign details page.
+        public static var fundraisingLaunchWhenReady: String {
+            NSLocalizedString("mobile_fundraising_launchWhenReady", comment: "")
+        }
+
+        /// About
+        public static var fundraisingAbout: String {
+            NSLocalizedString("mobile_fundraising_about", comment: "")
+        }
+
+        /// Recent Donations
+        public static var fundraisingRecentDonations: String {
+            NSLocalizedString("mobile_fundraising_recentDonations", comment: "")
+        }
+
+        /// Be the first to donate!
+        public static var fundraisingBeFirstToDonate: String {
+            NSLocalizedString("mobile_fundraising_beFirstToDonate", comment: "")
+        }
+
+        /// View all %d donations
+        public static var fundraisingViewAllDonations: String {
+            NSLocalizedString("mobile_fundraising_viewAllDonations", comment: "")
+        }
+
+        /// Updates
+        public static var fundraisingUpdates: String {
+            NSLocalizedString("mobile_fundraising_updates", comment: "")
+        }
+
+        /// Donate Now
+        public static var fundraisingDonateNow: String {
+            NSLocalizedString("mobile_fundraising_donateNow", comment: "")
+        }
+
+        /// %d days remaining
+        public static var fundraisingDaysRemaining: String {
+            NSLocalizedString("mobile_fundraising_daysRemaining", comment: "")
+        }
+
+        /// Campaign ended
+        public static var fundraisingCampaignEnded: String {
+            NSLocalizedString("mobile_fundraising_campaignEnded", comment: "")
+        }
+
+        /// funded
+        public static var fundraisingFunded: String {
+            NSLocalizedString("mobile_fundraising_funded", comment: "")
+        }
+
+        /// raised of %@ goal
+        public static var fundraisingRaisedOfGoal: String {
+            NSLocalizedString("mobile_fundraising_raisedOfGoal", comment: "")
+        }
+
+        /// Donors
+        public static var fundraisingDonors: String {
+            NSLocalizedString("mobile_fundraising_donors", comment: "")
+        }
+
+        /// Avg. Donation
+        public static var fundraisingAvgDonation: String {
+            NSLocalizedString("mobile_fundraising_avgDonation", comment: "")
+        }
+
+        /// Days Left
+        public static var fundraisingDaysLeftLabel: String {
+            NSLocalizedString("mobile_fundraising_daysLeftLabel", comment: "")
+        }
+
+        /// Pay with Crypto
+        public static var fundraisingPayWithCrypto: String {
+            NSLocalizedString("mobile_fundraising_payWithCrypto", comment: "")
+        }
+
+        /// Share Campaign
+        public static var fundraisingShareCampaign: String {
+            NSLocalizedString("mobile_fundraising_shareCampaign", comment: "")
+        }
+
+        /// Copy Link
+        public static var fundraisingCopyLink: String {
+            NSLocalizedString("mobile_fundraising_copyLink", comment: "")
+        }
+
+        /// Share via Message
+        public static var fundraisingShareViaMessage: String {
+            NSLocalizedString("mobile_fundraising_shareViaMessage", comment: "")
+        }
+
+        /// Show QR Code
+        public static var fundraisingShowQrCode: String {
+            NSLocalizedString("mobile_fundraising_showQrCode", comment: "")
+        }
+
         /// View
         public static var mutualaidView: String {
             NSLocalizedString("mobile_mutualaid_view", comment: "")
@@ -23496,6 +24156,291 @@ public enum L10n {
             NSLocalizedString("mobile_mutualaid_until", comment: "")
         }
 
+        /// New Request
+        public static var mutualaidNewRequest: String {
+            NSLocalizedString("mobile_mutualaid_newRequest", comment: "")
+        }
+
+        /// New Offer
+        public static var mutualaidNewOffer: String {
+            NSLocalizedString("mobile_mutualaid_newOffer", comment: "")
+        }
+
+        /// What do you need?
+        public static var mutualaidWhatDoYouNeed: String {
+            NSLocalizedString("mobile_mutualaid_whatDoYouNeed", comment: "")
+        }
+
+        /// Title
+        public static var mutualaidTitle: String {
+            NSLocalizedString("mobile_mutualaid_title", comment: "")
+        }
+
+        /// Description (optional)
+        public static var mutualaidDescriptionOptional: String {
+            NSLocalizedString("mobile_mutualaid_descriptionOptional", comment: "")
+        }
+
+        /// Category
+        public static var mutualaidCategory: String {
+            NSLocalizedString("mobile_mutualaid_category", comment: "")
+        }
+
+        /// How urgent?
+        public static var mutualaidHowUrgent: String {
+            NSLocalizedString("mobile_mutualaid_howUrgent", comment: "")
+        }
+
+        /// Urgency
+        public static var mutualaidUrgency: String {
+            NSLocalizedString("mobile_mutualaid_urgency", comment: "")
+        }
+
+        /// Where?
+        public static var mutualaidWhere: String {
+            NSLocalizedString("mobile_mutualaid_where", comment: "")
+        }
+
+        /// Location is flexible
+        public static var mutualaidLocationFlexible: String {
+            NSLocalizedString("mobile_mutualaid_locationFlexible", comment: "")
+        }
+
+        /// City or area
+        public static var mutualaidCityOrArea: String {
+            NSLocalizedString("mobile_mutualaid_cityOrArea", comment: "")
+        }
+
+        /// When do you need it?
+        public static var mutualaidWhenDoYouNeedIt: String {
+            NSLocalizedString("mobile_mutualaid_whenDoYouNeedIt", comment: "")
+        }
+
+        /// Has deadline
+        public static var mutualaidHasDeadline: String {
+            NSLocalizedString("mobile_mutualaid_hasDeadline", comment: "")
+        }
+
+        /// Needed by
+        public static var mutualaidNeededBy: String {
+            NSLocalizedString("mobile_mutualaid_neededBy", comment: "")
+        }
+
+        /// How much?
+        public static var mutualaidHowMuch: String {
+            NSLocalizedString("mobile_mutualaid_howMuch", comment: "")
+        }
+
+        /// Specify quantity
+        public static var mutualaidSpecifyQuantity: String {
+            NSLocalizedString("mobile_mutualaid_specifyQuantity", comment: "")
+        }
+
+        /// Amount
+        public static var mutualaidAmount: String {
+            NSLocalizedString("mobile_mutualaid_amount", comment: "")
+        }
+
+        /// Unit (e.g., meals, hours)
+        public static var mutualaidUnitExample: String {
+            NSLocalizedString("mobile_mutualaid_unitExample", comment: "")
+        }
+
+        /// Privacy
+        public static var mutualaidPrivacy: String {
+            NSLocalizedString("mobile_mutualaid_privacy", comment: "")
+        }
+
+        /// Post anonymously
+        public static var mutualaidPostAnonymously: String {
+            NSLocalizedString("mobile_mutualaid_postAnonymously", comment: "")
+        }
+
+        /// Your identity will be hidden from the public. Only people who respond will be able to contact you.
+        public static var mutualaidAnonymousHint: String {
+            NSLocalizedString("mobile_mutualaid_anonymousHint", comment: "")
+        }
+
+        /// Post
+        public static var mutualaidPost: String {
+            NSLocalizedString("mobile_mutualaid_post", comment: "")
+        }
+
+        /// What can you offer?
+        public static var mutualaidWhatCanYouOffer: String {
+            NSLocalizedString("mobile_mutualaid_whatCanYouOffer", comment: "")
+        }
+
+        /// Can help remotely\/anywhere
+        public static var mutualaidCanHelpRemotely: String {
+            NSLocalizedString("mobile_mutualaid_canHelpRemotely", comment: "")
+        }
+
+        /// When are you available?
+        public static var mutualaidWhenAreYouAvailable: String {
+            NSLocalizedString("mobile_mutualaid_whenAreYouAvailable", comment: "")
+        }
+
+        /// Starting
+        public static var mutualaidStarting: String {
+            NSLocalizedString("mobile_mutualaid_starting", comment: "")
+        }
+
+        /// Has end date
+        public static var mutualaidHasEndDate: String {
+            NSLocalizedString("mobile_mutualaid_hasEndDate", comment: "")
+        }
+
+        /// How much can you offer?
+        public static var mutualaidHowMuchCanYouOffer: String {
+            NSLocalizedString("mobile_mutualaid_howMuchCanYouOffer", comment: "")
+        }
+
+        /// Request
+        public static var mutualaidRequest: String {
+            NSLocalizedString("mobile_mutualaid_request", comment: "")
+        }
+
+        /// Offer
+        public static var mutualaidOffer: String {
+            NSLocalizedString("mobile_mutualaid_offer", comment: "")
+        }
+
+        /// Posted by %@
+        public static var mutualaidPostedBy: String {
+            NSLocalizedString("mobile_mutualaid_postedBy", comment: "")
+        }
+
+        /// Posted anonymously
+        public static var mutualaidPostedAnonymously: String {
+            NSLocalizedString("mobile_mutualaid_postedAnonymously", comment: "")
+        }
+
+        /// Description
+        public static var mutualaidDescription: String {
+            NSLocalizedString("mobile_mutualaid_description", comment: "")
+        }
+
+        /// Details
+        public static var mutualaidDetails: String {
+            NSLocalizedString("mobile_mutualaid_details", comment: "")
+        }
+
+        /// Location
+        public static var mutualaidLocation: String {
+            NSLocalizedString("mobile_mutualaid_location", comment: "")
+        }
+
+        /// Needed
+        public static var mutualaidNeeded: String {
+            NSLocalizedString("mobile_mutualaid_needed", comment: "")
+        }
+
+        /// Fulfilled
+        public static var mutualaidFulfilled: String {
+            NSLocalizedString("mobile_mutualaid_fulfilled", comment: "")
+        }
+
+        /// Status
+        public static var mutualaidStatus: String {
+            NSLocalizedString("mobile_mutualaid_status", comment: "")
+        }
+
+        /// No one has offered to help yet
+        public static var mutualaidNoOneOfferedYet: String {
+            NSLocalizedString("mobile_mutualaid_noOneOfferedYet", comment: "")
+        }
+
+        /// Offer to Help
+        public static var mutualaidOfferToHelp: String {
+            NSLocalizedString("mobile_mutualaid_offerToHelp", comment: "")
+        }
+
+        /// Your offer
+        public static var mutualaidYourOffer: String {
+            NSLocalizedString("mobile_mutualaid_yourOffer", comment: "")
+        }
+
+        /// Message (optional)
+        public static var mutualaidMessageOptional: String {
+            NSLocalizedString("mobile_mutualaid_messageOptional", comment: "")
+        }
+
+        /// How much can you provide?
+        public static var mutualaidHowMuchCanYouProvide: String {
+            NSLocalizedString("mobile_mutualaid_howMuchCanYouProvide", comment: "")
+        }
+
+        /// Quantity
+        public static var mutualaidQuantity: String {
+            NSLocalizedString("mobile_mutualaid_quantity", comment: "")
+        }
+
+        /// When?
+        public static var mutualaidWhen: String {
+            NSLocalizedString("mobile_mutualaid_when", comment: "")
+        }
+
+        /// Schedule a time
+        public static var mutualaidScheduleTime: String {
+            NSLocalizedString("mobile_mutualaid_scheduleTime", comment: "")
+        }
+
+        /// Date & Time
+        public static var mutualaidDateTime: String {
+            NSLocalizedString("mobile_mutualaid_dateTime", comment: "")
+        }
+
+        /// Send
+        public static var mutualaidSend: String {
+            NSLocalizedString("mobile_mutualaid_send", comment: "")
+        }
+
+        /// Offered by %@
+        public static var mutualaidOfferedBy: String {
+            NSLocalizedString("mobile_mutualaid_offeredBy", comment: "")
+        }
+
+        /// Available from
+        public static var mutualaidAvailableFrom: String {
+            NSLocalizedString("mobile_mutualaid_availableFrom", comment: "")
+        }
+
+        /// Contact Offerer
+        public static var mutualaidContactOfferer: String {
+            NSLocalizedString("mobile_mutualaid_contactOfferer", comment: "")
+        }
+
+        /// Offered
+        public static var mutualaidOffered: String {
+            NSLocalizedString("mobile_mutualaid_offered", comment: "")
+        }
+
+        /// Accepted
+        public static var mutualaidAccepted: String {
+            NSLocalizedString("mobile_mutualaid_accepted", comment: "")
+        }
+
+        /// In Progress
+        public static var mutualaidInProgress: String {
+            NSLocalizedString("mobile_mutualaid_inProgress", comment: "")
+        }
+
+        /// Cancelled
+        public static var mutualaidCancelled: String {
+            NSLocalizedString("mobile_mutualaid_cancelled", comment: "")
+        }
+
+        /// Declined
+        public static var mutualaidDeclined: String {
+            NSLocalizedString("mobile_mutualaid_declined", comment: "")
+        }
+
+        /// Offering: %d
+        public static var mutualaidOffering: String {
+            NSLocalizedString("mobile_mutualaid_offering", comment: "")
+        }
+
         /// Loading pages...
         public static var wikiLoadingPages: String {
             NSLocalizedString("mobile_wiki_loadingPages", comment: "")
@@ -23521,6 +24466,66 @@ public enum L10n {
             NSLocalizedString("mobile_wiki_pageNotFound", comment: "")
         }
 
+        /// Table of Contents
+        public static var wikiTableOfContents: String {
+            NSLocalizedString("mobile_wiki_tableOfContents", comment: "")
+        }
+
+        /// View History
+        public static var wikiViewHistory: String {
+            NSLocalizedString("mobile_wiki_viewHistory", comment: "")
+        }
+
+        /// Share
+        public static var wikiShare: String {
+            NSLocalizedString("mobile_wiki_share", comment: "")
+        }
+
+        /// v%d
+        public static var wikiVersion: String {
+            NSLocalizedString("mobile_wiki_version", comment: "")
+        }
+
+        /// %d min read
+        public static var wikiMinRead: String {
+            NSLocalizedString("mobile_wiki_minRead", comment: "")
+        }
+
+        /// %d words
+        public static var wikiWords: String {
+            NSLocalizedString("mobile_wiki_words", comment: "")
+        }
+
+        /// %d contributor(s)
+        public static var wikiContributors: String {
+            NSLocalizedString("mobile_wiki_contributors", comment: "")
+        }
+
+        /// Last updated:
+        public static var wikiLastUpdated: String {
+            NSLocalizedString("mobile_wiki_lastUpdated", comment: "")
+        }
+
+        /// Created:
+        public static var wikiCreated: String {
+            NSLocalizedString("mobile_wiki_created", comment: "")
+        }
+
+        /// Revision History
+        public static var wikiRevisionHistory: String {
+            NSLocalizedString("mobile_wiki_revisionHistory", comment: "")
+        }
+
+        /// Loading history...
+        public static var wikiLoadingHistory: String {
+            NSLocalizedString("mobile_wiki_loadingHistory", comment: "")
+        }
+
+        /// No revision history available
+        public static var wikiNoRevisionHistory: String {
+            NSLocalizedString("mobile_wiki_noRevisionHistory", comment: "")
+        }
+
         /// Search events...
         public static var eventsSearchPlaceholder: String {
             NSLocalizedString("mobile_events_searchPlaceholder", comment: "")
@@ -23539,6 +24544,206 @@ public enum L10n {
         /// Create or join events to see them here
         public static var eventsEmptyDescription: String {
             NSLocalizedString("mobile_events_emptyDescription", comment: "")
+        }
+
+        /// Details
+        public static var eventsDetails: String {
+            NSLocalizedString("mobile_events_details", comment: "")
+        }
+
+        /// Title
+        public static var eventsTitle: String {
+            NSLocalizedString("mobile_events_title", comment: "")
+        }
+
+        /// Description
+        public static var eventsDescription: String {
+            NSLocalizedString("mobile_events_description", comment: "")
+        }
+
+        /// Date & Time
+        public static var eventsDateTime: String {
+            NSLocalizedString("mobile_events_dateTime", comment: "")
+        }
+
+        /// Starts
+        public static var eventsStarts: String {
+            NSLocalizedString("mobile_events_starts", comment: "")
+        }
+
+        /// Ends
+        public static var eventsEnds: String {
+            NSLocalizedString("mobile_events_ends", comment: "")
+        }
+
+        /// All Day
+        public static var eventsAllDay: String {
+            NSLocalizedString("mobile_events_allDay", comment: "")
+        }
+
+        /// Location
+        public static var eventsLocation: String {
+            NSLocalizedString("mobile_events_location", comment: "")
+        }
+
+        /// Location Name
+        public static var eventsLocationName: String {
+            NSLocalizedString("mobile_events_locationName", comment: "")
+        }
+
+        /// Address
+        public static var eventsAddress: String {
+            NSLocalizedString("mobile_events_address", comment: "")
+        }
+
+        /// Virtual Meeting URL
+        public static var eventsVirtualURL: String {
+            NSLocalizedString("mobile_events_virtualURL", comment: "")
+        }
+
+        /// RSVP Settings
+        public static var eventsRsvpSettings: String {
+            NSLocalizedString("mobile_events_rsvpSettings", comment: "")
+        }
+
+        /// Max Attendees
+        public static var eventsMaxAttendees: String {
+            NSLocalizedString("mobile_events_maxAttendees", comment: "")
+        }
+
+        /// Set RSVP Deadline
+        public static var eventsSetRsvpDeadline: String {
+            NSLocalizedString("mobile_events_setRsvpDeadline", comment: "")
+        }
+
+        /// RSVP by
+        public static var eventsRsvpBy: String {
+            NSLocalizedString("mobile_events_rsvpBy", comment: "")
+        }
+
+        /// Create Event
+        public static var eventsCreateEvent: String {
+            NSLocalizedString("mobile_events_createEvent", comment: "")
+        }
+
+        /// to
+        public static var eventsTo: String {
+            NSLocalizedString("mobile_events_to", comment: "")
+        }
+
+        /// Organizer
+        public static var eventsOrganizer: String {
+            NSLocalizedString("mobile_events_organizer", comment: "")
+        }
+
+        /// Timezone
+        public static var eventsTimezone: String {
+            NSLocalizedString("mobile_events_timezone", comment: "")
+        }
+
+        /// Capacity
+        public static var eventsCapacity: String {
+            NSLocalizedString("mobile_events_capacity", comment: "")
+        }
+
+        /// %d people
+        public static var eventsPeopleCount: String {
+            NSLocalizedString("mobile_events_peopleCount", comment: "")
+        }
+
+        /// Join Virtual Meeting
+        public static var eventsJoinVirtual: String {
+            NSLocalizedString("mobile_events_joinVirtual", comment: "")
+        }
+
+        /// Attendance
+        public static var eventsAttendance: String {
+            NSLocalizedString("mobile_events_attendance", comment: "")
+        }
+
+        /// Going
+        public static var eventsGoing: String {
+            NSLocalizedString("mobile_events_going", comment: "")
+        }
+
+        /// Maybe
+        public static var eventsMaybe: String {
+            NSLocalizedString("mobile_events_maybe", comment: "")
+        }
+
+        /// Can't Go
+        public static var eventsCantGo: String {
+            NSLocalizedString("mobile_events_cantGo", comment: "")
+        }
+
+        /// Your Response:
+        public static var eventsYourResponse: String {
+            NSLocalizedString("mobile_events_yourResponse", comment: "")
+        }
+
+        /// Change
+        public static var eventsChange: String {
+            NSLocalizedString("mobile_events_change", comment: "")
+        }
+
+        /// RSVP to This Event
+        public static var eventsRsvpToEvent: String {
+            NSLocalizedString("mobile_events_rsvpToEvent", comment: "")
+        }
+
+        /// RSVP
+        public static var eventsRsvp: String {
+            NSLocalizedString("mobile_events_rsvp", comment: "")
+        }
+
+        /// Your Response
+        public static var eventsYourResponseTitle: String {
+            NSLocalizedString("mobile_events_yourResponseTitle", comment: "")
+        }
+
+        /// Status
+        public static var eventsStatus: String {
+            NSLocalizedString("mobile_events_status", comment: "")
+        }
+
+        /// Additional Guests
+        public static var eventsAdditionalGuests: String {
+            NSLocalizedString("mobile_events_additionalGuests", comment: "")
+        }
+
+        /// Number of guests
+        public static var eventsNumberOfGuests: String {
+            NSLocalizedString("mobile_events_numberOfGuests", comment: "")
+        }
+
+        /// Including yourself
+        public static var eventsIncludingYourself: String {
+            NSLocalizedString("mobile_events_includingYourself", comment: "")
+        }
+
+        /// Note (Optional)
+        public static var eventsNoteOptional: String {
+            NSLocalizedString("mobile_events_noteOptional", comment: "")
+        }
+
+        /// Add a note
+        public static var eventsAddNote: String {
+            NSLocalizedString("mobile_events_addNote", comment: "")
+        }
+
+        /// This event has a capacity limit of %d attendees.
+        public static var eventsCapacityLimit: String {
+            NSLocalizedString("mobile_events_capacityLimit", comment: "")
+        }
+
+        /// RSVP deadline has passed
+        public static var eventsRsvpDeadlinePassed: String {
+            NSLocalizedString("mobile_events_rsvpDeadlinePassed", comment: "")
+        }
+
+        /// Submit
+        public static var eventsSubmit: String {
+            NSLocalizedString("mobile_events_submit", comment: "")
         }
 
         /// Search forms...
@@ -23604,6 +24809,276 @@ public enum L10n {
         /// Multiple responses
         public static var formsMultipleResponses: String {
             NSLocalizedString("mobile_forms_multipleResponses", comment: "")
+        }
+
+        /// Form
+        public static var formsForm: String {
+            NSLocalizedString("mobile_forms_form", comment: "")
+        }
+
+        /// Edit
+        public static var formsEdit: String {
+            NSLocalizedString("mobile_forms_edit", comment: "")
+        }
+
+        /// View Responses
+        public static var formsViewResponses: String {
+            NSLocalizedString("mobile_forms_viewResponses", comment: "")
+        }
+
+        /// Pause
+        public static var formsPause: String {
+            NSLocalizedString("mobile_forms_pause", comment: "")
+        }
+
+        /// Close
+        public static var formsClose: String {
+            NSLocalizedString("mobile_forms_close", comment: "")
+        }
+
+        /// Resume
+        public static var formsResume: String {
+            NSLocalizedString("mobile_forms_resume", comment: "")
+        }
+
+        /// Share
+        public static var formsShare: String {
+            NSLocalizedString("mobile_forms_share", comment: "")
+        }
+
+        /// Submit
+        public static var formsSubmit: String {
+            NSLocalizedString("mobile_forms_submit", comment: "")
+        }
+
+        /// Form Closed
+        public static var formsFormClosed: String {
+            NSLocalizedString("mobile_forms_formClosed", comment: "")
+        }
+
+        /// This form is still being drafted
+        public static var formsStillBeingDrafted: String {
+            NSLocalizedString("mobile_forms_stillBeingDrafted", comment: "")
+        }
+
+        /// This form has been paused by the creator
+        public static var formsPausedByCreator: String {
+            NSLocalizedString("mobile_forms_pausedByCreator", comment: "")
+        }
+
+        /// This form has been closed
+        public static var formsFormHasBeenClosed: String {
+            NSLocalizedString("mobile_forms_formHasBeenClosed", comment: "")
+        }
+
+        /// This form has been archived
+        public static var formsFormHasBeenArchived: String {
+            NSLocalizedString("mobile_forms_formHasBeenArchived", comment: "")
+        }
+
+        /// This form closed on %@
+        public static var formsFormClosedOn: String {
+            NSLocalizedString("mobile_forms_formClosedOn", comment: "")
+        }
+
+        /// This form has reached its maximum number of responses
+        public static var formsReachedMaxResponses: String {
+            NSLocalizedString("mobile_forms_reachedMaxResponses", comment: "")
+        }
+
+        /// This form is not accepting responses
+        public static var formsNotAcceptingResponses: String {
+            NSLocalizedString("mobile_forms_notAcceptingResponses", comment: "")
+        }
+
+        /// fields
+        public static var formsFields: String {
+            NSLocalizedString("mobile_forms_fields", comment: "")
+        }
+
+        /// responses
+        public static var formsResponses: String {
+            NSLocalizedString("mobile_forms_responses", comment: "")
+        }
+
+        /// required
+        public static var formsRequired: String {
+            NSLocalizedString("mobile_forms_required", comment: "")
+        }
+
+        /// Response Submitted
+        public static var formsResponseSubmitted: String {
+            NSLocalizedString("mobile_forms_responseSubmitted", comment: "")
+        }
+
+        /// Done
+        public static var formsDone: String {
+            NSLocalizedString("mobile_forms_done", comment: "")
+        }
+
+        /// New Form
+        public static var formsNewForm: String {
+            NSLocalizedString("mobile_forms_newForm", comment: "")
+        }
+
+        /// Edit Form
+        public static var formsEditForm: String {
+            NSLocalizedString("mobile_forms_editForm", comment: "")
+        }
+
+        /// Cancel
+        public static var formsCancel: String {
+            NSLocalizedString("mobile_forms_cancel", comment: "")
+        }
+
+        /// Save Draft
+        public static var formsSaveDraft: String {
+            NSLocalizedString("mobile_forms_saveDraft", comment: "")
+        }
+
+        /// Publish
+        public static var formsPublish: String {
+            NSLocalizedString("mobile_forms_publish", comment: "")
+        }
+
+        /// Publish Form
+        public static var formsPublishForm: String {
+            NSLocalizedString("mobile_forms_publishForm", comment: "")
+        }
+
+        /// This will make the form available for responses. You can still pause or close it later.
+        public static var formsPublishFormMessage: String {
+            NSLocalizedString("mobile_forms_publishFormMessage", comment: "")
+        }
+
+        /// Basic Information
+        public static var formsBasicInformation: String {
+            NSLocalizedString("mobile_forms_basicInformation", comment: "")
+        }
+
+        /// Form Title
+        public static var formsFormTitle: String {
+            NSLocalizedString("mobile_forms_formTitle", comment: "")
+        }
+
+        /// Description (optional)
+        public static var formsDescriptionOptional: String {
+            NSLocalizedString("mobile_forms_descriptionOptional", comment: "")
+        }
+
+        /// Fields
+        public static var formsFieldsSection: String {
+            NSLocalizedString("mobile_forms_fieldsSection", comment: "")
+        }
+
+        /// Add Field
+        public static var formsAddField: String {
+            NSLocalizedString("mobile_forms_addField", comment: "")
+        }
+
+        /// No fields yet
+        public static var formsNoFieldsYet: String {
+            NSLocalizedString("mobile_forms_noFieldsYet", comment: "")
+        }
+
+        /// Add Your First Field
+        public static var formsAddYourFirstField: String {
+            NSLocalizedString("mobile_forms_addYourFirstField", comment: "")
+        }
+
+        /// Settings
+        public static var formsSettingsSection: String {
+            NSLocalizedString("mobile_forms_settingsSection", comment: "")
+        }
+
+        /// Visibility
+        public static var formsVisibility: String {
+            NSLocalizedString("mobile_forms_visibility", comment: "")
+        }
+
+        /// Anonymous Responses
+        public static var formsAnonymousResponses: String {
+            NSLocalizedString("mobile_forms_anonymousResponses", comment: "")
+        }
+
+        /// Respondent identities will be hidden
+        public static var formsRespondentIdentitiesHidden: String {
+            NSLocalizedString("mobile_forms_respondentIdentitiesHidden", comment: "")
+        }
+
+        /// Allow Multiple Responses
+        public static var formsAllowMultipleResponses: String {
+            NSLocalizedString("mobile_forms_allowMultipleResponses", comment: "")
+        }
+
+        /// Users can submit more than one response
+        public static var formsUsersCanSubmitMore: String {
+            NSLocalizedString("mobile_forms_usersCanSubmitMore", comment: "")
+        }
+
+        /// Schedule
+        public static var formsSchedule: String {
+            NSLocalizedString("mobile_forms_schedule", comment: "")
+        }
+
+        /// Opens
+        public static var formsOpens: String {
+            NSLocalizedString("mobile_forms_opens", comment: "")
+        }
+
+        /// Max Responses
+        public static var formsMaxResponses: String {
+            NSLocalizedString("mobile_forms_maxResponses", comment: "")
+        }
+
+        /// %d responses
+        public static var formsResponsesLimit: String {
+            NSLocalizedString("mobile_forms_responsesLimit", comment: "")
+        }
+
+        /// Confirmation Message
+        public static var formsConfirmationMessage: String {
+            NSLocalizedString("mobile_forms_confirmationMessage", comment: "")
+        }
+
+        /// Shown to respondents after they submit
+        public static var formsShownAfterSubmit: String {
+            NSLocalizedString("mobile_forms_shownAfterSubmit", comment: "")
+        }
+
+        /// Text Fields
+        public static var formsTextFields: String {
+            NSLocalizedString("mobile_forms_textFields", comment: "")
+        }
+
+        /// Choice Fields
+        public static var formsChoiceFields: String {
+            NSLocalizedString("mobile_forms_choiceFields", comment: "")
+        }
+
+        /// Date & Time
+        public static var formsDateAndTime: String {
+            NSLocalizedString("mobile_forms_dateAndTime", comment: "")
+        }
+
+        /// Number & Rating
+        public static var formsNumberAndRating: String {
+            NSLocalizedString("mobile_forms_numberAndRating", comment: "")
+        }
+
+        /// Other
+        public static var formsOther: String {
+            NSLocalizedString("mobile_forms_other", comment: "")
+        }
+
+        /// Attach File
+        public static var formsAttachFile: String {
+            NSLocalizedString("mobile_forms_attachFile", comment: "")
+        }
+
+        /// Select...
+        public static var formsSelect: String {
+            NSLocalizedString("mobile_forms_select", comment: "")
         }
 
         /// All
