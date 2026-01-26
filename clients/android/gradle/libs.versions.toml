@@ -30,6 +30,7 @@ truth = "1.4.1"
 robolectric = "4.11.1"
 json = "20231013"
 bouncycastle = "1.77"
+coil = "2.5.0"
 
 [libraries]
 # Core Android
@@ -92,6 +93,9 @@ bouncycastle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "boun
 
 # Accompanist
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+
+# Coil Image Loading
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 # CameraX
 camerax-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }

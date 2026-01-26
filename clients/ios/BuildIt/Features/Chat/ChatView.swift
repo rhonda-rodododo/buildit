@@ -86,15 +86,12 @@ struct ConversationRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Avatar
-            Circle()
-                .fill(Color.blue.opacity(0.2))
-                .frame(width: 50, height: 50)
-                .overlay {
-                    Text(conversation.participantName?.prefix(1).uppercased() ?? "?")
-                        .font(.title2)
-                        .foregroundColor(.blue)
-                }
+            // Avatar with caching
+            CachedAvatarImage(
+                url: conversation.participantAvatarURL,
+                fallbackText: conversation.participantName ?? "?",
+                size: 50
+            )
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {

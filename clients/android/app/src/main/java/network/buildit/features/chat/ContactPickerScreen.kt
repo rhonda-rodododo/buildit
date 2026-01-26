@@ -49,12 +49,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import network.buildit.R
 import network.buildit.core.storage.ContactEntity
 import network.buildit.ui.theme.BuildItTheme
@@ -275,11 +279,16 @@ private fun ContactListItem(
                 contentAlignment = Alignment.Center
             ) {
                 if (contact.avatarUrl != null) {
-                    // TODO: Load avatar image with Coil
-                    Text(
-                        text = (contact.displayName ?: contact.pubkey).take(2).uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(contact.avatarUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Avatar for ${contact.displayName ?: contact.pubkey}",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Text(

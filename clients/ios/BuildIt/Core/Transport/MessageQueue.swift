@@ -28,6 +28,7 @@ struct Conversation: Identifiable {
     let id: String
     let participantPublicKey: String
     var participantName: String?
+    var participantAvatarURL: String?
     var lastMessage: QueuedMessage?
     var unreadCount: Int = 0
     var messages: [QueuedMessage] = []
@@ -315,12 +316,14 @@ private struct ConversationMetadata: Codable {
     let id: String
     let participantPublicKey: String
     let participantName: String?
+    let participantAvatarURL: String?
     let unreadCount: Int
 
     init(conversation: Conversation) {
         self.id = conversation.id
         self.participantPublicKey = conversation.participantPublicKey
         self.participantName = conversation.participantName
+        self.participantAvatarURL = conversation.participantAvatarURL
         self.unreadCount = conversation.unreadCount
     }
 
@@ -329,6 +332,7 @@ private struct ConversationMetadata: Codable {
             id: id,
             participantPublicKey: participantPublicKey,
             participantName: participantName,
+            participantAvatarURL: participantAvatarURL,
             unreadCount: unreadCount
         )
     }

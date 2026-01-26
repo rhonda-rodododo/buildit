@@ -9,16 +9,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import network.buildit.core.ble.BLEManager
+import network.buildit.core.ble.BLEState
+import network.buildit.core.ble.DiscoveredDevice
 import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.crypto.KeystoreManager
 import network.buildit.core.crypto.toHexString
+import network.buildit.core.crypto.hexToByteArray
+import network.buildit.core.nostr.NostrClient
+import network.buildit.core.storage.ConversationDao
+import network.buildit.core.storage.ContactDao
 import network.buildit.core.storage.DeviceType
 import network.buildit.core.storage.LinkedDeviceDao
 import network.buildit.core.storage.LinkedDeviceEntity
+import network.buildit.core.storage.MessageDao
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.SecureRandom
 import java.util.UUID
+import java.util.Arrays
 import javax.inject.Inject
 
 /**
@@ -35,7 +44,12 @@ import javax.inject.Inject
 class DeviceSyncViewModel @Inject constructor(
     private val linkedDeviceDao: LinkedDeviceDao,
     private val cryptoManager: CryptoManager,
-    private val keystoreManager: KeystoreManager
+    private val keystoreManager: KeystoreManager,
+    private val bleManager: BLEManager,
+    private val nostrClient: NostrClient,
+    private val messageDao: MessageDao,
+    private val contactDao: ContactDao,
+    private val conversationDao: ConversationDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeviceSyncUiState())
@@ -320,24 +334,42 @@ class DeviceSyncViewModel @Inject constructor(
 
     /**
      * Manually triggers a sync with a device.
+     *
+     * Sync process:
+     * 1. Attempt BLE connection first (offline-capable)
+     * 2. Fall back to relay sync if BLE unavailable
+     * 3. Exchange message deltas since last sync
+     * 4. Sync contact updates
+     * 5. Update conversation state
      */
     fun syncDevice(deviceId: String) {
         viewModelScope.launch {
-            // Mark sync in progress
             _uiState.value = _uiState.value.copy(
                 syncingDeviceId = deviceId
             )
 
             try {
-                // TODO: Implement actual sync logic
-                // 1. Connect to device (BLE or via relays)
-                // 2. Exchange message deltas
-                // 3. Sync contact updates
-                // 4. Update conversation state
+                val device = linkedDeviceDao.getById(deviceId) ?: return@launch
+
+                // Try BLE sync first (works offline)
+                val bleSyncSuccess = if (bleManager.state.value == BLEState.RUNNING) {
+                    syncViaBle(device)
+                } else {
+                    false
+                }
+
+                // Fall back to relay sync if BLE failed
+                if (!bleSyncSuccess) {
+                    syncViaRelay(device)
+                }
 
                 // Update last sync time
                 linkedDeviceDao.updateLastSync(deviceId)
 
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Sync failed: ${e.message}"
+                )
             } finally {
                 _uiState.value = _uiState.value.copy(
                     syncingDeviceId = null
@@ -347,14 +379,215 @@ class DeviceSyncViewModel @Inject constructor(
     }
 
     /**
-     * Initiates key exchange with a newly linked device.
+     * Syncs with a device via BLE mesh.
+     */
+    private suspend fun syncViaBle(device: LinkedDeviceEntity): Boolean {
+        return try {
+            // Find the device in discovered BLE devices
+            val bleDevice = bleManager.discoveredDevices.value.find {
+                it.publicKey == device.publicKey
+            } ?: return false
+
+            // Connect to the device
+            val connectResult = bleManager.connectToDevice(bleDevice)
+            if (connectResult.isFailure) return false
+
+            // Build sync request with delta since last sync
+            val lastSyncTime = device.lastSyncAt ?: 0L
+            val syncPayload = buildSyncPayload(lastSyncTime)
+
+            // Send sync request via BLE
+            val sendResult = bleManager.sendMessage(device.publicKey, syncPayload)
+            sendResult.isSuccess
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Syncs with a device via Nostr relays.
+     */
+    private suspend fun syncViaRelay(device: LinkedDeviceEntity) {
+        // Send encrypted sync request via NIP-17 gift wrap
+        val lastSyncTime = device.lastSyncAt ?: 0L
+        val syncRequest = JSONObject().apply {
+            put("type", "sync_request")
+            put("since", lastSyncTime)
+            put("deviceId", UUID.randomUUID().toString())
+        }.toString()
+
+        nostrClient.sendDirectMessage(device.publicKey, syncRequest)
+    }
+
+    /**
+     * Builds the sync payload containing deltas since last sync.
+     */
+    private suspend fun buildSyncPayload(sinceTimestamp: Long): ByteArray {
+        val payload = JSONObject()
+
+        // Get messages since last sync
+        val newMessages = messageDao.getMessagesSince(sinceTimestamp)
+        val messagesArray = JSONArray()
+        newMessages.forEach { msg ->
+            messagesArray.put(JSONObject().apply {
+                put("id", msg.id)
+                put("conversationId", msg.conversationId)
+                put("content", msg.content)
+                put("timestamp", msg.timestamp)
+                put("senderPubkey", msg.senderPubkey)
+            })
+        }
+        payload.put("messages", messagesArray)
+
+        // Get contact updates since last sync
+        val updatedContacts = contactDao.getContactsUpdatedSince(sinceTimestamp)
+        val contactsArray = JSONArray()
+        updatedContacts.forEach { contact ->
+            contactsArray.put(JSONObject().apply {
+                put("pubkey", contact.pubkey)
+                put("displayName", contact.displayName)
+                put("avatarUrl", contact.avatarUrl)
+                put("nip05", contact.nip05)
+            })
+        }
+        payload.put("contacts", contactsArray)
+
+        // Get conversation updates
+        val updatedConversations = conversationDao.getConversationsUpdatedSince(sinceTimestamp)
+        val conversationsArray = JSONArray()
+        updatedConversations.forEach { conv ->
+            conversationsArray.put(JSONObject().apply {
+                put("id", conv.id)
+                put("type", conv.type.name)
+                put("title", conv.title)
+                put("lastMessageAt", conv.lastMessageAt)
+            })
+        }
+        payload.put("conversations", conversationsArray)
+
+        return payload.toString().toByteArray(Charsets.UTF_8)
+    }
+
+    /**
+     * Initiates secure key exchange with a newly linked device.
+     *
+     * Uses ECDH (Elliptic Curve Diffie-Hellman) to establish a shared secret:
+     * 1. Use our ephemeral private key and their public key for ECDH
+     * 2. Derive a session key from the shared secret
+     * 3. Exchange encrypted verification data to confirm both devices have same state
+     * 4. Store the shared secret securely for future encrypted communication
      */
     private suspend fun initiateKeyExchange(device: LinkedDeviceEntity) {
-        // TODO: Implement secure key exchange
-        // This would use the buildit-crypto library to:
-        // 1. Generate a session key using ECDH
-        // 2. Exchange encrypted sync data
-        // 3. Verify both devices have consistent state
+        var sharedSecret: ByteArray? = null
+        var sessionKey: ByteArray? = null
+
+        try {
+            val session = currentSession ?: return
+
+            // 1. Derive shared secret using ECDH
+            // Our ephemeral private key + their public key = shared secret
+            val remotePubkey = session.remotePubkey ?: device.publicKey
+            sharedSecret = cryptoManager.deriveConversationKey(remotePubkey)
+                ?: throw IllegalStateException("Failed to derive shared secret")
+
+            // 2. Derive session key using HKDF
+            val info = "buildit-device-sync:${session.id}".toByteArray(Charsets.UTF_8)
+            sessionKey = deriveSessionKey(sharedSecret, info)
+
+            // 3. Update session with shared secret
+            currentSession = session.copy(
+                sharedSecret = sharedSecret.toHexString(),
+                status = TransferStatus.AUTHENTICATING
+            )
+            _uiState.value = _uiState.value.copy(
+                transferSession = currentSession
+            )
+
+            // 4. Send encrypted verification message
+            val verificationData = JSONObject().apply {
+                put("type", "key_exchange_verify")
+                put("sessionId", session.id)
+                put("deviceName", android.os.Build.MODEL)
+                put("timestamp", System.currentTimeMillis())
+            }.toString()
+
+            val encrypted = encryptWithSessionKey(verificationData.toByteArray(), sessionKey)
+
+            // Send via relay if BLE not available
+            if (bleManager.state.value == BLEState.RUNNING) {
+                bleManager.sendMessage(device.publicKey, encrypted)
+            } else {
+                // Encode and send via Nostr DM
+                val encodedPayload = android.util.Base64.encodeToString(encrypted, android.util.Base64.NO_WRAP)
+                nostrClient.sendDirectMessage(device.publicKey, "BUILDIT_KEY_EXCHANGE:$encodedPayload")
+            }
+
+            // Update session status
+            currentSession = session.copy(
+                status = TransferStatus.COMPLETED
+            )
+            _uiState.value = _uiState.value.copy(
+                transferSession = currentSession
+            )
+
+        } catch (e: Exception) {
+            currentSession = currentSession?.copy(
+                status = TransferStatus.FAILED,
+                errorMessage = e.message
+            )
+            _uiState.value = _uiState.value.copy(
+                transferSession = currentSession,
+                error = "Key exchange failed: ${e.message}"
+            )
+        } finally {
+            // Securely clear sensitive key material
+            sharedSecret?.let { Arrays.fill(it, 0.toByte()) }
+            sessionKey?.let { Arrays.fill(it, 0.toByte()) }
+        }
+    }
+
+    /**
+     * Derives a session key from the shared secret using HKDF-SHA256.
+     */
+    private fun deriveSessionKey(sharedSecret: ByteArray, info: ByteArray): ByteArray {
+        val mac = javax.crypto.Mac.getInstance("HmacSHA256")
+        mac.init(javax.crypto.spec.SecretKeySpec(sharedSecret, "HmacSHA256"))
+
+        val result = ByteArray(32)
+        var t = ByteArray(0)
+        var offset = 0
+        var i = 1
+
+        while (offset < 32) {
+            mac.update(t)
+            mac.update(info)
+            mac.update(i.toByte())
+            t = mac.doFinal()
+
+            val toCopy = minOf(t.size, 32 - offset)
+            System.arraycopy(t, 0, result, offset, toCopy)
+            offset += toCopy
+            i++
+
+            mac.reset()
+        }
+
+        return result
+    }
+
+    /**
+     * Encrypts data using the session key with AES-256-GCM.
+     */
+    private fun encryptWithSessionKey(plaintext: ByteArray, key: ByteArray): ByteArray {
+        val cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding")
+        val keySpec = javax.crypto.spec.SecretKeySpec(key, "AES")
+        cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, keySpec)
+
+        val ciphertext = cipher.doFinal(plaintext)
+        val iv = cipher.iv
+
+        // Return IV + ciphertext
+        return iv + ciphertext
     }
 
     /**

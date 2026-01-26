@@ -173,6 +173,9 @@ dependencies {
     // Permissions
     implementation(libs.accompanist.permissions)
 
+    // Image Loading
+    implementation(libs.coil.compose)
+
     // CameraX for QR scanning
     implementation(libs.bundles.camerax)
     implementation(libs.mlkit.barcode)

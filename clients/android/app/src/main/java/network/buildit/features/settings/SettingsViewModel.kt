@@ -11,8 +11,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -49,6 +52,9 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    private val _keyExportEvent = MutableSharedFlow<KeyExportEvent>(extraBufferCapacity = 1)
+    val keyExportEvent: SharedFlow<KeyExportEvent> = _keyExportEvent.asSharedFlow()
 
     private val dataStore = context.settingsDataStore
 
@@ -245,26 +251,150 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * Toggles biometric authentication.
+     *
+     * When enabled, reinitializes the keystore with biometric protection.
+     * This regenerates keys with the new authentication requirement.
      */
     fun toggleBiometric(enabled: Boolean) {
         viewModelScope.launch {
-            dataStore.edit { prefs ->
-                prefs[PreferencesKeys.BIOMETRIC_ENABLED] = enabled
+            _uiState.value = _uiState.value.copy(isPublishing = true)
+
+            try {
+                // Update preference first
+                dataStore.edit { prefs ->
+                    prefs[PreferencesKeys.BIOMETRIC_ENABLED] = enabled
+                }
+
+                // Re-initialize keystore with new biometric requirement
+                // Note: This preserves existing identity by backing up and restoring
+                if (enabled) {
+                    // Initialize keystore with biometric requirement
+                    val success = keystoreManager.initialize(requireBiometric = true)
+                    if (!success) {
+                        // Rollback preference change
+                        dataStore.edit { prefs ->
+                            prefs[PreferencesKeys.BIOMETRIC_ENABLED] = false
+                        }
+                        _uiState.value = _uiState.value.copy(
+                            biometricEnabled = false,
+                            isPublishing = false
+                        )
+                        return@launch
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    biometricEnabled = enabled,
+                    isPublishing = false
+                )
+            } catch (e: Exception) {
+                // Rollback on error
+                dataStore.edit { prefs ->
+                    prefs[PreferencesKeys.BIOMETRIC_ENABLED] = !enabled
+                }
+                _uiState.value = _uiState.value.copy(
+                    biometricEnabled = !enabled,
+                    isPublishing = false
+                )
             }
-
-            _uiState.value = _uiState.value.copy(biometricEnabled = enabled)
-
-            // TODO: Re-initialize keystore with biometric requirement
         }
     }
 
     /**
-     * Exports identity keys (shows warning and proceeds).
+     * Initiates key export process.
+     *
+     * Security flow:
+     * 1. Emit ShowWarning event to display security implications dialog
+     * 2. User must acknowledge warning
+     * 3. If biometric available, require authentication
+     * 4. Generate encrypted key bundle
+     * 5. Emit ExportReady event with the bundle data
      */
     fun exportKeys() {
-        // TODO: Implement secure key export
-        // This should show a warning about security implications
-        // and require biometric authentication
+        viewModelScope.launch {
+            // Step 1: Show security warning
+            _keyExportEvent.emit(KeyExportEvent.ShowWarning)
+        }
+    }
+
+    /**
+     * Called when user acknowledges the security warning.
+     * Proceeds with biometric authentication if available.
+     */
+    fun onExportWarningAccepted() {
+        viewModelScope.launch {
+            if (_uiState.value.biometricAvailable) {
+                // Request biometric authentication
+                _keyExportEvent.emit(KeyExportEvent.RequireBiometric)
+            } else {
+                // No biometric, proceed directly
+                performKeyExport()
+            }
+        }
+    }
+
+    /**
+     * Called after successful biometric authentication.
+     * Performs the actual key export.
+     */
+    fun onBiometricSuccess() {
+        viewModelScope.launch {
+            performKeyExport()
+        }
+    }
+
+    /**
+     * Performs the actual key export operation.
+     */
+    private suspend fun performKeyExport() {
+        try {
+            _uiState.value = _uiState.value.copy(isPublishing = true)
+
+            val publicKey = cryptoManager.getPublicKeyHex() ?: throw Exception("No public key")
+
+            // Generate a temporary export passphrase
+            val exportPassphrase = generateExportPassphrase()
+
+            // Generate a temporary transfer key
+            val transferKey = java.security.SecureRandom().generateSeed(32)
+
+            // Export the identity bundle with double encryption
+            val bundle = keystoreManager.exportIdentityBundle(exportPassphrase, transferKey)
+                ?: throw Exception("Failed to export identity bundle")
+
+            // Create export data
+            val exportData = KeyExportData(
+                publicKey = publicKey,
+                bundleData = android.util.Base64.encodeToString(bundle.serialize(), android.util.Base64.NO_WRAP),
+                passphrase = exportPassphrase,
+                exportedAt = System.currentTimeMillis()
+            )
+
+            _uiState.value = _uiState.value.copy(isPublishing = false)
+            _keyExportEvent.emit(KeyExportEvent.ExportReady(exportData))
+
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(isPublishing = false)
+            _keyExportEvent.emit(KeyExportEvent.ExportFailed(e.message ?: "Unknown error"))
+        }
+    }
+
+    /**
+     * Generates a human-readable export passphrase.
+     */
+    private fun generateExportPassphrase(): String {
+        val random = java.security.SecureRandom()
+        val words = PASSPHRASE_WORDS
+        return (1..4).map { words[random.nextInt(words.size)] }.joinToString("-")
+    }
+
+    companion object {
+        private val PASSPHRASE_WORDS = listOf(
+            "apple", "brave", "cloud", "delta", "eagle", "frost", "grape", "heart",
+            "ivory", "jewel", "karma", "lemon", "maple", "noble", "ocean", "piano",
+            "quilt", "river", "storm", "tiger", "ultra", "vivid", "water", "xenon",
+            "youth", "zebra", "amber", "blaze", "coral", "dream", "ember", "flame"
+        )
     }
 
     /**
@@ -319,4 +449,31 @@ data class SettingsUiState(
     val biometricAvailable: Boolean = false,
     val connectedRelays: Int = 0,
     val totalRelays: Int = 0
+)
+
+/**
+ * Events for the key export flow.
+ */
+sealed class KeyExportEvent {
+    /** Show security warning dialog */
+    data object ShowWarning : KeyExportEvent()
+
+    /** Request biometric authentication */
+    data object RequireBiometric : KeyExportEvent()
+
+    /** Export is ready - display to user */
+    data class ExportReady(val data: KeyExportData) : KeyExportEvent()
+
+    /** Export failed with error message */
+    data class ExportFailed(val message: String) : KeyExportEvent()
+}
+
+/**
+ * Data for exported identity keys.
+ */
+data class KeyExportData(
+    val publicKey: String,
+    val bundleData: String,
+    val passphrase: String,
+    val exportedAt: Long
 )

@@ -379,6 +379,9 @@ interface ContactDao {
 
     @Query("SELECT * FROM contacts WHERE displayName LIKE '%' || :query || '%' OR nip05 LIKE '%' || :query || '%'")
     fun search(query: String): Flow<List<ContactEntity>>
+
+    @Query("SELECT * FROM contacts WHERE updatedAt > :timestamp")
+    suspend fun getContactsUpdatedSince(timestamp: Long): List<ContactEntity>
 }
 
 @Dao
@@ -415,6 +418,9 @@ interface ConversationDao {
 
     @Query("SELECT SUM(unreadCount) FROM conversations")
     fun getTotalUnreadCount(): Flow<Int?>
+
+    @Query("SELECT * FROM conversations WHERE updatedAt > :timestamp")
+    suspend fun getConversationsUpdatedSince(timestamp: Long): List<ConversationEntity>
 }
 
 @Dao
@@ -454,6 +460,9 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE content LIKE '%' || :query || '%' ORDER BY timestamp DESC")
     fun search(query: String): Flow<List<MessageEntity>>
+
+    @Query("SELECT * FROM messages WHERE timestamp > :timestamp ORDER BY timestamp ASC")
+    suspend fun getMessagesSince(timestamp: Long): List<MessageEntity>
 }
 
 @Dao

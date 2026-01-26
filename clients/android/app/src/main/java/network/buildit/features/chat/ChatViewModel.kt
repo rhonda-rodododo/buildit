@@ -28,6 +28,7 @@ import network.buildit.core.storage.MessageEntity
 import network.buildit.core.storage.ReactionDao
 import network.buildit.core.storage.ReactionEntity
 import network.buildit.core.storage.UploadStatus
+import network.buildit.core.storage.FileUploadService
 import network.buildit.core.transport.TransportRouter
 import network.buildit.core.transport.TransportStatus
 import javax.inject.Inject
@@ -50,7 +51,8 @@ class ChatViewModel @Inject constructor(
     private val attachmentDao: AttachmentDao,
     private val transportRouter: TransportRouter,
     private val cryptoManager: CryptoManager,
-    private val nostrClient: NostrClient
+    private val nostrClient: NostrClient,
+    private val fileUploadService: FileUploadService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
@@ -615,12 +617,30 @@ class ChatViewModel @Inject constructor(
                 )
             )
 
-            // TODO: Implement actual upload to file host
-            // For now, just mark as completed with local path as URL
-            attachmentDao.updateUrlAndStatus(attachmentId, "file://$localPath", UploadStatus.COMPLETED)
+            // Upload file to file host
+            attachmentDao.updateUrlAndStatus(attachmentId, "", UploadStatus.UPLOADING)
 
-            // Send message via transport (with attachment URL in content)
-            val messageContent = "[Image: file://$localPath]"
+            val uploadResult = fileUploadService.uploadFile(localPath, mimeType)
+
+            val remoteUrl = if (uploadResult.isSuccess) {
+                val upload = uploadResult.getOrThrow()
+                // Update attachment with dimensions from upload if available
+                attachmentDao.updateUrlAndStatus(
+                    attachmentId,
+                    upload.url,
+                    UploadStatus.COMPLETED
+                )
+                upload.url
+            } else {
+                // Upload failed - mark as failed and use local path as fallback
+                attachmentDao.updateUrlAndStatus(attachmentId, "file://$localPath", UploadStatus.FAILED)
+                messageDao.updateStatus(messageId, MessageStatus.FAILED)
+                updateActiveConversationState(isSending = false)
+                return@launch
+            }
+
+            // Send message via transport (with attachment URL in content per NIP-94)
+            val messageContent = remoteUrl
             val result = transportRouter.sendMessage(recipientPubkey, messageContent)
 
             // Update message status based on result

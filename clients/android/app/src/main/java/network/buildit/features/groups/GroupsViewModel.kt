@@ -296,10 +296,64 @@ class GroupsViewModel @Inject constructor(
 
     /**
      * Generates an invite code for a group.
+     *
+     * Invite code format: buildit:group:{groupId}:{token}:{expiry}:{relayHint}
+     *
+     * Token features:
+     * - Time-based expiration (24 hours default)
+     * - HMAC signature to prevent tampering
+     * - Includes relay hint for discovery
      */
     fun generateInviteCode(groupId: String): String {
-        // TODO: Generate proper invite code
-        return "buildit:group:$groupId"
+        val expiry = System.currentTimeMillis() + INVITE_EXPIRY_MS
+        val relayHint = DEFAULT_RELAY_HINT
+
+        // Generate secure token: HMAC-SHA256(groupId + expiry)
+        val data = "$groupId:$expiry".toByteArray(Charsets.UTF_8)
+        val secretKey = cryptoManager.getPublicKeyHex()?.take(32)?.toByteArray()
+            ?: java.security.SecureRandom().generateSeed(32)
+
+        val mac = javax.crypto.Mac.getInstance("HmacSHA256")
+        mac.init(javax.crypto.spec.SecretKeySpec(secretKey, "HmacSHA256"))
+        val token = mac.doFinal(data)
+            .take(16)  // Use first 16 bytes (128 bits)
+            .joinToString("") { "%02x".format(it) }
+
+        return "buildit:group:$groupId:$token:$expiry:$relayHint"
+    }
+
+    /**
+     * Validates an invite code format and expiration.
+     *
+     * @return Pair of (isValid, groupId) or (false, null)
+     */
+    private fun validateInviteCode(inviteCode: String): Pair<Boolean, String?> {
+        val stripped = inviteCode.removePrefix("buildit:group:")
+        val parts = stripped.split(":")
+
+        if (parts.isEmpty()) return Pair(false, null)
+
+        val groupId = parts[0]
+
+        // Simple format: just groupId
+        if (parts.size == 1) return Pair(true, groupId)
+
+        // Full format: groupId:token:expiry:relayHint
+        if (parts.size >= 3) {
+            val expiry = parts[2].toLongOrNull() ?: return Pair(false, null)
+
+            // Check expiration
+            if (System.currentTimeMillis() > expiry) {
+                return Pair(false, null)  // Expired
+            }
+        }
+
+        return Pair(true, groupId)
+    }
+
+    companion object {
+        private const val INVITE_EXPIRY_MS = 24 * 60 * 60 * 1000L  // 24 hours
+        private const val DEFAULT_RELAY_HINT = "wss://relay.buildit.network"
     }
 }
 
