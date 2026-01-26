@@ -225,7 +225,7 @@ export class BLESchemaSyncManager {
     }
   }
 
-  private async handleVersionRequest(message: SchemaSyncMessage): Promise<void> {
+  private async handleVersionRequest(_message: SchemaSyncMessage): Promise<void> {
     const payload: VersionResponsePayload = {
       clientVersion: '0.74.0',
       schemaVersions: this.getLocalSchemaInfo().schemaVersions,

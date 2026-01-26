@@ -5,7 +5,6 @@
  * Shows warnings for content from newer schema versions.
  */
 
-import * as React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AlertTriangle, CheckCircle, Info } from 'lucide-react'

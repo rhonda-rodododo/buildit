@@ -943,7 +943,7 @@ export class NostrClient {
     const obfuscatedSub = this.obfuscatedSubscriptions.get(subId)
     if (obfuscatedSub) {
       // Close all relay-specific subscriptions
-      obfuscatedSub.relaySubscriptions.forEach((relaySubId, relayUrl) => {
+      obfuscatedSub.relaySubscriptions.forEach((_relaySubId, relayUrl) => {
         this.pool.close([relayUrl])
       })
       this.obfuscatedSubscriptions.delete(subId)

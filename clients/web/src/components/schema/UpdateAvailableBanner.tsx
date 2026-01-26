@@ -78,7 +78,7 @@ export function UpdateAvailableBanner({
 /**
  * Hook to track and display update notifications
  */
-export function useUpdateNotification(moduleId: string) {
+export function useUpdateNotification(_moduleId: string) {
   const [partialItems, setPartialItems] = React.useState<Set<string>>(new Set())
   const [dismissed, setDismissed] = React.useState(false)
 

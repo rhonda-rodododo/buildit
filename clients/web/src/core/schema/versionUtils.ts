@@ -59,7 +59,7 @@ export function isAtLeast(a: SemanticVersion, b: SemanticVersion): boolean {
 export function isWithinSupportWindow(
   contentVersion: SemanticVersion,
   currentVersion: SemanticVersion,
-  supportMonths: number = 6
+  _supportMonths: number = 6
 ): boolean {
   const content = parseVersion(contentVersion)
   const current = parseVersion(currentVersion)

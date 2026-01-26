@@ -6,7 +6,7 @@
  */
 
 import type { SemanticVersion, VersionedContent, ParseResult, SchemaMetadata } from './types'
-import { compareVersions, getCurrentSchemaVersion, getCompatibilityStatus, isFromFuture } from './versionUtils'
+import { compareVersions, getCurrentSchemaVersion, getCompatibilityStatus } from './versionUtils'
 
 /**
  * Default schema version for content without _v field
