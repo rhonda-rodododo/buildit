@@ -149,11 +149,43 @@ enum NostrRelayMessage {
     }
 }
 
+/// Configuration for subscription filter obfuscation
+struct SubscriptionObfuscationConfig {
+    /// Enable subscription obfuscation
+    var enabled: Bool = true
+    /// Use broad filters and filter locally
+    var broadFilteringEnabled: Bool = true
+    /// Send different filter subsets to different relays
+    var filterDiffusionEnabled: Bool = true
+    /// Add dummy subscriptions to obscure real interests
+    var dummySubscriptionsEnabled: Bool = true
+    /// Number of dummy pubkeys to add to author filters
+    var dummyPubkeyCount: Int = 5
+    /// Number of dummy event IDs to add to ID filters
+    var dummyEventIdCount: Int = 3
+    /// Percentage of real filter elements to send per relay
+    var filterDiffusionRatio: Double = 0.6
+    /// Minimum relays to receive each real filter element
+    var minRelaysPerElement: Int = 2
+}
+
 /// Subscription tracking
 struct NostrSubscription {
     let id: String
     let filters: [NostrFilter]
     let callback: (NostrEvent) -> Void
+}
+
+/// Obfuscated subscription tracking for privacy
+struct ObfuscatedSubscription {
+    let publicId: String
+    let originalFilters: [NostrFilter]
+    var relaySubscriptions: [String: String] = [:] // relay URL -> subscription ID
+    var dummyPubkeys: Set<String> = []
+    var dummyEventIds: Set<String> = []
+    let callback: (NostrEvent) -> Void
+    var eoseCount: Int = 0
+    var relayCount: Int = 0
 }
 
 /// NostrClient manages Nostr protocol communication
@@ -174,8 +206,10 @@ class NostrClient: NSObject, ObservableObject {
 
     private var relayPool: RelayPool
     private var subscriptions: [String: NostrSubscription] = [:]
+    private var obfuscatedSubscriptions: [String: ObfuscatedSubscription] = [:]
     private var pendingEvents: [NostrEvent] = []
     private var eventCallbacks: [(NostrEvent) -> Void] = []
+    private var obfuscationConfig = SubscriptionObfuscationConfig()
 
     private let logger = Logger(subsystem: "com.buildit", category: "NostrClient")
     private var cancellables = Set<AnyCancellable>()
@@ -247,24 +281,314 @@ class NostrClient: NSObject, ObservableObject {
 
     // MARK: - Subscriptions
 
-    /// Subscribe to events matching filters
+    /// Subscribe to events matching filters with privacy obfuscation
+    ///
+    /// When obfuscation is enabled, this method:
+    /// 1. Adds dummy pubkeys/event IDs to obscure real interests
+    /// 2. Distributes filter elements across relays (diffusion)
+    /// 3. Filters results locally to match original intent
+    ///
+    /// This prevents relays from learning the user's full social graph
+    /// through subscription pattern analysis.
     @discardableResult
     func subscribe(
         filters: [NostrFilter],
         callback: @escaping (NostrEvent) -> Void
     ) -> String {
-        let subscriptionId = UUID().uuidString.prefix(8).lowercased()
+        let subscriptionId = String(UUID().uuidString.prefix(8).lowercased())
+
+        // If obfuscation is disabled, use simple subscription
+        guard obfuscationConfig.enabled else {
+            return subscribeSimple(filters: filters, callback: callback)
+        }
+
+        let relayUrls = defaultRelays
+
+        // Create obfuscated subscription
+        var obfuscatedSub = ObfuscatedSubscription(
+            publicId: subscriptionId,
+            originalFilters: filters,
+            callback: callback,
+            relayCount: relayUrls.count
+        )
+
+        // Generate dummy data for obfuscation
+        if obfuscationConfig.dummySubscriptionsEnabled {
+            for _ in 0..<obfuscationConfig.dummyPubkeyCount {
+                obfuscatedSub.dummyPubkeys.insert(generateRandomHex(length: 64))
+            }
+            for _ in 0..<obfuscationConfig.dummyEventIdCount {
+                obfuscatedSub.dummyEventIds.insert(generateRandomHex(length: 64))
+            }
+        }
+
+        // Create obfuscated filters for each relay
+        let obfuscatedFiltersPerRelay = createObfuscatedFilters(
+            originalFilters: filters,
+            relayUrls: relayUrls,
+            obfuscatedSub: &obfuscatedSub
+        )
+
+        // Subscribe to each relay with its specific filter set
+        for (index, relayUrl) in relayUrls.enumerated() {
+            let relayFilters = obfuscatedFiltersPerRelay[index]
+            guard !relayFilters.isEmpty else { continue }
+
+            let relaySubId = "\(subscriptionId)_\(index)"
+            obfuscatedSub.relaySubscriptions[relayUrl] = relaySubId
+
+            relayPool.subscribe(id: relaySubId, filters: relayFilters, to: relayUrl)
+        }
+
+        obfuscatedSubscriptions[subscriptionId] = obfuscatedSub
+
+        // Also store in regular subscriptions for compatibility
         let subscription = NostrSubscription(
-            id: String(subscriptionId),
+            id: subscriptionId,
+            filters: filters,
+            callback: callback
+        )
+        subscriptions[subscriptionId] = subscription
+
+        logger.info("Created obfuscated subscription: \(subscriptionId)")
+        return subscriptionId
+    }
+
+    /// Simple subscription without obfuscation
+    private func subscribeSimple(
+        filters: [NostrFilter],
+        callback: @escaping (NostrEvent) -> Void
+    ) -> String {
+        let subscriptionId = String(UUID().uuidString.prefix(8).lowercased())
+        let subscription = NostrSubscription(
+            id: subscriptionId,
             filters: filters,
             callback: callback
         )
 
-        subscriptions[String(subscriptionId)] = subscription
-        relayPool.subscribe(id: String(subscriptionId), filters: filters)
+        subscriptions[subscriptionId] = subscription
+        relayPool.subscribe(id: subscriptionId, filters: filters)
 
         logger.info("Created subscription: \(subscriptionId)")
-        return String(subscriptionId)
+        return subscriptionId
+    }
+
+    /// Create obfuscated filters for each relay
+    private func createObfuscatedFilters(
+        originalFilters: [NostrFilter],
+        relayUrls: [String],
+        obfuscatedSub: inout ObfuscatedSubscription
+    ) -> [[NostrFilter]] {
+        var result: [[NostrFilter]] = relayUrls.map { _ in [] }
+
+        for filter in originalFilters {
+            // Handle author-based filters (protect social graph)
+            if let authors = filter.authors, !authors.isEmpty {
+                var authorsWithDummies = authors
+                if obfuscationConfig.dummySubscriptionsEnabled {
+                    authorsWithDummies.append(contentsOf: obfuscatedSub.dummyPubkeys)
+                }
+
+                if obfuscationConfig.filterDiffusionEnabled && relayUrls.count > 1 {
+                    let distributed = distributeWithOverlap(
+                        elements: authorsWithDummies,
+                        bucketCount: relayUrls.count,
+                        ratio: obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement: obfuscationConfig.minRelaysPerElement
+                    )
+
+                    for (relayIndex, relayAuthors) in distributed.enumerated() {
+                        if !relayAuthors.isEmpty {
+                            var modifiedFilter = filter
+                            modifiedFilter.authors = relayAuthors
+                            result[relayIndex].append(modifiedFilter)
+                        }
+                    }
+                } else {
+                    for index in 0..<relayUrls.count {
+                        var modifiedFilter = filter
+                        modifiedFilter.authors = authorsWithDummies
+                        result[index].append(modifiedFilter)
+                    }
+                }
+            }
+            // Handle ID-based filters
+            else if let ids = filter.ids, !ids.isEmpty {
+                var idsWithDummies = ids
+                if obfuscationConfig.dummySubscriptionsEnabled {
+                    idsWithDummies.append(contentsOf: obfuscatedSub.dummyEventIds)
+                }
+
+                if obfuscationConfig.filterDiffusionEnabled && relayUrls.count > 1 {
+                    let distributed = distributeWithOverlap(
+                        elements: idsWithDummies,
+                        bucketCount: relayUrls.count,
+                        ratio: obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement: obfuscationConfig.minRelaysPerElement
+                    )
+
+                    for (relayIndex, relayIds) in distributed.enumerated() {
+                        if !relayIds.isEmpty {
+                            var modifiedFilter = filter
+                            modifiedFilter.ids = relayIds
+                            result[relayIndex].append(modifiedFilter)
+                        }
+                    }
+                } else {
+                    for index in 0..<relayUrls.count {
+                        var modifiedFilter = filter
+                        modifiedFilter.ids = idsWithDummies
+                        result[index].append(modifiedFilter)
+                    }
+                }
+            }
+            // Handle #p tag filters
+            else if let pTags = filter.p, !pTags.isEmpty {
+                var pTagsWithDummies = pTags
+                if obfuscationConfig.dummySubscriptionsEnabled {
+                    pTagsWithDummies.append(contentsOf: obfuscatedSub.dummyPubkeys)
+                }
+
+                if obfuscationConfig.filterDiffusionEnabled && relayUrls.count > 1 {
+                    let distributed = distributeWithOverlap(
+                        elements: pTagsWithDummies,
+                        bucketCount: relayUrls.count,
+                        ratio: obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement: obfuscationConfig.minRelaysPerElement
+                    )
+
+                    for (relayIndex, relayPTags) in distributed.enumerated() {
+                        if !relayPTags.isEmpty {
+                            var modifiedFilter = filter
+                            modifiedFilter.p = relayPTags
+                            result[relayIndex].append(modifiedFilter)
+                        }
+                    }
+                } else {
+                    for index in 0..<relayUrls.count {
+                        var modifiedFilter = filter
+                        modifiedFilter.p = pTagsWithDummies
+                        result[index].append(modifiedFilter)
+                    }
+                }
+            }
+            // Other filters - send to all relays as-is
+            else {
+                for index in 0..<relayUrls.count {
+                    result[index].append(filter)
+                }
+            }
+        }
+
+        return result
+    }
+
+    /// Distribute elements across buckets with overlap
+    private func distributeWithOverlap<T>(
+        elements: [T],
+        bucketCount: Int,
+        ratio: Double,
+        minBucketsPerElement: Int
+    ) -> [[T]] {
+        guard !elements.isEmpty, bucketCount > 0 else {
+            return Array(repeating: [], count: bucketCount)
+        }
+
+        var buckets: [[T]] = Array(repeating: [], count: bucketCount)
+        var elementBuckets: [Int: Set<Int>] = [:]
+        elements.indices.forEach { elementBuckets[$0] = [] }
+
+        let elementsPerBucket = Int(ceil(Double(elements.count) * ratio))
+
+        // First pass: randomly assign elements to buckets
+        for bucketIdx in 0..<bucketCount {
+            let shuffled = elements.indices.shuffled()
+            let selected = shuffled.prefix(min(elementsPerBucket, elements.count))
+
+            for elementIdx in selected {
+                buckets[bucketIdx].append(elements[elementIdx])
+                elementBuckets[elementIdx]?.insert(bucketIdx)
+            }
+        }
+
+        // Second pass: ensure minimum coverage
+        for (elementIdx, element) in elements.enumerated() {
+            var assignedBuckets = elementBuckets[elementIdx] ?? []
+            while assignedBuckets.count < min(minBucketsPerElement, bucketCount) {
+                let availableBuckets = (0..<bucketCount).filter { !assignedBuckets.contains($0) }
+                guard !availableBuckets.isEmpty else { break }
+
+                let randomBucket = availableBuckets.randomElement()!
+                buckets[randomBucket].append(element)
+                assignedBuckets.insert(randomBucket)
+            }
+        }
+
+        return buckets
+    }
+
+    /// Generate random hex string
+    private func generateRandomHex(length: Int) -> String {
+        var bytes = [UInt8](repeating: 0, count: length / 2)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        return bytes.map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// Check if event matches original filters (filtering out dummy data)
+    private func eventMatchesOriginalFilters(
+        event: NostrEvent,
+        obfuscatedSub: ObfuscatedSubscription
+    ) -> Bool {
+        // Check if from dummy pubkey
+        if obfuscatedSub.dummyPubkeys.contains(event.pubkey) {
+            return false
+        }
+
+        // Check if dummy event ID
+        if obfuscatedSub.dummyEventIds.contains(event.id) {
+            return false
+        }
+
+        // Check if matches any original filter
+        for filter in obfuscatedSub.originalFilters {
+            if eventMatchesFilter(event: event, filter: filter) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// Check if event matches a filter
+    private func eventMatchesFilter(event: NostrEvent, filter: NostrFilter) -> Bool {
+        if let ids = filter.ids, !ids.isEmpty, !ids.contains(event.id) {
+            return false
+        }
+        if let authors = filter.authors, !authors.isEmpty, !authors.contains(event.pubkey) {
+            return false
+        }
+        if let kinds = filter.kinds, !kinds.isEmpty, !kinds.contains(event.kind) {
+            return false
+        }
+        if let since = filter.since, event.created_at < since {
+            return false
+        }
+        if let until = filter.until, event.created_at > until {
+            return false
+        }
+        if let pTags = filter.p, !pTags.isEmpty {
+            let eventPTags = event.tags.filter { $0.first == "p" }.compactMap { $0[safe: 1] }
+            if !pTags.contains(where: { eventPTags.contains($0) }) {
+                return false
+            }
+        }
+        if let eTags = filter.e, !eTags.isEmpty {
+            let eventETags = event.tags.filter { $0.first == "e" }.compactMap { $0[safe: 1] }
+            if !eTags.contains(where: { eventETags.contains($0) }) {
+                return false
+            }
+        }
+        return true
     }
 
     /// Subscribe to events from specific authors
@@ -300,6 +624,14 @@ class NostrClient: NSObject, ObservableObject {
 
     /// Unsubscribe from a subscription
     func unsubscribe(_ subscriptionId: String) {
+        // Clean up obfuscated subscription if it exists
+        if let obfuscatedSub = obfuscatedSubscriptions[subscriptionId] {
+            for (_, relaySubId) in obfuscatedSub.relaySubscriptions {
+                relayPool.unsubscribe(id: relaySubId)
+            }
+            obfuscatedSubscriptions.removeValue(forKey: subscriptionId)
+        }
+
         subscriptions.removeValue(forKey: subscriptionId)
         relayPool.unsubscribe(id: subscriptionId)
 
@@ -308,10 +640,35 @@ class NostrClient: NSObject, ObservableObject {
 
     /// Unsubscribe from all subscriptions
     func unsubscribeAll() {
+        // Clean up all obfuscated subscriptions
+        for (_, obfuscatedSub) in obfuscatedSubscriptions {
+            for (_, relaySubId) in obfuscatedSub.relaySubscriptions {
+                relayPool.unsubscribe(id: relaySubId)
+            }
+        }
+        obfuscatedSubscriptions.removeAll()
+
         for subscriptionId in subscriptions.keys {
             relayPool.unsubscribe(id: subscriptionId)
         }
         subscriptions.removeAll()
+    }
+
+    // MARK: - Obfuscation Configuration
+
+    /// Enable or disable subscription obfuscation
+    func setSubscriptionObfuscationEnabled(_ enabled: Bool) {
+        obfuscationConfig.enabled = enabled
+    }
+
+    /// Update subscription obfuscation configuration
+    func updateObfuscationConfig(_ config: SubscriptionObfuscationConfig) {
+        obfuscationConfig = config
+    }
+
+    /// Get current obfuscation configuration
+    func getObfuscationConfig() -> SubscriptionObfuscationConfig {
+        return obfuscationConfig
     }
 
     // MARK: - Event Publishing
@@ -424,8 +781,20 @@ class NostrClient: NSObject, ObservableObject {
     // MARK: - Private Methods
 
     private func handleEvent(_ event: NostrEvent, subscriptionId: String) {
-        // Call subscription-specific callback
-        if let subscription = subscriptions[subscriptionId] {
+        // Check if this is part of an obfuscated subscription
+        // Extract the public subscription ID from relay-specific ID (format: publicId_relayIndex)
+        let publicSubId = subscriptionId.contains("_")
+            ? String(subscriptionId.split(separator: "_").first ?? "")
+            : subscriptionId
+
+        if let obfuscatedSub = obfuscatedSubscriptions[publicSubId] {
+            // Filter out dummy data
+            guard eventMatchesOriginalFilters(event: event, obfuscatedSub: obfuscatedSub) else {
+                return
+            }
+            obfuscatedSub.callback(event)
+        } else if let subscription = subscriptions[subscriptionId] {
+            // Regular subscription
             subscription.callback(event)
         }
 

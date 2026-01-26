@@ -1,5 +1,6 @@
 package network.buildit.core.nostr
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,7 +26,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Manages connections to multiple Nostr relays.
+ * Manages connections to multiple Nostr relays with certificate pinning.
  *
  * Features:
  * - Concurrent connections to multiple relays
@@ -33,17 +34,33 @@ import javax.inject.Singleton
  * - Health monitoring and relay scoring
  * - Message deduplication
  * - Read/Write relay policies
+ * - Certificate pinning for MITM protection (mandatory)
  */
 @Singleton
-class RelayPool @Inject constructor() {
+class RelayPool @Inject constructor(
+    private val pinStore: CertificatePinStore
+) {
+    companion object {
+        private const val TAG = "RelayPool"
+        private const val INITIAL_BACKOFF_MS = 1000L
+        private const val MAX_BACKOFF_MS = 60000L
+    }
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .pingInterval(30, TimeUnit.SECONDS)
-        .build()
+    /** OkHttpClient with certificate pinning enabled */
+    private val httpClient: OkHttpClient by lazy {
+        pinStore.buildPinnedOkHttpClient(
+            OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .pingInterval(30, TimeUnit.SECONDS)
+        )
+    }
+
+    /** Callback for certificate pinning events */
+    var certificatePinningCallback: CertificatePinningCallback? = null
 
     private val _messages = MutableSharedFlow<RelayMessage>(extraBufferCapacity = 256)
     val messages: SharedFlow<RelayMessage> = _messages.asSharedFlow()
@@ -239,10 +256,26 @@ class RelayPool @Inject constructor() {
         seenEventIds.clear()
     }
 
-    companion object {
-        private const val INITIAL_BACKOFF_MS = 1000L
-        private const val MAX_BACKOFF_MS = 60000L
+    /**
+     * Check if a relay has a pinned certificate.
+     */
+    fun isRelayPinned(url: String): Boolean {
+        return pinStore.isPinned(url)
     }
+
+    /**
+     * Clear TOFU pin for a relay (use when certificate rotates legitimately).
+     */
+    fun clearTofuPin(url: String) {
+        pinStore.clearTofuPin(url)
+        Log.i(TAG, "Cleared TOFU pin for $url")
+    }
+
+    /**
+     * Get the certificate pin store.
+     */
+    val certificatePinStore: CertificatePinStore
+        get() = pinStore
 }
 
 /**

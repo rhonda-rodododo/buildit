@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import network.buildit.core.crypto.EncryptedData
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Arrays
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -81,9 +82,26 @@ class FakeKeystore {
 
     /**
      * Gets the private key bytes (for testing only).
+     * Caller should zero the returned array after use.
      */
     fun getPrivateKeyBytes(): ByteArray? {
         return identityPrivateKey?.copyOf()
+    }
+
+    /**
+     * Stores a secp256k1 private key (for testing).
+     */
+    fun storeSecp256k1PrivateKey(privateKey: ByteArray): Boolean {
+        if (privateKey.size != 32) return false
+        identityPrivateKey = privateKey.copyOf()
+        return true
+    }
+
+    /**
+     * Checks if a secp256k1 private key is stored.
+     */
+    fun hasStoredSecp256k1Key(): Boolean {
+        return identityPrivateKey != null
     }
 
     /**

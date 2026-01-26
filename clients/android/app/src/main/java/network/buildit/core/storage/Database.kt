@@ -16,12 +16,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Update
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
+import net.sqlcipher.database.SupportFactory
+import java.security.SecureRandom
+import java.util.Arrays
 import javax.inject.Singleton
 
 /**
@@ -568,16 +573,74 @@ interface AttachmentDao {
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    private const val DATABASE_KEY_PREFS = "buildit_db_key_prefs"
+    private const val DATABASE_KEY_NAME = "database_encryption_key"
+    private const val DATABASE_KEY_SIZE = 32 // 256 bits
+
+    /**
+     * Gets or creates the database encryption key.
+     *
+     * The key is:
+     * 1. Generated using SecureRandom if not exists
+     * 2. Stored in EncryptedSharedPreferences (protected by Keystore)
+     * 3. Retrieved and used to encrypt the Room database via SQLCipher
+     *
+     * This provides hardware-backed protection for the database key on devices with TEE/StrongBox.
+     */
+    private fun getDatabaseKey(context: Context): ByteArray {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        val encryptedPrefs = EncryptedSharedPreferences.create(
+            context,
+            DATABASE_KEY_PREFS,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+
+        // Check if key exists
+        val existingKey = encryptedPrefs.getString(DATABASE_KEY_NAME, null)
+        if (existingKey != null) {
+            return android.util.Base64.decode(existingKey, android.util.Base64.NO_WRAP)
+        }
+
+        // Generate new key
+        val newKey = ByteArray(DATABASE_KEY_SIZE)
+        SecureRandom().nextBytes(newKey)
+
+        // Store the key
+        encryptedPrefs.edit()
+            .putString(DATABASE_KEY_NAME, android.util.Base64.encodeToString(newKey, android.util.Base64.NO_WRAP))
+            .apply()
+
+        return newKey
+    }
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): BuildItDatabase {
-        return Room.databaseBuilder(
-            context,
-            BuildItDatabase::class.java,
-            "buildit.db"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+        // Get the database encryption key (Keystore-protected)
+        val dbKey = getDatabaseKey(context)
+
+        try {
+            // Create SQLCipher factory with the key
+            val passphrase = dbKey
+            val factory = SupportFactory(passphrase)
+
+            return Room.databaseBuilder(
+                context,
+                BuildItDatabase::class.java,
+                "buildit.db"
+            )
+                .openHelperFactory(factory)
+                .fallbackToDestructiveMigration()
+                .build()
+        } finally {
+            // Clear the key from memory after database is initialized
+            Arrays.fill(dbKey, 0.toByte())
+        }
     }
 
     @Provides

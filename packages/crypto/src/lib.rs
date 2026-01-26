@@ -18,6 +18,7 @@ mod keys;
 mod nip17;
 mod nip44;
 mod nostr;
+mod ratchet;
 
 pub use aes::*;
 pub use duress::*;
@@ -26,6 +27,7 @@ pub use keys::*;
 pub use nip17::*;
 pub use nip44::*;
 pub use nostr::*;
+pub use ratchet::*;
 
 use rand::rngs::OsRng;
 use rand::Rng;

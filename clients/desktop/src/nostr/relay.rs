@@ -1,5 +1,9 @@
-//! Nostr relay WebSocket client implementation
+//! Nostr relay WebSocket client implementation with certificate pinning
+//!
+//! All relay connections use certificate pinning to prevent MITM attacks.
+//! Supports both pre-configured pins and Trust-on-First-Use (TOFU).
 
+use super::cert_pinning::{create_pinned_tls_config, CertPinStore};
 use super::types::{Filter, NostrMessage, RelayEvent, Subscription};
 use buildit_crypto::NostrEvent;
 use futures::{SinkExt, StreamExt};
@@ -10,7 +14,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
 use tokio::net::TcpStream;
 use tokio::sync::{broadcast, RwLock};
-use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::{
+    connect_async_tls_with_config, tungstenite::Message, Connector, MaybeTlsStream,
+    WebSocketStream,
+};
 
 /// Relay operation errors
 #[derive(Debug, Error)]
@@ -38,6 +45,12 @@ pub enum RelayError {
 
     #[error("WebSocket error: {0}")]
     WebSocketError(String),
+
+    #[error("Certificate pinning failed: {0}")]
+    CertificatePinningFailed(String),
+
+    #[error("TLS error: {0}")]
+    TlsError(String),
 }
 
 /// Relay connection status
@@ -49,18 +62,22 @@ pub enum RelayStatus {
     Error(String),
 }
 
-/// Nostr relay client
+/// Nostr relay client with certificate pinning
 pub struct NostrRelay {
     url: String,
     status: Arc<RwLock<RelayStatus>>,
     ws: Arc<RwLock<Option<WebSocketStream<MaybeTlsStream<TcpStream>>>>>,
     subscriptions: Arc<RwLock<HashMap<String, Subscription>>>,
     event_tx: broadcast::Sender<RelayEvent>,
+    /// Certificate pin store for MITM protection
+    pin_store: Arc<CertPinStore>,
 }
 
 impl NostrRelay {
-    /// Create a new relay client
-    pub fn new(url: String) -> Self {
+    /// Create a new relay client with certificate pinning
+    ///
+    /// All connections will be verified against certificate pins to prevent MITM attacks.
+    pub fn new(url: String, pin_store: Arc<CertPinStore>) -> Self {
         let (event_tx, _) = broadcast::channel(100);
 
         Self {
@@ -69,10 +86,28 @@ impl NostrRelay {
             ws: Arc::new(RwLock::new(None)),
             subscriptions: Arc::new(RwLock::new(HashMap::new())),
             event_tx,
+            pin_store,
         }
     }
 
-    /// Connect to the relay
+    /// Create a new relay client with default certificate pinning
+    ///
+    /// Loads known pins from configuration and enables TOFU for unknown relays.
+    pub fn new_with_default_pinning(url: String) -> Result<Self, RelayError> {
+        let config = super::cert_pinning::CertPinConfig::default();
+        let mut pin_store = CertPinStore::new(config);
+
+        pin_store
+            .load_known_pins()
+            .map_err(|e| RelayError::CertificatePinningFailed(e.to_string()))?;
+
+        Ok(Self::new(url, Arc::new(pin_store)))
+    }
+
+    /// Connect to the relay with certificate pinning
+    ///
+    /// The connection will verify the server's certificate against known pins
+    /// or use TOFU (Trust-on-First-Use) for unknown relays.
     pub async fn connect(&self) -> Result<(), RelayError> {
         // Check if already connected
         let status = self.status.read().await;
@@ -84,14 +119,43 @@ impl NostrRelay {
         // Update status to connecting
         *self.status.write().await = RelayStatus::Connecting;
 
-        // Connect WebSocket
-        let (ws_stream, _) = connect_async(&self.url)
+        // Create pinned TLS configuration
+        let tls_config = create_pinned_tls_config(Arc::clone(&self.pin_store));
+
+        // Create TLS connector with certificate pinning
+        let connector = Connector::Rustls(tls_config);
+
+        // Connect WebSocket with certificate pinning
+        let (ws_stream, _) = connect_async_tls_with_config(&self.url, None, false, Some(connector))
             .await
-            .map_err(|e| RelayError::ConnectionFailed(e.to_string()))?;
+            .map_err(|e| {
+                // Check if this is a certificate pinning error
+                let error_msg = e.to_string();
+                if error_msg.contains("Certificate pinning failed")
+                    || error_msg.contains("pin mismatch")
+                {
+                    RelayError::CertificatePinningFailed(error_msg)
+                } else {
+                    RelayError::ConnectionFailed(error_msg)
+                }
+            })?;
 
         // Store connection
         *self.ws.write().await = Some(ws_stream);
         *self.status.write().await = RelayStatus::Connected;
+
+        // Log certificate pinning status
+        if self.pin_store.is_pinned(&self.url) {
+            log::info!(
+                "Connected to Nostr relay with certificate pinning: {}",
+                self.url
+            );
+        } else {
+            log::info!(
+                "Connected to Nostr relay (TOFU - first use): {}",
+                self.url
+            );
+        }
 
         // Broadcast connected event
         let _ = self.event_tx.send(RelayEvent::Connected {
@@ -101,7 +165,6 @@ impl NostrRelay {
         // Start message handling task
         self.start_message_handler();
 
-        log::info!("Connected to Nostr relay: {}", self.url);
         Ok(())
     }
 
@@ -221,6 +284,25 @@ impl NostrRelay {
     /// Subscribe to relay events
     pub fn subscribe_events(&self) -> broadcast::Receiver<RelayEvent> {
         self.event_tx.subscribe()
+    }
+
+    /// Get the certificate pin store
+    ///
+    /// Can be used to check pinning status or clear TOFU pins
+    pub fn pin_store(&self) -> &Arc<CertPinStore> {
+        &self.pin_store
+    }
+
+    /// Check if this relay has a pinned certificate
+    pub fn is_certificate_pinned(&self) -> bool {
+        self.pin_store.is_pinned(&self.url)
+    }
+
+    /// Clear the TOFU pin for this relay
+    ///
+    /// Use this when you know the certificate is rotating legitimately
+    pub fn clear_tofu_pin(&self) {
+        self.pin_store.clear_tofu_pin(&self.url)
     }
 
     /// Send a message to the relay

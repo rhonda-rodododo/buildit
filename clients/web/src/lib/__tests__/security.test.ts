@@ -214,8 +214,8 @@ describe('Security Tests', () => {
       // Decrypt with raw NIP-44 to see the padded content
       const rawDecrypted = nip44Lib.v2.decrypt(encrypted, key);
 
-      // Should contain our padding marker
-      expect(rawDecrypted).toContain('\x00PAD\x00');
+      // Should contain our V2 padding marker (fixed bucket format)
+      expect(rawDecrypted).toContain('\x00PADv2\x00');
 
       // Final decryption should remove padding
       const decrypted = decryptNIP44(encrypted, key);
@@ -289,6 +289,184 @@ describe('Security Tests', () => {
       const decrypted = nip51.decryptGroupMembershipList(event, privateKey);
 
       expect(decrypted).toEqual(groups);
+    });
+
+    it('should generate cryptographically random dummy pubkeys', async () => {
+      const { generateDummyPubkeys } = await import('@/core/crypto/nip51');
+
+      const dummies = generateDummyPubkeys(10);
+
+      // Should generate correct count
+      expect(dummies).toHaveLength(10);
+
+      // Each pubkey should be 64 hex characters (32 bytes)
+      for (const pubkey of dummies) {
+        expect(pubkey).toHaveLength(64);
+        expect(/^[0-9a-f]{64}$/.test(pubkey)).toBe(true);
+      }
+
+      // All should be unique
+      const uniqueDummies = new Set(dummies);
+      expect(uniqueDummies.size).toBe(10);
+    });
+
+    it('should create dummy contacts for obfuscation', async () => {
+      const { createDummyContacts } = await import('@/core/crypto/nip51');
+
+      const dummies = createDummyContacts(5);
+
+      expect(dummies).toHaveLength(5);
+
+      for (const dummy of dummies) {
+        expect(dummy.pubkey).toHaveLength(64);
+        expect(dummy.isDummy).toBe(true);
+        expect(dummy.addedAt).toBeDefined();
+      }
+    });
+
+    it('should obfuscate contact list with dummy contacts', async () => {
+      const { obfuscateContactList } = await import('@/core/crypto/nip51');
+      const { generateSecretKey, getPublicKey } = await import('nostr-tools');
+
+      const realContacts = [
+        { pubkey: getPublicKey(generateSecretKey()), addedAt: Date.now() },
+        { pubkey: getPublicKey(generateSecretKey()), addedAt: Date.now() },
+      ];
+
+      const obfuscated = obfuscateContactList(realContacts, 3);
+
+      // Should have real + dummy contacts
+      expect(obfuscated).toHaveLength(5);
+
+      // Count real and dummy
+      const realCount = obfuscated.filter(c => !c.isDummy).length;
+      const dummyCount = obfuscated.filter(c => c.isDummy).length;
+
+      expect(realCount).toBe(2);
+      expect(dummyCount).toBe(3);
+    });
+
+    it('should filter out dummy contacts when loading', async () => {
+      const { filterRealContacts, obfuscateContactList } = await import('@/core/crypto/nip51');
+      const { generateSecretKey, getPublicKey } = await import('nostr-tools');
+
+      const realContacts = [
+        { pubkey: getPublicKey(generateSecretKey()), addedAt: Date.now(), petname: 'Alice' },
+        { pubkey: getPublicKey(generateSecretKey()), addedAt: Date.now(), petname: 'Bob' },
+      ];
+
+      const obfuscated = obfuscateContactList(realContacts, 10);
+      const filtered = filterRealContacts(obfuscated);
+
+      // Should only have real contacts
+      expect(filtered).toHaveLength(2);
+      expect(filtered.every(c => !c.isDummy)).toBe(true);
+
+      // Should preserve original data
+      expect(filtered.some(c => c.petname === 'Alice')).toBe(true);
+      expect(filtered.some(c => c.petname === 'Bob')).toBe(true);
+    });
+
+    it('should parse Kind 3 contact list events', async () => {
+      const { parseKind3ContactList } = await import('@/core/crypto/nip51');
+      const { generateSecretKey, getPublicKey, finalizeEvent } = await import('nostr-tools');
+
+      const privateKey = generateSecretKey();
+      const pubkey1 = getPublicKey(generateSecretKey());
+      const pubkey2 = getPublicKey(generateSecretKey());
+
+      const kind3Event = finalizeEvent({
+        kind: 3,
+        content: '',
+        tags: [
+          ['p', pubkey1, 'wss://relay1.test', 'Alice'],
+          ['p', pubkey2, 'wss://relay2.test'],
+        ],
+        created_at: Math.floor(Date.now() / 1000),
+      }, privateKey);
+
+      const contacts = parseKind3ContactList(kind3Event);
+
+      expect(contacts).toHaveLength(2);
+      expect(contacts[0].pubkey).toBe(pubkey1);
+      expect(contacts[0].relay).toBe('wss://relay1.test');
+      expect(contacts[0].petname).toBe('Alice');
+      expect(contacts[1].pubkey).toBe(pubkey2);
+      expect(contacts[1].relay).toBe('wss://relay2.test');
+      expect(contacts[1].petname).toBeUndefined();
+    });
+
+    it('should create Kind 3 contact list events with optional dummy contacts', async () => {
+      const { createKind3ContactListEvent } = await import('@/core/crypto/nip51');
+      const { generateSecretKey, getPublicKey } = await import('nostr-tools');
+
+      const privateKey = generateSecretKey();
+      const contacts = [
+        { pubkey: getPublicKey(generateSecretKey()), addedAt: Date.now(), petname: 'Alice' },
+      ];
+
+      // Without dummies
+      const eventNoDummies = createKind3ContactListEvent(contacts, privateKey, 0);
+      expect(eventNoDummies.kind).toBe(3);
+      expect(eventNoDummies.tags.filter(t => t[0] === 'p')).toHaveLength(1);
+
+      // With dummies
+      const eventWithDummies = createKind3ContactListEvent(contacts, privateKey, 5);
+      expect(eventWithDummies.kind).toBe(3);
+      expect(eventWithDummies.tags.filter(t => t[0] === 'p')).toHaveLength(6);
+    });
+
+    it('should not expose plaintext pubkeys in encrypted contact list', async () => {
+      const nip51 = await import('@/core/crypto/nip51');
+      const { generateSecretKey, getPublicKey } = await import('nostr-tools');
+
+      const privateKey = generateSecretKey();
+      const contactPubkey = getPublicKey(generateSecretKey());
+
+      const contacts = [
+        { pubkey: contactPubkey, petname: 'Secret Friend', addedAt: Date.now() },
+      ];
+
+      const event = nip51.createContactListEvent(contacts, privateKey);
+
+      // The encrypted content should not contain the plaintext pubkey
+      expect(event.content).not.toContain(contactPubkey);
+      expect(event.content).not.toContain('Secret Friend');
+
+      // Tags should not contain contact pubkeys (only d tag)
+      const pTags = event.tags.filter(t => t[0] === 'p');
+      expect(pTags).toHaveLength(0);
+
+      // Verify we can still decrypt
+      const decrypted = nip51.decryptContactList(event, privateKey);
+      expect(decrypted?.[0].pubkey).toBe(contactPubkey);
+    });
+
+    it('should determine if encrypted list is newer than Kind 3', async () => {
+      const { isEncryptedListNewer } = await import('@/core/crypto/nip51');
+      const { generateSecretKey, finalizeEvent } = await import('nostr-tools');
+
+      const privateKey = generateSecretKey();
+      const now = Math.floor(Date.now() / 1000);
+
+      const olderEvent = finalizeEvent({
+        kind: 3,
+        content: '',
+        tags: [],
+        created_at: now - 1000,
+      }, privateKey);
+
+      const newerEvent = finalizeEvent({
+        kind: 39500,
+        content: 'encrypted',
+        tags: [['d', 'contacts']],
+        created_at: now,
+      }, privateKey);
+
+      expect(isEncryptedListNewer(newerEvent, olderEvent)).toBe(true);
+      expect(isEncryptedListNewer(olderEvent, newerEvent)).toBe(false);
+      expect(isEncryptedListNewer(null, olderEvent)).toBe(false);
+      expect(isEncryptedListNewer(newerEvent, null)).toBe(true);
     });
   });
 

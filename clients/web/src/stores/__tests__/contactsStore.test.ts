@@ -380,4 +380,48 @@ describe('contactsStore', () => {
       expect(profile?.about).toBe('A test user');
     });
   });
+
+  describe('publishConfig', () => {
+    it('should have default publish configuration', () => {
+      const { getPublishConfig } = useContactsStore.getState();
+
+      const config = getPublishConfig();
+      expect(config.publishEncrypted).toBe(true);
+      expect(config.publishPlaintext).toBe(false);
+      expect(config.dummyContactCount).toBe(0);
+    });
+
+    it('should update publish configuration', () => {
+      const { setPublishConfig, getPublishConfig } = useContactsStore.getState();
+
+      setPublishConfig({
+        publishPlaintext: true,
+        dummyContactCount: 10,
+      });
+
+      const config = getPublishConfig();
+      expect(config.publishEncrypted).toBe(true); // Unchanged
+      expect(config.publishPlaintext).toBe(true); // Updated
+      expect(config.dummyContactCount).toBe(10); // Updated
+    });
+
+    it('should preserve config when updating partial settings', () => {
+      const { setPublishConfig, getPublishConfig } = useContactsStore.getState();
+
+      // Reset to known state
+      setPublishConfig({
+        publishEncrypted: true,
+        publishPlaintext: false,
+        dummyContactCount: 5,
+      });
+
+      // Update only one setting
+      setPublishConfig({ dummyContactCount: 15 });
+
+      const config = getPublishConfig();
+      expect(config.publishEncrypted).toBe(true);
+      expect(config.publishPlaintext).toBe(false);
+      expect(config.dummyContactCount).toBe(15);
+    });
+  });
 });

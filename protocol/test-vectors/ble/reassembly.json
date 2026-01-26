@@ -1,0 +1,307 @@
+{
+  "version": "1.0.0",
+  "description": "BLE message chunk reassembly test vectors",
+  "constants": {
+    "MAX_MTU": 512,
+    "CHUNK_HEADER_SIZE": 21,
+    "CHUNK_PAYLOAD_SIZE": 491,
+    "REASSEMBLY_TIMEOUT_MS": 30000
+  },
+  "vectors": [
+    {
+      "id": "reassembly-001",
+      "description": "Successful reassembly - in order chunks",
+      "input": {
+        "message": "This is a test message that requires multiple chunks",
+        "message_id": "550e8400-e29b-41d4-a716-446655440000",
+        "chunk_size": 491,
+        "total_chunks": 2
+      },
+      "chunks_received": [
+        {
+          "chunk_index": 0,
+          "total_chunks": 2,
+          "message_id": "550e8400-e29b-41d4-a716-446655440000",
+          "is_last": false,
+          "is_compressed": false,
+          "payload": "CHUNK_0_DATA"
+        },
+        {
+          "chunk_index": 1,
+          "total_chunks": 2,
+          "message_id": "550e8400-e29b-41d4-a716-446655440000",
+          "is_last": true,
+          "is_compressed": false,
+          "payload": "CHUNK_1_DATA"
+        }
+      ],
+      "expected": {
+        "reassembly_successful": true,
+        "message": "This is a test message that requires multiple chunks"
+      }
+    },
+    {
+      "id": "reassembly-002",
+      "description": "Out-of-order chunks",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440001",
+        "total_chunks": 3
+      },
+      "chunks_received_order": [
+        { "chunk_index": 2, "is_last": true },
+        { "chunk_index": 0, "is_last": false },
+        { "chunk_index": 1, "is_last": false }
+      ],
+      "expected": {
+        "reassembly_successful": true,
+        "chunks_reordered": true,
+        "note": "Receiver must buffer and reassemble in correct order"
+      }
+    },
+    {
+      "id": "reassembly-003",
+      "description": "Missing chunk - timeout",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440002",
+        "total_chunks": 3
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 3 },
+        { "chunk_index": 2, "total_chunks": 3, "is_last": true }
+      ],
+      "missing_chunk": 1,
+      "timeout_ms": 30000,
+      "expected": {
+        "reassembly_failed": true,
+        "error_type": "REASSEMBLY_TIMEOUT",
+        "partial_data_discarded": true
+      }
+    },
+    {
+      "id": "reassembly-004",
+      "description": "Duplicate chunk received",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440003",
+        "total_chunks": 2
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 2 },
+        { "chunk_index": 0, "total_chunks": 2 },
+        { "chunk_index": 1, "total_chunks": 2, "is_last": true }
+      ],
+      "expected": {
+        "reassembly_successful": true,
+        "duplicate_ignored": true,
+        "note": "Duplicate chunks should be silently ignored"
+      }
+    },
+    {
+      "id": "reassembly-005",
+      "description": "Multiple concurrent messages",
+      "input": {
+        "message_a": {
+          "message_id": "550e8400-e29b-41d4-a716-446655440004",
+          "total_chunks": 2
+        },
+        "message_b": {
+          "message_id": "550e8400-e29b-41d4-a716-446655440005",
+          "total_chunks": 2
+        }
+      },
+      "chunks_received_interleaved": [
+        { "message_id": "...0004", "chunk_index": 0 },
+        { "message_id": "...0005", "chunk_index": 0 },
+        { "message_id": "...0004", "chunk_index": 1, "is_last": true },
+        { "message_id": "...0005", "chunk_index": 1, "is_last": true }
+      ],
+      "expected": {
+        "both_messages_reassembled": true,
+        "message_a_complete": true,
+        "message_b_complete": true,
+        "note": "Track reassembly state per message_id"
+      }
+    },
+    {
+      "id": "reassembly-006",
+      "description": "Chunk index out of range",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440006",
+        "total_chunks": 2
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 2 },
+        { "chunk_index": 3, "total_chunks": 2, "is_last": true }
+      ],
+      "expected": {
+        "reassembly_failed": true,
+        "error_type": "INVALID_CHUNK_INDEX",
+        "note": "Chunk index >= total_chunks is invalid"
+      }
+    },
+    {
+      "id": "reassembly-007",
+      "description": "Total chunks mismatch",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440007"
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 3 },
+        { "chunk_index": 1, "total_chunks": 2, "is_last": true }
+      ],
+      "expected": {
+        "reassembly_failed": true,
+        "error_type": "TOTAL_CHUNKS_MISMATCH",
+        "note": "All chunks must report same total_chunks value"
+      }
+    },
+    {
+      "id": "reassembly-008",
+      "description": "Last chunk flag validation",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440008",
+        "total_chunks": 3
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 3, "is_last": false },
+        { "chunk_index": 1, "total_chunks": 3, "is_last": false },
+        { "chunk_index": 2, "total_chunks": 3, "is_last": true }
+      ],
+      "expected": {
+        "reassembly_successful": true,
+        "last_flag_correct": true
+      }
+    },
+    {
+      "id": "reassembly-009",
+      "description": "Last chunk flag incorrect (not on final chunk)",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440009",
+        "total_chunks": 3
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 3, "is_last": false },
+        { "chunk_index": 1, "total_chunks": 3, "is_last": true },
+        { "chunk_index": 2, "total_chunks": 3, "is_last": false }
+      ],
+      "expected": {
+        "validation_warning": true,
+        "note": "Last flag should only be set on chunk_index == total_chunks - 1"
+      }
+    },
+    {
+      "id": "reassembly-010",
+      "description": "Compressed message reassembly",
+      "input": {
+        "message_pattern": "AAAAAAAAAA",
+        "message_repeats": 100,
+        "message_id": "550e8400-e29b-41d4-a716-446655440010",
+        "compressed": true,
+        "total_chunks": 2,
+        "note": "Message is pattern repeated 100 times"
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "is_compressed": true, "payload": "COMPRESSED_DATA_0" },
+        { "chunk_index": 1, "is_compressed": true, "is_last": true, "payload": "COMPRESSED_DATA_1" }
+      ],
+      "expected": {
+        "reassembly_successful": true,
+        "decompression_successful": true,
+        "decompressed_pattern": "AAAAAAAAAA",
+        "decompressed_repeats": 100,
+        "note": "Decompressed message is pattern repeated 100 times"
+      }
+    },
+    {
+      "id": "reassembly-011",
+      "description": "Compression flag mismatch",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440011",
+        "total_chunks": 2
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "is_compressed": true },
+        { "chunk_index": 1, "is_compressed": false, "is_last": true }
+      ],
+      "expected": {
+        "reassembly_failed": true,
+        "error_type": "COMPRESSION_FLAG_MISMATCH",
+        "note": "All chunks must have same compression flag"
+      }
+    },
+    {
+      "id": "reassembly-012",
+      "description": "Maximum message size",
+      "input": {
+        "message_length": 102400,
+        "message_id": "550e8400-e29b-41d4-a716-446655440012",
+        "compressed": true,
+        "chunk_size": 491
+      },
+      "expected": {
+        "reassembly_successful": true,
+        "note": "Maximum message size is 100KB"
+      }
+    },
+    {
+      "id": "reassembly-013",
+      "description": "Reassembly state cleanup on timeout",
+      "input": {
+        "message_id": "550e8400-e29b-41d4-a716-446655440013",
+        "total_chunks": 3
+      },
+      "chunks_received": [
+        { "chunk_index": 0 }
+      ],
+      "timeout_ms": 30000,
+      "expected": {
+        "reassembly_failed": true,
+        "state_cleaned_up": true,
+        "memory_freed": true,
+        "note": "After timeout, partial data should be discarded and memory freed"
+      }
+    },
+    {
+      "id": "reassembly-014",
+      "description": "Single chunk message (no reassembly needed)",
+      "input": {
+        "message": "Short message",
+        "message_id": "550e8400-e29b-41d4-a716-446655440014",
+        "total_chunks": 1
+      },
+      "chunks_received": [
+        { "chunk_index": 0, "total_chunks": 1, "is_last": true, "payload": "Short message" }
+      ],
+      "expected": {
+        "reassembly_immediate": true,
+        "message": "Short message",
+        "note": "Single chunk messages complete immediately"
+      }
+    }
+  ],
+  "reassembly_state_machine": {
+    "states": [
+      "IDLE - No reassembly in progress",
+      "RECEIVING - Chunks being received",
+      "COMPLETE - All chunks received, ready to process",
+      "FAILED - Timeout or error occurred"
+    ],
+    "transitions": {
+      "IDLE -> RECEIVING": "First chunk received",
+      "RECEIVING -> RECEIVING": "Additional chunk received (not last)",
+      "RECEIVING -> COMPLETE": "Last chunk received",
+      "RECEIVING -> FAILED": "Timeout or validation error",
+      "COMPLETE -> IDLE": "Message processed",
+      "FAILED -> IDLE": "State cleaned up"
+    }
+  },
+  "implementation_notes": [
+    "Track reassembly state per message_id in a hash map",
+    "Start timeout timer when first chunk received",
+    "Buffer chunks in array indexed by chunk_index",
+    "When last chunk received, validate completeness",
+    "Concatenate chunks in order (0 to total_chunks-1)",
+    "If compressed flag set, decompress concatenated data",
+    "Deliver reassembled message to application layer",
+    "Clean up reassembly state after success or timeout"
+  ]
+}

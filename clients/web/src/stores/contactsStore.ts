@@ -1,14 +1,32 @@
 import { create } from 'zustand';
 import type { Contact, ProfileMetadata } from '@/types/contacts';
 import { getNostrClient } from '@/core/nostr/client';
-import { finalizeEvent } from 'nostr-tools/pure';
 import { useAuthStore, getCurrentPrivateKey } from './authStore';
+import {
+  createContactListEvent,
+  decryptContactList,
+  parseKind3ContactList,
+  createKind3ContactListEvent,
+  obfuscateContactList,
+  filterRealContacts,
+  getEncryptedListFilters,
+  getKind3ContactListFilter,
+  isEncryptedListNewer,
+  ENCRYPTED_LIST_KINDS,
+  type ContactListEntry,
+  type ContactListPublishConfig,
+  DEFAULT_CONTACT_LIST_CONFIG,
+} from '@/core/crypto/nip51';
+import { logger } from '@/lib/logger';
 
 interface ContactsState {
   contacts: Map<string, Contact>; // pubkey -> contact
   profiles: Map<string, ProfileMetadata>; // pubkey -> profile metadata
   loading: boolean;
   error: string | null;
+
+  // Publish configuration for privacy settings
+  publishConfig: ContactListPublishConfig;
 
   // Actions
   followUser: (pubkey: string, relay?: string, petname?: string) => Promise<void>;
@@ -33,6 +51,11 @@ interface ContactsState {
   syncProfiles: (pubkeys: string[]) => Promise<void>;
   publishContactList: () => Promise<void>;
 
+  // Migration and configuration
+  migrateToEncryptedFormat: () => Promise<{ success: boolean; migrated: number; error?: string }>;
+  setPublishConfig: (config: Partial<ContactListPublishConfig>) => void;
+  getPublishConfig: () => ContactListPublishConfig;
+
   // Internal
   addContact: (contact: Contact) => void;
   removeContact: (pubkey: string) => void;
@@ -46,6 +69,7 @@ export const useContactsStore = create<ContactsState>()(
       profiles: new Map(),
       loading: false,
       error: null,
+      publishConfig: { ...DEFAULT_CONTACT_LIST_CONFIG },
 
       followUser: async (pubkey: string, relay?: string, petname?: string) => {
         const contact: Contact = {
@@ -156,38 +180,62 @@ export const useContactsStore = create<ContactsState>()(
             throw new Error('No identity selected');
           }
 
+          const privateKey = getCurrentPrivateKey();
           const nostrClient = getNostrClient();
 
-          // Fetch contact list (kind 3) for current user
-          const contactEvents = await nostrClient.query([{
-            kinds: [3],
-            authors: [currentIdentity.publicKey],
-            limit: 1,
-          }]);
+          // Fetch both encrypted (NIP-51) and plaintext (Kind 3) contact lists
+          const [encryptedEvents, plaintextEvents] = await Promise.all([
+            nostrClient.query([getEncryptedListFilters(currentIdentity.publicKey, [ENCRYPTED_LIST_KINDS.CONTACT_LIST])]),
+            nostrClient.query([getKind3ContactListFilter(currentIdentity.publicKey)]),
+          ]);
 
-          if (contactEvents.length > 0) {
-            const contactEvent = contactEvents[0];
-            const newContacts = new Map<string, Contact>();
+          // Find the most recent encrypted contact list
+          const encryptedEvent = encryptedEvents
+            .filter(e => e.kind === ENCRYPTED_LIST_KINDS.CONTACT_LIST)
+            .sort((a, b) => b.created_at - a.created_at)[0] || null;
 
-            // Parse p tags
-            for (const tag of contactEvent.tags) {
-              if (tag[0] === 'p') {
-                const [, pubkey, relay, petname] = tag;
-                newContacts.set(pubkey, {
-                  pubkey,
-                  relay,
-                  petname,
-                  relationship: 'following',
-                  followedAt: contactEvent.created_at,
-                });
+          // Find the most recent Kind 3 contact list
+          const kind3Event = plaintextEvents
+            .filter(e => e.kind === 3)
+            .sort((a, b) => b.created_at - a.created_at)[0] || null;
+
+          let contactEntries: ContactListEntry[] = [];
+
+          // Prefer encrypted list if it's newer or if we have a private key
+          if (privateKey && encryptedEvent && isEncryptedListNewer(encryptedEvent, kind3Event)) {
+            logger.info('Loading encrypted contact list (NIP-51)');
+            const decrypted = decryptContactList(encryptedEvent, privateKey);
+            if (decrypted) {
+              // Filter out dummy contacts
+              contactEntries = filterRealContacts(decrypted);
+            } else {
+              logger.warn('Failed to decrypt contact list, falling back to Kind 3');
+              if (kind3Event) {
+                contactEntries = parseKind3ContactList(kind3Event);
               }
             }
-
-            set({ contacts: newContacts });
+          } else if (kind3Event) {
+            // Fall back to Kind 3 if no encrypted list or if it's newer
+            logger.info('Loading plaintext contact list (Kind 3)');
+            contactEntries = parseKind3ContactList(kind3Event);
           }
 
-          set({ loading: false });
+          // Convert ContactListEntry to Contact map
+          const newContacts = new Map<string, Contact>();
+          for (const entry of contactEntries) {
+            newContacts.set(entry.pubkey, {
+              pubkey: entry.pubkey,
+              relay: entry.relay,
+              petname: entry.petname,
+              relationship: 'following',
+              followedAt: entry.addedAt,
+            });
+          }
+
+          set({ contacts: newContacts, loading: false });
+          logger.info(`Synced ${newContacts.size} contacts`);
         } catch (error) {
+          logger.error('Failed to sync contacts:', error);
           set({ error: (error as Error).message, loading: false });
         }
       },
@@ -226,33 +274,49 @@ export const useContactsStore = create<ContactsState>()(
             throw new Error('No identity selected');
           }
 
-          const following = get().getFollowing();
-          const tags = following.map((contact) => [
-            'p',
-            contact.pubkey,
-            contact.relay || '',
-            contact.petname || '',
-          ]);
-
           const privateKey = getCurrentPrivateKey();
           if (!privateKey) {
             throw new Error('App is locked');
           }
 
-          const event = finalizeEvent(
-            {
-              kind: 3,
-              tags,
-              content: '',
-              created_at: Math.floor(Date.now() / 1000),
-            },
-            privateKey
-          );
+          const following = get().getFollowing();
+          const config = get().publishConfig;
+
+          // Convert Contact to ContactListEntry format
+          const contactEntries: ContactListEntry[] = following.map(contact => ({
+            pubkey: contact.pubkey,
+            relay: contact.relay,
+            petname: contact.petname,
+            addedAt: contact.followedAt || Math.floor(Date.now() / 1000),
+          }));
 
           const nostrClient = getNostrClient();
-          await nostrClient.publish(event);
+
+          // Publish encrypted contact list (NIP-51) if enabled
+          if (config.publishEncrypted) {
+            // Add dummy contacts for obfuscation if configured
+            const obfuscatedEntries = config.dummyContactCount > 0
+              ? obfuscateContactList(contactEntries, config.dummyContactCount)
+              : contactEntries;
+
+            const encryptedEvent = createContactListEvent(obfuscatedEntries, privateKey);
+            await nostrClient.publish(encryptedEvent);
+            logger.info(`Published encrypted contact list with ${obfuscatedEntries.length} entries (${contactEntries.length} real, ${config.dummyContactCount} dummy)`);
+          }
+
+          // Optionally publish plaintext Kind 3 for backward compatibility
+          // WARNING: This exposes the social graph - only enable if user explicitly opts in
+          if (config.publishPlaintext) {
+            logger.warn('Publishing plaintext Kind 3 contact list (social graph exposed)');
+            const kind3Event = createKind3ContactListEvent(
+              contactEntries,
+              privateKey,
+              config.dummyContactCount // Add dummy contacts to plaintext too if configured
+            );
+            await nostrClient.publish(kind3Event);
+          }
         } catch (error) {
-          console.error('Failed to publish contact list:', error);
+          logger.error('Failed to publish contact list:', error);
           throw error;
         }
       },
@@ -282,6 +346,104 @@ export const useContactsStore = create<ContactsState>()(
         const profiles = new Map(get().profiles);
         profiles.set(pubkey, profile);
         set({ profiles });
+      },
+
+      /**
+       * Migrate contacts from Kind 3 plaintext format to encrypted NIP-51 format
+       *
+       * SECURITY: This is a one-way migration that:
+       * 1. Fetches the existing Kind 3 contact list from relays
+       * 2. Creates an encrypted NIP-51 version
+       * 3. Publishes the encrypted version to relays
+       * 4. Does NOT delete the Kind 3 event (relays may still have it)
+       *
+       * After migration, the encrypted list will be used for future syncs.
+       */
+      migrateToEncryptedFormat: async () => {
+        try {
+          const currentIdentity = useAuthStore.getState().currentIdentity;
+          if (!currentIdentity) {
+            return { success: false, migrated: 0, error: 'No identity selected' };
+          }
+
+          const privateKey = getCurrentPrivateKey();
+          if (!privateKey) {
+            return { success: false, migrated: 0, error: 'App is locked' };
+          }
+
+          const nostrClient = getNostrClient();
+
+          // Fetch existing Kind 3 contact list
+          const kind3Events = await nostrClient.query([getKind3ContactListFilter(currentIdentity.publicKey)]);
+          const kind3Event = kind3Events
+            .filter(e => e.kind === 3)
+            .sort((a, b) => b.created_at - a.created_at)[0];
+
+          if (!kind3Event) {
+            logger.info('No Kind 3 contact list found, nothing to migrate');
+            return { success: true, migrated: 0 };
+          }
+
+          // Parse contacts from Kind 3
+          const contacts = parseKind3ContactList(kind3Event);
+          logger.info(`Found ${contacts.length} contacts in Kind 3 list`);
+
+          if (contacts.length === 0) {
+            return { success: true, migrated: 0 };
+          }
+
+          // Create and publish encrypted version
+          const config = get().publishConfig;
+          const obfuscatedContacts = config.dummyContactCount > 0
+            ? obfuscateContactList(contacts, config.dummyContactCount)
+            : contacts;
+
+          const encryptedEvent = createContactListEvent(obfuscatedContacts, privateKey);
+          await nostrClient.publish(encryptedEvent);
+
+          logger.info(`Migrated ${contacts.length} contacts to encrypted NIP-51 format`);
+
+          // Update local store with the migrated contacts
+          const newContacts = new Map<string, Contact>();
+          for (const entry of contacts) {
+            newContacts.set(entry.pubkey, {
+              pubkey: entry.pubkey,
+              relay: entry.relay,
+              petname: entry.petname,
+              relationship: 'following',
+              followedAt: entry.addedAt,
+            });
+          }
+          set({ contacts: newContacts });
+
+          return { success: true, migrated: contacts.length };
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          logger.error('Migration failed:', error);
+          return { success: false, migrated: 0, error: errorMsg };
+        }
+      },
+
+      /**
+       * Update publish configuration for contact lists
+       *
+       * Options:
+       * - publishEncrypted: Whether to publish encrypted NIP-51 lists (default: true)
+       * - publishPlaintext: Whether to also publish Kind 3 for compatibility (default: false)
+       * - dummyContactCount: Number of fake contacts for obfuscation (default: 0)
+       */
+      setPublishConfig: (config: Partial<ContactListPublishConfig>) => {
+        const currentConfig = get().publishConfig;
+        const newConfig = { ...currentConfig, ...config };
+        set({ publishConfig: newConfig });
+        logger.info('Contact list publish config updated:', newConfig);
+      },
+
+      /**
+       * Get the current publish configuration
+       */
+      getPublishConfig: () => {
+        return get().publishConfig;
       },
     })
 );

@@ -80,6 +80,13 @@ class NostrClient @Inject constructor(
     /** Active subscriptions by ID */
     private val subscriptions = ConcurrentHashMap<String, Subscription>()
 
+    /** Obfuscated subscriptions for privacy */
+    private val obfuscatedSubscriptions = ConcurrentHashMap<String, ObfuscatedSubscription>()
+
+    /** Subscription obfuscation configuration */
+    @Volatile
+    private var obfuscationConfig = SubscriptionObfuscationConfig()
+
     /** Pending event callbacks */
     private val pendingEvents = ConcurrentHashMap<String, (Boolean) -> Unit>()
 
@@ -152,12 +159,87 @@ class NostrClient @Inject constructor(
     }
 
     /**
-     * Subscribes to events matching the given filters.
+     * Subscribes to events matching the given filters with privacy obfuscation.
+     *
+     * When obfuscation is enabled, this method:
+     * 1. Adds dummy pubkeys/event IDs to obscure real interests
+     * 2. Distributes filter elements across relays (diffusion)
+     * 3. Filters results locally to match original intent
+     *
+     * This prevents relays from learning the user's full social graph
+     * through subscription pattern analysis.
      *
      * @param filters The filters to match events against
      * @return Subscription ID
      */
     fun subscribe(vararg filters: NostrFilter): String {
+        val subscriptionId = UUID.randomUUID().toString().take(16)
+
+        // If obfuscation is disabled, use simple subscription
+        if (!obfuscationConfig.enabled) {
+            return subscribeSimple(*filters)
+        }
+
+        val relayUrls = relayPool.configuredRelays.map { it.url }
+
+        // Create obfuscated subscription
+        val obfuscatedSub = ObfuscatedSubscription(
+            publicId = subscriptionId,
+            originalFilters = filters.toList(),
+            callback = { event -> _events.emit(event) },
+            relayCount = relayUrls.size
+        )
+
+        // Generate dummy data for obfuscation
+        if (obfuscationConfig.dummySubscriptionsEnabled) {
+            repeat(obfuscationConfig.dummyPubkeyCount) {
+                obfuscatedSub.dummyPubkeys.add(generateRandomHex(64))
+            }
+            repeat(obfuscationConfig.dummyEventIdCount) {
+                obfuscatedSub.dummyEventIds.add(generateRandomHex(64))
+            }
+        }
+
+        // Create obfuscated filters for each relay
+        val obfuscatedFiltersPerRelay = createObfuscatedFilters(
+            originalFilters = filters.toList(),
+            relayUrls = relayUrls,
+            obfuscatedSub = obfuscatedSub
+        )
+
+        // Subscribe to each relay with its specific filter set
+        relayUrls.forEachIndexed { index, relayUrl ->
+            val relayFilters = obfuscatedFiltersPerRelay[index]
+            if (relayFilters.isEmpty()) return@forEachIndexed
+
+            val relaySubId = "${subscriptionId}_$index"
+            obfuscatedSub.relaySubscriptions[relayUrl] = relaySubId
+
+            val message = JSONArray().apply {
+                put("REQ")
+                put(relaySubId)
+                relayFilters.forEach { put(it.toJson()) }
+            }.toString()
+
+            relayPool.sendTo(relayUrl, message)
+        }
+
+        obfuscatedSubscriptions[subscriptionId] = obfuscatedSub
+
+        // Also store in regular subscriptions for compatibility
+        val subscription = Subscription(
+            id = subscriptionId,
+            filters = filters.toList()
+        )
+        subscriptions[subscriptionId] = subscription
+
+        return subscriptionId
+    }
+
+    /**
+     * Simple subscription without obfuscation (internal use).
+     */
+    private fun subscribeSimple(vararg filters: NostrFilter): String {
         val subscriptionId = UUID.randomUUID().toString().take(16)
 
         val subscription = Subscription(
@@ -166,7 +248,6 @@ class NostrClient @Inject constructor(
         )
         subscriptions[subscriptionId] = subscription
 
-        // Send REQ to relays
         val message = JSONArray().apply {
             put("REQ")
             put(subscriptionId)
@@ -179,9 +260,250 @@ class NostrClient @Inject constructor(
     }
 
     /**
+     * Create obfuscated filters for each relay.
+     */
+    private fun createObfuscatedFilters(
+        originalFilters: List<NostrFilter>,
+        relayUrls: List<String>,
+        obfuscatedSub: ObfuscatedSubscription
+    ): List<List<NostrFilter>> {
+        val result: MutableList<MutableList<NostrFilter>> = relayUrls.map { mutableListOf<NostrFilter>() }.toMutableList()
+
+        for (filter in originalFilters) {
+            // Handle author-based filters (protect social graph)
+            if (!filter.authors.isNullOrEmpty()) {
+                val authorsWithDummies = filter.authors.toMutableList().apply {
+                    if (obfuscationConfig.dummySubscriptionsEnabled) {
+                        addAll(obfuscatedSub.dummyPubkeys)
+                    }
+                }
+
+                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
+                    val distributed = distributeWithOverlap(
+                        elements = authorsWithDummies,
+                        bucketCount = relayUrls.size,
+                        ratio = obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
+                    )
+
+                    distributed.forEachIndexed { relayIndex, relayAuthors ->
+                        if (relayAuthors.isNotEmpty()) {
+                            result[relayIndex].add(filter.copy(authors = relayAuthors))
+                        }
+                    }
+                } else {
+                    relayUrls.indices.forEach { index ->
+                        result[index].add(filter.copy(authors = authorsWithDummies))
+                    }
+                }
+            }
+            // Handle ID-based filters
+            else if (!filter.ids.isNullOrEmpty()) {
+                val idsWithDummies = filter.ids.toMutableList().apply {
+                    if (obfuscationConfig.dummySubscriptionsEnabled) {
+                        addAll(obfuscatedSub.dummyEventIds)
+                    }
+                }
+
+                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
+                    val distributed = distributeWithOverlap(
+                        elements = idsWithDummies,
+                        bucketCount = relayUrls.size,
+                        ratio = obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
+                    )
+
+                    distributed.forEachIndexed { relayIndex, relayIds ->
+                        if (relayIds.isNotEmpty()) {
+                            result[relayIndex].add(filter.copy(ids = relayIds))
+                        }
+                    }
+                } else {
+                    relayUrls.indices.forEach { index ->
+                        result[index].add(filter.copy(ids = idsWithDummies))
+                    }
+                }
+            }
+            // Handle #p tag filters
+            else if (!filter.tags?.get("p").isNullOrEmpty()) {
+                val pTags = filter.tags!!["p"]!!
+                val pTagsWithDummies = pTags.toMutableList().apply {
+                    if (obfuscationConfig.dummySubscriptionsEnabled) {
+                        addAll(obfuscatedSub.dummyPubkeys)
+                    }
+                }
+
+                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
+                    val distributed = distributeWithOverlap(
+                        elements = pTagsWithDummies,
+                        bucketCount = relayUrls.size,
+                        ratio = obfuscationConfig.filterDiffusionRatio,
+                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
+                    )
+
+                    distributed.forEachIndexed { relayIndex, relayPTags ->
+                        if (relayPTags.isNotEmpty()) {
+                            val newTags = filter.tags.toMutableMap().apply {
+                                put("p", relayPTags)
+                            }
+                            result[relayIndex].add(filter.copy(tags = newTags))
+                        }
+                    }
+                } else {
+                    relayUrls.indices.forEach { index ->
+                        val newTags = filter.tags.toMutableMap().apply {
+                            put("p", pTagsWithDummies)
+                        }
+                        result[index].add(filter.copy(tags = newTags))
+                    }
+                }
+            }
+            // Other filters - send to all relays as-is
+            else {
+                relayUrls.indices.forEach { index ->
+                    result[index].add(filter)
+                }
+            }
+        }
+
+        return result
+    }
+
+    /**
+     * Distribute elements across buckets with overlap.
+     */
+    private fun <T> distributeWithOverlap(
+        elements: List<T>,
+        bucketCount: Int,
+        ratio: Double,
+        minBucketsPerElement: Int
+    ): List<List<T>> {
+        if (elements.isEmpty() || bucketCount == 0) {
+            return List(bucketCount) { emptyList() }
+        }
+
+        val buckets: MutableList<MutableList<T>> = MutableList(bucketCount) { mutableListOf() }
+        val elementBuckets: MutableMap<Int, MutableSet<Int>> = mutableMapOf()
+        elements.indices.forEach { elementBuckets[it] = mutableSetOf() }
+
+        val elementsPerBucket = kotlin.math.ceil(elements.size * ratio).toInt()
+
+        // First pass: randomly assign elements to buckets
+        for (bucketIdx in 0 until bucketCount) {
+            val shuffled = elements.indices.toList().shuffled()
+            val selected = shuffled.take(minOf(elementsPerBucket, elements.size))
+
+            for (elementIdx in selected) {
+                buckets[bucketIdx].add(elements[elementIdx])
+                elementBuckets[elementIdx]?.add(bucketIdx)
+            }
+        }
+
+        // Second pass: ensure minimum coverage
+        elements.forEachIndexed { elementIdx, element ->
+            val assignedBuckets = elementBuckets[elementIdx] ?: mutableSetOf()
+            while (assignedBuckets.size < minOf(minBucketsPerElement, bucketCount)) {
+                val availableBuckets = (0 until bucketCount).filter { !assignedBuckets.contains(it) }
+                if (availableBuckets.isEmpty()) break
+
+                val randomBucket = availableBuckets.random()
+                buckets[randomBucket].add(element)
+                assignedBuckets.add(randomBucket)
+            }
+        }
+
+        return buckets
+    }
+
+    /**
+     * Generate random hex string.
+     */
+    private fun generateRandomHex(length: Int): String {
+        val bytes = ByteArray(length / 2)
+        java.security.SecureRandom().nextBytes(bytes)
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * Check if event matches original filters (filtering out dummy data).
+     */
+    private fun eventMatchesOriginalFilters(
+        event: NostrEvent,
+        obfuscatedSub: ObfuscatedSubscription
+    ): Boolean {
+        // Check if from dummy pubkey
+        if (obfuscatedSub.dummyPubkeys.contains(event.pubkey)) {
+            return false
+        }
+
+        // Check if dummy event ID
+        if (obfuscatedSub.dummyEventIds.contains(event.id)) {
+            return false
+        }
+
+        // Check if matches any original filter
+        for (filter in obfuscatedSub.originalFilters) {
+            if (eventMatchesFilter(event, filter)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * Check if event matches a filter.
+     */
+    private fun eventMatchesFilter(event: NostrEvent, filter: NostrFilter): Boolean {
+        if (!filter.ids.isNullOrEmpty() && !filter.ids.contains(event.id)) {
+            return false
+        }
+        if (!filter.authors.isNullOrEmpty() && !filter.authors.contains(event.pubkey)) {
+            return false
+        }
+        if (!filter.kinds.isNullOrEmpty() && !filter.kinds.contains(event.kind)) {
+            return false
+        }
+        filter.since?.let { if (event.createdAt < it) return false }
+        filter.until?.let { if (event.createdAt > it) return false }
+
+        filter.tags?.get("p")?.let { pTags ->
+            if (pTags.isNotEmpty()) {
+                val eventPTags = event.tags.filter { it.firstOrNull() == "p" }.mapNotNull { it.getOrNull(1) }
+                if (!pTags.any { eventPTags.contains(it) }) {
+                    return false
+                }
+            }
+        }
+
+        filter.tags?.get("e")?.let { eTags ->
+            if (eTags.isNotEmpty()) {
+                val eventETags = event.tags.filter { it.firstOrNull() == "e" }.mapNotNull { it.getOrNull(1) }
+                if (!eTags.any { eventETags.contains(it) }) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    /**
      * Closes a subscription.
      */
     fun unsubscribe(subscriptionId: String) {
+        // Clean up obfuscated subscription if it exists
+        obfuscatedSubscriptions[subscriptionId]?.let { obfuscatedSub ->
+            for ((relayUrl, relaySubId) in obfuscatedSub.relaySubscriptions) {
+                val message = JSONArray().apply {
+                    put("CLOSE")
+                    put(relaySubId)
+                }.toString()
+                relayPool.sendTo(relayUrl, message)
+            }
+            obfuscatedSubscriptions.remove(subscriptionId)
+        }
+
         subscriptions.remove(subscriptionId)
 
         val message = JSONArray().apply {
@@ -191,6 +513,27 @@ class NostrClient @Inject constructor(
 
         relayPool.broadcast(message)
     }
+
+    // MARK: - Obfuscation Configuration
+
+    /**
+     * Enable or disable subscription obfuscation.
+     */
+    fun setSubscriptionObfuscationEnabled(enabled: Boolean) {
+        obfuscationConfig = obfuscationConfig.copy(enabled = enabled)
+    }
+
+    /**
+     * Update subscription obfuscation configuration.
+     */
+    fun updateObfuscationConfig(config: SubscriptionObfuscationConfig) {
+        obfuscationConfig = config
+    }
+
+    /**
+     * Get current obfuscation configuration.
+     */
+    fun getObfuscationConfig(): SubscriptionObfuscationConfig = obfuscationConfig
 
     /**
      * Publishes a profile (Kind 0 - NIP-01).
@@ -429,6 +772,22 @@ class NostrClient @Inject constructor(
                 val event = message.event
                 // Verify event signature
                 if (verifyEvent(event)) {
+                    // Check if this is part of an obfuscated subscription
+                    val subscriptionId = message.subscriptionId
+                    val publicSubId = if (subscriptionId.contains("_")) {
+                        subscriptionId.split("_").firstOrNull() ?: subscriptionId
+                    } else {
+                        subscriptionId
+                    }
+
+                    val obfuscatedSub = obfuscatedSubscriptions[publicSubId]
+                    if (obfuscatedSub != null) {
+                        // Filter out dummy data
+                        if (!eventMatchesOriginalFilters(event, obfuscatedSub)) {
+                            return
+                        }
+                    }
+
                     _events.emit(event)
 
                     // Handle typing indicators specially
@@ -642,6 +1001,43 @@ data class NostrFilter(
 data class Subscription(
     val id: String,
     val filters: List<NostrFilter>
+)
+
+/**
+ * Configuration for subscription filter obfuscation.
+ * Protects against social graph analysis via subscription patterns.
+ */
+data class SubscriptionObfuscationConfig(
+    /** Enable subscription obfuscation */
+    val enabled: Boolean = true,
+    /** Use broad filters and filter locally */
+    val broadFilteringEnabled: Boolean = true,
+    /** Send different filter subsets to different relays */
+    val filterDiffusionEnabled: Boolean = true,
+    /** Add dummy subscriptions to obscure real interests */
+    val dummySubscriptionsEnabled: Boolean = true,
+    /** Number of dummy pubkeys to add to author filters */
+    val dummyPubkeyCount: Int = 5,
+    /** Number of dummy event IDs to add to ID filters */
+    val dummyEventIdCount: Int = 3,
+    /** Percentage of real filter elements to send per relay */
+    val filterDiffusionRatio: Double = 0.6,
+    /** Minimum relays to receive each real filter element */
+    val minRelaysPerElement: Int = 2
+)
+
+/**
+ * Obfuscated subscription tracking for privacy.
+ */
+data class ObfuscatedSubscription(
+    val publicId: String,
+    val originalFilters: List<NostrFilter>,
+    val relaySubscriptions: MutableMap<String, String> = mutableMapOf(),
+    val dummyPubkeys: MutableSet<String> = mutableSetOf(),
+    val dummyEventIds: MutableSet<String> = mutableSetOf(),
+    val callback: suspend (NostrEvent) -> Unit,
+    var eoseCount: Int = 0,
+    var relayCount: Int = 0
 )
 
 /**

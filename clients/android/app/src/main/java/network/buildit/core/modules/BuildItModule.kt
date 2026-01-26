@@ -76,8 +76,7 @@ interface BuildItModule {
      * Returns the Nostr event kinds this module handles.
      * Used to set up subscriptions efficiently.
      */
-    fun getHandledEventKinds(): List<Int>
-        get() = emptyList()
+    fun getHandledEventKinds(): List<Int> = emptyList()
 }
 
 /**

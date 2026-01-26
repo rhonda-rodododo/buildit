@@ -1,0 +1,268 @@
+{
+  "version": "1.0.0",
+  "description": "BLE message compression test vectors - DEFLATE compression/decompression",
+  "constants": {
+    "COMPRESSION_THRESHOLD": 100,
+    "COMPRESSION_LEVEL": 6,
+    "ALGORITHM": "DEFLATE"
+  },
+  "vectors": [
+    {
+      "id": "compress-001",
+      "description": "Below threshold - no compression",
+      "input": {
+        "message": "This is a short message under 100 bytes",
+        "length": 42
+      },
+      "expected": {
+        "compressed": false,
+        "output": "This is a short message under 100 bytes",
+        "compression_flag": false
+      }
+    },
+    {
+      "id": "compress-002",
+      "description": "At threshold - compression applied",
+      "input": {
+        "message_length": 100,
+        "message_pattern": "a"
+      },
+      "expected": {
+        "compressed": true,
+        "compression_flag": true,
+        "output_smaller_than_input": true
+      }
+    },
+    {
+      "id": "compress-003",
+      "description": "Highly compressible - repeated content",
+      "input": {
+        "message_pattern": "AAAAAAAAAA",
+        "message_repeats": 100,
+        "length": 1000,
+        "note": "Generate by repeating pattern 100 times"
+      },
+      "expected": {
+        "compressed": true,
+        "compression_ratio_high": true,
+        "output_size_much_smaller": true,
+        "note": "Repeated data compresses very well"
+      }
+    },
+    {
+      "id": "compress-004",
+      "description": "Poorly compressible - random data",
+      "input": {
+        "message_type": "random",
+        "message_length": 1000
+      },
+      "expected": {
+        "compressed": true,
+        "compression_ratio_low": true,
+        "output_may_be_larger": true,
+        "note": "Random data compresses poorly, may expand"
+      }
+    },
+    {
+      "id": "compress-005",
+      "description": "JSON data compression",
+      "input": {
+        "message": "{\"type\":\"event\",\"data\":{\"id\":\"123\",\"title\":\"Meeting\",\"description\":\"Weekly team sync\",\"attendees\":[\"alice\",\"bob\",\"charlie\"]}}",
+        "length": 147
+      },
+      "expected": {
+        "compressed": true,
+        "compression_effective": true,
+        "decompressed_equals_original": true
+      }
+    },
+    {
+      "id": "compress-006",
+      "description": "Unicode content compression",
+      "input": {
+        "message_pattern": "Hello 世界! ",
+        "message_repeats": 20,
+        "contains_multibyte_chars": true,
+        "note": "Generate by repeating pattern 20 times"
+      },
+      "expected": {
+        "compressed": true,
+        "utf8_preserved": true,
+        "decompressed_equals_original": true
+      }
+    },
+    {
+      "id": "compress-007",
+      "description": "Decompression of compressed data",
+      "input": {
+        "original_message": "This is the original message that will be compressed and then decompressed to verify round-trip correctness.",
+        "compress_first": true
+      },
+      "expected": {
+        "compression_successful": true,
+        "decompression_successful": true,
+        "round_trip_correct": true,
+        "decompressed_equals_original": true
+      }
+    },
+    {
+      "id": "compress-008",
+      "description": "Invalid compressed data",
+      "input": {
+        "compressed_data": "INVALID_DEFLATE_DATA",
+        "is_compressed": true
+      },
+      "expected": {
+        "decompression_failed": true,
+        "error_type": "DECOMPRESSION_ERROR"
+      }
+    },
+    {
+      "id": "compress-009",
+      "description": "Empty message compression",
+      "input": {
+        "message": "",
+        "length": 0
+      },
+      "expected": {
+        "compressed": false,
+        "note": "Empty messages below threshold"
+      }
+    },
+    {
+      "id": "compress-010",
+      "description": "Maximum message size compression",
+      "input": {
+        "message_length": 102400,
+        "message_pattern": "The quick brown fox jumps over the lazy dog. "
+      },
+      "expected": {
+        "compressed": true,
+        "compression_successful": true,
+        "decompression_produces_original_size": true,
+        "note": "100KB maximum message size"
+      }
+    },
+    {
+      "id": "compress-011",
+      "description": "Compression level consistency",
+      "input": {
+        "message": "Test message for compression level testing",
+        "compress_with_level_6": true
+      },
+      "expected": {
+        "compressed": false,
+        "note": "Below threshold, level irrelevant"
+      }
+    },
+    {
+      "id": "compress-012",
+      "description": "Binary data compression",
+      "input": {
+        "message_type": "binary",
+        "message_length": 500,
+        "contains_null_bytes": true
+      },
+      "expected": {
+        "compressed": true,
+        "binary_data_preserved": true,
+        "decompressed_equals_original": true
+      }
+    },
+    {
+      "id": "compress-013",
+      "description": "Whitespace-heavy content",
+      "input": {
+        "message_pattern": "{\n  \"key1\": \"value1\",\n  \"key2\": \"value2\",\n  \"key3\": \"value3\"\n}",
+        "message_repeats": 5,
+        "contains_whitespace": true,
+        "note": "Generate by repeating pattern 5 times"
+      },
+      "expected": {
+        "compressed": true,
+        "compression_effective": true,
+        "note": "Repeated whitespace compresses well"
+      }
+    },
+    {
+      "id": "compress-014",
+      "description": "Compressed size exceeds original (edge case)",
+      "input": {
+        "message_type": "random",
+        "message_length": 150,
+        "note": "Small random data may expand when compressed"
+      },
+      "expected": {
+        "compressed": true,
+        "output_may_be_larger": true,
+        "still_use_compression": true,
+        "note": "Compression applied regardless of size increase"
+      }
+    },
+    {
+      "id": "compress-015",
+      "description": "Truncated compressed data",
+      "input": {
+        "compressed_data_truncated": true,
+        "is_compressed": true
+      },
+      "expected": {
+        "decompression_failed": true,
+        "error_type": "DECOMPRESSION_ERROR"
+      }
+    }
+  ],
+  "compression_algorithm": {
+    "algorithm": "DEFLATE",
+    "level": 6,
+    "library": "zlib or compatible",
+    "steps": {
+      "compression": [
+        "1. Check message length >= 100 bytes",
+        "2. If below threshold, skip compression",
+        "3. If at/above threshold, apply DEFLATE with level 6",
+        "4. Set compression flag in chunk headers",
+        "5. Use compressed data for chunking"
+      ],
+      "decompression": [
+        "1. After reassembly, check compression flag",
+        "2. If not compressed, use data as-is",
+        "3. If compressed, apply DEFLATE decompression",
+        "4. Validate decompressed data",
+        "5. Deliver decompressed message"
+      ]
+    }
+  },
+  "implementation_notes": [
+    "Use standard DEFLATE (RFC 1951) algorithm",
+    "Compression level 6 balances speed and ratio",
+    "Always attempt compression for messages >= 100 bytes",
+    "Set compression flag in ALL chunks of a message",
+    "Decompress entire reassembled message, not individual chunks",
+    "Handle decompression errors gracefully",
+    "Consider using zlib library or platform equivalent"
+  ],
+  "test_procedure": {
+    "for_compression_tests": [
+      "1. Create test message",
+      "2. Check if length >= threshold",
+      "3. Apply compression if needed",
+      "4. Verify compressed flag set correctly",
+      "5. For compressible data, verify size reduction",
+      "6. For incompressible data, allow size increase"
+    ],
+    "for_decompression_tests": [
+      "1. Compress a known message",
+      "2. Decompress the compressed data",
+      "3. Verify output equals original input",
+      "4. Test error handling with invalid data"
+    ],
+    "for_round_trip_tests": [
+      "1. Create original message",
+      "2. Compress message",
+      "3. Decompress compressed data",
+      "4. Verify decompressed equals original",
+      "5. Test with various data types (text, JSON, binary, unicode)"
+    ]
+  }
+}

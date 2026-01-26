@@ -207,3 +207,45 @@ dictionary DecoyContact {
     string pubkey;
     string display_name;
 };
+
+// Double Ratchet for Forward Secrecy
+dictionary MessageHeader {
+    sequence<u8> dh_public_key;
+    u32 previous_chain_length;
+    u32 message_number;
+};
+
+dictionary RatchetMessage {
+    MessageHeader header;
+    sequence<u8> ciphertext;
+    sequence<u8> nonce;
+};
+
+interface RatchetSession {
+    /// Initialize a new session as Alice (initiator)
+    [Throws=CryptoError, Name=initialize_alice]
+    constructor(sequence<u8> shared_secret, sequence<u8> bob_public_key);
+
+    /// Initialize a new session as Bob (responder)
+    [Throws=CryptoError, Name=initialize_bob]
+    constructor(sequence<u8> shared_secret, sequence<u8> our_signed_prekey);
+
+    /// Encrypt a message with forward secrecy
+    [Throws=CryptoError]
+    RatchetMessage encrypt(sequence<u8> plaintext);
+
+    /// Decrypt a message
+    [Throws=CryptoError]
+    sequence<u8> decrypt(RatchetMessage message);
+
+    /// Get our current public DH key
+    sequence<u8> get_public_key();
+
+    /// Serialize session state for storage
+    [Throws=CryptoError]
+    sequence<u8> serialize();
+
+    /// Deserialize session state from storage
+    [Throws=CryptoError, Name=deserialize]
+    constructor(sequence<u8> data);
+};

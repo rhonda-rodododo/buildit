@@ -1,0 +1,267 @@
+{
+  "version": "1.0.0",
+  "description": "Events module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "events-serialize-001",
+      "description": "Complete event object - all fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440000",
+        "title": "Weekly Team Meeting",
+        "description": "Regular weekly sync for the organizing committee",
+        "startAt": 1704067200,
+        "endAt": 1704070800,
+        "timezone": "America/New_York",
+        "location": {
+          "name": "Community Center",
+          "address": "123 Main Street, Brooklyn, NY 11201",
+          "coordinates": {
+            "lat": 40.6782,
+            "lng": -73.9442
+          }
+        },
+        "visibility": "group",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440001",
+        "rsvpRequired": true,
+        "capacity": 50,
+        "tags": ["meeting", "organizing", "weekly"],
+        "customFields": {
+          "dietary_restrictions": "Vegan snacks provided",
+          "accessibility": "Wheelchair accessible"
+        },
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000,
+        "updatedAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "deserialization_equals_input": true
+      }
+    },
+    {
+      "id": "events-serialize-002",
+      "description": "Minimal event - required fields only",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440002",
+        "title": "Quick Meetup",
+        "startAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "optional_fields_absent": true,
+        "deserialization_succeeds": true
+      }
+    },
+    {
+      "id": "events-serialize-003",
+      "description": "Event with unicode content",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440003",
+        "title": "国际团结会议 🌍",
+        "description": "Встреча для обсуждения международной солидарности",
+        "startAt": 1704067200,
+        "location": {
+          "name": "Café Résistance",
+          "address": "45 rue de la Liberté, Paris"
+        },
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "utf8_preserved": true,
+        "emoji_preserved": true
+      }
+    },
+    {
+      "id": "events-serialize-004",
+      "description": "Event with nested custom fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440004",
+        "title": "Training Workshop",
+        "startAt": 1704067200,
+        "visibility": "group",
+        "customFields": {
+          "workshop_type": "de-escalation",
+          "required_materials": ["notebook", "pen"],
+          "facilitator": {
+            "name": "Alice",
+            "email": "alice@example.org"
+          }
+        },
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "nested_objects_preserved": true,
+        "arrays_preserved": true
+      }
+    },
+    {
+      "id": "events-serialize-005",
+      "description": "Event with special characters",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440005",
+        "title": "Event with \"quotes\" and \\backslashes\\",
+        "description": "Description with\nnewlines\nand\ttabs",
+        "startAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "special_chars_escaped": true,
+        "deserialization_preserves_chars": true
+      }
+    },
+    {
+      "id": "events-serialize-006",
+      "description": "Private event - minimal visibility",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440006",
+        "title": "Direct Action Planning",
+        "startAt": 1704067200,
+        "visibility": "private",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440002",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "visibility_private": true
+      }
+    },
+    {
+      "id": "events-serialize-007",
+      "description": "Campaign event with parent reference",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440007",
+        "title": "Canvassing Session #3",
+        "startAt": 1704067200,
+        "visibility": "group",
+        "campaignId": "cmp-550e8400-e29b-41d4-a716-446655440000",
+        "tags": ["campaign", "canvassing"],
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "campaign_reference_preserved": true
+      }
+    },
+    {
+      "id": "events-serialize-008",
+      "description": "Event with location coordinates",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440008",
+        "title": "Rally Point",
+        "startAt": 1704067200,
+        "location": {
+          "name": "City Hall Plaza",
+          "coordinates": {
+            "lat": 40.7128,
+            "lng": -74.0060
+          }
+        },
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "coordinates_preserved": true,
+        "lat_is_number": true,
+        "lng_is_number": true
+      }
+    },
+    {
+      "id": "events-serialize-009",
+      "description": "Deterministic JSON serialization - field order",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440009",
+        "title": "Test Event",
+        "startAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "field_order_consistent": true,
+        "serialize_twice_same_result": true,
+        "note": "Fields should be serialized in consistent order (alphabetical recommended)"
+      }
+    },
+    {
+      "id": "events-serialize-010",
+      "description": "Maximum field lengths",
+      "input": {
+        "_v": "1.0.0",
+        "id": "evt-550e8400-e29b-41d4-a716-446655440010",
+        "title_pattern": "A",
+        "title_repeats": 256,
+        "description_pattern": "B",
+        "description_repeats": 4096,
+        "startAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000,
+        "note": "Generate title and description by repeating patterns"
+      },
+      "expected": {
+        "json_valid": true,
+        "title_length": 256,
+        "description_length": 4096
+      }
+    }
+  ],
+  "schema_requirements": {
+    "required_fields": ["_v", "id", "title", "startAt", "visibility", "createdBy", "createdAt"],
+    "optional_fields": ["description", "endAt", "timezone", "location", "groupId", "rsvpRequired", "capacity", "tags", "customFields", "campaignId", "updatedAt"],
+    "field_types": {
+      "_v": "string (semver)",
+      "id": "string (UUID with evt- prefix)",
+      "title": "string (max 256 chars)",
+      "description": "string (max 4096 chars)",
+      "startAt": "integer (Unix timestamp)",
+      "endAt": "integer (Unix timestamp)",
+      "timezone": "string (IANA timezone)",
+      "location": "object",
+      "visibility": "enum (public|group|private|direct-action)",
+      "groupId": "string (UUID with grp- prefix)",
+      "rsvpRequired": "boolean",
+      "capacity": "integer",
+      "tags": "array of strings",
+      "customFields": "object (arbitrary JSON)",
+      "campaignId": "string (UUID with cmp- prefix)",
+      "createdBy": "string (hex pubkey)",
+      "createdAt": "integer (Unix timestamp)",
+      "updatedAt": "integer (Unix timestamp)"
+    }
+  },
+  "serialization_notes": [
+    "Use consistent field ordering (alphabetical recommended)",
+    "Escape special characters according to JSON spec",
+    "Preserve UTF-8 encoding for unicode content",
+    "Omit optional fields if not present (don't use null)",
+    "Numbers should not be quoted",
+    "Booleans should be true/false, not quoted"
+  ]
+}

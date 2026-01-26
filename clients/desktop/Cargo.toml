@@ -58,9 +58,16 @@ hex = "0.4"
 # Async mutex for shared state
 parking_lot = "0.12"
 
-# WebSocket for Nostr relays
-tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+# WebSocket for Nostr relays with TLS certificate pinning
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
 url = "2.5"
+
+# TLS with certificate pinning
+rustls = "0.23"
+webpki-roots = "0.26"
+sha2 = "0.10"
+base64 = "0.22"
+ring = "0.17"
 
 # Compression for BLE chunking
 flate2 = "1.0"

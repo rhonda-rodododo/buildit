@@ -1,0 +1,262 @@
+{
+  "version": "1.0.0",
+  "description": "BLE message chunking test vectors - splitting messages into BLE-compatible chunks",
+  "constants": {
+    "MAX_MTU": 512,
+    "CHUNK_HEADER_SIZE": 21,
+    "CHUNK_PAYLOAD_SIZE": 491,
+    "COMPRESSION_THRESHOLD": 100,
+    "MAX_MESSAGE_SIZE": 102400
+  },
+  "binary_header_format": {
+    "total_size": 21,
+    "fields": [
+      { "name": "chunk_index", "offset": 0, "size": 2, "type": "uint16_le" },
+      { "name": "total_chunks", "offset": 2, "size": 2, "type": "uint16_le" },
+      { "name": "flags", "offset": 4, "size": 1, "type": "uint8", "bits": {
+        "0": "is_last",
+        "1": "is_compressed",
+        "2-7": "reserved"
+      }},
+      { "name": "message_id", "offset": 5, "size": 16, "type": "uuid_bytes" }
+    ]
+  },
+  "vectors": [
+    {
+      "id": "chunk-001",
+      "description": "Small message - single chunk, no compression",
+      "input": {
+        "message": "Hello, World!",
+        "message_hex": "48656c6c6f2c20576f726c6421",
+        "message_id": "550e8400-e29b-41d4-a716-446655440000",
+        "message_id_bytes": "550e8400e29b41d4a716446655440000"
+      },
+      "expected": {
+        "total_chunks": 1,
+        "compressed": false,
+        "chunks": [
+          {
+            "chunk_index": 0,
+            "total_chunks": 1,
+            "flags": {
+              "is_last": true,
+              "is_compressed": false,
+              "flags_byte": "0x01"
+            },
+            "message_id": "550e8400-e29b-41d4-a716-446655440000",
+            "payload_length": 13,
+            "header_hex": "00000100010550e8400e29b41d4a716446655440000",
+            "payload_hex": "48656c6c6f2c20576f726c6421"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chunk-002",
+      "description": "Message at compression threshold - compressed, single chunk",
+      "input": {
+        "message_length": 100,
+        "message_pattern": "a",
+        "message_id": "550e8400-e29b-41d4-a716-446655440001"
+      },
+      "expected": {
+        "total_chunks": 1,
+        "compressed": true,
+        "compression_reduces_size": true,
+        "flags_byte": "0x03",
+        "note": "100 bytes meets threshold, compression applied"
+      }
+    },
+    {
+      "id": "chunk-003",
+      "description": "Message requiring 2 chunks after compression",
+      "input": {
+        "message_length": 800,
+        "message_pattern": "x",
+        "message_id": "550e8400-e29b-41d4-a716-446655440002"
+      },
+      "expected": {
+        "total_chunks": 2,
+        "compressed": true,
+        "chunks": [
+          {
+            "chunk_index": 0,
+            "flags": { "is_last": false, "is_compressed": true, "flags_byte": "0x02" }
+          },
+          {
+            "chunk_index": 1,
+            "flags": { "is_last": true, "is_compressed": true, "flags_byte": "0x03" }
+          }
+        ]
+      }
+    },
+    {
+      "id": "chunk-004",
+      "description": "Large message requiring multiple chunks",
+      "input": {
+        "message_length": 2000,
+        "message_pattern": "The quick brown fox jumps over the lazy dog. ",
+        "message_id": "550e8400-e29b-41d4-a716-446655440003"
+      },
+      "expected": {
+        "compressed": true,
+        "total_chunks": "DEPENDS_ON_COMPRESSION_RATIO",
+        "note": "Actual chunk count depends on compression effectiveness"
+      }
+    },
+    {
+      "id": "chunk-005",
+      "description": "Maximum message size (100KB)",
+      "input": {
+        "message_length": 102400,
+        "message_pattern": "y",
+        "message_id": "550e8400-e29b-41d4-a716-446655440004"
+      },
+      "expected": {
+        "compressed": true,
+        "chunking_successful": true,
+        "note": "100KB is the maximum allowed message size"
+      }
+    },
+    {
+      "id": "chunk-006",
+      "description": "Message exceeding maximum size",
+      "input": {
+        "message_length": 102401,
+        "message_id": "550e8400-e29b-41d4-a716-446655440005"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "MESSAGE_TOO_LARGE",
+        "max_size": 102400
+      }
+    },
+    {
+      "id": "chunk-007",
+      "description": "Binary header encoding - first chunk",
+      "input": {
+        "chunk_index": 0,
+        "total_chunks": 3,
+        "is_last": false,
+        "is_compressed": true,
+        "message_id": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "header_bytes": {
+          "bytes_0_1": "0x0000",
+          "bytes_2_3": "0x0003",
+          "byte_4": "0x02",
+          "bytes_5_20": "550e8400e29b41d4a716446655440000"
+        },
+        "header_hex": "00000300020550e8400e29b41d4a716446655440000",
+        "note": "Flags byte 0x02: bit 0=0 (not last), bit 1=1 (compressed)"
+      }
+    },
+    {
+      "id": "chunk-008",
+      "description": "Binary header encoding - last chunk",
+      "input": {
+        "chunk_index": 2,
+        "total_chunks": 3,
+        "is_last": true,
+        "is_compressed": true,
+        "message_id": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "header_bytes": {
+          "bytes_0_1": "0x0002",
+          "bytes_2_3": "0x0003",
+          "byte_4": "0x03",
+          "bytes_5_20": "550e8400e29b41d4a716446655440000"
+        },
+        "header_hex": "02000300030550e8400e29b41d4a716446655440000",
+        "note": "Flags byte 0x03: bit 0=1 (last), bit 1=1 (compressed)"
+      }
+    },
+    {
+      "id": "chunk-009",
+      "description": "Uncompressed multi-chunk message",
+      "input": {
+        "note": "Manually construct message that shouldn't be compressed but needs chunking",
+        "message_type": "already_compressed_data",
+        "message_length": 1000,
+        "force_no_compression": true,
+        "message_id": "550e8400-e29b-41d4-a716-446655440006"
+      },
+      "expected": {
+        "compressed": false,
+        "total_chunks": 3,
+        "all_flags_have_compressed_false": true,
+        "note": "Edge case: large uncompressed data"
+      }
+    },
+    {
+      "id": "chunk-010",
+      "description": "UUID message ID validation",
+      "input": {
+        "message": "Test",
+        "message_id": "not-a-valid-uuid"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "INVALID_MESSAGE_ID",
+        "note": "Message ID must be a valid UUID"
+      }
+    },
+    {
+      "id": "chunk-011",
+      "description": "Empty message",
+      "input": {
+        "message": "",
+        "message_id": "550e8400-e29b-41d4-a716-446655440007"
+      },
+      "expected": {
+        "error": true,
+        "error_type": "EMPTY_MESSAGE",
+        "note": "Empty messages are not allowed"
+      }
+    },
+    {
+      "id": "chunk-012",
+      "description": "Unicode message chunking",
+      "input": {
+        "message_pattern": "Hello 世界! 🌍 ",
+        "message_repeats": 50,
+        "message_id": "550e8400-e29b-41d4-a716-446655440008",
+        "note": "Generate by repeating pattern 50 times"
+      },
+      "expected": {
+        "compressed": true,
+        "utf8_preserved": true,
+        "chunking_successful": true,
+        "note": "Multi-byte UTF-8 characters must not be split across chunks"
+      }
+    }
+  ],
+  "chunking_algorithm": {
+    "steps": [
+      "1. Validate message size <= 102400 bytes",
+      "2. Generate UUID for message_id (or use provided)",
+      "3. If message >= 100 bytes, apply DEFLATE compression",
+      "4. Determine payload (compressed or original)",
+      "5. Calculate total_chunks = ceil(payload_length / 491)",
+      "6. For each chunk:",
+      "   a. Create 21-byte header",
+      "   b. Set chunk_index (0-based)",
+      "   c. Set total_chunks",
+      "   d. Set flags (is_last on final chunk, is_compressed if compressed)",
+      "   e. Copy message_id UUID bytes",
+      "   f. Append up to 491 bytes of payload",
+      "7. Return array of chunks"
+    ]
+  },
+  "implementation_notes": [
+    "Use little-endian byte order for chunk_index and total_chunks",
+    "UUID message_id stored as 16 raw bytes (not ASCII hex)",
+    "Flags byte uses bit 0 for is_last, bit 1 for is_compressed",
+    "Total chunk size: 21 (header) + up to 491 (payload) = 512 bytes max",
+    "UTF-8 characters must not be split across chunks",
+    "Compression applied to entire message before chunking",
+    "Each chunk must include complete header (21 bytes)"
+  ]
+}

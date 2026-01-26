@@ -603,6 +603,218 @@ Robust certificate pinning with TOFU fallback across all platforms.
 
 ---
 
+## Continued Audit Findings (2026-01-25)
+
+### Executive Summary - Continued Audit
+
+A deeper security audit focused on metadata privacy and side-channel resistance identified additional findings requiring remediation. These focus on traffic analysis resistance and protocol-level metadata leakage.
+
+| Severity | New Findings | Status |
+|----------|-------------|--------|
+| High | 5 | OPEN |
+| Medium | 3 | OPEN |
+| **Total** | **8** | **OPEN** |
+
+---
+
+### HIGH-007: No Relay Mixing - Timing Correlation Attack Vector
+
+**Severity**: High
+**Status**: OPEN
+**Component**: All clients (Web, iOS, Android, Desktop)
+
+**Description**: Messages are broadcast to all configured relays simultaneously. State actors monitoring relay infrastructure can correlate identical messages arriving at all relays at the same time, enabling traffic analysis even without decryption.
+
+**Attack Scenario**:
+1. Observer monitors multiple relays
+2. Observes identical encrypted message arriving at all relays within milliseconds
+3. Correlates message patterns across relay network
+4. Links sender/receiver through timing correlation
+
+**Remediation Required**:
+- Implement per-message relay selection (2-3 random relays from pool)
+- Add jittered delays between relay sends (100-500ms random)
+- Implement message queue with random delays (1-30 seconds)
+- Consider Dandelion++ stem phase
+
+---
+
+### HIGH-008: Contact Lists (Kind 3) Expose Complete Social Graph
+
+**Severity**: High
+**Status**: OPEN
+**Component**: All clients
+
+**Description**: Nostr contact lists (kind 3 events) are published in plaintext, containing all followed pubkeys. This enables:
+- Complete social graph extraction by relay operators
+- Organizational structure identification via clustering algorithms
+- Central node (organizer/leader) identification via in-degree analysis
+- Group membership inference from shared follow patterns
+
+**Remediation Required**:
+- Implement NIP-51 encrypted lists (kind 30000+)
+- Or: Store contact lists locally only, never publish
+- Add dummy contacts for obfuscation
+
+---
+
+### HIGH-009: Subscription Filters Leak Social Graph
+
+**Severity**: High
+**Status**: OPEN
+**Component**: All clients
+
+**Description**: Subscription filters sent to relays in plaintext (e.g., `{ authors: [pubkey1, pubkey2] }`) reveal which pubkeys a user is interested in, enabling social graph reconstruction without reading encrypted message content.
+
+**Remediation Required**:
+- Implement broad subscription filters (fetch more than needed)
+- Use different filters per relay (diffusion)
+- Add dummy subscriptions for obfuscation
+
+---
+
+### HIGH-010: No Message Batching - Activity Pattern Analysis
+
+**Severity**: High
+**Status**: OPEN
+**Component**: All clients
+
+**Description**: Messages are published immediately upon send, creating observable activity patterns:
+- Active conversation detection via back-and-forth timing
+- Timezone inference from activity hours
+- Organizational activity correlation with external events
+
+**Remediation Required**:
+- Implement message queue with jittered delays
+- Batch multiple messages into single relay publish
+- Add dummy message generation during silent periods
+
+---
+
+### HIGH-011: IP Address Exposure to Relays
+
+**Severity**: High
+**Status**: OPEN (Partially Mitigated)
+**Component**: All clients
+
+**Description**: All clients connect directly to relays via WebSocket, exposing IP addresses. Combined with metadata leakage, enables:
+- IP to pubkey correlation
+- Geographic tracking via IP geolocation
+- Real-world identity attribution
+
+**Current Mitigation**: Tor Browser detection for web client (not enforcement).
+
+**Remediation Required**:
+- Document Tor requirement for high-risk users
+- Implement Tor proxy support for mobile/desktop
+- Add prominent warnings about IP exposure in settings
+
+---
+
+### MEDIUM-009: No Fixed-Bucket Message Padding
+
+**Severity**: Medium
+**Status**: OPEN
+**Component**: `clients/web/src/core/crypto/nip44.ts`
+
+**Description**: Current padding adds 16-64 random bytes but doesn't pad to fixed bucket sizes. Messages remain distinguishable by size ranges, enabling traffic fingerprinting.
+
+**Remediation Required**:
+- Pad all messages to fixed bucket sizes (256, 512, 1024, 2048, 4096 bytes)
+- Choose smallest bucket that fits message
+
+---
+
+### MEDIUM-010: Side-Channel Timing in Error Paths
+
+**Severity**: Medium
+**Status**: OPEN
+**Component**: `packages/crypto/src/nip44.rs`
+
+**Description**: Early exits based on length validation and version checks create variable-time error paths:
+```rust
+if payload.len() < 99 {
+    return Err(CryptoError::InvalidCiphertext);  // Fast path
+}
+if payload[0] != NIP44_VERSION {
+    return Err(CryptoError::InvalidCiphertext);  // Slower path
+}
+```
+
+**Impact**: LOW in practice (network latency dominates), but violates constant-time principles.
+
+**Remediation Required**: Check all conditions before returning error (constant-time validation).
+
+---
+
+### MEDIUM-011: Certificate Pin Store Empty
+
+**Severity**: Medium
+**Status**: OPEN
+**Component**: `protocol/security/relay-pins.json`
+
+**Description**: All relay entries have empty `"pins": []` arrays. Certificate pinning implementations exist but have no pins configured.
+
+**Remediation Required**:
+- Retrieve actual certificate pins from production relays
+- Populate relay-pins.json with SHA-256 fingerprints
+- Document pin rotation process
+
+---
+
+## Updated Test Results (2026-01-25)
+
+### Crypto Library - Full Suite
+
+| Test Suite | Tests | Status |
+|------------|-------|--------|
+| Unit Tests (lib.rs) | 52 | PASS |
+| Key Derivation Vectors | 17 | PASS |
+| NIP-17 Vectors | 10 | PASS |
+| NIP-44 Vectors | 8 | PASS |
+| Protocol Conformance | 9 | PASS |
+| Tauri Integration | 11 | PASS |
+| **Total** | **107** | **PASS** |
+
+### Web Client - Full Suite
+
+| Metric | Value |
+|--------|-------|
+| Test Files | 63 |
+| Tests | 1274 |
+| Failures | 0 |
+| Duration | 14.99s |
+
+---
+
+## Updated Security Roadmap
+
+### Immediate Priority (Sprint 0-1)
+
+1. **Fixed-bucket message padding** - Easy implementation, high impact
+2. **Message batching with random delays** - Breaks timing correlation
+3. **Relay mixing** - Send to subset of relays per message
+
+### High Priority (Sprint 2-3)
+
+4. **Encrypted contact lists (NIP-51)** - Prevents social graph extraction
+5. **Subscription filter obfuscation** - Broad filters + dummy subscriptions
+6. **Certificate pin population** - Prevents MITM attacks
+
+### Phase 2 (Q2 2026)
+
+7. **Forward secrecy via Double Ratchet** - Compromise recovery
+8. **Tor integration** - Full anonymity option
+9. **Key rotation mechanisms** - Multiple identity support
+
+---
+
+**Continued Audit Performed By**: Claude Code Security Auditor
+**Date**: 2026-01-25
+**Status**: Ongoing - implementing critical fixes
+
+---
+
 ## Appendix: Test Commands
 
 ```bash

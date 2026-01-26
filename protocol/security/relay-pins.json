@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Relay Certificate Pins",
+  "description": "Certificate pinning configuration for Nostr relay connections. All relay connections MUST verify certificates against these pins to prevent MITM attacks.",
+  "version": "1.0.0",
+  "config": {
+    "tofu_enabled": true,
+    "tofu_warn_on_change": true,
+    "require_pinned_for_write": true,
+    "pin_expiry_days": 365
+  },
+  "relays": {
+    "wss://relay.damus.io": {
+      "pins": [
+        "sha256/J5LZIFevpiLFl2U5gGycgOurc5A8ooLVz9cLJ+xim+w="
+      ],
+      "backup_pins": [
+        "sha256/HfwWBfutNY2LyET3bRUgP6ycpcGnn9SFf/ryhk++v5Y=",
+        "sha256/drJ7gKWAJ9w88dpo2sFwEO2TmX0LYD4vrb6FASSTtac="
+      ],
+      "last_verified": "2026-01-25",
+      "notes": "Popular public relay. Chain: damus.io -> Google WE1 -> GTS Root R4 -> GlobalSign Root CA"
+    },
+    "wss://relay.primal.net": {
+      "pins": [
+        "sha256/qVirt6fL6zO5hXdK2VklevQ4mnQ0JWbVPPrVg+VIDyU="
+      ],
+      "backup_pins": [
+        "sha256/HfwWBfutNY2LyET3bRUgP6ycpcGnn9SFf/ryhk++v5Y=",
+        "sha256/drJ7gKWAJ9w88dpo2sFwEO2TmX0LYD4vrb6FASSTtac="
+      ],
+      "last_verified": "2026-01-25",
+      "notes": "Primal relay. Chain: primal.net -> Google WE1 -> GTS Root R4 -> GlobalSign Root CA"
+    },
+    "wss://relay.nostr.band": {
+      "pins": [
+        "sha256/qAbfO4TSoF1Zbe/MaDfEeyn8AeKIU10bfF4Mk5VJvCg="
+      ],
+      "backup_pins": [
+        "sha256/07EoIWqEP47xMhUB9d9Spd9Sk57iwZKXcSzT3k1Bk1Q="
+      ],
+      "last_verified": "2026-01-25",
+      "notes": "Nostr search relay. Chain: nostr.band -> Let's Encrypt R13 -> ISRG Root X1"
+    },
+    "wss://nos.lol": {
+      "pins": [
+        "sha256/+ws1tQOzVDY83FaP4zjlYaYOuklOolFb4MhQl7Jxqag="
+      ],
+      "backup_pins": [
+        "sha256/07EoIWqEP47xMhUB9d9Spd9Sk57iwZKXcSzT3k1Bk1Q="
+      ],
+      "last_verified": "2026-01-25",
+      "notes": "Popular public relay. Chain: nos.lol -> Let's Encrypt R13 -> ISRG Root X1"
+    },
+    "wss://relay.buildit.network": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "BuildIt production relay - pins should be populated when deployed"
+    },
+    "wss://relay.dev.buildit.network": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "BuildIt development relay - pins should be populated when deployed"
+    }
+  }
+}

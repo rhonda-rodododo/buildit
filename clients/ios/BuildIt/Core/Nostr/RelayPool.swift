@@ -2,14 +2,14 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Manages connections to multiple Nostr relays with automatic
-// reconnection and load balancing.
+// reconnection, load balancing, and certificate pinning for MITM protection.
 
 import Foundation
 import Combine
 import os.log
 
-/// Represents a single relay connection
-class RelayConnection: NSObject, URLSessionWebSocketDelegate {
+/// Represents a single relay connection with certificate pinning
+class RelayConnection: NSObject {
     let url: String
     private var webSocket: URLSessionWebSocketTask?
     private var session: URLSession!
@@ -20,16 +20,59 @@ class RelayConnection: NSObject, URLSessionWebSocketDelegate {
 
     private let logger = Logger(subsystem: "com.buildit", category: "RelayConnection")
 
+    /// Certificate pinning delegate
+    private var pinnedDelegate: PinnedWebSocketDelegate!
+
+    /// Certificate pin store
+    private let pinStore: CertificatePinStore
+
     var onConnect: (() -> Void)?
     var onDisconnect: ((Error?) -> Void)?
     var onMessage: ((Data) -> Void)?
 
-    init(url: String) {
+    /// Called when certificate is verified (for logging/UI)
+    var onCertificateVerified: ((CertVerifyResult) -> Void)?
+
+    /// Called when certificate verification fails
+    var onCertificateError: ((CertPinError) -> Void)?
+
+    init(url: String, pinStore: CertificatePinStore = .shared) {
         self.url = url
+        self.pinStore = pinStore
         super.init()
+
+        // Create pinned delegate for certificate verification
+        self.pinnedDelegate = PinnedWebSocketDelegate(pinStore: pinStore)
+
+        // Configure delegate callbacks
+        pinnedDelegate.onOpen = { [weak self] in
+            guard let self = self else { return }
+            self.isConnected = true
+            self.reconnectAttempts = 0
+            self.onConnect?()
+            self.logger.info("Connected to relay (certificate pinned): \(self.url)")
+        }
+
+        pinnedDelegate.onClose = { [weak self] closeCode, reason in
+            guard let self = self else { return }
+            self.isConnected = false
+            self.onDisconnect?(nil)
+            self.logger.info("Disconnected from relay: \(self.url)")
+        }
+
+        pinnedDelegate.onCertificateVerified = { [weak self] host, result in
+            self?.onCertificateVerified?(result)
+        }
+
+        pinnedDelegate.onCertificateError = { [weak self] host, error in
+            self?.logger.error("Certificate pinning failed for \(host): \(error.localizedDescription)")
+            self?.onCertificateError?(error)
+        }
+
+        // Create session with pinned delegate
         self.session = URLSession(
             configuration: .default,
-            delegate: self,
+            delegate: pinnedDelegate,
             delegateQueue: OperationQueue()
         )
     }
@@ -120,36 +163,18 @@ class RelayConnection: NSObject, URLSessionWebSocketDelegate {
         }
     }
 
-    // MARK: - URLSessionWebSocketDelegate
-
-    nonisolated func urlSession(
-        _ session: URLSession,
-        webSocketTask: URLSessionWebSocketTask,
-        didOpenWithProtocol protocol: String?
-    ) {
-        Task { @MainActor in
-            self.isConnected = true
-            self.reconnectAttempts = 0
-            self.onConnect?()
-            self.logger.info("Connected to relay: \(self.url)")
-        }
+    /// Check if this relay has a pinned certificate
+    func isCertificatePinned() -> Bool {
+        return pinStore.isPinned(host: url)
     }
 
-    nonisolated func urlSession(
-        _ session: URLSession,
-        webSocketTask: URLSessionWebSocketTask,
-        didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
-        reason: Data?
-    ) {
-        Task { @MainActor in
-            self.isConnected = false
-            self.onDisconnect?(nil)
-            self.logger.info("Disconnected from relay: \(self.url)")
-        }
+    /// Clear the TOFU pin for this relay (use when certificate rotates legitimately)
+    func clearTofuPin() {
+        pinStore.clearTofuPin(host: url)
     }
 }
 
-/// Manages a pool of relay connections
+/// Manages a pool of relay connections with certificate pinning
 class RelayPool: ObservableObject {
     // MARK: - Published Properties
 
@@ -161,6 +186,12 @@ class RelayPool: ObservableObject {
     var onEOSE: ((String) -> Void)?
     var onNotice: ((String, String) -> Void)?
 
+    /// Called when a certificate is verified (for UI feedback)
+    var onCertificateVerified: ((String, CertVerifyResult) -> Void)?
+
+    /// Called when certificate verification fails
+    var onCertificateError: ((String, CertPinError) -> Void)?
+
     // MARK: - Private Properties
 
     private var connections: [String: RelayConnection] = [:]
@@ -168,14 +199,23 @@ class RelayPool: ObservableObject {
     private let logger = Logger(subsystem: "com.buildit", category: "RelayPool")
     private let queue = DispatchQueue(label: "com.buildit.relaypool")
 
+    /// Certificate pin store
+    private let pinStore: CertificatePinStore
+
+    // MARK: - Initialization
+
+    init(pinStore: CertificatePinStore = .shared) {
+        self.pinStore = pinStore
+    }
+
     // MARK: - Relay Management
 
-    /// Add and connect to a relay
+    /// Add and connect to a relay with certificate pinning
     func addRelay(url: String) {
         queue.async { [weak self] in
-            guard self?.connections[url] == nil else { return }
+            guard let self = self, self.connections[url] == nil else { return }
 
-            let connection = RelayConnection(url: url)
+            let connection = RelayConnection(url: url, pinStore: self.pinStore)
 
             connection.onConnect = { [weak self] in
                 DispatchQueue.main.async {
@@ -196,9 +236,38 @@ class RelayPool: ObservableObject {
                 self?.handleMessage(data, from: url)
             }
 
-            self?.connections[url] = connection
+            // Forward certificate events
+            connection.onCertificateVerified = { [weak self] result in
+                DispatchQueue.main.async {
+                    self?.onCertificateVerified?(url, result)
+                }
+            }
+
+            connection.onCertificateError = { [weak self] error in
+                DispatchQueue.main.async {
+                    self?.onCertificateError?(url, error)
+                    self?.logger.error("Certificate pinning failed for \(url): \(error.localizedDescription)")
+                }
+            }
+
+            self.connections[url] = connection
             connection.connect()
         }
+    }
+
+    /// Check if a relay has a pinned certificate
+    func isRelayPinned(url: String) -> Bool {
+        return pinStore.isPinned(host: url)
+    }
+
+    /// Clear TOFU pin for a relay (use when certificate rotates legitimately)
+    func clearTofuPin(url: String) {
+        pinStore.clearTofuPin(host: url)
+    }
+
+    /// Get the certificate pin store
+    var certificatePinStore: CertificatePinStore {
+        return pinStore
     }
 
     /// Remove and disconnect from a relay
@@ -241,6 +310,25 @@ class RelayPool: ObservableObject {
         }
 
         logger.info("Subscribed with ID: \(id)")
+    }
+
+    /// Subscribe to a specific relay with filters (for obfuscation)
+    func subscribe(id: String, filters: [NostrFilter], to relayUrl: String) {
+        let message = createReqMessage(id: id, filters: filters)
+
+        if let connection = connections[relayUrl] {
+            connection.send(message)
+            logger.info("Subscribed with ID: \(id) to relay: \(relayUrl)")
+        } else {
+            logger.warning("Cannot subscribe to \(relayUrl): not connected")
+        }
+    }
+
+    /// Send to a specific relay (for obfuscation)
+    func send(message: String, to relayUrl: String) {
+        if let connection = connections[relayUrl] {
+            connection.send(message)
+        }
     }
 
     /// Unsubscribe from a subscription

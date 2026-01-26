@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Relay Certificate Pins",
+  "description": "Certificate pinning configuration for Nostr relay connections. All relay connections MUST verify certificates against these pins to prevent MITM attacks.",
+  "version": "1.0.0",
+  "config": {
+    "tofu_enabled": true,
+    "tofu_warn_on_change": true,
+    "require_pinned_for_write": true,
+    "pin_expiry_days": 365
+  },
+  "relays": {
+    "wss://relay.damus.io": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "Popular public relay - pins should be populated on first deployment"
+    },
+    "wss://nos.lol": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "Popular public relay"
+    },
+    "wss://relay.nostr.band": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "Nostr search relay"
+    },
+    "wss://relay.buildit.network": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "BuildIt production relay"
+    },
+    "wss://relay.dev.buildit.network": {
+      "pins": [],
+      "backup_pins": [],
+      "last_verified": null,
+      "notes": "BuildIt development relay"
+    }
+  }
+}

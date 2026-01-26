@@ -13,6 +13,7 @@ import network.buildit.core.ble.GattServer
 import network.buildit.core.ble.MeshRouter
 import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.crypto.KeystoreManager
+import network.buildit.core.nostr.CertificatePinStore
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.RelayPool
 import network.buildit.core.transport.MessageQueue
@@ -91,8 +92,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRelayPool(): RelayPool {
-        return RelayPool()
+    fun provideCertificatePinStore(
+        @ApplicationContext context: Context
+    ): CertificatePinStore {
+        return CertificatePinStore(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRelayPool(
+        certificatePinStore: CertificatePinStore
+    ): RelayPool {
+        return RelayPool(certificatePinStore)
     }
 
     @Provides

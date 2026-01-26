@@ -1,0 +1,210 @@
+{
+  "version": "1.0.0",
+  "description": "Messaging module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "message-serialize-001",
+      "description": "Direct message - complete",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440000",
+        "type": "dm",
+        "content": "Hello! How are you?",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "timestamp": 1704067200,
+        "read": false,
+        "delivered": true
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true
+      }
+    },
+    {
+      "id": "message-serialize-002",
+      "description": "Group message",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440001",
+        "type": "group",
+        "content": "Meeting starts in 10 minutes!",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "timestamp": 1704067200,
+        "replyTo": "msg-550e8400-e29b-41d4-a716-446655440002"
+      },
+      "expected": {
+        "json_valid": true,
+        "type_is_group": true,
+        "has_group_id": true
+      }
+    },
+    {
+      "id": "message-serialize-003",
+      "description": "Message with unicode content",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440003",
+        "type": "dm",
+        "content": "你好! 🌍 مرحبا",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "timestamp": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "utf8_preserved": true
+      }
+    },
+    {
+      "id": "message-serialize-004",
+      "description": "Message with attachments",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440004",
+        "type": "group",
+        "content": "Check out this document",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "timestamp": 1704067200,
+        "attachments": [
+          {
+            "id": "file-550e8400-e29b-41d4-a716-446655440000",
+            "name": "proposal.pdf",
+            "type": "application/pdf",
+            "size": 102400
+          }
+        ]
+      },
+      "expected": {
+        "json_valid": true,
+        "attachments_array_preserved": true
+      }
+    },
+    {
+      "id": "message-serialize-005",
+      "description": "Conversation object",
+      "input": {
+        "_v": "1.0.0",
+        "id": "conv-550e8400-e29b-41d4-a716-446655440000",
+        "type": "dm",
+        "participants": [
+          "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+        ],
+        "lastMessageAt": 1704067200,
+        "unreadCount": 3
+      },
+      "expected": {
+        "json_valid": true,
+        "participants_array_preserved": true
+      }
+    },
+    {
+      "id": "message-serialize-006",
+      "description": "Group conversation with metadata",
+      "input": {
+        "_v": "1.0.0",
+        "id": "conv-550e8400-e29b-41d4-a716-446655440001",
+        "type": "group",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "name": "Organizing Committee",
+        "participants": [
+          "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+          "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        ],
+        "lastMessageAt": 1704067200,
+        "unreadCount": 0,
+        "muted": false
+      },
+      "expected": {
+        "json_valid": true,
+        "has_group_metadata": true
+      }
+    },
+    {
+      "id": "message-serialize-007",
+      "description": "Empty content message (valid for typing indicator)",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440007",
+        "type": "dm",
+        "content": "",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "timestamp": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "empty_content_allowed": true
+      }
+    },
+    {
+      "id": "message-serialize-008",
+      "description": "Deterministic serialization",
+      "input": {
+        "_v": "1.0.0",
+        "id": "msg-550e8400-e29b-41d4-a716-446655440008",
+        "type": "dm",
+        "content": "Test",
+        "sender": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "recipient": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "timestamp": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "serialize_twice_same_result": true,
+        "field_order_consistent": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "message": {
+      "required_fields": ["_v", "id", "type", "content", "sender", "timestamp"],
+      "optional_fields": ["recipient", "groupId", "replyTo", "read", "delivered", "attachments", "reactions"],
+      "field_types": {
+        "_v": "string (semver)",
+        "id": "string (UUID with msg- prefix)",
+        "type": "enum (dm|group)",
+        "content": "string",
+        "sender": "string (hex pubkey)",
+        "recipient": "string (hex pubkey, for DMs)",
+        "groupId": "string (UUID with grp- prefix, for group messages)",
+        "timestamp": "integer (Unix timestamp)",
+        "replyTo": "string (message ID)",
+        "read": "boolean",
+        "delivered": "boolean",
+        "attachments": "array of objects",
+        "reactions": "array of objects"
+      }
+    },
+    "conversation": {
+      "required_fields": ["_v", "id", "type", "participants", "lastMessageAt"],
+      "optional_fields": ["groupId", "name", "unreadCount", "muted"],
+      "field_types": {
+        "_v": "string (semver)",
+        "id": "string (UUID with conv- prefix)",
+        "type": "enum (dm|group)",
+        "participants": "array of strings (hex pubkeys)",
+        "groupId": "string (UUID with grp- prefix)",
+        "name": "string",
+        "lastMessageAt": "integer (Unix timestamp)",
+        "unreadCount": "integer",
+        "muted": "boolean"
+      }
+    }
+  },
+  "serialization_notes": [
+    "Message IDs use msg- prefix",
+    "Conversation IDs use conv- prefix",
+    "Group IDs use grp- prefix",
+    "Timestamps are Unix epoch seconds",
+    "Pubkeys are 64-character hex strings",
+    "Type field must be 'dm' or 'group'",
+    "DMs require recipient field",
+    "Group messages require groupId field"
+  ]
+}

@@ -95,10 +95,13 @@ export type EncryptedListKind = typeof ENCRYPTED_LIST_KINDS[keyof typeof ENCRYPT
  */
 export interface ContactListEntry {
   pubkey: string;
+  relay?: string;
   petname?: string;
   trustTier?: 'stranger' | 'contact' | 'friend' | 'verified' | 'trusted';
   addedAt: number;
   tags?: string[];
+  /** Flag to mark dummy/decoy contacts for obfuscation (not synced to store) */
+  isDummy?: boolean;
 }
 
 export interface GroupMembershipEntry {
@@ -277,4 +280,193 @@ export function getEncryptedListFilters(pubkey: string, kinds?: EncryptedListKin
     authors: [pubkey],
     limit: 100,
   };
+}
+
+/**
+ * Configuration for contact list publishing modes
+ */
+export interface ContactListPublishConfig {
+  /** Whether to publish encrypted list to relays (default: true) */
+  publishEncrypted: boolean;
+  /** Whether to also publish plaintext Kind 3 for backward compatibility (default: false) */
+  publishPlaintext: boolean;
+  /** Number of dummy contacts to add for obfuscation (default: 0) */
+  dummyContactCount: number;
+}
+
+export const DEFAULT_CONTACT_LIST_CONFIG: ContactListPublishConfig = {
+  publishEncrypted: true,
+  publishPlaintext: false, // Disabled by default for privacy
+  dummyContactCount: 0,
+};
+
+/**
+ * SECURITY: Generate cryptographically random dummy pubkeys for obfuscation
+ * These look like real pubkeys but don't correspond to real users
+ */
+export function generateDummyPubkeys(count: number): string[] {
+  const dummies: string[] = [];
+  for (let i = 0; i < count; i++) {
+    // Generate 32 random bytes
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    // Convert to hex string (64 chars = valid pubkey format)
+    const pubkey = Array.from(bytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    dummies.push(pubkey);
+  }
+  return dummies;
+}
+
+/**
+ * Create dummy contact entries for obfuscation
+ * SECURITY: These are mixed with real contacts to obscure the actual social graph size
+ */
+export function createDummyContacts(count: number): ContactListEntry[] {
+  const dummyPubkeys = generateDummyPubkeys(count);
+  const now = Math.floor(Date.now() / 1000);
+
+  return dummyPubkeys.map((pubkey, index) => ({
+    pubkey,
+    addedAt: now - (index * 86400), // Stagger timestamps to look natural
+    isDummy: true,
+  }));
+}
+
+/**
+ * Mix real contacts with dummy contacts and shuffle
+ * SECURITY: Shuffling prevents timing analysis based on position
+ */
+export function obfuscateContactList(
+  realContacts: ContactListEntry[],
+  dummyCount: number
+): ContactListEntry[] {
+  if (dummyCount <= 0) {
+    return realContacts;
+  }
+
+  const dummies = createDummyContacts(dummyCount);
+  const mixed = [...realContacts, ...dummies];
+
+  // Fisher-Yates shuffle using crypto random
+  for (let i = mixed.length - 1; i > 0; i--) {
+    const randomBytes = new Uint8Array(4);
+    crypto.getRandomValues(randomBytes);
+    const randomIndex = new DataView(randomBytes.buffer).getUint32(0) % (i + 1);
+    [mixed[i], mixed[randomIndex]] = [mixed[randomIndex], mixed[i]];
+  }
+
+  return mixed;
+}
+
+/**
+ * Filter out dummy contacts when loading from encrypted storage
+ */
+export function filterRealContacts(contacts: ContactListEntry[]): ContactListEntry[] {
+  return contacts.filter(c => !c.isDummy);
+}
+
+/**
+ * Parse Kind 3 plaintext contact list event into ContactListEntry format
+ * Used for backward compatibility when reading old contact lists
+ */
+export function parseKind3ContactList(event: NostrEvent): ContactListEntry[] {
+  if (event.kind !== 3) {
+    throw new Error('Expected Kind 3 event');
+  }
+
+  const contacts: ContactListEntry[] = [];
+
+  for (const tag of event.tags) {
+    if (tag[0] === 'p' && tag[1]) {
+      contacts.push({
+        pubkey: tag[1],
+        relay: tag[2] || undefined,
+        petname: tag[3] || undefined,
+        addedAt: event.created_at,
+      });
+    }
+  }
+
+  return contacts;
+}
+
+/**
+ * Create a plaintext Kind 3 contact list event (for backward compatibility)
+ * WARNING: This exposes the social graph - only use when explicitly enabled
+ *
+ * @param contacts - Contact entries to include
+ * @param privateKey - Private key for signing
+ * @param includeDummies - Whether to include dummy contacts for obfuscation
+ */
+export function createKind3ContactListEvent(
+  contacts: ContactListEntry[],
+  privateKey: Uint8Array,
+  dummyCount: number = 0
+): NostrEvent {
+  // Optionally add dummy contacts
+  const finalContacts = dummyCount > 0
+    ? obfuscateContactList(contacts, dummyCount)
+    : contacts;
+
+  // Build p tags
+  const tags: string[][] = finalContacts.map(contact => {
+    const tag = ['p', contact.pubkey];
+    if (contact.relay || contact.petname) {
+      tag.push(contact.relay || '');
+    }
+    if (contact.petname) {
+      tag.push(contact.petname);
+    }
+    return tag;
+  });
+
+  const unsignedEvent: UnsignedEvent = {
+    kind: 3,
+    content: '',
+    tags,
+    created_at: randomizeTimestamp(),
+    pubkey: '',
+  };
+
+  return finalizeEvent(unsignedEvent, privateKey);
+}
+
+/**
+ * Migrate contacts from Kind 3 format to encrypted NIP-51 format
+ *
+ * @param kind3Event - The Kind 3 contact list event to migrate
+ * @param privateKey - Private key for encryption and signing
+ * @returns The new encrypted contact list event
+ */
+export function migrateKind3ToEncrypted(
+  kind3Event: NostrEvent,
+  privateKey: Uint8Array
+): NostrEvent {
+  const contacts = parseKind3ContactList(kind3Event);
+  return createContactListEvent(contacts, privateKey);
+}
+
+/**
+ * Build filter to fetch Kind 3 contact list for a user
+ */
+export function getKind3ContactListFilter(pubkey: string) {
+  return {
+    kinds: [3],
+    authors: [pubkey],
+    limit: 1,
+  };
+}
+
+/**
+ * Determine if an encrypted contact list event is newer than a Kind 3 event
+ */
+export function isEncryptedListNewer(
+  encryptedEvent: NostrEvent | null,
+  kind3Event: NostrEvent | null
+): boolean {
+  if (!encryptedEvent) return false;
+  if (!kind3Event) return true;
+  return encryptedEvent.created_at > kind3Event.created_at;
 }

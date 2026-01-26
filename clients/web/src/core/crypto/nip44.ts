@@ -5,57 +5,152 @@ import { logger } from '@/lib/logger'
  * SECURITY: Application-layer message padding for traffic analysis resistance
  *
  * NIP-44 already pads to powers of 2, but for state-actor threat models,
- * we add additional random padding to:
+ * we add additional padding to fixed bucket sizes to:
  * 1. Prevent message type identification by exact size
  * 2. Add entropy to message patterns
  * 3. Make correlation attacks harder
+ * 4. Ensure all messages fit into predictable size categories
  *
- * Format: [1-byte padding length][random padding bytes][actual content]
- * Max padding: 255 bytes (fits in 1 byte length prefix)
+ * Fixed bucket sizes prevent traffic analysis by making all messages
+ * appear to be one of a small number of standard sizes.
+ *
+ * Version 1 (legacy): Random padding 16-64 bytes
+ * Format: \x00PAD\x00 + 3-digit length + base64 padding + content
+ *
+ * Version 2 (current): Fixed bucket padding
+ * Format: \x00PADv2\x00 + 5-digit content length + content + random padding to bucket size
  */
-const MIN_PADDING = 16;  // Minimum random padding bytes
-const MAX_PADDING = 64;  // Maximum random padding bytes
-const PADDING_MARKER = '\x00PAD\x00';  // Marker to identify padded messages
+
+// Fixed bucket sizes for traffic analysis resistance
+// Messages are padded to the smallest bucket that fits
+// Note: NIP-44 has a max plaintext size of 65535 bytes, so we cap at 65000 to leave room for headers
+export const BUCKET_SIZES = [256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65000] as const;
+export type BucketSize = typeof BUCKET_SIZES[number];
+
+// Padding markers for version detection
+const PADDING_MARKER_V1 = '\x00PAD\x00';     // Legacy format
+const PADDING_MARKER_V2 = '\x00PADv2\x00';   // Fixed bucket format
+
+// V2 header overhead: marker (7) + content length (5) = 12 bytes
+// Marker is \x00PADv2\x00 which is 7 characters
+const V2_HEADER_SIZE = PADDING_MARKER_V2.length + 5;
+
+// Padding character set - printable ASCII for safe transport
+// Using alphanumeric chars to avoid issues with special characters
+const PADDING_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 /**
- * Add random padding to plaintext before encryption
- * Uses cryptographically secure randomness
+ * Find the smallest bucket size that can fit the given content length
+ * @param contentLength - The length of the content (including header overhead)
+ * @returns The bucket size to use
  */
-function addRandomPadding(plaintext: string): string {
-  // Generate random padding length between MIN and MAX
-  const paddingLengthBuffer = new Uint8Array(1);
-  crypto.getRandomValues(paddingLengthBuffer);
-  const paddingLength = MIN_PADDING + (paddingLengthBuffer[0] % (MAX_PADDING - MIN_PADDING + 1));
-
-  // Generate random padding bytes
-  const paddingBytes = new Uint8Array(paddingLength);
-  crypto.getRandomValues(paddingBytes);
-
-  // Convert to base64 for safe text transport
-  const paddingBase64 = btoa(String.fromCharCode(...paddingBytes));
-
-  // Format: MARKER + length (2 digits, zero-padded) + padding + content
-  return `${PADDING_MARKER}${paddingLength.toString().padStart(3, '0')}${paddingBase64}${plaintext}`;
+export function findBucketSize(contentLength: number): BucketSize {
+  for (const bucket of BUCKET_SIZES) {
+    if (contentLength <= bucket) {
+      return bucket;
+    }
+  }
+  // If content exceeds largest bucket, use largest bucket
+  // (message will overflow but this is extremely rare)
+  return BUCKET_SIZES[BUCKET_SIZES.length - 1];
 }
 
 /**
- * Remove random padding from decrypted plaintext
+ * Generate random padding string of specified length
+ * Uses cryptographically secure randomness
+ */
+function generateRandomPadding(length: number): string {
+  if (length <= 0) return '';
+
+  const randomBytes = new Uint8Array(length);
+  crypto.getRandomValues(randomBytes);
+
+  // Convert to random characters from our safe character set
+  let padding = '';
+  for (let i = 0; i < length; i++) {
+    padding += PADDING_CHARS[randomBytes[i] % PADDING_CHARS.length];
+  }
+  return padding;
+}
+
+/**
+ * Add fixed-bucket padding to plaintext before encryption (V2 format)
+ * Uses cryptographically secure randomness for padding bytes
+ *
+ * Format: MARKER_V2 + content_length (5 digits) + content + random_padding
+ * Total size is padded to the smallest bucket that fits
+ */
+function addRandomPadding(plaintext: string): string {
+  // Calculate total size needed: header + content
+  const totalContentSize = V2_HEADER_SIZE + plaintext.length;
+
+  // Find the appropriate bucket size
+  const bucketSize = findBucketSize(totalContentSize);
+
+  // Calculate padding needed to fill the bucket
+  const paddingNeeded = bucketSize - totalContentSize;
+
+  // Generate random padding characters (1 byte = 1 char)
+  const padding = generateRandomPadding(paddingNeeded);
+
+  // Format: MARKER_V2 + content length (5 digits, zero-padded) + content + padding
+  // Note: We store original content length so we can extract it exactly
+  return `${PADDING_MARKER_V2}${plaintext.length.toString().padStart(5, '0')}${plaintext}${padding}`;
+}
+
+/**
+ * Remove padding from decrypted plaintext
+ * Handles both V1 (legacy) and V2 (fixed bucket) formats
  */
 function removeRandomPadding(paddedText: string): string {
-  // Check for padding marker
-  if (!paddedText.startsWith(PADDING_MARKER)) {
-    // No padding marker - return as-is (legacy message or unpadded)
+  // Check for V2 padding marker (fixed bucket format)
+  if (paddedText.startsWith(PADDING_MARKER_V2)) {
+    return removeV2Padding(paddedText);
+  }
+
+  // Check for V1 padding marker (legacy format)
+  if (paddedText.startsWith(PADDING_MARKER_V1)) {
+    return removeV1Padding(paddedText);
+  }
+
+  // No padding marker - return as-is (unpadded legacy message)
+  return paddedText;
+}
+
+/**
+ * Remove V2 fixed-bucket padding
+ */
+function removeV2Padding(paddedText: string): string {
+  const markerEnd = PADDING_MARKER_V2.length;
+
+  // Extract content length (5 digits after marker)
+  const contentLengthStr = paddedText.slice(markerEnd, markerEnd + 5);
+  const contentLength = parseInt(contentLengthStr, 10);
+
+  if (isNaN(contentLength) || contentLength < 0 || contentLength > 65536) {
+    logger.warn('Invalid content length in V2 padded message');
     return paddedText;
   }
 
+  // Extract content (starts after marker + length field)
+  const contentStart = markerEnd + 5;
+  const contentEnd = contentStart + contentLength;
+
+  return paddedText.slice(contentStart, contentEnd);
+}
+
+/**
+ * Remove V1 legacy padding (backward compatibility)
+ */
+function removeV1Padding(paddedText: string): string {
+  const markerEnd = PADDING_MARKER_V1.length;
+
   // Extract padding length (3 digits after marker)
-  const markerEnd = PADDING_MARKER.length;
   const paddingLengthStr = paddedText.slice(markerEnd, markerEnd + 3);
   const paddingLength = parseInt(paddingLengthStr, 10);
 
   if (isNaN(paddingLength) || paddingLength < 0 || paddingLength > 255) {
-    // Invalid padding length - return original (corrupted?)
-    logger.warn('Invalid padding length in message');
+    logger.warn('Invalid padding length in V1 message');
     return paddedText;
   }
 
@@ -66,6 +161,15 @@ function removeRandomPadding(paddedText: string): string {
   // Skip marker + length + base64 padding to get actual content
   const contentStart = markerEnd + 3 + base64Length;
   return paddedText.slice(contentStart);
+}
+
+/**
+ * Calculate the padded message size for a given plaintext
+ * Useful for testing and verification
+ */
+export function calculatePaddedSize(plaintext: string): number {
+  const totalContentSize = V2_HEADER_SIZE + plaintext.length;
+  return findBucketSize(totalContentSize);
 }
 
 /**
