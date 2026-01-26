@@ -48,9 +48,31 @@ enum class VotingSystem(val displayName: String, val description: String) {
     RANKED_CHOICE("Ranked Choice", "Rank options in order of preference"),
     APPROVAL("Approval Voting", "Vote for all acceptable options"),
     QUADRATIC("Quadratic Voting", "Vote power scales with stake"),
+    D_HONDT("D'Hondt Method", "Proportional representation method"),
     CONSENSUS("Consensus", "Unanimous agreement required"),
     MODIFIED_CONSENSUS("Modified Consensus", "Consensus with blocking threshold")
 }
+
+/**
+ * Attachment type for proposals.
+ */
+enum class AttachmentType {
+    FILE,
+    URL,
+    DOCUMENT
+}
+
+/**
+ * Supporting document for a proposal (stored as JSON array).
+ */
+@Serializable
+data class ProposalAttachment(
+    val type: AttachmentType,
+    val name: String,
+    val url: String? = null,
+    val mimeType: String? = null,
+    val size: Int? = null
+)
 
 /**
  * Quorum requirement type.
@@ -139,7 +161,9 @@ data class ProposalEntity(
     val createdBy: String,
     val createdAt: Long = System.currentTimeMillis() / 1000,
     val updatedAt: Long? = null,
-    val tagsJson: String = "[]" // JSON encoded tags list
+    val attachmentsJson: String? = null, // JSON encoded ProposalAttachment list
+    val tagsJson: String = "[]", // JSON encoded tags list
+    val customFieldsJson: String? = null // JSON encoded custom fields
 ) {
     val options: List<VoteOption>
         get() = try {
@@ -154,6 +178,15 @@ data class ProposalEntity(
         } catch (_: Exception) {
             emptyList()
         }
+
+    val attachments: List<ProposalAttachment>
+        get() = attachmentsJson?.let {
+            try {
+                Json.decodeFromString<List<ProposalAttachment>>(it)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        } ?: emptyList()
 
     val canVote: Boolean
         get() {
@@ -198,7 +231,8 @@ data class VoteEntity(
     val weight: Double = 1.0,
     val delegatedFromJson: String? = null, // JSON encoded delegator IDs
     val comment: String? = null,
-    val castAt: Long = System.currentTimeMillis() / 1000
+    val castAt: Long = System.currentTimeMillis() / 1000,
+    val signature: String? = null // Cryptographic signature of the vote
 ) {
     val choice: List<String>
         get() = try {

@@ -96,6 +96,7 @@ public enum VotingSystem: String, Codable, CaseIterable, Sendable {
     case rankedChoice = "ranked-choice"
     case approval
     case quadratic
+    case dHondt = "d-hondt"
     case consensus
     case modifiedConsensus = "modified-consensus"
 
@@ -106,6 +107,7 @@ public enum VotingSystem: String, Codable, CaseIterable, Sendable {
         case .rankedChoice: return "Ranked Choice"
         case .approval: return "Approval Voting"
         case .quadratic: return "Quadratic Voting"
+        case .dHondt: return "D'Hondt Method"
         case .consensus: return "Consensus"
         case .modifiedConsensus: return "Modified Consensus"
         }
@@ -118,6 +120,7 @@ public enum VotingSystem: String, Codable, CaseIterable, Sendable {
         case .rankedChoice: return "Rank options in order of preference"
         case .approval: return "Vote for all acceptable options"
         case .quadratic: return "Vote power scales with stake"
+        case .dHondt: return "Proportional representation method"
         case .consensus: return "Unanimous agreement required"
         case .modifiedConsensus: return "Consensus with blocking threshold"
         }
@@ -250,6 +253,36 @@ public struct TimePeriod: Codable, Sendable {
     }
 }
 
+/// Attachment type for proposals
+public enum AttachmentType: String, Codable, Sendable {
+    case file
+    case url
+    case document
+}
+
+/// Supporting document for a proposal
+public struct ProposalAttachment: Codable, Sendable {
+    public let type: AttachmentType
+    public let name: String
+    public let url: String?
+    public let mimeType: String?
+    public let size: Int?
+
+    public init(
+        type: AttachmentType,
+        name: String,
+        url: String? = nil,
+        mimeType: String? = nil,
+        size: Int? = nil
+    ) {
+        self.type = type
+        self.name = name
+        self.url = url
+        self.mimeType = mimeType
+        self.size = size
+    }
+}
+
 /// A proposal for group decision-making
 public struct Proposal: Identifiable, Codable, Sendable {
     public let schemaVersion: String
@@ -271,7 +304,9 @@ public struct Proposal: Identifiable, Codable, Sendable {
     public let createdBy: String
     public let createdAt: Date
     public var updatedAt: Date?
+    public let attachments: [ProposalAttachment]?
     public let tags: [String]
+    public let customFields: [String: AnyCodable]?
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "_v"
@@ -279,7 +314,8 @@ public struct Proposal: Identifiable, Codable, Sendable {
         case votingSystem, options, quorum, threshold
         case discussionPeriod, votingPeriod
         case allowAbstain, anonymousVoting, allowDelegation
-        case createdBy, createdAt, updatedAt, tags
+        case createdBy, createdAt, updatedAt
+        case attachments, tags, customFields
     }
 
     public init(
@@ -302,7 +338,9 @@ public struct Proposal: Identifiable, Codable, Sendable {
         createdBy: String,
         createdAt: Date = Date(),
         updatedAt: Date? = nil,
-        tags: [String] = []
+        attachments: [ProposalAttachment]? = nil,
+        tags: [String] = [],
+        customFields: [String: AnyCodable]? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.id = id
@@ -323,7 +361,9 @@ public struct Proposal: Identifiable, Codable, Sendable {
         self.createdBy = createdBy
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.attachments = attachments
         self.tags = tags
+        self.customFields = customFields
     }
 
     public var canVote: Bool {
@@ -346,11 +386,12 @@ public struct Vote: Identifiable, Codable, Sendable {
     public let delegatedFrom: [String]?
     public let comment: String?
     public let castAt: Date
+    public let signature: String?
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "_v"
         case id, proposalId, voterId, choice
-        case weight, delegatedFrom, comment, castAt
+        case weight, delegatedFrom, comment, castAt, signature
     }
 
     public init(
@@ -362,7 +403,8 @@ public struct Vote: Identifiable, Codable, Sendable {
         weight: Double = 1.0,
         delegatedFrom: [String]? = nil,
         comment: String? = nil,
-        castAt: Date = Date()
+        castAt: Date = Date(),
+        signature: String? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.id = id
@@ -373,6 +415,7 @@ public struct Vote: Identifiable, Codable, Sendable {
         self.delegatedFrom = delegatedFrom
         self.comment = comment
         self.castAt = castAt
+        self.signature = signature
     }
 }
 

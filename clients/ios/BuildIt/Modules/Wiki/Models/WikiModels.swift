@@ -62,6 +62,37 @@ public enum EditType: String, Codable, Sendable {
     case move
 }
 
+/// Status of an edit suggestion
+public enum SuggestionStatus: String, Codable, Sendable {
+    case pending
+    case approved
+    case rejected
+    case merged
+    case superseded
+}
+
+// MARK: - Permission Types
+
+/// Role-based access control for wiki pages
+public struct PagePermissions: Codable, Sendable {
+    public var editRoles: [String]?
+    public var viewRoles: [String]?
+    public var allowComments: Bool
+    public var allowSuggestions: Bool
+
+    public init(
+        editRoles: [String]? = nil,
+        viewRoles: [String]? = nil,
+        allowComments: Bool = true,
+        allowSuggestions: Bool = true
+    ) {
+        self.editRoles = editRoles
+        self.viewRoles = viewRoles
+        self.allowComments = allowComments
+        self.allowSuggestions = allowSuggestions
+    }
+}
+
 // MARK: - Models
 
 /// A wiki page in the knowledge base
@@ -78,21 +109,29 @@ public struct WikiPage: Identifiable, Codable, Sendable {
     public let categoryId: String?
     public var status: PageStatus
     public let visibility: PageVisibility
+    public let permissions: PagePermissions?
     public let tags: [String]
+    public let aliases: [String]?
     public let createdBy: String
     public let lastEditedBy: String?
     public let contributors: [String]
+    public let lockedBy: String?
+    public let lockedAt: Date?
     public let createdAt: Date
     public var updatedAt: Date?
     public var publishedAt: Date?
     public var archivedAt: Date?
+    public var deletedAt: Date?
+    public let metadata: [String: AnyCodable]?
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "_v"
         case id, groupId, slug, title, content, summary
-        case version, parentId, categoryId, status, visibility
-        case tags, createdBy, lastEditedBy, contributors
-        case createdAt, updatedAt, publishedAt, archivedAt
+        case version, parentId, categoryId, status, visibility, permissions
+        case tags, aliases, createdBy, lastEditedBy, contributors
+        case lockedBy, lockedAt
+        case createdAt, updatedAt, publishedAt, archivedAt, deletedAt
+        case metadata
     }
 
     public init(
@@ -108,14 +147,20 @@ public struct WikiPage: Identifiable, Codable, Sendable {
         categoryId: String? = nil,
         status: PageStatus = .draft,
         visibility: PageVisibility = .group,
+        permissions: PagePermissions? = nil,
         tags: [String] = [],
+        aliases: [String]? = nil,
         createdBy: String,
         lastEditedBy: String? = nil,
         contributors: [String] = [],
+        lockedBy: String? = nil,
+        lockedAt: Date? = nil,
         createdAt: Date = Date(),
         updatedAt: Date? = nil,
         publishedAt: Date? = nil,
-        archivedAt: Date? = nil
+        archivedAt: Date? = nil,
+        deletedAt: Date? = nil,
+        metadata: [String: AnyCodable]? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.id = id
@@ -129,18 +174,28 @@ public struct WikiPage: Identifiable, Codable, Sendable {
         self.categoryId = categoryId
         self.status = status
         self.visibility = visibility
+        self.permissions = permissions
         self.tags = tags
+        self.aliases = aliases
         self.createdBy = createdBy
         self.lastEditedBy = lastEditedBy
         self.contributors = contributors
+        self.lockedBy = lockedBy
+        self.lockedAt = lockedAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.publishedAt = publishedAt
         self.archivedAt = archivedAt
+        self.deletedAt = deletedAt
+        self.metadata = metadata
     }
 
     public var isPublished: Bool {
         status == .published
+    }
+
+    public var isLocked: Bool {
+        lockedBy != nil
     }
 
     /// Word count of content
@@ -311,5 +366,170 @@ public struct TableOfContentsEntry: Identifiable, Sendable {
         self.title = title
         self.level = level
         self.anchor = anchor
+    }
+}
+
+// MARK: - Wiki Links
+
+/// A link between wiki pages
+public struct WikiLink: Codable, Sendable {
+    public let schemaVersion: String
+    public let sourcePageId: String
+    public let targetPageId: String?
+    public let targetSlug: String
+    public let context: String?
+    public var isBroken: Bool
+    public let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case sourcePageId, targetPageId, targetSlug
+        case context, isBroken, createdAt
+    }
+
+    public init(
+        schemaVersion: String = "1.0.0",
+        sourcePageId: String,
+        targetPageId: String? = nil,
+        targetSlug: String,
+        context: String? = nil,
+        isBroken: Bool = false,
+        createdAt: Date = Date()
+    ) {
+        self.schemaVersion = schemaVersion
+        self.sourcePageId = sourcePageId
+        self.targetPageId = targetPageId
+        self.targetSlug = targetSlug
+        self.context = context
+        self.isBroken = isBroken
+        self.createdAt = createdAt
+    }
+}
+
+// MARK: - Page Comments
+
+/// A comment on a wiki page
+public struct PageComment: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
+    public let id: String
+    public let pageId: String
+    public let parentId: String?
+    public var content: String
+    public let authorId: String
+    public var resolved: Bool
+    public var resolvedBy: String?
+    public var resolvedAt: Date?
+    public var editedAt: Date?
+    public let createdAt: Date
+    public var deletedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, pageId, parentId, content, authorId
+        case resolved, resolvedBy, resolvedAt
+        case editedAt, createdAt, deletedAt
+    }
+
+    public init(
+        schemaVersion: String = "1.0.0",
+        id: String = UUID().uuidString,
+        pageId: String,
+        parentId: String? = nil,
+        content: String,
+        authorId: String,
+        resolved: Bool = false,
+        resolvedBy: String? = nil,
+        resolvedAt: Date? = nil,
+        editedAt: Date? = nil,
+        createdAt: Date = Date(),
+        deletedAt: Date? = nil
+    ) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.pageId = pageId
+        self.parentId = parentId
+        self.content = content
+        self.authorId = authorId
+        self.resolved = resolved
+        self.resolvedBy = resolvedBy
+        self.resolvedAt = resolvedAt
+        self.editedAt = editedAt
+        self.createdAt = createdAt
+        self.deletedAt = deletedAt
+    }
+
+    public var isReply: Bool {
+        parentId != nil
+    }
+
+    public var isDeleted: Bool {
+        deletedAt != nil
+    }
+}
+
+// MARK: - Edit Suggestions
+
+/// A suggested edit to a wiki page
+public struct EditSuggestion: Identifiable, Codable, Sendable {
+    public let schemaVersion: String
+    public let id: String
+    public let pageId: String
+    public let baseVersion: Int
+    public let title: String?
+    public let content: String
+    public let summary: String?
+    public let diff: String?
+    public let suggestedBy: String
+    public var status: SuggestionStatus
+    public var reviewedBy: String?
+    public var reviewedAt: Date?
+    public var reviewComment: String?
+    public let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, pageId, baseVersion, title, content
+        case summary, diff, suggestedBy, status
+        case reviewedBy, reviewedAt, reviewComment, createdAt
+    }
+
+    public init(
+        schemaVersion: String = "1.0.0",
+        id: String = UUID().uuidString,
+        pageId: String,
+        baseVersion: Int,
+        title: String? = nil,
+        content: String,
+        summary: String? = nil,
+        diff: String? = nil,
+        suggestedBy: String,
+        status: SuggestionStatus = .pending,
+        reviewedBy: String? = nil,
+        reviewedAt: Date? = nil,
+        reviewComment: String? = nil,
+        createdAt: Date = Date()
+    ) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.pageId = pageId
+        self.baseVersion = baseVersion
+        self.title = title
+        self.content = content
+        self.summary = summary
+        self.diff = diff
+        self.suggestedBy = suggestedBy
+        self.status = status
+        self.reviewedBy = reviewedBy
+        self.reviewedAt = reviewedAt
+        self.reviewComment = reviewComment
+        self.createdAt = createdAt
+    }
+
+    public var isPending: Bool {
+        status == .pending
+    }
+
+    public var isReviewed: Bool {
+        reviewedBy != nil
     }
 }

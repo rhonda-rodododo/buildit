@@ -181,5 +181,241 @@ data class FulfillmentEntity(
     val message: String?,
     val scheduledFor: Long?,
     val completedAt: Long?,
+    val rating: Int? = null,
+    val feedback: String? = null,
     val createdAt: Long
 )
+
+/**
+ * Frequency for recurring needs.
+ */
+enum class RecurringFrequency {
+    DAILY,
+    WEEKLY,
+    BIWEEKLY,
+    MONTHLY,
+    CUSTOM
+}
+
+/**
+ * Recurring need schedule (stored as JSON in parent entities).
+ */
+@Serializable
+data class RecurringNeed(
+    val frequency: RecurringFrequency,
+    val interval: Int? = null,
+    val daysOfWeek: List<Int>? = null,
+    val endDate: Long? = null,
+    val occurrences: Int? = null
+)
+
+/**
+ * Status of a claim on an offer.
+ */
+enum class ClaimStatus {
+    PENDING,
+    APPROVED,
+    DECLINED,
+    COMPLETED
+}
+
+/**
+ * A claim on an aid offer (stored as JSON array in AidOfferEntity).
+ */
+@Serializable
+data class OfferClaim(
+    val claimerId: String,
+    val quantity: Double? = null,
+    val message: String? = null,
+    val status: ClaimStatus,
+    val claimedAt: Long
+)
+
+/**
+ * Type of rideshare.
+ */
+enum class RideType {
+    OFFER,
+    REQUEST
+}
+
+/**
+ * Status of a rideshare.
+ */
+enum class RideStatus {
+    ACTIVE,
+    FULL,
+    DEPARTED,
+    COMPLETED,
+    CANCELLED
+}
+
+/**
+ * Luggage space capacity.
+ */
+enum class LuggageSpace {
+    NONE,
+    SMALL,
+    MEDIUM,
+    LARGE
+}
+
+/**
+ * Rideshare preferences (stored as JSON).
+ */
+@Serializable
+data class RidePreferences(
+    val smokingAllowed: Boolean? = null,
+    val petsAllowed: Boolean? = null,
+    val wheelchairAccessible: Boolean? = null,
+    val carSeatAvailable: Boolean? = null,
+    val luggageSpace: LuggageSpace? = null
+)
+
+/**
+ * Passenger status in a rideshare.
+ */
+enum class PassengerStatus {
+    REQUESTED,
+    CONFIRMED,
+    CANCELLED
+}
+
+/**
+ * A passenger in a rideshare (stored as JSON array).
+ */
+@Serializable
+data class RidePassenger(
+    val passengerId: String,
+    val status: PassengerStatus,
+    val pickupCity: String? = null,
+    val pickupRegion: String? = null,
+    val dropoffCity: String? = null,
+    val dropoffRegion: String? = null
+)
+
+/**
+ * Room entity for rideshares.
+ */
+@Entity(
+    tableName = "rideshares",
+    indices = [Index("groupId"), Index("departureTime")]
+)
+data class RideShareEntity(
+    @PrimaryKey val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
+    val groupId: String,
+    val type: RideType,
+    val driverId: String?,
+    val requesterId: String?,
+    val originCity: String?,
+    val originRegion: String?,
+    val originLatitude: Double?,
+    val originLongitude: Double?,
+    val destinationCity: String?,
+    val destinationRegion: String?,
+    val destinationLatitude: Double?,
+    val destinationLongitude: Double?,
+    val departureTime: Long,
+    val flexibility: Int?, // minutes
+    val availableSeats: Int?,
+    val recurringJson: String? = null, // JSON encoded RecurringNeed
+    val preferencesJson: String? = null, // JSON encoded RidePreferences
+    val passengersJson: String? = null, // JSON encoded List<RidePassenger>
+    val status: RideStatus,
+    val notes: String?,
+    val createdAt: Long,
+    val updatedAt: Long? = null
+) {
+    val isActive: Boolean
+        get() {
+            val nowSeconds = System.currentTimeMillis() / 1000
+            return status == RideStatus.ACTIVE && departureTime > nowSeconds
+        }
+
+    val originDisplay: String
+        get() = listOfNotNull(originCity, originRegion).joinToString(", ").ifEmpty { "Not specified" }
+
+    val destinationDisplay: String
+        get() = listOfNotNull(destinationCity, destinationRegion).joinToString(", ").ifEmpty { "Not specified" }
+}
+
+/**
+ * Room entity for community resource directory entries.
+ */
+@Entity(
+    tableName = "resource_directory",
+    indices = [Index("groupId"), Index("category")]
+)
+data class ResourceDirectoryEntity(
+    @PrimaryKey val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
+    val groupId: String,
+    val name: String,
+    val description: String?,
+    val category: AidCategory,
+    val contactPhone: String?,
+    val contactEmail: String?,
+    val contactWebsite: String?,
+    val locationCity: String?,
+    val locationRegion: String?,
+    val locationType: String?,
+    val latitude: Double?,
+    val longitude: Double?,
+    val hours: String?,
+    val eligibility: String?,
+    val languagesJson: String?, // JSON encoded List<String>
+    val verified: Boolean = false,
+    val verifiedBy: String?,
+    val verifiedAt: Long?,
+    val tagsJson: String?, // JSON encoded List<String>
+    val createdBy: String,
+    val createdAt: Long,
+    val updatedAt: Long? = null
+) {
+    val locationDisplay: String
+        get() = listOfNotNull(locationCity, locationRegion).joinToString(", ").ifEmpty { "Not specified" }
+}
+
+/**
+ * Type converters for Room.
+ */
+class MutualAidConverters {
+    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+
+    @TypeConverter
+    fun fromAidCategory(value: AidCategory): String = value.name
+
+    @TypeConverter
+    fun toAidCategory(value: String): AidCategory = AidCategory.valueOf(value)
+
+    @TypeConverter
+    fun fromRequestStatus(value: RequestStatus): String = value.name
+
+    @TypeConverter
+    fun toRequestStatus(value: String): RequestStatus = RequestStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromUrgencyLevel(value: UrgencyLevel): String = value.name
+
+    @TypeConverter
+    fun toUrgencyLevel(value: String): UrgencyLevel = UrgencyLevel.valueOf(value)
+
+    @TypeConverter
+    fun fromFulfillmentStatus(value: FulfillmentStatus): String = value.name
+
+    @TypeConverter
+    fun toFulfillmentStatus(value: String): FulfillmentStatus = FulfillmentStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromRideType(value: RideType): String = value.name
+
+    @TypeConverter
+    fun toRideType(value: String): RideType = RideType.valueOf(value)
+
+    @TypeConverter
+    fun fromRideStatus(value: RideStatus): String = value.name
+
+    @TypeConverter
+    fun toRideStatus(value: String): RideStatus = RideStatus.valueOf(value)
+}

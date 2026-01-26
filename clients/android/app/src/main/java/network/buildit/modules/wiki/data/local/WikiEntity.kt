@@ -41,6 +41,28 @@ enum class EditType {
 }
 
 /**
+ * Status of an edit suggestion.
+ */
+enum class SuggestionStatus {
+    PENDING,
+    APPROVED,
+    REJECTED,
+    MERGED,
+    SUPERSEDED
+}
+
+/**
+ * Role-based access control for wiki pages (stored as JSON).
+ */
+@Serializable
+data class PagePermissions(
+    val editRoles: List<String>? = null,
+    val viewRoles: List<String>? = null,
+    val allowComments: Boolean = true,
+    val allowSuggestions: Boolean = true
+)
+
+/**
  * Room entity for wiki pages.
  */
 @Entity(
@@ -67,14 +89,20 @@ data class WikiPageEntity(
     val categoryId: String?,
     val status: PageStatus = PageStatus.DRAFT,
     val visibility: PageVisibility = PageVisibility.GROUP,
+    val permissionsJson: String? = null, // JSON encoded PagePermissions
     val tagsJson: String = "[]", // JSON encoded tags list
+    val aliasesJson: String? = null, // JSON encoded aliases list
     val createdBy: String,
     val lastEditedBy: String?,
     val contributorsJson: String = "[]", // JSON encoded contributors list
+    val lockedBy: String? = null,
+    val lockedAt: Long? = null,
     val createdAt: Long = System.currentTimeMillis() / 1000,
     val updatedAt: Long? = null,
     val publishedAt: Long? = null,
-    val archivedAt: Long? = null
+    val archivedAt: Long? = null,
+    val deletedAt: Long? = null,
+    val metadataJson: String? = null // JSON encoded metadata
 ) {
     val tags: List<String>
         get() = try {
@@ -83,6 +111,15 @@ data class WikiPageEntity(
             emptyList()
         }
 
+    val aliases: List<String>
+        get() = aliasesJson?.let {
+            try {
+                Json.decodeFromString<List<String>>(it)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        } ?: emptyList()
+
     val contributors: List<String>
         get() = try {
             Json.decodeFromString(contributorsJson)
@@ -90,8 +127,23 @@ data class WikiPageEntity(
             emptyList()
         }
 
+    val permissions: PagePermissions?
+        get() = permissionsJson?.let {
+            try {
+                Json.decodeFromString<PagePermissions>(it)
+            } catch (_: Exception) {
+                null
+            }
+        }
+
     val isPublished: Boolean
         get() = status == PageStatus.PUBLISHED
+
+    val isLocked: Boolean
+        get() = lockedBy != null
+
+    val isDeleted: Boolean
+        get() = deletedAt != null
 
     val wordCount: Int
         get() = content.split(Regex("\\s+")).size
@@ -179,3 +231,123 @@ data class TableOfContentsEntry(
     val level: Int,
     val anchor: String
 )
+
+/**
+ * Room entity for wiki page links.
+ */
+@Entity(
+    tableName = "wiki_links",
+    indices = [
+        Index("sourcePageId"),
+        Index("targetPageId"),
+        Index("targetSlug")
+    ]
+)
+data class WikiLinkEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
+    val sourcePageId: String,
+    val targetPageId: String?,
+    val targetSlug: String,
+    val context: String?,
+    val isBroken: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis() / 1000
+)
+
+/**
+ * Room entity for page comments.
+ */
+@Entity(
+    tableName = "page_comments",
+    indices = [
+        Index("pageId"),
+        Index("authorId"),
+        Index("parentId")
+    ]
+)
+data class PageCommentEntity(
+    @PrimaryKey
+    val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
+    val pageId: String,
+    val parentId: String?, // For threaded replies
+    val content: String,
+    val authorId: String,
+    val resolved: Boolean = false,
+    val resolvedBy: String? = null,
+    val resolvedAt: Long? = null,
+    val editedAt: Long? = null,
+    val createdAt: Long = System.currentTimeMillis() / 1000,
+    val deletedAt: Long? = null
+) {
+    val isReply: Boolean
+        get() = parentId != null
+
+    val isDeleted: Boolean
+        get() = deletedAt != null
+}
+
+/**
+ * Room entity for edit suggestions.
+ */
+@Entity(
+    tableName = "edit_suggestions",
+    indices = [
+        Index("pageId"),
+        Index("suggestedBy"),
+        Index("status")
+    ]
+)
+data class EditSuggestionEntity(
+    @PrimaryKey
+    val id: String,
+    @SerialName("_v") val schemaVersion: String = "1.0.0",
+    val pageId: String,
+    val baseVersion: Int,
+    val title: String?,
+    val content: String,
+    val summary: String?,
+    val diff: String?,
+    val suggestedBy: String,
+    val status: SuggestionStatus = SuggestionStatus.PENDING,
+    val reviewedBy: String? = null,
+    val reviewedAt: Long? = null,
+    val reviewComment: String? = null,
+    val createdAt: Long = System.currentTimeMillis() / 1000
+) {
+    val isPending: Boolean
+        get() = status == SuggestionStatus.PENDING
+
+    val isReviewed: Boolean
+        get() = reviewedBy != null
+}
+
+/**
+ * Type converters for Room.
+ */
+class WikiConverters {
+    @androidx.room.TypeConverter
+    fun fromPageStatus(value: PageStatus): String = value.name
+
+    @androidx.room.TypeConverter
+    fun toPageStatus(value: String): PageStatus = PageStatus.valueOf(value)
+
+    @androidx.room.TypeConverter
+    fun fromPageVisibility(value: PageVisibility): String = value.name
+
+    @androidx.room.TypeConverter
+    fun toPageVisibility(value: String): PageVisibility = PageVisibility.valueOf(value)
+
+    @androidx.room.TypeConverter
+    fun fromEditType(value: EditType): String = value.name
+
+    @androidx.room.TypeConverter
+    fun toEditType(value: String): EditType = EditType.valueOf(value)
+
+    @androidx.room.TypeConverter
+    fun fromSuggestionStatus(value: SuggestionStatus): String = value.name
+
+    @androidx.room.TypeConverter
+    fun toSuggestionStatus(value: String): SuggestionStatus = SuggestionStatus.valueOf(value)
+}

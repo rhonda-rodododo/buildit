@@ -13,9 +13,9 @@ This audit reveals **significant schema drift** between the protocol specificati
 |--------|-----------|---------------|-----|---------|-------------------|
 | **Events** | ✅ FIXED | ✅ | ✅ | ✅ | LOW |
 | **Messaging** | ✅ | ✅ | ✅ FIXED | ✅ | LOW |
-| **Mutual Aid** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
-| **Governance** | ✅ | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
-| **Wiki** | ✅ FIXED | ✅ | ⚠️ Partial | ⚠️ Partial | MEDIUM |
+| **Mutual Aid** | ✅ | ✅ | ✅ FIXED | ✅ FIXED | LOW |
+| **Governance** | ✅ | ✅ | ✅ FIXED | ✅ FIXED | LOW |
+| **Wiki** | ✅ FIXED | ✅ | ✅ FIXED | ✅ FIXED | LOW |
 
 ---
 
@@ -102,15 +102,19 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ---
 
-### 6. iOS/Android Missing Types
+### 6. ~~iOS/Android Missing Types~~ ✅ FIXED
 
-| Module | Missing Types |
-|--------|--------------|
-| **Mutual Aid** | Fulfillments array, OfferClaim, RideShare, ResourceDirectory, customFields |
-| **Governance** | attachments, customFields, signature |
-| **Wiki** | PagePermissions, WikiLink, PageComment, EditSuggestion |
+**Status**: RESOLVED (2026-01-26)
 
-**Impact**: Features unavailable on mobile or data loss on sync.
+**Changes made**:
+- **Mutual Aid (iOS)**: Added RecurringNeed, OfferClaim, RideShare, ResourceDirectory, customFields
+- **Mutual Aid (Android)**: Added RecurringNeed, OfferClaim, RideShareEntity, ResourceDirectoryEntity, rating/feedback on Fulfillment
+- **Governance (iOS)**: Added ProposalAttachment, signature on Vote, attachments/customFields on Proposal, d-hondt voting system
+- **Governance (Android)**: Added ProposalAttachment, signature on Vote, attachmentsJson/customFieldsJson, D_HONDT voting system
+- **Wiki (iOS)**: Added PagePermissions, WikiLink, PageComment, EditSuggestion, page locking fields
+- **Wiki (Android)**: Added PagePermissions, WikiLinkEntity, PageCommentEntity, EditSuggestionEntity, page locking fields
+
+**Commit**: `feat(schema): add missing protocol types to iOS/Android models`
 
 ---
 
@@ -165,11 +169,12 @@ quicktype generates duplicate interfaces:
 
 ### Phase 2: High Priority (Next Sprint)
 
-| Task | Module | Effort | Files |
-|------|--------|--------|-------|
+| Task | Module | Effort | Files | Status |
+|------|--------|--------|-------|--------|
 | ~~Fix Android time format~~ | Governance, Mutual Aid, Wiki | 2h | Entity/Repository/UseCase files | ✅ Done |
-| Add missing Mutual Aid types | Mutual Aid | 4h | iOS/Android models |
-| Add missing Governance types | Governance | 3h | iOS/Android models |
+| ~~Add missing Mutual Aid types~~ | Mutual Aid | 4h | iOS/Android models | ✅ Done |
+| ~~Add missing Governance types~~ | Governance | 3h | iOS/Android models | ✅ Done |
+| ~~Add missing Wiki types~~ | Wiki | 3h | iOS/Android models | ✅ Done |
 | Un-flatten Android location | Mutual Aid | 2h | `AidRequestEntity.kt` |
 
 ### Phase 3: Standardization (Next Quarter)

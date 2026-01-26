@@ -210,10 +210,13 @@ public struct AidRequest: Codable, Identifiable, Sendable {
     public var anonymousRequest: Bool
     public var location: AidLocation?
     public var neededBy: Date?
+    public var recurringNeed: RecurringNeed?
+    public var fulfillments: [Fulfillment]?
     public var quantityNeeded: Double?
     public var quantityFulfilled: Double
     public var unit: String?
     public var tags: [String]
+    public var customFields: [String: AnyCodable]?
     public var createdAt: Date
     public var updatedAt: Date?
     public var closedAt: Date?
@@ -226,7 +229,8 @@ public struct AidRequest: Codable, Identifiable, Sendable {
         case schemaVersion = "_v"
         case id, groupId, title, description, category, status, urgency
         case requesterId, anonymousRequest, location, neededBy
-        case quantityNeeded, quantityFulfilled, unit, tags
+        case recurringNeed, fulfillments
+        case quantityNeeded, quantityFulfilled, unit, tags, customFields
         case createdAt, updatedAt, closedAt
     }
 
@@ -243,10 +247,13 @@ public struct AidRequest: Codable, Identifiable, Sendable {
         anonymousRequest: Bool = false,
         location: AidLocation? = nil,
         neededBy: Date? = nil,
+        recurringNeed: RecurringNeed? = nil,
+        fulfillments: [Fulfillment]? = nil,
         quantityNeeded: Double? = nil,
         quantityFulfilled: Double = 0,
         unit: String? = nil,
         tags: [String] = [],
+        customFields: [String: AnyCodable]? = nil,
         createdAt: Date = Date(),
         updatedAt: Date? = nil,
         closedAt: Date? = nil
@@ -263,10 +270,13 @@ public struct AidRequest: Codable, Identifiable, Sendable {
         self.anonymousRequest = anonymousRequest
         self.location = location
         self.neededBy = neededBy
+        self.recurringNeed = recurringNeed
+        self.fulfillments = fulfillments
         self.quantityNeeded = quantityNeeded
         self.quantityFulfilled = quantityFulfilled
         self.unit = unit
         self.tags = tags
+        self.customFields = customFields
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.closedAt = closedAt
@@ -302,9 +312,12 @@ public struct AidOffer: Codable, Identifiable, Sendable {
     public var location: AidLocation?
     public var availableFrom: Date?
     public var availableUntil: Date?
+    public var recurringAvailability: RecurringNeed?
     public var quantity: Double?
     public var unit: String?
+    public var claimedBy: [OfferClaim]?
     public var tags: [String]
+    public var customFields: [String: AnyCodable]?
     public var createdAt: Date
     public var updatedAt: Date?
 
@@ -315,7 +328,9 @@ public struct AidOffer: Codable, Identifiable, Sendable {
         case schemaVersion = "_v"
         case id, groupId, title, description, category, status
         case offererId, location, availableFrom, availableUntil
-        case quantity, unit, tags, createdAt, updatedAt
+        case recurringAvailability
+        case quantity, unit, claimedBy, tags, customFields
+        case createdAt, updatedAt
     }
 
     public init(
@@ -330,9 +345,12 @@ public struct AidOffer: Codable, Identifiable, Sendable {
         location: AidLocation? = nil,
         availableFrom: Date? = nil,
         availableUntil: Date? = nil,
+        recurringAvailability: RecurringNeed? = nil,
         quantity: Double? = nil,
         unit: String? = nil,
+        claimedBy: [OfferClaim]? = nil,
         tags: [String] = [],
+        customFields: [String: AnyCodable]? = nil,
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
@@ -347,9 +365,12 @@ public struct AidOffer: Codable, Identifiable, Sendable {
         self.location = location
         self.availableFrom = availableFrom
         self.availableUntil = availableUntil
+        self.recurringAvailability = recurringAvailability
         self.quantity = quantity
         self.unit = unit
+        self.claimedBy = claimedBy
         self.tags = tags
+        self.customFields = customFields
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -381,6 +402,8 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
     public var message: String?
     public var scheduledFor: Date?
     public var completedAt: Date?
+    public var rating: Int?
+    public var feedback: String?
     public var createdAt: Date
 
     // Local-only
@@ -389,7 +412,8 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "_v"
         case id, requestId, fulfillerId, status
-        case quantity, message, scheduledFor, completedAt, createdAt
+        case quantity, message, scheduledFor, completedAt
+        case rating, feedback, createdAt
     }
 
     public init(
@@ -402,6 +426,8 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
         message: String? = nil,
         scheduledFor: Date? = nil,
         completedAt: Date? = nil,
+        rating: Int? = nil,
+        feedback: String? = nil,
         createdAt: Date = Date()
     ) {
         self.schemaVersion = schemaVersion
@@ -413,6 +439,300 @@ public struct Fulfillment: Codable, Identifiable, Sendable {
         self.message = message
         self.scheduledFor = scheduledFor
         self.completedAt = completedAt
+        self.rating = rating
+        self.feedback = feedback
         self.createdAt = createdAt
+    }
+}
+
+// MARK: - Recurring Needs
+
+/// Recurring schedule for needs or availability
+public struct RecurringNeed: Codable, Sendable {
+    public enum Frequency: String, Codable, Sendable {
+        case daily
+        case weekly
+        case biweekly
+        case monthly
+        case custom
+    }
+
+    public var frequency: Frequency
+    public var interval: Int?
+    public var daysOfWeek: [Int]?
+    public var endDate: Date?
+    public var occurrences: Int?
+
+    public init(
+        frequency: Frequency,
+        interval: Int? = nil,
+        daysOfWeek: [Int]? = nil,
+        endDate: Date? = nil,
+        occurrences: Int? = nil
+    ) {
+        self.frequency = frequency
+        self.interval = interval
+        self.daysOfWeek = daysOfWeek
+        self.endDate = endDate
+        self.occurrences = occurrences
+    }
+}
+
+// MARK: - Offer Claims
+
+/// A claim on an aid offer
+public struct OfferClaim: Codable, Sendable {
+    public enum ClaimStatus: String, Codable, Sendable {
+        case pending
+        case approved
+        case declined
+        case completed
+    }
+
+    public var claimerId: String
+    public var quantity: Double?
+    public var message: String?
+    public var status: ClaimStatus
+    public var claimedAt: Date
+
+    public init(
+        claimerId: String,
+        quantity: Double? = nil,
+        message: String? = nil,
+        status: ClaimStatus = .pending,
+        claimedAt: Date = Date()
+    ) {
+        self.claimerId = claimerId
+        self.quantity = quantity
+        self.message = message
+        self.status = status
+        self.claimedAt = claimedAt
+    }
+}
+
+// MARK: - Rideshare
+
+/// A solidarity rideshare offer or request
+public struct RideShare: Codable, Identifiable, Sendable {
+    public enum RideType: String, Codable, Sendable {
+        case offer
+        case request
+    }
+
+    public enum RideStatus: String, Codable, Sendable {
+        case active
+        case full
+        case departed
+        case completed
+        case cancelled
+    }
+
+    public enum LuggageSpace: String, Codable, Sendable {
+        case none
+        case small
+        case medium
+        case large
+    }
+
+    public struct Preferences: Codable, Sendable {
+        public var smokingAllowed: Bool?
+        public var petsAllowed: Bool?
+        public var wheelchairAccessible: Bool?
+        public var carSeatAvailable: Bool?
+        public var luggageSpace: LuggageSpace?
+
+        public init(
+            smokingAllowed: Bool? = nil,
+            petsAllowed: Bool? = nil,
+            wheelchairAccessible: Bool? = nil,
+            carSeatAvailable: Bool? = nil,
+            luggageSpace: LuggageSpace? = nil
+        ) {
+            self.smokingAllowed = smokingAllowed
+            self.petsAllowed = petsAllowed
+            self.wheelchairAccessible = wheelchairAccessible
+            self.carSeatAvailable = carSeatAvailable
+            self.luggageSpace = luggageSpace
+        }
+    }
+
+    public struct Passenger: Codable, Sendable {
+        public enum PassengerStatus: String, Codable, Sendable {
+            case requested
+            case confirmed
+            case cancelled
+        }
+
+        public var passengerId: String
+        public var status: PassengerStatus
+        public var pickup: AidLocation?
+        public var dropoff: AidLocation?
+
+        public init(
+            passengerId: String,
+            status: PassengerStatus = .requested,
+            pickup: AidLocation? = nil,
+            dropoff: AidLocation? = nil
+        ) {
+            self.passengerId = passengerId
+            self.status = status
+            self.pickup = pickup
+            self.dropoff = dropoff
+        }
+    }
+
+    public let schemaVersion: String
+    public let id: String
+    public var groupId: String
+    public var type: RideType
+    public var driverId: String?
+    public var requesterId: String?
+    public var origin: AidLocation
+    public var destination: AidLocation
+    public var departureTime: Date
+    public var flexibility: Int?
+    public var availableSeats: Int?
+    public var recurring: RecurringNeed?
+    public var preferences: Preferences?
+    public var passengers: [Passenger]?
+    public var status: RideStatus
+    public var notes: String?
+    public var createdAt: Date
+    public var updatedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, type, driverId, requesterId
+        case origin, destination, departureTime, flexibility
+        case availableSeats, recurring, preferences, passengers
+        case status, notes, createdAt, updatedAt
+    }
+
+    public init(
+        schemaVersion: String = "1.0.0",
+        id: String = UUID().uuidString,
+        groupId: String,
+        type: RideType,
+        driverId: String? = nil,
+        requesterId: String? = nil,
+        origin: AidLocation,
+        destination: AidLocation,
+        departureTime: Date,
+        flexibility: Int? = nil,
+        availableSeats: Int? = nil,
+        recurring: RecurringNeed? = nil,
+        preferences: Preferences? = nil,
+        passengers: [Passenger]? = nil,
+        status: RideStatus = .active,
+        notes: String? = nil,
+        createdAt: Date = Date(),
+        updatedAt: Date? = nil
+    ) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.groupId = groupId
+        self.type = type
+        self.driverId = driverId
+        self.requesterId = requesterId
+        self.origin = origin
+        self.destination = destination
+        self.departureTime = departureTime
+        self.flexibility = flexibility
+        self.availableSeats = availableSeats
+        self.recurring = recurring
+        self.preferences = preferences
+        self.passengers = passengers
+        self.status = status
+        self.notes = notes
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+}
+
+// MARK: - Resource Directory
+
+/// A community resource directory entry
+public struct ResourceDirectory: Codable, Identifiable, Sendable {
+    public struct Contact: Codable, Sendable {
+        public var phone: String?
+        public var email: String?
+        public var website: String?
+
+        public init(
+            phone: String? = nil,
+            email: String? = nil,
+            website: String? = nil
+        ) {
+            self.phone = phone
+            self.email = email
+            self.website = website
+        }
+    }
+
+    public let schemaVersion: String
+    public let id: String
+    public var groupId: String
+    public var name: String
+    public var description: String?
+    public var category: AidCategory
+    public var contact: Contact?
+    public var location: AidLocation?
+    public var hours: String?
+    public var eligibility: String?
+    public var languages: [String]?
+    public var verified: Bool
+    public var verifiedBy: String?
+    public var verifiedAt: Date?
+    public var tags: [String]
+    public var createdBy: String
+    public var createdAt: Date
+    public var updatedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion = "_v"
+        case id, groupId, name, description, category
+        case contact, location, hours, eligibility, languages
+        case verified, verifiedBy, verifiedAt
+        case tags, createdBy, createdAt, updatedAt
+    }
+
+    public init(
+        schemaVersion: String = "1.0.0",
+        id: String = UUID().uuidString,
+        groupId: String,
+        name: String,
+        description: String? = nil,
+        category: AidCategory,
+        contact: Contact? = nil,
+        location: AidLocation? = nil,
+        hours: String? = nil,
+        eligibility: String? = nil,
+        languages: [String]? = nil,
+        verified: Bool = false,
+        verifiedBy: String? = nil,
+        verifiedAt: Date? = nil,
+        tags: [String] = [],
+        createdBy: String,
+        createdAt: Date = Date(),
+        updatedAt: Date? = nil
+    ) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.groupId = groupId
+        self.name = name
+        self.description = description
+        self.category = category
+        self.contact = contact
+        self.location = location
+        self.hours = hours
+        self.eligibility = eligibility
+        self.languages = languages
+        self.verified = verified
+        self.verifiedBy = verifiedBy
+        self.verifiedAt = verifiedAt
+        self.tags = tags
+        self.createdBy = createdBy
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
