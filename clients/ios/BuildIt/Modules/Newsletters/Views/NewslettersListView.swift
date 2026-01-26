@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Newsletters
+
 /// Main newsletters list view
 public struct NewslettersListView: View {
     @StateObject private var viewModel: NewslettersViewModel
@@ -27,7 +30,7 @@ public struct NewslettersListView: View {
                     newslettersList
                 }
             }
-            .navigationTitle("Newsletters")
+            .navigationTitle(Strings.title)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -144,17 +147,17 @@ struct EmptyNewslettersView: View {
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
 
-            Text("No newsletters yet")
+            Text(L10n.Newsletters.noNewsletters)
                 .font(.headline)
 
-            Text("Create your first newsletter to start reaching your audience")
+            Text("newsletters_createFirstHint".localized)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Button(action: onCreate) {
-                Label("Create Newsletter", systemImage: "plus")
+                Label(L10n.Newsletters.newNewsletter, systemImage: "plus")
             }
             .buttonStyle(.borderedProminent)
             .padding(.top)
@@ -210,9 +213,9 @@ struct NewsletterDetailView: View {
                     .background(Color(.systemGray6))
 
                 // Tab picker
-                Picker("View", selection: $selectedTab) {
-                    Text("Issues").tag(0)
-                    Text("Subscribers").tag(1)
+                Picker("newsletters_view".localized, selection: $selectedTab) {
+                    Text("newsletters_issues".localized).tag(0)
+                    Text(L10n.Newsletters.subscribers).tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -258,7 +261,7 @@ struct NewsletterDetailView: View {
             }
 
             HStack(spacing: 16) {
-                Label("\(subscriberCount) subscribers", systemImage: "person.2")
+                Label("newsletters_subscriberCount".localized(subscriberCount), systemImage: "person.2")
                 Label(newsletter.visibility.displayName, systemImage: "eye")
             }
             .font(.caption)
@@ -296,11 +299,11 @@ struct IssuesListSection: View {
                     .font(.system(size: 40))
                     .foregroundColor(.secondary)
 
-                Text("No issues yet")
+                Text("newsletters_noIssues".localized)
                     .font(.headline)
 
                 Button(action: onCreateNew) {
-                    Label("Create First Issue", systemImage: "plus")
+                    Label("newsletters_createFirstIssue".localized, systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -352,11 +355,11 @@ struct IssueRow: View {
 
             HStack {
                 if issue.status == .sent, let sentAt = issue.sentAt {
-                    Text("Sent \(sentAt, style: .relative) ago")
+                    Text("newsletters_sentAgo".localized) + Text(" \(sentAt, style: .relative)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 } else {
-                    Text("Created \(issue.createdAt, style: .relative) ago")
+                    Text("newsletters_createdAgo".localized) + Text(" \(issue.createdAt, style: .relative)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -364,7 +367,7 @@ struct IssueRow: View {
                 Spacer()
 
                 if issue.stats.recipientCount > 0 {
-                    Text("\(issue.stats.recipientCount) recipients")
+                    Text("newsletters_recipients".localized(issue.stats.recipientCount))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -418,21 +421,21 @@ struct SubscribersSection: View {
             // Quick actions
             HStack(spacing: 12) {
                 ActionButton(
-                    title: "Add",
+                    title: "newsletters_addSubscriber".localized,
                     icon: "person.badge.plus"
                 ) {
                     showingAddSubscriber = true
                 }
 
                 ActionButton(
-                    title: "Import CSV",
+                    title: "newsletters_importCSV".localized,
                     icon: "arrow.down.doc"
                 ) {
                     showingImportCSV = true
                 }
 
                 ActionButton(
-                    title: "View All",
+                    title: "newsletters_viewAll".localized,
                     icon: "list.bullet"
                 ) {
                     showingSubscribersList = true
@@ -499,24 +502,24 @@ struct CreateNewsletterView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Newsletter Details") {
-                    TextField("Name", text: $name)
-                    TextField("Description (optional)", text: $description, axis: .vertical)
+                Section("newsletters_details".localized) {
+                    TextField("newsletters_name".localized, text: $name)
+                    TextField("newsletters_descriptionOptional".localized, text: $description, axis: .vertical)
                         .lineLimit(3...6)
-                    TextField("From Name (optional)", text: $fromName)
+                    TextField("newsletters_fromNameOptional".localized, text: $fromName)
                 }
 
-                Section("Settings") {
-                    Picker("Visibility", selection: $visibility) {
+                Section("newsletters_settings".localized) {
+                    Picker("newsletters_visibility".localized, selection: $visibility) {
                         ForEach(NewsletterVisibility.allCases, id: \.self) { vis in
                             Text(vis.displayName).tag(vis)
                         }
                     }
 
-                    Toggle("Require confirmation", isOn: $doubleOptIn)
+                    Toggle("newsletters_requireConfirmation".localized, isOn: $doubleOptIn)
 
                     if doubleOptIn {
-                        Text("New subscribers will need to confirm their subscription")
+                        Text("newsletters_confirmationHint".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -529,14 +532,14 @@ struct CreateNewsletterView: View {
                     }
                 }
             }
-            .navigationTitle("New Newsletter")
+            .navigationTitle(L10n.Newsletters.newNewsletter)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Create") {
+                    Button(L10n.Common.create) {
                         Task { await createNewsletter() }
                     }
                     .disabled(!isValid || isSubmitting)
@@ -589,17 +592,17 @@ struct AddSubscriberView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Contact Info") {
-                    TextField("Nostr Pubkey (npub or hex)", text: $pubkey)
-                    TextField("Email (optional)", text: $email)
+                Section("newsletters_contactInfo".localized) {
+                    TextField("newsletters_pubkeyHint".localized, text: $pubkey)
+                    TextField("newsletters_emailOptional".localized, text: $email)
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
-                    TextField("Name (optional)", text: $name)
+                    TextField("newsletters_nameOptional".localized, text: $name)
                 }
 
                 Section {
-                    Text("At least a pubkey or email is required")
+                    Text("newsletters_pubkeyOrEmailRequired".localized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -611,14 +614,14 @@ struct AddSubscriberView: View {
                     }
                 }
             }
-            .navigationTitle("Add Subscriber")
+            .navigationTitle("newsletters_addSubscriber".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
+                    Button("newsletters_add".localized) {
                         Task { await addSubscriber() }
                     }
                     .disabled(!isValid || isSubmitting)
@@ -671,7 +674,7 @@ struct ImportCSVView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                Text("Paste CSV data with columns: email, name, pubkey")
+                Text("newsletters_csvInstructions".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding(.horizontal)
@@ -685,7 +688,7 @@ struct ImportCSVView: View {
 
                 if let result = importResult {
                     VStack(spacing: 8) {
-                        Text("Import Complete")
+                        Text("newsletters_importComplete".localized)
                             .font(.headline)
 
                         HStack(spacing: 16) {
@@ -694,7 +697,7 @@ struct ImportCSVView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.green)
-                                Text("Imported")
+                                Text("newsletters_imported".localized)
                                     .font(.caption)
                             }
 
@@ -703,7 +706,7 @@ struct ImportCSVView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.orange)
-                                Text("Duplicates")
+                                Text("newsletters_duplicates".localized)
                                     .font(.caption)
                             }
 
@@ -712,7 +715,7 @@ struct ImportCSVView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.red)
-                                Text("Skipped")
+                                Text("newsletters_skipped".localized)
                                     .font(.caption)
                             }
                         }
@@ -731,14 +734,14 @@ struct ImportCSVView: View {
 
                 Spacer()
             }
-            .navigationTitle("Import CSV")
+            .navigationTitle("newsletters_importCSV".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(importResult != nil ? "Done" : "Import") {
+                    Button(importResult != nil ? L10n.Common.done : "newsletters_import".localized) {
                         if importResult != nil {
                             dismiss()
                             onComplete()

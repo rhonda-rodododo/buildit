@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Publishing
+
 // MARK: - Main List View
 
 struct ArticlesListView: View {
@@ -26,7 +29,7 @@ struct ArticlesListView: View {
                 // Content
                 if service.isLoading {
                     Spacer()
-                    ProgressView("Loading articles...")
+                    ProgressView("publishing_loadingArticles".localized)
                     Spacer()
                 } else if !searchText.isEmpty && isSearching {
                     SearchResultsView(results: searchResults, service: service)
@@ -36,8 +39,8 @@ struct ArticlesListView: View {
                     articlesList
                 }
             }
-            .navigationTitle("Publishing")
-            .searchable(text: $searchText, prompt: "Search articles...")
+            .navigationTitle(Strings.title)
+            .searchable(text: $searchText, prompt: Text("publishing_searchPlaceholder".localized))
             .onChange(of: searchText) { _, newValue in
                 performSearch(query: newValue)
             }
@@ -105,7 +108,7 @@ struct ArticlesListView: View {
                                 _ = try? await service.publishArticle(article)
                             }
                         } label: {
-                            Label("Publish", systemImage: "arrow.up.circle")
+                            Label("publishing_publish".localized, systemImage: "arrow.up.circle")
                         }
                         .tint(.green)
                     }
@@ -116,7 +119,7 @@ struct ArticlesListView: View {
                                 _ = try? await service.archiveArticle(article)
                             }
                         } label: {
-                            Label("Archive", systemImage: "archivebox")
+                            Label("publishing_archive".localized, systemImage: "archivebox")
                         }
                         .tint(.orange)
                     }
@@ -126,7 +129,7 @@ struct ArticlesListView: View {
                             try? await service.deleteArticle(article)
                         }
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(L10n.Common.delete, systemImage: "trash")
                     }
                 }
             }
@@ -153,7 +156,7 @@ struct ArticlesListView: View {
                 Button {
                     showingNewArticle = true
                 } label: {
-                    Label("Create Article", systemImage: "plus")
+                    Label("publishing_createArticle".localized, systemImage: "plus")
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
                 }
@@ -174,24 +177,24 @@ struct ArticlesListView: View {
 
     private var emptyStateTitle: String {
         switch selectedFilter {
-        case .all: return "No Articles Yet"
-        case .published: return "No Published Articles"
-        case .drafts: return "No Drafts"
-        case .scheduled: return "No Scheduled Articles"
-        case .archived: return "No Archived Articles"
+        case .all: return "publishing_noArticles".localized
+        case .published: return "publishing_noPublished".localized
+        case .drafts: return "publishing_noDrafts".localized
+        case .scheduled: return "publishing_noScheduled".localized
+        case .archived: return "publishing_noArchived".localized
         }
     }
 
     private var emptyStateMessage: String {
         switch selectedFilter {
         case .all, .drafts:
-            return "Create your first article to get started"
+            return "publishing_createFirstHint".localized
         case .published:
-            return "Published articles will appear here"
+            return "publishing_publishedWillAppear".localized
         case .scheduled:
-            return "Scheduled articles will appear here"
+            return "publishing_scheduledWillAppear".localized
         case .archived:
-            return "Archived articles will appear here"
+            return "publishing_archivedWillAppear".localized
         }
     }
 
@@ -287,7 +290,7 @@ struct ArticleRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(article.title.isEmpty ? "Untitled" : article.title)
+                Text(article.title.isEmpty ? "publishing_untitled".localized : article.title)
                     .font(.headline)
                     .lineLimit(1)
 
@@ -378,7 +381,7 @@ struct SearchResultsView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
-                    Text("No results found")
+                    Text("common_noResults".localized)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)

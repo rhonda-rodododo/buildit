@@ -23125,6 +23125,501 @@ public enum L10n {
         public static func accessibilityMessageFrom(_ name: String) -> String {
             String(format: NSLocalizedString("mobile_accessibility_messageFrom", comment: ""), name)
         }
+
+        /// View
+        public static var governanceView: String {
+            NSLocalizedString("mobile_governance_view", comment: "")
+        }
+
+        /// Active
+        public static var governanceActive: String {
+            NSLocalizedString("mobile_governance_active", comment: "")
+        }
+
+        /// Completed
+        public static var governanceCompleted: String {
+            NSLocalizedString("mobile_governance_completed", comment: "")
+        }
+
+        /// Loading proposals...
+        public static var governanceLoadingProposals: String {
+            NSLocalizedString("mobile_governance_loadingProposals", comment: "")
+        }
+
+        /// No Active Proposals
+        public static var governanceNoActiveProposals: String {
+            NSLocalizedString("mobile_governance_noActiveProposals", comment: "")
+        }
+
+        /// No Completed Proposals
+        public static var governanceNoCompletedProposals: String {
+            NSLocalizedString("mobile_governance_noCompletedProposals", comment: "")
+        }
+
+        /// Create a new proposal to start a group decision
+        public static var governanceCreateProposalHint: String {
+            NSLocalizedString("mobile_governance_createProposalHint", comment: "")
+        }
+
+        /// Completed proposals will appear here
+        public static var governanceCompletedWillAppear: String {
+            NSLocalizedString("mobile_governance_completedWillAppear", comment: "")
+        }
+
+        /// In Discussion
+        public static var governanceInDiscussion: String {
+            NSLocalizedString("mobile_governance_inDiscussion", comment: "")
+        }
+
+        /// %dd left
+        public static var governanceDaysLeft: String {
+            NSLocalizedString("mobile_governance_daysLeft", comment: "")
+        }
+
+        /// %dh left
+        public static var governanceHoursLeft: String {
+            NSLocalizedString("mobile_governance_hoursLeft", comment: "")
+        }
+
+        /// %dm left
+        public static var governanceMinutesLeft: String {
+            NSLocalizedString("mobile_governance_minutesLeft", comment: "")
+        }
+
+        /// View
+        public static var newslettersView: String {
+            NSLocalizedString("mobile_newsletters_view", comment: "")
+        }
+
+        /// Issues
+        public static var newslettersIssues: String {
+            NSLocalizedString("mobile_newsletters_issues", comment: "")
+        }
+
+        /// Create your first newsletter to start reaching your audience
+        public static var newslettersCreateFirstHint: String {
+            NSLocalizedString("mobile_newsletters_createFirstHint", comment: "")
+        }
+
+        /// %d subscribers
+        public static var newslettersSubscriberCount: String {
+            NSLocalizedString("mobile_newsletters_subscriberCount", comment: "")
+        }
+
+        /// No issues yet
+        public static var newslettersNoIssues: String {
+            NSLocalizedString("mobile_newsletters_noIssues", comment: "")
+        }
+
+        /// Create First Issue
+        public static var newslettersCreateFirstIssue: String {
+            NSLocalizedString("mobile_newsletters_createFirstIssue", comment: "")
+        }
+
+        /// Sent
+        public static var newslettersSentAgo: String {
+            NSLocalizedString("mobile_newsletters_sentAgo", comment: "")
+        }
+
+        /// Created
+        public static var newslettersCreatedAgo: String {
+            NSLocalizedString("mobile_newsletters_createdAgo", comment: "")
+        }
+
+        /// %d recipients
+        public static var newslettersRecipients: String {
+            NSLocalizedString("mobile_newsletters_recipients", comment: "")
+        }
+
+        /// Add Subscriber
+        public static var newslettersAddSubscriber: String {
+            NSLocalizedString("mobile_newsletters_addSubscriber", comment: "")
+        }
+
+        /// Import CSV
+        public static var newslettersImportCSV: String {
+            NSLocalizedString("mobile_newsletters_importCSV", comment: "")
+        }
+
+        /// View All
+        public static var newslettersViewAll: String {
+            NSLocalizedString("mobile_newsletters_viewAll", comment: "")
+        }
+
+        /// Newsletter Details
+        public static var newslettersDetails: String {
+            NSLocalizedString("mobile_newsletters_details", comment: "")
+        }
+
+        /// Name
+        public static var newslettersName: String {
+            NSLocalizedString("mobile_newsletters_name", comment: "")
+        }
+
+        /// Description (optional)
+        public static var newslettersDescriptionOptional: String {
+            NSLocalizedString("mobile_newsletters_descriptionOptional", comment: "")
+        }
+
+        /// From Name (optional)
+        public static var newslettersFromNameOptional: String {
+            NSLocalizedString("mobile_newsletters_fromNameOptional", comment: "")
+        }
+
+        /// Settings
+        public static var newslettersSettings: String {
+            NSLocalizedString("mobile_newsletters_settings", comment: "")
+        }
+
+        /// Visibility
+        public static var newslettersVisibility: String {
+            NSLocalizedString("mobile_newsletters_visibility", comment: "")
+        }
+
+        /// Require confirmation
+        public static var newslettersRequireConfirmation: String {
+            NSLocalizedString("mobile_newsletters_requireConfirmation", comment: "")
+        }
+
+        /// New subscribers will need to confirm their subscription
+        public static var newslettersConfirmationHint: String {
+            NSLocalizedString("mobile_newsletters_confirmationHint", comment: "")
+        }
+
+        /// Contact Info
+        public static var newslettersContactInfo: String {
+            NSLocalizedString("mobile_newsletters_contactInfo", comment: "")
+        }
+
+        /// Nostr Pubkey (npub or hex)
+        public static var newslettersPubkeyHint: String {
+            NSLocalizedString("mobile_newsletters_pubkeyHint", comment: "")
+        }
+
+        /// Email (optional)
+        public static var newslettersEmailOptional: String {
+            NSLocalizedString("mobile_newsletters_emailOptional", comment: "")
+        }
+
+        /// Name (optional)
+        public static var newslettersNameOptional: String {
+            NSLocalizedString("mobile_newsletters_nameOptional", comment: "")
+        }
+
+        /// At least a pubkey or email is required
+        public static var newslettersPubkeyOrEmailRequired: String {
+            NSLocalizedString("mobile_newsletters_pubkeyOrEmailRequired", comment: "")
+        }
+
+        /// Add
+        public static var newslettersAdd: String {
+            NSLocalizedString("mobile_newsletters_add", comment: "")
+        }
+
+        /// Paste CSV data with columns: email, name, pubkey
+        public static var newslettersCsvInstructions: String {
+            NSLocalizedString("mobile_newsletters_csvInstructions", comment: "")
+        }
+
+        /// Import Complete
+        public static var newslettersImportComplete: String {
+            NSLocalizedString("mobile_newsletters_importComplete", comment: "")
+        }
+
+        /// Imported
+        public static var newslettersImported: String {
+            NSLocalizedString("mobile_newsletters_imported", comment: "")
+        }
+
+        /// Duplicates
+        public static var newslettersDuplicates: String {
+            NSLocalizedString("mobile_newsletters_duplicates", comment: "")
+        }
+
+        /// Skipped
+        public static var newslettersSkipped: String {
+            NSLocalizedString("mobile_newsletters_skipped", comment: "")
+        }
+
+        /// Import
+        public static var newslettersImport: String {
+            NSLocalizedString("mobile_newsletters_import", comment: "")
+        }
+
+        /// Loading articles...
+        public static var publishingLoadingArticles: String {
+            NSLocalizedString("mobile_publishing_loadingArticles", comment: "")
+        }
+
+        /// Search articles...
+        public static var publishingSearchPlaceholder: String {
+            NSLocalizedString("mobile_publishing_searchPlaceholder", comment: "")
+        }
+
+        /// Publish
+        public static var publishingPublish: String {
+            NSLocalizedString("mobile_publishing_publish", comment: "")
+        }
+
+        /// Archive
+        public static var publishingArchive: String {
+            NSLocalizedString("mobile_publishing_archive", comment: "")
+        }
+
+        /// Create Article
+        public static var publishingCreateArticle: String {
+            NSLocalizedString("mobile_publishing_createArticle", comment: "")
+        }
+
+        /// No Articles Yet
+        public static var publishingNoArticles: String {
+            NSLocalizedString("mobile_publishing_noArticles", comment: "")
+        }
+
+        /// No Published Articles
+        public static var publishingNoPublished: String {
+            NSLocalizedString("mobile_publishing_noPublished", comment: "")
+        }
+
+        /// No Drafts
+        public static var publishingNoDrafts: String {
+            NSLocalizedString("mobile_publishing_noDrafts", comment: "")
+        }
+
+        /// No Scheduled Articles
+        public static var publishingNoScheduled: String {
+            NSLocalizedString("mobile_publishing_noScheduled", comment: "")
+        }
+
+        /// No Archived Articles
+        public static var publishingNoArchived: String {
+            NSLocalizedString("mobile_publishing_noArchived", comment: "")
+        }
+
+        /// Create your first article to get started
+        public static var publishingCreateFirstHint: String {
+            NSLocalizedString("mobile_publishing_createFirstHint", comment: "")
+        }
+
+        /// Published articles will appear here
+        public static var publishingPublishedWillAppear: String {
+            NSLocalizedString("mobile_publishing_publishedWillAppear", comment: "")
+        }
+
+        /// Scheduled articles will appear here
+        public static var publishingScheduledWillAppear: String {
+            NSLocalizedString("mobile_publishing_scheduledWillAppear", comment: "")
+        }
+
+        /// Archived articles will appear here
+        public static var publishingArchivedWillAppear: String {
+            NSLocalizedString("mobile_publishing_archivedWillAppear", comment: "")
+        }
+
+        /// Untitled
+        public static var publishingUntitled: String {
+            NSLocalizedString("mobile_publishing_untitled", comment: "")
+        }
+
+        /// No campaigns yet
+        public static var fundraisingNoCampaigns: String {
+            NSLocalizedString("mobile_fundraising_noCampaigns", comment: "")
+        }
+
+        /// Start a fundraising campaign to support your cause
+        public static var fundraisingStartCampaignHint: String {
+            NSLocalizedString("mobile_fundraising_startCampaignHint", comment: "")
+        }
+
+        /// Search campaigns
+        public static var fundraisingSearchPlaceholder: String {
+            NSLocalizedString("mobile_fundraising_searchPlaceholder", comment: "")
+        }
+
+        /// by %@
+        public static var fundraisingBy: String {
+            NSLocalizedString("mobile_fundraising_by", comment: "")
+        }
+
+        /// raised of %@
+        public static var fundraisingRaisedOf: String {
+            NSLocalizedString("mobile_fundraising_raisedOf", comment: "")
+        }
+
+        /// %dd left
+        public static var fundraisingDaysLeft: String {
+            NSLocalizedString("mobile_fundraising_daysLeft", comment: "")
+        }
+
+        /// View
+        public static var mutualaidView: String {
+            NSLocalizedString("mobile_mutualaid_view", comment: "")
+        }
+
+        /// Requests
+        public static var mutualaidRequests: String {
+            NSLocalizedString("mobile_mutualaid_requests", comment: "")
+        }
+
+        /// Offers
+        public static var mutualaidOffers: String {
+            NSLocalizedString("mobile_mutualaid_offers", comment: "")
+        }
+
+        /// No requests yet
+        public static var mutualaidNoRequests: String {
+            NSLocalizedString("mobile_mutualaid_noRequests", comment: "")
+        }
+
+        /// Be the first to create a mutual aid request
+        public static var mutualaidCreateRequestHint: String {
+            NSLocalizedString("mobile_mutualaid_createRequestHint", comment: "")
+        }
+
+        /// No offers yet
+        public static var mutualaidNoOffers: String {
+            NSLocalizedString("mobile_mutualaid_noOffers", comment: "")
+        }
+
+        /// Share what you can offer to help others
+        public static var mutualaidCreateOfferHint: String {
+            NSLocalizedString("mobile_mutualaid_createOfferHint", comment: "")
+        }
+
+        /// Available
+        public static var mutualaidAvailable: String {
+            NSLocalizedString("mobile_mutualaid_available", comment: "")
+        }
+
+        /// Until
+        public static var mutualaidUntil: String {
+            NSLocalizedString("mobile_mutualaid_until", comment: "")
+        }
+
+        /// Loading pages...
+        public static var wikiLoadingPages: String {
+            NSLocalizedString("mobile_wiki_loadingPages", comment: "")
+        }
+
+        /// Recently Updated
+        public static var wikiRecentlyUpdated: String {
+            NSLocalizedString("mobile_wiki_recentlyUpdated", comment: "")
+        }
+
+        /// All Pages
+        public static var wikiAllPages: String {
+            NSLocalizedString("mobile_wiki_allPages", comment: "")
+        }
+
+        /// Knowledge base pages will appear here
+        public static var wikiPagesWillAppear: String {
+            NSLocalizedString("mobile_wiki_pagesWillAppear", comment: "")
+        }
+
+        /// Page not found
+        public static var wikiPageNotFound: String {
+            NSLocalizedString("mobile_wiki_pageNotFound", comment: "")
+        }
+
+        /// Search events...
+        public static var eventsSearchPlaceholder: String {
+            NSLocalizedString("mobile_events_searchPlaceholder", comment: "")
+        }
+
+        /// Upcoming
+        public static var eventsUpcoming: String {
+            NSLocalizedString("mobile_events_upcoming", comment: "")
+        }
+
+        /// Past
+        public static var eventsPast: String {
+            NSLocalizedString("mobile_events_past", comment: "")
+        }
+
+        /// Create or join events to see them here
+        public static var eventsEmptyDescription: String {
+            NSLocalizedString("mobile_events_emptyDescription", comment: "")
+        }
+
+        /// Search forms...
+        public static var formsSearchPlaceholder: String {
+            NSLocalizedString("mobile_forms_searchPlaceholder", comment: "")
+        }
+
+        /// Loading forms...
+        public static var formsLoading: String {
+            NSLocalizedString("mobile_forms_loading", comment: "")
+        }
+
+        /// My Forms
+        public static var formsMyForms: String {
+            NSLocalizedString("mobile_forms_myForms", comment: "")
+        }
+
+        /// No forms matching your search
+        public static var formsNoSearchResults: String {
+            NSLocalizedString("mobile_forms_noSearchResults", comment: "")
+        }
+
+        /// No Active Forms
+        public static var formsNoActiveForms: String {
+            NSLocalizedString("mobile_forms_noActiveForms", comment: "")
+        }
+
+        /// No Forms Created
+        public static var formsNoFormsCreated: String {
+            NSLocalizedString("mobile_forms_noFormsCreated", comment: "")
+        }
+
+        /// Active forms will appear here
+        public static var formsActiveFormsAppear: String {
+            NSLocalizedString("mobile_forms_activeFormsAppear", comment: "")
+        }
+
+        /// Forms you create will appear here
+        public static var formsYourFormsAppear: String {
+            NSLocalizedString("mobile_forms_yourFormsAppear", comment: "")
+        }
+
+        /// %d fields
+        public static var formsFieldCount: String {
+            NSLocalizedString("mobile_forms_fieldCount", comment: "")
+        }
+
+        /// Closes %@
+        public static var formsCloses: String {
+            NSLocalizedString("mobile_forms_closes", comment: "")
+        }
+
+        /// Closed
+        public static var formsClosed: String {
+            NSLocalizedString("mobile_forms_closed", comment: "")
+        }
+
+        /// Anonymous
+        public static var formsAnonymous: String {
+            NSLocalizedString("mobile_forms_anonymous", comment: "")
+        }
+
+        /// Multiple responses
+        public static var formsMultipleResponses: String {
+            NSLocalizedString("mobile_forms_multipleResponses", comment: "")
+        }
+
+        /// All
+        public static var commonAll: String {
+            NSLocalizedString("mobile_common_all", comment: "")
+        }
+
+        /// View
+        public static var commonView: String {
+            NSLocalizedString("mobile_common_view", comment: "")
+        }
+
+        /// No results found
+        public static var commonNoResults: String {
+            NSLocalizedString("mobile_common_noResults", comment: "")
+        }
     }
 
     // MARK: - Plurals

@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Wiki
+
 // MARK: - Main List View
 
 struct WikiListView: View {
@@ -28,7 +31,7 @@ struct WikiListView: View {
                 // Content
                 if service.isLoading {
                     Spacer()
-                    ProgressView("Loading pages...")
+                    ProgressView("wiki_loadingPages".localized)
                     Spacer()
                 } else if !searchText.isEmpty && isSearching {
                     SearchResultsList(results: searchResults, service: service)
@@ -38,8 +41,8 @@ struct WikiListView: View {
                     pagesList
                 }
             }
-            .navigationTitle("Knowledge Base")
-            .searchable(text: $searchText, prompt: "Search pages...")
+            .navigationTitle(Strings.title)
+            .searchable(text: $searchText, prompt: Text(Strings.search))
             .onChange(of: searchText) { _, newValue in
                 performSearch(query: newValue)
             }
@@ -64,7 +67,7 @@ struct WikiListView: View {
         List {
             // Recent section
             if selectedCategory == nil && !service.recentPages.isEmpty {
-                Section("Recently Updated") {
+                Section("wiki_recentlyUpdated".localized) {
                     ForEach(service.recentPages.prefix(3)) { page in
                         NavigationLink(destination: WikiPageView(page: page, service: service)) {
                             PageRow(page: page, showCategory: true)
@@ -74,7 +77,7 @@ struct WikiListView: View {
             }
 
             // All pages section
-            Section(selectedCategory?.name ?? "All Pages") {
+            Section(selectedCategory?.name ?? "wiki_allPages".localized) {
                 ForEach(filteredPages) { page in
                     NavigationLink(destination: WikiPageView(page: page, service: service)) {
                         PageRow(page: page, showCategory: selectedCategory == nil)
@@ -91,11 +94,11 @@ struct WikiListView: View {
                 .font(.system(size: 64))
                 .foregroundColor(.secondary)
 
-            Text("No Pages Yet")
+            Text(Strings.noPages)
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("Knowledge base pages will appear here")
+            Text("wiki_pagesWillAppear".localized)
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -131,7 +134,7 @@ struct CategoryRow: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 CategoryChip(
-                    name: "All",
+                    name: "common_all".localized,
                     icon: "square.grid.2x2",
                     isSelected: selectedCategory == nil
                 ) {
@@ -237,7 +240,7 @@ struct SearchResultsList: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
-                    Text("No results found")
+                    Text("common_noResults".localized)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -311,7 +314,7 @@ struct WikiPageViewBySlug: View {
             } else if let page = page {
                 WikiPageView(page: page, service: service)
             } else {
-                Text("Page not found")
+                Text("wiki_pageNotFound".localized)
                     .foregroundColor(.secondary)
             }
         }

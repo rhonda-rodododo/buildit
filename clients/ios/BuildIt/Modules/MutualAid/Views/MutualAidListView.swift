@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.MutualAid
+
 /// Main mutual aid list view with tabs for requests and offers
 public struct MutualAidListView: View {
     @StateObject private var viewModel: MutualAidViewModel
@@ -20,9 +23,9 @@ public struct MutualAidListView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Tab picker
-                Picker("View", selection: $selectedTab) {
-                    Text("Requests").tag(0)
-                    Text("Offers").tag(1)
+                Picker("mutualaid_view".localized, selection: $selectedTab) {
+                    Text("mutualaid_requests".localized).tag(0)
+                    Text("mutualaid_offers".localized).tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -31,7 +34,7 @@ public struct MutualAidListView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         FilterChip(
-                            title: "All",
+                            title: "common_all".localized,
                             isSelected: selectedCategory == nil
                         ) {
                             selectedCategory = nil
@@ -68,7 +71,7 @@ public struct MutualAidListView: View {
                     )
                 }
             }
-            .navigationTitle("Mutual Aid")
+            .navigationTitle(Strings.title)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -160,8 +163,8 @@ struct RequestsListView: View {
             } else if requests.isEmpty {
                 EmptyStateView(
                     icon: "hands.sparkles",
-                    title: "No requests yet",
-                    message: "Be the first to create a mutual aid request"
+                    title: "mutualaid_noRequests".localized,
+                    message: "mutualaid_createRequestHint".localized
                 )
             } else {
                 List {
@@ -265,8 +268,8 @@ struct OffersListView: View {
             } else if offers.isEmpty {
                 EmptyStateView(
                     icon: "gift",
-                    title: "No offers yet",
-                    message: "Share what you can offer to help others"
+                    title: "mutualaid_noOffers".localized,
+                    message: "mutualaid_createOfferHint".localized
                 )
             } else {
                 List {
@@ -298,7 +301,7 @@ struct OfferRow: View {
                 Spacer()
 
                 if offer.isActive {
-                    Text("Available")
+                    Text("mutualaid_available".localized)
                         .font(.caption2)
                         .fontWeight(.medium)
                         .padding(.horizontal, 6)
@@ -326,7 +329,7 @@ struct OfferRow: View {
                 Spacer()
 
                 if let until = offer.availableUntil {
-                    Text("Until \(until, style: .date)")
+                    Text("mutualaid_until".localized) + Text(" \(until, style: .date)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

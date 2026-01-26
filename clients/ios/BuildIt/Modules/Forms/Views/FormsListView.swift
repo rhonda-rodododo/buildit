@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Forms
+
 // MARK: - Main List View
 
 struct FormsListView: View {
@@ -18,10 +21,10 @@ struct FormsListView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Tab selector
-                Picker("View", selection: $selectedTab) {
-                    Text("All").tag(0)
-                    Text("Active").tag(1)
-                    Text("My Forms").tag(2)
+                Picker("common_view".localized, selection: $selectedTab) {
+                    Text("common_all".localized).tag(0)
+                    Text("common_active".localized).tag(1)
+                    Text("forms_myForms".localized).tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -34,7 +37,7 @@ struct FormsListView: View {
                 // Content
                 if service.isLoading {
                     Spacer()
-                    ProgressView("Loading forms...")
+                    ProgressView("forms_loading".localized)
                     Spacer()
                 } else {
                     let filteredForms = getFilteredForms()
@@ -51,8 +54,8 @@ struct FormsListView: View {
                     }
                 }
             }
-            .navigationTitle("Forms")
-            .searchable(text: $searchText, prompt: "Search forms")
+            .navigationTitle(L10n.Forms.title)
+            .searchable(text: $searchText, prompt: Text("forms_searchPlaceholder".localized))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showCreateForm = true }) {
@@ -118,7 +121,7 @@ struct FormsListView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Create Form") {
+            Button(L10n.Forms.createForm) {
                 showCreateForm = true
             }
             .buttonStyle(.borderedProminent)
@@ -140,23 +143,23 @@ struct FormsListView: View {
 
     private var emptyStateTitle: String {
         if !searchText.isEmpty {
-            return "No Results"
+            return "common_noResults".localized
         }
         switch selectedTab {
-        case 1: return "No Active Forms"
-        case 2: return "No Forms Created"
-        default: return "No Forms"
+        case 1: return "forms_noActiveForms".localized
+        case 2: return "forms_noFormsCreated".localized
+        default: return L10n.Forms.noForms
         }
     }
 
     private var emptyStateMessage: String {
         if !searchText.isEmpty {
-            return "No forms match your search"
+            return "forms_noSearchResults".localized
         }
         switch selectedTab {
-        case 1: return "Active forms will appear here"
-        case 2: return "Forms you create will appear here"
-        default: return "Create a form to start collecting responses"
+        case 1: return "forms_activeFormsAppear".localized
+        case 2: return "forms_yourFormsAppear".localized
+        default: return L10n.Forms.noFormsDescription
         }
     }
 }
@@ -170,7 +173,7 @@ struct StatusFilterRow: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 FormFilterChip(
-                    title: "All",
+                    title: "common_all".localized,
                     isSelected: selectedStatus == nil
                 ) {
                     selectedStatus = nil
@@ -241,7 +244,7 @@ struct FormRow: View {
 
             HStack {
                 // Field count
-                Label("\(form.fields.count) fields", systemImage: "list.bullet")
+                Label("forms_fieldCount".localized(form.fields.count), systemImage: "list.bullet")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -250,11 +253,11 @@ struct FormRow: View {
                 // Schedule info
                 if let closes = form.closesAt {
                     if closes > Date() {
-                        Text("Closes \(formatDate(closes))")
+                        Text("forms_closes".localized(formatDate(closes)))
                             .font(.caption)
                             .foregroundColor(.orange)
                     } else {
-                        Text("Closed")
+                        Text("forms_closed".localized)
                             .font(.caption)
                             .foregroundColor(.red)
                     }
@@ -268,13 +271,13 @@ struct FormRow: View {
             // Additional info row
             HStack(spacing: 12) {
                 if form.anonymous {
-                    Label("Anonymous", systemImage: "eye.slash")
+                    Label("forms_anonymous".localized, systemImage: "eye.slash")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
 
                 if form.allowMultiple {
-                    Label("Multiple responses", systemImage: "arrow.triangle.2.circlepath")
+                    Label("forms_multipleResponses".localized, systemImage: "arrow.triangle.2.circlepath")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }

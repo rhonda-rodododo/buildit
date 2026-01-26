@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Governance
+
 // MARK: - Main List View
 
 struct GovernanceListView: View {
@@ -17,9 +20,9 @@ struct GovernanceListView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Tab selector
-                Picker("View", selection: $selectedTab) {
-                    Text("Active").tag(0)
-                    Text("Completed").tag(1)
+                Picker("governance_view".localized, selection: $selectedTab) {
+                    Text("governance_active".localized).tag(0)
+                    Text("governance_completed".localized).tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding()
@@ -30,7 +33,7 @@ struct GovernanceListView: View {
                 // Content
                 if service.isLoading {
                     Spacer()
-                    ProgressView("Loading proposals...")
+                    ProgressView("governance_loadingProposals".localized)
                     Spacer()
                 } else {
                     let proposals = selectedTab == 0 ? service.activeProposals : service.completedProposals
@@ -48,7 +51,7 @@ struct GovernanceListView: View {
                     }
                 }
             }
-            .navigationTitle("Governance")
+            .navigationTitle(Strings.title)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showCreateProposal = true }) {
@@ -74,18 +77,18 @@ struct GovernanceListView: View {
                 .font(.system(size: 64))
                 .foregroundColor(.secondary)
 
-            Text(selectedTab == 0 ? "No Active Proposals" : "No Completed Proposals")
+            Text(selectedTab == 0 ? "governance_noActiveProposals".localized : "governance_noCompletedProposals".localized)
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text(selectedTab == 0 ? "Create a new proposal to start a group decision" : "Completed proposals will appear here")
+            Text(selectedTab == 0 ? "governance_createProposalHint".localized : "governance_completedWillAppear".localized)
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             if selectedTab == 0 {
-                Button("Create Proposal") {
+                Button(Strings.createProposal) {
                     showCreateProposal = true
                 }
                 .buttonStyle(.borderedProminent)
@@ -105,7 +108,7 @@ struct TypeFilterRow: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 FilterChip(
-                    title: "All",
+                    title: "common_all".localized,
                     isSelected: selectedType == nil
                 ) {
                     selectedType = nil
@@ -200,7 +203,7 @@ struct ProposalRow: View {
                         .font(.caption)
                         .foregroundColor(.orange)
                 } else if proposal.isInDiscussion {
-                    Text("In Discussion")
+                    Text("governance_inDiscussion".localized)
                         .font(.caption)
                         .foregroundColor(.blue)
                 } else {
@@ -218,12 +221,12 @@ struct ProposalRow: View {
         let days = hours / 24
 
         if days > 0 {
-            return "\(days)d left"
+            return "governance_daysLeft".localized(days)
         } else if hours > 0 {
-            return "\(hours)h left"
+            return "governance_hoursLeft".localized(hours)
         } else {
             let minutes = Int(interval / 60)
-            return "\(max(1, minutes))m left"
+            return "governance_minutesLeft".localized(max(1, minutes))
         }
     }
 

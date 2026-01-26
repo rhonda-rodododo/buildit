@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Events
+
 /// Main events list view
 public struct EventsListView: View {
     @ObservedObject var store: EventsStore
@@ -28,7 +31,7 @@ public struct EventsListView: View {
                     eventsList
                 }
             }
-            .navigationTitle("Events")
+            .navigationTitle(L10n.Events.title)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -48,7 +51,7 @@ public struct EventsListView: View {
                 store.loadEvents()
             }
         }
-        .searchable(text: $searchQuery, prompt: "Search events")
+        .searchable(text: $searchQuery, prompt: Text("events_searchPlaceholder".localized))
     }
 
     private var eventsList: some View {
@@ -57,7 +60,7 @@ public struct EventsListView: View {
             let pastEvents = store.getPastEvents()
 
             if !upcomingEvents.isEmpty {
-                Section("Upcoming") {
+                Section("events_upcoming".localized) {
                     ForEach(filteredEvents(upcomingEvents)) { event in
                         EventRow(event: event)
                             .contentShape(Rectangle())
@@ -69,7 +72,7 @@ public struct EventsListView: View {
             }
 
             if !pastEvents.isEmpty {
-                Section("Past") {
+                Section("events_past".localized) {
                     ForEach(filteredEvents(pastEvents)) { event in
                         EventRow(event: event)
                             .contentShape(Rectangle())
@@ -85,11 +88,11 @@ public struct EventsListView: View {
 
     private var emptyState: some View {
         ContentUnavailableView {
-            Label("No Events", systemImage: "calendar")
+            Label(L10n.Events.noEvents, systemImage: "calendar")
         } description: {
-            Text("Create an event to get started")
+            Text("events_emptyDescription".localized)
         } actions: {
-            Button("Create Event") {
+            Button(L10n.Events.createEvent) {
                 showCreateEvent = true
             }
             .buttonStyle(.borderedProminent)

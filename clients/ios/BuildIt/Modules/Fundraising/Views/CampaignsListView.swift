@@ -5,6 +5,9 @@
 
 import SwiftUI
 
+// Import localization
+private typealias Strings = L10n.Fundraising
+
 /// Main campaigns list view
 public struct CampaignsListView: View {
     @StateObject private var viewModel: CampaignsViewModel
@@ -23,7 +26,7 @@ public struct CampaignsListView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         StatusFilterChip(
-                            title: "All",
+                            title: "common_all".localized,
                             isSelected: filterStatus == nil
                         ) {
                             filterStatus = nil
@@ -50,8 +53,8 @@ public struct CampaignsListView: View {
                 } else if filteredCampaigns.isEmpty {
                     FundraisingEmptyStateView(
                         icon: "dollarsign.circle",
-                        title: "No campaigns yet",
-                        message: "Start a fundraising campaign to support your cause"
+                        title: "fundraising_noCampaigns".localized,
+                        message: "fundraising_startCampaignHint".localized
                     )
                 } else {
                     List {
@@ -68,7 +71,7 @@ public struct CampaignsListView: View {
                     }
                 }
             }
-            .navigationTitle("Fundraising")
+            .navigationTitle(Strings.title)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -78,7 +81,7 @@ public struct CampaignsListView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search campaigns")
+            .searchable(text: $searchText, prompt: Text("fundraising_searchPlaceholder".localized))
             .sheet(isPresented: $showingCreateSheet) {
                 CreateCampaignView(service: viewModel.service) {
                     showingCreateSheet = false
@@ -156,7 +159,7 @@ struct CampaignRow: View {
                         .font(.headline)
 
                     if let creatorName = campaign.creatorName {
-                        Text("by \(creatorName)")
+                        Text("fundraising_by".localized(creatorName))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -185,14 +188,14 @@ struct CampaignRow: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)
 
-                    Text("raised of \(formatCurrency(campaign.goal, currency: campaign.currency))")
+                    Text("fundraising_raisedOf".localized(formatCurrency(campaign.goal, currency: campaign.currency)))
                         .font(.caption)
                         .foregroundColor(.secondary)
 
                     Spacer()
 
                     if let days = campaign.daysRemaining {
-                        Label("\(days)d left", systemImage: "clock")
+                        Label("fundraising_daysLeft".localized(days), systemImage: "clock")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
