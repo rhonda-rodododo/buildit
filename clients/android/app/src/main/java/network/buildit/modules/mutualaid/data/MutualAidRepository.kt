@@ -69,7 +69,7 @@ class MutualAidRepository @Inject constructor(
             quantityFulfilled = 0.0,
             unit = unit,
             tags = tags,
-            createdAt = System.currentTimeMillis(),
+            createdAt = System.currentTimeMillis() / 1000,
             updatedAt = null,
             closedAt = null
         )
@@ -78,7 +78,7 @@ class MutualAidRepository @Inject constructor(
     }
 
     suspend fun updateRequest(request: AidRequestEntity) {
-        requestsDao.updateRequest(request.copy(updatedAt = System.currentTimeMillis()))
+        requestsDao.updateRequest(request.copy(updatedAt = System.currentTimeMillis() / 1000))
     }
 
     suspend fun updateRequestStatus(id: String, status: RequestStatus) {
@@ -147,7 +147,7 @@ class MutualAidRepository @Inject constructor(
             quantity = quantity,
             unit = unit,
             tags = tags,
-            createdAt = System.currentTimeMillis(),
+            createdAt = System.currentTimeMillis() / 1000,
             updatedAt = null
         )
         offersDao.insertOffer(offer)
@@ -155,7 +155,7 @@ class MutualAidRepository @Inject constructor(
     }
 
     suspend fun updateOffer(offer: AidOfferEntity) {
-        offersDao.updateOffer(offer.copy(updatedAt = System.currentTimeMillis()))
+        offersDao.updateOffer(offer.copy(updatedAt = System.currentTimeMillis() / 1000))
     }
 
     suspend fun withdrawOffer(id: String) {
@@ -195,7 +195,7 @@ class MutualAidRepository @Inject constructor(
             message = message,
             scheduledFor = scheduledFor,
             completedAt = null,
-            createdAt = System.currentTimeMillis()
+            createdAt = System.currentTimeMillis() / 1000
         )
         fulfillmentsDao.insertFulfillment(fulfillment)
         return fulfillment

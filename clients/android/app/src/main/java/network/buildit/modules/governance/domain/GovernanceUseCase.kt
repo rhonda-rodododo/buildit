@@ -58,23 +58,26 @@ class GovernanceUseCase @Inject constructor(
         allowDelegation: Boolean = false,
         tags: List<String> = emptyList()
     ): ProposalEntity {
-        val now = System.currentTimeMillis()
+        val nowSeconds = System.currentTimeMillis() / 1000
+        // Convert durations from milliseconds to seconds
+        val discussionDurationSeconds = discussionDurationMs?.let { it / 1000 }
+        val votingDurationSeconds = votingDurationMs / 1000
 
         val discussionStartsAt: Long?
         val discussionEndsAt: Long?
         val votingStartsAt: Long
 
-        if (discussionDurationMs != null && discussionDurationMs > 0) {
-            discussionStartsAt = now
-            discussionEndsAt = now + discussionDurationMs
+        if (discussionDurationSeconds != null && discussionDurationSeconds > 0) {
+            discussionStartsAt = nowSeconds
+            discussionEndsAt = nowSeconds + discussionDurationSeconds
             votingStartsAt = discussionEndsAt
         } else {
             discussionStartsAt = null
             discussionEndsAt = null
-            votingStartsAt = now
+            votingStartsAt = nowSeconds
         }
 
-        val votingEndsAt = votingStartsAt + votingDurationMs
+        val votingEndsAt = votingStartsAt + votingDurationSeconds
 
         val proposal = repository.createProposal(
             groupId = groupId,

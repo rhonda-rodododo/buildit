@@ -89,7 +89,7 @@ class WikiRepository @Inject constructor(
     }
 
     suspend fun updatePage(page: WikiPageEntity) {
-        pagesDao.updatePage(page.copy(updatedAt = System.currentTimeMillis()))
+        pagesDao.updatePage(page.copy(updatedAt = System.currentTimeMillis() / 1000))
     }
 
     suspend fun updatePageStatus(id: String, status: PageStatus) {
@@ -149,7 +149,7 @@ class WikiRepository @Inject constructor(
     }
 
     suspend fun updateCategory(category: WikiCategoryEntity) {
-        categoriesDao.updateCategory(category.copy(updatedAt = System.currentTimeMillis()))
+        categoriesDao.updateCategory(category.copy(updatedAt = System.currentTimeMillis() / 1000))
     }
 
     suspend fun deleteCategory(id: String) {

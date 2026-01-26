@@ -86,7 +86,7 @@ class GovernanceRepository @Inject constructor(
     }
 
     suspend fun updateProposal(proposal: ProposalEntity) {
-        proposalsDao.updateProposal(proposal.copy(updatedAt = System.currentTimeMillis()))
+        proposalsDao.updateProposal(proposal.copy(updatedAt = System.currentTimeMillis() / 1000))
     }
 
     suspend fun updateProposalStatus(id: String, status: ProposalStatus) {

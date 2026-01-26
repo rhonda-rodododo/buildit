@@ -86,18 +86,19 @@ This audit reveals **significant schema drift** between the protocol specificati
 
 ## High Priority Issues
 
-### 5. Android Time Format (Governance, Events)
+### 5. ~~Android Time Format (Governance, Mutual Aid, Wiki)~~ ✅ FIXED
 
-**Issue**: Android uses milliseconds, protocol uses seconds.
+**Status**: RESOLVED (2026-01-26)
 
-```kotlin
-// Android: System.currentTimeMillis() → milliseconds
-// Protocol: Unix timestamp → seconds
-```
+**Changes made**:
+- Updated GovernanceUseCase.kt to convert durations and timestamps to seconds
+- Updated GovernanceRepository.kt to use seconds for updatedAt
+- Updated MutualAidRepository.kt to use seconds for createdAt/updatedAt
+- Updated WikiRepository.kt to use seconds for updatedAt
+- Updated entity defaults in GovernanceEntity.kt, WikiEntity.kt
+- Fixed computed properties (canVote, isInDiscussion, isActive) to compare in seconds
 
-**Impact**: Times will be off by 1000x when syncing.
-
-**Fix**: Convert ms to seconds when serializing to protocol format.
+**Commit**: `fix(android): convert timestamps from milliseconds to seconds`
 
 ---
 
@@ -166,7 +167,7 @@ quicktype generates duplicate interfaces:
 
 | Task | Module | Effort | Files |
 |------|--------|--------|-------|
-| Fix Android time format | Governance, Events | 2h | Entity files |
+| ~~Fix Android time format~~ | Governance, Mutual Aid, Wiki | 2h | Entity/Repository/UseCase files | ✅ Done |
 | Add missing Mutual Aid types | Mutual Aid | 4h | iOS/Android models |
 | Add missing Governance types | Governance | 3h | iOS/Android models |
 | Un-flatten Android location | Mutual Aid | 2h | `AidRequestEntity.kt` |
@@ -219,7 +220,7 @@ After fixes, verify:
 - [x] Web events can be created and synced to iOS/Android (web side fixed)
 - [x] iOS can send/receive messages without crashes (Codable conformance added)
 - [x] Wiki pages sync correctly between all clients (web side fixed)
-- [ ] Timestamps are correct (not off by 1000x)
+- [x] Timestamps are correct (not off by 1000x) - Android fixed
 - [x] Schema version `_v` is included in all serialized data (all clients)
 - [x] All enum values serialize with correct format (underscore vs hyphen)
 - [ ] Location data preserves all nested fields

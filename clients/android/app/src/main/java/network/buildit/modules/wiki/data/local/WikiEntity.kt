@@ -71,7 +71,7 @@ data class WikiPageEntity(
     val createdBy: String,
     val lastEditedBy: String?,
     val contributorsJson: String = "[]", // JSON encoded contributors list
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis() / 1000,
     val updatedAt: Long? = null,
     val publishedAt: Long? = null,
     val archivedAt: Long? = null
@@ -125,7 +125,7 @@ data class WikiCategoryEntity(
     val order: Int = 0,
     val pageCount: Int = 0,
     val createdBy: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis() / 1000,
     val updatedAt: Long? = null
 )
 
@@ -152,7 +152,7 @@ data class PageRevisionEntity(
     val editedBy: String,
     val editType: EditType = EditType.EDIT,
     val revertedFrom: Int?,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis() / 1000
 )
 
 /**

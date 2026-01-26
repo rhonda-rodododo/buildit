@@ -137,7 +137,7 @@ data class ProposalEntity(
     val anonymousVoting: Boolean = false,
     val allowDelegation: Boolean = false,
     val createdBy: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis() / 1000,
     val updatedAt: Long? = null,
     val tagsJson: String = "[]" // JSON encoded tags list
 ) {
@@ -157,24 +157,24 @@ data class ProposalEntity(
 
     val canVote: Boolean
         get() {
-            val now = System.currentTimeMillis()
+            val nowSeconds = System.currentTimeMillis() / 1000
             return status == ProposalStatus.VOTING &&
-                    now >= votingStartsAt &&
-                    now <= votingEndsAt
+                    nowSeconds >= votingStartsAt &&
+                    nowSeconds <= votingEndsAt
         }
 
     val isInDiscussion: Boolean
         get() {
-            val now = System.currentTimeMillis()
+            val nowSeconds = System.currentTimeMillis() / 1000
             return status == ProposalStatus.DISCUSSION &&
                     discussionStartsAt != null &&
                     discussionEndsAt != null &&
-                    now >= discussionStartsAt &&
-                    now <= discussionEndsAt
+                    nowSeconds >= discussionStartsAt &&
+                    nowSeconds <= discussionEndsAt
         }
 
     val remainingTimeMs: Long
-        get() = maxOf(0, votingEndsAt - System.currentTimeMillis())
+        get() = maxOf(0, (votingEndsAt * 1000) - System.currentTimeMillis())
 }
 
 /**
@@ -198,7 +198,7 @@ data class VoteEntity(
     val weight: Double = 1.0,
     val delegatedFromJson: String? = null, // JSON encoded delegator IDs
     val comment: String? = null,
-    val castAt: Long = System.currentTimeMillis()
+    val castAt: Long = System.currentTimeMillis() / 1000
 ) {
     val choice: List<String>
         get() = try {
@@ -236,10 +236,10 @@ data class DelegationEntity(
     val scope: DelegationScope,
     val categoryTagsJson: String? = null, // JSON encoded tags
     val proposalId: String? = null,
-    val validFrom: Long = System.currentTimeMillis(),
+    val validFrom: Long = System.currentTimeMillis() / 1000,
     val validUntil: Long? = null,
     val revoked: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis() / 1000
 ) {
     val categoryTags: List<String>?
         get() = categoryTagsJson?.let {
@@ -253,9 +253,9 @@ data class DelegationEntity(
     val isActive: Boolean
         get() {
             if (revoked) return false
-            val now = System.currentTimeMillis()
-            if (now < validFrom) return false
-            if (validUntil != null && now > validUntil) return false
+            val nowSeconds = System.currentTimeMillis() / 1000
+            if (nowSeconds < validFrom) return false
+            if (validUntil != null && nowSeconds > validUntil) return false
             return true
         }
 }
@@ -282,7 +282,7 @@ data class ProposalResultEntity(
     val participation: Double,
     val quorumMet: Boolean,
     val thresholdMet: Boolean,
-    val calculatedAt: Long = System.currentTimeMillis()
+    val calculatedAt: Long = System.currentTimeMillis() / 1000
 ) {
     val winningOptions: List<String>
         get() = try {

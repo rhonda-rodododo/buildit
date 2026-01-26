@@ -143,8 +143,8 @@ data class AidOfferEntity(
     val isActive: Boolean
         get() {
             if (status != "active") return false
-            val now = System.currentTimeMillis()
-            availableUntil?.let { if (it < now) return false }
+            val nowSeconds = System.currentTimeMillis() / 1000
+            availableUntil?.let { if (it < nowSeconds) return false }
             return true
         }
 
