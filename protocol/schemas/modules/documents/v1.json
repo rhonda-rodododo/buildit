@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/documents/v1.json",
+  "title": "DocumentsModule",
+  "description": "Schema for BuildIt Documents module - collaborative documents and knowledge base",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Document": {
+      "type": "object",
+      "description": "A document with content and metadata",
+      "required": ["id", "title", "content", "type", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version that created this content",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique document identifier"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Document title"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 1048576,
+          "description": "Document content (format depends on type)"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["markdown", "plain_text", "rich_text"],
+          "description": "Document content type"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Optional summary or excerpt"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group",
+          "description": "Who can view this document"
+        },
+        "editPermission": {
+          "type": "string",
+          "enum": ["owner", "editors", "group", "public"],
+          "default": "owner",
+          "description": "Who can edit this document"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Associated group ID"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent document for hierarchical organization"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 64 },
+          "maxItems": 20,
+          "description": "Document tags for categorization"
+        },
+        "attachments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Attachment" },
+          "maxItems": 50
+        },
+        "editors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "description": "Pubkeys of users with edit permission"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Document revision version"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator's public key (hex)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix seconds)"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Last update timestamp (Unix seconds)"
+        },
+        "updatedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Last editor's public key"
+        }
+      }
+    },
+
+    "DocumentRevision": {
+      "type": "object",
+      "description": "A revision history entry for a document",
+      "required": ["documentId", "version", "content", "editedBy", "editedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "documentId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 1048576
+        },
+        "changeNote": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Description of changes in this revision"
+        },
+        "editedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "editedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Attachment": {
+      "type": "object",
+      "required": ["type", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["image", "file", "link"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "description": "File size in bytes"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "document": {
+      "kind": 40011,
+      "description": "BuildIt document creation/update",
+      "contentSchema": { "$ref": "#/$defs/Document" },
+      "requiredTags": ["d", "module"]
+    },
+    "revision": {
+      "kind": 40012,
+      "description": "Document revision entry",
+      "contentSchema": { "$ref": "#/$defs/DocumentRevision" },
+      "requiredTags": ["e", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_document",
+      "description": "Document with only required fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Getting Started",
+        "content": "# Welcome\n\nThis is a getting started guide.",
+        "type": "markdown",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "full_document",
+      "description": "Document with all fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Team Guidelines",
+        "content": "# Team Guidelines\n\nOur team follows these principles...",
+        "type": "markdown",
+        "summary": "Guidelines for team collaboration",
+        "visibility": "group",
+        "editPermission": "editors",
+        "groupId": "group-123",
+        "tags": ["guidelines", "team", "onboarding"],
+        "editors": ["fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"],
+        "version": 3,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706000000,
+        "updatedAt": 1706200000,
+        "updatedBy": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+      }
+    }
+  ]
+}

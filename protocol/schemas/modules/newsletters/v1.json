@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/newsletters/v1.json",
+  "title": "NewslettersModule",
+  "description": "Schema for BuildIt Newsletters module - email campaigns and subscriber management",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Newsletter": {
+      "type": "object",
+      "description": "A newsletter/mailing list configuration",
+      "required": ["id", "name", "ownerPubkey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "fromName": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Sender display name"
+        },
+        "replyTo": {
+          "type": "string",
+          "format": "email"
+        },
+        "logo": {
+          "type": "string",
+          "format": "uri"
+        },
+        "subscriberCount": {
+          "type": "integer",
+          "default": 0
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group"
+        },
+        "doubleOptIn": {
+          "type": "boolean",
+          "default": true,
+          "description": "Require email confirmation for subscriptions"
+        },
+        "ownerPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "editors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Campaign": {
+      "type": "object",
+      "description": "An email campaign/issue",
+      "required": ["id", "newsletterId", "subject", "content", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "newsletterId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "subject": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "preheader": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Preview text shown in email clients"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 1048576,
+          "description": "Email content (HTML or markdown)"
+        },
+        "contentType": {
+          "type": "string",
+          "enum": ["html", "markdown"],
+          "default": "markdown"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "scheduled", "sending", "sent", "failed"],
+          "default": "draft"
+        },
+        "scheduledAt": {
+          "type": "integer",
+          "description": "Scheduled send time"
+        },
+        "sentAt": {
+          "type": "integer",
+          "description": "Actual send time"
+        },
+        "recipientCount": {
+          "type": "integer",
+          "description": "Number of recipients"
+        },
+        "openCount": {
+          "type": "integer",
+          "default": 0
+        },
+        "clickCount": {
+          "type": "integer",
+          "default": 0
+        },
+        "segments": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Subscriber segments to send to"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Subscriber": {
+      "type": "object",
+      "description": "A newsletter subscriber",
+      "required": ["id", "newsletterId", "email", "status", "subscribedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "newsletterId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "BuildIt user pubkey if linked"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "active", "unsubscribed", "bounced", "complained"],
+          "default": "pending"
+        },
+        "segments": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Segments this subscriber belongs to"
+        },
+        "customFields": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "How subscriber was acquired"
+        },
+        "subscribedAt": {
+          "type": "integer"
+        },
+        "confirmedAt": {
+          "type": "integer"
+        },
+        "unsubscribedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Template": {
+      "type": "object",
+      "description": "An email template",
+      "required": ["id", "name", "content", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "newsletterId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 524288
+        },
+        "contentType": {
+          "type": "string",
+          "enum": ["html", "markdown"],
+          "default": "markdown"
+        },
+        "thumbnail": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "newsletter": {
+      "kind": 40081,
+      "description": "BuildIt newsletter configuration",
+      "contentSchema": { "$ref": "#/$defs/Newsletter" },
+      "requiredTags": ["d", "module"]
+    },
+    "campaign": {
+      "kind": 40082,
+      "description": "Newsletter campaign/issue",
+      "contentSchema": { "$ref": "#/$defs/Campaign" },
+      "requiredTags": ["e", "module"]
+    },
+    "subscriber": {
+      "kind": 40083,
+      "description": "Newsletter subscriber (encrypted)",
+      "contentSchema": { "$ref": "#/$defs/Subscriber" },
+      "requiredTags": ["e", "module"]
+    },
+    "template": {
+      "kind": 40084,
+      "description": "Email template",
+      "contentSchema": { "$ref": "#/$defs/Template" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "basic_newsletter",
+      "description": "Basic newsletter configuration",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Weekly Updates",
+        "description": "Weekly updates from our community",
+        "fromName": "Community Collective",
+        "doubleOptIn": true,
+        "ownerPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "draft_campaign",
+      "description": "Draft email campaign",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "newsletterId": "550e8400-e29b-41d4-a716-446655440000",
+        "subject": "January Update",
+        "preheader": "See what's new this month",
+        "content": "# January Update\n\nHello everyone!\n\n## Highlights\n\n- New feature launch\n- Upcoming events\n- Community spotlight",
+        "contentType": "markdown",
+        "status": "draft",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ]
+}

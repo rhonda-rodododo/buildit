@@ -7,7 +7,7 @@
 
   "properties": {
     "registryVersion": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "updatedAt": {
       "type": "string",
@@ -69,6 +69,78 @@
       "dependencies": [],
       "schemaPath": "wiki/v1.json",
       "coreDependency": false
+    },
+    "documents": {
+      "name": "Documents",
+      "description": "Collaborative documents and knowledge base",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "documents/v1.json",
+      "coreDependency": false
+    },
+    "files": {
+      "name": "Files",
+      "description": "File storage and sharing",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "files/v1.json",
+      "coreDependency": false
+    },
+    "forms": {
+      "name": "Forms",
+      "description": "Surveys, polls, and data collection",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "forms/v1.json",
+      "coreDependency": false
+    },
+    "crm": {
+      "name": "CRM",
+      "description": "Contact and relationship management for organizing",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "crm/v1.json",
+      "coreDependency": false
+    },
+    "database": {
+      "name": "Database",
+      "description": "Custom structured data tables",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["custom-fields"],
+      "schemaPath": "database/v1.json",
+      "coreDependency": false
+    },
+    "fundraising": {
+      "name": "Fundraising",
+      "description": "Campaigns, donations, and financial tracking",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "fundraising/v1.json",
+      "coreDependency": false
+    },
+    "publishing": {
+      "name": "Publishing",
+      "description": "Blogs, articles, and long-form content",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "publishing/v1.json",
+      "coreDependency": false
+    },
+    "newsletters": {
+      "name": "Newsletters",
+      "description": "Email campaigns and subscriber management",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["crm"],
+      "schemaPath": "newsletters/v1.json",
+      "coreDependency": false
     }
   },
 
@@ -78,5 +150,20 @@
     "supportWindow": "6 months",
     "coreMessagingSupport": "indefinite",
     "breakingChangeNotice": "30 days minimum"
+  },
+
+  "nostrEventKindRanges": {
+    "events": "40001-40009",
+    "documents": "40011-40019",
+    "files": "40021-40029",
+    "forms": "40031-40039",
+    "crm": "40041-40049",
+    "database": "40051-40059",
+    "fundraising": "40061-40069",
+    "publishing": "40071-40079",
+    "newsletters": "40081-40089",
+    "governance": "40091-40099",
+    "mutual-aid": "40101-40109",
+    "wiki": "40111-40119"
   }
 }

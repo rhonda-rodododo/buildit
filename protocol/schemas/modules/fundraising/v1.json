@@ -1,0 +1,321 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/fundraising/v1.json",
+  "title": "FundraisingModule",
+  "description": "Schema for BuildIt Fundraising module - campaigns, donations, and financial tracking",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Campaign": {
+      "type": "object",
+      "description": "A fundraising campaign",
+      "required": ["id", "title", "goal", "currency", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "goal": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Target amount to raise"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        },
+        "raised": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "Amount raised so far"
+        },
+        "donorCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "startsAt": {
+          "type": "integer",
+          "description": "Campaign start timestamp"
+        },
+        "endsAt": {
+          "type": "integer",
+          "description": "Campaign end timestamp"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "paused", "completed", "cancelled"],
+          "default": "draft"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Campaign cover image"
+        },
+        "tiers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DonationTier" },
+          "description": "Suggested donation amounts"
+        },
+        "updates": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CampaignUpdate" }
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "DonationTier": {
+      "type": "object",
+      "required": ["amount"],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "perks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "CampaignUpdate": {
+      "type": "object",
+      "required": ["content", "postedAt"],
+      "properties": {
+        "content": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "postedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Donation": {
+      "type": "object",
+      "description": "A donation to a campaign",
+      "required": ["id", "campaignId", "amount", "currency", "donatedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "campaignId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "donorPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Donor pubkey (null if anonymous)"
+        },
+        "donorName": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Display name for donation"
+        },
+        "anonymous": {
+          "type": "boolean",
+          "default": false
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional message with donation"
+        },
+        "tierId": {
+          "type": "string",
+          "description": "Selected donation tier"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["card", "bank", "crypto", "cash", "check", "other"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "completed", "failed", "refunded"],
+          "default": "completed"
+        },
+        "donatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Expense": {
+      "type": "object",
+      "description": "An expense against campaign funds",
+      "required": ["id", "campaignId", "amount", "currency", "description", "recordedBy", "recordedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "campaignId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "receipt": {
+          "type": "string",
+          "format": "uri",
+          "description": "Receipt file URL"
+        },
+        "vendor": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "date": {
+          "type": "integer",
+          "description": "Expense date"
+        },
+        "recordedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "recordedAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "campaign": {
+      "kind": 40061,
+      "description": "BuildIt fundraising campaign",
+      "contentSchema": { "$ref": "#/$defs/Campaign" },
+      "requiredTags": ["d", "module"]
+    },
+    "donation": {
+      "kind": 40062,
+      "description": "Donation to campaign",
+      "contentSchema": { "$ref": "#/$defs/Donation" },
+      "requiredTags": ["e", "module"]
+    },
+    "expense": {
+      "kind": 40063,
+      "description": "Campaign expense",
+      "contentSchema": { "$ref": "#/$defs/Expense" },
+      "requiredTags": ["e", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "simple_campaign",
+      "description": "Basic fundraising campaign",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Community Garden Project",
+        "description": "Help us build a community garden!",
+        "goal": 5000,
+        "currency": "USD",
+        "status": "active",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "donation_with_message",
+      "description": "Donation with message",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "campaignId": "550e8400-e29b-41d4-a716-446655440000",
+        "amount": 50,
+        "currency": "USD",
+        "donorName": "Alice",
+        "message": "Great cause, happy to support!",
+        "paymentMethod": "card",
+        "status": "completed",
+        "donatedAt": 1706200000
+      }
+    }
+  ]
+}

@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/crm/v1.json",
+  "title": "CRMModule",
+  "description": "Schema for BuildIt CRM module - contact and relationship management for organizing",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Contact": {
+      "type": "object",
+      "description": "A contact entry in the CRM",
+      "required": ["id", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Nostr pubkey if contact is a BuildIt user"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "address": {
+          "$ref": "#/$defs/Address"
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Job title or role"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 64 },
+          "maxItems": 50,
+          "description": "Tags for categorization (e.g., 'volunteer', 'donor')"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "How this contact was acquired"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "customFields": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Custom field values"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "archived"],
+          "default": "active"
+        },
+        "lastContactedAt": {
+          "type": "integer",
+          "description": "Last interaction timestamp"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Address": {
+      "type": "object",
+      "properties": {
+        "street": { "type": "string", "maxLength": 256 },
+        "city": { "type": "string", "maxLength": 128 },
+        "state": { "type": "string", "maxLength": 64 },
+        "postalCode": { "type": "string", "maxLength": 32 },
+        "country": { "type": "string", "maxLength": 64 }
+      }
+    },
+
+    "Interaction": {
+      "type": "object",
+      "description": "A logged interaction with a contact",
+      "required": ["id", "contactId", "type", "occurredAt", "loggedBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "contactId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["call", "email", "meeting", "text", "event", "note", "other"]
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "outcome": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Result of the interaction"
+        },
+        "followUpDate": {
+          "type": "integer",
+          "description": "Scheduled follow-up timestamp"
+        },
+        "occurredAt": {
+          "type": "integer"
+        },
+        "loggedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+
+    "Task": {
+      "type": "object",
+      "description": "A task related to a contact",
+      "required": ["id", "title", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "contactId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "dueAt": {
+          "type": "integer"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "urgent"],
+          "default": "medium"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed", "cancelled"],
+          "default": "pending"
+        },
+        "assignedTo": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "completedAt": {
+          "type": "integer"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "contact": {
+      "kind": 40041,
+      "description": "BuildIt CRM contact",
+      "contentSchema": { "$ref": "#/$defs/Contact" },
+      "requiredTags": ["d", "module"]
+    },
+    "interaction": {
+      "kind": 40042,
+      "description": "CRM interaction log",
+      "contentSchema": { "$ref": "#/$defs/Interaction" },
+      "requiredTags": ["e", "module"]
+    },
+    "task": {
+      "kind": 40043,
+      "description": "CRM task",
+      "contentSchema": { "$ref": "#/$defs/Task" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_contact",
+      "description": "Contact with only required fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "full_contact",
+      "description": "Contact with all common fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Jane Smith",
+        "email": "jane@example.org",
+        "phone": "+1-555-123-4567",
+        "organization": "Community Coalition",
+        "title": "Volunteer Coordinator",
+        "tags": ["volunteer", "leadership", "outreach"],
+        "source": "Event sign-up",
+        "notes": "Very engaged, interested in helping with events",
+        "status": "active",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ]
+}

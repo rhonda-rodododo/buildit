@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/publishing/v1.json",
+  "title": "PublishingModule",
+  "description": "Schema for BuildIt Publishing module - blogs, articles, and long-form content",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Article": {
+      "type": "object",
+      "description": "A published article or blog post",
+      "required": ["id", "title", "content", "authorPubkey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "slug": {
+          "type": "string",
+          "maxLength": 256,
+          "pattern": "^[a-z0-9-]+$",
+          "description": "URL-friendly identifier"
+        },
+        "subtitle": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 1048576,
+          "description": "Article content (markdown)"
+        },
+        "excerpt": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Short preview text"
+        },
+        "coverImage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 64 },
+          "maxItems": 10
+        },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 64 },
+          "maxItems": 5
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "published", "archived"],
+          "default": "draft"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "public"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "integer",
+          "description": "Publication timestamp"
+        },
+        "authorPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "authorName": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "coauthors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "readingTime": {
+          "type": "integer",
+          "description": "Estimated reading time in minutes"
+        },
+        "viewCount": {
+          "type": "integer",
+          "default": 0
+        },
+        "canonicalUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Original URL if cross-posted"
+        },
+        "seo": {
+          "$ref": "#/$defs/SEOMetadata"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "SEOMetadata": {
+      "type": "object",
+      "properties": {
+        "metaTitle": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "metaDescription": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "ogImage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 10
+        }
+      }
+    },
+
+    "Comment": {
+      "type": "object",
+      "description": "A comment on an article",
+      "required": ["id", "articleId", "content", "authorPubkey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "articleId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent comment ID for replies"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "authorPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "authorName": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Publication": {
+      "type": "object",
+      "description": "A publication or blog collection",
+      "required": ["id", "name", "ownerPubkey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "logo": {
+          "type": "string",
+          "format": "uri"
+        },
+        "coverImage": {
+          "type": "string",
+          "format": "uri"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "public"
+        },
+        "editors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "ownerPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "article": {
+      "kind": 40071,
+      "description": "BuildIt article/blog post",
+      "contentSchema": { "$ref": "#/$defs/Article" },
+      "requiredTags": ["d", "module"]
+    },
+    "comment": {
+      "kind": 40072,
+      "description": "Article comment",
+      "contentSchema": { "$ref": "#/$defs/Comment" },
+      "requiredTags": ["e", "module"]
+    },
+    "publication": {
+      "kind": 40073,
+      "description": "Publication definition",
+      "contentSchema": { "$ref": "#/$defs/Publication" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "draft_article",
+      "description": "Draft article",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Getting Started with Organizing",
+        "content": "# Getting Started\n\nThis guide covers the basics...",
+        "status": "draft",
+        "authorPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "published_article",
+      "description": "Published article with full metadata",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Community Organizing 101",
+        "slug": "community-organizing-101",
+        "subtitle": "A beginner's guide to effective organizing",
+        "content": "# Community Organizing 101\n\n## Introduction\n\nCommunity organizing is...",
+        "excerpt": "Learn the fundamentals of effective community organizing.",
+        "tags": ["organizing", "community", "activism"],
+        "status": "published",
+        "visibility": "public",
+        "publishedAt": 1706200000,
+        "authorPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "authorName": "Community Voice",
+        "readingTime": 8,
+        "seo": {
+          "metaTitle": "Community Organizing 101 - BuildIt",
+          "metaDescription": "Learn the fundamentals of effective community organizing with this comprehensive guide."
+        },
+        "createdAt": 1706112000
+      }
+    }
+  ]
+}

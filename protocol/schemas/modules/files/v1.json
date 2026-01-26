@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/files/v1.json",
+  "title": "FilesModule",
+  "description": "Schema for BuildIt Files module - file storage and sharing",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "File": {
+      "type": "object",
+      "description": "A shared file with metadata",
+      "required": ["id", "name", "url", "mimeType", "size", "uploadedBy", "uploadedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique file identifier"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "File name with extension"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "File URL (may be encrypted)"
+        },
+        "mimeType": {
+          "type": "string",
+          "description": "MIME type of the file"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "File size in bytes"
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 hash of file content"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Optional file description"
+        },
+        "folderId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent folder ID"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Associated group ID"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group"
+        },
+        "encrypted": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether file content is encrypted"
+        },
+        "encryptionKeyId": {
+          "type": "string",
+          "description": "Key ID used for encryption"
+        },
+        "thumbnail": {
+          "type": "string",
+          "format": "uri",
+          "description": "Thumbnail URL for images/videos"
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "integer" },
+            "height": { "type": "integer" }
+          },
+          "description": "Dimensions for image/video files"
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration in seconds for audio/video"
+        },
+        "uploadedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Uploader's public key"
+        },
+        "uploadedAt": {
+          "type": "integer",
+          "description": "Upload timestamp (Unix seconds)"
+        }
+      }
+    },
+
+    "Folder": {
+      "type": "object",
+      "description": "A folder for organizing files",
+      "required": ["id", "name", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Parent folder ID for nesting"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "Folder color for UI"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "FileShare": {
+      "type": "object",
+      "description": "File sharing permission",
+      "required": ["fileId", "sharedWith", "permission", "sharedBy", "sharedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "fileId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sharedWith": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Recipient's public key"
+        },
+        "permission": {
+          "type": "string",
+          "enum": ["view", "download", "edit"],
+          "default": "view"
+        },
+        "expiresAt": {
+          "type": "integer",
+          "description": "Share expiration timestamp"
+        },
+        "sharedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sharedAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "file": {
+      "kind": 40021,
+      "description": "BuildIt file upload notification",
+      "contentSchema": { "$ref": "#/$defs/File" },
+      "requiredTags": ["d", "module"]
+    },
+    "folder": {
+      "kind": 40022,
+      "description": "BuildIt folder creation/update",
+      "contentSchema": { "$ref": "#/$defs/Folder" },
+      "requiredTags": ["d", "module"]
+    },
+    "share": {
+      "kind": 40023,
+      "description": "File share permission",
+      "contentSchema": { "$ref": "#/$defs/FileShare" },
+      "requiredTags": ["e", "p", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_file",
+      "description": "File with only required fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "document.pdf",
+        "url": "https://files.buildit.network/abc123",
+        "mimeType": "application/pdf",
+        "size": 102400,
+        "uploadedBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "uploadedAt": 1706112000
+      }
+    },
+    {
+      "name": "image_file",
+      "description": "Image file with dimensions and thumbnail",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "photo.jpg",
+        "url": "https://files.buildit.network/def456",
+        "mimeType": "image/jpeg",
+        "size": 2048576,
+        "hash": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+        "thumbnail": "https://files.buildit.network/def456/thumb",
+        "dimensions": { "width": 1920, "height": 1080 },
+        "encrypted": true,
+        "uploadedBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "uploadedAt": 1706112000
+      }
+    }
+  ]
+}

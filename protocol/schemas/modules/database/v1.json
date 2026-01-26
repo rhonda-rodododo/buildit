@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/database/v1.json",
+  "title": "DatabaseModule",
+  "description": "Schema for BuildIt Database module - custom structured data tables",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Table": {
+      "type": "object",
+      "description": "A custom database table definition",
+      "required": ["id", "name", "columns", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Table name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Column" },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group"
+        },
+        "editPermission": {
+          "type": "string",
+          "enum": ["owner", "editors", "group"],
+          "default": "group"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Column": {
+      "type": "object",
+      "description": "A column definition in a table",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "number", "boolean", "date", "datetime", "select", "multiselect", "user", "file", "url", "email", "phone", "currency", "percent", "formula"]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "unique": {
+          "type": "boolean",
+          "default": false
+        },
+        "defaultValue": {},
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string" },
+              "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+            }
+          },
+          "description": "Options for select/multiselect columns"
+        },
+        "formula": {
+          "type": "string",
+          "description": "Formula expression for formula columns"
+        },
+        "width": {
+          "type": "integer",
+          "description": "Display width in pixels"
+        }
+      }
+    },
+
+    "Row": {
+      "type": "object",
+      "description": "A row of data in a table",
+      "required": ["id", "tableId", "data", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tableId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Column ID to value mapping"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        },
+        "updatedBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+
+    "View": {
+      "type": "object",
+      "description": "A saved view configuration for a table",
+      "required": ["id", "tableId", "name", "type", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tableId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "type": {
+          "type": "string",
+          "enum": ["table", "grid", "kanban", "calendar", "gallery", "list"],
+          "default": "table"
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Filter" }
+        },
+        "sorts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Sort" }
+        },
+        "hiddenColumns": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "groupBy": {
+          "type": "string",
+          "description": "Column ID to group by"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Filter": {
+      "type": "object",
+      "required": ["columnId", "operator"],
+      "properties": {
+        "columnId": { "type": "string" },
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "not_equals", "contains", "not_contains", "greater", "less", "greater_or_equal", "less_or_equal", "is_empty", "is_not_empty"]
+        },
+        "value": {}
+      }
+    },
+
+    "Sort": {
+      "type": "object",
+      "required": ["columnId", "direction"],
+      "properties": {
+        "columnId": { "type": "string" },
+        "direction": {
+          "type": "string",
+          "enum": ["asc", "desc"]
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "table": {
+      "kind": 40051,
+      "description": "BuildIt database table definition",
+      "contentSchema": { "$ref": "#/$defs/Table" },
+      "requiredTags": ["d", "module"]
+    },
+    "row": {
+      "kind": 40052,
+      "description": "Database table row",
+      "contentSchema": { "$ref": "#/$defs/Row" },
+      "requiredTags": ["e", "module"]
+    },
+    "view": {
+      "kind": 40053,
+      "description": "Database table view",
+      "contentSchema": { "$ref": "#/$defs/View" },
+      "requiredTags": ["e", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "simple_table",
+      "description": "Basic table with a few columns",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Volunteers",
+        "columns": [
+          { "id": "name", "name": "Name", "type": "text", "required": true },
+          { "id": "email", "name": "Email", "type": "email" },
+          { "id": "status", "name": "Status", "type": "select", "options": [
+            { "value": "active", "label": "Active", "color": "#22c55e" },
+            { "value": "inactive", "label": "Inactive", "color": "#ef4444" }
+          ]}
+        ],
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "row_data",
+      "description": "Row with data values",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "tableId": "550e8400-e29b-41d4-a716-446655440000",
+        "data": {
+          "name": "Alice Johnson",
+          "email": "alice@example.org",
+          "status": "active"
+        },
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ]
+}

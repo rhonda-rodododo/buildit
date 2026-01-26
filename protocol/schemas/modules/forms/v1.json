@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/forms/v1.json",
+  "title": "FormsModule",
+  "description": "Schema for BuildIt Forms module - surveys, polls, and data collection",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Form": {
+      "type": "object",
+      "description": "A form with questions and settings",
+      "required": ["id", "title", "fields", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FormField" },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["private", "group", "public"],
+          "default": "group"
+        },
+        "anonymous": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether responses are anonymous"
+        },
+        "allowMultiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple submissions per user"
+        },
+        "opensAt": {
+          "type": "integer",
+          "description": "When form opens for submissions"
+        },
+        "closesAt": {
+          "type": "integer",
+          "description": "When form closes for submissions"
+        },
+        "maxResponses": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of responses"
+        },
+        "confirmationMessage": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Message shown after submission"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "FormField": {
+      "type": "object",
+      "description": "A single form field/question",
+      "required": ["id", "type", "label"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "textarea", "number", "email", "phone", "url", "date", "time", "datetime", "select", "multiselect", "radio", "checkbox", "file", "rating", "scale"]
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "placeholder": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          },
+          "description": "Options for select/radio/checkbox fields"
+        },
+        "validation": {
+          "$ref": "#/$defs/FieldValidation"
+        },
+        "conditional": {
+          "$ref": "#/$defs/ConditionalLogic"
+        }
+      }
+    },
+
+    "FieldValidation": {
+      "type": "object",
+      "description": "Validation rules for a field",
+      "properties": {
+        "minLength": { "type": "integer" },
+        "maxLength": { "type": "integer" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "pattern": { "type": "string" },
+        "customError": { "type": "string" }
+      }
+    },
+
+    "ConditionalLogic": {
+      "type": "object",
+      "description": "Conditional display logic",
+      "required": ["field", "operator", "value"],
+      "properties": {
+        "field": { "type": "string" },
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "not_equals", "contains", "not_contains", "greater", "less"]
+        },
+        "value": {}
+      }
+    },
+
+    "FormResponse": {
+      "type": "object",
+      "description": "A submitted form response",
+      "required": ["id", "formId", "answers", "submittedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "formId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "answers": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Field ID to answer value mapping"
+        },
+        "respondent": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Respondent pubkey (null if anonymous)"
+        },
+        "submittedAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "form": {
+      "kind": 40031,
+      "description": "BuildIt form creation/update",
+      "contentSchema": { "$ref": "#/$defs/Form" },
+      "requiredTags": ["d", "module"]
+    },
+    "response": {
+      "kind": 40032,
+      "description": "Form response submission",
+      "contentSchema": { "$ref": "#/$defs/FormResponse" },
+      "requiredTags": ["e", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "simple_poll",
+      "description": "Single question poll",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Team Lunch Poll",
+        "fields": [
+          {
+            "id": "lunch",
+            "type": "radio",
+            "label": "Where should we eat?",
+            "required": true,
+            "options": [
+              { "value": "pizza", "label": "Pizza Place" },
+              { "value": "thai", "label": "Thai Restaurant" },
+              { "value": "mexican", "label": "Mexican Grill" }
+            ]
+          }
+        ],
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "contact_form",
+      "description": "Multi-field contact form",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Contact Us",
+        "description": "Get in touch with our team",
+        "fields": [
+          { "id": "name", "type": "text", "label": "Name", "required": true },
+          { "id": "email", "type": "email", "label": "Email", "required": true },
+          { "id": "message", "type": "textarea", "label": "Message", "required": true }
+        ],
+        "anonymous": false,
+        "confirmationMessage": "Thanks for reaching out!",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ]
+}
