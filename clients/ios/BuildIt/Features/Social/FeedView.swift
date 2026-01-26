@@ -28,6 +28,8 @@ struct FeedView: View {
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }
+                    .accessibilityLabel("Create post")
+                    .accessibilityHint("Double tap to write a new post")
                 }
             }
             .refreshable {
@@ -101,6 +103,7 @@ struct PostRow: View {
                         fallbackText: post.authorName ?? post.authorPubkey,
                         size: 40
                     )
+                    .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(post.authorName ?? String(post.authorPubkey.prefix(12)) + "...")
@@ -135,6 +138,9 @@ struct PostRow: View {
                         .foregroundColor(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Reply")
+                    .accessibilityValue(post.replyCount > 0 ? "\(post.replyCount) replies" : "No replies")
+                    .frame(minWidth: 44, minHeight: 44)
 
                     // Repost button (placeholder)
                     Button {} label: {
@@ -143,6 +149,8 @@ struct PostRow: View {
                             .foregroundColor(.secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Repost")
+                    .frame(minWidth: 44, minHeight: 44)
 
                     // React button
                     Button(action: onReact) {
@@ -156,6 +164,9 @@ struct PostRow: View {
                         .foregroundColor(post.userReacted ? .red : .secondary)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(post.userReacted ? "Unlike" : "Like")
+                    .accessibilityValue(post.reactionCount > 0 ? "\(post.reactionCount) likes" : "No likes")
+                    .frame(minWidth: 44, minHeight: 44)
 
                     Spacer()
                 }
@@ -163,6 +174,22 @@ struct PostRow: View {
             .padding(.vertical, 8)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(postAccessibilityLabel)
+        .accessibilityHint("Double tap to view thread")
+    }
+
+    private var postAccessibilityLabel: String {
+        var label = "Post by \(post.authorName ?? "Unknown")"
+        label += ". \(post.content)"
+        label += ". Posted \(post.createdAt.relativeFormatted())"
+        if post.replyCount > 0 {
+            label += ". \(post.replyCount) \(post.replyCount == 1 ? "reply" : "replies")"
+        }
+        if post.reactionCount > 0 {
+            label += ". \(post.reactionCount) \(post.reactionCount == 1 ? "like" : "likes")"
+        }
+        return label
     }
 }
 

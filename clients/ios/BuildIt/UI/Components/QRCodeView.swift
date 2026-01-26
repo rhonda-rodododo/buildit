@@ -29,6 +29,8 @@ struct QRCodeView: View {
                 .scaledToFit()
                 .frame(width: size, height: size)
                 .accessibilityLabel("QR Code")
+                .accessibilityHint("Contains your public key for sharing")
+                .accessibilityAddTraits(.isImage)
         } else {
             Rectangle()
                 .fill(Color.gray.opacity(0.2))
@@ -139,6 +141,8 @@ struct IdentityQRCodeView: View {
             }
             .buttonStyle(.bordered)
             .padding(.horizontal, 40)
+            .accessibilityLabel(showCopied ? "Copied to clipboard" : "Copy public key")
+            .accessibilityHint("Double tap to copy your public key to clipboard")
 
             // Share button
             ShareLink(item: npub) {
@@ -151,6 +155,8 @@ struct IdentityQRCodeView: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.horizontal, 40)
+            .accessibilityLabel("Share public key")
+            .accessibilityHint("Double tap to share your public key with others")
         }
     }
 

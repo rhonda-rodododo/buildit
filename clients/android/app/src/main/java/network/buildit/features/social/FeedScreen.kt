@@ -62,6 +62,9 @@ import network.buildit.ui.theme.BuildItTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 
 /**
  * Social feed screen showing posts from followed contacts.
@@ -119,9 +122,12 @@ private fun FeedContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onComposeClick,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics {
+                    contentDescription = "Create new post"
+                }
             ) {
-                Icon(Icons.Default.Create, contentDescription = "Create Post")
+                Icon(Icons.Default.Create, contentDescription = null)
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -161,10 +167,25 @@ private fun PostCard(
     onReactClick: () -> Unit,
     onReplyClick: () -> Unit
 ) {
+    val accessibilityLabel = buildString {
+        append("Post by ${post.authorName ?: post.authorPubkey.take(12)}")
+        append(". ${post.content}")
+        append(". ${formatRelativeTime(post.createdAt)}")
+        if (post.replyCount > 0) {
+            append(". ${post.replyCount} ${if (post.replyCount == 1) "reply" else "replies"}")
+        }
+        if (post.reactionCount > 0) {
+            append(". ${post.reactionCount} ${if (post.reactionCount == 1) "like" else "likes"}")
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityLabel
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -239,10 +260,15 @@ private fun PostCard(
             ) {
                 // Reply button
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onReplyClick, modifier = Modifier.size(32.dp)) {
+                    IconButton(
+                        onClick = onReplyClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .semantics { contentDescription = "Reply to post. ${post.replyCount} replies" }
+                    ) {
                         Icon(
                             Icons.Default.ChatBubbleOutline,
-                            contentDescription = "Reply",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
@@ -258,10 +284,15 @@ private fun PostCard(
 
                 // Repost button (placeholder)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { /* TODO: Implement repost */ }, modifier = Modifier.size(32.dp)) {
+                    IconButton(
+                        onClick = { /* TODO: Implement repost */ },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .semantics { contentDescription = "Repost" }
+                    ) {
                         Icon(
                             Icons.Default.Repeat,
-                            contentDescription = "Repost",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
@@ -270,10 +301,18 @@ private fun PostCard(
 
                 // Like/React button
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onReactClick, modifier = Modifier.size(32.dp)) {
+                    IconButton(
+                        onClick = onReactClick,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .semantics {
+                                contentDescription = if (post.userReacted) "Unlike post" else "Like post"
+                                stateDescription = if (post.userReacted) "Liked" else "Not liked"
+                            }
+                    ) {
                         Icon(
                             if (post.userReacted) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "React",
+                            contentDescription = null,
                             tint = if (post.userReacted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )

@@ -67,6 +67,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.R
@@ -149,9 +153,12 @@ private fun ConversationListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNewChat,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics {
+                    contentDescription = "Start new conversation"
+                }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "New Chat")
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { padding ->
@@ -187,8 +194,21 @@ private fun ConversationListItem(
     item: ConversationWithPreview,
     onClick: () -> Unit
 ) {
+    val accessibilityDescription = buildString {
+        append("Conversation with ${item.displayName}")
+        if (item.conversation.unreadCount > 0) {
+            append(". ${item.conversation.unreadCount} unread ${if (item.conversation.unreadCount == 1) "message" else "messages"}")
+        }
+        item.lastMessagePreview?.let { append(". Last message: $it") }
+        item.conversation.lastMessageAt?.let { append(". ${formatRelativeTime(it)}") }
+    }
+
     ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityDescription
+            },
         colors = ListItemDefaults.colors(
             containerColor = if (item.conversation.isPinned) {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
@@ -501,7 +521,18 @@ private fun MessageInput(
 
             IconButton(
                 onClick = onSend,
-                enabled = text.isNotBlank() && !isSending
+                enabled = text.isNotBlank() && !isSending,
+                modifier = Modifier
+                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                    .semantics {
+                        contentDescription = if (isSending) {
+                            "Sending message"
+                        } else if (text.isNotBlank()) {
+                            "Send message"
+                        } else {
+                            "Send message, disabled. Enter a message first"
+                        }
+                    }
             ) {
                 if (isSending) {
                     CircularProgressIndicator(
@@ -511,7 +542,7 @@ private fun MessageInput(
                 } else {
                     Icon(
                         Icons.AutoMirrored.Filled.Send,
-                        contentDescription = stringResource(R.string.chat_send),
+                        contentDescription = null,
                         tint = if (text.isNotBlank()) {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -530,18 +561,27 @@ private fun MessageInput(
 @Composable
 private fun TransportStatusIndicator(status: TransportStatus) {
     Row(
-        modifier = Modifier.padding(end = 8.dp),
+        modifier = Modifier
+            .padding(end = 8.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = buildString {
+                    append("Connection status: ")
+                    append(if (status.bleAvailable) "Bluetooth connected" else "Bluetooth disconnected")
+                    append(", ")
+                    append(if (status.nostrAvailable) "Internet connected" else "Internet disconnected")
+                }
+            },
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
             Icons.Default.Bluetooth,
-            contentDescription = "BLE Status",
+            contentDescription = null,
             tint = if (status.bleAvailable) BuildItColors.BleConnected else BuildItColors.Offline,
             modifier = Modifier.size(20.dp)
         )
         Icon(
             Icons.Default.Cloud,
-            contentDescription = "Nostr Status",
+            contentDescription = null,
             tint = if (status.nostrAvailable) BuildItColors.Online else BuildItColors.Offline,
             modifier = Modifier.size(20.dp)
         )

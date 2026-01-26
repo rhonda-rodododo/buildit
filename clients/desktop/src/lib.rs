@@ -89,15 +89,40 @@ pub fn run() {
             commands::ble_commands::disconnect_device,
             commands::ble_commands::send_mesh_message,
             commands::ble_commands::get_ble_status,
-            // Crypto/keyring commands
+            // Crypto/keyring commands - Core
             commands::crypto_commands::store_secret,
             commands::crypto_commands::retrieve_secret,
             commands::crypto_commands::delete_secret,
             commands::crypto_commands::has_secret,
             commands::crypto_commands::generate_keypair,
+            commands::crypto_commands::get_public_key_from_private,
+            // Crypto - NIP-44 encryption
             commands::crypto_commands::encrypt_nip44,
             commands::crypto_commands::decrypt_nip44,
             commands::crypto_commands::derive_conversation_key,
+            // Crypto - Key derivation (Argon2id)
+            commands::crypto_commands::derive_master_key,
+            commands::crypto_commands::derive_database_key,
+            // Crypto - AES-256-GCM storage encryption
+            commands::crypto_commands::aes_encrypt,
+            commands::crypto_commands::aes_decrypt,
+            // Crypto - Schnorr signatures
+            commands::crypto_commands::schnorr_sign,
+            commands::crypto_commands::schnorr_verify,
+            commands::crypto_commands::compute_event_id,
+            // Crypto - Duress password system
+            commands::crypto_commands::hash_duress_password,
+            commands::crypto_commands::check_duress_password,
+            commands::crypto_commands::validate_duress_password,
+            commands::crypto_commands::generate_decoy_identity,
+            commands::crypto_commands::generate_decoy_contacts,
+            commands::crypto_commands::generate_decoy_messages,
+            commands::crypto_commands::create_duress_alert,
+            commands::crypto_commands::create_duress_alerts,
+            commands::crypto_commands::secure_destroy_key,
+            // Crypto - Utilities
+            commands::crypto_commands::generate_salt,
+            commands::crypto_commands::randomize_timestamp,
             // Storage commands
             commands::storage_commands::store_encrypted_key,
             commands::storage_commands::retrieve_encrypted_key,

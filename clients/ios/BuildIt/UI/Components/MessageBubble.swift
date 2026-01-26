@@ -33,14 +33,28 @@ struct MessageBubble: View {
                         DeliveryStatusIcon(isDelivered: message.isDelivered)
                     }
                 }
+                .accessibilityHidden(true)
             }
 
             if !isFromMe { Spacer(minLength: 40) }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(messageAccessibilityLabel)
+        .accessibilityHint("Double tap to open message options")
     }
 
     private var bubbleBackground: Color {
         isFromMe ? .blue : Color(.systemGray5)
+    }
+
+    private var messageAccessibilityLabel: String {
+        var label = isFromMe ? "You said: " : "Message: "
+        label += message.content
+        label += ". Sent at \(message.timestamp.formatted(date: .omitted, time: .shortened))"
+        if isFromMe {
+            label += message.isDelivered ? ". Delivered" : ". Pending"
+        }
+        return label
     }
 }
 
@@ -91,6 +105,7 @@ struct DeliveryStatusIcon: View {
         Image(systemName: isDelivered ? "checkmark.circle.fill" : "clock")
             .font(.caption2)
             .foregroundColor(isDelivered ? .green : .secondary)
+            .accessibilityLabel(isDelivered ? "Delivered" : "Pending")
     }
 }
 

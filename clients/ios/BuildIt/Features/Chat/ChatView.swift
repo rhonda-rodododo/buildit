@@ -30,6 +30,8 @@ struct ChatView: View {
                     } label: {
                         Image(systemName: "square.and.pencil")
                     }
+                    .accessibilityLabel("New message")
+                    .accessibilityHint("Double tap to start a new conversation")
                 }
             }
             .sheet(isPresented: $showNewChat) {
@@ -94,6 +96,7 @@ struct ConversationRow: View {
                 fallbackText: conversation.participantName ?? "?",
                 size: 50
             )
+            .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -129,11 +132,34 @@ struct ConversationRow: View {
                             .padding(.vertical, 2)
                             .background(Color.blue)
                             .clipShape(Capsule())
+                            .accessibilityHidden(true)
                     }
                 }
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(conversationAccessibilityLabel)
+        .accessibilityHint("Double tap to open conversation")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var conversationAccessibilityLabel: String {
+        var label = "Conversation with \(conversation.participantName ?? "Unknown")"
+
+        if conversation.unreadCount > 0 {
+            label += ". \(conversation.unreadCount) unread \(conversation.unreadCount == 1 ? "message" : "messages")"
+        }
+
+        if let lastMessage = conversation.lastMessage {
+            let truncated = lastMessage.content.count > 50
+                ? String(lastMessage.content.prefix(50)) + "..."
+                : lastMessage.content
+            label += ". Last message: \(truncated)"
+            label += ". \(lastMessage.timestamp.formatted(.relative(presentation: .named)))"
+        }
+
+        return label
     }
 }
 
@@ -270,6 +296,9 @@ struct ConversationView: View {
                         .foregroundColor(messageText.isEmpty ? .gray : .blue)
                 }
                 .disabled(messageText.isEmpty)
+                .accessibilityLabel("Send message")
+                .accessibilityHint(messageText.isEmpty ? "Enter a message first" : "Double tap to send")
+                .frame(minWidth: 44, minHeight: 44)
             }
             .padding()
             .background(Color(.systemBackground))
@@ -354,6 +383,9 @@ struct AttachmentButton: View {
                 .font(.title2)
                 .foregroundColor(.blue)
         }
+        .accessibilityLabel("Attach file")
+        .accessibilityHint("Double tap to choose photo, video, or document")
+        .frame(minWidth: 44, minHeight: 44)
         .photosPicker(
             isPresented: $showPhotoPicker,
             selection: .constant([]),

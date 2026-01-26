@@ -176,6 +176,12 @@ dependencies {
     // Image Loading
     implementation(libs.coil.compose)
 
+    // Glance (Compose-based Widgets)
+    implementation(libs.bundles.glance)
+
+    // WorkManager
+    implementation(libs.bundles.workmanager)
+
     // CameraX for QR scanning
     implementation(libs.bundles.camerax)
     implementation(libs.mlkit.barcode)

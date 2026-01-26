@@ -111,6 +111,8 @@ struct DeviceSyncView: View {
                     } label: {
                         Image(systemName: "plus.circle")
                     }
+                    .accessibilityLabel("Add device")
+                    .accessibilityHint("Double tap to link another device")
                 }
             }
             .sheet(isPresented: $showAddDevice) {
@@ -138,6 +140,7 @@ struct CurrentDeviceRow: View {
             Image(systemName: "iphone")
                 .font(.largeTitle)
                 .foregroundColor(.blue)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.currentDeviceName)
@@ -153,7 +156,10 @@ struct CurrentDeviceRow: View {
             Circle()
                 .fill(Color.green)
                 .frame(width: 12, height: 12)
+                .accessibilityHidden(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("This device: \(viewModel.currentDeviceName), Active")
     }
 }
 
@@ -168,6 +174,7 @@ struct SyncedDeviceRow: View {
                 .font(.title2)
                 .foregroundColor(.blue)
                 .frame(width: 40)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(device.name)
@@ -177,6 +184,7 @@ struct SyncedDeviceRow: View {
                     Circle()
                         .fill(device.isOnline ? Color.green : Color.gray)
                         .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
 
                     Text(device.isOnline ? "Online" : "Offline")
                         .font(.caption)
@@ -194,8 +202,12 @@ struct SyncedDeviceRow: View {
 
             if device.isSyncing {
                 ProgressView()
+                    .accessibilityLabel("Syncing")
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(syncedDeviceAccessibilityLabel)
+        .accessibilityHint("Long press for options")
         .contextMenu {
             Button {
                 viewModel.syncDevice(device)
@@ -210,6 +222,18 @@ struct SyncedDeviceRow: View {
             }
         }
     }
+
+    private var syncedDeviceAccessibilityLabel: String {
+        var label = "\(device.name), \(device.type.rawValue)"
+        label += device.isOnline ? ", Online" : ", Offline"
+        if let lastSeen = device.lastSeen {
+            label += ", last seen \(lastSeen.formatted(.relative(presentation: .named)))"
+        }
+        if device.isSyncing {
+            label += ", Currently syncing"
+        }
+        return label
+    }
 }
 
 /// Nearby device row
@@ -223,6 +247,7 @@ struct NearbyDeviceRow: View {
                 .font(.title2)
                 .foregroundColor(.orange)
                 .frame(width: 40)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(device.name)
@@ -239,7 +264,10 @@ struct NearbyDeviceRow: View {
                 onPair()
             }
             .buttonStyle(.bordered)
+            .accessibilityLabel("Pair with \(device.name)")
+            .accessibilityHint("Double tap to start pairing")
         }
+        .accessibilityElement(children: .combine)
     }
 }
 

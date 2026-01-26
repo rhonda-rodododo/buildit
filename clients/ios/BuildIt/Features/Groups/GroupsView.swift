@@ -28,6 +28,8 @@ struct GroupsView: View {
                     } label: {
                         Image(systemName: "plus.circle")
                     }
+                    .accessibilityLabel("Create group")
+                    .accessibilityHint("Double tap to create a new group chat")
                 }
             }
             .sheet(isPresented: $showCreateGroup) {
@@ -94,6 +96,7 @@ struct GroupRow: View {
                     Image(systemName: "person.3.fill")
                         .foregroundColor(.purple)
                 }
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -107,6 +110,7 @@ struct GroupRow: View {
                         Image(systemName: "lock.fill")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -116,6 +120,10 @@ struct GroupRow: View {
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(group.name), \(group.isPrivate ? "private" : "public") group with \(group.memberPublicKeys.count) members")
+        .accessibilityHint("Double tap to open group chat")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -259,6 +267,9 @@ struct GroupChatView: View {
                         .foregroundColor(messageText.isEmpty ? .gray : .blue)
                 }
                 .disabled(messageText.isEmpty)
+                .accessibilityLabel("Send message")
+                .accessibilityHint(messageText.isEmpty ? "Enter a message first" : "Double tap to send to group")
+                .frame(minWidth: 44, minHeight: 44)
             }
             .padding()
             .background(Color(.systemBackground))
@@ -272,6 +283,8 @@ struct GroupChatView: View {
                 } label: {
                     Image(systemName: "info.circle")
                 }
+                .accessibilityLabel("Group info")
+                .accessibilityHint("Double tap to view group details and members")
             }
         }
         .sheet(isPresented: $showGroupInfo) {

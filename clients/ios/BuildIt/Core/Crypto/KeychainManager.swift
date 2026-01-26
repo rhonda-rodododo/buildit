@@ -22,6 +22,14 @@ struct KeychainConfiguration {
         requiresBiometrics: true,
         useSecureEnclave: true
     )
+
+    /// Configuration for shared keychain access with Share Extension
+    static let shared = KeychainConfiguration(
+        serviceName: "com.buildit.keys",
+        accessGroup: "com.buildit.shared.keychain",
+        requiresBiometrics: true,
+        useSecureEnclave: true
+    )
 }
 
 /// Keychain item types
@@ -38,6 +46,9 @@ class KeychainManager {
     // MARK: - Singleton
 
     static let shared = KeychainManager()
+
+    /// Shared instance with App Group keychain access for extensions
+    static let sharedWithExtensions = KeychainManager(configuration: .shared)
 
     // MARK: - Properties
 
@@ -70,7 +81,7 @@ class KeychainManager {
 
     // MARK: - Initialization
 
-    private init(configuration: KeychainConfiguration = .default) {
+    init(configuration: KeychainConfiguration = .default) {
         self.configuration = configuration
     }
 
@@ -370,6 +381,86 @@ class KeychainManager {
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError.deleteFailed(status)
         }
+    }
+
+    // MARK: - Shared Keychain for Extensions
+
+    /// Copy the private key to the shared keychain for extension access
+    /// Note: The shared key uses less strict access control for extension compatibility
+    func syncPrivateKeyToSharedKeychain() async throws {
+        // Load from current keychain
+        let privateKey = try await loadPrivateKey()
+
+        // Save to shared keychain
+        let sharedManager = KeychainManager.sharedWithExtensions
+        try await sharedManager.savePrivateKeyForSharing(privateKey)
+
+        logger.info("Synced private key to shared keychain")
+    }
+
+    /// Save private key with access control suitable for sharing with extensions
+    func savePrivateKeyForSharing(_ privateKey: Data) async throws {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: configuration.serviceName,
+            kSecAttrAccount as String: KeychainItemType.privateKey.rawValue
+        ]
+
+        if let accessGroup = configuration.accessGroup {
+            query[kSecAttrAccessGroup as String] = accessGroup
+        }
+
+        // Delete any existing key first
+        SecItemDelete(query as CFDictionary)
+
+        // Use less restrictive access control for sharing
+        // Extensions can't use biometrics in the same way
+        guard let accessControl = SecAccessControlCreateWithFlags(
+            kCFAllocatorDefault,
+            kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+            [],
+            nil
+        ) else {
+            throw KeychainError.accessControlCreationFailed
+        }
+
+        // Prepare attributes for the new key
+        var attributes = query
+        attributes[kSecValueData as String] = privateKey
+        attributes[kSecAttrAccessControl as String] = accessControl
+
+        // Add the key
+        let status = SecItemAdd(attributes as CFDictionary, nil)
+
+        guard status == errSecSuccess else {
+            logger.error("Failed to save private key to shared keychain: \(status)")
+            throw KeychainError.saveFailed(status)
+        }
+    }
+
+    /// Load private key from shared keychain (for extensions)
+    func loadPrivateKeyFromSharedKeychain() async throws -> Data {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: configuration.serviceName,
+            kSecAttrAccount as String: KeychainItemType.privateKey.rawValue,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        if let accessGroup = configuration.accessGroup {
+            query[kSecAttrAccessGroup as String] = accessGroup
+        }
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess,
+              let data = result as? Data else {
+            throw KeychainError.loadFailed(status)
+        }
+
+        return data
     }
 
     // MARK: - Private Methods

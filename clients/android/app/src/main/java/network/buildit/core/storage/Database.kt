@@ -66,9 +66,24 @@ import javax.inject.Singleton
         network.buildit.modules.wiki.data.local.PageRevisionEntity::class,
         network.buildit.modules.contacts.data.local.ContactNoteEntity::class,
         network.buildit.modules.contacts.data.local.ContactTagEntity::class,
-        network.buildit.modules.contacts.data.local.ContactTagAssignmentEntity::class
+        network.buildit.modules.contacts.data.local.ContactTagAssignmentEntity::class,
+        network.buildit.modules.fundraising.data.local.CampaignEntity::class,
+        network.buildit.modules.fundraising.data.local.DonationEntity::class,
+        network.buildit.modules.fundraising.data.local.ExpenseEntity::class,
+        network.buildit.core.sync.QueuedOperationEntity::class,
+        network.buildit.modules.newsletters.data.local.NewsletterEntity::class,
+        network.buildit.modules.newsletters.data.local.CampaignEntity::class,
+        network.buildit.modules.newsletters.data.local.SubscriberEntity::class,
+        network.buildit.modules.newsletters.data.local.TemplateEntity::class,
+        network.buildit.modules.newsletters.data.local.DeliveryProgressEntity::class,
+        network.buildit.modules.publishing.data.local.ArticleEntity::class,
+        network.buildit.modules.publishing.data.local.CommentEntity::class,
+        network.buildit.modules.publishing.data.local.PublicationEntity::class,
+        network.buildit.modules.publishing.data.local.SubscriberEntity::class,
+        network.buildit.modules.forms.data.local.FormEntity::class,
+        network.buildit.modules.forms.data.local.FormResponseEntity::class
     ],
-    version = 9,
+    version = 14,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -98,6 +113,25 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun contactNotesDao(): network.buildit.modules.contacts.data.local.ContactNotesDao
     abstract fun contactTagsDao(): network.buildit.modules.contacts.data.local.ContactTagsDao
     abstract fun contactTagAssignmentsDao(): network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao
+    abstract fun campaignsDao(): network.buildit.modules.fundraising.data.local.CampaignsDao
+    abstract fun donationsDao(): network.buildit.modules.fundraising.data.local.DonationsDao
+    abstract fun expensesDao(): network.buildit.modules.fundraising.data.local.ExpensesDao
+    abstract fun offlineQueueDao(): network.buildit.core.sync.OfflineQueueDao
+    abstract fun newslettersDao(): network.buildit.modules.newsletters.data.local.NewslettersDao
+    abstract fun newsletterCampaignsDao(): network.buildit.modules.newsletters.data.local.CampaignsDao
+    abstract fun newsletterSubscribersDao(): network.buildit.modules.newsletters.data.local.SubscribersDao
+    abstract fun templatesDao(): network.buildit.modules.newsletters.data.local.TemplatesDao
+    abstract fun deliveryProgressDao(): network.buildit.modules.newsletters.data.local.DeliveryProgressDao
+
+    // Publishing DAOs
+    abstract fun articlesDao(): network.buildit.modules.publishing.data.local.ArticlesDao
+    abstract fun commentsDao(): network.buildit.modules.publishing.data.local.CommentsDao
+    abstract fun publicationsDao(): network.buildit.modules.publishing.data.local.PublicationsDao
+    abstract fun subscribersDao(): network.buildit.modules.publishing.data.local.SubscribersDao
+
+    // Forms DAOs
+    abstract fun formsDao(): network.buildit.modules.forms.data.local.FormsDao
+    abstract fun formResponsesDao(): network.buildit.modules.forms.data.local.FormResponsesDao
 }
 
 /**
@@ -490,6 +524,123 @@ class Converters {
     @TypeConverter
     fun toNoteCategory(value: String): network.buildit.modules.contacts.data.local.NoteCategory =
         network.buildit.modules.contacts.data.local.NoteCategory.valueOf(value)
+
+    // Fundraising converters
+    @TypeConverter
+    fun fromCampaignStatus(value: network.buildit.modules.fundraising.data.local.CampaignStatus): String = value.name
+
+    @TypeConverter
+    fun toCampaignStatus(value: String): network.buildit.modules.fundraising.data.local.CampaignStatus =
+        network.buildit.modules.fundraising.data.local.CampaignStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromCampaignVisibility(value: network.buildit.modules.fundraising.data.local.CampaignVisibility): String = value.name
+
+    @TypeConverter
+    fun toCampaignVisibility(value: String): network.buildit.modules.fundraising.data.local.CampaignVisibility =
+        network.buildit.modules.fundraising.data.local.CampaignVisibility.valueOf(value)
+
+    @TypeConverter
+    fun fromPaymentMethod(value: network.buildit.modules.fundraising.data.local.PaymentMethod): String = value.name
+
+    @TypeConverter
+    fun toPaymentMethod(value: String): network.buildit.modules.fundraising.data.local.PaymentMethod =
+        network.buildit.modules.fundraising.data.local.PaymentMethod.valueOf(value)
+
+    @TypeConverter
+    fun fromDonationStatus(value: network.buildit.modules.fundraising.data.local.DonationStatus): String = value.name
+
+    @TypeConverter
+    fun toDonationStatus(value: String): network.buildit.modules.fundraising.data.local.DonationStatus =
+        network.buildit.modules.fundraising.data.local.DonationStatus.valueOf(value)
+
+    // Sync converters
+    @TypeConverter
+    fun fromOperationType(value: network.buildit.core.sync.OperationType): String = value.name
+
+    @TypeConverter
+    fun toOperationType(value: String): network.buildit.core.sync.OperationType =
+        network.buildit.core.sync.OperationType.valueOf(value)
+
+    @TypeConverter
+    fun fromOperationStatus(value: network.buildit.core.sync.OperationStatus): String = value.name
+
+    @TypeConverter
+    fun toOperationStatus(value: String): network.buildit.core.sync.OperationStatus =
+        network.buildit.core.sync.OperationStatus.valueOf(value)
+
+    // Publishing converters
+    @TypeConverter
+    fun fromArticleStatus(value: network.buildit.modules.publishing.data.local.ArticleStatus): String = value.name
+
+    @TypeConverter
+    fun toArticleStatus(value: String): network.buildit.modules.publishing.data.local.ArticleStatus =
+        network.buildit.modules.publishing.data.local.ArticleStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromPublishingVisibility(value: network.buildit.modules.publishing.data.local.PublishingVisibility): String = value.name
+
+    @TypeConverter
+    fun toPublishingVisibility(value: String): network.buildit.modules.publishing.data.local.PublishingVisibility =
+        network.buildit.modules.publishing.data.local.PublishingVisibility.valueOf(value)
+
+    // Newsletter converters
+    @TypeConverter
+    fun fromNewsletterVisibility(value: network.buildit.modules.newsletters.data.local.NewsletterVisibility): String = value.value
+
+    @TypeConverter
+    fun toNewsletterVisibility(value: String): network.buildit.modules.newsletters.data.local.NewsletterVisibility =
+        network.buildit.modules.newsletters.data.local.NewsletterVisibility.fromValue(value)
+
+    @TypeConverter
+    fun fromNewsletterCampaignStatus(value: network.buildit.modules.newsletters.data.local.CampaignStatus): String = value.value
+
+    @TypeConverter
+    fun toNewsletterCampaignStatus(value: String): network.buildit.modules.newsletters.data.local.CampaignStatus =
+        network.buildit.modules.newsletters.data.local.CampaignStatus.fromValue(value)
+
+    @TypeConverter
+    fun fromNewsletterCampaignContentType(value: network.buildit.modules.newsletters.data.local.CampaignContentType): String = value.value
+
+    @TypeConverter
+    fun toNewsletterCampaignContentType(value: String): network.buildit.modules.newsletters.data.local.CampaignContentType =
+        network.buildit.modules.newsletters.data.local.CampaignContentType.fromValue(value)
+
+    @TypeConverter
+    fun fromSubscriberStatus(value: network.buildit.modules.newsletters.data.local.SubscriberStatus): String = value.value
+
+    @TypeConverter
+    fun toSubscriberStatus(value: String): network.buildit.modules.newsletters.data.local.SubscriberStatus =
+        network.buildit.modules.newsletters.data.local.SubscriberStatus.fromValue(value)
+
+    @TypeConverter
+    fun fromDeliveryStatus(value: network.buildit.modules.newsletters.data.local.DeliveryStatus): String = value.value
+
+    @TypeConverter
+    fun toDeliveryStatus(value: String): network.buildit.modules.newsletters.data.local.DeliveryStatus =
+        network.buildit.modules.newsletters.data.local.DeliveryStatus.fromValue(value)
+
+    // Forms converters
+    @TypeConverter
+    fun fromFormFieldType(value: network.buildit.modules.forms.data.local.FormFieldType): String = value.name
+
+    @TypeConverter
+    fun toFormFieldType(value: String): network.buildit.modules.forms.data.local.FormFieldType =
+        network.buildit.modules.forms.data.local.FormFieldType.valueOf(value)
+
+    @TypeConverter
+    fun fromFormVisibility(value: network.buildit.modules.forms.data.local.FormVisibility): String = value.name
+
+    @TypeConverter
+    fun toFormVisibility(value: String): network.buildit.modules.forms.data.local.FormVisibility =
+        network.buildit.modules.forms.data.local.FormVisibility.valueOf(value)
+
+    @TypeConverter
+    fun fromFormStatus(value: network.buildit.modules.forms.data.local.FormStatus): String = value.name
+
+    @TypeConverter
+    fun toFormStatus(value: String): network.buildit.modules.forms.data.local.FormStatus =
+        network.buildit.modules.forms.data.local.FormStatus.valueOf(value)
 }
 
 // ============== DAOs ==============
@@ -845,4 +996,14 @@ object DatabaseModule {
 
     @Provides
     fun provideContactTagAssignmentsDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao = database.contactTagAssignmentsDao()
+
+    @Provides
+    fun provideOfflineQueueDao(database: BuildItDatabase): network.buildit.core.sync.OfflineQueueDao = database.offlineQueueDao()
+
+    @Provides
+    @Singleton
+    fun provideSyncManager(
+        @ApplicationContext context: Context,
+        offlineQueueDao: network.buildit.core.sync.OfflineQueueDao
+    ): network.buildit.core.sync.SyncManager = network.buildit.core.sync.SyncManager(context, offlineQueueDao)
 }

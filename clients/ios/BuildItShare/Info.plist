@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Bundle Configuration -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key>
+    <string>BuildIt</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <!-- Extension Configuration -->
+    <key>NSExtension</key>
+    <dict>
+        <!-- Extension Point Identifier - Share Extension -->
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.share-services</string>
+
+        <!-- Extension Principal Class -->
+        <key>NSExtensionPrincipalClass</key>
+        <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+
+        <!-- Extension Attributes -->
+        <key>NSExtensionAttributes</key>
+        <dict>
+            <!-- Activation Rules - Types of content we support -->
+            <key>NSExtensionActivationRule</key>
+            <dict>
+                <!-- Support text -->
+                <key>NSExtensionActivationSupportsText</key>
+                <true/>
+
+                <!-- Support URLs (web links) -->
+                <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+                <integer>10</integer>
+
+                <!-- Support images -->
+                <key>NSExtensionActivationSupportsImageWithMaxCount</key>
+                <integer>5</integer>
+
+                <!-- Support file URLs -->
+                <key>NSExtensionActivationSupportsFileWithMaxCount</key>
+                <integer>5</integer>
+
+                <!-- Maximum number of attachments total -->
+                <key>NSExtensionActivationSupportsAttachmentsWithMaxCount</key>
+                <integer>10</integer>
+
+                <!-- Minimum attachments (at least 1 item to share) -->
+                <key>NSExtensionActivationSupportsAttachmentsWithMinCount</key>
+                <integer>1</integer>
+            </dict>
+
+            <!-- Hosted by the system as a sheet -->
+            <key>NSExtensionServiceAllowsFinderPreviewItem</key>
+            <true/>
+
+            <!-- Allow appearance in share sheet -->
+            <key>NSExtensionServiceTouchBarIconName</key>
+            <string>NSImageNameTouchBarShareTemplate</string>
+        </dict>
+    </dict>
+
+    <!-- App Group for shared data access -->
+    <key>AppGroup</key>
+    <string>group.com.buildit.shared</string>
+</dict>
+</plist>

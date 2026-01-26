@@ -53,6 +53,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.BuildConfig
@@ -220,7 +224,9 @@ private fun SettingsSection(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .semantics { heading() }
         )
 
         Card(
@@ -247,7 +253,11 @@ private fun SettingsItem(
     tint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) {
+                contentDescription = "$title. $subtitle"
+            },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         leadingContent = {
             Icon(
@@ -296,7 +306,11 @@ private fun SettingsToggleItem(
 ) {
     ListItem(
         modifier = Modifier
-            .clickable(enabled = enabled) { onCheckedChange(!checked) },
+            .clickable(enabled = enabled) { onCheckedChange(!checked) }
+            .semantics(mergeDescendants = true) {
+                contentDescription = "$title. $subtitle"
+                stateDescription = if (checked) "On" else "Off"
+            },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         leadingContent = {
             Icon(

@@ -1,12 +1,16 @@
 package network.buildit
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.os.Build
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import network.buildit.core.background.SyncWorker
 import network.buildit.core.ble.BLEManager
+import network.buildit.core.notifications.NotificationChannels
+import network.buildit.widgets.WidgetDataProvider
+import network.buildit.widgets.WidgetDataProviderLocator
+import network.buildit.widgets.WidgetUpdateWorker
 
 /**
  * BuildIt Application class.
@@ -15,64 +19,69 @@ import network.buildit.core.ble.BLEManager
  * - Initializing Hilt dependency injection
  * - Setting up notification channels
  * - Configuring app-wide services
+ * - Initializing widgets and WorkManager
+ * - Scheduling background sync
  */
 @HiltAndroidApp
-class BuildItApp : Application() {
+class BuildItApp : Application(), Configuration.Provider {
 
     @Inject
     lateinit var bleManager: BLEManager
 
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var widgetDataProvider: WidgetDataProvider
+
+    @Inject
+    lateinit var notificationChannels: NotificationChannels
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
+        initializeWidgets()
+        initializeBackgroundSync()
     }
 
     /**
-     * Creates notification channels required for the app.
-     * Channels are required for notifications on Android O (API 26) and above.
+     * Provides WorkManager configuration with Hilt worker factory.
+     */
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
+    /**
+     * Initializes widget components and schedules periodic updates.
+     */
+    private fun initializeWidgets() {
+        // Register the widget data provider for widget access
+        WidgetDataProviderLocator.setProvider(widgetDataProvider)
+
+        // Schedule periodic widget updates via WorkManager
+        WidgetUpdateWorker.schedulePeriodicUpdates(this)
+    }
+
+    /**
+     * Creates all notification channels required for the app.
+     * Uses the NotificationChannels service to create properly configured channels.
      */
     private fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationChannels.createAllChannels()
+    }
 
-            // BLE Service Channel - for the foreground service notification
-            val bleChannel = NotificationChannel(
-                CHANNEL_BLE_SERVICE,
-                "Mesh Network Service",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Shows when BuildIt is running the BLE mesh network"
-                setShowBadge(false)
-            }
-
-            // Messages Channel - for new message notifications
-            val messagesChannel = NotificationChannel(
-                CHANNEL_MESSAGES,
-                "Messages",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications for new messages"
-                enableVibration(true)
-            }
-
-            // Device Sync Channel - for device pairing notifications
-            val deviceSyncChannel = NotificationChannel(
-                CHANNEL_DEVICE_SYNC,
-                "Device Sync",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Notifications for device synchronization"
-            }
-
-            notificationManager.createNotificationChannels(
-                listOf(bleChannel, messagesChannel, deviceSyncChannel)
-            )
-        }
+    /**
+     * Initializes the background sync worker to periodically fetch new content.
+     */
+    private fun initializeBackgroundSync() {
+        SyncWorker.schedule(this)
     }
 
     companion object {
-        const val CHANNEL_BLE_SERVICE = "ble_service_channel"
-        const val CHANNEL_MESSAGES = "messages_channel"
-        const val CHANNEL_DEVICE_SYNC = "device_sync_channel"
+        // Keep these constants for backward compatibility
+        const val CHANNEL_BLE_SERVICE = NotificationChannels.CHANNEL_BLE_SERVICE
+        const val CHANNEL_MESSAGES = NotificationChannels.CHANNEL_MESSAGES
+        const val CHANNEL_DEVICE_SYNC = NotificationChannels.CHANNEL_DEVICE_SYNC
     }
 }

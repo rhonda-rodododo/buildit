@@ -63,10 +63,13 @@ struct SettingsView: View {
                 // Security Section
                 Section {
                     Toggle("Require Biometrics", isOn: $viewModel.requireBiometrics)
+                        .accessibilityHint("When enabled, Face ID or Touch ID is required to access the app")
 
                     Toggle("Show Notifications", isOn: $viewModel.showNotifications)
+                        .accessibilityHint("When enabled, you will receive push notifications for new messages")
                 } header: {
                     Text("Security & Privacy")
+                        .accessibilityAddTraits(.isHeader)
                 }
 
                 // Data Section
@@ -76,8 +79,10 @@ struct SettingsView: View {
                     } label: {
                         Label("Clear All Data", systemImage: "trash")
                     }
+                    .accessibilityHint("Warning: This will permanently delete all messages and settings")
                 } header: {
                     Text("Data")
+                        .accessibilityAddTraits(.isHeader)
                 }
 
                 // About Section
@@ -123,6 +128,7 @@ struct ProfileRow: View {
                         .font(.title)
                         .foregroundColor(.blue)
                 }
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 if let npub = viewModel.npub {
@@ -149,6 +155,11 @@ struct ProfileRow: View {
                 viewModel.showCopiedToast = true
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(viewModel.npub != nil ? "Your public key" : "No identity configured")
+        .accessibilityValue(viewModel.npub != nil ? "Tap to copy" : "")
+        .accessibilityHint(viewModel.npub != nil ? "Double tap to copy your public key to clipboard" : "")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

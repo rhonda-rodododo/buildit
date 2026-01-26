@@ -52,6 +52,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.R
@@ -131,9 +134,12 @@ private fun GroupsContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateClick,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics {
+                    contentDescription = "Create new group"
+                }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Create Group")
+                Icon(Icons.Default.Add, contentDescription = null)
             }
         }
     ) { padding ->
@@ -184,10 +190,20 @@ private fun GroupCard(
     memberCount: Int,
     onClick: () -> Unit
 ) {
+    val accessibilityLabel = buildString {
+        append(group.name)
+        append(if (group.isPublic) ", public group" else ", private group")
+        append(" with $memberCount ${if (memberCount == 1) "member" else "members"}")
+        group.description?.let { append(". $it") }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityLabel
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -237,7 +253,7 @@ private fun GroupCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         imageVector = if (group.isPublic) Icons.Default.Public else Icons.Default.Lock,
-                        contentDescription = if (group.isPublic) "Public" else "Private",
+                        contentDescription = null, // Handled by parent semantics
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )

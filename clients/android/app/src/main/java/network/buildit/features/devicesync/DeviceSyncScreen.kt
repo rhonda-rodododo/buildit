@@ -59,6 +59,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.R
@@ -165,7 +169,8 @@ private fun DeviceSyncContent(
                 Text(
                     text = stringResource(R.string.device_sync_linked_devices),
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { heading() }
                 )
             }
 
@@ -236,7 +241,11 @@ private fun LinkDeviceSection(
     ) {
         Button(
             onClick = onShowQrCode,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .semantics {
+                    contentDescription = "Show QR code for device linking. Let another device scan this code to link."
+                }
         ) {
             Icon(Icons.Default.QrCode, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
@@ -245,7 +254,11 @@ private fun LinkDeviceSection(
 
         OutlinedButton(
             onClick = onScanQrCode,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .semantics {
+                    contentDescription = "Scan QR code from another device to link."
+                }
         ) {
             Icon(Icons.Default.QrCodeScanner, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
@@ -263,8 +276,19 @@ private fun LinkedDeviceCard(
     onUnlink: () -> Unit,
     onSync: () -> Unit
 ) {
+    val accessibilityLabel = buildString {
+        append("${device.name}, ${device.deviceType.name}")
+        device.lastSyncAt?.let {
+            append(". Last synced: ${formatTimestamp(it)}")
+        }
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityLabel
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -311,17 +335,27 @@ private fun LinkedDeviceCard(
             },
             trailingContent = {
                 Row {
-                    IconButton(onClick = onSync) {
+                    IconButton(
+                        onClick = onSync,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Sync ${device.name} now"
+                        }
+                    ) {
                         Icon(
                             Icons.Default.Sync,
-                            contentDescription = "Sync",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    IconButton(onClick = onUnlink) {
+                    IconButton(
+                        onClick = onUnlink,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Unlink ${device.name}"
+                        }
+                    ) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Unlink",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.error
                         )
                     }

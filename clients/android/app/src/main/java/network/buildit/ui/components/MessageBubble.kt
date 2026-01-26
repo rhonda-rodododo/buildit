@@ -37,6 +37,8 @@ import network.buildit.ui.theme.BuildItTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 /**
  * Message bubble component for displaying chat messages.
@@ -58,6 +60,21 @@ fun MessageBubble(
     replyToContent: String? = null,
     modifier: Modifier = Modifier
 ) {
+    val accessibilityDescription = buildString {
+        if (isSent) {
+            append("You said: ")
+        } else if (senderName != null) {
+            append("$senderName said: ")
+        } else {
+            append("Message: ")
+        }
+        append(content)
+        append(". Sent at ${formatTimestamp(timestamp)}")
+        if (isSent) {
+            append(". Status: ${status.name.lowercase().replaceFirstChar { it.uppercase() }}")
+        }
+    }
+
     val bubbleColor by animateColorAsState(
         targetValue = if (isSent) {
             MaterialTheme.colorScheme.primary
@@ -81,7 +98,11 @@ fun MessageBubble(
     )
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityDescription
+            },
         horizontalAlignment = if (isSent) Alignment.End else Alignment.Start
     ) {
         // Sender name for group chats

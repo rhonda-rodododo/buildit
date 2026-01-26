@@ -13,11 +13,15 @@ import network.buildit.core.ble.GattServer
 import network.buildit.core.ble.MeshRouter
 import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.crypto.KeystoreManager
+import network.buildit.core.notifications.NotificationChannels
+import network.buildit.core.notifications.NotificationService
 import network.buildit.core.nostr.CertificatePinStore
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.RelayPool
+import network.buildit.core.storage.BuildItDatabase
 import network.buildit.core.transport.MessageQueue
 import network.buildit.core.transport.TransportRouter
+import network.buildit.widgets.WidgetDataProvider
 import javax.inject.Singleton
 
 /**
@@ -132,5 +136,31 @@ object AppModule {
         cryptoManager: CryptoManager
     ): TransportRouter {
         return TransportRouter(bleManager, nostrClient, messageQueue, cryptoManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWidgetDataProvider(
+        @ApplicationContext context: Context,
+        database: BuildItDatabase
+    ): WidgetDataProvider {
+        return WidgetDataProvider(context, database)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationChannels(
+        @ApplicationContext context: Context
+    ): NotificationChannels {
+        return NotificationChannels(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationService(
+        @ApplicationContext context: Context,
+        notificationChannels: NotificationChannels
+    ): NotificationService {
+        return NotificationService(context, notificationChannels)
     }
 }

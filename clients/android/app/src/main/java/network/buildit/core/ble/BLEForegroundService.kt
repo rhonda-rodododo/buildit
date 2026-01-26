@@ -15,9 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import network.buildit.BuildItApp
 import network.buildit.MainActivity
 import network.buildit.R
+import network.buildit.core.notifications.NotificationChannels
 import javax.inject.Inject
 
 /**
@@ -104,7 +104,7 @@ class BLEForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, BuildItApp.CHANNEL_BLE_SERVICE)
+        return NotificationCompat.Builder(this, NotificationChannels.CHANNEL_BLE_SERVICE)
             .setContentTitle(getString(R.string.ble_service_notification_title))
             .setContentText(getString(R.string.ble_service_notification_text))
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
