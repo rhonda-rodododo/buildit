@@ -266,34 +266,34 @@ function getRendererOptions(lang: string): Record<string, string> {
 }
 
 /**
- * Convert camelCase to snake_case
- * Handles consecutive uppercase letters (e.g., targetID -> target_id)
- */
-function toSnakeCase(str: string): string {
-  return str
-    // Insert underscore before sequences of uppercase letters followed by lowercase
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    // Insert underscore before uppercase letters that follow lowercase
-    .replace(/([a-z])([A-Z])/g, '$1_$2')
-    .toLowerCase();
-}
-
-/**
- * Check if a property name needs a CodingKey (camelCase -> snake_case)
+ * Check if a Swift property name needs a CodingKey
+ * The protocol uses camelCase JSON keys (not snake_case)
+ *
+ * Only need CodingKeys when:
+ * - v -> _v (schema version special case)
+ * - Swift uppercased "ID" suffix: groupID -> groupId, targetID -> targetId
  */
 function needsCodingKey(propName: string): boolean {
-  // Special cases that need explicit mapping
-  if (propName === 'v') return true; // maps to _v
-  // Check if has uppercase letters (camelCase)
-  return /[A-Z]/.test(propName);
+  // Special case: v maps to _v
+  if (propName === 'v') return true;
+  // Swift convention converts "Id" suffix to "ID"
+  // These need CodingKeys to map back to original camelCase
+  if (propName.endsWith('ID')) return true;
+  return false;
 }
 
 /**
  * Get the JSON key for a Swift property
+ * Protocol uses camelCase JSON keys (not snake_case)
  */
 function getJsonKey(propName: string): string {
   if (propName === 'v') return '_v';
-  return toSnakeCase(propName);
+  // Swift converts "Id" to "ID", convert back: groupID -> groupId
+  if (propName.endsWith('ID')) {
+    return propName.slice(0, -2) + 'Id';
+  }
+  // Otherwise return as-is (camelCase)
+  return propName;
 }
 
 /**
