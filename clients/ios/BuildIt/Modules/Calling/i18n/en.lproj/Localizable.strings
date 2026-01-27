@@ -1,0 +1,108 @@
+/*
+  Localizable.strings
+  BuildIt - Calling Module
+
+  Push-to-Talk (PTT) translations
+*/
+
+// MARK: - PTT Channel
+
+"ptt.channel.title" = "PTT Channel";
+"ptt.channel.create" = "Create Channel";
+"ptt.channel.join" = "Join Channel";
+"ptt.channel.leave" = "Leave Channel";
+"ptt.channel.settings" = "Channel Settings";
+"ptt.channel.name" = "Channel Name";
+"ptt.channel.members" = "Members";
+"ptt.channel.online" = "Online";
+"ptt.channel.offline" = "Offline";
+"ptt.channel.totalMembers" = "%d total";
+"ptt.channel.onlineCount" = "%d online";
+"ptt.channel.encrypted" = "Encrypted";
+"ptt.channel.full" = "Channel is full";
+
+// MARK: - PTT Speaking
+
+"ptt.speak.pushToTalk" = "Push to Talk";
+"ptt.speak.speaking" = "Speaking";
+"ptt.speak.release" = "Release to stop speaking";
+"ptt.speak.noOneSpeaking" = "No one speaking";
+"ptt.speak.pressAndHold" = "Press and hold to talk";
+"ptt.speak.waitYourTurn" = "Wait for your turn";
+"ptt.speak.requestQueued" = "Request queued";
+"ptt.speak.position" = "Position %d in queue";
+"ptt.speak.timeout" = "Speaking time expired";
+
+// MARK: - PTT Queue
+
+"ptt.queue.title" = "Speaker Queue";
+"ptt.queue.empty" = "No one in queue";
+"ptt.queue.position" = "Position";
+"ptt.queue.cancel" = "Cancel Request";
+
+// MARK: - PTT Priority
+
+"ptt.priority.normal" = "Normal";
+"ptt.priority.high" = "High";
+"ptt.priority.moderator" = "Moderator";
+
+// MARK: - PTT Audio
+
+"ptt.audio.microphone" = "Microphone";
+"ptt.audio.gain" = "Microphone Gain";
+"ptt.audio.broadcasting" = "Broadcasting";
+"ptt.audio.receiving" = "Receiving";
+"ptt.audio.level" = "Audio Level";
+"ptt.audio.threshold" = "Threshold";
+
+// MARK: - PTT VAD
+
+"ptt.vad.title" = "Voice Activity Detection";
+"ptt.vad.enabled" = "Enable VAD";
+"ptt.vad.autoRelease" = "Auto-release when silent";
+"ptt.vad.threshold" = "VAD Threshold";
+"ptt.vad.silenceDetected" = "Silence detected";
+"ptt.vad.voiceDetected" = "Voice detected";
+"ptt.vad.currentLevel" = "Current Level";
+
+// MARK: - PTT Settings
+
+"ptt.settings.title" = "PTT Settings";
+"ptt.settings.audio" = "Audio";
+"ptt.settings.info" = "Info";
+"ptt.settings.microphoneAccess" = "Microphone Access";
+"ptt.settings.granted" = "Granted";
+"ptt.settings.denied" = "Denied";
+
+// MARK: - PTT Errors
+
+"ptt.error.channelNotFound" = "Channel not found";
+"ptt.error.channelFull" = "Channel is full";
+"ptt.error.alreadyInChannel" = "Already in this channel";
+"ptt.error.notInChannel" = "Not in this channel";
+"ptt.error.notSpeaking" = "Not currently speaking";
+"ptt.error.alreadySpeaking" = "Already speaking";
+"ptt.error.speakRequestPending" = "Speak request already pending";
+"ptt.error.noKeyPair" = "No key pair available";
+"ptt.error.signalingFailed" = "Failed to send signaling message";
+"ptt.error.microphoneDenied" = "Microphone access denied";
+"ptt.error.audioSessionFailed" = "Failed to configure audio session";
+"ptt.error.engineStartFailed" = "Failed to start audio engine";
+
+// MARK: - PTT Actions
+
+"ptt.action.done" = "Done";
+"ptt.action.cancel" = "Cancel";
+"ptt.action.create" = "Create";
+"ptt.action.join" = "Join";
+"ptt.action.leave" = "Leave";
+"ptt.action.settings" = "Settings";
+
+// MARK: - PTT Accessibility
+
+"ptt.accessibility.pttButton" = "Push to talk button. Press and hold to speak.";
+"ptt.accessibility.speakerIndicator" = "Current speaker indicator";
+"ptt.accessibility.queueList" = "Speaker queue list";
+"ptt.accessibility.membersList" = "Channel members list";
+"ptt.accessibility.vadToggle" = "Voice activity detection toggle";
+"ptt.accessibility.gainSlider" = "Microphone gain slider";

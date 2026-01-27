@@ -21817,6 +21817,205 @@ public enum L10n {
         }
     }
 
+    /// Ptt translations
+    public enum Ptt {
+
+        /// PTT Channel
+        public static var channel: String {
+            NSLocalizedString("ptt_channel", comment: "")
+        }
+
+        /// members
+        public static var members: String {
+            NSLocalizedString("ptt_members", comment: "")
+        }
+
+        /// Leave Channel
+        public static var leaveChannel: String {
+            NSLocalizedString("ptt_leaveChannel", comment: "")
+        }
+
+        /// Settings
+        public static var settings: String {
+            NSLocalizedString("ptt_settings", comment: "")
+        }
+
+        /// No one is speaking
+        public static var noOneSpeaking: String {
+            NSLocalizedString("ptt_noOneSpeaking", comment: "")
+        }
+
+        /// Press and hold to speak
+        public static var pressToTalk: String {
+            NSLocalizedString("ptt_pressToTalk", comment: "")
+        }
+
+        /// You are speaking
+        public static var youAreSpeaking: String {
+            NSLocalizedString("ptt_youAreSpeaking", comment: "")
+        }
+
+        /// {{count}}s remaining
+        public static func timeRemaining(_ count: Int) -> String {
+            String(format: NSLocalizedString("ptt_timeRemaining", comment: ""), count)
+        }
+
+        /// Speaker Queue
+        public static var queue: String {
+            NSLocalizedString("ptt_queue", comment: "")
+        }
+
+        /// You
+        public static var you: String {
+            NSLocalizedString("ptt_you", comment: "")
+        }
+
+        /// Cancel
+        public static var cancel: String {
+            NSLocalizedString("ptt_cancel", comment: "")
+        }
+
+        /// You are #{{position}} in queue
+        public static func queuePosition(_ position: String) -> String {
+            String(format: NSLocalizedString("ptt_queuePosition", comment: ""), position)
+        }
+
+        /// Push to Talk
+        public static var pushToTalk: String {
+            NSLocalizedString("ptt_pushToTalk", comment: "")
+        }
+
+        /// Hold to Talk
+        public static var holdToTalk: String {
+            NSLocalizedString("ptt_holdToTalk", comment: "")
+        }
+
+        /// Speaking...
+        public static var speaking: String {
+            NSLocalizedString("ptt_speaking", comment: "")
+        }
+
+        /// VAD
+        public static var vad: String {
+            NSLocalizedString("ptt_vad", comment: "")
+        }
+
+        /// Voice Activity Detection
+        public static var vadFull: String {
+            NSLocalizedString("ptt_vadFull", comment: "")
+        }
+
+        /// Auto-release when silence is detected
+        public static var vadDescription: String {
+            NSLocalizedString("ptt_vadDescription", comment: "")
+        }
+
+        /// Speaking limit: 30 seconds. Auto-releases to allow others to speak.
+        public static var timeoutInfo: String {
+            NSLocalizedString("ptt_timeoutInfo", comment: "")
+        }
+
+        /// Online ({{count}})
+        public static func online(_ count: Int) -> String {
+            String(format: NSLocalizedString("ptt_online", comment: ""), count)
+        }
+
+        /// Offline ({{count}})
+        public static func offline(_ count: Int) -> String {
+            String(format: NSLocalizedString("ptt_offline", comment: ""), count)
+        }
+
+        /// Mod
+        public static var moderator: String {
+            NSLocalizedString("ptt_moderator", comment: "")
+        }
+
+        /// Speaking
+        public static var statusSpeaking: String {
+            NSLocalizedString("ptt_statusSpeaking", comment: "")
+        }
+
+        /// Online
+        public static var statusOnline: String {
+            NSLocalizedString("ptt_statusOnline", comment: "")
+        }
+
+        /// Listening
+        public static var statusListening: String {
+            NSLocalizedString("ptt_statusListening", comment: "")
+        }
+
+        /// Offline
+        public static var statusOffline: String {
+            NSLocalizedString("ptt_statusOffline", comment: "")
+        }
+
+        /// Create PTT Channel
+        public static var createChannel: String {
+            NSLocalizedString("ptt_createChannel", comment: "")
+        }
+
+        /// Join Channel
+        public static var joinChannel: String {
+            NSLocalizedString("ptt_joinChannel", comment: "")
+        }
+
+        /// Channel Name
+        public static var channelName: String {
+            NSLocalizedString("ptt_channelName", comment: "")
+        }
+
+        /// Field Team Alpha
+        public static var channelNamePlaceholder: String {
+            NSLocalizedString("ptt_channelNamePlaceholder", comment: "")
+        }
+
+        /// Max Participants
+        public static var maxParticipants: String {
+            NSLocalizedString("ptt_maxParticipants", comment: "")
+        }
+
+        /// Create Channel
+        public static var createButton: String {
+            NSLocalizedString("ptt_createButton", comment: "")
+        }
+
+        /// Join
+        public static var joinButton: String {
+            NSLocalizedString("ptt_joinButton", comment: "")
+        }
+
+        /// Speak granted
+        public static var speakGranted: String {
+            NSLocalizedString("ptt_speakGranted", comment: "")
+        }
+
+        /// Speaking time expired
+        public static var speakTimeout: String {
+            NSLocalizedString("ptt_speakTimeout", comment: "")
+        }
+
+        /// Microphone permission is required for PTT
+        public static var errorMicPermission: String {
+            NSLocalizedString("ptt_error_micPermission", comment: "")
+        }
+
+        /// Failed to join channel
+        public static var errorJoinFailed: String {
+            NSLocalizedString("ptt_error_joinFailed", comment: "")
+        }
+
+        /// Failed to create channel
+        public static var errorCreateFailed: String {
+            NSLocalizedString("ptt_error_createFailed", comment: "")
+        }
+
+        /// Failed to request speaking
+        public static var errorSpeakFailed: String {
+            NSLocalizedString("ptt_error_speakFailed", comment: "")
+        }
+    }
+
     /// Calling translations
     public enum Calling {
 
@@ -22205,6 +22404,31 @@ public enum L10n {
             NSLocalizedString("calling_removeParticipant", comment: "")
         }
 
+        /// Grid View
+        public static var gridView: String {
+            NSLocalizedString("calling_gridView", comment: "")
+        }
+
+        /// Speaker View
+        public static var speakerView: String {
+            NSLocalizedString("calling_speakerView", comment: "")
+        }
+
+        /// Copy Link
+        public static var copyLink: String {
+            NSLocalizedString("calling_copyLink", comment: "")
+        }
+
+        /// End Call for All
+        public static var endCallForAll: String {
+            NSLocalizedString("calling_endCallForAll", comment: "")
+        }
+
+        /// Stop Screen Share
+        public static var stopScreenShare: String {
+            NSLocalizedString("calling_stopScreenShare", comment: "")
+        }
+
         /// Conference Room
         public static var conferenceRoom: String {
             NSLocalizedString("calling_conferenceRoom", comment: "")
@@ -22295,6 +22519,11 @@ public enum L10n {
             NSLocalizedString("calling_queuePosition", comment: "")
         }
 
+        /// Position {{position}} in queue
+        public static func positionInQueue(_ position: String) -> String {
+            String(format: NSLocalizedString("calling_positionInQueue", comment: ""), position)
+        }
+
         /// Estimated wait
         public static var estimatedWait: String {
             NSLocalizedString("calling_estimatedWait", comment: "")
@@ -22308,6 +22537,11 @@ public enum L10n {
         /// No calls in queue
         public static var noCallsInQueue: String {
             NSLocalizedString("calling_noCallsInQueue", comment: "")
+        }
+
+        /// No calls waiting
+        public static var noCallsWaiting: String {
+            NSLocalizedString("calling_noCallsWaiting", comment: "")
         }
 
         /// Accept Call
@@ -22378,6 +22612,416 @@ public enum L10n {
         /// Urgent
         public static var priorityUrgent: String {
             NSLocalizedString("calling_priorityUrgent", comment: "")
+        }
+
+        /// Operator Dashboard
+        public static var operatorDashboard: String {
+            NSLocalizedString("calling_operatorDashboard", comment: "")
+        }
+
+        /// Operator Status
+        public static var operatorStatus: String {
+            NSLocalizedString("calling_operatorStatus", comment: "")
+        }
+
+        /// Manage hotline calls and queue
+        public static var manageHotlineCalls: String {
+            NSLocalizedString("calling_manageHotlineCalls", comment: "")
+        }
+
+        /// No hotlines are configured for this group yet.
+        public static var noHotlinesConfigured: String {
+            NSLocalizedString("calling_noHotlinesConfigured", comment: "")
+        }
+
+        /// Select hotline
+        public static var selectHotline: String {
+            NSLocalizedString("calling_selectHotline", comment: "")
+        }
+
+        /// Start Shift
+        public static var startShift: String {
+            NSLocalizedString("calling_startShift", comment: "")
+        }
+
+        /// End Shift
+        public static var endShift: String {
+            NSLocalizedString("calling_endShift", comment: "")
+        }
+
+        /// Available
+        public static var available: String {
+            NSLocalizedString("calling_available", comment: "")
+        }
+
+        /// On Call
+        public static var onCall: String {
+            NSLocalizedString("calling_onCall", comment: "")
+        }
+
+        /// On Break
+        public static var onBreak: String {
+            NSLocalizedString("calling_onBreak", comment: "")
+        }
+
+        /// Offline
+        public static var offline: String {
+            NSLocalizedString("calling_offline", comment: "")
+        }
+
+        /// Break
+        public static var break: String {
+            NSLocalizedString("calling_break", comment: "")
+        }
+
+        /// Short Break
+        public static var shortBreak: String {
+            NSLocalizedString("calling_shortBreak", comment: "")
+        }
+
+        /// Meal Break
+        public static var mealBreak: String {
+            NSLocalizedString("calling_mealBreak", comment: "")
+        }
+
+        /// Personal Break
+        public static var personalBreak: String {
+            NSLocalizedString("calling_personalBreak", comment: "")
+        }
+
+        /// End Break
+        public static var endBreak: String {
+            NSLocalizedString("calling_endBreak", comment: "")
+        }
+
+        /// Break time remaining
+        public static var breakTimeRemaining: String {
+            NSLocalizedString("calling_breakTimeRemaining", comment: "")
+        }
+
+        /// Calls
+        public static var callsHandled: String {
+            NSLocalizedString("calling_callsHandled", comment: "")
+        }
+
+        /// Avg
+        public static var avgDuration: String {
+            NSLocalizedString("calling_avgDuration", comment: "")
+        }
+
+        /// Shortcuts
+        public static var shortcuts: String {
+            NSLocalizedString("calling_shortcuts", comment: "")
+        }
+
+        /// In Queue
+        public static var inQueue: String {
+            NSLocalizedString("calling_inQueue", comment: "")
+        }
+
+        /// Active
+        public static var activeCalls: String {
+            NSLocalizedString("calling_activeCalls", comment: "")
+        }
+
+        /// Avg Wait
+        public static var avgWait: String {
+            NSLocalizedString("calling_avgWait", comment: "")
+        }
+
+        /// Queue Preview
+        public static var queuePreview: String {
+            NSLocalizedString("calling_queuePreview", comment: "")
+        }
+
+        /// View all ({{count}})
+        public static func viewAll(_ count: Int) -> String {
+            String(format: NSLocalizedString("calling_viewAll", comment: ""), count)
+        }
+
+        /// Dispatch
+        public static var dispatch: String {
+            NSLocalizedString("calling_dispatch", comment: "")
+        }
+
+        /// Dispatch integration coming soon
+        public static var dispatchComingSoon: String {
+            NSLocalizedString("calling_dispatchComingSoon", comment: "")
+        }
+
+        /// Stats
+        public static var stats: String {
+            NSLocalizedString("calling_stats", comment: "")
+        }
+
+        /// Total in Queue
+        public static var totalInQueue: String {
+            NSLocalizedString("calling_totalInQueue", comment: "")
+        }
+
+        /// Available Operators
+        public static var availableOperators: String {
+            NSLocalizedString("calling_availableOperators", comment: "")
+        }
+
+        /// Avg Wait Time
+        public static var avgWaitTime: String {
+            NSLocalizedString("calling_avgWaitTime", comment: "")
+        }
+
+        /// Longest Wait
+        public static var longestWait: String {
+            NSLocalizedString("calling_longestWait", comment: "")
+        }
+
+        /// By Priority
+        public static var byPriority: String {
+            NSLocalizedString("calling_byPriority", comment: "")
+        }
+
+        /// Urgent
+        public static var urgent: String {
+            NSLocalizedString("calling_urgent", comment: "")
+        }
+
+        /// High
+        public static var high: String {
+            NSLocalizedString("calling_high", comment: "")
+        }
+
+        /// Medium
+        public static var medium: String {
+            NSLocalizedString("calling_medium", comment: "")
+        }
+
+        /// Low
+        public static var low: String {
+            NSLocalizedString("calling_low", comment: "")
+        }
+
+        /// Transfer
+        public static var transfer: String {
+            NSLocalizedString("calling_transfer", comment: "")
+        }
+
+        /// End
+        public static var end: String {
+            NSLocalizedString("calling_end", comment: "")
+        }
+
+        /// Phone Call
+        public static var phoneCall: String {
+            NSLocalizedString("calling_phoneCall", comment: "")
+        }
+
+        /// BuildIt Call
+        public static var buildItCall: String {
+            NSLocalizedString("calling_buildItCall", comment: "")
+        }
+
+        /// Transfer to
+        public static var transferTo: String {
+            NSLocalizedString("calling_transferTo", comment: "")
+        }
+
+        /// Select operator
+        public static var selectOperator: String {
+            NSLocalizedString("calling_selectOperator", comment: "")
+        }
+
+        /// Reason (optional)
+        public static var transferReason: String {
+            NSLocalizedString("calling_transferReason", comment: "")
+        }
+
+        /// Why are you transferring this call?
+        public static var transferReasonPlaceholder: String {
+            NSLocalizedString("calling_transferReasonPlaceholder", comment: "")
+        }
+
+        /// Transfer this call to another available operator.
+        public static var transferCallDescription: String {
+            NSLocalizedString("calling_transferCallDescription", comment: "")
+        }
+
+        /// Cancel
+        public static var cancel: String {
+            NSLocalizedString("calling_cancel", comment: "")
+        }
+
+        /// End Call
+        public static var endCall: String {
+            NSLocalizedString("calling_endCall", comment: "")
+        }
+
+        /// End the call and save a summary.
+        public static var endCallDescription: String {
+            NSLocalizedString("calling_endCallDescription", comment: "")
+        }
+
+        /// Call Summary
+        public static var callSummary: String {
+            NSLocalizedString("calling_callSummary", comment: "")
+        }
+
+        /// Summarize the call outcome...
+        public static var callSummaryPlaceholder: String {
+            NSLocalizedString("calling_callSummaryPlaceholder", comment: "")
+        }
+
+        /// Escalate Call
+        public static var escalateCall: String {
+            NSLocalizedString("calling_escalateCall", comment: "")
+        }
+
+        /// Request supervisor assistance for this call.
+        public static var escalateCallDescription: String {
+            NSLocalizedString("calling_escalateCallDescription", comment: "")
+        }
+
+        /// Reason for escalation
+        public static var escalateReason: String {
+            NSLocalizedString("calling_escalateReason", comment: "")
+        }
+
+        /// Describe why this call needs escalation...
+        public static var escalateReasonPlaceholder: String {
+            NSLocalizedString("calling_escalateReasonPlaceholder", comment: "")
+        }
+
+        /// 3-Way
+        public static var threeWay: String {
+            NSLocalizedString("calling_threeWay", comment: "")
+        }
+
+        /// No operators available
+        public static var noOperatorsAvailable: String {
+            NSLocalizedString("calling_noOperatorsAvailable", comment: "")
+        }
+
+        /// Record Call
+        public static var recordCall: String {
+            NSLocalizedString("calling_recordCall", comment: "")
+        }
+
+        /// View Caller History
+        public static var viewCallerHistory: String {
+            NSLocalizedString("calling_viewCallerHistory", comment: "")
+        }
+
+        /// Notes
+        public static var notes: String {
+            NSLocalizedString("calling_notes", comment: "")
+        }
+
+        /// Add notes about this call...
+        public static var addNotesPlaceholder: String {
+            NSLocalizedString("calling_addNotesPlaceholder", comment: "")
+        }
+
+        /// Select category
+        public static var selectCategory: String {
+            NSLocalizedString("calling_selectCategory", comment: "")
+        }
+
+        /// Select priority
+        public static var selectPriority: String {
+            NSLocalizedString("calling_selectPriority", comment: "")
+        }
+
+        /// Save
+        public static var save: String {
+            NSLocalizedString("calling_save", comment: "")
+        }
+
+        /// Saved
+        public static var saved: String {
+            NSLocalizedString("calling_saved", comment: "")
+        }
+
+        /// Auto-saved at
+        public static var autoSaved: String {
+            NSLocalizedString("calling_autoSaved", comment: "")
+        }
+
+        /// Notes are auto-saved after 5 seconds of no typing.
+        public static var autoSaveHint: String {
+            NSLocalizedString("calling_autoSaveHint", comment: "")
+        }
+
+        /// Queued at
+        public static var queuedAt: String {
+            NSLocalizedString("calling_queuedAt", comment: "")
+        }
+
+        /// Answered at
+        public static var answeredAt: String {
+            NSLocalizedString("calling_answeredAt", comment: "")
+        }
+
+        /// Wait time
+        public static var waitTime: String {
+            NSLocalizedString("calling_waitTime", comment: "")
+        }
+
+        /// Waiting {{time}}
+        public static func waitingTime(_ time: String) -> String {
+            String(format: NSLocalizedString("calling_waitingTime", comment: ""), time)
+        }
+
+        /// Unknown Caller
+        public static var unknownCaller: String {
+            NSLocalizedString("calling_unknownCaller", comment: "")
+        }
+
+        /// min
+        public static var minutes: String {
+            NSLocalizedString("calling_minutes", comment: "")
+        }
+
+        /// No active calls
+        public static var noActiveCalls: String {
+            NSLocalizedString("calling_noActiveCalls", comment: "")
+        }
+
+        /// Calling Hotline
+        public static var callingHotline: String {
+            NSLocalizedString("calling_callingHotline", comment: "")
+        }
+
+        /// Less than a minute
+        public static var lessThanMinute: String {
+            NSLocalizedString("calling_lessThanMinute", comment: "")
+        }
+
+        /// About {{minutes}} minutes
+        public static func aboutMinutes(_ minutes: String) -> String {
+            String(format: NSLocalizedString("calling_aboutMinutes", comment: ""), minutes)
+        }
+
+        /// You have been waiting
+        public static var youHaveBeenWaiting: String {
+            NSLocalizedString("calling_youHaveBeenWaiting", comment: "")
+        }
+
+        /// Leave Queue
+        public static var leaveQueue: String {
+            NSLocalizedString("calling_leaveQueue", comment: "")
+        }
+
+        /// Please stay on the line. An operator will be with you shortly.
+        public static var queueInfoText: String {
+            NSLocalizedString("calling_queueInfoText", comment: "")
+        }
+
+        /// Please wait...
+        public static var pleaseWait: String {
+            NSLocalizedString("calling_pleaseWait", comment: "")
+        }
+
+        /// Speaking with
+        public static var speakingWith: String {
+            NSLocalizedString("calling_speakingWith", comment: "")
         }
 
         /// Messaging Hotline
@@ -22558,6 +23202,381 @@ public enum L10n {
         /// Replied
         public static var replied: String {
             NSLocalizedString("calling_replied", comment: "")
+        }
+
+        /// Search threads...
+        public static var searchThreads: String {
+            NSLocalizedString("calling_searchThreads", comment: "")
+        }
+
+        /// All
+        public static var all: String {
+            NSLocalizedString("calling_all", comment: "")
+        }
+
+        /// My Threads
+        public static var myThreads: String {
+            NSLocalizedString("calling_myThreads", comment: "")
+        }
+
+        /// No threads found
+        public static var noThreads: String {
+            NSLocalizedString("calling_noThreads", comment: "")
+        }
+
+        /// Claim Thread
+        public static var claimThread: String {
+            NSLocalizedString("calling_claimThread", comment: "")
+        }
+
+        /// Type a message...
+        public static var typeMessage: String {
+            NSLocalizedString("calling_typeMessage", comment: "")
+        }
+
+        /// Templates
+        public static var templates: String {
+            NSLocalizedString("calling_templates", comment: "")
+        }
+
+        /// Select a thread to start messaging
+        public static var selectThreadToStart: String {
+            NSLocalizedString("calling_selectThreadToStart", comment: "")
+        }
+
+        /// Resolve Thread
+        public static var resolveThread: String {
+            NSLocalizedString("calling_resolveThread", comment: "")
+        }
+
+        /// Mark this thread as resolved and add a summary.
+        public static var resolveThreadDescription: String {
+            NSLocalizedString("calling_resolveThreadDescription", comment: "")
+        }
+
+        /// Resolution summary (optional)
+        public static var resolutionSummary: String {
+            NSLocalizedString("calling_resolutionSummary", comment: "")
+        }
+
+        /// Transfer Thread
+        public static var transferThread: String {
+            NSLocalizedString("calling_transferThread", comment: "")
+        }
+
+        /// Transfer this thread to another operator.
+        public static var transferThreadDescription: String {
+            NSLocalizedString("calling_transferThreadDescription", comment: "")
+        }
+
+        /// Operator pubkey
+        public static var operatorPubkey: String {
+            NSLocalizedString("calling_operatorPubkey", comment: "")
+        }
+
+        /// Reason for transfer (optional)
+        public static var transferReasonOptional: String {
+            NSLocalizedString("calling_transferReasonOptional", comment: "")
+        }
+
+        /// Escalate to Voice Call
+        public static var escalateToVoice: String {
+            NSLocalizedString("calling_escalateToVoice", comment: "")
+        }
+
+        /// Just now
+        public static var justNow: String {
+            NSLocalizedString("calling_justNow", comment: "")
+        }
+
+        /// new
+        public static var unread: String {
+            NSLocalizedString("calling_unread", comment: "")
+        }
+
+        /// Send a message to multiple recipients at once.
+        public static var broadcastDescription: String {
+            NSLocalizedString("calling_broadcastDescription", comment: "")
+        }
+
+        /// Enter broadcast title...
+        public static var broadcastTitlePlaceholder: String {
+            NSLocalizedString("calling_broadcastTitlePlaceholder", comment: "")
+        }
+
+        /// Target Type
+        public static var targetType: String {
+            NSLocalizedString("calling_targetType", comment: "")
+        }
+
+        /// Select Target
+        public static var selectTarget: String {
+            NSLocalizedString("calling_selectTarget", comment: "")
+        }
+
+        /// Choose a group or contact list
+        public static var selectTargetPlaceholder: String {
+            NSLocalizedString("calling_selectTargetPlaceholder", comment: "")
+        }
+
+        /// members
+        public static var members: String {
+            NSLocalizedString("calling_members", comment: "")
+        }
+
+        /// contacts
+        public static var contacts: String {
+            NSLocalizedString("calling_contacts", comment: "")
+        }
+
+        /// Estimated recipients
+        public static var estimatedRecipients: String {
+            NSLocalizedString("calling_estimatedRecipients", comment: "")
+        }
+
+        /// Message Content
+        public static var messageContent: String {
+            NSLocalizedString("calling_messageContent", comment: "")
+        }
+
+        /// Write your broadcast message...
+        public static var broadcastContentPlaceholder: String {
+            NSLocalizedString("calling_broadcastContentPlaceholder", comment: "")
+        }
+
+        /// characters
+        public static var characters: String {
+            NSLocalizedString("calling_characters", comment: "")
+        }
+
+        /// Delivery Channels
+        public static var deliveryChannels: String {
+            NSLocalizedString("calling_deliveryChannels", comment: "")
+        }
+
+        /// Save Draft
+        public static var saveDraft: String {
+            NSLocalizedString("calling_saveDraft", comment: "")
+        }
+
+        /// Schedule
+        public static var schedule: String {
+            NSLocalizedString("calling_schedule", comment: "")
+        }
+
+        /// Time
+        public static var time: String {
+            NSLocalizedString("calling_time", comment: "")
+        }
+
+        /// Confirm Schedule
+        public static var confirmSchedule: String {
+            NSLocalizedString("calling_confirmSchedule", comment: "")
+        }
+
+        /// Send Now
+        public static var sendNow: String {
+            NSLocalizedString("calling_sendNow", comment: "")
+        }
+
+        /// This will send an emergency broadcast that bypasses Do Not Disturb settings.
+        public static var emergencyBroadcastWarning: String {
+            NSLocalizedString("calling_emergencyBroadcastWarning", comment: "")
+        }
+
+        /// Emergency broadcasts
+        public static var emergencyBroadcastDetails: String {
+            NSLocalizedString("calling_emergencyBroadcastDetails", comment: "")
+        }
+
+        /// Bypass all Do Not Disturb settings
+        public static var bypassesDND: String {
+            NSLocalizedString("calling_bypassesDND", comment: "")
+        }
+
+        /// Immediate priority delivery
+        public static var immediateDelivery: String {
+            NSLocalizedString("calling_immediateDelivery", comment: "")
+        }
+
+        /// Sent via all available channels
+        public static var allChannels: String {
+            NSLocalizedString("calling_allChannels", comment: "")
+        }
+
+        /// Confirm & Send Emergency Broadcast
+        public static var confirmEmergency: String {
+            NSLocalizedString("calling_confirmEmergency", comment: "")
+        }
+
+        /// Total
+        public static var total: String {
+            NSLocalizedString("calling_total", comment: "")
+        }
+
+        /// Push to Talk
+        public static var pushToTalk: String {
+            NSLocalizedString("calling_pushToTalk", comment: "")
+        }
+
+        /// PTT Channel
+        public static var pttChannel: String {
+            NSLocalizedString("calling_pttChannel", comment: "")
+        }
+
+        /// Hold to Speak
+        public static var holdToSpeak: String {
+            NSLocalizedString("calling_holdToSpeak", comment: "")
+        }
+
+        /// Release to Stop
+        public static var releaseToStop: String {
+            NSLocalizedString("calling_releaseToStop", comment: "")
+        }
+
+        /// Speaking Now
+        public static var speakingNow: String {
+            NSLocalizedString("calling_speakingNow", comment: "")
+        }
+
+        /// Waiting to Speak
+        public static var waitingToSpeak: String {
+            NSLocalizedString("calling_waitingToSpeak", comment: "")
+        }
+
+        /// Queued ({{position}})
+        public static func queuedToSpeak(_ position: String) -> String {
+            String(format: NSLocalizedString("calling_queuedToSpeak", comment: ""), position)
+        }
+
+        /// Channel Busy
+        public static var channelBusy: String {
+            NSLocalizedString("calling_channelBusy", comment: "")
+        }
+
+        /// Initializing audio...
+        public static var pttInitializing: String {
+            NSLocalizedString("calling_ptt_initializing", comment: "")
+        }
+
+        /// Join the push-to-talk channel to communicate with your team in real-time.
+        public static var pttJoinPrompt: String {
+            NSLocalizedString("calling_ptt_joinPrompt", comment: "")
+        }
+
+        /// Join Channel
+        public static var pttJoinChannel: String {
+            NSLocalizedString("calling_ptt_joinChannel", comment: "")
+        }
+
+        /// Leave Channel
+        public static var pttLeaveChannel: String {
+            NSLocalizedString("calling_ptt_leaveChannel", comment: "")
+        }
+
+        /// members online
+        public static var pttMembersOnline: String {
+            NSLocalizedString("calling_ptt_membersOnline", comment: "")
+        }
+
+        /// Show Members
+        public static var pttShowMembers: String {
+            NSLocalizedString("calling_ptt_showMembers", comment: "")
+        }
+
+        /// Settings
+        public static var pttSettings: String {
+            NSLocalizedString("calling_ptt_settings", comment: "")
+        }
+
+        /// Currently speaking:
+        public static var pttCurrentlySpeaking: String {
+            NSLocalizedString("calling_ptt_currentlySpeaking", comment: "")
+        }
+
+        /// Speaking
+        public static var pttSpeaking: String {
+            NSLocalizedString("calling_ptt_speaking", comment: "")
+        }
+
+        /// Queue position {{position}}
+        public static func pttInQueue(_ position: String) -> String {
+            String(format: NSLocalizedString("calling_ptt_inQueue", comment: ""), position)
+        }
+
+        /// Hold to Speak
+        public static var pttHoldToSpeak: String {
+            NSLocalizedString("calling_ptt_holdToSpeak", comment: "")
+        }
+
+        /// (or hold Spacebar)
+        public static var pttSpacebarHint: String {
+            NSLocalizedString("calling_ptt_spacebarHint", comment: "")
+        }
+
+        /// Queue: {{count}} waiting
+        public static func pttQueue(_ count: Int) -> String {
+            String(format: NSLocalizedString("calling_ptt_queue", comment: ""), count)
+        }
+
+        /// more
+        public static var pttMore: String {
+            NSLocalizedString("calling_ptt_more", comment: "")
+        }
+
+        /// Auto-release
+        public static var pttVad: String {
+            NSLocalizedString("calling_ptt_vad", comment: "")
+        }
+
+        /// Automatically release when you stop talking
+        public static var pttVadTooltip: String {
+            NSLocalizedString("calling_ptt_vadTooltip", comment: "")
+        }
+
+        /// Voice Activity Detection
+        public static var pttVadLabel: String {
+            NSLocalizedString("calling_ptt_vadLabel", comment: "")
+        }
+
+        /// Auto-release when silence detected
+        public static var pttVadDescription: String {
+            NSLocalizedString("calling_ptt_vadDescription", comment: "")
+        }
+
+        /// Channel Members
+        public static var pttMembers: String {
+            NSLocalizedString("calling_ptt_members", comment: "")
+        }
+
+        /// Online
+        public static var pttOnline: String {
+            NSLocalizedString("calling_ptt_online", comment: "")
+        }
+
+        /// Offline
+        public static var pttOffline: String {
+            NSLocalizedString("calling_ptt_offline", comment: "")
+        }
+
+        /// Try Again
+        public static var pttTryAgain: String {
+            NSLocalizedString("calling_ptt_tryAgain", comment: "")
+        }
+
+        /// Could not access microphone. Please check your permissions.
+        public static var pttErrorsMicrophoneAccess: String {
+            NSLocalizedString("calling_ptt_errors_microphoneAccess", comment: "")
+        }
+
+        /// Failed to join channel. Please try again.
+        public static var pttErrorsJoinFailed: String {
+            NSLocalizedString("calling_ptt_errors_joinFailed", comment: "")
+        }
+
+        /// Failed to request speak. Please try again.
+        public static var pttErrorsSpeakRequestFailed: String {
+            NSLocalizedString("calling_ptt_errors_speakRequestFailed", comment: "")
         }
 
         /// Call failed

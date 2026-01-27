@@ -5204,5 +5204,48 @@
       "email": "Email Invite",
       "inviteLink": "Invite Link"
     }
+  },
+  "ptt": {
+    "channel": "PTT Channel",
+    "members": "members",
+    "leaveChannel": "Leave Channel",
+    "settings": "Settings",
+    "noOneSpeaking": "No one is speaking",
+    "pressToTalk": "Press and hold to speak",
+    "youAreSpeaking": "You are speaking",
+    "timeRemaining": "{{count}}s remaining",
+    "queue": "Speaker Queue",
+    "you": "You",
+    "cancel": "Cancel",
+    "queuePosition": "You are #{{position}} in queue",
+    "pushToTalk": "Push to Talk",
+    "holdToTalk": "Hold to Talk",
+    "speaking": "Speaking...",
+    "vad": "VAD",
+    "vadFull": "Voice Activity Detection",
+    "vadDescription": "Auto-release when silence is detected",
+    "timeoutInfo": "Speaking limit: 30 seconds. Auto-releases to allow others to speak.",
+    "online": "Online ({{count}})",
+    "offline": "Offline ({{count}})",
+    "moderator": "Mod",
+    "statusSpeaking": "Speaking",
+    "statusOnline": "Online",
+    "statusListening": "Listening",
+    "statusOffline": "Offline",
+    "createChannel": "Create PTT Channel",
+    "joinChannel": "Join Channel",
+    "channelName": "Channel Name",
+    "channelNamePlaceholder": "Field Team Alpha",
+    "maxParticipants": "Max Participants",
+    "createButton": "Create Channel",
+    "joinButton": "Join",
+    "speakGranted": "Speak granted",
+    "speakTimeout": "Speaking time expired",
+    "error": {
+      "micPermission": "Microphone permission is required for PTT",
+      "joinFailed": "Failed to join channel",
+      "createFailed": "Failed to create channel",
+      "speakFailed": "Failed to request speaking"
+    }
   }
 }
