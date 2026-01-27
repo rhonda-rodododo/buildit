@@ -229,3 +229,71 @@ export function decryptDM(
   const conversationKey = deriveConversationKey(recipientPrivateKey, senderPubkey)
   return decryptNIP44(ciphertext, conversationKey)
 }
+
+/**
+ * Derive a call-specific encryption key using HKDF
+ * Uses the NIP-44 conversation key as input key material
+ *
+ * @param localPrivkey - Local private key (hex string)
+ * @param remotePubkey - Remote public key (hex string)
+ * @param callId - Unique call identifier (used as salt)
+ * @returns 32-byte key suitable for AES-256-GCM
+ */
+export async function deriveCallKey(
+  localPrivkey: string,
+  remotePubkey: string,
+  callId: string
+): Promise<Uint8Array> {
+  // Convert hex private key to Uint8Array
+  const privkeyBytes = hexToBytes(localPrivkey);
+
+  // Get the NIP-44 conversation key as input key material
+  const conversationKey = deriveConversationKey(privkeyBytes, remotePubkey);
+
+  // Use HKDF to derive a call-specific key
+  // Import conversation key as HKDF input
+  // Note: slice() ensures we get a pure ArrayBuffer, not SharedArrayBuffer
+  const conversationKeyBuffer = conversationKey.buffer.slice(
+    conversationKey.byteOffset,
+    conversationKey.byteOffset + conversationKey.byteLength
+  ) as ArrayBuffer;
+
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    conversationKeyBuffer,
+    { name: 'HKDF' },
+    false,
+    ['deriveBits']
+  );
+
+  // Derive 256 bits (32 bytes) for AES-256-GCM
+  const salt = new TextEncoder().encode(callId);
+  const info = new TextEncoder().encode('buildit-call-e2ee-v1');
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: salt.buffer as ArrayBuffer,
+      info: info.buffer as ArrayBuffer,
+    },
+    baseKey,
+    256 // bits
+  );
+
+  return new Uint8Array(derivedBits);
+}
+
+/**
+ * Convert hex string to Uint8Array
+ */
+function hexToBytes(hex: string): Uint8Array {
+  if (hex.length % 2 !== 0) {
+    throw new Error('Invalid hex string');
+  }
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+  }
+  return bytes;
+}

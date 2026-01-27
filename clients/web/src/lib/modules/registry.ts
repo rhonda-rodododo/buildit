@@ -120,6 +120,10 @@ const MODULE_LOADERS: ModuleLoader[] = [
     load: () => import('@/modules/messaging'),
   },
   {
+    id: 'calling',
+    load: () => import('@/modules/calling'),
+  },
+  {
     id: 'events',
     load: () => import('@/modules/events'),
   },

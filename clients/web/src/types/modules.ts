@@ -10,6 +10,7 @@ export type ModuleType =
   | 'custom-fields' // Foundational module
   | 'public' // Public pages and analytics infrastructure
   | 'messaging'
+  | 'calling' // Voice/video calling module
   | 'events'
   | 'mutual-aid'
   | 'governance'
