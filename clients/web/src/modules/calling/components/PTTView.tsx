@@ -5,8 +5,36 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PTTChannelManager, pttChannelManager, PTTChannelState, PTTPriority } from '../services/pttChannelManager';
-import { PTTAudioManager, pttAudioManager } from '../services/pttAudioManager';
+import {
+  Mic,
+  MicOff,
+  Settings,
+  Users,
+  Clock,
+  Volume2,
+  Radio,
+  LogOut,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { pttChannelManager, PTTChannelState, PTTPriority } from '../services/pttChannelManager';
+import { pttAudioManager } from '../services/pttAudioManager';
 
 interface PTTViewProps {
   groupId: string;
@@ -269,7 +297,9 @@ export const PTTView: React.FC<PTTViewProps> = ({
   if (!isInitialized) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4" />
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4" role="status">
+          <span className="sr-only">{t('ptt.initializing')}</span>
+        </div>
         <p className="text-muted-foreground">{t('ptt.initializing')}</p>
       </div>
     );
@@ -278,15 +308,12 @@ export const PTTView: React.FC<PTTViewProps> = ({
   // Render error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8">
-        <div className="text-destructive text-4xl mb-4">⚠️</div>
-        <p className="text-destructive font-medium mb-2">{error}</p>
-        <button
-          onClick={() => setError(null)}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
-        >
+      <div className="flex flex-col items-center justify-center h-full p-8" role="alert">
+        <MicOff className="h-16 w-16 text-destructive mb-4" />
+        <p className="text-destructive font-medium mb-4 text-center">{error}</p>
+        <Button onClick={() => setError(null)} variant="default">
           {t('ptt.tryAgain')}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -295,250 +322,257 @@ export const PTTView: React.FC<PTTViewProps> = ({
   if (!channel) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8">
-        <div className="text-6xl mb-4">📻</div>
+        <Radio className="h-16 w-16 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold mb-2">{groupName}</h2>
-        <p className="text-muted-foreground mb-6 text-center">
+        <p className="text-muted-foreground mb-6 text-center max-w-sm">
           {t('ptt.joinPrompt')}
         </p>
-        <button
-          onClick={handleJoinChannel}
-          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-        >
+        <Button onClick={handleJoinChannel} size="lg">
+          <Radio className="mr-2 h-5 w-5" />
           {t('ptt.joinChannel')}
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div>
-          <h2 className="font-semibold">{channel.name}</h2>
-          <p className="text-sm text-muted-foreground">
-            👥 {getOnlineMembersCount()} {t('ptt.membersOnline')}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowMembers(!showMembers)}
-            className="p-2 rounded-md hover:bg-muted"
-            title={t('ptt.showMembers')}
-          >
-            👥
-          </button>
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 rounded-md hover:bg-muted"
-            title={t('ptt.settings')}
-          >
-            ⚙️
-          </button>
-          <button
-            onClick={handleLeaveChannel}
-            className="p-2 rounded-md hover:bg-muted text-destructive"
-            title={t('ptt.leaveChannel')}
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        {/* Current speaker indicator */}
-        {currentSpeaker && (
-          <div className="mb-8 text-center">
-            <p className="text-muted-foreground mb-2">{t('ptt.currentlySpeaking')}</p>
-            <div className="flex items-center gap-2 justify-center">
-              <span className="text-2xl animate-pulse">🔊</span>
-              <span className="text-xl font-semibold">
-                {currentSpeaker.name || currentSpeaker.pubkey.slice(0, 8)}
-              </span>
+    <TooltipProvider>
+      <div className="flex flex-col h-full bg-background">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-semibold truncate">{channel.name}</h2>
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{getOnlineMembersCount()} {t('ptt.membersOnline')}</span>
             </div>
-            {isSpeaking && (
-              <div className="mt-2 h-2 w-48 bg-muted rounded-full overflow-hidden mx-auto">
-                <div
-                  className="h-full bg-primary transition-all duration-100"
-                  style={{ width: `${getAudioLevelPercentage()}%` }}
-                />
-              </div>
-            )}
           </div>
-        )}
-
-        {/* PTT Button */}
-        <button
-          ref={pttButtonRef}
-          onMouseDown={handlePTTPress}
-          onMouseUp={handleRelease}
-          onMouseLeave={handleRelease}
-          onTouchStart={handlePTTPress}
-          onTouchEnd={handleRelease}
-          disabled={isRequesting || (queuePosition !== null && !isSpeaking)}
-          className={`
-            w-48 h-48 rounded-full flex flex-col items-center justify-center
-            transition-all duration-200 select-none
-            ${isSpeaking
-              ? 'bg-primary text-primary-foreground scale-105 shadow-lg shadow-primary/30'
-              : queuePosition !== null
-                ? 'bg-amber-500 text-white'
-                : 'bg-muted hover:bg-muted/80 active:scale-95'
-            }
-            ${isRequesting ? 'opacity-50 cursor-wait' : ''}
-          `}
-        >
-          <span className="text-4xl mb-2">
-            {isSpeaking ? '🎙️' : queuePosition !== null ? '⏳' : '🎤'}
-          </span>
-          <span className="font-semibold text-lg">
-            {isSpeaking
-              ? t('ptt.speaking')
-              : queuePosition !== null
-                ? t('ptt.inQueue', { position: queuePosition })
-                : t('ptt.holdToSpeak')
-            }
-          </span>
-          {!isSpeaking && !queuePosition && (
-            <span className="text-sm mt-1 opacity-70">
-              {t('ptt.spacebarHint')}
-            </span>
-          )}
-        </button>
-
-        {/* Queue display */}
-        {speakQueue.length > 0 && (
-          <div className="mt-8 w-full max-w-xs">
-            <p className="text-sm text-muted-foreground mb-2 text-center">
-              {t('ptt.queue', { count: speakQueue.length })}
-            </p>
-            <div className="space-y-2">
-              {speakQueue.slice(0, 5).map((req, index) => (
-                <div
-                  key={req.pubkey}
-                  className={`
-                    flex items-center gap-2 p-2 rounded-md bg-muted
-                    ${req.pubkey === userPubkey ? 'border border-primary' : ''}
-                  `}
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMembers(!showMembers)}
+                  aria-label={t('ptt.showMembers')}
                 >
-                  <span className="text-muted-foreground w-6">{index + 1}.</span>
-                  <span className="flex-1 truncate">
-                    {req.name || req.pubkey.slice(0, 8)}
+                  <Users className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('ptt.showMembers')}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowSettings(!showSettings)}
+                  aria-label={t('ptt.settings')}
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('ptt.settings')}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLeaveChannel}
+                  className="text-destructive hover:text-destructive"
+                  aria-label={t('ptt.leaveChannel')}
+                >
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('ptt.leaveChannel')}</TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+          {/* Current speaker indicator */}
+          {currentSpeaker && (
+            <Card className="mb-8 w-full max-w-xs">
+              <CardContent className="pt-4 text-center">
+                <p className="text-sm text-muted-foreground mb-2">{t('ptt.currentlySpeaking')}</p>
+                <div className="flex items-center gap-2 justify-center">
+                  <Volume2 className={cn(
+                    "h-6 w-6 text-primary",
+                    isSpeaking && "animate-pulse"
+                  )} />
+                  <span className="text-lg font-semibold truncate">
+                    {currentSpeaker.name || currentSpeaker.pubkey.slice(0, 8)}
                   </span>
-                  {req.priority !== 'normal' && (
-                    <span className={`
-                      text-xs px-2 py-0.5 rounded
-                      ${req.priority === 'moderator' ? 'bg-purple-500/20 text-purple-500' : 'bg-amber-500/20 text-amber-500'}
-                    `}>
-                      {req.priority}
-                    </span>
+                </div>
+                {isSpeaking && (
+                  <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-100 ease-out"
+                      style={{ width: `${getAudioLevelPercentage()}%` }}
+                      role="progressbar"
+                      aria-valuenow={getAudioLevelPercentage()}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={t('ptt.audioLevel')}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* PTT Button */}
+          <button
+            ref={pttButtonRef}
+            onMouseDown={handlePTTPress}
+            onMouseUp={handleRelease}
+            onMouseLeave={handleRelease}
+            onTouchStart={handlePTTPress}
+            onTouchEnd={handleRelease}
+            disabled={isRequesting || (queuePosition !== null && !isSpeaking)}
+            aria-label={isSpeaking ? t('ptt.speaking') : t('ptt.holdToSpeak')}
+            aria-pressed={isSpeaking}
+            className={cn(
+              "w-40 h-40 sm:w-48 sm:h-48 rounded-full flex flex-col items-center justify-center",
+              "transition-all duration-200 select-none touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              isSpeaking && "bg-primary text-primary-foreground scale-105 shadow-xl shadow-primary/30",
+              queuePosition !== null && !isSpeaking && "bg-amber-500 text-white",
+              !isSpeaking && queuePosition === null && "bg-muted hover:bg-muted/80 active:scale-95",
+              isRequesting && "opacity-50 cursor-wait"
+            )}
+          >
+            {isSpeaking ? (
+              <Mic className="h-12 w-12 sm:h-16 sm:w-16 mb-2 animate-pulse" />
+            ) : queuePosition !== null ? (
+              <Clock className="h-12 w-12 sm:h-16 sm:w-16 mb-2" />
+            ) : (
+              <Mic className="h-12 w-12 sm:h-16 sm:w-16 mb-2" />
+            )}
+            <span className="font-semibold text-base sm:text-lg text-center px-2">
+              {isSpeaking
+                ? t('ptt.speaking')
+                : queuePosition !== null
+                  ? t('ptt.inQueue', { position: queuePosition })
+                  : t('ptt.holdToSpeak')
+              }
+            </span>
+            {!isSpeaking && !queuePosition && (
+              <span className="text-xs sm:text-sm mt-1 opacity-70">
+                {t('ptt.spacebarHint')}
+              </span>
+            )}
+          </button>
+
+          {/* Queue display */}
+          {speakQueue.length > 0 && (
+            <Card className="mt-8 w-full max-w-xs">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground text-center">
+                  {t('ptt.queue', { count: speakQueue.length })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2">
+                  {speakQueue.slice(0, 5).map((req, index) => (
+                    <div
+                      key={req.pubkey}
+                      className={cn(
+                        "flex items-center gap-2 p-2 rounded-md bg-muted/50",
+                        req.pubkey === userPubkey && "ring-1 ring-primary bg-primary/5"
+                      )}
+                    >
+                      <span className="text-muted-foreground text-sm w-6 flex-shrink-0">{index + 1}.</span>
+                      <span className="flex-1 truncate text-sm">
+                        {req.name || req.pubkey.slice(0, 8)}
+                      </span>
+                      {req.priority !== 'normal' && (
+                        <Badge variant={req.priority === 'moderator' ? 'default' : 'secondary'} className="text-xs">
+                          {req.priority}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                  {speakQueue.length > 5 && (
+                    <p className="text-sm text-muted-foreground text-center pt-1">
+                      +{speakQueue.length - 5} {t('ptt.more')}
+                    </p>
                   )}
                 </div>
-              ))}
-              {speakQueue.length > 5 && (
-                <p className="text-sm text-muted-foreground text-center">
-                  +{speakQueue.length - 5} {t('ptt.more')}
-                </p>
-              )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Bottom controls */}
+        <div className="flex items-center justify-center gap-4 p-4 border-t">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={vadEnabled ? 'default' : 'outline'}
+                onClick={handleToggleVAD}
+                className="gap-2"
+              >
+                {vadEnabled ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                <span>{t('ptt.vad')}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('ptt.vadTooltip')}</TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Settings Sheet */}
+        <Sheet open={showSettings} onOpenChange={setShowSettings}>
+          <SheetContent side="right" className="w-80 sm:w-96">
+            <SheetHeader>
+              <SheetTitle>{t('ptt.settings')}</SheetTitle>
+            </SheetHeader>
+            <div className="py-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="vad-toggle" className="text-sm font-medium">{t('ptt.vadLabel')}</Label>
+                  <p className="text-sm text-muted-foreground">{t('ptt.vadDescription')}</p>
+                </div>
+                <Switch
+                  id="vad-toggle"
+                  checked={vadEnabled}
+                  onCheckedChange={handleToggleVAD}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          </SheetContent>
+        </Sheet>
+
+        {/* Members Sheet */}
+        <Sheet open={showMembers} onOpenChange={setShowMembers}>
+          <SheetContent side="right" className="w-80 sm:w-96">
+            <SheetHeader>
+              <SheetTitle>{t('ptt.members')}</SheetTitle>
+            </SheetHeader>
+            {channel && (
+              <MembersPanel
+                members={Array.from(channel.members.values())}
+                currentSpeaker={currentSpeaker?.pubkey}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Bottom controls */}
-      <div className="flex items-center justify-center gap-4 p-4 border-t">
-        <button
-          onClick={handleToggleVAD}
-          className={`
-            flex items-center gap-2 px-4 py-2 rounded-md
-            ${vadEnabled ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'}
-          `}
-          title={t('ptt.vadTooltip')}
-        >
-          <span>{vadEnabled ? '🔇' : '🎚️'}</span>
-          <span>{t('ptt.vad')}</span>
-        </button>
-      </div>
-
-      {/* Settings panel */}
-      {showSettings && (
-        <SettingsPanel
-          vadEnabled={vadEnabled}
-          onToggleVAD={handleToggleVAD}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-
-      {/* Members panel */}
-      {showMembers && channel && (
-        <MembersPanel
-          members={Array.from(channel.members.values())}
-          currentSpeaker={currentSpeaker?.pubkey}
-          onClose={() => setShowMembers(false)}
-        />
-      )}
-    </div>
+    </TooltipProvider>
   );
 };
 
-// Settings Panel Component
-interface SettingsPanelProps {
-  vadEnabled: boolean;
-  onToggleVAD: () => void;
-  onClose: () => void;
-}
-
-const SettingsPanel: React.FC<SettingsPanelProps> = ({
-  vadEnabled,
-  onToggleVAD,
-  onClose,
-}) => {
-  const { t } = useTranslation('calling');
-
-  return (
-    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-card border rounded-lg shadow-lg w-80 max-h-96 overflow-auto">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">{t('ptt.settings')}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded">✕</button>
-        </div>
-        <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">{t('ptt.vadLabel')}</p>
-              <p className="text-sm text-muted-foreground">{t('ptt.vadDescription')}</p>
-            </div>
-            <button
-              onClick={onToggleVAD}
-              className={`
-                w-12 h-6 rounded-full transition-colors
-                ${vadEnabled ? 'bg-primary' : 'bg-muted'}
-              `}
-            >
-              <div className={`
-                w-5 h-5 rounded-full bg-white shadow transition-transform
-                ${vadEnabled ? 'translate-x-6' : 'translate-x-0.5'}
-              `} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Members Panel Component
+// Members Panel Component (now used inside Sheet)
 interface MembersPanelProps {
   members: ChannelMember[];
   currentSpeaker?: string;
-  onClose: () => void;
 }
 
 const MembersPanel: React.FC<MembersPanelProps> = ({
   members,
   currentSpeaker,
-  onClose,
 }) => {
   const { t } = useTranslation('calling');
 
@@ -546,52 +580,60 @@ const MembersPanel: React.FC<MembersPanelProps> = ({
   const offlineMembers = members.filter(m => !m.online);
 
   return (
-    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-card border rounded-lg shadow-lg w-80 max-h-96 overflow-auto">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">{t('ptt.members')}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-muted rounded">✕</button>
-        </div>
-        <div className="p-4">
-          {onlineMembers.length > 0 && (
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground mb-2">
-                {t('ptt.online')} ({onlineMembers.length})
-              </p>
-              <div className="space-y-2">
-                {onlineMembers.map(member => (
-                  <div key={member.pubkey} className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500" />
-                    <span className="flex-1 truncate">
-                      {member.name || member.pubkey.slice(0, 8)}
-                    </span>
-                    {member.pubkey === currentSpeaker && (
-                      <span className="animate-pulse">🔊</span>
-                    )}
-                  </div>
-                ))}
+    <div className="py-4 space-y-6">
+      {onlineMembers.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('ptt.online')} ({onlineMembers.length})
+            </span>
+          </div>
+          <div className="space-y-2">
+            {onlineMembers.map(member => (
+              <div
+                key={member.pubkey}
+                className={cn(
+                  "flex items-center gap-3 p-2 rounded-md",
+                  member.pubkey === currentSpeaker && "bg-primary/10"
+                )}
+              >
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+                  {(member.name || member.pubkey.slice(0, 2)).slice(0, 2).toUpperCase()}
+                </div>
+                <span className="flex-1 truncate text-sm">
+                  {member.name || member.pubkey.slice(0, 8)}
+                </span>
+                {member.pubkey === currentSpeaker && (
+                  <Volume2 className="h-4 w-4 text-primary animate-pulse" />
+                )}
               </div>
-            </div>
-          )}
-          {offlineMembers.length > 0 && (
-            <div>
-              <p className="text-sm text-muted-foreground mb-2">
-                {t('ptt.offline')} ({offlineMembers.length})
-              </p>
-              <div className="space-y-2">
-                {offlineMembers.map(member => (
-                  <div key={member.pubkey} className="flex items-center gap-2 opacity-50">
-                    <span className="w-2 h-2 rounded-full bg-muted-foreground" />
-                    <span className="flex-1 truncate">
-                      {member.name || member.pubkey.slice(0, 8)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+      {offlineMembers.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('ptt.offline')} ({offlineMembers.length})
+            </span>
+          </div>
+          <div className="space-y-2">
+            {offlineMembers.map(member => (
+              <div key={member.pubkey} className="flex items-center gap-3 p-2 rounded-md opacity-50">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+                  {(member.name || member.pubkey.slice(0, 2)).slice(0, 2).toUpperCase()}
+                </div>
+                <span className="flex-1 truncate text-sm">
+                  {member.name || member.pubkey.slice(0, 8)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
