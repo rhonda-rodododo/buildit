@@ -54,10 +54,15 @@ buildit/
 
 ### Core Principles
 
-1. **Protocol is source of truth** - All type definitions come from `protocol/schemas/`
+1. **Protocol is source of truth**:
+    - All protocol type definitions come from `protocol/schemas/` (which you should change/improve as needed)
+    - Everything adheres to the `docs/protocol-spec` or enhances/improves on it
+    - The `packages/crypto` is a shared implementation of the protocol's non-platform-specific functionality
+    - You are constantly auditing and improving all of these on a regular cadence via new spec additions and iterations
 2. **Schema changes propagate** - After editing schemas, run `bun run codegen`
 3. **Cross-client consistency** - Changes affecting multiple clients should be atomic
 4. **Test vectors validate** - All clients must pass `protocol/test-vectors/`
+5. **Privacy, E2EE, zero knowledge** -  All clients must be resilient to crisis scenarios and state level repression threat models based on the ever evolving [security guidelines](docs/SECURITY.md) and [threat model](docs/THREAT_MODEL.md)
 
 ### Common Commands
 
@@ -113,7 +118,7 @@ When implementing same feature across clients:
 
 Each client has a `CLAUDE.md` with platform-specific instructions:
 - `clients/web/CLAUDE.md` - React, TypeScript, Vite, Tailwind
-- `clients/desktop/CLAUDE.md` - Tauri, Rust, BLE
+- `clients/desktop/CLAUDE.md` - Tauri, Rust, BLE (wraps web ^)
 - `clients/ios/CLAUDE.md` - Swift, SwiftUI, Core Bluetooth
 - `clients/android/CLAUDE.md` - Kotlin, Jetpack Compose, Android BLE
 
@@ -125,6 +130,7 @@ Each client has a `CLAUDE.md` with platform-specific instructions:
 |-------|----------|
 | Active Roadmap | `clients/web/NEXT_ROADMAP.md` |
 | Completed Work | `clients/web/COMPLETED_ROADMAP.md` |
+| Epics | `docs/epics/*` |
 | Architecture | `docs/architecture/` |
 | Protocol Specs | `docs/protocol-spec/` |
 | Schema Definitions | `protocol/schemas/` |
@@ -140,7 +146,7 @@ Each client has a `CLAUDE.md` with platform-specific instructions:
 
 ### Package Manager
 
-**This project uses `bun` for JavaScript/TypeScript. Always use `bun`, never `npm` or `yarn`.**
+**This project uses `bun` for JavaScript/TypeScript. Always use `bun`, never `npm` or `yarn`. Same for `bunx`, etc**
 
 ### Git Workflow
 

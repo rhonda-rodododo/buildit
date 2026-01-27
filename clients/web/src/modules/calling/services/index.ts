@@ -59,3 +59,9 @@ export * from './channelEscalation';
 // ============================================================================
 export * from './pttChannelManager';
 export * from './pttAudioManager';
+
+// ============================================================================
+// Epic 8: PSTN Gateway Services
+// ============================================================================
+export * from './pstnCallManager';
+export * from './pstnCreditsManager';

@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "*",
+      "Bash(cat:*)",
+      "mcp__puppeteer__puppeteer_evaluate",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(bun run test:*)",
+      "mcp__context7__resolve-library-id",
+      "WebSearch",
+      "mcp__context7__get-library-docs",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.yjs.dev)",
+      "Bash(bun run:*)",
+      "Bash(git add:*)",
+      "Bash(sudo fuser:*)",
+      "Read(//etc/**)",
+      "Read(//dev/**)",
+      "Bash(lsof:*)",
+      "Bash(systemctl:*)",
+      "Bash(udisksctl unmount:*)",
+      "Bash(udisksctl info:*)",
+      "Bash(udisksctl mount:*)",
+      "Bash(mount)",
+      "Read(//proc/2023453/**)",
+      "Bash(blockdev:*)",
+      "Read(//sys/devices/pci0000:00/0000:00:02.1/0000:02:00.1/ata3/host2/target2:0:0/2:0:0:0/block/sdb/holders/**)",
+      "Bash(dmesg:*)",
+      "Bash(sudo blkid:*)",
+      "Bash(sudo file:*)",
+      "Bash(udevadm:*)",
+      "Read(//sys/devices/pci0000:00/0000:00:02.1/0000:02:00.1/ata3/host2/target2:0:0/2:0:0:0/**)",
+      "Read(//proc/**)",
+      "Bash(dmsetup ls:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

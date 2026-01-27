@@ -309,6 +309,17 @@
         "typescript": "^5.7.0",
       },
     },
+    "tools/i18n-codegen": {
+      "name": "@buildit/i18n-codegen",
+      "version": "1.0.0",
+      "dependencies": {
+        "glob": "^11.0.0",
+        "typescript": "^5.7.0",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+    },
     "tools/schema-bundle": {
       "name": "@buildit/schema-bundle",
       "version": "1.0.0",
@@ -617,6 +628,8 @@
     "@buildit/design-tokens": ["@buildit/design-tokens@workspace:clients/web/packages/design-tokens"],
 
     "@buildit/i18n": ["@buildit/i18n@workspace:clients/web/packages/i18n"],
+
+    "@buildit/i18n-codegen": ["@buildit/i18n-codegen@workspace:tools/i18n-codegen"],
 
     "@buildit/native": ["@buildit/native@workspace:clients/web/apps/native-deprecated"],
 

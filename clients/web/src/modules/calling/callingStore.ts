@@ -16,6 +16,8 @@ import type {
   GroupCallState,
   MediaDevices,
   HotlineConfig,
+  LocalPSTNCall,
+  LocalCreditBalance,
 } from './types';
 import {
   CallType,
@@ -60,6 +62,11 @@ interface CallingState {
 
   // Broadcasts
   broadcasts: Broadcast[];
+
+  // PSTN state
+  localPubkey: string;
+  pstnCalls: LocalPSTNCall[];
+  creditBalance: LocalCreditBalance | null;
 
   // UI state
   isCallMinimized: boolean;
@@ -114,6 +121,14 @@ interface CallingState {
   updateBroadcast: (broadcastId: string, updates: Partial<Broadcast>) => void;
   removeBroadcast: (broadcastId: string) => void;
 
+  // Actions - PSTN
+  setLocalPubkey: (pubkey: string) => void;
+  setPSTNCalls: (calls: LocalPSTNCall[]) => void;
+  addPSTNCall: (call: LocalPSTNCall) => void;
+  updatePSTNCall: (callSid: string, updates: Partial<LocalPSTNCall>) => void;
+  removePSTNCall: (callSid: string) => void;
+  setCreditBalance: (balance: LocalCreditBalance | null) => void;
+
   // Actions - UI
   setCallMinimized: (minimized: boolean) => void;
   setShowIncomingCallDialog: (show: boolean) => void;
@@ -127,6 +142,7 @@ interface CallingState {
   getUnassignedThreads: () => MessagingHotlineThread[];
   getMyThreads: (pubkey: string) => MessagingHotlineThread[];
   getBroadcastById: (broadcastId: string) => Broadcast | undefined;
+  getPSTNCallById: (callSid: string) => LocalPSTNCall | undefined;
 
   // Clear all state
   clearAll: () => void;
@@ -153,6 +169,9 @@ const initialState = {
   messagingThreads: [],
   activeThread: null,
   broadcasts: [],
+  localPubkey: '',
+  pstnCalls: [],
+  creditBalance: null,
   isCallMinimized: false,
   showIncomingCallDialog: false,
 };
@@ -327,6 +346,30 @@ export const useCallingStore = create<CallingState>()((set, get) => ({
       broadcasts: state.broadcasts.filter((b) => b.broadcastId !== broadcastId),
     })),
 
+  // PSTN actions
+  setLocalPubkey: (pubkey) => set({ localPubkey: pubkey }),
+
+  setPSTNCalls: (calls) => set({ pstnCalls: calls }),
+
+  addPSTNCall: (call) =>
+    set((state) => ({
+      pstnCalls: [...state.pstnCalls, call],
+    })),
+
+  updatePSTNCall: (callSid, updates) =>
+    set((state) => ({
+      pstnCalls: state.pstnCalls.map((call) =>
+        call.callSid === callSid ? { ...call, ...updates } : call
+      ),
+    })),
+
+  removePSTNCall: (callSid) =>
+    set((state) => ({
+      pstnCalls: state.pstnCalls.filter((call) => call.callSid !== callSid),
+    })),
+
+  setCreditBalance: (balance) => set({ creditBalance: balance }),
+
   // UI actions
   setCallMinimized: (minimized) => set({ isCallMinimized: minimized }),
 
@@ -368,6 +411,10 @@ export const useCallingStore = create<CallingState>()((set, get) => ({
 
   getBroadcastById: (broadcastId) => {
     return get().broadcasts.find((b) => b.broadcastId === broadcastId);
+  },
+
+  getPSTNCallById: (callSid) => {
+    return get().pstnCalls.find((c) => c.callSid === callSid);
   },
 
   // Clear all
