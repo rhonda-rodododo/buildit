@@ -81,9 +81,11 @@ import javax.inject.Singleton
         network.buildit.modules.publishing.data.local.PublicationEntity::class,
         network.buildit.modules.publishing.data.local.SubscriberEntity::class,
         network.buildit.modules.forms.data.local.FormEntity::class,
-        network.buildit.modules.forms.data.local.FormResponseEntity::class
+        network.buildit.modules.forms.data.local.FormResponseEntity::class,
+        network.buildit.modules.calling.data.local.CallHistoryEntity::class,
+        network.buildit.modules.calling.data.local.CallSettingsEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -132,6 +134,10 @@ abstract class BuildItDatabase : RoomDatabase() {
     // Forms DAOs
     abstract fun formsDao(): network.buildit.modules.forms.data.local.FormsDao
     abstract fun formResponsesDao(): network.buildit.modules.forms.data.local.FormResponsesDao
+
+    // Calling DAOs
+    abstract fun callHistoryDao(): network.buildit.modules.calling.data.local.CallHistoryDao
+    abstract fun callSettingsDao(): network.buildit.modules.calling.data.local.CallSettingsDao
 }
 
 /**

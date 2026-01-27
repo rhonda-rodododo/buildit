@@ -192,6 +192,9 @@ dependencies {
     implementation(libs.bundles.camerax)
     implementation(libs.mlkit.barcode)
 
+    // WebRTC for voice/video calling
+    implementation(libs.webrtc)
+
     // Testing - Unit
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.params)
