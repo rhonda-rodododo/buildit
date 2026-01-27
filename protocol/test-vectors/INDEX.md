@@ -116,6 +116,7 @@ Voice, video, and group calling with E2EE.
 | `ice-candidate.json` | - | ICE candidate exchange |
 | `group-call.json` | - | Mesh topology group calls, sender keys |
 | `hotline.json` | 15 | Hotline queue management, ACD, operator status |
+| `broadcast.json` | 15 | Broadcast delivery, scheduling, messaging queue |
 
 **Key Tests:**
 - Queue priority ordering (urgent > high > medium > low)
@@ -263,6 +264,14 @@ Critical security tests included:
 - [BuildIt Protocol Specification](../docs/protocol-spec/)
 
 ## Version History
+
+- **1.2.1** (2026-01-26): Added messaging hotline and broadcast test vectors
+  - Broadcast delivery (group, contact-list, SMS batching)
+  - Broadcast scheduling and recurring broadcasts
+  - Messaging thread status transitions
+  - Template variable substitution
+  - Channel escalation (voice/messaging)
+  - Analytics tracking
 
 - **1.2.0** (2026-01-26): Added calling module test vectors
   - Hotline voice calling (queue management, ACD, operator status)

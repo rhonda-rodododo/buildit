@@ -507,3 +507,61 @@ export interface HotlineConfig {
   smsEnabled: boolean;
   pstnNumber?: string;
 }
+
+// Additional messaging hotline types for UI
+export type MessagingHotlineThreadPriority = HotlineCallStatePriority;
+export type MessagingHotlineThreadContactType = 'buildit' | 'sms' | 'rcs';
+
+export interface MessagingHotlineThreadExtended {
+  _v: string;
+  threadId: string;
+  hotlineId: string;
+  callerPubkey?: string;
+  callerName?: string;
+  callerPhone?: string;
+  contactType: MessagingHotlineThreadContactType;
+  status: MessagingHotlineThreadStatus;
+  priority: MessagingHotlineThreadPriority;
+  category?: string;
+  notes?: string;
+  assignedTo?: string;
+  assignedAt?: number;
+  createdAt: number;
+  updatedAt: number;
+  resolvedAt?: number;
+  archivedAt?: number;
+  metadata?: Record<string, unknown>;
+}
+
+// Push-to-Talk types (for future epic)
+export interface PTTChannel {
+  id: string;
+  name: string;
+  groupId: string;
+  isActive: boolean;
+  participants: string[];
+  maxParticipants: number;
+  currentSpeaker?: string;
+  speakingQueue: string[];
+  isE2EE: boolean;
+}
+
+export interface PTTState {
+  channelId: string;
+  isPTTActive: boolean;
+  isSpeaking: boolean;
+  isListening: boolean;
+  speakerPubkey?: string;
+  speakerName?: string;
+  queuePosition?: number;
+  localStream?: MediaStream;
+}
+
+export const PTT_KINDS = {
+  PTT_CHANNEL_CREATE: 24370,
+  PTT_CHANNEL_JOIN: 24371,
+  PTT_CHANNEL_LEAVE: 24372,
+  PTT_SPEAK_REQUEST: 24373,
+  PTT_SPEAK_GRANT: 24374,
+  PTT_SPEAK_RELEASE: 24375,
+} as const;

@@ -1,0 +1,335 @@
+{
+  "$schema": "../schema.json",
+  "name": "Broadcast & Messaging Hotline Test Vectors",
+  "version": "1.0.0",
+  "description": "Test vectors for broadcast delivery, messaging queues, and templates",
+  "vectors": [
+    {
+      "id": "broadcast-group-delivery",
+      "description": "Broadcast to group should create single encrypted group message",
+      "category": "delivery",
+      "input": {
+        "broadcast": {
+          "targetType": "group",
+          "targetId": "group-123",
+          "content": "Emergency meeting at 5pm",
+          "priority": "high"
+        },
+        "recipientCount": 25
+      },
+      "expected": {
+        "messageCount": 1,
+        "encryptionType": "group",
+        "allRecipientsInGroup": true
+      }
+    },
+    {
+      "id": "broadcast-contact-list-batching",
+      "description": "Broadcast to contact list should batch NIP-17 DMs (50/batch)",
+      "category": "delivery",
+      "input": {
+        "broadcast": {
+          "targetType": "contact-list",
+          "targetId": "list-456",
+          "content": "Weekly update",
+          "priority": "normal"
+        },
+        "recipientCount": 125
+      },
+      "expected": {
+        "batchCount": 3,
+        "batchSizes": [50, 50, 25],
+        "encryptionType": "nip17"
+      }
+    },
+    {
+      "id": "broadcast-sms-rate-limiting",
+      "description": "SMS broadcasts should rate limit to 1 message per second",
+      "category": "delivery",
+      "input": {
+        "broadcast": {
+          "targetType": "contact-list",
+          "content": "Alert message",
+          "priority": "high"
+        },
+        "smsRecipients": 10
+      },
+      "expected": {
+        "minDeliveryTime": 10000,
+        "rateLimit": 1000,
+        "note": "10 recipients * 1000ms = minimum 10 seconds"
+      }
+    },
+    {
+      "id": "broadcast-emergency-bypass-dnd",
+      "description": "Emergency broadcasts should bypass Do Not Disturb",
+      "category": "delivery",
+      "input": {
+        "broadcast": {
+          "targetType": "emergency",
+          "content": "Urgent: Evacuation required",
+          "priority": "emergency"
+        },
+        "recipientsWithDND": 5
+      },
+      "expected": {
+        "bypassesDND": true,
+        "allRecipientsNotified": true,
+        "requiresConfirmation": true
+      }
+    },
+    {
+      "id": "broadcast-scheduling",
+      "description": "Scheduled broadcasts should execute at specified time",
+      "category": "scheduling",
+      "input": {
+        "broadcast": {
+          "content": "Scheduled reminder",
+          "priority": "normal"
+        },
+        "scheduledFor": 1700000000000,
+        "timezone": "America/New_York",
+        "currentTime": 1699990000000
+      },
+      "expected": {
+        "status": "scheduled",
+        "executesAt": 1700000000000,
+        "timezoneAdjusted": true
+      }
+    },
+    {
+      "id": "broadcast-recurring-weekly",
+      "description": "Weekly recurring broadcast should calculate next execution",
+      "category": "scheduling",
+      "input": {
+        "lastExecution": "2024-01-15T10:00:00Z",
+        "repeatConfig": {
+          "frequency": "weekly",
+          "daysOfWeek": [1],
+          "endDate": "2024-03-01T00:00:00Z"
+        }
+      },
+      "expected": {
+        "nextExecution": "2024-01-22T10:00:00Z",
+        "withinEndDate": true
+      }
+    },
+    {
+      "id": "messaging-thread-status-flow",
+      "description": "Valid thread status transitions",
+      "category": "messaging-queue",
+      "input": {
+        "validTransitions": [
+          { "from": "unassigned", "to": "assigned" },
+          { "from": "assigned", "to": "active" },
+          { "from": "active", "to": "waiting" },
+          { "from": "waiting", "to": "active" },
+          { "from": "active", "to": "resolved" },
+          { "from": "resolved", "to": "archived" }
+        ],
+        "invalidTransitions": [
+          { "from": "unassigned", "to": "resolved" },
+          { "from": "archived", "to": "active" },
+          { "from": "resolved", "to": "waiting" }
+        ]
+      },
+      "expected": {
+        "allValidTransitionsAllowed": true,
+        "allInvalidTransitionsBlocked": true
+      }
+    },
+    {
+      "id": "messaging-thread-priority-ordering",
+      "description": "Threads should be ordered by priority then last activity",
+      "category": "messaging-queue",
+      "input": {
+        "threads": [
+          { "threadId": "t1", "priority": "medium", "lastActivityAt": 1700000000000 },
+          { "threadId": "t2", "priority": "urgent", "lastActivityAt": 1700000005000 },
+          { "threadId": "t3", "priority": "high", "lastActivityAt": 1700000002000 },
+          { "threadId": "t4", "priority": "medium", "lastActivityAt": 1700000010000 },
+          { "threadId": "t5", "priority": "low", "lastActivityAt": 1700000003000 }
+        ]
+      },
+      "expected": {
+        "orderedThreadIds": ["t2", "t3", "t4", "t1", "t5"]
+      }
+    },
+    {
+      "id": "messaging-template-variable-substitution",
+      "description": "Template variables should be correctly substituted",
+      "category": "templates",
+      "input": {
+        "template": {
+          "content": "Hello {{caller_name}}, thank you for contacting {{hotline_name}}. I'm {{operator_name}}.",
+          "variables": ["caller_name", "hotline_name", "operator_name"]
+        },
+        "context": {
+          "caller_name": "Maria",
+          "hotline_name": "Community Support",
+          "operator_name": "Alex"
+        }
+      },
+      "expected": {
+        "result": "Hello Maria, thank you for contacting Community Support. I'm Alex.",
+        "allVariablesReplaced": true
+      }
+    },
+    {
+      "id": "messaging-template-missing-variable",
+      "description": "Missing variables should be removed from output",
+      "category": "templates",
+      "input": {
+        "template": {
+          "content": "Hello {{caller_name}}, your case number is {{case_number}}.",
+          "variables": ["caller_name", "case_number"]
+        },
+        "context": {
+          "caller_name": "John"
+        }
+      },
+      "expected": {
+        "result": "Hello John, your case number is .",
+        "note": "Missing variables are replaced with empty string"
+      }
+    },
+    {
+      "id": "channel-escalation-to-voice",
+      "description": "Escalation from messaging to voice should link thread and call",
+      "category": "channel-escalation",
+      "input": {
+        "threadId": "thread-123",
+        "operatorPubkey": "op1"
+      },
+      "expected": {
+        "callIdGenerated": true,
+        "threadLinkedToCall": true,
+        "systemMessageAdded": true,
+        "systemMessage": "This conversation has been escalated to a voice call"
+      }
+    },
+    {
+      "id": "channel-deescalation-to-messaging",
+      "description": "De-escalation from voice to messaging should preserve context",
+      "category": "channel-escalation",
+      "input": {
+        "callId": "call-456",
+        "existingThreadId": "thread-123"
+      },
+      "expected": {
+        "threadResumed": true,
+        "callHistoryLinked": true,
+        "contextPreserved": true
+      }
+    },
+    {
+      "id": "broadcast-analytics-tracking",
+      "description": "Broadcast should track delivery, read, and reply metrics",
+      "category": "analytics",
+      "input": {
+        "broadcast": {
+          "broadcastId": "bc-789",
+          "totalRecipients": 100
+        },
+        "events": [
+          { "type": "delivered", "count": 95 },
+          { "type": "read", "count": 60 },
+          { "type": "replied", "count": 15 }
+        ]
+      },
+      "expected": {
+        "deliveryRate": 95,
+        "readRate": 63.16,
+        "replyRate": 15.79,
+        "note": "Read/reply rates calculated against delivered count"
+      }
+    },
+    {
+      "id": "messaging-thread-auto-reactivate",
+      "description": "Thread in waiting status should auto-reactivate on new caller message",
+      "category": "messaging-queue",
+      "input": {
+        "thread": {
+          "threadId": "t1",
+          "status": "waiting"
+        },
+        "incomingMessage": {
+          "senderType": "caller",
+          "content": "Any update?"
+        }
+      },
+      "expected": {
+        "newStatus": "active",
+        "unreadIncremented": true,
+        "operatorNotified": true
+      }
+    },
+    {
+      "id": "broadcast-nostr-event-kinds",
+      "description": "Nostr event kinds for messaging and broadcast",
+      "category": "signaling",
+      "input": {},
+      "expected": {
+        "kinds": {
+          "messaging_thread": 24340,
+          "broadcast": 24350,
+          "ptt_channel_create": 24370,
+          "ptt_speak_request": 24373,
+          "ptt_speak_grant": 24374
+        }
+      }
+    }
+  ],
+  "testGroups": [
+    {
+      "name": "Delivery",
+      "vectorIds": [
+        "broadcast-group-delivery",
+        "broadcast-contact-list-batching",
+        "broadcast-sms-rate-limiting",
+        "broadcast-emergency-bypass-dnd"
+      ]
+    },
+    {
+      "name": "Scheduling",
+      "vectorIds": [
+        "broadcast-scheduling",
+        "broadcast-recurring-weekly"
+      ]
+    },
+    {
+      "name": "Messaging Queue",
+      "vectorIds": [
+        "messaging-thread-status-flow",
+        "messaging-thread-priority-ordering",
+        "messaging-thread-auto-reactivate"
+      ]
+    },
+    {
+      "name": "Templates",
+      "vectorIds": [
+        "messaging-template-variable-substitution",
+        "messaging-template-missing-variable"
+      ]
+    },
+    {
+      "name": "Channel Escalation",
+      "vectorIds": [
+        "channel-escalation-to-voice",
+        "channel-deescalation-to-messaging"
+      ]
+    },
+    {
+      "name": "Analytics",
+      "vectorIds": [
+        "broadcast-analytics-tracking"
+      ]
+    },
+    {
+      "name": "Signaling",
+      "vectorIds": [
+        "broadcast-nostr-event-kinds"
+      ]
+    }
+  ]
+}
