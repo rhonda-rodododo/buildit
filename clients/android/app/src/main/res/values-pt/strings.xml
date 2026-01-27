@@ -226,7 +226,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s anonimos</string>
     <string name="anonymousVoting_results_hide">Ocultar Resultados</string>
     <string name="anonymousVoting_results_show">Mostrar Resultados</string>
-    <string name="anonymousVoting_results_votes">%1$s votos (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s votos (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">Voce pode alterar seu voto ate a proposta ser encerrada.</string>
     <string name="anonymousVoting_status_identityProtected">Sua identidade e protegida por criptografia de conhecimento zero</string>
     <string name="anonymousVoting_status_recorded">Voto Registrado</string>
@@ -708,7 +708,7 @@
     <string name="campaignBuilder_categories_emergency">Emergencia</string>
     <string name="campaignBuilder_categories_general">Geral</string>
     <string name="campaignBuilder_categories_legal">Defesa Legal</string>
-    <string name="campaignBuilder_categories_mutual-aid">Ajuda Mutua</string>
+    <string name="campaignBuilder_categories_mutual_aid">Ajuda Mutua</string>
     <string name="campaignBuilder_categories_strike">Fundo de Greve</string>
     <string name="campaignBuilder_category">Categoria</string>
     <string name="campaignBuilder_createCampaign">Criar Campanha</string>
@@ -1016,8 +1016,8 @@
     <string name="createProposalDialog_fields_durationLabel">Duracao da Votacao (dias)</string>
     <string name="createProposalDialog_fields_optionsLabel">Opcoes (uma por linha)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">Opcao 1\nOpcao 2\nOpcao 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">Quorum (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">Limite (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">Quorum (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">Limite (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">Titulo</string>
     <string name="createProposalDialog_fields_titlePlaceholder">Titulo da proposta...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">Metodo de Votacao</string>
@@ -1436,16 +1436,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">A Escada de Engajamento e baseada na metodologia do Espectro de Apoio usada por movimentos de organizacao bem-sucedidos. Cada nivel representa um envolvimento mais profundo no movimento:</string>
     <string name="engagementPage_aboutLadder_footer">Complete marcos no seu nivel atual para desbloquear a proxima etapa da sua jornada de organizacao.</string>
-    <string name="engagementPage_aboutLadder_levels_active">Apoio Ativo (70%) - Participando ativamente das acoes</string>
-    <string name="engagementPage_aboutLadder_levels_core">Organizador Central (100%) - Liderando e desenvolvendo outros</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">Neutro (30%) - Aprendendo e explorando</string>
-    <string name="engagementPage_aboutLadder_levels_passive">Apoio Passivo (40%) - Apoiando de longe</string>
+    <string name="engagementPage_aboutLadder_levels_active">Apoio Ativo (70%%) - Participando ativamente das acoes</string>
+    <string name="engagementPage_aboutLadder_levels_core">Organizador Central (100%%) - Liderando e desenvolvendo outros</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">Neutro (30%%) - Aprendendo e explorando</string>
+    <string name="engagementPage_aboutLadder_levels_passive">Apoio Passivo (40%%) - Apoiando de longe</string>
     <string name="engagementPage_aboutLadder_title">Sobre a Escada de Engajamento</string>
     <string name="engagementPage_demoSwitchLevel">Demo: Trocar Nivel</string>
-    <string name="engagementPage_levelOptions_active">Apoio Ativo (70%)</string>
-    <string name="engagementPage_levelOptions_core">Organizador Central (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">Neutro (30%)</string>
-    <string name="engagementPage_levelOptions_passive">Apoio Passivo (40%)</string>
+    <string name="engagementPage_levelOptions_active">Apoio Ativo (70%%)</string>
+    <string name="engagementPage_levelOptions_core">Organizador Central (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">Neutro (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">Apoio Passivo (40%%)</string>
     <string name="engagementPage_subtitle">Acompanhe seu engajamento, complete marcos e cresca como organizador</string>
     <string name="engagementPage_tabs_engagement">Jornada de Engajamento</string>
     <string name="engagementPage_tabs_notifications">Notificacoes Inteligentes</string>
@@ -1628,7 +1628,7 @@
     <string name="files_bulkShare_noGroupMembers">Nenhum membro do grupo encontrado</string>
     <string name="files_bulkShare_passwordOptional">Senha (opcional, a mesma para todos)</string>
     <string name="files_bulkShare_passwordPlaceholder">Deixe vazio para nao usar senha</string>
-    <string name="files_bulkShare_percentComplete">%s% concluido</string>
+    <string name="files_bulkShare_percentComplete">%s%% concluido</string>
     <string name="files_bulkShare_permissionLevel">Nivel de Permissao</string>
     <string name="files_bulkShare_pleaseWait">Por favor, aguarde enquanto compartilhamos seus arquivos</string>
     <string name="files_bulkShare_selectUsers">Selecionar Usuarios</string>
@@ -2121,7 +2121,7 @@
     <string name="groupMembersTab_roles_admin">Administrador</string>
     <string name="groupMembersTab_roles_member">Membro</string>
     <string name="groupMembersTab_roles_moderator">Moderador</string>
-    <string name="groupMembersTab_roles_read-only">Somente Leitura</string>
+    <string name="groupMembersTab_roles_read_only">Somente Leitura</string>
     <string name="groupMembersTab_title">Membros</string>
     <string name="groupMembersTab_unknown">Desconhecido</string>
     <string name="groupMembersTab_you">Voce</string>
@@ -2618,12 +2618,12 @@
     <string name="moderationQueue_pendingTab">Pendentes</string>
     <string name="moderationQueue_reason">Motivo:</string>
     <string name="moderationQueue_reasons_harassment">Assedio</string>
-    <string name="moderationQueue_reasons_hate-speech">Discurso de Odio</string>
-    <string name="moderationQueue_reasons_illegal-content">Conteudo Ilegal</string>
+    <string name="moderationQueue_reasons_hate_speech">Discurso de Odio</string>
+    <string name="moderationQueue_reasons_illegal_content">Conteudo Ilegal</string>
     <string name="moderationQueue_reasons_impersonation">Falsidade Ideologica</string>
     <string name="moderationQueue_reasons_misinformation">Desinformacao</string>
     <string name="moderationQueue_reasons_other">Outro</string>
-    <string name="moderationQueue_reasons_self-harm">Automutilacao</string>
+    <string name="moderationQueue_reasons_self_harm">Automutilacao</string>
     <string name="moderationQueue_reasons_spam">Spam</string>
     <string name="moderationQueue_reasons_violence">Violencia</string>
     <string name="moderationQueue_report">Denuncia</string>
@@ -2807,10 +2807,10 @@
     <string name="notifications_title">Configuracoes de Notificacoes</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">Apoio Ativo (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">Organizador Principal (100%)</string>
-    <string name="notificationsDemoLevels_neutral">Neutro (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">Apoio Passivo (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">Apoio Ativo (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">Organizador Principal (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">Neutro (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">Apoio Passivo (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">Demo: Mudar Nivel</string>
@@ -2850,8 +2850,8 @@
     <string name="onboardingDemo_entryPointLabel">Ponto de entrada: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">Pagina de Campanha</string>
     <string name="onboardingDemo_entryPoints_event">Confirmacao de Evento</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">Convite de Amigo</string>
-    <string name="onboardingDemo_entryPoints_social-media">Link de Midia Social</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">Convite de Amigo</string>
+    <string name="onboardingDemo_entryPoints_social_media">Link de Midia Social</string>
     <string name="onboardingDemo_entryPoints_website">Site Principal</string>
     <string name="onboardingDemo_simulateEntryPoint">Simular Ponto de Entrada</string>
     <string name="onboardingDemo_title">Integracao Personalizada</string>
@@ -3240,7 +3240,7 @@
     <string name="publicCampaignView_customAmount_description">Digite um valor de doacao personalizado</string>
     <string name="publicCampaignView_customAmount_title">Valor Personalizado</string>
     <string name="publicCampaignView_donate">Doar</string>
-    <string name="publicCampaignView_funded">%s% arrecadado</string>
+    <string name="publicCampaignView_funded">%s%% arrecadado</string>
     <string name="publicCampaignView_goal">de %s da meta</string>
     <string name="publicCampaignView_supportCampaign">Apoiar Esta Campanha</string>
 
@@ -3699,7 +3699,7 @@
     <string name="smartNotifications_filters_markAllRead">Marcar todas como lidas</string>
     <string name="smartNotifications_filters_unread">Nao Lidas (%s)</string>
     <string name="smartNotifications_personalized">Personalizado para %s</string>
-    <string name="smartNotifications_relevance">%s% relevante</string>
+    <string name="smartNotifications_relevance">%s%% relevante</string>
     <string name="smartNotifications_title">Notificacoes Inteligentes</string>
 
     <!-- StoryViewer -->
@@ -3989,8 +3989,8 @@
     <string name="templates_categories_civic">Acao Civica</string>
     <string name="templates_categories_community">Comunidade</string>
     <string name="templates_categories_governance">Governanca</string>
-    <string name="templates_categories_movement-defense">Defesa do Movimento</string>
-    <string name="templates_categories_mutual-aid">Ajuda Mutua</string>
+    <string name="templates_categories_movement_defense">Defesa do Movimento</string>
+    <string name="templates_categories_mutual_aid">Ajuda Mutua</string>
     <string name="templates_categories_organizing">Organizacao</string>
     <string name="templates_communityHub_description">Um espaco de proposito geral para organizacao e conexao comunitaria. Perfeito para bairros e grupos sociais.</string>
     <string name="templates_communityHub_enhancements_crm_description">Gerencie contatos comunitarios e negocios locais</string>

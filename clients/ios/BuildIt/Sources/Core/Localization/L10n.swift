@@ -21817,6 +21817,790 @@ public enum L10n {
         }
     }
 
+    /// Calling translations
+    public enum Calling {
+
+        /// Calling
+        public static var title: String {
+            NSLocalizedString("calling_title", comment: "")
+        }
+
+        /// Calls
+        public static var calls: String {
+            NSLocalizedString("calling_calls", comment: "")
+        }
+
+        /// Call History
+        public static var history: String {
+            NSLocalizedString("calling_history", comment: "")
+        }
+
+        /// Call Settings
+        public static var settings: String {
+            NSLocalizedString("calling_settings", comment: "")
+        }
+
+        /// Voice Call
+        public static var voiceCall: String {
+            NSLocalizedString("calling_voiceCall", comment: "")
+        }
+
+        /// Video Call
+        public static var videoCall: String {
+            NSLocalizedString("calling_videoCall", comment: "")
+        }
+
+        /// Group Call
+        public static var groupCall: String {
+            NSLocalizedString("calling_groupCall", comment: "")
+        }
+
+        /// Conference
+        public static var conference: String {
+            NSLocalizedString("calling_conference", comment: "")
+        }
+
+        /// Initiating call...
+        public static var initiating: String {
+            NSLocalizedString("calling_initiating", comment: "")
+        }
+
+        /// Ringing...
+        public static var ringing: String {
+            NSLocalizedString("calling_ringing", comment: "")
+        }
+
+        /// Connecting...
+        public static var connecting: String {
+            NSLocalizedString("calling_connecting", comment: "")
+        }
+
+        /// Connected
+        public static var connected: String {
+            NSLocalizedString("calling_connected", comment: "")
+        }
+
+        /// Reconnecting...
+        public static var reconnecting: String {
+            NSLocalizedString("calling_reconnecting", comment: "")
+        }
+
+        /// On Hold
+        public static var onHold: String {
+            NSLocalizedString("calling_onHold", comment: "")
+        }
+
+        /// Call Ended
+        public static var ended: String {
+            NSLocalizedString("calling_ended", comment: "")
+        }
+
+        /// Call
+        public static var call: String {
+            NSLocalizedString("calling_call", comment: "")
+        }
+
+        /// Answer
+        public static var answer: String {
+            NSLocalizedString("calling_answer", comment: "")
+        }
+
+        /// Decline
+        public static var decline: String {
+            NSLocalizedString("calling_decline", comment: "")
+        }
+
+        /// Hang Up
+        public static var hangUp: String {
+            NSLocalizedString("calling_hangUp", comment: "")
+        }
+
+        /// Mute
+        public static var mute: String {
+            NSLocalizedString("calling_mute", comment: "")
+        }
+
+        /// Unmute
+        public static var unmute: String {
+            NSLocalizedString("calling_unmute", comment: "")
+        }
+
+        /// Start Video
+        public static var startVideo: String {
+            NSLocalizedString("calling_startVideo", comment: "")
+        }
+
+        /// Stop Video
+        public static var stopVideo: String {
+            NSLocalizedString("calling_stopVideo", comment: "")
+        }
+
+        /// Share Screen
+        public static var shareScreen: String {
+            NSLocalizedString("calling_shareScreen", comment: "")
+        }
+
+        /// Stop Sharing
+        public static var stopSharing: String {
+            NSLocalizedString("calling_stopSharing", comment: "")
+        }
+
+        /// Hold
+        public static var hold: String {
+            NSLocalizedString("calling_hold", comment: "")
+        }
+
+        /// Resume
+        public static var resume: String {
+            NSLocalizedString("calling_resume", comment: "")
+        }
+
+        /// Switch Camera
+        public static var switchCamera: String {
+            NSLocalizedString("calling_switchCamera", comment: "")
+        }
+
+        /// Add Participant
+        public static var addParticipant: String {
+            NSLocalizedString("calling_addParticipant", comment: "")
+        }
+
+        /// Incoming Call
+        public static var incomingCall: String {
+            NSLocalizedString("calling_incomingCall", comment: "")
+        }
+
+        /// Incoming Video Call
+        public static var incomingVideoCall: String {
+            NSLocalizedString("calling_incomingVideoCall", comment: "")
+        }
+
+        /// Incoming Group Call
+        public static var incomingGroupCall: String {
+            NSLocalizedString("calling_incomingGroupCall", comment: "")
+        }
+
+        /// Call Quality
+        public static var quality: String {
+            NSLocalizedString("calling_quality", comment: "")
+        }
+
+        /// Excellent
+        public static var excellent: String {
+            NSLocalizedString("calling_excellent", comment: "")
+        }
+
+        /// Good
+        public static var good: String {
+            NSLocalizedString("calling_good", comment: "")
+        }
+
+        /// Fair
+        public static var fair: String {
+            NSLocalizedString("calling_fair", comment: "")
+        }
+
+        /// Poor
+        public static var poor: String {
+            NSLocalizedString("calling_poor", comment: "")
+        }
+
+        /// Call completed
+        public static var completed: String {
+            NSLocalizedString("calling_completed", comment: "")
+        }
+
+        /// Call cancelled
+        public static var cancelled: String {
+            NSLocalizedString("calling_cancelled", comment: "")
+        }
+
+        /// Call declined
+        public static var rejected: String {
+            NSLocalizedString("calling_rejected", comment: "")
+        }
+
+        /// No answer
+        public static var noAnswer: String {
+            NSLocalizedString("calling_noAnswer", comment: "")
+        }
+
+        /// Busy
+        public static var busy: String {
+            NSLocalizedString("calling_busy", comment: "")
+        }
+
+        /// Connection lost
+        public static var networkFailure: String {
+            NSLocalizedString("calling_networkFailure", comment: "")
+        }
+
+        /// Call timed out
+        public static var timeout: String {
+            NSLocalizedString("calling_timeout", comment: "")
+        }
+
+        /// Duration
+        public static var duration: String {
+            NSLocalizedString("calling_duration", comment: "")
+        }
+
+        /// Recent Calls
+        public static var recentCalls: String {
+            NSLocalizedString("calling_recentCalls", comment: "")
+        }
+
+        /// Missed Call
+        public static var missedCall: String {
+            NSLocalizedString("calling_missedCall", comment: "")
+        }
+
+        /// No call history
+        public static var noCallHistory: String {
+            NSLocalizedString("calling_noCallHistory", comment: "")
+        }
+
+        /// Clear History
+        public static var clearHistory: String {
+            NSLocalizedString("calling_clearHistory", comment: "")
+        }
+
+        /// Audio Settings
+        public static var audioSettings: String {
+            NSLocalizedString("calling_audioSettings", comment: "")
+        }
+
+        /// Video Settings
+        public static var videoSettings: String {
+            NSLocalizedString("calling_videoSettings", comment: "")
+        }
+
+        /// Privacy Settings
+        public static var privacySettings: String {
+            NSLocalizedString("calling_privacySettings", comment: "")
+        }
+
+        /// Microphone
+        public static var microphone: String {
+            NSLocalizedString("calling_microphone", comment: "")
+        }
+
+        /// Speaker
+        public static var speaker: String {
+            NSLocalizedString("calling_speaker", comment: "")
+        }
+
+        /// Camera
+        public static var camera: String {
+            NSLocalizedString("calling_camera", comment: "")
+        }
+
+        /// Echo Cancellation
+        public static var echoCancellation: String {
+            NSLocalizedString("calling_echoCancellation", comment: "")
+        }
+
+        /// Noise Suppression
+        public static var noiseSuppression: String {
+            NSLocalizedString("calling_noiseSuppression", comment: "")
+        }
+
+        /// Auto Gain Control
+        public static var autoGainControl: String {
+            NSLocalizedString("calling_autoGainControl", comment: "")
+        }
+
+        /// Default Call Type
+        public static var defaultCallType: String {
+            NSLocalizedString("calling_defaultCallType", comment: "")
+        }
+
+        /// Auto Answer
+        public static var autoAnswer: String {
+            NSLocalizedString("calling_autoAnswer", comment: "")
+        }
+
+        /// Do Not Disturb
+        public static var doNotDisturb: String {
+            NSLocalizedString("calling_doNotDisturb", comment: "")
+        }
+
+        /// Allow Unknown Callers
+        public static var allowUnknownCallers: String {
+            NSLocalizedString("calling_allowUnknownCallers", comment: "")
+        }
+
+        /// Relay Only Mode
+        public static var relayOnlyMode: String {
+            NSLocalizedString("calling_relayOnlyMode", comment: "")
+        }
+
+        /// Always use TURN relay for enhanced privacy (hides IP)
+        public static var relayOnlyModeDesc: String {
+            NSLocalizedString("calling_relayOnlyModeDesc", comment: "")
+        }
+
+        /// End-to-End Encrypted
+        public static var encrypted: String {
+            NSLocalizedString("calling_encrypted", comment: "")
+        }
+
+        /// Not Encrypted
+        public static var notEncrypted: String {
+            NSLocalizedString("calling_notEncrypted", comment: "")
+        }
+
+        /// Verify Encryption
+        public static var verifyEncryption: String {
+            NSLocalizedString("calling_verifyEncryption", comment: "")
+        }
+
+        /// Encryption Verified
+        public static var encryptionVerified: String {
+            NSLocalizedString("calling_encryptionVerified", comment: "")
+        }
+
+        /// Participants
+        public static var participants: String {
+            NSLocalizedString("calling_participants", comment: "")
+        }
+
+        /// Host
+        public static var host: String {
+            NSLocalizedString("calling_host", comment: "")
+        }
+
+        /// Co-Host
+        public static var coHost: String {
+            NSLocalizedString("calling_coHost", comment: "")
+        }
+
+        /// Speaking
+        public static var speaking: String {
+            NSLocalizedString("calling_speaking", comment: "")
+        }
+
+        /// Join Call
+        public static var joinCall: String {
+            NSLocalizedString("calling_joinCall", comment: "")
+        }
+
+        /// Leave Call
+        public static var leaveCall: String {
+            NSLocalizedString("calling_leaveCall", comment: "")
+        }
+
+        /// Mute All
+        public static var muteAll: String {
+            NSLocalizedString("calling_muteAll", comment: "")
+        }
+
+        /// Unmute All
+        public static var unmuteAll: String {
+            NSLocalizedString("calling_unmuteAll", comment: "")
+        }
+
+        /// Remove Participant
+        public static var removeParticipant: String {
+            NSLocalizedString("calling_removeParticipant", comment: "")
+        }
+
+        /// Conference Room
+        public static var conferenceRoom: String {
+            NSLocalizedString("calling_conferenceRoom", comment: "")
+        }
+
+        /// Create Room
+        public static var createRoom: String {
+            NSLocalizedString("calling_createRoom", comment: "")
+        }
+
+        /// Join Room
+        public static var joinRoom: String {
+            NSLocalizedString("calling_joinRoom", comment: "")
+        }
+
+        /// Room Settings
+        public static var roomSettings: String {
+            NSLocalizedString("calling_roomSettings", comment: "")
+        }
+
+        /// Waiting Room
+        public static var waitingRoom: String {
+            NSLocalizedString("calling_waitingRoom", comment: "")
+        }
+
+        /// Lock Room
+        public static var lockRoom: String {
+            NSLocalizedString("calling_lockRoom", comment: "")
+        }
+
+        /// Unlock Room
+        public static var unlockRoom: String {
+            NSLocalizedString("calling_unlockRoom", comment: "")
+        }
+
+        /// Breakout Rooms
+        public static var breakoutRooms: String {
+            NSLocalizedString("calling_breakoutRooms", comment: "")
+        }
+
+        /// Create Breakout Room
+        public static var createBreakout: String {
+            NSLocalizedString("calling_createBreakout", comment: "")
+        }
+
+        /// Return to Main Room
+        public static var returnToMain: String {
+            NSLocalizedString("calling_returnToMain", comment: "")
+        }
+
+        /// End Conference
+        public static var endConference: String {
+            NSLocalizedString("calling_endConference", comment: "")
+        }
+
+        /// Hotline
+        public static var hotline: String {
+            NSLocalizedString("calling_hotline", comment: "")
+        }
+
+        /// Hotlines
+        public static var hotlines: String {
+            NSLocalizedString("calling_hotlines", comment: "")
+        }
+
+        /// Create Hotline
+        public static var createHotline: String {
+            NSLocalizedString("calling_createHotline", comment: "")
+        }
+
+        /// Hotline Settings
+        public static var hotlineSettings: String {
+            NSLocalizedString("calling_hotlineSettings", comment: "")
+        }
+
+        /// Operators
+        public static var operators: String {
+            NSLocalizedString("calling_operators", comment: "")
+        }
+
+        /// Queue
+        public static var queue: String {
+            NSLocalizedString("calling_queue", comment: "")
+        }
+
+        /// Position in queue
+        public static var queuePosition: String {
+            NSLocalizedString("calling_queuePosition", comment: "")
+        }
+
+        /// Estimated wait
+        public static var estimatedWait: String {
+            NSLocalizedString("calling_estimatedWait", comment: "")
+        }
+
+        /// Call Queue
+        public static var callQueue: String {
+            NSLocalizedString("calling_callQueue", comment: "")
+        }
+
+        /// No calls in queue
+        public static var noCallsInQueue: String {
+            NSLocalizedString("calling_noCallsInQueue", comment: "")
+        }
+
+        /// Accept Call
+        public static var acceptCall: String {
+            NSLocalizedString("calling_acceptCall", comment: "")
+        }
+
+        /// Transfer Call
+        public static var transferCall: String {
+            NSLocalizedString("calling_transferCall", comment: "")
+        }
+
+        /// Escalate
+        public static var escalate: String {
+            NSLocalizedString("calling_escalate", comment: "")
+        }
+
+        /// Wrap Up
+        public static var wrapUp: String {
+            NSLocalizedString("calling_wrapUp", comment: "")
+        }
+
+        /// Take Break
+        public static var takeBreak: String {
+            NSLocalizedString("calling_takeBreak", comment: "")
+        }
+
+        /// Go Online
+        public static var goOnline: String {
+            NSLocalizedString("calling_goOnline", comment: "")
+        }
+
+        /// Go Offline
+        public static var goOffline: String {
+            NSLocalizedString("calling_goOffline", comment: "")
+        }
+
+        /// Call Notes
+        public static var callNotes: String {
+            NSLocalizedString("calling_callNotes", comment: "")
+        }
+
+        /// Category
+        public static var category: String {
+            NSLocalizedString("calling_category", comment: "")
+        }
+
+        /// Priority
+        public static var priority: String {
+            NSLocalizedString("calling_priority", comment: "")
+        }
+
+        /// Low
+        public static var priorityLow: String {
+            NSLocalizedString("calling_priorityLow", comment: "")
+        }
+
+        /// Medium
+        public static var priorityMedium: String {
+            NSLocalizedString("calling_priorityMedium", comment: "")
+        }
+
+        /// High
+        public static var priorityHigh: String {
+            NSLocalizedString("calling_priorityHigh", comment: "")
+        }
+
+        /// Urgent
+        public static var priorityUrgent: String {
+            NSLocalizedString("calling_priorityUrgent", comment: "")
+        }
+
+        /// Messaging Hotline
+        public static var messagingHotline: String {
+            NSLocalizedString("calling_messagingHotline", comment: "")
+        }
+
+        /// Threads
+        public static var threads: String {
+            NSLocalizedString("calling_threads", comment: "")
+        }
+
+        /// Unassigned
+        public static var unassigned: String {
+            NSLocalizedString("calling_unassigned", comment: "")
+        }
+
+        /// Assigned
+        public static var assigned: String {
+            NSLocalizedString("calling_assigned", comment: "")
+        }
+
+        /// Active
+        public static var active: String {
+            NSLocalizedString("calling_active", comment: "")
+        }
+
+        /// Waiting
+        public static var waiting: String {
+            NSLocalizedString("calling_waiting", comment: "")
+        }
+
+        /// Resolved
+        public static var resolved: String {
+            NSLocalizedString("calling_resolved", comment: "")
+        }
+
+        /// Archived
+        public static var archived: String {
+            NSLocalizedString("calling_archived", comment: "")
+        }
+
+        /// Assign to Me
+        public static var assignToMe: String {
+            NSLocalizedString("calling_assignToMe", comment: "")
+        }
+
+        /// Reassign
+        public static var reassign: String {
+            NSLocalizedString("calling_reassign", comment: "")
+        }
+
+        /// Resolve
+        public static var resolve: String {
+            NSLocalizedString("calling_resolve", comment: "")
+        }
+
+        /// Archive
+        public static var archive: String {
+            NSLocalizedString("calling_archive", comment: "")
+        }
+
+        /// Escalate to Call
+        public static var escalateToCall: String {
+            NSLocalizedString("calling_escalateToCall", comment: "")
+        }
+
+        /// unread messages
+        public static var unreadMessages: String {
+            NSLocalizedString("calling_unreadMessages", comment: "")
+        }
+
+        /// Broadcast
+        public static var broadcast: String {
+            NSLocalizedString("calling_broadcast", comment: "")
+        }
+
+        /// Broadcasts
+        public static var broadcasts: String {
+            NSLocalizedString("calling_broadcasts", comment: "")
+        }
+
+        /// Create Broadcast
+        public static var createBroadcast: String {
+            NSLocalizedString("calling_createBroadcast", comment: "")
+        }
+
+        /// Send Broadcast
+        public static var sendBroadcast: String {
+            NSLocalizedString("calling_sendBroadcast", comment: "")
+        }
+
+        /// Schedule Broadcast
+        public static var scheduleBroadcast: String {
+            NSLocalizedString("calling_scheduleBroadcast", comment: "")
+        }
+
+        /// Title
+        public static var broadcastTitle: String {
+            NSLocalizedString("calling_broadcastTitle", comment: "")
+        }
+
+        /// Message
+        public static var broadcastContent: String {
+            NSLocalizedString("calling_broadcastContent", comment: "")
+        }
+
+        /// Target Audience
+        public static var targetAudience: String {
+            NSLocalizedString("calling_targetAudience", comment: "")
+        }
+
+        /// Group
+        public static var targetGroup: String {
+            NSLocalizedString("calling_targetGroup", comment: "")
+        }
+
+        /// Contact List
+        public static var targetContactList: String {
+            NSLocalizedString("calling_targetContactList", comment: "")
+        }
+
+        /// Public Channel
+        public static var targetPublicChannel: String {
+            NSLocalizedString("calling_targetPublicChannel", comment: "")
+        }
+
+        /// Emergency Broadcast
+        public static var emergencyBroadcast: String {
+            NSLocalizedString("calling_emergencyBroadcast", comment: "")
+        }
+
+        /// Draft
+        public static var draft: String {
+            NSLocalizedString("calling_draft", comment: "")
+        }
+
+        /// Scheduled
+        public static var scheduled: String {
+            NSLocalizedString("calling_scheduled", comment: "")
+        }
+
+        /// Sending...
+        public static var sending: String {
+            NSLocalizedString("calling_sending", comment: "")
+        }
+
+        /// Sent
+        public static var sent: String {
+            NSLocalizedString("calling_sent", comment: "")
+        }
+
+        /// Failed
+        public static var failed: String {
+            NSLocalizedString("calling_failed", comment: "")
+        }
+
+        /// Analytics
+        public static var analytics: String {
+            NSLocalizedString("calling_analytics", comment: "")
+        }
+
+        /// Total Recipients
+        public static var totalRecipients: String {
+            NSLocalizedString("calling_totalRecipients", comment: "")
+        }
+
+        /// Delivered
+        public static var delivered: String {
+            NSLocalizedString("calling_delivered", comment: "")
+        }
+
+        /// Read
+        public static var read: String {
+            NSLocalizedString("calling_read", comment: "")
+        }
+
+        /// Replied
+        public static var replied: String {
+            NSLocalizedString("calling_replied", comment: "")
+        }
+
+        /// Call failed
+        public static var callFailed: String {
+            NSLocalizedString("calling_callFailed", comment: "")
+        }
+
+        /// Connection failed
+        public static var connectionFailed: String {
+            NSLocalizedString("calling_connectionFailed", comment: "")
+        }
+
+        /// Microphone access denied
+        public static var microphoneError: String {
+            NSLocalizedString("calling_microphoneError", comment: "")
+        }
+
+        /// Camera access denied
+        public static var cameraError: String {
+            NSLocalizedString("calling_cameraError", comment: "")
+        }
+
+        /// Permission denied
+        public static var permissionDenied: String {
+            NSLocalizedString("calling_permissionDenied", comment: "")
+        }
+
+        /// Your browser does not support calling
+        public static var browserNotSupported: String {
+            NSLocalizedString("calling_browserNotSupported", comment: "")
+        }
+
+        /// No media devices found
+        public static var noMediaDevices: String {
+            NSLocalizedString("calling_noMediaDevices", comment: "")
+        }
+
+        /// Secure, end-to-end encrypted voice and video calls.
+        public static var metaDescription: String {
+            NSLocalizedString("calling_meta_description", comment: "")
+        }
+    }
+
     /// Microblogging translations
     public enum Microblogging {
 

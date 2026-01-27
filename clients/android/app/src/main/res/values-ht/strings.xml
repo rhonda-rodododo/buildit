@@ -226,7 +226,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s anonim</string>
     <string name="anonymousVoting_results_hide">Kache Rezilta</string>
     <string name="anonymousVoting_results_show">Montre Rezilta</string>
-    <string name="anonymousVoting_results_votes">%1$s vòt (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s vòt (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">Ou ka chanje vòt ou jiskaske pwopozisyon an fèmen.</string>
     <string name="anonymousVoting_status_identityProtected">Idantite ou pwoteje pa kriptografi zewo konesans</string>
     <string name="anonymousVoting_status_recorded">Vòt Anrejistre</string>
@@ -707,7 +707,7 @@
     <string name="campaignBuilder_categories_emergency">Ijans</string>
     <string name="campaignBuilder_categories_general">Jeneral</string>
     <string name="campaignBuilder_categories_legal">Defans Legal</string>
-    <string name="campaignBuilder_categories_mutual-aid">Èd Mityèl</string>
+    <string name="campaignBuilder_categories_mutual_aid">Èd Mityèl</string>
     <string name="campaignBuilder_categories_strike">Fon Grèv</string>
     <string name="campaignBuilder_category">Kategori</string>
     <string name="campaignBuilder_createCampaign">Kreye Kanpay</string>
@@ -1015,8 +1015,8 @@
     <string name="createProposalDialog_fields_durationLabel">Dire Vòt (jou)</string>
     <string name="createProposalDialog_fields_optionsLabel">Opsyon (youn pa liy)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">Opsyon 1\nOpsyon 2\nOpsyon 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">Kowòm (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">Limit (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">Kowòm (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">Limit (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">Tit</string>
     <string name="createProposalDialog_fields_titlePlaceholder">Tit pwopozisyon...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">Metòd Vòt</string>
@@ -1435,16 +1435,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">Nechèl Angajman an baze sou metòd Espèk Sipò ke mouvman òganizasyon ki reyisi itilize. Chak nivo reprezante yon patisipasyon pi pwofon nan mouvman an:</string>
     <string name="engagementPage_aboutLadder_footer">Konplete etap nan nivo aktyèl ou pou debloke pwochen etap nan vwayaj òganizasyon ou.</string>
-    <string name="engagementPage_aboutLadder_levels_active">Sipò Aktif (70%) - Patisipe aktivman nan aksyon</string>
-    <string name="engagementPage_aboutLadder_levels_core">Òganizatè Santral (100%) - Dirije ak devlope lòt moun</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">Net (30%) - Aprann ak eksplore</string>
-    <string name="engagementPage_aboutLadder_levels_passive">Sipò Pasif (40%) - Sipòte sou kote</string>
+    <string name="engagementPage_aboutLadder_levels_active">Sipò Aktif (70%%) - Patisipe aktivman nan aksyon</string>
+    <string name="engagementPage_aboutLadder_levels_core">Òganizatè Santral (100%%) - Dirije ak devlope lòt moun</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">Net (30%%) - Aprann ak eksplore</string>
+    <string name="engagementPage_aboutLadder_levels_passive">Sipò Pasif (40%%) - Sipòte sou kote</string>
     <string name="engagementPage_aboutLadder_title">Konsènan Nechèl Angajman an</string>
     <string name="engagementPage_demoSwitchLevel">Demo: Chanje Nivo</string>
-    <string name="engagementPage_levelOptions_active">Sipò Aktif (70%)</string>
-    <string name="engagementPage_levelOptions_core">Òganizatè Santral (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">Net (30%)</string>
-    <string name="engagementPage_levelOptions_passive">Sipò Pasif (40%)</string>
+    <string name="engagementPage_levelOptions_active">Sipò Aktif (70%%)</string>
+    <string name="engagementPage_levelOptions_core">Òganizatè Santral (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">Net (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">Sipò Pasif (40%%)</string>
     <string name="engagementPage_subtitle">Swiv angajman ou, konplete etap enpòtan, epi grandi kòm yon òganizatè</string>
     <string name="engagementPage_tabs_engagement">Vwayaj Angajman</string>
     <string name="engagementPage_tabs_notifications">Notifikasyon Entèlijan</string>
@@ -1627,7 +1627,7 @@
     <string name="files_bulkShare_noGroupMembers">Pa jwenn manm gwoup</string>
     <string name="files_bulkShare_passwordOptional">Modpas (opsyonèl, menm pou tout)</string>
     <string name="files_bulkShare_passwordPlaceholder">Kite vid pou pa gen modpas</string>
-    <string name="files_bulkShare_percentComplete">%s% fini</string>
+    <string name="files_bulkShare_percentComplete">%s%% fini</string>
     <string name="files_bulkShare_permissionLevel">Nivo Pèmisyon</string>
     <string name="files_bulkShare_pleaseWait">Tanpri tann pandan n ap pataje fichye ou yo</string>
     <string name="files_bulkShare_selectUsers">Chwazi Itilizatè</string>
@@ -2120,7 +2120,7 @@
     <string name="groupMembersTab_roles_admin">Administratè</string>
     <string name="groupMembersTab_roles_member">Manm</string>
     <string name="groupMembersTab_roles_moderator">Moderatè</string>
-    <string name="groupMembersTab_roles_read-only">Li Sèlman</string>
+    <string name="groupMembersTab_roles_read_only">Li Sèlman</string>
     <string name="groupMembersTab_title">Manm yo</string>
     <string name="groupMembersTab_unknown">Enkoni</string>
     <string name="groupMembersTab_you">Ou</string>
@@ -2617,12 +2617,12 @@
     <string name="moderationQueue_pendingTab">An Atant</string>
     <string name="moderationQueue_reason">Rezon:</string>
     <string name="moderationQueue_reasons_harassment">Asèlman</string>
-    <string name="moderationQueue_reasons_hate-speech">Diskou Rayisman</string>
-    <string name="moderationQueue_reasons_illegal-content">Kontni Ilegal</string>
+    <string name="moderationQueue_reasons_hate_speech">Diskou Rayisman</string>
+    <string name="moderationQueue_reasons_illegal_content">Kontni Ilegal</string>
     <string name="moderationQueue_reasons_impersonation">Imatèlman</string>
     <string name="moderationQueue_reasons_misinformation">Dezenfòmasyon</string>
     <string name="moderationQueue_reasons_other">Lòt</string>
-    <string name="moderationQueue_reasons_self-harm">Blese Tèt Ou</string>
+    <string name="moderationQueue_reasons_self_harm">Blese Tèt Ou</string>
     <string name="moderationQueue_reasons_spam">Espam</string>
     <string name="moderationQueue_reasons_violence">Vyolans</string>
     <string name="moderationQueue_report">Rapò</string>
@@ -2806,10 +2806,10 @@
     <string name="notifications_title">Paramèt Notifikasyon</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">Sipò Aktif (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">Òganizatè Prensipal (100%)</string>
-    <string name="notificationsDemoLevels_neutral">Net (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">Sipò Pasif (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">Sipò Aktif (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">Òganizatè Prensipal (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">Net (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">Sipò Pasif (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">Demo: Chanje Nivo</string>
@@ -2849,8 +2849,8 @@
     <string name="onboardingDemo_entryPointLabel">Pwen antre: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">Paj Kanpay</string>
     <string name="onboardingDemo_entryPoints_event">Enskripsyon Evènman</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">Envitasyon Zanmi</string>
-    <string name="onboardingDemo_entryPoints_social-media">Lyen Rezo Sosyal</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">Envitasyon Zanmi</string>
+    <string name="onboardingDemo_entryPoints_social_media">Lyen Rezo Sosyal</string>
     <string name="onboardingDemo_entryPoints_website">Sit Entènèt Prensipal</string>
     <string name="onboardingDemo_simulateEntryPoint">Simile Pwen Antre</string>
     <string name="onboardingDemo_title">Akèy Pèsonalize</string>
@@ -3239,7 +3239,7 @@
     <string name="publicCampaignView_customAmount_description">Antre yon kantite don pèsonalize</string>
     <string name="publicCampaignView_customAmount_title">Kantite Pèsonalize</string>
     <string name="publicCampaignView_donate">Fè Don</string>
-    <string name="publicCampaignView_funded">%s% ranmase</string>
+    <string name="publicCampaignView_funded">%s%% ranmase</string>
     <string name="publicCampaignView_goal">nan %s objektif</string>
     <string name="publicCampaignView_supportCampaign">Sipòte Kanpay Sa a</string>
 
@@ -3698,7 +3698,7 @@
     <string name="smartNotifications_filters_markAllRead">Make tout kòm li</string>
     <string name="smartNotifications_filters_unread">Pa Li (%s)</string>
     <string name="smartNotifications_personalized">Pèsonalize pou %s</string>
-    <string name="smartNotifications_relevance">%s% enpòtan</string>
+    <string name="smartNotifications_relevance">%s%% enpòtan</string>
     <string name="smartNotifications_title">Notifikasyon Entèlijan</string>
 
     <!-- StoryViewer -->
@@ -3988,8 +3988,8 @@
     <string name="templates_categories_civic">Aksyon Sivik</string>
     <string name="templates_categories_community">Kominote</string>
     <string name="templates_categories_governance">Gouvènans</string>
-    <string name="templates_categories_movement-defense">Defans Mouvman</string>
-    <string name="templates_categories_mutual-aid">Ed Mityel</string>
+    <string name="templates_categories_movement_defense">Defans Mouvman</string>
+    <string name="templates_categories_mutual_aid">Ed Mityel</string>
     <string name="templates_categories_organizing">Òganizasyon</string>
     <string name="templates_communityHub_description">Yon espas jeneral pou òganizasyon kominotè ak koneksyon. Pafè pou katye ak gwoup sosyal.</string>
     <string name="templates_communityHub_enhancements_crm_description">Jere kontak kominotè ak biznis lokal</string>

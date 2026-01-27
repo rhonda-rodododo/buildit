@@ -226,7 +226,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s anonymous</string>
     <string name="anonymousVoting_results_hide">Itago ang Resulta</string>
     <string name="anonymousVoting_results_show">Ipakita ang Resulta</string>
-    <string name="anonymousVoting_results_votes">%1$s boto (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s boto (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">Maaari mong baguhin ang iyong boto hanggang magsara ang panukala.</string>
     <string name="anonymousVoting_status_identityProtected">Ang iyong pagkakakilanlan ay protektado ng zero-knowledge cryptography</string>
     <string name="anonymousVoting_status_recorded">Boto Naitala</string>
@@ -708,7 +708,7 @@
     <string name="campaignBuilder_categories_emergency">Emerhensya</string>
     <string name="campaignBuilder_categories_general">Pangkalahatan</string>
     <string name="campaignBuilder_categories_legal">Legal na Depensa</string>
-    <string name="campaignBuilder_categories_mutual-aid">Tulong sa Kapwa</string>
+    <string name="campaignBuilder_categories_mutual_aid">Tulong sa Kapwa</string>
     <string name="campaignBuilder_categories_strike">Pondo para sa Welga</string>
     <string name="campaignBuilder_category">Kategorya</string>
     <string name="campaignBuilder_createCampaign">Gumawa ng Kampanya</string>
@@ -1016,8 +1016,8 @@
     <string name="createProposalDialog_fields_durationLabel">Tagal ng Pagboto (araw)</string>
     <string name="createProposalDialog_fields_optionsLabel">Mga Opsyon (isa bawat linya)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">Opsyon 1\nOpsyon 2\nOpsyon 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">Quorum (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">Threshold (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">Quorum (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">Threshold (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">Pamagat</string>
     <string name="createProposalDialog_fields_titlePlaceholder">Pamagat ng panukala...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">Paraan ng Pagboto</string>
@@ -1436,16 +1436,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">Ang Hagdan ng Pakikilahok ay batay sa Spectrum of Support methodology na ginagamit ng mga matagumpay na kilusan ng pag-oorganisa. Bawat antas ay kumakatawan sa mas malalim na pakikilahok sa kilusan:</string>
     <string name="engagementPage_aboutLadder_footer">Kumpletuhin ang mga milestone sa iyong kasalukuyang antas upang ma-unlock ang susunod na yugto ng iyong paglalakbay sa pag-oorganisa.</string>
-    <string name="engagementPage_aboutLadder_levels_active">Aktibong Suporta (70%) - Aktibong nakikilahok sa mga aksyon</string>
-    <string name="engagementPage_aboutLadder_levels_core">Core Organizer (100%) - Namumuno at nagpapaunlad ng iba</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">Neutral (30%) - Nag-aaral at nag-eeksplora</string>
-    <string name="engagementPage_aboutLadder_levels_passive">Pasibong Suporta (40%) - Sumusuporta mula sa gilid</string>
+    <string name="engagementPage_aboutLadder_levels_active">Aktibong Suporta (70%%) - Aktibong nakikilahok sa mga aksyon</string>
+    <string name="engagementPage_aboutLadder_levels_core">Core Organizer (100%%) - Namumuno at nagpapaunlad ng iba</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">Neutral (30%%) - Nag-aaral at nag-eeksplora</string>
+    <string name="engagementPage_aboutLadder_levels_passive">Pasibong Suporta (40%%) - Sumusuporta mula sa gilid</string>
     <string name="engagementPage_aboutLadder_title">Tungkol sa Hagdan ng Pakikilahok</string>
     <string name="engagementPage_demoSwitchLevel">Demo: Palitan ang Antas</string>
-    <string name="engagementPage_levelOptions_active">Aktibong Suporta (70%)</string>
-    <string name="engagementPage_levelOptions_core">Core Organizer (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">Neutral (30%)</string>
-    <string name="engagementPage_levelOptions_passive">Pasibong Suporta (40%)</string>
+    <string name="engagementPage_levelOptions_active">Aktibong Suporta (70%%)</string>
+    <string name="engagementPage_levelOptions_core">Core Organizer (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">Neutral (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">Pasibong Suporta (40%%)</string>
     <string name="engagementPage_subtitle">Subaybayan ang iyong pakikilahok, kumpletuhin ang mga milestone, at lumago bilang organizer</string>
     <string name="engagementPage_tabs_engagement">Paglalakbay ng Pakikilahok</string>
     <string name="engagementPage_tabs_notifications">Matalinong Notipikasyon</string>
@@ -1628,7 +1628,7 @@
     <string name="files_bulkShare_noGroupMembers">Walang nakitang miyembro ng grupo</string>
     <string name="files_bulkShare_passwordOptional">Password (opsyonal, pareho para sa lahat)</string>
     <string name="files_bulkShare_passwordPlaceholder">Iwanang blangko kung walang password</string>
-    <string name="files_bulkShare_percentComplete">%s% kumpleto</string>
+    <string name="files_bulkShare_percentComplete">%s%% kumpleto</string>
     <string name="files_bulkShare_permissionLevel">Antas ng Pahintulot</string>
     <string name="files_bulkShare_pleaseWait">Maghintay habang ibinabahagi ang iyong mga file</string>
     <string name="files_bulkShare_selectUsers">Pumili ng mga User</string>
@@ -2121,7 +2121,7 @@
     <string name="groupMembersTab_roles_admin">Admin</string>
     <string name="groupMembersTab_roles_member">Miyembro</string>
     <string name="groupMembersTab_roles_moderator">Moderator</string>
-    <string name="groupMembersTab_roles_read-only">Basa Lamang</string>
+    <string name="groupMembersTab_roles_read_only">Basa Lamang</string>
     <string name="groupMembersTab_title">Mga Miyembro</string>
     <string name="groupMembersTab_unknown">Hindi Kilala</string>
     <string name="groupMembersTab_you">Ikaw</string>
@@ -2618,12 +2618,12 @@
     <string name="moderationQueue_pendingTab">Naghihintay</string>
     <string name="moderationQueue_reason">Dahilan:</string>
     <string name="moderationQueue_reasons_harassment">Panliligalig</string>
-    <string name="moderationQueue_reasons_hate-speech">Hate Speech</string>
-    <string name="moderationQueue_reasons_illegal-content">Iligal na Nilalaman</string>
+    <string name="moderationQueue_reasons_hate_speech">Hate Speech</string>
+    <string name="moderationQueue_reasons_illegal_content">Iligal na Nilalaman</string>
     <string name="moderationQueue_reasons_impersonation">Pagpapanggap</string>
     <string name="moderationQueue_reasons_misinformation">Maling Impormasyon</string>
     <string name="moderationQueue_reasons_other">Iba pa</string>
-    <string name="moderationQueue_reasons_self-harm">Panakit sa Sarili</string>
+    <string name="moderationQueue_reasons_self_harm">Panakit sa Sarili</string>
     <string name="moderationQueue_reasons_spam">Spam</string>
     <string name="moderationQueue_reasons_violence">Karahasan</string>
     <string name="moderationQueue_report">Ulat</string>
@@ -2807,10 +2807,10 @@
     <string name="notifications_title">Mga Setting ng Notification</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">Aktibong Suporta (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">Pangunahing Organisador (100%)</string>
-    <string name="notificationsDemoLevels_neutral">Neutral (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">Pasibong Suporta (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">Aktibong Suporta (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">Pangunahing Organisador (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">Neutral (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">Pasibong Suporta (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">Demo: Palitan ang Antas</string>
@@ -2850,8 +2850,8 @@
     <string name="onboardingDemo_entryPointLabel">Entry Point: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">Pahina ng Kampanya</string>
     <string name="onboardingDemo_entryPoints_event">RSVP sa Event</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">Imbitasyon ng Kaibigan</string>
-    <string name="onboardingDemo_entryPoints_social-media">Link sa Social Media</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">Imbitasyon ng Kaibigan</string>
+    <string name="onboardingDemo_entryPoints_social_media">Link sa Social Media</string>
     <string name="onboardingDemo_entryPoints_website">Pangunahing Website</string>
     <string name="onboardingDemo_simulateEntryPoint">Gayahin ang Entry Point</string>
     <string name="onboardingDemo_title">Personalisadong Onboarding</string>
@@ -3240,7 +3240,7 @@
     <string name="publicCampaignView_customAmount_description">Maglagay ng custom na halaga ng donasyon</string>
     <string name="publicCampaignView_customAmount_title">Custom na Halaga</string>
     <string name="publicCampaignView_donate">Mag-donate</string>
-    <string name="publicCampaignView_funded">%s% naipon</string>
+    <string name="publicCampaignView_funded">%s%% naipon</string>
     <string name="publicCampaignView_goal">sa %s na layunin</string>
     <string name="publicCampaignView_supportCampaign">Suportahan ang Kampanyang Ito</string>
 
@@ -3699,7 +3699,7 @@
     <string name="smartNotifications_filters_markAllRead">Markahan lahat bilang nabasa</string>
     <string name="smartNotifications_filters_unread">Hindi Pa Nabasa (%s)</string>
     <string name="smartNotifications_personalized">Naka-personalize para sa %s</string>
-    <string name="smartNotifications_relevance">%s% relevant</string>
+    <string name="smartNotifications_relevance">%s%% relevant</string>
     <string name="smartNotifications_title">Matalinong Notipikasyon</string>
 
     <!-- StoryViewer -->
@@ -3989,8 +3989,8 @@
     <string name="templates_categories_civic">Aksyong Sibiko</string>
     <string name="templates_categories_community">Komunidad</string>
     <string name="templates_categories_governance">Pamamahala</string>
-    <string name="templates_categories_movement-defense">Depensa ng Kilusan</string>
-    <string name="templates_categories_mutual-aid">Bayanihan</string>
+    <string name="templates_categories_movement_defense">Depensa ng Kilusan</string>
+    <string name="templates_categories_mutual_aid">Bayanihan</string>
     <string name="templates_categories_organizing">Pag-oorganisa</string>
     <string name="templates_communityHub_description">Isang pangkalahatang espasyo para sa pag-oorganisa at koneksyon ng komunidad. Perpekto para sa mga kapitbahayan at mga grupo sa lipunan.</string>
     <string name="templates_communityHub_enhancements_crm_description">Pamahalaan ang mga contact ng komunidad at mga lokal na negosyo</string>

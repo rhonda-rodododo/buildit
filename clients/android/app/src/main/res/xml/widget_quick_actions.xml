@@ -4,7 +4,7 @@
     Defines widget dimensions, update frequency, and preview resources.
 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/widget_quick_actions_description"
+    android:description="@string/mobile_widgets_quickActionsDescription"
     android:initialLayout="@layout/widget_loading"
     android:minWidth="180dp"
     android:minHeight="180dp"

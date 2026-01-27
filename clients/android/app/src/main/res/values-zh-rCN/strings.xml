@@ -232,7 +232,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s票匿名</string>
     <string name="anonymousVoting_results_hide">隐藏结果</string>
     <string name="anonymousVoting_results_show">显示结果</string>
-    <string name="anonymousVoting_results_votes">%1$s票 (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s票 (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">您可以在提案关闭前更改投票。</string>
     <string name="anonymousVoting_status_identityProtected">您的身份受零知识加密保护</string>
     <string name="anonymousVoting_status_recorded">投票已记录</string>
@@ -714,7 +714,7 @@
     <string name="campaignBuilder_categories_emergency">紧急</string>
     <string name="campaignBuilder_categories_general">通用</string>
     <string name="campaignBuilder_categories_legal">法律援助</string>
-    <string name="campaignBuilder_categories_mutual-aid">互助</string>
+    <string name="campaignBuilder_categories_mutual_aid">互助</string>
     <string name="campaignBuilder_categories_strike">罢工基金</string>
     <string name="campaignBuilder_category">类别</string>
     <string name="campaignBuilder_createCampaign">创建活动</string>
@@ -1022,8 +1022,8 @@
     <string name="createProposalDialog_fields_durationLabel">投票持续时间（天）</string>
     <string name="createProposalDialog_fields_optionsLabel">选项（每行一个）</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">选项 1\n选项 2\n选项 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">法定人数 (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">通过门槛 (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">法定人数 (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">通过门槛 (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">标题</string>
     <string name="createProposalDialog_fields_titlePlaceholder">提案标题...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">投票方式</string>
@@ -1442,16 +1442,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">参与阶梯基于成功组织运动所使用的支持光谱方法论。每个级别代表对运动的更深入参与：</string>
     <string name="engagementPage_aboutLadder_footer">完成当前级别的里程碑，解锁你组织旅程的下一阶段。</string>
-    <string name="engagementPage_aboutLadder_levels_active">主动支持（70%）- 积极参与行动</string>
-    <string name="engagementPage_aboutLadder_levels_core">核心组织者（100%）- 领导和培养他人</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">中立（30%）- 学习和探索</string>
-    <string name="engagementPage_aboutLadder_levels_passive">被动支持（40%）- 从旁支持</string>
+    <string name="engagementPage_aboutLadder_levels_active">主动支持（70%%）- 积极参与行动</string>
+    <string name="engagementPage_aboutLadder_levels_core">核心组织者（100%%）- 领导和培养他人</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">中立（30%%）- 学习和探索</string>
+    <string name="engagementPage_aboutLadder_levels_passive">被动支持（40%%）- 从旁支持</string>
     <string name="engagementPage_aboutLadder_title">关于参与阶梯</string>
     <string name="engagementPage_demoSwitchLevel">演示：切换级别</string>
-    <string name="engagementPage_levelOptions_active">主动支持 (70%)</string>
-    <string name="engagementPage_levelOptions_core">核心组织者 (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">中立 (30%)</string>
-    <string name="engagementPage_levelOptions_passive">被动支持 (40%)</string>
+    <string name="engagementPage_levelOptions_active">主动支持 (70%%)</string>
+    <string name="engagementPage_levelOptions_core">核心组织者 (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">中立 (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">被动支持 (40%%)</string>
     <string name="engagementPage_subtitle">追踪你的参与度，完成里程碑，成长为组织者</string>
     <string name="engagementPage_tabs_engagement">参与旅程</string>
     <string name="engagementPage_tabs_notifications">智能通知</string>
@@ -1634,7 +1634,7 @@
     <string name="files_bulkShare_noGroupMembers">未找到群组成员</string>
     <string name="files_bulkShare_passwordOptional">密码（可选，所有文件相同）</string>
     <string name="files_bulkShare_passwordPlaceholder">留空表示无密码</string>
-    <string name="files_bulkShare_percentComplete">%s% 已完成</string>
+    <string name="files_bulkShare_percentComplete">%s%% 已完成</string>
     <string name="files_bulkShare_permissionLevel">权限级别</string>
     <string name="files_bulkShare_pleaseWait">请稍候，正在分享您的文件</string>
     <string name="files_bulkShare_selectUsers">选择用户</string>
@@ -2127,7 +2127,7 @@
     <string name="groupMembersTab_roles_admin">管理员</string>
     <string name="groupMembersTab_roles_member">成员</string>
     <string name="groupMembersTab_roles_moderator">版主</string>
-    <string name="groupMembersTab_roles_read-only">只读</string>
+    <string name="groupMembersTab_roles_read_only">只读</string>
     <string name="groupMembersTab_title">成员</string>
     <string name="groupMembersTab_unknown">未知</string>
     <string name="groupMembersTab_you">您</string>
@@ -2624,12 +2624,12 @@
     <string name="moderationQueue_pendingTab">待处理</string>
     <string name="moderationQueue_reason">原因：</string>
     <string name="moderationQueue_reasons_harassment">骚扰</string>
-    <string name="moderationQueue_reasons_hate-speech">仇恨言论</string>
-    <string name="moderationQueue_reasons_illegal-content">违法内容</string>
+    <string name="moderationQueue_reasons_hate_speech">仇恨言论</string>
+    <string name="moderationQueue_reasons_illegal_content">违法内容</string>
     <string name="moderationQueue_reasons_impersonation">冒充他人</string>
     <string name="moderationQueue_reasons_misinformation">虚假信息</string>
     <string name="moderationQueue_reasons_other">其他</string>
-    <string name="moderationQueue_reasons_self-harm">自我伤害</string>
+    <string name="moderationQueue_reasons_self_harm">自我伤害</string>
     <string name="moderationQueue_reasons_spam">垃圾信息</string>
     <string name="moderationQueue_reasons_violence">暴力内容</string>
     <string name="moderationQueue_report">举报</string>
@@ -2813,10 +2813,10 @@
     <string name="notifications_title">通知设置</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">积极支持 (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">核心组织者 (100%)</string>
-    <string name="notificationsDemoLevels_neutral">中立 (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">被动支持 (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">积极支持 (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">核心组织者 (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">中立 (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">被动支持 (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">演示: 切换级别</string>
@@ -2856,8 +2856,8 @@
     <string name="onboardingDemo_entryPointLabel">入口点：%s</string>
     <string name="onboardingDemo_entryPoints_campaign">活动页面</string>
     <string name="onboardingDemo_entryPoints_event">活动报名</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">朋友邀请</string>
-    <string name="onboardingDemo_entryPoints_social-media">社交媒体链接</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">朋友邀请</string>
+    <string name="onboardingDemo_entryPoints_social_media">社交媒体链接</string>
     <string name="onboardingDemo_entryPoints_website">主网站</string>
     <string name="onboardingDemo_simulateEntryPoint">模拟入口点</string>
     <string name="onboardingDemo_title">个性化引导</string>
@@ -3246,7 +3246,7 @@
     <string name="publicCampaignView_customAmount_description">输入自定义捐赠金额</string>
     <string name="publicCampaignView_customAmount_title">自定义金额</string>
     <string name="publicCampaignView_donate">捐赠</string>
-    <string name="publicCampaignView_funded">已筹集 %s%</string>
+    <string name="publicCampaignView_funded">已筹集 %s%%</string>
     <string name="publicCampaignView_goal">目标 %s</string>
     <string name="publicCampaignView_supportCampaign">支持此活动</string>
 
@@ -3705,7 +3705,7 @@
     <string name="smartNotifications_filters_markAllRead">全部标为已读</string>
     <string name="smartNotifications_filters_unread">未读（%s）</string>
     <string name="smartNotifications_personalized">为%s个性化定制</string>
-    <string name="smartNotifications_relevance">%s%相关</string>
+    <string name="smartNotifications_relevance">%s%%相关</string>
     <string name="smartNotifications_title">智能通知</string>
 
     <!-- StoryViewer -->
@@ -3995,8 +3995,8 @@
     <string name="templates_categories_civic">公民行动</string>
     <string name="templates_categories_community">社区</string>
     <string name="templates_categories_governance">治理</string>
-    <string name="templates_categories_movement-defense">运动防御</string>
-    <string name="templates_categories_mutual-aid">互助</string>
+    <string name="templates_categories_movement_defense">运动防御</string>
+    <string name="templates_categories_mutual_aid">互助</string>
     <string name="templates_categories_organizing">组织</string>
     <string name="templates_communityHub_description">用于社区组织和联系的通用空间。非常适合社区和社交群组。</string>
     <string name="templates_communityHub_enhancements_crm_description">管理社区联系人和本地商家</string>

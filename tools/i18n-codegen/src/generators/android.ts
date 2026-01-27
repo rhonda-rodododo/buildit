@@ -19,16 +19,20 @@ interface AndroidGeneratorConfig {
  * {{name}} → %s or %1$s (for multiple placeholders)
  * {name} → %s or %1$s
  *
- * Returns the converted string and placeholder count
+ * Also escapes literal % characters to %% (Android format string requirement)
  */
 function convertInterpolation(value: string): string {
-  let placeholderIndex = 1;
+  // First, escape any literal % to a placeholder marker
+  // We'll convert it to %% after processing interpolations
+  const PERCENT_PLACEHOLDER = '\u0000PERCENT\u0000';
+  let result = value.replace(/%/g, PERCENT_PLACEHOLDER);
+
   const placeholders: string[] = [];
 
   // Find all placeholders
   const regex = /\{\{?(\w+)\}?\}/g;
   let match;
-  while ((match = regex.exec(value)) !== null) {
+  while ((match = regex.exec(result)) !== null) {
     if (!placeholders.includes(match[1])) {
       placeholders.push(match[1]);
     }
@@ -37,17 +41,34 @@ function convertInterpolation(value: string): string {
   // If only one placeholder, use simple %s
   // If multiple, use positional %1$s, %2$s, etc.
   if (placeholders.length <= 1) {
-    return value.replace(/\{\{?\w+\}?\}/g, '%s');
+    result = result.replace(/\{\{?\w+\}?\}/g, '%s');
+  } else {
+    let placeholderIndex = 1;
+    for (const placeholder of placeholders) {
+      const pattern = new RegExp(`\\{\\{?${placeholder}\\}?\\}`, 'g');
+      result = result.replace(pattern, `%${placeholderIndex}$s`);
+      placeholderIndex++;
+    }
   }
 
-  let result = value;
-  for (const placeholder of placeholders) {
-    const pattern = new RegExp(`\\{\\{?${placeholder}\\}?\\}`, 'g');
-    result = result.replace(pattern, `%${placeholderIndex}$s`);
-    placeholderIndex++;
-  }
+  // Convert escaped percent placeholders back to %%
+  result = result.replace(new RegExp(PERCENT_PLACEHOLDER, 'g'), '%%');
 
   return result;
+}
+
+/**
+ * Sanitize a key to be a valid Android resource name
+ * Android resource names can only contain: a-z, A-Z, 0-9, underscore
+ * Must start with a letter or underscore
+ *
+ * Only converts hyphens to underscores. Does NOT convert camelCase to snake_case
+ * because that creates collisions between flat keys (priorityHigh) and
+ * nested structures (priority.high) which both become priority_high.
+ */
+function sanitizeAndroidResourceName(key: string): string {
+  // Replace hyphens with underscores
+  return key.replace(/-/g, '_');
 }
 
 /**
@@ -128,7 +149,8 @@ function generateStringsXml(
     }
 
     const androidValue = escapeAndroidString(convertInterpolation(entry.value));
-    lines.push(`    <string name="${entry.key}">${androidValue}</string>`);
+    const androidKey = sanitizeAndroidResourceName(entry.key);
+    lines.push(`    <string name="${androidKey}">${androidValue}</string>`);
   }
 
   // Generate plurals if enabled
@@ -139,7 +161,8 @@ function generateStringsXml(
     for (const entry of plurals) {
       if (!entry.pluralForms) continue;
 
-      lines.push(`    <plurals name="${entry.key}">`);
+      const androidKey = sanitizeAndroidResourceName(entry.key);
+      lines.push(`    <plurals name="${androidKey}">`);
       for (const [form, value] of Object.entries(entry.pluralForms)) {
         const androidForm = mapPluralForm(form);
         if (androidForm) {
@@ -249,15 +272,16 @@ export async function generateKotlinAccessors(
         i === 0 ? p : capitalize(p)
       ).join('');
 
+      const androidKey = sanitizeAndroidResourceName(entry.key);
       if (entry.value.includes('{{') || entry.value.includes('{')) {
         // Function for interpolated strings
         lines.push(`        @Composable`);
         lines.push(`        fun ${propName}(vararg args: Any): String =`);
-        lines.push(`            stringResource(R.string.${entry.key}, *args)`);
+        lines.push(`            stringResource(R.string.${androidKey}, *args)`);
       } else {
         // Property for simple strings
         lines.push(`        val ${propName}: String`);
-        lines.push(`            @Composable get() = stringResource(R.string.${entry.key})`);
+        lines.push(`            @Composable get() = stringResource(R.string.${androidKey})`);
       }
     }
 

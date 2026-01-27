@@ -226,7 +226,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s명 익명</string>
     <string name="anonymousVoting_results_hide">결과 숨기기</string>
     <string name="anonymousVoting_results_show">결과 보기</string>
-    <string name="anonymousVoting_results_votes">%1$s표 (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s표 (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">제안이 마감될 때까지 투표를 변경할 수 있습니다.</string>
     <string name="anonymousVoting_status_identityProtected">귀하의 신원은 영지식 암호화로 보호됩니다</string>
     <string name="anonymousVoting_status_recorded">투표 기록됨</string>
@@ -708,7 +708,7 @@
     <string name="campaignBuilder_categories_emergency">긴급</string>
     <string name="campaignBuilder_categories_general">일반</string>
     <string name="campaignBuilder_categories_legal">법적 방어</string>
-    <string name="campaignBuilder_categories_mutual-aid">상호 부조</string>
+    <string name="campaignBuilder_categories_mutual_aid">상호 부조</string>
     <string name="campaignBuilder_categories_strike">파업 기금</string>
     <string name="campaignBuilder_category">카테고리</string>
     <string name="campaignBuilder_createCampaign">캠페인 만들기</string>
@@ -1016,8 +1016,8 @@
     <string name="createProposalDialog_fields_durationLabel">투표 기간 (일)</string>
     <string name="createProposalDialog_fields_optionsLabel">옵션 (한 줄에 하나씩)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">옵션 1\n옵션 2\n옵션 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">정족수 (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">임계값 (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">정족수 (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">임계값 (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">제목</string>
     <string name="createProposalDialog_fields_titlePlaceholder">제안 제목...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">투표 방식</string>
@@ -1436,16 +1436,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">참여 사다리는 성공적인 조직 운동에서 사용되는 지지 스펙트럼 방법론을 기반으로 합니다. 각 단계는 운동에 대한 더 깊은 참여를 나타냅니다:</string>
     <string name="engagementPage_aboutLadder_footer">현재 단계에서 목표를 완료하여 조직 여정의 다음 단계를 해금하세요.</string>
-    <string name="engagementPage_aboutLadder_levels_active">적극적 지지 (70%) - 행동에 적극 참여하는 단계</string>
-    <string name="engagementPage_aboutLadder_levels_core">핵심 조직가 (100%) - 이끌고 다른 사람을 발전시키는 단계</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">중립 (30%) - 배우고 탐색하는 단계</string>
-    <string name="engagementPage_aboutLadder_levels_passive">소극적 지지 (40%) - 옆에서 지지하는 단계</string>
+    <string name="engagementPage_aboutLadder_levels_active">적극적 지지 (70%%) - 행동에 적극 참여하는 단계</string>
+    <string name="engagementPage_aboutLadder_levels_core">핵심 조직가 (100%%) - 이끌고 다른 사람을 발전시키는 단계</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">중립 (30%%) - 배우고 탐색하는 단계</string>
+    <string name="engagementPage_aboutLadder_levels_passive">소극적 지지 (40%%) - 옆에서 지지하는 단계</string>
     <string name="engagementPage_aboutLadder_title">참여 사다리에 대하여</string>
     <string name="engagementPage_demoSwitchLevel">데모: 레벨 전환</string>
-    <string name="engagementPage_levelOptions_active">적극적 지지 (70%)</string>
-    <string name="engagementPage_levelOptions_core">핵심 조직가 (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">중립 (30%)</string>
-    <string name="engagementPage_levelOptions_passive">소극적 지지 (40%)</string>
+    <string name="engagementPage_levelOptions_active">적극적 지지 (70%%)</string>
+    <string name="engagementPage_levelOptions_core">핵심 조직가 (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">중립 (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">소극적 지지 (40%%)</string>
     <string name="engagementPage_subtitle">참여를 추적하고, 목표를 달성하며, 조직가로서 성장하세요</string>
     <string name="engagementPage_tabs_engagement">참여 여정</string>
     <string name="engagementPage_tabs_notifications">스마트 알림</string>
@@ -1628,7 +1628,7 @@
     <string name="files_bulkShare_noGroupMembers">그룹 멤버를 찾을 수 없습니다</string>
     <string name="files_bulkShare_passwordOptional">비밀번호 (선택 사항, 모든 파일에 동일하게 적용)</string>
     <string name="files_bulkShare_passwordPlaceholder">비밀번호 없이 비워두기</string>
-    <string name="files_bulkShare_percentComplete">%s% 완료</string>
+    <string name="files_bulkShare_percentComplete">%s%% 완료</string>
     <string name="files_bulkShare_permissionLevel">권한 수준</string>
     <string name="files_bulkShare_pleaseWait">파일을 공유하는 동안 잠시 기다려 주세요</string>
     <string name="files_bulkShare_selectUsers">사용자 선택</string>
@@ -2121,7 +2121,7 @@
     <string name="groupMembersTab_roles_admin">관리자</string>
     <string name="groupMembersTab_roles_member">멤버</string>
     <string name="groupMembersTab_roles_moderator">중재자</string>
-    <string name="groupMembersTab_roles_read-only">읽기 전용</string>
+    <string name="groupMembersTab_roles_read_only">읽기 전용</string>
     <string name="groupMembersTab_title">멤버</string>
     <string name="groupMembersTab_unknown">알 수 없음</string>
     <string name="groupMembersTab_you">나</string>
@@ -2618,12 +2618,12 @@
     <string name="moderationQueue_pendingTab">대기 중</string>
     <string name="moderationQueue_reason">사유:</string>
     <string name="moderationQueue_reasons_harassment">괴롭힘</string>
-    <string name="moderationQueue_reasons_hate-speech">혐오 발언</string>
-    <string name="moderationQueue_reasons_illegal-content">불법 콘텐츠</string>
+    <string name="moderationQueue_reasons_hate_speech">혐오 발언</string>
+    <string name="moderationQueue_reasons_illegal_content">불법 콘텐츠</string>
     <string name="moderationQueue_reasons_impersonation">사칭</string>
     <string name="moderationQueue_reasons_misinformation">허위 정보</string>
     <string name="moderationQueue_reasons_other">기타</string>
-    <string name="moderationQueue_reasons_self-harm">자해</string>
+    <string name="moderationQueue_reasons_self_harm">자해</string>
     <string name="moderationQueue_reasons_spam">스팸</string>
     <string name="moderationQueue_reasons_violence">폭력</string>
     <string name="moderationQueue_report">신고</string>
@@ -2807,10 +2807,10 @@
     <string name="notifications_title">알림 설정</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">적극적 지지 (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">핵심 조직가 (100%)</string>
-    <string name="notificationsDemoLevels_neutral">중립 (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">소극적 지지 (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">적극적 지지 (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">핵심 조직가 (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">중립 (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">소극적 지지 (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">데모: 레벨 전환</string>
@@ -2850,8 +2850,8 @@
     <string name="onboardingDemo_entryPointLabel">진입점: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">캠페인 랜딩 페이지</string>
     <string name="onboardingDemo_entryPoints_event">이벤트 RSVP</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">친구 초대</string>
-    <string name="onboardingDemo_entryPoints_social-media">소셜 미디어 링크</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">친구 초대</string>
+    <string name="onboardingDemo_entryPoints_social_media">소셜 미디어 링크</string>
     <string name="onboardingDemo_entryPoints_website">메인 웹사이트</string>
     <string name="onboardingDemo_simulateEntryPoint">진입점 시뮬레이션</string>
     <string name="onboardingDemo_title">맞춤형 온보딩</string>
@@ -3240,7 +3240,7 @@
     <string name="publicCampaignView_customAmount_description">원하는 기부 금액을 입력하세요</string>
     <string name="publicCampaignView_customAmount_title">직접 금액 입력</string>
     <string name="publicCampaignView_donate">기부하기</string>
-    <string name="publicCampaignView_funded">%s% 달성</string>
+    <string name="publicCampaignView_funded">%s%% 달성</string>
     <string name="publicCampaignView_goal">목표 %s 중</string>
     <string name="publicCampaignView_supportCampaign">이 캠페인 지원하기</string>
 
@@ -3699,7 +3699,7 @@
     <string name="smartNotifications_filters_markAllRead">모두 읽음으로 표시</string>
     <string name="smartNotifications_filters_unread">읽지 않음 (%s)</string>
     <string name="smartNotifications_personalized">%s에 맞춤 설정됨</string>
-    <string name="smartNotifications_relevance">%s% 관련성</string>
+    <string name="smartNotifications_relevance">%s%% 관련성</string>
     <string name="smartNotifications_title">스마트 알림</string>
 
     <!-- StoryViewer -->
@@ -3989,8 +3989,8 @@
     <string name="templates_categories_civic">시민 행동</string>
     <string name="templates_categories_community">커뮤니티</string>
     <string name="templates_categories_governance">거버넌스</string>
-    <string name="templates_categories_movement-defense">운동 방어</string>
-    <string name="templates_categories_mutual-aid">상호 부조</string>
+    <string name="templates_categories_movement_defense">운동 방어</string>
+    <string name="templates_categories_mutual_aid">상호 부조</string>
     <string name="templates_categories_organizing">조직화</string>
     <string name="templates_communityHub_description">커뮤니티 조직화 및 연결을 위한 범용 공간입니다. 이웃과 사회 그룹에 적합합니다.</string>
     <string name="templates_communityHub_enhancements_crm_description">커뮤니티 연락처 및 지역 업체 관리</string>

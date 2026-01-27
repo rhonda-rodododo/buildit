@@ -226,7 +226,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s анонимных</string>
     <string name="anonymousVoting_results_hide">Скрыть результаты</string>
     <string name="anonymousVoting_results_show">Показать результаты</string>
-    <string name="anonymousVoting_results_votes">%1$s голосов (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s голосов (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">Вы можете изменить свой голос до закрытия предложения.</string>
     <string name="anonymousVoting_status_identityProtected">Ваша личность защищена криптографией с нулевым разглашением</string>
     <string name="anonymousVoting_status_recorded">Голос записан</string>
@@ -708,7 +708,7 @@
     <string name="campaignBuilder_categories_emergency">Экстренная помощь</string>
     <string name="campaignBuilder_categories_general">Общее</string>
     <string name="campaignBuilder_categories_legal">Юридическая защита</string>
-    <string name="campaignBuilder_categories_mutual-aid">Взаимопомощь</string>
+    <string name="campaignBuilder_categories_mutual_aid">Взаимопомощь</string>
     <string name="campaignBuilder_categories_strike">Забастовочный фонд</string>
     <string name="campaignBuilder_category">Категория</string>
     <string name="campaignBuilder_createCampaign">Создать кампанию</string>
@@ -1016,8 +1016,8 @@
     <string name="createProposalDialog_fields_durationLabel">Срок голосования (дней)</string>
     <string name="createProposalDialog_fields_optionsLabel">Варианты (по одному в строке)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">Вариант 1\nВариант 2\nВариант 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">Кворум (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">Порог (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">Кворум (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">Порог (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">Заголовок</string>
     <string name="createProposalDialog_fields_titlePlaceholder">Заголовок предложения...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">Метод голосования</string>
@@ -1436,16 +1436,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">Лестница вовлечённости основана на методологии Спектра поддержки, используемой успешными организационными движениями. Каждый уровень отражает более глубокое участие в движении:</string>
     <string name="engagementPage_aboutLadder_footer">Выполняйте задачи на текущем уровне, чтобы разблокировать следующий этап вашего организаторского пути.</string>
-    <string name="engagementPage_aboutLadder_levels_active">Активная поддержка (70%) - Активное участие в действиях</string>
-    <string name="engagementPage_aboutLadder_levels_core">Ядро организаторов (100%) - Лидерство и развитие других</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">Нейтральный (30%) - Изучение и знакомство</string>
-    <string name="engagementPage_aboutLadder_levels_passive">Пассивная поддержка (40%) - Поддержка со стороны</string>
+    <string name="engagementPage_aboutLadder_levels_active">Активная поддержка (70%%) - Активное участие в действиях</string>
+    <string name="engagementPage_aboutLadder_levels_core">Ядро организаторов (100%%) - Лидерство и развитие других</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">Нейтральный (30%%) - Изучение и знакомство</string>
+    <string name="engagementPage_aboutLadder_levels_passive">Пассивная поддержка (40%%) - Поддержка со стороны</string>
     <string name="engagementPage_aboutLadder_title">О лестнице вовлечённости</string>
     <string name="engagementPage_demoSwitchLevel">Демо: Сменить уровень</string>
-    <string name="engagementPage_levelOptions_active">Активная поддержка (70%)</string>
-    <string name="engagementPage_levelOptions_core">Ядро организаторов (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">Нейтральный (30%)</string>
-    <string name="engagementPage_levelOptions_passive">Пассивная поддержка (40%)</string>
+    <string name="engagementPage_levelOptions_active">Активная поддержка (70%%)</string>
+    <string name="engagementPage_levelOptions_core">Ядро организаторов (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">Нейтральный (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">Пассивная поддержка (40%%)</string>
     <string name="engagementPage_subtitle">Отслеживайте вовлечённость, достигайте вех и развивайтесь как организатор</string>
     <string name="engagementPage_tabs_engagement">Путь вовлечённости</string>
     <string name="engagementPage_tabs_notifications">Умные уведомления</string>
@@ -1628,7 +1628,7 @@
     <string name="files_bulkShare_noGroupMembers">Участники группы не найдены</string>
     <string name="files_bulkShare_passwordOptional">Пароль (необязательно, одинаковый для всех)</string>
     <string name="files_bulkShare_passwordPlaceholder">Оставьте пустым без пароля</string>
-    <string name="files_bulkShare_percentComplete">%s% выполнено</string>
+    <string name="files_bulkShare_percentComplete">%s%% выполнено</string>
     <string name="files_bulkShare_permissionLevel">Уровень доступа</string>
     <string name="files_bulkShare_pleaseWait">Пожалуйста, подождите, пока файлы будут предоставлены</string>
     <string name="files_bulkShare_selectUsers">Выберите пользователей</string>
@@ -2121,7 +2121,7 @@
     <string name="groupMembersTab_roles_admin">Администратор</string>
     <string name="groupMembersTab_roles_member">Участник</string>
     <string name="groupMembersTab_roles_moderator">Модератор</string>
-    <string name="groupMembersTab_roles_read-only">Только чтение</string>
+    <string name="groupMembersTab_roles_read_only">Только чтение</string>
     <string name="groupMembersTab_title">Участники</string>
     <string name="groupMembersTab_unknown">Неизвестно</string>
     <string name="groupMembersTab_you">Вы</string>
@@ -2618,12 +2618,12 @@
     <string name="moderationQueue_pendingTab">Ожидающие</string>
     <string name="moderationQueue_reason">Причина:</string>
     <string name="moderationQueue_reasons_harassment">Преследование</string>
-    <string name="moderationQueue_reasons_hate-speech">Язык ненависти</string>
-    <string name="moderationQueue_reasons_illegal-content">Незаконный контент</string>
+    <string name="moderationQueue_reasons_hate_speech">Язык ненависти</string>
+    <string name="moderationQueue_reasons_illegal_content">Незаконный контент</string>
     <string name="moderationQueue_reasons_impersonation">Выдача себя за другого</string>
     <string name="moderationQueue_reasons_misinformation">Дезинформация</string>
     <string name="moderationQueue_reasons_other">Другое</string>
-    <string name="moderationQueue_reasons_self-harm">Самоповреждение</string>
+    <string name="moderationQueue_reasons_self_harm">Самоповреждение</string>
     <string name="moderationQueue_reasons_spam">Спам</string>
     <string name="moderationQueue_reasons_violence">Насилие</string>
     <string name="moderationQueue_report">Жалоба</string>
@@ -2807,10 +2807,10 @@
     <string name="notifications_title">Настройки уведомлений</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">Активная поддержка (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">Ключевой организатор (100%)</string>
-    <string name="notificationsDemoLevels_neutral">Нейтральный (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">Пассивная поддержка (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">Активная поддержка (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">Ключевой организатор (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">Нейтральный (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">Пассивная поддержка (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">Демо: переключить уровень</string>
@@ -2850,8 +2850,8 @@
     <string name="onboardingDemo_entryPointLabel">Точка входа: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">Страница кампании</string>
     <string name="onboardingDemo_entryPoints_event">Регистрация на мероприятие</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">Приглашение от друга</string>
-    <string name="onboardingDemo_entryPoints_social-media">Ссылка из соцсетей</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">Приглашение от друга</string>
+    <string name="onboardingDemo_entryPoints_social_media">Ссылка из соцсетей</string>
     <string name="onboardingDemo_entryPoints_website">Главный сайт</string>
     <string name="onboardingDemo_simulateEntryPoint">Имитировать точку входа</string>
     <string name="onboardingDemo_title">Персонализированное введение</string>
@@ -3240,7 +3240,7 @@
     <string name="publicCampaignView_customAmount_description">Введите произвольную сумму пожертвования</string>
     <string name="publicCampaignView_customAmount_title">Произвольная сумма</string>
     <string name="publicCampaignView_donate">Пожертвовать</string>
-    <string name="publicCampaignView_funded">%s% собрано</string>
+    <string name="publicCampaignView_funded">%s%% собрано</string>
     <string name="publicCampaignView_goal">из %s цели</string>
     <string name="publicCampaignView_supportCampaign">Поддержать эту кампанию</string>
 
@@ -3699,7 +3699,7 @@
     <string name="smartNotifications_filters_markAllRead">Отметить все как прочитанные</string>
     <string name="smartNotifications_filters_unread">Непрочитанные (%s)</string>
     <string name="smartNotifications_personalized">Персонализировано для %s</string>
-    <string name="smartNotifications_relevance">%s% релевантность</string>
+    <string name="smartNotifications_relevance">%s%% релевантность</string>
     <string name="smartNotifications_title">Умные уведомления</string>
 
     <!-- StoryViewer -->
@@ -3989,8 +3989,8 @@
     <string name="templates_categories_civic">Гражданское действие</string>
     <string name="templates_categories_community">Сообщество</string>
     <string name="templates_categories_governance">Управление</string>
-    <string name="templates_categories_movement-defense">Защита движения</string>
-    <string name="templates_categories_mutual-aid">Взаимопомощь</string>
+    <string name="templates_categories_movement_defense">Защита движения</string>
+    <string name="templates_categories_mutual_aid">Взаимопомощь</string>
     <string name="templates_categories_organizing">Организация</string>
     <string name="templates_communityHub_description">Универсальное пространство для общественной организации и связей. Идеально для районов и социальных групп.</string>
     <string name="templates_communityHub_enhancements_crm_description">Управляйте контактами сообщества и местными предприятиями</string>

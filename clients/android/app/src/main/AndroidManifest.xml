@@ -180,7 +180,7 @@
         <receiver
             android:name=".widgets.UnreadMessagesWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_unread_messages_name">
+            android:label="@string/mobile_widgets_unreadMessagesName">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -193,7 +193,7 @@
         <receiver
             android:name=".widgets.UpcomingEventsWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_upcoming_events_name">
+            android:label="@string/mobile_widgets_upcomingEventsName">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -206,7 +206,7 @@
         <receiver
             android:name=".widgets.QuickActionsWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_quick_actions_name">
+            android:label="@string/mobile_widgets_quickActionsName">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

@@ -232,7 +232,7 @@
     <string name="anonymousVoting_results_anonymousVotes">%s an danh</string>
     <string name="anonymousVoting_results_hide">An Ket Qua</string>
     <string name="anonymousVoting_results_show">Hien Ket Qua</string>
-    <string name="anonymousVoting_results_votes">%1$s phieu (%2$s%)</string>
+    <string name="anonymousVoting_results_votes">%1$s phieu (%2$s%%)</string>
     <string name="anonymousVoting_status_canChange">Ban co the thay doi phieu bau cho den khi de xuat dong lai.</string>
     <string name="anonymousVoting_status_identityProtected">Danh tinh cua ban duoc bao ve boi mat ma hoc khong tiet lo thong tin</string>
     <string name="anonymousVoting_status_recorded">Phieu Bau Da Ghi Nhan</string>
@@ -714,7 +714,7 @@
     <string name="campaignBuilder_categories_emergency">Khan cap</string>
     <string name="campaignBuilder_categories_general">Chung</string>
     <string name="campaignBuilder_categories_legal">Bao ve phap ly</string>
-    <string name="campaignBuilder_categories_mutual-aid">Ho tro tuong tro</string>
+    <string name="campaignBuilder_categories_mutual_aid">Ho tro tuong tro</string>
     <string name="campaignBuilder_categories_strike">Quy dinh cong</string>
     <string name="campaignBuilder_category">Danh muc</string>
     <string name="campaignBuilder_createCampaign">Tao chien dich</string>
@@ -1022,8 +1022,8 @@
     <string name="createProposalDialog_fields_durationLabel">Thoi gian bo phieu (ngay)</string>
     <string name="createProposalDialog_fields_optionsLabel">Cac lua chon (moi dong mot lua chon)</string>
     <string name="createProposalDialog_fields_optionsPlaceholder">Lua chon 1\nLua chon 2\nLua chon 3</string>
-    <string name="createProposalDialog_fields_quorumLabel">Dinh so (%)</string>
-    <string name="createProposalDialog_fields_thresholdLabel">Nguong (%)</string>
+    <string name="createProposalDialog_fields_quorumLabel">Dinh so (%%)</string>
+    <string name="createProposalDialog_fields_thresholdLabel">Nguong (%%)</string>
     <string name="createProposalDialog_fields_titleLabel">Tieu de</string>
     <string name="createProposalDialog_fields_titlePlaceholder">Tieu de de xuat...</string>
     <string name="createProposalDialog_fields_votingMethodLabel">Phuong thuc bo phieu</string>
@@ -1371,16 +1371,16 @@
     <!-- EngagementPage -->
     <string name="engagementPage_aboutLadder_description">Thang Tham gia dua tren phuong phap Pho Ho tro duoc su dung boi cac phong trao to chuc thanh cong. Moi cap do dai dien cho su tham gia sau hon vao phong trao:</string>
     <string name="engagementPage_aboutLadder_footer">Hoan thanh cac moc o cap do hien tai de mo khoa giai doan tiep theo trong hanh trinh to chuc cua ban.</string>
-    <string name="engagementPage_aboutLadder_levels_active">Ho tro Chu dong (70%) - Tich cuc tham gia cac hoat dong</string>
-    <string name="engagementPage_aboutLadder_levels_core">To chuc vien Nong cot (100%) - Dan dat va phat trien nguoi khac</string>
-    <string name="engagementPage_aboutLadder_levels_neutral">Trung lap (30%) - Hoc hoi va kham pha</string>
-    <string name="engagementPage_aboutLadder_levels_passive">Ho tro Thu dong (40%) - Ho tro tu ben le</string>
+    <string name="engagementPage_aboutLadder_levels_active">Ho tro Chu dong (70%%) - Tich cuc tham gia cac hoat dong</string>
+    <string name="engagementPage_aboutLadder_levels_core">To chuc vien Nong cot (100%%) - Dan dat va phat trien nguoi khac</string>
+    <string name="engagementPage_aboutLadder_levels_neutral">Trung lap (30%%) - Hoc hoi va kham pha</string>
+    <string name="engagementPage_aboutLadder_levels_passive">Ho tro Thu dong (40%%) - Ho tro tu ben le</string>
     <string name="engagementPage_aboutLadder_title">Ve Thang Tham gia</string>
     <string name="engagementPage_demoSwitchLevel">Demo: Chuyen Cap do</string>
-    <string name="engagementPage_levelOptions_active">Ho tro Chu dong (70%)</string>
-    <string name="engagementPage_levelOptions_core">To chuc vien Nong cot (100%)</string>
-    <string name="engagementPage_levelOptions_neutral">Trung lap (30%)</string>
-    <string name="engagementPage_levelOptions_passive">Ho tro Thu dong (40%)</string>
+    <string name="engagementPage_levelOptions_active">Ho tro Chu dong (70%%)</string>
+    <string name="engagementPage_levelOptions_core">To chuc vien Nong cot (100%%)</string>
+    <string name="engagementPage_levelOptions_neutral">Trung lap (30%%)</string>
+    <string name="engagementPage_levelOptions_passive">Ho tro Thu dong (40%%)</string>
     <string name="engagementPage_subtitle">Theo doi su tham gia, hoan thanh cac moc va truong thanh nhu mot to chuc vien</string>
     <string name="engagementPage_tabs_engagement">Hanh trinh Tham gia</string>
     <string name="engagementPage_tabs_notifications">Thong bao Thong minh</string>
@@ -1563,7 +1563,7 @@
     <string name="files_bulkShare_noGroupMembers">Không tìm thấy thành viên nhóm</string>
     <string name="files_bulkShare_passwordOptional">Mật khẩu (tùy chọn, giống nhau cho tất cả)</string>
     <string name="files_bulkShare_passwordPlaceholder">Để trống nếu không cần mật khẩu</string>
-    <string name="files_bulkShare_percentComplete">%s% hoàn thành</string>
+    <string name="files_bulkShare_percentComplete">%s%% hoàn thành</string>
     <string name="files_bulkShare_permissionLevel">Mức độ Quyền hạn</string>
     <string name="files_bulkShare_pleaseWait">Vui lòng đợi trong khi chúng tôi chia sẻ tệp của bạn</string>
     <string name="files_bulkShare_selectUsers">Chọn Người dùng</string>
@@ -2056,7 +2056,7 @@
     <string name="groupMembersTab_roles_admin">Quan tri vien</string>
     <string name="groupMembersTab_roles_member">Thanh vien</string>
     <string name="groupMembersTab_roles_moderator">Nguoi dieu hanh</string>
-    <string name="groupMembersTab_roles_read-only">Chi doc</string>
+    <string name="groupMembersTab_roles_read_only">Chi doc</string>
     <string name="groupMembersTab_title">Thanh vien</string>
     <string name="groupMembersTab_unknown">Khong xac dinh</string>
     <string name="groupMembersTab_you">Ban</string>
@@ -2553,12 +2553,12 @@
     <string name="moderationQueue_pendingTab">Dang cho</string>
     <string name="moderationQueue_reason">Ly do:</string>
     <string name="moderationQueue_reasons_harassment">Quay roi</string>
-    <string name="moderationQueue_reasons_hate-speech">Ngon tu thu dich</string>
-    <string name="moderationQueue_reasons_illegal-content">Noi dung bat hop phap</string>
+    <string name="moderationQueue_reasons_hate_speech">Ngon tu thu dich</string>
+    <string name="moderationQueue_reasons_illegal_content">Noi dung bat hop phap</string>
     <string name="moderationQueue_reasons_impersonation">Gia mao</string>
     <string name="moderationQueue_reasons_misinformation">Thong tin sai lech</string>
     <string name="moderationQueue_reasons_other">Khac</string>
-    <string name="moderationQueue_reasons_self-harm">Tu gay hai</string>
+    <string name="moderationQueue_reasons_self_harm">Tu gay hai</string>
     <string name="moderationQueue_reasons_spam">Thu rac</string>
     <string name="moderationQueue_reasons_violence">Bao luc</string>
     <string name="moderationQueue_report">Bao cao</string>
@@ -2742,10 +2742,10 @@
     <string name="notifications_title">Cài đặt thông báo</string>
 
     <!-- NotificationsDemoLevels -->
-    <string name="notificationsDemoLevels_activeSupport">Ho tro tich cuc (70%)</string>
-    <string name="notificationsDemoLevels_coreOrganizer">To chuc vien nong cot (100%)</string>
-    <string name="notificationsDemoLevels_neutral">Trung lap (30%)</string>
-    <string name="notificationsDemoLevels_passiveSupport">Ho tro thu dong (40%)</string>
+    <string name="notificationsDemoLevels_activeSupport">Ho tro tich cuc (70%%)</string>
+    <string name="notificationsDemoLevels_coreOrganizer">To chuc vien nong cot (100%%)</string>
+    <string name="notificationsDemoLevels_neutral">Trung lap (30%%)</string>
+    <string name="notificationsDemoLevels_passiveSupport">Ho tro thu dong (40%%)</string>
 
     <!-- NotificationsDemoPage -->
     <string name="notificationsDemoPage_demoSwitchLevel">Demo: Chuyen doi cap do</string>
@@ -2785,8 +2785,8 @@
     <string name="onboardingDemo_entryPointLabel">Diem vao: %s</string>
     <string name="onboardingDemo_entryPoints_campaign">Trang Chien Dich</string>
     <string name="onboardingDemo_entryPoints_event">Dang Ky Su Kien</string>
-    <string name="onboardingDemo_entryPoints_friend-invite">Loi Moi Tu Ban Be</string>
-    <string name="onboardingDemo_entryPoints_social-media">Lien Ket Mang Xa Hoi</string>
+    <string name="onboardingDemo_entryPoints_friend_invite">Loi Moi Tu Ban Be</string>
+    <string name="onboardingDemo_entryPoints_social_media">Lien Ket Mang Xa Hoi</string>
     <string name="onboardingDemo_entryPoints_website">Trang Web Chinh</string>
     <string name="onboardingDemo_simulateEntryPoint">Mo Phong Diem Vao</string>
     <string name="onboardingDemo_title">Huong Dan Ca Nhan Hoa</string>
@@ -3175,7 +3175,7 @@
     <string name="publicCampaignView_customAmount_description">Nhap so tien quyen gop tuy chinh</string>
     <string name="publicCampaignView_customAmount_title">So tien tuy chinh</string>
     <string name="publicCampaignView_donate">Quyen gop</string>
-    <string name="publicCampaignView_funded">Da dat %s%</string>
+    <string name="publicCampaignView_funded">Da dat %s%%</string>
     <string name="publicCampaignView_goal">trong muc tieu %s</string>
     <string name="publicCampaignView_supportCampaign">Ung ho chien dich nay</string>
 
@@ -3634,7 +3634,7 @@
     <string name="smartNotifications_filters_markAllRead">Danh dau tat ca da doc</string>
     <string name="smartNotifications_filters_unread">Chua doc (%s)</string>
     <string name="smartNotifications_personalized">Ca nhan hoa cho %s</string>
-    <string name="smartNotifications_relevance">%s% lien quan</string>
+    <string name="smartNotifications_relevance">%s%% lien quan</string>
     <string name="smartNotifications_title">Thong Bao Thong Minh</string>
 
     <!-- StoryViewer -->
@@ -3924,8 +3924,8 @@
     <string name="templates_categories_civic">Hành động công dân</string>
     <string name="templates_categories_community">Cộng đồng</string>
     <string name="templates_categories_governance">Quản trị</string>
-    <string name="templates_categories_movement-defense">Bảo vệ phong trào</string>
-    <string name="templates_categories_mutual-aid">Hỗ trợ lẫn nhau</string>
+    <string name="templates_categories_movement_defense">Bảo vệ phong trào</string>
+    <string name="templates_categories_mutual_aid">Hỗ trợ lẫn nhau</string>
     <string name="templates_categories_organizing">Tổ chức</string>
     <string name="templates_communityHub_description">Không gian đa năng cho tổ chức và kết nối cộng đồng. Hoàn hảo cho khu phố và các nhóm xã hội.</string>
     <string name="templates_communityHub_enhancements_crm_description">Quản lý liên hệ cộng đồng và doanh nghiệp địa phương</string>
