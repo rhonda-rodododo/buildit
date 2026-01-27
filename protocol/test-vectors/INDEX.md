@@ -105,6 +105,28 @@ JSON serialization for application data structures.
 - Cross-client type compatibility
 - Enum value serialization (hyphen-case)
 
+### 6. Calling (`calling/`)
+
+Voice, video, and group calling with E2EE.
+
+| File | Test Count | Description |
+|------|-----------|-------------|
+| `call-offer.json` | - | 1:1 call offer/answer signaling |
+| `call-hangup.json` | - | Call termination reasons |
+| `ice-candidate.json` | - | ICE candidate exchange |
+| `group-call.json` | - | Mesh topology group calls, sender keys |
+| `hotline.json` | 15 | Hotline queue management, ACD, operator status |
+
+**Key Tests:**
+- Queue priority ordering (urgent > high > medium > low)
+- Operator status transitions
+- ACD (Automatic Call Distribution)
+- Ring timeout and queue return
+- Transfer/escalate workflows
+- Hold/resume functionality
+- Shift statistics tracking
+- Nostr signaling event kinds (24330-24335)
+
 ### 6. Legacy/Original Files
 
 | File | Description | Status |
@@ -117,10 +139,10 @@ JSON serialization for application data structures.
 
 ## Statistics
 
-- **Total Test Vectors:** ~170+
-- **Test Categories:** 6
+- **Total Test Vectors:** ~185+
+- **Test Categories:** 7
 - **Schema Modules:** 5 (Events, Messaging, Mutual Aid, Governance, Wiki)
-- **Protocols Covered:** NIP-01, NIP-17, NIP-44, BLE, Custom Schemas
+- **Protocols Covered:** NIP-01, NIP-17, NIP-44, BLE, WebRTC Calling, Custom Schemas
 - **Client Targets:** 3 (Desktop/Rust, iOS/Swift, Android/Kotlin)
 
 ## Usage by Platform
@@ -241,6 +263,13 @@ Critical security tests included:
 - [BuildIt Protocol Specification](../docs/protocol-spec/)
 
 ## Version History
+
+- **1.2.0** (2026-01-26): Added calling module test vectors
+  - Hotline voice calling (queue management, ACD, operator status)
+  - Group call mesh topology
+  - Call controls (hold, transfer, escalate)
+  - Shift and break management
+  - Nostr signaling events (kinds 24330-24335)
 
 - **1.1.0** (2026-01-26): Added schema test vectors for all modules
   - Mutual Aid module (requests, offers, fulfillments, rideshares, resources)

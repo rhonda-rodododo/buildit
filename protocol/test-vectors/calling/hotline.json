@@ -1,0 +1,369 @@
+{
+  "$schema": "../schema.json",
+  "name": "Hotline Voice Calling Test Vectors",
+  "version": "1.0.0",
+  "description": "Test vectors for hotline queue management, operator status, and call controls",
+  "vectors": [
+    {
+      "id": "hotline-queue-priority-ordering",
+      "description": "Queue should order calls by priority (urgent > high > medium > low) then by queue time",
+      "category": "queue-management",
+      "input": {
+        "calls": [
+          { "callId": "call-1", "priority": "medium", "queuedAt": 1700000000000 },
+          { "callId": "call-2", "priority": "urgent", "queuedAt": 1700000005000 },
+          { "callId": "call-3", "priority": "high", "queuedAt": 1700000002000 },
+          { "callId": "call-4", "priority": "medium", "queuedAt": 1700000001000 },
+          { "callId": "call-5", "priority": "low", "queuedAt": 1700000003000 }
+        ]
+      },
+      "expected": {
+        "orderedCallIds": ["call-2", "call-3", "call-1", "call-4", "call-5"],
+        "positions": {
+          "call-2": 1,
+          "call-3": 2,
+          "call-1": 3,
+          "call-4": 4,
+          "call-5": 5
+        }
+      }
+    },
+    {
+      "id": "hotline-operator-status-transitions",
+      "description": "Valid operator status transitions",
+      "category": "operator-status",
+      "input": {
+        "validTransitions": [
+          { "from": "offline", "to": "available" },
+          { "from": "available", "to": "on_call" },
+          { "from": "on_call", "to": "wrap_up" },
+          { "from": "wrap_up", "to": "available" },
+          { "from": "available", "to": "break" },
+          { "from": "break", "to": "available" },
+          { "from": "available", "to": "offline" },
+          { "from": "wrap_up", "to": "offline" },
+          { "from": "break", "to": "offline" }
+        ],
+        "invalidTransitions": [
+          { "from": "on_call", "to": "break", "reason": "Cannot take break while on call" },
+          { "from": "on_call", "to": "offline", "reason": "Cannot go offline while on call" },
+          { "from": "offline", "to": "on_call", "reason": "Must be available to take calls" }
+        ]
+      },
+      "expected": {
+        "allValidTransitionsAllowed": true,
+        "allInvalidTransitionsBlocked": true
+      }
+    },
+    {
+      "id": "hotline-acd-distribution",
+      "description": "ACD should distribute calls to available operators with lowest call count",
+      "category": "call-distribution",
+      "input": {
+        "operators": [
+          { "pubkey": "op1", "status": "available", "callCount": 5 },
+          { "pubkey": "op2", "status": "on_call", "callCount": 3 },
+          { "pubkey": "op3", "status": "available", "callCount": 2 },
+          { "pubkey": "op4", "status": "break", "callCount": 4 }
+        ],
+        "incomingCall": { "callId": "new-call", "priority": "medium" }
+      },
+      "expected": {
+        "assignedTo": "op3",
+        "reason": "op3 is available with lowest call count (2)"
+      }
+    },
+    {
+      "id": "hotline-ring-timeout",
+      "description": "Call should return to queue after ring timeout if not answered",
+      "category": "queue-management",
+      "input": {
+        "call": { "callId": "call-1", "priority": "medium", "queuedAt": 1700000000000 },
+        "assignedOperator": "op1",
+        "ringTimeout": 30000,
+        "operatorAnswered": false
+      },
+      "expected": {
+        "callReturnedToQueue": true,
+        "operatorStatusReset": "available",
+        "priorityBumped": true,
+        "newPriority": "high"
+      }
+    },
+    {
+      "id": "hotline-transfer-workflow",
+      "description": "Call transfer workflow with acceptance/decline handling",
+      "category": "call-controls",
+      "input": {
+        "call": { "callId": "call-1", "currentOperator": "op1" },
+        "transferTarget": "op2",
+        "transferTimeout": 30000
+      },
+      "expected": {
+        "acceptScenario": {
+          "callOnHold": true,
+          "transferRequestSent": true,
+          "onAccept": {
+            "callTransferred": true,
+            "newOperator": "op2",
+            "originalOperatorReleased": true
+          }
+        },
+        "declineScenario": {
+          "callOnHold": true,
+          "transferRequestSent": true,
+          "onDecline": {
+            "callResumed": true,
+            "operatorUnchanged": "op1"
+          }
+        },
+        "timeoutScenario": {
+          "callOnHold": true,
+          "transferRequestSent": true,
+          "onTimeout": {
+            "callResumed": true,
+            "operatorUnchanged": "op1"
+          }
+        }
+      }
+    },
+    {
+      "id": "hotline-escalation-workflow",
+      "description": "Escalation to supervisor creates 3-way call",
+      "category": "call-controls",
+      "input": {
+        "call": { "callId": "call-1", "operator": "op1" },
+        "escalationReason": "Customer requesting manager",
+        "availableSupervisor": "supervisor1"
+      },
+      "expected": {
+        "threeWayCallCreated": true,
+        "participants": ["caller", "op1", "supervisor1"],
+        "callStateUpdated": "escalated",
+        "escalationNoteAdded": true
+      }
+    },
+    {
+      "id": "hotline-hold-resume",
+      "description": "Hold and resume call functionality",
+      "category": "call-controls",
+      "input": {
+        "call": { "callId": "call-1", "state": "active" }
+      },
+      "expected": {
+        "onHold": {
+          "state": "on_hold",
+          "operatorAudioMuted": true,
+          "callerHearsMusicOrSilence": true
+        },
+        "onResume": {
+          "state": "active",
+          "operatorAudioUnmuted": true,
+          "callerHearsBothWays": true
+        }
+      }
+    },
+    {
+      "id": "hotline-shift-statistics",
+      "description": "Shift statistics tracking",
+      "category": "operator-status",
+      "input": {
+        "shiftStart": 1700000000000,
+        "calls": [
+          { "duration": 300, "holdTime": 30 },
+          { "duration": 450, "holdTime": 0 },
+          { "duration": 180, "holdTime": 60 }
+        ],
+        "wrapUpTime": 180,
+        "breakTime": 900
+      },
+      "expected": {
+        "callCount": 3,
+        "totalTalkTime": 840,
+        "totalHoldTime": 90,
+        "avgCallDuration": 310,
+        "longestCall": 450,
+        "shortestCall": 180
+      }
+    },
+    {
+      "id": "hotline-wait-time-estimation",
+      "description": "Estimate wait time based on queue position and operator availability",
+      "category": "queue-management",
+      "input": {
+        "queueLength": 5,
+        "availableOperators": 2,
+        "averageHandleTime": 300
+      },
+      "expected": {
+        "estimatedWait": 750,
+        "calculation": "(5 calls * 300 seconds) / 2 operators = 750 seconds"
+      }
+    },
+    {
+      "id": "hotline-call-notes-autosave",
+      "description": "Call notes auto-save behavior",
+      "category": "call-controls",
+      "input": {
+        "call": { "callId": "call-1" },
+        "notesChanges": [
+          { "text": "Customer reported issue", "timestamp": 1700000000000 },
+          { "text": "Customer reported issue with billing", "timestamp": 1700000003000 },
+          { "text": "Customer reported issue with billing - resolved", "timestamp": 1700000010000 }
+        ],
+        "autoSaveDelay": 5000
+      },
+      "expected": {
+        "saveEvents": [
+          { "timestamp": 1700000008000, "text": "Customer reported issue with billing" },
+          { "timestamp": 1700000015000, "text": "Customer reported issue with billing - resolved" }
+        ],
+        "note": "Saves occur 5 seconds after last change, not on every keystroke"
+      }
+    },
+    {
+      "id": "hotline-nostr-event-kinds",
+      "description": "Nostr event kinds for hotline signaling",
+      "category": "signaling",
+      "input": {},
+      "expected": {
+        "kinds": {
+          "hotline_call_state": 24330,
+          "hotline_operator_status": 24331,
+          "hotline_queue_state": 24332,
+          "hotline_assignment": 24333,
+          "hotline_transfer_request": 24334,
+          "hotline_barge_notification": 24335
+        }
+      }
+    },
+    {
+      "id": "hotline-call-state-schema",
+      "description": "HotlineCallState schema validation",
+      "category": "schema",
+      "input": {
+        "validPayload": {
+          "_v": "1",
+          "callId": "call-123",
+          "hotlineId": "hotline-456",
+          "groupId": "group-789",
+          "callType": "internal",
+          "state": "active",
+          "caller": {
+            "pubkey": "npub1...",
+            "name": "John Doe"
+          },
+          "operator": {
+            "pubkey": "npub2...",
+            "name": "Jane Operator"
+          },
+          "queuedAt": 1700000000000,
+          "answeredAt": 1700000030000,
+          "priority": "high",
+          "category": "Billing",
+          "notes": "Customer inquiry about invoice",
+          "isEncrypted": true
+        }
+      },
+      "expected": {
+        "valid": true,
+        "requiredFields": ["_v", "callId", "hotlineId", "callType", "state"]
+      }
+    },
+    {
+      "id": "hotline-operator-status-schema",
+      "description": "HotlineOperatorStatus schema validation",
+      "category": "schema",
+      "input": {
+        "validPayload": {
+          "_v": "1",
+          "hotlineId": "hotline-456",
+          "pubkey": "npub1...",
+          "status": "available",
+          "callCount": 5,
+          "shiftStart": 1700000000000,
+          "timestamp": 1700003600000
+        }
+      },
+      "expected": {
+        "valid": true,
+        "requiredFields": ["_v", "hotlineId", "pubkey", "status"],
+        "validStatuses": ["available", "on_call", "wrap_up", "break", "offline"]
+      }
+    },
+    {
+      "id": "hotline-queue-full-behavior",
+      "description": "Behavior when queue reaches maximum capacity",
+      "category": "queue-management",
+      "input": {
+        "maxQueueSize": 50,
+        "currentQueueSize": 50,
+        "newCall": { "callId": "overflow-call", "priority": "urgent" }
+      },
+      "expected": {
+        "callEnqueued": false,
+        "error": "Queue is full",
+        "callerNotified": true,
+        "notificationMessage": "All operators are busy. Please try again later."
+      }
+    },
+    {
+      "id": "hotline-break-overtime",
+      "description": "Operator overtime warning for breaks",
+      "category": "operator-status",
+      "input": {
+        "breakType": "short",
+        "maxDuration": 900,
+        "actualDuration": 1000
+      },
+      "expected": {
+        "overtimeWarningEmitted": true,
+        "warningAt": 900,
+        "operatorStillOnBreak": true,
+        "note": "Operators receive warning but are not forced off break"
+      }
+    }
+  ],
+  "testGroups": [
+    {
+      "name": "Queue Management",
+      "vectorIds": [
+        "hotline-queue-priority-ordering",
+        "hotline-ring-timeout",
+        "hotline-wait-time-estimation",
+        "hotline-queue-full-behavior"
+      ]
+    },
+    {
+      "name": "Operator Status",
+      "vectorIds": [
+        "hotline-operator-status-transitions",
+        "hotline-shift-statistics",
+        "hotline-break-overtime"
+      ]
+    },
+    {
+      "name": "Call Distribution",
+      "vectorIds": [
+        "hotline-acd-distribution"
+      ]
+    },
+    {
+      "name": "Call Controls",
+      "vectorIds": [
+        "hotline-transfer-workflow",
+        "hotline-escalation-workflow",
+        "hotline-hold-resume",
+        "hotline-call-notes-autosave"
+      ]
+    },
+    {
+      "name": "Signaling & Schema",
+      "vectorIds": [
+        "hotline-nostr-event-kinds",
+        "hotline-call-state-schema",
+        "hotline-operator-status-schema"
+      ]
+    }
+  ]
+}
