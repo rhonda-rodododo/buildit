@@ -15,7 +15,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebRTCAdapter, type WebRTCEventHandlers } from './webrtcAdapter';
 import { GroupKeyManager } from './groupKeyManager';
 import { AudioMixer, ActiveSpeakerDetector } from './audioMixer';
-import { getSignalingService } from './signalingService';
 import {
   CallType,
   Topology,
@@ -54,7 +53,8 @@ interface PeerConnection {
   pendingIceCandidates: RTCIceCandidateInit[];
 }
 
-interface MeshCallManagerEvents {
+/** Events emitted by MeshCallManager */
+export interface MeshCallManagerEvents {
   'participant-joined': (pubkey: string, displayName?: string) => void;
   'participant-left': (pubkey: string) => void;
   'participant-state-changed': (pubkey: string, state: Partial<GroupCallParticipant>) => void;
@@ -115,7 +115,7 @@ export class MeshCallManager extends EventEmitter {
 
     const { currentIdentity } = useAuthStore.getState();
     this.localPubkey = currentIdentity?.publicKey ?? '';
-    this.localDisplayName = currentIdentity?.metadata?.name;
+    this.localDisplayName = currentIdentity?.displayName;
 
     this.audioMixer = new AudioMixer();
     this.speakerDetector = new ActiveSpeakerDetector();
@@ -733,6 +733,13 @@ export class MeshCallManager extends EventEmitter {
   }
 
   /**
+   * Check if the room is locked
+   */
+  isRoomLocked(): boolean {
+    return this.roomLocked;
+  }
+
+  /**
    * Lock the room (host only)
    */
   lockRoom(): void {
@@ -948,7 +955,7 @@ export class MeshCallManager extends EventEmitter {
   /**
    * Handle control message
    */
-  private handleControlMessage(pubkey: string, message: { type: string; roomId: string }): void {
+  private handleControlMessage(_pubkey: string, message: { type: string; roomId: string }): void {
     if (message.roomId !== this.roomId) return;
 
     switch (message.type) {

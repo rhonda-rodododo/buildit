@@ -4,15 +4,14 @@
  */
 
 import { EventEmitter } from 'events';
-import { nanoid } from 'nanoid';
-import type { HotlineCallState, HotlineOperatorStatus } from '../types';
+import type { HotlineCallState } from '../types';
 import {
   HotlineCallStateState,
   HotlineOperatorStatusStatus,
   CALLING_KINDS,
 } from '../types';
 import { useCallingStore } from '../callingStore';
-import type { HotlineQueueManager, OperatorState } from './hotlineQueueManager';
+import type { HotlineQueueManager } from './hotlineQueueManager';
 import type { SignalingService } from './signalingService';
 import type { WebRTCAdapter } from './webrtcAdapter';
 
@@ -95,7 +94,7 @@ export class HotlineCallController extends EventEmitter {
     }
 
     // Mute audio to caller (they hear hold music)
-    await this.webrtcAdapter.setLocalAudioEnabled(false);
+    this.webrtcAdapter.setAudioEnabled(false);
 
     // Play hold music to caller
     this.startHoldMusic(callId);
@@ -134,7 +133,7 @@ export class HotlineCallController extends EventEmitter {
     this.stopHoldMusic();
 
     // Resume audio
-    await this.webrtcAdapter.setLocalAudioEnabled(true);
+    this.webrtcAdapter.setAudioEnabled(true);
 
     // Update call state
     store.updateHotlineCall(callId, {
@@ -514,8 +513,8 @@ export class HotlineCallController extends EventEmitter {
       this.queueManager.handleCallEnd(callId, call.operator.pubkey);
     }
 
-    // Hangup WebRTC
-    await this.webrtcAdapter.hangup();
+    // Close WebRTC connection
+    this.webrtcAdapter.close();
 
     // Send end notification
     await this.signalingService.publishNostrEvent({
@@ -574,7 +573,7 @@ export class HotlineCallController extends EventEmitter {
     }
   }
 
-  private startHoldMusic(callId: string): void {
+  private startHoldMusic(_callId: string): void {
     if (this.holdAudio) {
       this.holdAudio.currentTime = 0;
       this.holdAudio.play().catch(() => {

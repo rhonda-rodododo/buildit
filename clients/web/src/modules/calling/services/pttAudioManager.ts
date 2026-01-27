@@ -30,7 +30,6 @@ export class PTTAudioManager extends EventEmitter {
   private config: Required<PTTAudioConfig>;
   private isRecording: boolean = false;
   private vadSilenceTimer?: ReturnType<typeof setTimeout>;
-  private lastAudioLevel: number = -Infinity;
 
   constructor(config: PTTAudioConfig = {}) {
     super();
@@ -195,8 +194,6 @@ export class PTTAudioManager extends EventEmitter {
     const sum = dataArray.reduce((a, b) => a + b, 0);
     const avg = sum / dataArray.length;
     const level = 20 * Math.log10(avg / 255); // Convert to dB
-
-    this.lastAudioLevel = level;
 
     if (level > this.config.vadThreshold) {
       // Voice detected - clear silence timer

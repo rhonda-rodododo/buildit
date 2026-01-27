@@ -3,12 +3,11 @@
  * Full-featured operator interface for managing hotline calls
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Phone,
   PhoneIncoming,
-  PhoneOff,
   Clock,
   Settings,
   Users,
@@ -26,14 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { useCallingStore } from '../callingStore';
 import {
   HotlineOperatorStatusStatus,
   HotlineCallStateState,
   HotlineCallStatePriority,
 } from '../types';
-import type { HotlineCallState } from '../types';
 import { OperatorStatusCard } from './OperatorStatusCard';
 import { QueueCard } from './QueueCard';
 import { CallNotesPanel } from './CallNotesPanel';

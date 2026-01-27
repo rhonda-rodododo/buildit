@@ -44,6 +44,13 @@ export class ChannelEscalation extends EventEmitter {
   }
 
   /**
+   * Get the operator pubkey
+   */
+  getOperatorPubkey(): string {
+    return this.operatorPubkey;
+  }
+
+  /**
    * Escalate a messaging thread to a voice call
    */
   async escalateToVoice(

@@ -7,14 +7,12 @@ import { EventEmitter } from 'events';
 import { nanoid } from 'nanoid';
 import type {
   HotlineCallState,
-  HotlineOperatorStatus,
-  HotlineConfig,
 } from '../types';
 import {
   HotlineCallStatePriority,
   HotlineCallStateState,
   HotlineOperatorStatusStatus,
-  CALLING_KINDS,
+  HotlineCallStateCallType,
 } from '../types';
 import { useCallingStore } from '../callingStore';
 
@@ -362,7 +360,7 @@ export class HotlineQueueManager extends EventEmitter {
       callId,
       hotlineId: call.hotlineId,
       groupId: call.groupId,
-      callType: call.callerPubkey ? 'internal' : 'pstn',
+      callType: call.callerPubkey ? HotlineCallStateCallType.Internal : HotlineCallStateCallType.Pstn,
       state: HotlineCallStateState.Active,
       caller: {
         pubkey: call.callerPubkey,
@@ -600,7 +598,7 @@ export class HotlineQueueManager extends EventEmitter {
       callId: call.callId,
       hotlineId: call.hotlineId,
       groupId: call.groupId,
-      callType: call.callerPubkey ? 'internal' : 'pstn',
+      callType: call.callerPubkey ? HotlineCallStateCallType.Internal : HotlineCallStateCallType.Pstn,
       state: call.assignedOperator
         ? HotlineCallStateState.Ringing
         : HotlineCallStateState.Queued,

@@ -3,7 +3,7 @@
  * Operator interface for text-based hotline intake with thread management
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   MessageSquare,
@@ -14,7 +14,6 @@ import {
   Send,
   Paperclip,
   ChevronDown,
-  Filter,
   Search,
   MoreVertical,
   PhoneForwarded,
@@ -23,13 +22,11 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -55,7 +52,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { MessagingThread, ThreadMessage } from '../services/messagingQueueManager';
 import type { MessageTemplate, TemplateContext } from '../services/templateManager';
-import type { MessagingHotlineThreadStatus, MessagingHotlineThreadPriority } from '../types';
+import { HotlineCallStatePriority, MessagingHotlineThreadStatus, type MessagingHotlineThreadPriority } from '../types';
 
 interface MessagingHotlineViewProps {
   threads: MessagingThread[];
@@ -77,19 +74,19 @@ interface MessagingHotlineViewProps {
 type FilterType = 'all' | 'unassigned' | 'my-threads' | 'waiting';
 
 const PRIORITY_COLORS: Record<MessagingHotlineThreadPriority, string> = {
-  urgent: 'bg-red-500',
-  high: 'bg-orange-500',
-  medium: 'bg-yellow-500',
-  low: 'bg-gray-400',
+  [HotlineCallStatePriority.Urgent]: 'bg-red-500',
+  [HotlineCallStatePriority.High]: 'bg-orange-500',
+  [HotlineCallStatePriority.Medium]: 'bg-yellow-500',
+  [HotlineCallStatePriority.Low]: 'bg-gray-400',
 };
 
 const STATUS_ICONS: Record<MessagingHotlineThreadStatus, React.ReactNode> = {
-  unassigned: <AlertTriangle className="h-4 w-4 text-orange-500" />,
-  assigned: <User className="h-4 w-4 text-blue-500" />,
-  active: <MessageCircle className="h-4 w-4 text-green-500" />,
-  waiting: <Clock className="h-4 w-4 text-yellow-500" />,
-  resolved: <CheckCircle className="h-4 w-4 text-gray-500" />,
-  archived: <CheckCircle className="h-4 w-4 text-gray-400" />,
+  [MessagingHotlineThreadStatus.Unassigned]: <AlertTriangle className="h-4 w-4 text-orange-500" />,
+  [MessagingHotlineThreadStatus.Assigned]: <User className="h-4 w-4 text-blue-500" />,
+  [MessagingHotlineThreadStatus.Active]: <MessageCircle className="h-4 w-4 text-green-500" />,
+  [MessagingHotlineThreadStatus.Waiting]: <Clock className="h-4 w-4 text-yellow-500" />,
+  [MessagingHotlineThreadStatus.Resolved]: <CheckCircle className="h-4 w-4 text-gray-500" />,
+  [MessagingHotlineThreadStatus.Archived]: <CheckCircle className="h-4 w-4 text-gray-400" />,
 };
 
 const CONTACT_TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -111,7 +108,7 @@ export function MessagingHotlineView({
   onTransferThread,
   onEscalateToVoice,
   onSetPriority,
-  onSetCategory,
+  onSetCategory: _onSetCategory,
   onApplyTemplate,
 }: MessagingHotlineViewProps) {
   const { t } = useTranslation('calling');
@@ -129,9 +126,9 @@ export function MessagingHotlineView({
   // Filter threads
   const filteredThreads = threads.filter((thread) => {
     // Apply status filter
-    if (filter === 'unassigned' && thread.status !== 'unassigned') return false;
+    if (filter === 'unassigned' && thread.status !== MessagingHotlineThreadStatus.Unassigned) return false;
     if (filter === 'my-threads' && !thread.assignedTo) return false;
-    if (filter === 'waiting' && thread.status !== 'waiting') return false;
+    if (filter === 'waiting' && thread.status !== MessagingHotlineThreadStatus.Waiting) return false;
 
     // Apply search filter
     if (searchQuery) {
@@ -144,7 +141,7 @@ export function MessagingHotlineView({
     }
 
     // Exclude archived
-    return thread.status !== 'archived';
+    return thread.status !== MessagingHotlineThreadStatus.Archived;
   });
 
   // Count threads by filter
@@ -299,7 +296,7 @@ export function MessagingHotlineView({
                   <div
                     className={cn(
                       'w-2 h-2 rounded-full mt-2',
-                      PRIORITY_COLORS[thread.priority]
+                      thread.priority && PRIORITY_COLORS[thread.priority]
                     )}
                   />
 

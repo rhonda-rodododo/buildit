@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import type { PTTChannel, PTTState } from '../types';
+import type { PTTChannel } from '../types';
 import { PTT_KINDS } from '../types';
 
 export type PTTPriority = 'normal' | 'high' | 'moderator';
@@ -16,11 +16,13 @@ export interface PTTSpeakRequest {
   requestedAt: number;
 }
 
-export interface PTTChannelState extends PTTChannel {
+export interface PTTChannelState extends Omit<PTTChannel, 'currentSpeaker' | 'speakingQueue' | 'participants'> {
   members: Map<string, { pubkey: string; name?: string; online: boolean }>;
   queue: PTTSpeakRequest[];
-  currentSpeaker?: { pubkey: string; name?: string; startedAt: number };
+  activeSpeaker?: { pubkey: string; name?: string; startedAt: number };
   speakExpiresAt?: number;
+  participants: string[];
+  speakingQueue: string[];
 }
 
 export interface PTTOptions {
@@ -75,7 +77,7 @@ export class PTTChannelManager extends EventEmitter {
       isActive: true,
       participants: [this.myPubkey],
       maxParticipants: options.maxParticipants || 50,
-      currentSpeaker: undefined,
+      activeSpeaker: undefined,
       speakingQueue: [],
       isE2EE: true,
       members: new Map([[this.myPubkey, { pubkey: this.myPubkey, name: this.myName, online: true }]]),
@@ -117,7 +119,7 @@ export class PTTChannelManager extends EventEmitter {
         isActive: true,
         participants: [],
         maxParticipants: 50,
-        currentSpeaker: undefined,
+        activeSpeaker: undefined,
         speakingQueue: [],
         isE2EE: true,
         members: new Map(),
@@ -157,7 +159,7 @@ export class PTTChannelManager extends EventEmitter {
     if (!channel) return;
 
     // Release speak if we're speaking
-    if (channel.currentSpeaker?.pubkey === this.myPubkey) {
+    if (channel.activeSpeaker?.pubkey === this.myPubkey) {
       this.releaseSpeak();
     }
 
@@ -200,7 +202,7 @@ export class PTTChannelManager extends EventEmitter {
     }
 
     // Check if already speaking
-    if (channel.currentSpeaker?.pubkey === this.myPubkey) {
+    if (channel.activeSpeaker?.pubkey === this.myPubkey) {
       return null;
     }
 
@@ -218,7 +220,7 @@ export class PTTChannelManager extends EventEmitter {
     };
 
     // If no one is speaking, grant immediately
-    if (!channel.currentSpeaker) {
+    if (!channel.activeSpeaker) {
       this.grantSpeak(channel, request);
       return null;
     }
@@ -255,7 +257,7 @@ export class PTTChannelManager extends EventEmitter {
     if (!channel) return;
 
     // Only release if we're the current speaker
-    if (channel.currentSpeaker?.pubkey !== this.myPubkey) {
+    if (channel.activeSpeaker?.pubkey !== this.myPubkey) {
       return;
     }
 
@@ -265,7 +267,7 @@ export class PTTChannelManager extends EventEmitter {
       this.speakTimeoutId = undefined;
     }
 
-    channel.currentSpeaker = undefined;
+    channel.activeSpeaker = undefined;
     channel.speakExpiresAt = undefined;
 
     // Broadcast release
@@ -290,7 +292,7 @@ export class PTTChannelManager extends EventEmitter {
     const now = Date.now();
     const timeout = DEFAULT_SPEAK_TIMEOUT;
 
-    channel.currentSpeaker = {
+    channel.activeSpeaker = {
       pubkey: request.pubkey,
       name: request.displayName,
       startedAt: now,
@@ -309,7 +311,7 @@ export class PTTChannelManager extends EventEmitter {
     }
 
     // Broadcast grant
-    this.emit('speaker-changed', { channel, speaker: channel.currentSpeaker });
+    this.emit('speaker-changed', { channel, speaker: channel.activeSpeaker });
     this.emit('signaling-send', {
       kind: PTT_KINDS.PTT_SPEAK_GRANT,
       payload: {
@@ -360,7 +362,7 @@ export class PTTChannelManager extends EventEmitter {
             isActive: true,
             participants: [],
             maxParticipants: (payload.maxParticipants as number) || 50,
-            currentSpeaker: undefined,
+            activeSpeaker: undefined,
             speakingQueue: [],
             isE2EE: true,
             members: new Map(),
@@ -391,8 +393,8 @@ export class PTTChannelManager extends EventEmitter {
           channel.participants = Array.from(channel.members.keys());
           channel.queue = channel.queue.filter((r) => r.pubkey !== pubkey);
           channel.speakingQueue = channel.queue.map((r) => r.pubkey);
-          if (channel.currentSpeaker?.pubkey === pubkey) {
-            channel.currentSpeaker = undefined;
+          if (channel.activeSpeaker?.pubkey === pubkey) {
+            channel.activeSpeaker = undefined;
             this.processQueue(channel);
           }
           this.emit('member-left', { channel, pubkey });
@@ -407,7 +409,7 @@ export class PTTChannelManager extends EventEmitter {
             priority: (payload.priority as PTTPriority) || 'normal',
             requestedAt: payload.timestamp as number,
           };
-          if (!channel.currentSpeaker) {
+          if (!channel.activeSpeaker) {
             this.grantSpeak(channel, request);
           } else {
             channel.queue.push(request);
@@ -421,7 +423,7 @@ export class PTTChannelManager extends EventEmitter {
       case PTT_KINDS.PTT_SPEAK_GRANT:
         if (channel) {
           const pubkey = payload.pubkey as string;
-          channel.currentSpeaker = {
+          channel.activeSpeaker = {
             pubkey,
             name: channel.members.get(pubkey)?.name,
             startedAt: payload.timestamp as number,
@@ -429,15 +431,15 @@ export class PTTChannelManager extends EventEmitter {
           channel.speakExpiresAt = payload.expiresAt as number;
           channel.queue = channel.queue.filter((r) => r.pubkey !== pubkey);
           channel.speakingQueue = channel.queue.map((r) => r.pubkey);
-          this.emit('speaker-changed', { channel, speaker: channel.currentSpeaker });
+          this.emit('speaker-changed', { channel, speaker: channel.activeSpeaker });
         }
         break;
 
       case PTT_KINDS.PTT_SPEAK_RELEASE:
         if (channel) {
           const pubkey = payload.pubkey as string;
-          if (channel.currentSpeaker?.pubkey === pubkey) {
-            channel.currentSpeaker = undefined;
+          if (channel.activeSpeaker?.pubkey === pubkey) {
+            channel.activeSpeaker = undefined;
             channel.speakExpiresAt = undefined;
             this.emit('speaker-changed', { channel, speaker: null });
             this.processQueue(channel);
@@ -465,8 +467,8 @@ export class PTTChannelManager extends EventEmitter {
   getSpeakingUser(): { pubkey: string; name?: string } | null {
     if (!this.activeChannelId) return null;
     const channel = this.channels.get(this.activeChannelId);
-    if (!channel?.currentSpeaker) return null;
-    return channel.currentSpeaker;
+    if (!channel?.activeSpeaker) return null;
+    return channel.activeSpeaker;
   }
 
   /**
@@ -475,7 +477,7 @@ export class PTTChannelManager extends EventEmitter {
   isSpeaking(): boolean {
     if (!this.activeChannelId) return false;
     const channel = this.channels.get(this.activeChannelId);
-    return channel?.currentSpeaker?.pubkey === this.myPubkey;
+    return channel?.activeSpeaker?.pubkey === this.myPubkey;
   }
 
   /**

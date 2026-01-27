@@ -3,7 +3,7 @@
  * Create and schedule multi-channel message broadcasts
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Send,
@@ -11,15 +11,10 @@ import {
   Users,
   Megaphone,
   AlertTriangle,
-  Calendar,
   Globe,
   MessageSquare,
   Smartphone,
   Radio,
-  ChevronDown,
-  X,
-  Plus,
-  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -51,12 +46,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import type {
+import {
   BroadcastTargetType,
   BroadcastPriority,
-  BroadcastStatus,
 } from '../types';
-import type { BroadcastState, BroadcastRecipient } from '../services/broadcastDeliveryManager';
+import type { BroadcastState } from '../services/broadcastDeliveryManager';
 
 interface BroadcastComposerProps {
   groups: Array<{ id: string; name: string; memberCount: number }>;
@@ -78,16 +72,16 @@ interface BroadcastDraft {
 }
 
 const TARGET_TYPE_ICONS: Record<BroadcastTargetType, React.ReactNode> = {
-  group: <Users className="h-4 w-4" />,
-  'contact-list': <MessageSquare className="h-4 w-4" />,
-  'public-channel': <Globe className="h-4 w-4" />,
-  emergency: <AlertTriangle className="h-4 w-4" />,
+  [BroadcastTargetType.Group]: <Users className="h-4 w-4" />,
+  [BroadcastTargetType.ContactList]: <MessageSquare className="h-4 w-4" />,
+  [BroadcastTargetType.PublicChannel]: <Globe className="h-4 w-4" />,
+  [BroadcastTargetType.Emergency]: <AlertTriangle className="h-4 w-4" />,
 };
 
 const PRIORITY_CONFIG: Record<BroadcastPriority, { color: string; description: string }> = {
-  normal: { color: 'bg-gray-500', description: 'Standard delivery' },
-  high: { color: 'bg-orange-500', description: 'Priority delivery, notifications enabled' },
-  emergency: { color: 'bg-red-500', description: 'Bypasses DND, immediate delivery' },
+  [BroadcastPriority.Normal]: { color: 'bg-gray-500', description: 'Standard delivery' },
+  [BroadcastPriority.High]: { color: 'bg-orange-500', description: 'Priority delivery, notifications enabled' },
+  [BroadcastPriority.Emergency]: { color: 'bg-red-500', description: 'Bypasses DND, immediate delivery' },
 };
 
 export function BroadcastComposer({
@@ -102,11 +96,11 @@ export function BroadcastComposer({
   const [title, setTitle] = useState(existingDraft?.title || '');
   const [content, setContent] = useState(existingDraft?.content || '');
   const [targetType, setTargetType] = useState<BroadcastTargetType>(
-    existingDraft?.targetType || 'group'
+    existingDraft?.targetType || BroadcastTargetType.Group
   );
   const [targetId, setTargetId] = useState(existingDraft?.targetId || '');
   const [priority, setPriority] = useState<BroadcastPriority>(
-    existingDraft?.priority || 'normal'
+    existingDraft?.priority || BroadcastPriority.Normal
   );
   const [channels, setChannels] = useState<('buildit' | 'sms' | 'rcs')[]>(
     existingDraft?.channels || ['buildit']
@@ -120,11 +114,11 @@ export function BroadcastComposer({
 
   // Calculate recipient count
   const recipientCount = (() => {
-    if (targetType === 'group') {
+    if (targetType === BroadcastTargetType.Group) {
       const group = groups.find((g) => g.id === targetId);
       return group?.memberCount || 0;
     }
-    if (targetType === 'contact-list') {
+    if (targetType === BroadcastTargetType.ContactList) {
       const list = contactLists.find((l) => l.id === targetId);
       return list?.contactCount || 0;
     }
@@ -150,7 +144,7 @@ export function BroadcastComposer({
   });
 
   const handleSend = async () => {
-    if (priority === 'emergency') {
+    if (priority === BroadcastPriority.Emergency) {
       setShowEmergencyConfirm(true);
       return;
     }
@@ -217,7 +211,7 @@ export function BroadcastComposer({
           <div className="space-y-2">
             <Label>{t('targetType')}</Label>
             <div className="grid grid-cols-2 gap-2">
-              {(['group', 'contact-list', 'public-channel', 'emergency'] as BroadcastTargetType[]).map(
+              {([BroadcastTargetType.Group, BroadcastTargetType.ContactList, BroadcastTargetType.PublicChannel, BroadcastTargetType.Emergency] as BroadcastTargetType[]).map(
                 (type) => (
                   <Button
                     key={type}
@@ -229,7 +223,7 @@ export function BroadcastComposer({
                     }}
                   >
                     {TARGET_TYPE_ICONS[type]}
-                    <span className="ml-2 capitalize">{type.replace('-', ' ')}</span>
+                    <span className="ml-2 capitalize">{type.replace('_', ' ')}</span>
                   </Button>
                 )
               )}
@@ -237,7 +231,7 @@ export function BroadcastComposer({
           </div>
 
           {/* Target Selection */}
-          {(targetType === 'group' || targetType === 'contact-list') && (
+          {(targetType === BroadcastTargetType.Group || targetType === BroadcastTargetType.ContactList) && (
             <div className="space-y-2">
               <Label>{t('selectTarget')}</Label>
               <Select value={targetId} onValueChange={setTargetId}>
@@ -245,13 +239,13 @@ export function BroadcastComposer({
                   <SelectValue placeholder={t('selectTargetPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {targetType === 'group' &&
+                  {targetType === BroadcastTargetType.Group &&
                     groups.map((group) => (
                       <SelectItem key={group.id} value={group.id}>
                         {group.name} ({group.memberCount} {t('members')})
                       </SelectItem>
                     ))}
-                  {targetType === 'contact-list' &&
+                  {targetType === BroadcastTargetType.ContactList &&
                     contactLists.map((list) => (
                       <SelectItem key={list.id} value={list.id}>
                         {list.name} ({list.contactCount} {t('contacts')})
@@ -317,13 +311,13 @@ export function BroadcastComposer({
           <div className="space-y-2">
             <Label>{t('priority')}</Label>
             <div className="grid grid-cols-3 gap-2">
-              {(['normal', 'high', 'emergency'] as BroadcastPriority[]).map((p) => (
+              {([BroadcastPriority.Normal, BroadcastPriority.High, BroadcastPriority.Emergency]).map((p) => (
                 <Button
                   key={p}
                   variant={priority === p ? 'default' : 'outline'}
                   className={cn(
                     'justify-start',
-                    priority === p && p === 'emergency' && 'bg-red-600 hover:bg-red-700'
+                    priority === p && p === BroadcastPriority.Emergency && 'bg-red-600 hover:bg-red-700'
                   )}
                   onClick={() => setPriority(p)}
                 >
@@ -440,10 +434,6 @@ export function BroadcastComposer({
 // Broadcast Status Card Component
 export function BroadcastStatusCard({ broadcast }: { broadcast: BroadcastState }) {
   const { t } = useTranslation('calling');
-
-  const deliveryRate = broadcast.totalRecipients > 0
-    ? (broadcast.deliveredCount / broadcast.totalRecipients) * 100
-    : 0;
 
   return (
     <Card>

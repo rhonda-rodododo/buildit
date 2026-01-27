@@ -32,7 +32,6 @@ import {
   MoreVertical,
   Lock,
   Unlock,
-  UserMinus,
   Copy,
 } from 'lucide-react';
 import { getMeshCallManager, type MeshCallManager } from '../services/meshCallManager';

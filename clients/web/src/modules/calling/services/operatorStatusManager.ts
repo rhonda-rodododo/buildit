@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import type { HotlineOperatorStatus, HotlineConfig } from '../types';
+import type { HotlineOperatorStatus } from '../types';
 import {
   HotlineOperatorStatusStatus,
   CALLING_KINDS,
@@ -342,20 +342,10 @@ export class OperatorStatusManager extends EventEmitter {
   }
 
   private setupSignalingListeners(): void {
-    // Listen for operator status updates from signaling
-    this.signalingService.on('nostr-event', (event) => {
-      if (event.kind === CALLING_KINDS.HOTLINE_OPERATOR_STATUS) {
-        try {
-          const status = JSON.parse(event.content) as HotlineOperatorStatus;
-          // Only process if it's not our own status
-          if (status.pubkey !== this.localPubkey) {
-            // Could update a list of other operators here
-          }
-        } catch (error) {
-          console.error('Failed to parse operator status:', error);
-        }
-      }
-    });
+    // TODO: Listen for operator status updates from signaling
+    // This requires extending SignalingService to support event listening
+    // or using a different approach for status synchronization
+    // For now, status updates are received through the calling store
   }
 
   /**

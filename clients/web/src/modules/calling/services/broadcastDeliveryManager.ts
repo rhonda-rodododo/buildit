@@ -4,11 +4,11 @@
  */
 
 import { EventEmitter } from 'events';
-import type {
-  Broadcast,
-  BroadcastTargetType,
+import {
   BroadcastPriority,
   BroadcastStatus,
+  type Broadcast,
+  type BroadcastTargetType,
 } from '../types';
 
 export interface BroadcastRecipient {
@@ -92,9 +92,10 @@ export class BroadcastDeliveryManager extends EventEmitter {
       content: data.content,
       targetType: data.targetType,
       targetId: data.targetId,
-      priority: data.priority || 'normal',
-      status: 'draft',
+      priority: data.priority || BroadcastPriority.Normal,
+      status: BroadcastStatus.Draft,
       senderPubkey: this.senderPubkey,
+      createdBy: this.senderPubkey,
       createdAt: now,
       updatedAt: now,
       attachments: data.attachments,
@@ -181,11 +182,11 @@ export class BroadcastDeliveryManager extends EventEmitter {
     repeatConfig?: ScheduledBroadcast['repeatConfig']
   ): ScheduledBroadcast | undefined {
     const broadcast = this.broadcasts.get(broadcastId);
-    if (!broadcast || broadcast.status !== 'draft') {
+    if (!broadcast || broadcast.status !== BroadcastStatus.Draft) {
       return undefined;
     }
 
-    broadcast.status = 'scheduled';
+    broadcast.status = BroadcastStatus.Scheduled;
     broadcast.scheduledAt = scheduledFor;
     broadcast.updatedAt = Date.now();
 
@@ -209,7 +210,7 @@ export class BroadcastDeliveryManager extends EventEmitter {
     const scheduled = this.scheduledBroadcasts.get(broadcastId);
     if (!scheduled) return false;
 
-    scheduled.broadcast.status = 'draft';
+    scheduled.broadcast.status = BroadcastStatus.Draft;
     scheduled.broadcast.scheduledAt = undefined;
     scheduled.broadcast.updatedAt = Date.now();
 
@@ -233,12 +234,12 @@ export class BroadcastDeliveryManager extends EventEmitter {
     }
 
     // Confirm emergency priority
-    if (broadcast.priority === 'emergency') {
+    if (broadcast.priority === BroadcastPriority.Emergency) {
       // In real implementation, would require additional confirmation
       console.warn('Sending emergency broadcast - this bypasses DND settings');
     }
 
-    broadcast.status = 'sending';
+    broadcast.status = BroadcastStatus.Sending;
     broadcast.sentAt = Date.now();
     broadcast.updatedAt = Date.now();
 
@@ -247,13 +248,13 @@ export class BroadcastDeliveryManager extends EventEmitter {
     try {
       await this.deliverToRecipients(broadcast);
 
-      broadcast.status = 'sent';
+      broadcast.status = BroadcastStatus.Sent;
       broadcast.updatedAt = Date.now();
       broadcast.progress = 100;
 
       this.emit('broadcast-sent', broadcast);
     } catch (error) {
-      broadcast.status = 'failed';
+      broadcast.status = BroadcastStatus.Failed;
       broadcast.updatedAt = Date.now();
       broadcast.metadata = {
         ...broadcast.metadata,
@@ -574,7 +575,7 @@ export class BroadcastDeliveryManager extends EventEmitter {
             if (nextTime) {
               scheduled.scheduledFor = nextTime;
               scheduled.broadcast.scheduledAt = nextTime;
-              scheduled.broadcast.status = 'scheduled';
+              scheduled.broadcast.status = BroadcastStatus.Scheduled;
             } else {
               this.scheduledBroadcasts.delete(broadcastId);
             }

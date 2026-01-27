@@ -335,6 +335,27 @@ export class SignalingService {
   }
 
   /**
+   * Publish a custom Nostr event (for hotline state updates, etc.)
+   * Uses NIP-17 gift wrap for privacy
+   */
+  async publishNostrEvent(event: {
+    kind: number;
+    content: string;
+    tags: string[][];
+  }): Promise<void> {
+    // Extract recipient from 'p' tag
+    const pTag = event.tags.find((tag) => tag[0] === 'p');
+    if (!pTag || !pTag[1]) {
+      logger.warn('Cannot publish event without recipient pubkey');
+      return;
+    }
+
+    const recipientPubkey = pTag[1];
+    await this.sendGiftWrap(recipientPubkey, event.kind, event.content);
+    logger.debug('Published Nostr event', { kind: event.kind });
+  }
+
+  /**
    * Stop listening and clean up
    */
   close(): void {

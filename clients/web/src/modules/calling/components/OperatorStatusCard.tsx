@@ -3,7 +3,7 @@
  * Displays and controls operator status, shift info, and quick stats
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Play,
@@ -42,7 +42,7 @@ interface OperatorStatusCardProps {
 }
 
 export function OperatorStatusCard({
-  hotlineId,
+  hotlineId: _hotlineId,
   onStartShift,
   onEndShift,
   onStatusChange,
@@ -180,7 +180,7 @@ export function OperatorStatusCard({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={currentStatus === HotlineOperatorStatusStatus.Break ? 'default' : 'outline'}
+                  variant="outline"
                   disabled={isLoading || currentStatus === HotlineOperatorStatusStatus.OnCall}
                   className="justify-start"
                   size="sm"

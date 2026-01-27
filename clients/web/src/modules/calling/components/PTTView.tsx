@@ -74,7 +74,7 @@ export const PTTView: React.FC<PTTViewProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Refs
-  const audioLevelInterval = useRef<ReturnType<typeof setInterval>>();
+  const audioLevelInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pttButtonRef = useRef<HTMLButtonElement>(null);
 
   // Initialize channel manager and audio

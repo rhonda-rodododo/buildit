@@ -13,9 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Mic,
   MicOff,
-  Video,
   VideoOff,
   MoreVertical,
   VolumeX,

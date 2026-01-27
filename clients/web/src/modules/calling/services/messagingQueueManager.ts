@@ -4,11 +4,12 @@
  */
 
 import { EventEmitter } from 'events';
-import type {
-  MessagingHotlineThread,
+import {
   MessagingHotlineThreadStatus,
-  MessagingHotlineThreadContactType,
-  MessagingHotlineThreadPriority,
+  HotlineCallStatePriority,
+  type MessagingHotlineThread,
+  type MessagingHotlineThreadContactType,
+  type MessagingHotlineThreadPriority,
 } from '../types';
 
 export interface ThreadMessage {
@@ -104,8 +105,8 @@ export class MessagingQueueManager extends EventEmitter {
       callerName: data.callerName,
       callerPhone: data.callerPhone,
       contactType: data.contactType,
-      status: 'unassigned',
-      priority: data.priority || 'medium',
+      status: MessagingHotlineThreadStatus.Unassigned,
+      priority: data.priority || HotlineCallStatePriority.Medium,
       category: data.category,
       createdAt: now,
       updatedAt: now,
@@ -140,7 +141,7 @@ export class MessagingQueueManager extends EventEmitter {
     const now = Date.now();
     thread.assignedTo = this.operatorPubkey;
     thread.assignedAt = now;
-    thread.status = 'active';
+    thread.status = MessagingHotlineThreadStatus.Active;
     thread.updatedAt = now;
     thread.responseTime = now - thread.createdAt;
 
@@ -168,7 +169,7 @@ export class MessagingQueueManager extends EventEmitter {
     const now = Date.now();
     thread.assignedTo = operatorPubkey || this.operatorPubkey;
     thread.assignedAt = now;
-    thread.status = 'assigned';
+    thread.status = MessagingHotlineThreadStatus.Assigned;
     thread.updatedAt = now;
 
     this.addSystemMessage(threadId, `Thread assigned to operator`);
@@ -196,7 +197,7 @@ export class MessagingQueueManager extends EventEmitter {
     const now = Date.now();
 
     thread.assignedTo = targetOperatorPubkey;
-    thread.status = 'assigned';
+    thread.status = MessagingHotlineThreadStatus.Assigned;
     thread.updatedAt = now;
 
     const message = reason
@@ -224,7 +225,7 @@ export class MessagingQueueManager extends EventEmitter {
       throw new Error('Thread not found');
     }
 
-    thread.status = 'waiting';
+    thread.status = MessagingHotlineThreadStatus.Waiting;
     thread.updatedAt = Date.now();
 
     this.emit('thread-updated', thread);
@@ -242,7 +243,7 @@ export class MessagingQueueManager extends EventEmitter {
       throw new Error('Thread not found');
     }
 
-    thread.status = 'active';
+    thread.status = MessagingHotlineThreadStatus.Active;
     thread.updatedAt = Date.now();
 
     this.emit('thread-updated', thread);
@@ -264,7 +265,7 @@ export class MessagingQueueManager extends EventEmitter {
     }
 
     const now = Date.now();
-    thread.status = 'resolved';
+    thread.status = MessagingHotlineThreadStatus.Resolved;
     thread.resolvedAt = now;
     thread.updatedAt = now;
 
@@ -293,7 +294,7 @@ export class MessagingQueueManager extends EventEmitter {
       throw new Error('Can only archive resolved threads');
     }
 
-    thread.status = 'archived';
+    thread.status = MessagingHotlineThreadStatus.Archived;
     thread.archivedAt = Date.now();
     thread.updatedAt = Date.now();
 
@@ -333,7 +334,7 @@ export class MessagingQueueManager extends EventEmitter {
       thread.unreadCount++;
       // Auto-reactivate if waiting
       if (thread.status === 'waiting') {
-        thread.status = 'active';
+        thread.status = MessagingHotlineThreadStatus.Active;
       }
     }
 
@@ -443,7 +444,7 @@ export class MessagingQueueManager extends EventEmitter {
         threads = threads.filter((t) => !t.assignedTo);
       }
       if (filter.priority?.length) {
-        threads = threads.filter((t) => filter.priority!.includes(t.priority));
+        threads = threads.filter((t) => t.priority && filter.priority!.includes(t.priority));
       }
       if (filter.contactType?.length) {
         threads = threads.filter((t) => filter.contactType!.includes(t.contactType));
@@ -458,14 +459,16 @@ export class MessagingQueueManager extends EventEmitter {
 
     // Sort by priority weight then by last activity
     const priorityWeight: Record<MessagingHotlineThreadPriority, number> = {
-      urgent: 4,
-      high: 3,
-      medium: 2,
-      low: 1,
+      [HotlineCallStatePriority.Urgent]: 4,
+      [HotlineCallStatePriority.High]: 3,
+      [HotlineCallStatePriority.Medium]: 2,
+      [HotlineCallStatePriority.Low]: 1,
     };
 
     threads.sort((a, b) => {
-      const priorityDiff = priorityWeight[b.priority] - priorityWeight[a.priority];
+      const aPriority = a.priority ?? HotlineCallStatePriority.Medium;
+      const bPriority = b.priority ?? HotlineCallStatePriority.Medium;
+      const priorityDiff = priorityWeight[bPriority] - priorityWeight[aPriority];
       if (priorityDiff !== 0) return priorityDiff;
       return b.lastActivityAt - a.lastActivityAt;
     });
