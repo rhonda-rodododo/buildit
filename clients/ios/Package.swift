@@ -16,12 +16,15 @@ let package = Package(
         ),
     ],
     dependencies: [
-        // No external dependencies - using only Apple frameworks
+        // WebRTC for voice/video calling
+        .package(url: "https://github.com/nicolo-brandini/AmaranJoshuaKarlWebRTC.git", from: "124.0.0"),
     ],
     targets: [
         .target(
             name: "BuildItCore",
-            dependencies: [],
+            dependencies: [
+                .product(name: "WebRTC", package: "AmaranJoshuaKarlWebRTC"),
+            ],
             path: "BuildIt/Core"
         ),
         .testTarget(
