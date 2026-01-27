@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ICE Candidate Test Vectors",
+  "description": "Test vectors for ICE candidate validation",
+  "vectors": [
+    {
+      "name": "valid_host_candidate",
+      "description": "A valid host ICE candidate",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "candidate": {
+          "candidate": "candidate:1 1 UDP 2130706431 192.168.1.100 54321 typ host",
+          "sdpMid": "0",
+          "sdpMLineIndex": 0,
+          "usernameFragment": "abc123"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "candidateType": "host"
+      }
+    },
+    {
+      "name": "valid_srflx_candidate",
+      "description": "A valid server-reflexive ICE candidate (STUN)",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "candidate": {
+          "candidate": "candidate:2 1 UDP 1694498815 203.0.113.50 54322 typ srflx raddr 192.168.1.100 rport 54321",
+          "sdpMid": "0",
+          "sdpMLineIndex": 0,
+          "usernameFragment": "abc123"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "candidateType": "srflx"
+      }
+    },
+    {
+      "name": "valid_relay_candidate",
+      "description": "A valid relay ICE candidate (TURN)",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "candidate": {
+          "candidate": "candidate:3 1 UDP 16777215 198.51.100.10 54323 typ relay raddr 203.0.113.50 rport 54322",
+          "sdpMid": "0",
+          "sdpMLineIndex": 0,
+          "usernameFragment": "abc123"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "candidateType": "relay",
+        "note": "Relay candidates hide the user's IP address"
+      }
+    },
+    {
+      "name": "valid_end_of_candidates",
+      "description": "End of candidates signal (empty candidate)",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "candidate": {
+          "candidate": "",
+          "sdpMid": "0",
+          "sdpMLineIndex": 0
+        }
+      },
+      "expected": {
+        "valid": true,
+        "action": "gathering_complete"
+      }
+    },
+    {
+      "name": "valid_video_candidate",
+      "description": "ICE candidate for video track",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "candidate": {
+          "candidate": "candidate:4 1 UDP 2130706431 192.168.1.100 54400 typ host",
+          "sdpMid": "1",
+          "sdpMLineIndex": 1,
+          "usernameFragment": "def456"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "mediaLine": 1
+      }
+    },
+    {
+      "name": "invalid_missing_call_id",
+      "description": "Missing required callId",
+      "input": {
+        "_v": "1.0.0",
+        "candidate": {
+          "candidate": "candidate:1 1 UDP 2130706431 192.168.1.100 54321 typ host",
+          "sdpMid": "0",
+          "sdpMLineIndex": 0
+        }
+      },
+      "expected": {
+        "valid": false,
+        "error": "missing_required_field",
+        "field": "callId"
+      }
+    }
+  ]
+}

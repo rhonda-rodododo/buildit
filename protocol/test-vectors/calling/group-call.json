@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Group Call Test Vectors",
+  "description": "Test vectors for group call messages",
+  "vectors": [
+    {
+      "name": "valid_group_call_create",
+      "description": "Create a new group call room",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-550e8400-e29b-41d4-a716-446655440000",
+        "groupId": "group-123",
+        "callType": "video",
+        "createdBy": "npub1creator...",
+        "timestamp": 1706234567890,
+        "maxParticipants": 8,
+        "invitedPubkeys": [
+          "npub1invited1...",
+          "npub1invited2...",
+          "npub1invited3..."
+        ],
+        "topology": "mesh"
+      },
+      "expected": {
+        "valid": true,
+        "action": "create_room"
+      }
+    },
+    {
+      "name": "valid_group_call_join",
+      "description": "Join an existing group call",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-550e8400-e29b-41d4-a716-446655440000",
+        "pubkey": "npub1joiner...",
+        "displayName": "Alice",
+        "timestamp": 1706234570000
+      },
+      "expected": {
+        "valid": true,
+        "action": "add_participant"
+      }
+    },
+    {
+      "name": "valid_group_call_leave",
+      "description": "Leave a group call",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-550e8400-e29b-41d4-a716-446655440000",
+        "pubkey": "npub1leaver...",
+        "timestamp": 1706234600000
+      },
+      "expected": {
+        "valid": true,
+        "action": "remove_participant"
+      }
+    },
+    {
+      "name": "valid_sender_key_distribution",
+      "description": "Distribute E2EE sender key to group participants",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-550e8400-e29b-41d4-a716-446655440000",
+        "senderPubkey": "npub1sender...",
+        "keyId": 1,
+        "encryptedKeys": {
+          "npub1recipient1...": "base64-encrypted-key-for-recipient1",
+          "npub1recipient2...": "base64-encrypted-key-for-recipient2",
+          "npub1recipient3...": "base64-encrypted-key-for-recipient3"
+        },
+        "timestamp": 1706234570500
+      },
+      "expected": {
+        "valid": true,
+        "action": "store_sender_key",
+        "note": "Each recipient decrypts their key with their private key"
+      }
+    },
+    {
+      "name": "valid_sfu_conference",
+      "description": "Create a conference with SFU topology",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "conf-550e8400-e29b-41d4-a716-446655440000",
+        "groupId": "group-large",
+        "callType": "video",
+        "createdBy": "npub1host...",
+        "timestamp": 1706234567890,
+        "maxParticipants": 100,
+        "topology": "sfu",
+        "sfuEndpoint": "wss://sfu.example.com/room/abc123"
+      },
+      "expected": {
+        "valid": true,
+        "action": "create_sfu_conference"
+      }
+    },
+    {
+      "name": "invalid_exceeded_mesh_limit",
+      "description": "Mesh topology doesn't support more than 8 participants",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-test",
+        "groupId": "group-123",
+        "callType": "voice",
+        "createdBy": "npub1creator...",
+        "timestamp": 1706234567890,
+        "maxParticipants": 20,
+        "topology": "mesh"
+      },
+      "expected": {
+        "valid": false,
+        "error": "mesh_participant_limit_exceeded",
+        "maxAllowed": 8,
+        "suggestion": "Use SFU topology for more than 8 participants"
+      }
+    },
+    {
+      "name": "valid_key_rotation",
+      "description": "Rotate sender key after participant leaves",
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "room-550e8400-e29b-41d4-a716-446655440000",
+        "senderPubkey": "npub1sender...",
+        "keyId": 2,
+        "encryptedKeys": {
+          "npub1remaining1...": "base64-new-encrypted-key-1",
+          "npub1remaining2...": "base64-new-encrypted-key-2"
+        },
+        "timestamp": 1706234610000
+      },
+      "expected": {
+        "valid": true,
+        "action": "rotate_sender_key",
+        "note": "Key rotated after participant left - excludes old participant"
+      }
+    }
+  ]
+}

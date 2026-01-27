@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Call Hangup Test Vectors",
+  "description": "Test vectors for call hangup validation",
+  "vectors": [
+    {
+      "name": "hangup_completed",
+      "description": "Normal call completion",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "completed",
+        "timestamp": 1706234667890
+      },
+      "expected": {
+        "valid": true,
+        "action": "end_call_normally"
+      }
+    },
+    {
+      "name": "hangup_busy",
+      "description": "Callee is busy with another call",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "busy",
+        "timestamp": 1706234567900
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_busy_message"
+      }
+    },
+    {
+      "name": "hangup_rejected",
+      "description": "Callee declined the call",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "rejected",
+        "timestamp": 1706234567900
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_declined_message"
+      }
+    },
+    {
+      "name": "hangup_no_answer",
+      "description": "Callee did not answer within timeout",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "no_answer",
+        "timestamp": 1706234597890
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_no_answer_message"
+      }
+    },
+    {
+      "name": "hangup_cancelled",
+      "description": "Caller cancelled before answer",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "cancelled",
+        "timestamp": 1706234570890
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_cancelled_message"
+      }
+    },
+    {
+      "name": "hangup_network_failure",
+      "description": "Call failed due to network issues",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "network_failure",
+        "timestamp": 1706234600000
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_network_error",
+        "allowReconnect": true
+      }
+    },
+    {
+      "name": "hangup_media_failure",
+      "description": "Call failed due to media device issues",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "media_failure",
+        "timestamp": 1706234600000
+      },
+      "expected": {
+        "valid": true,
+        "action": "show_media_error"
+      }
+    },
+    {
+      "name": "invalid_reason",
+      "description": "Invalid hangup reason",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "reason": "unknown_reason",
+        "timestamp": 1706234600000
+      },
+      "expected": {
+        "valid": false,
+        "error": "invalid_enum_value",
+        "field": "reason"
+      }
+    }
+  ]
+}

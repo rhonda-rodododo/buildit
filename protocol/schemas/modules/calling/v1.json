@@ -1,0 +1,1024 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/calling/v1.json",
+  "title": "CallingModule",
+  "description": "Schema for BuildIt real-time voice/video calling - E2EE WebRTC with NIP-17 signaling",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+  "coreModule": false,
+
+  "type": "object",
+
+  "compatibilityNotes": [
+    "Call signaling uses NIP-17 gift wrap for metadata protection",
+    "All media streams are E2EE via Insertable Streams API",
+    "WebRTC SDP/ICE exchanged via encrypted signaling events",
+    "Event kinds 24300-24399 reserved for calling"
+  ],
+
+  "nostrEventKinds": {
+    "callOffer": 24300,
+    "callAnswer": 24301,
+    "callIce": 24302,
+    "callHangup": 24303,
+    "callReject": 24304,
+    "callBusy": 24305,
+    "callRinging": 24306,
+    "callHold": 24307,
+    "callResume": 24308,
+    "callMute": 24309,
+    "groupCallCreate": 24310,
+    "groupCallJoin": 24311,
+    "groupCallLeave": 24312,
+    "groupCallParticipants": 24313,
+    "groupCallSpeaking": 24314,
+    "senderKeyDistribution": 24320,
+    "conferenceCreate": 24330,
+    "conferenceJoin": 24331,
+    "conferenceLeave": 24332,
+    "conferenceState": 24333,
+    "hotlineQueueStatus": 24340,
+    "hotlineOperatorStatus": 24341,
+    "hotlineAssignment": 24342
+  },
+
+  "$defs": {
+    "CallOffer": {
+      "type": "object",
+      "description": "WebRTC call offer with SDP (wrapped in NIP-17)",
+      "required": ["callId", "sdp", "callType", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for this call session"
+        },
+        "sdp": {
+          "type": "string",
+          "description": "SDP offer (Session Description Protocol)"
+        },
+        "callType": {
+          "type": "string",
+          "enum": ["voice", "video"],
+          "description": "Type of call being initiated"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp of offer creation"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Optional group context for the call"
+        },
+        "hotlineId": {
+          "type": "string",
+          "description": "Hotline ID if calling a hotline"
+        },
+        "roomId": {
+          "type": "string",
+          "description": "Group call room ID for mesh/SFU"
+        },
+        "isReconnect": {
+          "type": "boolean",
+          "description": "True if this is a reconnection attempt"
+        },
+        "isRenegotiation": {
+          "type": "boolean",
+          "description": "True if adding/removing tracks mid-call"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/CallCapabilities"
+        }
+      }
+    },
+
+    "CallAnswer": {
+      "type": "object",
+      "description": "WebRTC call answer with SDP",
+      "required": ["callId", "sdp", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sdp": {
+          "type": "string",
+          "description": "SDP answer"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "CallIceCandidate": {
+      "type": "object",
+      "description": "ICE candidate for connection negotiation",
+      "required": ["callId", "candidate", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "candidate": {
+          "type": "object",
+          "description": "RTCIceCandidate serialized",
+          "properties": {
+            "candidate": { "type": "string" },
+            "sdpMid": { "type": "string" },
+            "sdpMLineIndex": { "type": "integer" },
+            "usernameFragment": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "CallHangup": {
+      "type": "object",
+      "description": "Call termination signal",
+      "required": ["callId", "reason", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "reason": {
+          "type": "string",
+          "enum": ["completed", "rejected", "busy", "no_answer", "network_failure", "cancelled", "timeout"],
+          "description": "Reason for call termination"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "CallCapabilities": {
+      "type": "object",
+      "description": "Caller capabilities",
+      "additionalProperties": true,
+      "properties": {
+        "video": { "type": "boolean" },
+        "screenShare": { "type": "boolean" },
+        "e2ee": { "type": "boolean", "default": true },
+        "insertableStreams": { "type": "boolean" }
+      }
+    },
+
+    "CallState": {
+      "type": "object",
+      "description": "Local call state tracking",
+      "required": ["callId", "state", "direction", "remotePubkey", "startedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "state": {
+          "type": "string",
+          "enum": ["initiating", "ringing", "connecting", "connected", "on_hold", "reconnecting", "ended"]
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["outgoing", "incoming"]
+        },
+        "callType": {
+          "type": "string",
+          "enum": ["voice", "video"]
+        },
+        "remotePubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Nostr pubkey of the other party"
+        },
+        "remoteName": {
+          "type": "string",
+          "description": "Display name of remote party"
+        },
+        "startedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when call was initiated"
+        },
+        "connectedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when call connected"
+        },
+        "endedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when call ended"
+        },
+        "endReason": {
+          "type": "string",
+          "enum": ["completed", "rejected", "busy", "no_answer", "network_failure", "cancelled", "timeout"]
+        },
+        "isEncrypted": {
+          "type": "boolean",
+          "default": true
+        },
+        "isMuted": {
+          "type": "boolean"
+        },
+        "isVideoEnabled": {
+          "type": "boolean"
+        },
+        "isScreenSharing": {
+          "type": "boolean"
+        },
+        "quality": {
+          "$ref": "#/$defs/CallQuality"
+        }
+      }
+    },
+
+    "CallQuality": {
+      "type": "object",
+      "description": "Call quality metrics",
+      "additionalProperties": true,
+      "properties": {
+        "packetLoss": { "type": "number", "description": "Percentage 0-100" },
+        "jitter": { "type": "number", "description": "Milliseconds" },
+        "roundTripTime": { "type": "number", "description": "Milliseconds" },
+        "bandwidth": { "type": "integer", "description": "Bits per second" },
+        "audioLevel": { "type": "number", "description": "0-1 normalized" }
+      }
+    },
+
+    "GroupCallCreate": {
+      "type": "object",
+      "description": "Create a new group call room",
+      "required": ["roomId", "callType", "createdBy", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "BuildIt group context"
+        },
+        "callType": {
+          "type": "string",
+          "enum": ["voice", "video"]
+        },
+        "topology": {
+          "type": "string",
+          "enum": ["mesh", "sfu"],
+          "default": "mesh"
+        },
+        "maxParticipants": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 100,
+          "default": 8
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "invitedPubkeys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "GroupCallJoin": {
+      "type": "object",
+      "description": "Join an existing group call",
+      "required": ["roomId", "pubkey", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "GroupCallLeave": {
+      "type": "object",
+      "description": "Leave a group call",
+      "required": ["roomId", "pubkey", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "GroupCallParticipant": {
+      "type": "object",
+      "description": "Participant in a group call",
+      "required": ["pubkey", "joinedAt", "state"],
+      "additionalProperties": true,
+      "properties": {
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "joinedAt": {
+          "type": "integer"
+        },
+        "state": {
+          "type": "string",
+          "enum": ["connecting", "connected", "reconnecting", "left"]
+        },
+        "audioEnabled": {
+          "type": "boolean"
+        },
+        "videoEnabled": {
+          "type": "boolean"
+        },
+        "screenSharing": {
+          "type": "boolean"
+        },
+        "isHost": {
+          "type": "boolean"
+        },
+        "isSpeaking": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "SenderKeyDistribution": {
+      "type": "object",
+      "description": "Distribute sender key for group E2EE",
+      "required": ["roomId", "senderPubkey", "keyId", "encryptedKeys", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "senderPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "keyId": {
+          "type": "integer",
+          "description": "Key ID for rotation tracking"
+        },
+        "encryptedKeys": {
+          "type": "object",
+          "description": "Map of recipient pubkey to NIP-44 encrypted key",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "CallHistory": {
+      "type": "object",
+      "description": "Persistent call log entry",
+      "required": ["callId", "remotePubkey", "direction", "startedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "remotePubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "remoteName": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["outgoing", "incoming"]
+        },
+        "callType": {
+          "type": "string",
+          "enum": ["voice", "video", "group"]
+        },
+        "startedAt": {
+          "type": "integer"
+        },
+        "connectedAt": {
+          "type": "integer"
+        },
+        "endedAt": {
+          "type": "integer"
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Duration in seconds"
+        },
+        "endReason": {
+          "type": "string",
+          "enum": ["completed", "rejected", "busy", "no_answer", "network_failure", "cancelled", "timeout"]
+        },
+        "wasEncrypted": {
+          "type": "boolean"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "participantCount": {
+          "type": "integer",
+          "description": "For group calls"
+        }
+      }
+    },
+
+    "CallSettings": {
+      "type": "object",
+      "description": "User call preferences",
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "defaultCallType": {
+          "type": "string",
+          "enum": ["voice", "video"],
+          "default": "voice"
+        },
+        "autoAnswer": {
+          "type": "boolean",
+          "default": false
+        },
+        "doNotDisturb": {
+          "type": "boolean",
+          "default": false
+        },
+        "allowUnknownCallers": {
+          "type": "boolean",
+          "default": true
+        },
+        "relayOnlyMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Always use TURN relay for privacy"
+        },
+        "preferredAudioInput": {
+          "type": "string"
+        },
+        "preferredAudioOutput": {
+          "type": "string"
+        },
+        "preferredVideoInput": {
+          "type": "string"
+        },
+        "echoCancellation": {
+          "type": "boolean",
+          "default": true
+        },
+        "noiseSuppression": {
+          "type": "boolean",
+          "default": true
+        },
+        "autoGainControl": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+
+    "HotlineCallState": {
+      "type": "object",
+      "description": "Extended call state for hotline calls",
+      "required": ["callId", "hotlineId", "state", "callType", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "hotlineId": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "callType": {
+          "type": "string",
+          "enum": ["internal", "pstn"]
+        },
+        "state": {
+          "type": "string",
+          "enum": ["queued", "ringing", "active", "on_hold", "completed", "escalated", "transferred", "abandoned"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "urgent"],
+          "default": "medium"
+        },
+        "caller": {
+          "type": "object",
+          "properties": {
+            "pubkey": { "type": "string" },
+            "phone": { "type": "string" },
+            "name": { "type": "string" }
+          }
+        },
+        "operator": {
+          "type": "object",
+          "properties": {
+            "pubkey": { "type": "string" },
+            "name": { "type": "string" }
+          }
+        },
+        "queuePosition": {
+          "type": "integer"
+        },
+        "queuedAt": {
+          "type": "integer"
+        },
+        "answeredAt": {
+          "type": "integer"
+        },
+        "endedAt": {
+          "type": "integer"
+        },
+        "waitDuration": {
+          "type": "integer",
+          "description": "Seconds in queue"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "isEncrypted": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "HotlineOperatorStatus": {
+      "type": "object",
+      "description": "Operator availability status",
+      "required": ["pubkey", "hotlineId", "status", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "hotlineId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["available", "on_call", "wrap_up", "break", "offline"]
+        },
+        "currentCallId": {
+          "type": "string"
+        },
+        "shiftStart": {
+          "type": "integer"
+        },
+        "shiftEnd": {
+          "type": "integer"
+        },
+        "callCount": {
+          "type": "integer"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "HotlineQueueState": {
+      "type": "object",
+      "description": "Current queue status for a hotline",
+      "required": ["hotlineId", "calls", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "hotlineId": {
+          "type": "string"
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "callId": { "type": "string" },
+              "callerName": { "type": "string" },
+              "priority": { "type": "string" },
+              "queuedAt": { "type": "integer" },
+              "position": { "type": "integer" }
+            }
+          }
+        },
+        "operatorsAvailable": {
+          "type": "integer"
+        },
+        "estimatedWaitTime": {
+          "type": "integer",
+          "description": "Seconds"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "MessagingHotlineThread": {
+      "type": "object",
+      "description": "Text-based hotline conversation thread",
+      "required": ["threadId", "hotlineId", "status", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "threadId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "hotlineId": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "pubkey": { "type": "string" },
+            "phone": { "type": "string" },
+            "name": { "type": "string" },
+            "type": {
+              "type": "string",
+              "enum": ["buildit", "sms", "rcs"]
+            }
+          }
+        },
+        "assignedOperator": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["unassigned", "assigned", "active", "waiting", "resolved", "archived"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "urgent"],
+          "default": "medium"
+        },
+        "category": {
+          "type": "string"
+        },
+        "messageCount": {
+          "type": "integer"
+        },
+        "lastMessageAt": {
+          "type": "integer"
+        },
+        "lastMessageBy": {
+          "type": "string",
+          "enum": ["contact", "operator"]
+        },
+        "unreadByOperator": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "resolvedAt": {
+          "type": "integer"
+        },
+        "linkedCallId": {
+          "type": "string",
+          "description": "If escalated to voice"
+        }
+      }
+    },
+
+    "Broadcast": {
+      "type": "object",
+      "description": "Message broadcast/blast",
+      "required": ["broadcastId", "content", "targetType", "createdBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "broadcastId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 10000
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["group", "contact_list", "public_channel", "emergency"]
+        },
+        "targetIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["normal", "high", "emergency"],
+          "default": "normal"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scheduledAt": {
+          "type": "integer"
+        },
+        "sentAt": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "scheduled", "sending", "sent", "failed"]
+        },
+        "analytics": {
+          "type": "object",
+          "properties": {
+            "totalRecipients": { "type": "integer" },
+            "delivered": { "type": "integer" },
+            "read": { "type": "integer" },
+            "replied": { "type": "integer" }
+          }
+        }
+      }
+    },
+
+    "ConferenceRoom": {
+      "type": "object",
+      "description": "SFU-based conference room",
+      "required": ["roomId", "name", "createdBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sfuEndpoint": {
+          "type": "string",
+          "format": "uri"
+        },
+        "maxParticipants": {
+          "type": "integer",
+          "default": 100
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "waitingRoom": { "type": "boolean" },
+            "allowScreenShare": { "type": "boolean" },
+            "allowRecording": { "type": "boolean" },
+            "locked": { "type": "boolean" },
+            "e2eeRequired": { "type": "boolean", "default": true }
+          }
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "expiresAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "BreakoutConfig": {
+      "type": "object",
+      "description": "Breakout room configuration",
+      "required": ["mainRoomId", "breakouts", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "mainRoomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "breakouts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "name": { "type": "string" },
+              "participants": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "capacity": { "type": "integer" }
+            }
+          }
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Seconds, 0 for unlimited"
+        },
+        "autoAssign": {
+          "type": "boolean"
+        },
+        "allowSelfSelect": {
+          "type": "boolean"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_call_offer",
+      "description": "Voice call offer with minimal fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "sdp": "v=0\r\no=- 123 456 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n",
+        "callType": "voice",
+        "timestamp": 1700000000
+      }
+    },
+    {
+      "name": "video_call_offer_with_capabilities",
+      "description": "Video call with E2EE capabilities",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440001",
+        "sdp": "v=0\r\no=- 123 456 IN IP4 127.0.0.1\r\n",
+        "callType": "video",
+        "timestamp": 1700000000,
+        "capabilities": {
+          "video": true,
+          "screenShare": true,
+          "e2ee": true,
+          "insertableStreams": true
+        }
+      }
+    },
+    {
+      "name": "group_call_create",
+      "description": "Create mesh group call",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "roomId": "550e8400-e29b-41d4-a716-446655440002",
+        "callType": "video",
+        "topology": "mesh",
+        "maxParticipants": 8,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "invitedPubkeys": [
+          "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+        ],
+        "timestamp": 1700000000
+      }
+    },
+    {
+      "name": "hotline_call_queued",
+      "description": "Hotline call in queue",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440003",
+        "hotlineId": "hotline-123",
+        "callType": "internal",
+        "state": "queued",
+        "priority": "high",
+        "caller": {
+          "pubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "name": "Maria G."
+        },
+        "queuePosition": 2,
+        "queuedAt": 1700000000,
+        "isEncrypted": true
+      }
+    }
+  ]
+}

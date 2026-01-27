@@ -11,16 +11,17 @@
 //! ```
 
 pub mod files;
-pub mod wiki;
-pub mod fundraising;
-pub mod database;
-pub mod governance;
-pub mod events;
+pub mod calling;
 pub mod forms;
-pub mod documents;
+pub mod wiki;
+pub mod governance;
+pub mod database;
+pub mod fundraising;
+pub mod events;
 pub mod messaging;
 pub mod publishing;
 pub mod mutual_aid;
 pub mod newsletters;
 pub mod crm;
+pub mod documents;
 pub mod custom_fields;

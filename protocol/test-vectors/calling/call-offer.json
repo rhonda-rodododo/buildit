@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Call Offer Test Vectors",
+  "description": "Test vectors for call offer validation",
+  "vectors": [
+    {
+      "name": "valid_voice_call_offer",
+      "description": "A valid voice call offer",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "callType": "voice",
+        "sdp": "v=0\r\no=- 123456 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:abc123\r\na=ice-pwd:def456ghi789\r\na=fingerprint:sha-256 AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99\r\na=setup:actpass\r\na=mid:0\r\na=sendrecv\r\na=rtcp-mux\r\na=rtpmap:111 opus/48000/2\r\n",
+        "timestamp": 1706234567890,
+        "capabilities": {
+          "video": false,
+          "screenShare": false,
+          "e2ee": true,
+          "insertableStreams": true
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "valid_video_call_offer",
+      "description": "A valid video call offer",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440001",
+        "callType": "video",
+        "sdp": "v=0\r\no=- 123456 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0 1\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=mid:0\r\nm=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\na=mid:1\r\n",
+        "timestamp": 1706234567890,
+        "groupId": "group-123",
+        "capabilities": {
+          "video": true,
+          "screenShare": true,
+          "e2ee": true,
+          "insertableStreams": true
+        }
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "valid_hotline_call_offer",
+      "description": "A call offer to a hotline",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440002",
+        "callType": "voice",
+        "sdp": "v=0\r\no=- 123456 2 IN IP4 127.0.0.1\r\ns=-\r\n",
+        "timestamp": 1706234567890,
+        "hotlineId": "hotline-crisis-001",
+        "groupId": "group-support"
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "valid_reconnect_offer",
+      "description": "A reconnection attempt after network failure",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "callType": "voice",
+        "sdp": "v=0\r\no=- 123456 3 IN IP4 127.0.0.1\r\ns=-\r\n",
+        "timestamp": 1706234570000,
+        "isReconnect": true
+      },
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "invalid_missing_call_id",
+      "description": "Missing required callId field",
+      "input": {
+        "_v": "1.0.0",
+        "callType": "voice",
+        "sdp": "v=0\r\n",
+        "timestamp": 1706234567890
+      },
+      "expected": {
+        "valid": false,
+        "error": "missing_required_field",
+        "field": "callId"
+      }
+    },
+    {
+      "name": "invalid_call_type",
+      "description": "Invalid callType value",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "callType": "audio",
+        "sdp": "v=0\r\n",
+        "timestamp": 1706234567890
+      },
+      "expected": {
+        "valid": false,
+        "error": "invalid_enum_value",
+        "field": "callType",
+        "allowed": ["voice", "video"]
+      }
+    },
+    {
+      "name": "invalid_expired_offer",
+      "description": "Offer timestamp too old (> 60 seconds)",
+      "input": {
+        "_v": "1.0.0",
+        "callId": "550e8400-e29b-41d4-a716-446655440000",
+        "callType": "voice",
+        "sdp": "v=0\r\n",
+        "timestamp": 1706234500000
+      },
+      "expected": {
+        "valid": false,
+        "error": "offer_expired",
+        "maxAge": 60000
+      },
+      "note": "Clients should reject offers older than 60 seconds"
+    }
+  ]
+}

@@ -141,6 +141,15 @@
       "dependencies": ["crm"],
       "schemaPath": "newsletters/v1.json",
       "coreDependency": false
+    },
+    "calling": {
+      "name": "Calling",
+      "description": "Real-time voice/video calling with E2EE WebRTC",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["messaging"],
+      "schemaPath": "calling/v1.json",
+      "coreDependency": false
     }
   },
 
@@ -164,6 +173,7 @@
     "newsletters": "40081-40089",
     "governance": "40091-40099",
     "mutual-aid": "40101-40109",
-    "wiki": "40111-40119"
+    "wiki": "40111-40119",
+    "calling": "24300-24399"
   }
 }
