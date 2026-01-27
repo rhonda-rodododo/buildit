@@ -132,11 +132,11 @@ export function CallHistoryView() {
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('clearHistory')}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete all your call history. This action cannot be undone.
+                  {t('clearHistoryConfirm')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                 <AlertDialogAction onClick={clearCallHistory}>
                   {t('clearHistory')}
                 </AlertDialogAction>
@@ -151,7 +151,7 @@ export function CallHistoryView() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or pubkey..."
+            placeholder={t('searchByNameOrPubkey')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -162,10 +162,10 @@ export function CallHistoryView() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Calls</SelectItem>
-            <SelectItem value="incoming">Incoming</SelectItem>
-            <SelectItem value="outgoing">Outgoing</SelectItem>
-            <SelectItem value="missed">Missed</SelectItem>
+            <SelectItem value="all">{t('allCalls')}</SelectItem>
+            <SelectItem value="incoming">{t('incoming')}</SelectItem>
+            <SelectItem value="outgoing">{t('outgoing')}</SelectItem>
+            <SelectItem value="missed">{t('missed')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

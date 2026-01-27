@@ -168,6 +168,78 @@ export interface DBOperatorStatus {
 }
 
 /**
+ * Conference poll table
+ */
+export interface DBConferencePoll {
+  pollId: string; // primary key
+  roomId: string;
+  question: string;
+  options: string; // JSON array
+  status: 'draft' | 'active' | 'closed';
+  anonymous: boolean;
+  multiSelect: boolean;
+  showLiveResults: boolean;
+  results?: string; // JSON array of {option, count}
+  createdBy: string;
+  createdAt: number;
+  closedAt?: number;
+}
+
+/**
+ * Conference poll vote table
+ */
+export interface DBConferencePollVote {
+  id?: number; // auto-increment
+  pollId: string;
+  voterToken: string; // HMAC for anonymous deduplication
+  selectedOptions: string; // JSON array of indices
+  timestamp: number;
+}
+
+/**
+ * PSTN call history table
+ */
+export interface DBPSTNCallHistory {
+  id?: number; // auto-increment
+  callSid: string;
+  hotlineId: string;
+  direction: 'inbound' | 'outbound';
+  callerPhone?: string; // Masked
+  targetPhone?: string;
+  operatorPubkey?: string;
+  status: 'queued' | 'ringing' | 'connected' | 'on_hold' | 'completed' | 'failed';
+  startedAt: number;
+  connectedAt?: number;
+  endedAt?: number;
+  duration?: number;
+  creditsCost?: number;
+}
+
+/**
+ * PSTN credits table
+ */
+export interface DBPSTNCredits {
+  groupId: string; // primary key
+  monthlyAllocation: number;
+  used: number;
+  remaining: number;
+  resetDate: number;
+  lastUpdated: number;
+}
+
+/**
+ * Breakout room history table
+ */
+export interface DBBreakoutRoom {
+  id: string; // primary key
+  mainRoomId: string;
+  name: string;
+  participantPubkeys: string; // JSON array
+  createdAt: number;
+  closedAt?: number;
+}
+
+/**
  * Calling module schema definition
  */
 export const callingSchema: TableSchema[] = [
@@ -210,5 +282,30 @@ export const callingSchema: TableSchema[] = [
     name: 'operatorStatus',
     schema: 'id, hotlineId, pubkey, status',
     indexes: ['id', 'hotlineId', 'pubkey', 'status'],
+  },
+  {
+    name: 'conferencePolls',
+    schema: 'pollId, roomId, status, createdAt',
+    indexes: ['pollId', 'roomId', 'status', 'createdAt'],
+  },
+  {
+    name: 'conferencePollVotes',
+    schema: '++id, pollId, voterToken, timestamp',
+    indexes: ['++id', 'pollId', 'voterToken', 'timestamp'],
+  },
+  {
+    name: 'pstnCallHistory',
+    schema: '++id, callSid, hotlineId, direction, status, startedAt',
+    indexes: ['++id', 'callSid', 'hotlineId', 'direction', 'status', 'startedAt'],
+  },
+  {
+    name: 'pstnCredits',
+    schema: 'groupId, resetDate',
+    indexes: ['groupId', 'resetDate'],
+  },
+  {
+    name: 'breakoutRooms',
+    schema: 'id, mainRoomId, createdAt',
+    indexes: ['id', 'mainRoomId', 'createdAt'],
   },
 ];

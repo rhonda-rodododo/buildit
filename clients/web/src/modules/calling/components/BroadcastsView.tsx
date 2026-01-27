@@ -157,14 +157,14 @@ export function BroadcastsView() {
             <div className="flex items-center gap-2 mb-2">
               {getStatusIcon(broadcast.status)}
               <h3 className="font-medium truncate">
-                {broadcast.title || 'Untitled Broadcast'}
+                {broadcast.title || t('untitledBroadcast')}
               </h3>
               {getStatusBadge(broadcast.status)}
               {broadcast.priority === BroadcastPriority.Emergency && (
-                <Badge variant="destructive">Emergency</Badge>
+                <Badge variant="destructive">{t('emergency')}</Badge>
               )}
               {broadcast.priority === BroadcastPriority.High && (
-                <Badge>High Priority</Badge>
+                <Badge>{t('highPriority')}</Badge>
               )}
             </div>
 
@@ -176,12 +176,12 @@ export function BroadcastsView() {
               <span className="flex items-center gap-1">
                 <Users className="h-3 w-3" />
                 {broadcast.targetType === BroadcastTargetType.Group
-                  ? 'Group'
+                  ? t('targetGroup')
                   : broadcast.targetType === BroadcastTargetType.ContactList
-                  ? 'Contact List'
+                  ? t('targetContactList')
                   : broadcast.targetType === BroadcastTargetType.Emergency
-                  ? 'Emergency'
-                  : 'Public Channel'}
+                  ? t('emergency')
+                  : t('targetPublicChannel')}
               </span>
 
               {broadcast.scheduledAt && (
@@ -192,7 +192,7 @@ export function BroadcastsView() {
               )}
 
               {broadcast.sentAt && (
-                <span>Sent {formatDistanceToNow(broadcast.sentAt, { addSuffix: true })}</span>
+                <span>{t('sentTimeAgo', { time: formatDistanceToNow(broadcast.sentAt, { addSuffix: true }) })}</span>
               )}
             </div>
 
@@ -203,25 +203,25 @@ export function BroadcastsView() {
                   <p className="text-lg font-semibold">
                     {broadcast.analytics.totalRecipients ?? 0}
                   </p>
-                  <p className="text-xs text-muted-foreground">Recipients</p>
+                  <p className="text-xs text-muted-foreground">{t('recipients')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-green-500">
                     {broadcast.analytics.delivered ?? 0}
                   </p>
-                  <p className="text-xs text-muted-foreground">Delivered</p>
+                  <p className="text-xs text-muted-foreground">{t('delivered')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-blue-500">
                     {broadcast.analytics.read ?? 0}
                   </p>
-                  <p className="text-xs text-muted-foreground">Read</p>
+                  <p className="text-xs text-muted-foreground">{t('read')}</p>
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-purple-500">
                     {broadcast.analytics.replied ?? 0}
                   </p>
-                  <p className="text-xs text-muted-foreground">Replied</p>
+                  <p className="text-xs text-muted-foreground">{t('replied')}</p>
                 </div>
               </div>
             )}
@@ -236,7 +236,7 @@ export function BroadcastsView() {
                   onClick={() => handleSendNow(broadcast.broadcastId)}
                 >
                   <Send className="h-4 w-4 mr-1" />
-                  Send
+                  {t('sendNow')}
                 </Button>
                 <Button variant="outline" size="sm">
                   <Edit className="h-4 w-4" />
@@ -265,7 +265,7 @@ export function BroadcastsView() {
             {t('broadcasts')}
           </h1>
           <p className="text-muted-foreground">
-            Send message blasts to groups and contact lists
+            {t('broadcastsDescription')}
           </p>
         </div>
 
@@ -354,16 +354,16 @@ export function BroadcastsView() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={BroadcastPriority.Normal}>Normal</SelectItem>
-                      <SelectItem value={BroadcastPriority.High}>High</SelectItem>
-                      <SelectItem value={BroadcastPriority.Emergency}>Emergency</SelectItem>
+                      <SelectItem value={BroadcastPriority.Normal}>{t('priorityNormal')}</SelectItem>
+                      <SelectItem value={BroadcastPriority.High}>{t('priorityHigh')}</SelectItem>
+                      <SelectItem value={BroadcastPriority.Emergency}>{t('emergency')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="schedule">Schedule (optional)</Label>
+                <Label htmlFor="schedule">{t('scheduleOptional')}</Label>
                 <Input
                   id="schedule"
                   type="datetime-local"
@@ -377,13 +377,13 @@ export function BroadcastsView() {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleCreateBroadcast}
                 disabled={!newBroadcast.content.trim()}
               >
-                {newBroadcast.scheduledAt ? t('scheduleBroadcast') : 'Save as Draft'}
+                {newBroadcast.scheduledAt ? t('scheduleBroadcast') : t('saveDraft')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -394,7 +394,7 @@ export function BroadcastsView() {
         <TabsList>
           <TabsTrigger value="drafts">
             <FileText className="h-4 w-4 mr-2" />
-            Drafts
+            {t('drafts')}
             {draftBroadcasts.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {draftBroadcasts.length}
@@ -403,7 +403,7 @@ export function BroadcastsView() {
           </TabsTrigger>
           <TabsTrigger value="scheduled">
             <Calendar className="h-4 w-4 mr-2" />
-            Scheduled
+            {t('scheduled')}
             {scheduledBroadcasts.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {scheduledBroadcasts.length}
@@ -412,7 +412,7 @@ export function BroadcastsView() {
           </TabsTrigger>
           <TabsTrigger value="sent">
             <BarChart2 className="h-4 w-4 mr-2" />
-            Sent
+            {t('sent')}
             {sentBroadcasts.length > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {sentBroadcasts.length}
@@ -426,7 +426,7 @@ export function BroadcastsView() {
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
                 <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                No draft broadcasts
+                {t('noDraftBroadcasts')}
               </CardContent>
             </Card>
           ) : (
@@ -441,7 +441,7 @@ export function BroadcastsView() {
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
                 <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                No scheduled broadcasts
+                {t('noScheduledBroadcasts')}
               </CardContent>
             </Card>
           ) : (
@@ -456,7 +456,7 @@ export function BroadcastsView() {
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
                 <Send className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                No broadcasts sent yet
+                {t('noSentBroadcasts')}
               </CardContent>
             </Card>
           ) : (

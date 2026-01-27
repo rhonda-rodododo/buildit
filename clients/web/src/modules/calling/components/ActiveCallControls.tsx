@@ -140,7 +140,7 @@ export function ActiveCallControls({
                 {isEncrypted && (
                   <Badge variant="secondary" className="gap-1">
                     <Lock className="h-3 w-3" />
-                    E2EE
+                    {t('e2ee')}
                   </Badge>
                 )}
               </div>

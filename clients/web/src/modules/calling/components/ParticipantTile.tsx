@@ -4,6 +4,7 @@
  */
 
 import { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -55,6 +56,7 @@ export function ParticipantTile({
   onRequestMute,
   onRemove,
 }: ParticipantTileProps) {
+  const { t } = useTranslation('calling');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showControls, setShowControls] = useState(false);
 
@@ -210,25 +212,25 @@ export function ParticipantTile({
               {onPin && !isPinned && (
                 <DropdownMenuItem onClick={onPin}>
                   <Pin className="w-4 h-4 mr-2" />
-                  Pin
+                  {t('pin')}
                 </DropdownMenuItem>
               )}
               {onUnpin && isPinned && (
                 <DropdownMenuItem onClick={onUnpin}>
                   <PinOff className="w-4 h-4 mr-2" />
-                  Unpin
+                  {t('unpin')}
                 </DropdownMenuItem>
               )}
               {onRequestMute && audioEnabled && (
                 <DropdownMenuItem onClick={onRequestMute}>
                   <VolumeX className="w-4 h-4 mr-2" />
-                  Request Mute
+                  {t('requestMute')}
                 </DropdownMenuItem>
               )}
               {onRemove && (
                 <DropdownMenuItem onClick={onRemove} className="text-red-500 focus:text-red-500">
                   <UserMinus className="w-4 h-4 mr-2" />
-                  Remove
+                  {t('remove')}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

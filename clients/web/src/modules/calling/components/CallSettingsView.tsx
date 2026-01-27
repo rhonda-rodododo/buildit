@@ -55,7 +55,7 @@ export function CallSettingsView() {
           {t('settings')}
         </h1>
         <p className="text-muted-foreground">
-          Configure your voice and video calling preferences
+          {t('settingsDescription')}
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export function CallSettingsView() {
                   <SelectValue placeholder="Select microphone" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">System Default</SelectItem>
+                  <SelectItem value="default">{t('systemDefault')}</SelectItem>
                   {devices.audioInputs.map((device) => (
                     <SelectItem key={device.deviceId} value={device.deviceId}>
                       {device.label || `Microphone ${device.deviceId.slice(0, 8)}`}
@@ -101,7 +101,7 @@ export function CallSettingsView() {
                   <SelectValue placeholder="Select speaker" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">System Default</SelectItem>
+                  <SelectItem value="default">{t('systemDefault')}</SelectItem>
                   {devices.audioOutputs.map((device) => (
                     <SelectItem key={device.deviceId} value={device.deviceId}>
                       {device.label || `Speaker ${device.deviceId.slice(0, 8)}`}
@@ -118,7 +118,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="echo">{t('echoCancellation')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Reduce echo from speakers
+                  {t('echoCancellationDesc')}
                 </p>
               </div>
               <Switch
@@ -132,7 +132,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="noise">{t('noiseSuppression')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Reduce background noise
+                  {t('noiseSuppressionDesc')}
                 </p>
               </div>
               <Switch
@@ -146,7 +146,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="gain">{t('autoGainControl')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically adjust microphone volume
+                  {t('autoGainControlDesc')}
                 </p>
               </div>
               <Switch
@@ -178,7 +178,7 @@ export function CallSettingsView() {
                   <SelectValue placeholder="Select camera" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">System Default</SelectItem>
+                  <SelectItem value="default">{t('systemDefault')}</SelectItem>
                   {devices.videoInputs.map((device) => (
                     <SelectItem key={device.deviceId} value={device.deviceId}>
                       {device.label || `Camera ${device.deviceId.slice(0, 8)}`}
@@ -207,13 +207,13 @@ export function CallSettingsView() {
                   <SelectItem value="voice">
                     <span className="flex items-center gap-2">
                       <Mic className="h-4 w-4" />
-                      Voice Call
+                      {t('voiceCall')}
                     </span>
                   </SelectItem>
                   <SelectItem value="video">
                     <span className="flex items-center gap-2">
                       <Video className="h-4 w-4" />
-                      Video Call
+                      {t('videoCall')}
                     </span>
                   </SelectItem>
                 </SelectContent>
@@ -235,7 +235,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="dnd">{t('doNotDisturb')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Silence incoming calls
+                  {t('doNotDisturbDesc')}
                 </p>
               </div>
               <Switch
@@ -249,7 +249,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="unknown">{t('allowUnknownCallers')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Accept calls from contacts not in your list
+                  {t('allowUnknownCallersDesc')}
                 </p>
               </div>
               <Switch
@@ -277,7 +277,7 @@ export function CallSettingsView() {
               <div>
                 <Label htmlFor="auto">{t('autoAnswer')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically answer incoming calls
+                  {t('autoAnswerDesc')}
                 </p>
               </div>
               <Switch

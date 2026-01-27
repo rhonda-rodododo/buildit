@@ -181,7 +181,7 @@ pub struct CallState {
     /// Unix timestamp when call connected
     pub connected_at: Option<i64>,
 
-    pub direction: Direction,
+    pub direction: CallStateDirection,
 
     /// Unix timestamp when call ended
     pub ended_at: Option<i64>,
@@ -212,7 +212,7 @@ pub struct CallState {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum Direction {
+pub enum CallStateDirection {
     Incoming,
 
     Outgoing,
@@ -408,7 +408,7 @@ pub struct CallHistory {
 
     pub connected_at: Option<i64>,
 
-    pub direction: Direction,
+    pub direction: CallStateDirection,
 
     /// Duration in seconds
     pub duration: Option<i64>,
@@ -831,14 +831,14 @@ pub struct ConferenceRoom {
 
     pub room_id: String,
 
-    pub settings: Option<Settings>,
+    pub settings: Option<ConferenceRoomSettings>,
 
     pub sfu_endpoint: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Settings {
+pub struct ConferenceRoomSettings {
     pub allow_recording: Option<bool>,
 
     pub allow_screen_share: Option<bool>,
@@ -883,5 +883,367 @@ pub struct Breakout {
     pub name: String,
 
     pub participants: Option<Vec<String>>,
+}
+
+/// Participant in an SFU conference
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConferenceParticipant {
+    pub audio_enabled: Option<bool>,
+
+    pub display_name: Option<String>,
+
+    pub hand_raised: Option<bool>,
+
+    /// Breakout room ID if in breakout
+    pub in_breakout: Option<String>,
+
+    pub in_waiting_room: Option<bool>,
+
+    pub joined_at: i64,
+
+    pub pubkey: String,
+
+    pub role: Role,
+
+    pub screen_sharing: Option<bool>,
+
+    pub video_enabled: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Role {
+    #[serde(rename = "co_host")]
+    CoHost,
+
+    Host,
+
+    Moderator,
+
+    Participant,
+
+    Viewer,
+}
+
+/// MLS welcome message for new participants
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MlsWelcome {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub epoch: Option<i64>,
+
+    pub room_id: String,
+
+    pub target_pubkey: String,
+
+    pub timestamp: Option<i64>,
+
+    /// Base64-encoded encrypted MLS welcome message
+    pub welcome: String,
+}
+
+/// MLS commit for key rotation
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MlsCommit {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    /// Base64-encoded MLS commit message
+    pub commit: String,
+
+    pub epoch: i64,
+
+    pub room_id: String,
+
+    pub sender_pubkey: Option<String>,
+
+    pub timestamp: Option<i64>,
+}
+
+/// Participant waiting to join conference
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WaitingRoomParticipant {
+    pub display_name: Option<String>,
+
+    pub joined_at: i64,
+
+    pub pubkey: String,
+}
+
+/// Hand raise event
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandRaise {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub action: Action,
+
+    pub pubkey: String,
+
+    pub room_id: String,
+
+    pub timestamp: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Action {
+    Lower,
+
+    Raise,
+}
+
+/// Emoji reaction in conference
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Reaction {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub emoji: Emoji,
+
+    pub pubkey: String,
+
+    pub room_id: String,
+
+    pub timestamp: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Emoji {
+    #[serde(rename = "\u{01f44e}")]
+    Emoji,
+
+    #[serde(rename = "\u{01f44d}")]
+    Empty,
+
+    #[serde(rename = "\u{01f602}")]
+    Fluffy,
+
+    #[serde(rename = "✋")]
+    Indecent,
+
+    #[serde(rename = "\u{01f44f}")]
+    Indigo,
+
+    #[serde(rename = "❤️")]
+    Purple,
+
+    #[serde(rename = "\u{01f389}")]
+    Sticky,
+
+    #[serde(rename = "\u{01f62e}")]
+    Tentacled,
+}
+
+/// Conference poll
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Poll {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub closed_at: Option<i64>,
+
+    pub created_at: Option<i64>,
+
+    pub created_by: String,
+
+    pub options: Vec<String>,
+
+    pub poll_id: String,
+
+    pub question: String,
+
+    pub results: Option<Vec<Result>>,
+
+    pub room_id: String,
+
+    pub settings: Option<PollSettings>,
+
+    pub status: Option<PollStatus>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Result {
+    pub count: Option<i64>,
+
+    #[serde(rename = "option")]
+    pub result_option: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PollSettings {
+    pub anonymous: Option<bool>,
+
+    pub multi_select: Option<bool>,
+
+    pub show_live_results: Option<bool>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PollStatus {
+    Active,
+
+    Closed,
+
+    Draft,
+}
+
+/// Vote on a poll
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PollVote {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    /// Encrypted vote with voter token for anonymity
+    pub encrypted_vote: String,
+
+    pub poll_id: String,
+
+    pub room_id: String,
+
+    pub timestamp: Option<i64>,
+
+    /// HMAC(roomId + pollId, privateKey) for anonymous deduplication
+    pub voter_token: Option<String>,
+}
+
+/// Recording consent from participant
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordingConsent {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub consented: bool,
+
+    pub pubkey: String,
+
+    pub room_id: String,
+
+    pub timestamp: Option<i64>,
+}
+
+/// In-conference chat message
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConferenceChatMessage {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub content: String,
+
+    pub message_id: String,
+
+    /// For private messages
+    pub recipient_pubkey: Option<String>,
+
+    pub recipient_type: Option<RecipientType>,
+
+    pub room_id: String,
+
+    pub sender_pubkey: String,
+
+    pub timestamp: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RecipientType {
+    Everyone,
+
+    Host,
+
+    Private,
+}
+
+/// PSTN call state
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PstnCall {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    /// Masked phone number
+    pub caller_phone: Option<String>,
+
+    /// Twilio call SID
+    pub call_sid: String,
+
+    pub connected_at: Option<i64>,
+
+    /// Credits used for this call
+    pub credits_cost: Option<f64>,
+
+    pub direction: PstnCallDirection,
+
+    /// Duration in seconds
+    pub duration: Option<i64>,
+
+    pub ended_at: Option<i64>,
+
+    pub hotline_id: String,
+
+    pub operator_pubkey: Option<String>,
+
+    pub started_at: Option<i64>,
+
+    pub status: PstnCallStatus,
+
+    pub target_phone: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PstnCallDirection {
+    Inbound,
+
+    Outbound,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PstnCallStatus {
+    Completed,
+
+    Connected,
+
+    Failed,
+
+    #[serde(rename = "on_hold")]
+    OnHold,
+
+    Queued,
+
+    Ringing,
+}
+
+/// PSTN credit balance for a group
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreditBalance {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub group_id: String,
+
+    pub monthly_allocation: f64,
+
+    pub remaining: f64,
+
+    /// Unix timestamp of next reset
+    pub reset_date: Option<i64>,
+
+    pub used: f64,
 }
 

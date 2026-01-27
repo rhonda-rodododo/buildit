@@ -29,12 +29,26 @@ export type {
   ConferenceRoom,
   BreakoutConfig,
   Candidate,
+  // New types for Epic 5, 6, 8
+  ConferenceParticipant,
+  MLSWelcome,
+  MLSCommit,
+  WaitingRoomParticipant,
+  HandRaise,
+  Reaction,
+  Poll,
+  PollVote,
+  PollSettings,
+  RecordingConsent,
+  ConferenceChatMessage,
+  PSTNCall,
+  CreditBalance,
 } from '@/generated/schemas/calling';
 
 export {
   CallType,
   Reason as HangupReason,
-  Direction as CallDirection,
+  CallStateDirection as CallDirection,
   CallStateState,
   GroupCallParticipantState,
   Topology,
@@ -49,12 +63,20 @@ export {
   TargetType as BroadcastTargetType,
   Type as ContactType,
   LastMessageBy,
+  // New enums for Epic 5, 6, 8
+  Role as ConferenceParticipantRole,
+  Action as HandRaiseAction,
+  Emoji as ReactionEmoji,
+  PollStatus,
+  RecipientType as ConferenceChatRecipientType,
+  PSTNCallDirection,
+  PSTNCallStatus,
 } from '@/generated/schemas/calling';
 
 import {
   CallType,
   Reason,
-  Direction,
+  CallStateDirection,
   CallStateState,
   GroupCallParticipantState,
   Topology,
@@ -71,22 +93,67 @@ import {
  * Nostr event kinds for calling (from protocol registry)
  */
 export const CALLING_KINDS = {
+  // Basic call signaling (24300-24309)
   CALL_OFFER: 24300,
   CALL_ANSWER: 24301,
   CALL_ICE: 24302,
   CALL_HANGUP: 24303,
-  CALL_STATE: 24304,
+  CALL_REJECT: 24304,
+  CALL_BUSY: 24305,
+  CALL_RINGING: 24306,
+  CALL_HOLD: 24307,
+  CALL_RESUME: 24308,
+  CALL_MUTE: 24309,
+
+  // Group calls (24310-24320)
   GROUP_CALL_CREATE: 24310,
   GROUP_CALL_JOIN: 24311,
   GROUP_CALL_LEAVE: 24312,
+  GROUP_CALL_PARTICIPANTS: 24313,
+  GROUP_CALL_SPEAKING: 24314,
   SENDER_KEY: 24320,
+
+  // Hotline (24330-24349)
   HOTLINE_CALL_STATE: 24330,
-  HOTLINE_OPERATOR_STATUS: 24331,
-  HOTLINE_QUEUE_STATE: 24332,
-  MESSAGING_THREAD: 24340,
-  BROADCAST: 24350,
-  CONFERENCE_ROOM: 24360,
-  BREAKOUT_CONFIG: 24361,
+  HOTLINE_QUEUE_STATUS: 24340,
+  HOTLINE_OPERATOR_STATUS: 24341,
+  HOTLINE_ASSIGNMENT: 24342,
+
+  // Conference/SFU (24350-24359)
+  CONFERENCE_CREATE: 24350,
+  CONFERENCE_JOIN: 24351,
+  CONFERENCE_LEAVE: 24352,
+  CONFERENCE_PARTICIPANTS: 24353,
+  MLS_WELCOME: 24354,
+  MLS_COMMIT: 24355,
+
+  // Breakout rooms (24360-24363)
+  BREAKOUT_CREATE: 24360,
+  BREAKOUT_ASSIGN: 24361,
+  BREAKOUT_OPEN: 24362,
+  BREAKOUT_CLOSE: 24363,
+
+  // Conference features (24364-24369)
+  HAND_RAISE: 24364,
+  REACTION: 24365,
+  POLL_LAUNCH: 24366,
+  POLL_VOTE: 24367,
+  POLL_CLOSE: 24368,
+  RECORDING_CONSENT: 24369,
+
+  // Push-to-talk (24370-24375)
+  PTT_CHANNEL_CREATE: 24370,
+  PTT_CHANNEL_JOIN: 24371,
+  PTT_CHANNEL_LEAVE: 24372,
+  PTT_SPEAK_REQUEST: 24373,
+  PTT_SPEAK_GRANT: 24374,
+  PTT_SPEAK_RELEASE: 24375,
+
+  // PSTN (24380-24389)
+  PSTN_INBOUND: 24380,
+  PSTN_OUTBOUND: 24381,
+  PSTN_BRIDGE: 24382,
+  PSTN_CREDITS: 24383,
 } as const;
 
 /**
@@ -154,7 +221,7 @@ export const CallStateSchema = z.object({
   callId: z.string(),
   remotePubkey: z.string(),
   remoteName: z.string().optional(),
-  direction: z.nativeEnum(Direction),
+  direction: z.nativeEnum(CallStateDirection),
   callType: z.nativeEnum(CallType).optional(),
   state: z.nativeEnum(CallStateState),
   startedAt: z.number(),
@@ -221,7 +288,7 @@ export const CallHistorySchema = z.object({
   callId: z.string(),
   remotePubkey: z.string(),
   remoteName: z.string().optional(),
-  direction: z.nativeEnum(Direction),
+  direction: z.nativeEnum(CallStateDirection),
   callType: z.enum(['voice', 'video', 'group']).optional(),
   startedAt: z.number(),
   connectedAt: z.number().optional(),
@@ -408,7 +475,7 @@ export interface LocalCallState {
   callId: string;
   remotePubkey: string;
   remoteName?: string;
-  direction: Direction;
+  direction: CallStateDirection;
   callType: CallType;
   state: CallStateState;
   startedAt: number;
@@ -557,11 +624,171 @@ export interface PTTState {
   localStream?: MediaStream;
 }
 
-export const PTT_KINDS = {
-  PTT_CHANNEL_CREATE: 24370,
-  PTT_CHANNEL_JOIN: 24371,
-  PTT_CHANNEL_LEAVE: 24372,
-  PTT_SPEAK_REQUEST: 24373,
-  PTT_SPEAK_GRANT: 24374,
-  PTT_SPEAK_RELEASE: 24375,
-} as const;
+/**
+ * Conference state (SFU-based calls with 50+ participants)
+ */
+export interface ConferenceState {
+  roomId: string;
+  groupId?: string;
+  name: string;
+  isHost: boolean;
+
+  // Local participant
+  localPubkey: string;
+  localStream?: MediaStream;
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  isScreenSharing: boolean;
+  role: 'host' | 'co_host' | 'moderator' | 'participant' | 'viewer';
+
+  // Remote participants
+  participants: Map<string, {
+    pubkey: string;
+    displayName?: string;
+    stream?: MediaStream;
+    audioEnabled: boolean;
+    videoEnabled: boolean;
+    screenSharing: boolean;
+    isSpeaking: boolean;
+    role: 'host' | 'co_host' | 'moderator' | 'participant' | 'viewer';
+    handRaised: boolean;
+    inBreakout?: string;
+  }>;
+
+  // Room settings
+  settings: {
+    waitingRoom: boolean;
+    locked: boolean;
+    allowScreenShare: boolean;
+    allowRecording: boolean;
+    e2eeRequired: boolean;
+    muteOnJoin: boolean;
+  };
+
+  // MLS E2EE state
+  mlsEpoch: number;
+  mlsGroupId?: string;
+
+  // Feature state
+  waitingRoom: Map<string, { pubkey: string; displayName?: string; joinedAt: number }>;
+  raisedHands: Map<string, { pubkey: string; raisedAt: number }>;
+  breakoutRooms: Map<string, { id: string; name: string; participants: string[] }>;
+  activeBreakout?: string;
+  activePolls: Map<string, {
+    pollId: string;
+    question: string;
+    options: string[];
+    status: 'active' | 'closed';
+    hasVoted: boolean;
+  }>;
+
+  // Recording
+  isRecording: boolean;
+  recordingConsent: Set<string>;
+
+  // SFU connection
+  sfuEndpoint?: string;
+  sfuConnection?: unknown; // LiveKit room reference
+}
+
+/**
+ * Quality layer for simulcast
+ */
+export type QualityLayer = 'low' | 'medium' | 'high';
+
+/**
+ * Simulcast configuration for each layer
+ */
+export interface SimulcastConfig {
+  low: { maxBitrate: number; maxFramerate: number; scaleResolutionDownBy: number };
+  medium: { maxBitrate: number; maxFramerate: number; scaleResolutionDownBy: number };
+  high: { maxBitrate: number; maxFramerate: number; scaleResolutionDownBy: number };
+}
+
+/**
+ * Default simulcast configuration
+ */
+export const DEFAULT_SIMULCAST_CONFIG: SimulcastConfig = {
+  low: { maxBitrate: 150_000, maxFramerate: 15, scaleResolutionDownBy: 4 },
+  medium: { maxBitrate: 500_000, maxFramerate: 30, scaleResolutionDownBy: 2 },
+  high: { maxBitrate: 1_500_000, maxFramerate: 30, scaleResolutionDownBy: 1 },
+};
+
+/**
+ * Conference view layout modes
+ */
+export type ConferenceLayout = 'speaker' | 'gallery' | 'side-by-side';
+
+/**
+ * Local poll state for UI
+ */
+export interface LocalPoll {
+  pollId: string;
+  question: string;
+  options: string[];
+  status: 'draft' | 'active' | 'closed';
+  settings: {
+    anonymous: boolean;
+    multiSelect: boolean;
+    showLiveResults: boolean;
+  };
+  results?: { option: string; count: number }[];
+  hasVoted: boolean;
+  selectedOptions?: number[];
+}
+
+/**
+ * Active reaction for display
+ */
+export interface ActiveReaction {
+  id: string;
+  pubkey: string;
+  displayName?: string;
+  emoji: string;
+  timestamp: number;
+}
+
+/**
+ * PSTN call state for local UI
+ */
+export interface LocalPSTNCall {
+  callSid: string;
+  hotlineId: string;
+  direction: 'inbound' | 'outbound';
+  callerPhone?: string; // Masked
+  targetPhone?: string;
+  operatorPubkey?: string;
+  status: 'queued' | 'ringing' | 'connected' | 'on_hold' | 'completed' | 'failed';
+  startedAt: number;
+  connectedAt?: number;
+  duration: number;
+  isWebRTCBridged: boolean;
+}
+
+/**
+ * PSTN credits state for local UI
+ */
+export interface LocalCreditBalance {
+  groupId: string;
+  monthlyAllocation: number;
+  used: number;
+  remaining: number;
+  percentUsed: number;
+  resetDate: Date;
+  isLow: boolean; // true if >= 80% used
+}
+
+/**
+ * PSTN usage record
+ */
+export interface PSTNUsageRecord {
+  callSid: string;
+  direction: 'inbound' | 'outbound';
+  duration: number; // seconds
+  creditsCost: number;
+  timestamp: number;
+  targetPhone?: string;
+}
+
+/** @deprecated Use CALLING_KINDS.PTT_* instead */
+export const PTT_KINDS = CALLING_KINDS;

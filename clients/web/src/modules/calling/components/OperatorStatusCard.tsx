@@ -193,15 +193,15 @@ export function OperatorStatusCard({
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => onStartBreak('short')}>
                   <Clock className="h-4 w-4 mr-2" />
-                  {t('shortBreak')} (15m)
+                  {t('shortBreakDuration')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onStartBreak('meal')}>
                   <Coffee className="h-4 w-4 mr-2" />
-                  {t('mealBreak')} (60m)
+                  {t('mealBreakDuration')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onStartBreak('personal')}>
                   <Pause className="h-4 w-4 mr-2" />
-                  {t('personalBreak')} (30m)
+                  {t('personalBreakDuration')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

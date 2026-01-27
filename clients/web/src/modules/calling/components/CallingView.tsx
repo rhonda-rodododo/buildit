@@ -90,7 +90,7 @@ export function CallingView() {
         <TabsList>
           <TabsTrigger value="contacts">
             <User className="h-4 w-4 mr-2" />
-            Contacts
+            {t('contacts')}
           </TabsTrigger>
           <TabsTrigger value="history">
             <Clock className="h-4 w-4 mr-2" />
@@ -101,7 +101,7 @@ export function CallingView() {
         <div className="relative mb-4">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search contacts or enter pubkey..."
+            placeholder={t('searchContacts')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -119,7 +119,7 @@ export function CallingView() {
                       <AvatarFallback>?</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">Unknown Contact</p>
+                      <p className="font-medium">{t('unknownContact')}</p>
                       <p className="text-sm text-muted-foreground font-mono truncate max-w-[200px]">
                         {searchQuery}
                       </p>
@@ -149,7 +149,7 @@ export function CallingView() {
           {/* Recent contacts */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Recent Contacts</CardTitle>
+              <CardTitle className="text-lg">{t('recentContacts')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {recentContacts.length === 0 ? (
@@ -224,9 +224,9 @@ export function CallingView() {
                         </p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           {call.direction === CallDirection.Incoming ? (
-                            <span className="text-green-500">Incoming</span>
+                            <span className="text-green-500">{t('incoming')}</span>
                           ) : (
-                            <span className="text-blue-500">Outgoing</span>
+                            <span className="text-blue-500">{t('outgoing')}</span>
                           )}
                           <span>•</span>
                           <span>

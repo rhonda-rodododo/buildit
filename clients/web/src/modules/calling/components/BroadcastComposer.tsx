@@ -248,7 +248,7 @@ export function BroadcastComposer({
                   {targetType === BroadcastTargetType.ContactList &&
                     contactLists.map((list) => (
                       <SelectItem key={list.id} value={list.id}>
-                        {list.name} ({list.contactCount} {t('contacts')})
+                        {list.name} ({list.contactCount} {t('contactsUnit')})
                       </SelectItem>
                     ))}
                 </SelectContent>
@@ -286,7 +286,7 @@ export function BroadcastComposer({
                   onCheckedChange={() => toggleChannel('buildit')}
                 />
                 <MessageSquare className="h-4 w-4" />
-                <span>BuildIt</span>
+                <span>{t('channelBuildIt')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <Switch
@@ -294,7 +294,7 @@ export function BroadcastComposer({
                   onCheckedChange={() => toggleChannel('sms')}
                 />
                 <Smartphone className="h-4 w-4" />
-                <span>SMS</span>
+                <span>{t('channelSMS')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <Switch
@@ -302,7 +302,7 @@ export function BroadcastComposer({
                   onCheckedChange={() => toggleChannel('rcs')}
                 />
                 <Radio className="h-4 w-4" />
-                <span>RCS</span>
+                <span>{t('channelRCS')}</span>
               </label>
             </div>
           </div>

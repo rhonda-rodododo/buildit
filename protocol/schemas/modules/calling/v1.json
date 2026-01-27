@@ -36,13 +36,35 @@
     "groupCallParticipants": 24313,
     "groupCallSpeaking": 24314,
     "senderKeyDistribution": 24320,
-    "conferenceCreate": 24330,
-    "conferenceJoin": 24331,
-    "conferenceLeave": 24332,
-    "conferenceState": 24333,
     "hotlineQueueStatus": 24340,
     "hotlineOperatorStatus": 24341,
-    "hotlineAssignment": 24342
+    "hotlineAssignment": 24342,
+    "conferenceCreate": 24350,
+    "conferenceJoin": 24351,
+    "conferenceLeave": 24352,
+    "conferenceParticipants": 24353,
+    "mlsWelcome": 24354,
+    "mlsCommit": 24355,
+    "breakoutCreate": 24360,
+    "breakoutAssign": 24361,
+    "breakoutOpen": 24362,
+    "breakoutClose": 24363,
+    "handRaise": 24364,
+    "reaction": 24365,
+    "pollLaunch": 24366,
+    "pollVote": 24367,
+    "pollClose": 24368,
+    "recordingConsent": 24369,
+    "pttChannelCreate": 24370,
+    "pttChannelJoin": 24371,
+    "pttChannelLeave": 24372,
+    "pttSpeakRequest": 24373,
+    "pttSpeakGrant": 24374,
+    "pttSpeakRelease": 24375,
+    "pstnInbound": 24380,
+    "pstnOutbound": 24381,
+    "pstnBridge": 24382,
+    "pstnCredits": 24383
   },
 
   "$defs": {
@@ -947,6 +969,430 @@
         },
         "createdAt": {
           "type": "integer"
+        }
+      }
+    },
+
+    "ConferenceParticipant": {
+      "type": "object",
+      "description": "Participant in an SFU conference",
+      "required": ["pubkey", "joinedAt", "role"],
+      "additionalProperties": true,
+      "properties": {
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "joinedAt": {
+          "type": "integer"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["host", "co_host", "moderator", "participant", "viewer"]
+        },
+        "audioEnabled": {
+          "type": "boolean"
+        },
+        "videoEnabled": {
+          "type": "boolean"
+        },
+        "screenSharing": {
+          "type": "boolean"
+        },
+        "handRaised": {
+          "type": "boolean"
+        },
+        "inWaitingRoom": {
+          "type": "boolean"
+        },
+        "inBreakout": {
+          "type": "string",
+          "description": "Breakout room ID if in breakout"
+        }
+      }
+    },
+
+    "MLSWelcome": {
+      "type": "object",
+      "description": "MLS welcome message for new participants",
+      "required": ["roomId", "targetPubkey", "welcome", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "targetPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "welcome": {
+          "type": "string",
+          "description": "Base64-encoded encrypted MLS welcome message"
+        },
+        "epoch": {
+          "type": "integer"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "MLSCommit": {
+      "type": "object",
+      "description": "MLS commit for key rotation",
+      "required": ["roomId", "epoch", "commit", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "epoch": {
+          "type": "integer"
+        },
+        "commit": {
+          "type": "string",
+          "description": "Base64-encoded MLS commit message"
+        },
+        "senderPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "WaitingRoomParticipant": {
+      "type": "object",
+      "description": "Participant waiting to join conference",
+      "required": ["pubkey", "joinedAt"],
+      "additionalProperties": true,
+      "properties": {
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "joinedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "HandRaise": {
+      "type": "object",
+      "description": "Hand raise event",
+      "required": ["roomId", "pubkey", "action", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["raise", "lower"]
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Reaction": {
+      "type": "object",
+      "description": "Emoji reaction in conference",
+      "required": ["roomId", "pubkey", "emoji", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "emoji": {
+          "type": "string",
+          "enum": ["👍", "👎", "❤️", "😂", "😮", "🎉", "👏", "✋"]
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "Poll": {
+      "type": "object",
+      "description": "Conference poll",
+      "required": ["pollId", "roomId", "question", "options", "createdBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "pollId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "question": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "closed"]
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "anonymous": { "type": "boolean" },
+            "multiSelect": { "type": "boolean" },
+            "showLiveResults": { "type": "boolean" }
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "option": { "type": "string" },
+              "count": { "type": "integer" }
+            }
+          }
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "closedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "PollVote": {
+      "type": "object",
+      "description": "Vote on a poll",
+      "required": ["pollId", "roomId", "encryptedVote", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "pollId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "encryptedVote": {
+          "type": "string",
+          "description": "Encrypted vote with voter token for anonymity"
+        },
+        "voterToken": {
+          "type": "string",
+          "description": "HMAC(roomId + pollId, privateKey) for anonymous deduplication"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "RecordingConsent": {
+      "type": "object",
+      "description": "Recording consent from participant",
+      "required": ["roomId", "pubkey", "consented", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "consented": {
+          "type": "boolean"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "ConferenceChatMessage": {
+      "type": "object",
+      "description": "In-conference chat message",
+      "required": ["messageId", "roomId", "senderPubkey", "content", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "senderPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "content": {
+          "type": "string"
+        },
+        "recipientType": {
+          "type": "string",
+          "enum": ["everyone", "host", "private"],
+          "default": "everyone"
+        },
+        "recipientPubkey": {
+          "type": "string",
+          "description": "For private messages"
+        },
+        "timestamp": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "PSTNCall": {
+      "type": "object",
+      "description": "PSTN call state",
+      "required": ["callSid", "hotlineId", "direction", "status", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "callSid": {
+          "type": "string",
+          "description": "Twilio call SID"
+        },
+        "hotlineId": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["inbound", "outbound"]
+        },
+        "callerPhone": {
+          "type": "string",
+          "description": "Masked phone number"
+        },
+        "targetPhone": {
+          "type": "string"
+        },
+        "operatorPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["queued", "ringing", "connected", "on_hold", "completed", "failed"]
+        },
+        "startedAt": {
+          "type": "integer"
+        },
+        "connectedAt": {
+          "type": "integer"
+        },
+        "endedAt": {
+          "type": "integer"
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Duration in seconds"
+        },
+        "creditsCost": {
+          "type": "number",
+          "description": "Credits used for this call"
+        }
+      }
+    },
+
+    "CreditBalance": {
+      "type": "object",
+      "description": "PSTN credit balance for a group",
+      "required": ["groupId", "monthlyAllocation", "used", "remaining", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "monthlyAllocation": {
+          "type": "number"
+        },
+        "used": {
+          "type": "number"
+        },
+        "remaining": {
+          "type": "number"
+        },
+        "resetDate": {
+          "type": "integer",
+          "description": "Unix timestamp of next reset"
         }
       }
     }
