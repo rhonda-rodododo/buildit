@@ -117,6 +117,7 @@ Voice, video, and group calling with E2EE.
 | `group-call.json` | - | Mesh topology group calls, sender keys |
 | `hotline.json` | 15 | Hotline queue management, ACD, operator status |
 | `broadcast.json` | 15 | Broadcast delivery, scheduling, messaging queue |
+| `ptt.json` | 15 | Push-to-talk channel management, speaker queue, VAD |
 
 **Key Tests:**
 - Queue priority ordering (urgent > high > medium > low)
@@ -127,6 +128,9 @@ Voice, video, and group calling with E2EE.
 - Hold/resume functionality
 - Shift statistics tracking
 - Nostr signaling event kinds (24330-24335)
+- PTT speaker queue ordering (moderator > high > normal)
+- PTT speak timeout and VAD auto-release
+- PTT audio encoding/decoding (Float32 ↔ Int16)
 
 ### 6. Legacy/Original Files
 
@@ -140,7 +144,7 @@ Voice, video, and group calling with E2EE.
 
 ## Statistics
 
-- **Total Test Vectors:** ~185+
+- **Total Test Vectors:** ~200+
 - **Test Categories:** 7
 - **Schema Modules:** 5 (Events, Messaging, Mutual Aid, Governance, Wiki)
 - **Protocols Covered:** NIP-01, NIP-17, NIP-44, BLE, WebRTC Calling, Custom Schemas
@@ -264,6 +268,13 @@ Critical security tests included:
 - [BuildIt Protocol Specification](../docs/protocol-spec/)
 
 ## Version History
+
+- **1.3.0** (2026-01-26): Added push-to-talk test vectors
+  - PTT channel create/join/leave
+  - Speaker queue with priority ordering
+  - Speak timeout and VAD auto-release
+  - Audio encoding/decoding (Float32 ↔ Int16)
+  - Nostr signaling events (kinds 24370-24376)
 
 - **1.2.1** (2026-01-26): Added messaging hotline and broadcast test vectors
   - Broadcast delivery (group, contact-list, SMS batching)

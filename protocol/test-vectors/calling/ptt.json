@@ -1,0 +1,296 @@
+{
+  "$schema": "../schema.json",
+  "name": "Push-to-Talk (PTT) Test Vectors",
+  "version": "1.0.0",
+  "description": "Test vectors for walkie-talkie style group voice communication",
+  "vectors": [
+    {
+      "id": "ptt-channel-create",
+      "description": "Creating a PTT channel should broadcast creation event",
+      "category": "channel",
+      "input": {
+        "groupId": "group-123",
+        "name": "Field Team Alpha",
+        "createdBy": "pubkey-alice",
+        "maxParticipants": 50
+      },
+      "expected": {
+        "channelIdGenerated": true,
+        "signalingKind": 24370,
+        "isActive": true,
+        "isE2EE": true
+      }
+    },
+    {
+      "id": "ptt-channel-join",
+      "description": "Joining a channel should add member and broadcast join",
+      "category": "channel",
+      "input": {
+        "channelId": "channel-456",
+        "pubkey": "pubkey-bob",
+        "displayName": "Bob"
+      },
+      "expected": {
+        "memberAdded": true,
+        "signalingKind": 24371,
+        "participantListUpdated": true
+      }
+    },
+    {
+      "id": "ptt-channel-leave",
+      "description": "Leaving a channel should remove member and release speak if speaking",
+      "category": "channel",
+      "input": {
+        "channelId": "channel-456",
+        "pubkey": "pubkey-bob",
+        "wasSpeaking": true
+      },
+      "expected": {
+        "memberRemoved": true,
+        "signalingKind": 24372,
+        "speakReleased": true,
+        "queueProcessed": true
+      }
+    },
+    {
+      "id": "ptt-speak-request-granted",
+      "description": "Speak request when no one speaking should be granted immediately",
+      "category": "speaking",
+      "input": {
+        "channelId": "channel-456",
+        "pubkey": "pubkey-alice",
+        "priority": "normal",
+        "currentSpeaker": null
+      },
+      "expected": {
+        "granted": true,
+        "queuePosition": null,
+        "signalingKind": 24374,
+        "speakTimeoutSet": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "id": "ptt-speak-request-queued",
+      "description": "Speak request when someone speaking should be queued",
+      "category": "speaking",
+      "input": {
+        "channelId": "channel-456",
+        "pubkey": "pubkey-bob",
+        "priority": "normal",
+        "currentSpeaker": "pubkey-alice"
+      },
+      "expected": {
+        "granted": false,
+        "queuePosition": 1,
+        "signalingKind": 24373,
+        "addedToQueue": true
+      }
+    },
+    {
+      "id": "ptt-queue-priority-ordering",
+      "description": "Queue should be ordered by priority (moderator > high > normal) then by request time",
+      "category": "speaking",
+      "input": {
+        "queue": [
+          { "pubkey": "p1", "priority": "normal", "requestedAt": 1000 },
+          { "pubkey": "p2", "priority": "moderator", "requestedAt": 3000 },
+          { "pubkey": "p3", "priority": "high", "requestedAt": 2000 },
+          { "pubkey": "p4", "priority": "normal", "requestedAt": 1500 }
+        ]
+      },
+      "expected": {
+        "orderedPubkeys": ["p2", "p3", "p1", "p4"],
+        "note": "Moderator first, then high priority, then normal by request time"
+      }
+    },
+    {
+      "id": "ptt-speak-release",
+      "description": "Releasing speak should grant to next in queue",
+      "category": "speaking",
+      "input": {
+        "channelId": "channel-456",
+        "currentSpeaker": "pubkey-alice",
+        "queue": [
+          { "pubkey": "pubkey-bob", "priority": "normal" },
+          { "pubkey": "pubkey-carol", "priority": "normal" }
+        ]
+      },
+      "expected": {
+        "speakReleased": true,
+        "signalingKind": 24375,
+        "nextSpeaker": "pubkey-bob",
+        "queueLength": 1
+      }
+    },
+    {
+      "id": "ptt-speak-timeout",
+      "description": "Speaking should auto-release after timeout (default 30 seconds)",
+      "category": "speaking",
+      "input": {
+        "speakStartedAt": 1700000000000,
+        "currentTime": 1700000030001,
+        "timeoutMs": 30000
+      },
+      "expected": {
+        "autoReleased": true,
+        "reason": "timeout"
+      }
+    },
+    {
+      "id": "ptt-priority-override",
+      "description": "Moderator priority should move to front of queue",
+      "category": "speaking",
+      "input": {
+        "channelId": "channel-456",
+        "existingQueue": [
+          { "pubkey": "p1", "priority": "normal", "requestedAt": 1000 },
+          { "pubkey": "p2", "priority": "normal", "requestedAt": 2000 }
+        ],
+        "newRequest": { "pubkey": "p3", "priority": "moderator", "requestedAt": 3000 }
+      },
+      "expected": {
+        "queuePosition": 1,
+        "orderedPubkeys": ["p3", "p1", "p2"]
+      }
+    },
+    {
+      "id": "ptt-vad-auto-release",
+      "description": "VAD silence detection should trigger auto-release after timeout",
+      "category": "vad",
+      "input": {
+        "vadEnabled": true,
+        "vadThreshold": -40,
+        "silenceTimeout": 2000,
+        "silenceStarted": 1700000000000,
+        "currentTime": 1700000002001,
+        "currentLevel": -50
+      },
+      "expected": {
+        "silenceDetected": true,
+        "autoReleased": true,
+        "reason": "vad-silence"
+      }
+    },
+    {
+      "id": "ptt-vad-voice-detected",
+      "description": "VAD should detect voice activity and clear silence timer",
+      "category": "vad",
+      "input": {
+        "vadEnabled": true,
+        "vadThreshold": -40,
+        "currentLevel": -30,
+        "silenceTimerActive": true
+      },
+      "expected": {
+        "voiceDetected": true,
+        "silenceTimerCleared": true,
+        "emitVoiceActivity": true
+      }
+    },
+    {
+      "id": "ptt-multi-channel-isolation",
+      "description": "Speaking in one channel should not affect other channels",
+      "category": "channel",
+      "input": {
+        "channels": [
+          { "channelId": "c1", "currentSpeaker": "pubkey-alice" },
+          { "channelId": "c2", "currentSpeaker": null }
+        ],
+        "speakRequest": { "channelId": "c2", "pubkey": "pubkey-bob" }
+      },
+      "expected": {
+        "c1SpeakerUnchanged": true,
+        "c2SpeakerChanged": true,
+        "newC2Speaker": "pubkey-bob"
+      }
+    },
+    {
+      "id": "ptt-audio-encoding",
+      "description": "Audio data should be encoded as Int16 for efficient transmission",
+      "category": "audio",
+      "input": {
+        "float32Data": [0.5, -0.5, 1.0, -1.0, 0.0],
+        "sampleRate": 48000
+      },
+      "expected": {
+        "encodedFormat": "Int16Array",
+        "int16Values": [16383, -16384, 32767, -32768, 0],
+        "note": "Float32 [-1, 1] mapped to Int16 [-32768, 32767]"
+      }
+    },
+    {
+      "id": "ptt-audio-decoding",
+      "description": "Received Int16 audio should be decoded back to Float32",
+      "category": "audio",
+      "input": {
+        "int16Data": [16383, -16384, 32767, -32768, 0],
+        "sampleRate": 48000
+      },
+      "expected": {
+        "decodedFormat": "Float32Array",
+        "float32ValuesApprox": [0.5, -0.5, 1.0, -1.0, 0.0],
+        "tolerance": 0.001
+      }
+    },
+    {
+      "id": "ptt-nostr-event-kinds",
+      "description": "Nostr event kinds for PTT signaling",
+      "category": "signaling",
+      "input": {},
+      "expected": {
+        "kinds": {
+          "ptt_channel_create": 24370,
+          "ptt_channel_join": 24371,
+          "ptt_channel_leave": 24372,
+          "ptt_speak_request": 24373,
+          "ptt_speak_grant": 24374,
+          "ptt_speak_release": 24375,
+          "ptt_audio_packet": 24376
+        }
+      }
+    }
+  ],
+  "testGroups": [
+    {
+      "name": "Channel Management",
+      "vectorIds": [
+        "ptt-channel-create",
+        "ptt-channel-join",
+        "ptt-channel-leave",
+        "ptt-multi-channel-isolation"
+      ]
+    },
+    {
+      "name": "Speaking & Queue",
+      "vectorIds": [
+        "ptt-speak-request-granted",
+        "ptt-speak-request-queued",
+        "ptt-queue-priority-ordering",
+        "ptt-speak-release",
+        "ptt-speak-timeout",
+        "ptt-priority-override"
+      ]
+    },
+    {
+      "name": "Voice Activity Detection",
+      "vectorIds": [
+        "ptt-vad-auto-release",
+        "ptt-vad-voice-detected"
+      ]
+    },
+    {
+      "name": "Audio Processing",
+      "vectorIds": [
+        "ptt-audio-encoding",
+        "ptt-audio-decoding"
+      ]
+    },
+    {
+      "name": "Signaling",
+      "vectorIds": [
+        "ptt-nostr-event-kinds"
+      ]
+    }
+  ]
+}

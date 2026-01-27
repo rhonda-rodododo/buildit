@@ -331,7 +331,7 @@ export default defineModuleTranslations({
     confirmEmergency: 'Confirm & Send Emergency Broadcast',
     total: 'Total',
 
-    // Push-to-Talk (for future epic)
+    // Push-to-Talk
     pushToTalk: 'Push to Talk',
     pttChannel: 'PTT Channel',
     holdToSpeak: 'Hold to Speak',
@@ -340,6 +340,37 @@ export default defineModuleTranslations({
     waitingToSpeak: 'Waiting to Speak',
     queuedToSpeak: 'Queued ({{position}})',
     channelBusy: 'Channel Busy',
+
+    // PTT View
+    ptt: {
+      initializing: 'Initializing audio...',
+      joinPrompt: 'Join the push-to-talk channel to communicate with your team in real-time.',
+      joinChannel: 'Join Channel',
+      leaveChannel: 'Leave Channel',
+      membersOnline: 'members online',
+      showMembers: 'Show Members',
+      settings: 'Settings',
+      currentlySpeaking: 'Currently speaking:',
+      speaking: 'Speaking',
+      inQueue: 'Queue position {{position}}',
+      holdToSpeak: 'Hold to Speak',
+      spacebarHint: '(or hold Spacebar)',
+      queue: 'Queue: {{count}} waiting',
+      more: 'more',
+      vad: 'Auto-release',
+      vadTooltip: 'Automatically release when you stop talking',
+      vadLabel: 'Voice Activity Detection',
+      vadDescription: 'Auto-release when silence detected',
+      members: 'Channel Members',
+      online: 'Online',
+      offline: 'Offline',
+      tryAgain: 'Try Again',
+      errors: {
+        microphoneAccess: 'Could not access microphone. Please check your permissions.',
+        joinFailed: 'Failed to join channel. Please try again.',
+        speakRequestFailed: 'Failed to request speak. Please try again.',
+      },
+    },
 
     // Errors
     callFailed: 'Call failed',
@@ -528,6 +559,37 @@ export default defineModuleTranslations({
     browserNotSupported: 'Tu navegador no soporta llamadas',
     noMediaDevices: 'No se encontraron dispositivos',
 
+    // Push-to-Talk
+    ptt: {
+      initializing: 'Inicializando audio...',
+      joinPrompt: '\u00danete al canal push-to-talk para comunicarte con tu equipo en tiempo real.',
+      joinChannel: 'Unirse al Canal',
+      leaveChannel: 'Salir del Canal',
+      membersOnline: 'miembros en l\u00ednea',
+      showMembers: 'Mostrar Miembros',
+      settings: 'Configuraci\u00f3n',
+      currentlySpeaking: 'Hablando actualmente:',
+      speaking: 'Hablando',
+      inQueue: 'Posici\u00f3n en cola {{position}}',
+      holdToSpeak: 'Mantener para Hablar',
+      spacebarHint: '(o mantener Espacio)',
+      queue: 'Cola: {{count}} esperando',
+      more: 'm\u00e1s',
+      vad: 'Auto-liberar',
+      vadTooltip: 'Liberar autom\u00e1ticamente cuando dejes de hablar',
+      vadLabel: 'Detecci\u00f3n de Actividad de Voz',
+      vadDescription: 'Auto-liberar cuando se detecte silencio',
+      members: 'Miembros del Canal',
+      online: 'En l\u00ednea',
+      offline: 'Desconectado',
+      tryAgain: 'Intentar de Nuevo',
+      errors: {
+        microphoneAccess: 'No se pudo acceder al micr\u00f3fono. Revisa los permisos.',
+        joinFailed: 'Error al unirse al canal. Intenta de nuevo.',
+        speakRequestFailed: 'Error al solicitar hablar. Intenta de nuevo.',
+      },
+    },
+
     meta: {
       description: 'Llamadas de voz y video seguras con cifrado de extremo a extremo.',
     },
@@ -705,6 +767,37 @@ export default defineModuleTranslations({
     browserNotSupported: 'Votre navigateur ne supporte pas les appels',
     noMediaDevices: 'Aucun appareil trouv\u00e9',
 
+    // Push-to-Talk
+    ptt: {
+      initializing: 'Initialisation audio...',
+      joinPrompt: 'Rejoignez le canal push-to-talk pour communiquer avec votre \u00e9quipe en temps r\u00e9el.',
+      joinChannel: 'Rejoindre le Canal',
+      leaveChannel: 'Quitter le Canal',
+      membersOnline: 'membres en ligne',
+      showMembers: 'Afficher les Membres',
+      settings: 'Param\u00e8tres',
+      currentlySpeaking: 'Parle actuellement:',
+      speaking: 'Parle',
+      inQueue: 'Position dans la file {{position}}',
+      holdToSpeak: 'Maintenir pour Parler',
+      spacebarHint: '(ou maintenir Espace)',
+      queue: 'File: {{count}} en attente',
+      more: 'plus',
+      vad: 'Lib\u00e9ration auto',
+      vadTooltip: 'Lib\u00e9rer automatiquement quand vous arr\u00eatez de parler',
+      vadLabel: 'D\u00e9tection d\'Activit\u00e9 Vocale',
+      vadDescription: 'Lib\u00e9ration auto quand silence d\u00e9tect\u00e9',
+      members: 'Membres du Canal',
+      online: 'En ligne',
+      offline: 'Hors ligne',
+      tryAgain: 'R\u00e9essayer',
+      errors: {
+        microphoneAccess: 'Impossible d\'acc\u00e9der au microphone. V\u00e9rifiez vos permissions.',
+        joinFailed: '\u00c9chec de la connexion au canal. Veuillez r\u00e9essayer.',
+        speakRequestFailed: '\u00c9chec de la demande de parole. Veuillez r\u00e9essayer.',
+      },
+    },
+
     meta: {
       description: 'Appels vocaux et vid\u00e9o s\u00e9curis\u00e9s avec chiffrement de bout en bout.',
     },
@@ -881,6 +974,37 @@ export default defineModuleTranslations({
     permissionDenied: '\u062a\u0645 \u0631\u0641\u0636 \u0627\u0644\u0625\u0630\u0646',
     browserNotSupported: '\u0645\u062a\u0635\u0641\u062d\u0643 \u0644\u0627 \u064a\u062f\u0639\u0645 \u0627\u0644\u0645\u0643\u0627\u0644\u0645\u0627\u062a',
     noMediaDevices: '\u0644\u0645 \u064a\u062a\u0645 \u0627\u0644\u0639\u062b\u0648\u0631 \u0639\u0644\u0649 \u0623\u062c\u0647\u0632\u0629',
+
+    // Push-to-Talk
+    ptt: {
+      initializing: '\u062c\u0627\u0631\u064a \u062a\u0647\u064a\u0626\u0629 \u0627\u0644\u0635\u0648\u062a...',
+      joinPrompt: '\u0627\u0646\u0636\u0645 \u0625\u0644\u0649 \u0642\u0646\u0627\u0629 \u0627\u0644\u0636\u063a\u0637 \u0644\u0644\u062a\u062d\u062f\u062b \u0644\u0644\u062a\u0648\u0627\u0635\u0644 \u0645\u0639 \u0641\u0631\u064a\u0642\u0643 \u0641\u064a \u0627\u0644\u0648\u0642\u062a \u0627\u0644\u0641\u0639\u0644\u064a.',
+      joinChannel: '\u0627\u0646\u0636\u0645 \u0644\u0644\u0642\u0646\u0627\u0629',
+      leaveChannel: '\u063a\u0627\u062f\u0631 \u0627\u0644\u0642\u0646\u0627\u0629',
+      membersOnline: '\u0623\u0639\u0636\u0627\u0621 \u0645\u062a\u0635\u0644\u064a\u0646',
+      showMembers: '\u0639\u0631\u0636 \u0627\u0644\u0623\u0639\u0636\u0627\u0621',
+      settings: '\u0627\u0644\u0625\u0639\u062f\u0627\u062f\u0627\u062a',
+      currentlySpeaking: '\u064a\u062a\u062d\u062f\u062b \u062d\u0627\u0644\u064a\u0627\u064b:',
+      speaking: '\u064a\u062a\u062d\u062f\u062b',
+      inQueue: '\u0627\u0644\u0645\u0648\u0642\u0639 \u0641\u064a \u0627\u0644\u0637\u0627\u0628\u0648\u0631 {{position}}',
+      holdToSpeak: '\u0627\u0636\u063a\u0637 \u0645\u0637\u0648\u0644\u0627\u064b \u0644\u0644\u062a\u062d\u062f\u062b',
+      spacebarHint: '(\u0623\u0648 \u0627\u0636\u063a\u0637 \u0645\u0637\u0648\u0644\u0627\u064b \u0639\u0644\u0649 \u0627\u0644\u0645\u0633\u0627\u0641\u0629)',
+      queue: '\u0627\u0644\u0637\u0627\u0628\u0648\u0631: {{count}} \u064a\u0646\u062a\u0638\u0631\u0648\u0646',
+      more: '\u0627\u0644\u0645\u0632\u064a\u062f',
+      vad: '\u062a\u062d\u0631\u064a\u0631 \u062a\u0644\u0642\u0627\u0626\u064a',
+      vadTooltip: '\u062a\u062d\u0631\u064a\u0631 \u062a\u0644\u0642\u0627\u0626\u064a \u0639\u0646\u062f \u0627\u0644\u062a\u0648\u0642\u0641 \u0639\u0646 \u0627\u0644\u0643\u0644\u0627\u0645',
+      vadLabel: '\u0643\u0634\u0641 \u0627\u0644\u0646\u0634\u0627\u0637 \u0627\u0644\u0635\u0648\u062a\u064a',
+      vadDescription: '\u062a\u062d\u0631\u064a\u0631 \u062a\u0644\u0642\u0627\u0626\u064a \u0639\u0646\u062f \u0627\u0643\u062a\u0634\u0627\u0641 \u0627\u0644\u0635\u0645\u062a',
+      members: '\u0623\u0639\u0636\u0627\u0621 \u0627\u0644\u0642\u0646\u0627\u0629',
+      online: '\u0645\u062a\u0635\u0644',
+      offline: '\u063a\u064a\u0631 \u0645\u062a\u0635\u0644',
+      tryAgain: '\u062d\u0627\u0648\u0644 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649',
+      errors: {
+        microphoneAccess: '\u062a\u0639\u0630\u0631 \u0627\u0644\u0648\u0635\u0648\u0644 \u0644\u0644\u0645\u064a\u0643\u0631\u0648\u0641\u0648\u0646. \u064a\u0631\u062c\u0649 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u0623\u0630\u0648\u0646\u0627\u062a.',
+        joinFailed: '\u0641\u0634\u0644 \u0627\u0644\u0627\u0646\u0636\u0645\u0627\u0645 \u0644\u0644\u0642\u0646\u0627\u0629. \u064a\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.',
+        speakRequestFailed: '\u0641\u0634\u0644 \u0637\u0644\u0628 \u0627\u0644\u062a\u062d\u062f\u062b. \u064a\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649.',
+      },
+    },
 
     meta: {
       description: '\u0645\u0643\u0627\u0644\u0645\u0627\u062a \u0635\u0648\u062a\u064a\u0629 \u0648\u0641\u064a\u062f\u064a\u0648 \u0622\u0645\u0646\u0629 \u0645\u0639 \u062a\u0634\u0641\u064a\u0631 \u0645\u0646 \u0637\u0631\u0641 \u0625\u0644\u0649 \u0637\u0631\u0641.',
