@@ -1,0 +1,162 @@
+{
+  "version": "1.0.0",
+  "description": "Publishing module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "publishing-001",
+      "description": "Blog post article",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Our First Year: Lessons Learned",
+        "slug": "first-year-lessons-learned",
+        "content": "# Looking Back\n\nAs we reflect on our first year of organizing...",
+        "excerpt": "A retrospective on our organizing journey",
+        "author": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "status": "published",
+        "publishedAt": 1704067200,
+        "visibility": "public",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1703980800
+      },
+      "expected": {
+        "json_valid": true,
+        "status_published": true
+      }
+    },
+    {
+      "id": "publishing-002",
+      "description": "Draft article with SEO",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Upcoming Campaign Announcement",
+        "slug": "campaign-announcement-2024",
+        "content": "# Big News Coming Soon\n\nDraft content...",
+        "status": "draft",
+        "seo": {
+          "metaTitle": "Campaign 2024 | BuildIt",
+          "metaDescription": "Join our biggest campaign yet",
+          "ogImage": "https://buildit.network/og/campaign-2024.jpg",
+          "keywords": ["campaign", "organizing", "2024"]
+        },
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "seo_object_preserved": true
+      }
+    },
+    {
+      "id": "publishing-003",
+      "description": "Scheduled article",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "New Year Message",
+        "slug": "new-year-2025",
+        "content": "Happy New Year from our team!",
+        "status": "scheduled",
+        "scheduledAt": 1735689600,
+        "visibility": "public",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "scheduled_timestamp_valid": true
+      }
+    },
+    {
+      "id": "publishing-004",
+      "description": "Article with featured image and categories",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "title": "Community Garden Update",
+        "slug": "garden-update-spring",
+        "content": "Spring planting has begun!",
+        "featuredImage": {
+          "url": "https://files.buildit.network/garden.jpg",
+          "alt": "Community garden in bloom",
+          "caption": "Our garden this spring"
+        },
+        "categories": ["community", "environment", "updates"],
+        "tags": ["garden", "spring", "volunteers"],
+        "status": "published",
+        "publishedAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "featured_image_preserved": true
+      }
+    },
+    {
+      "id": "publishing-005",
+      "description": "Article with multiple authors",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440004",
+        "title": "Joint Statement",
+        "slug": "joint-statement-coalition",
+        "content": "We, the undersigned organizations...",
+        "author": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "coAuthors": [
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+          "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"
+        ],
+        "status": "published",
+        "publishedAt": 1704067200,
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "co_authors_preserved": true
+      }
+    },
+    {
+      "id": "publishing-006",
+      "description": "Page (static content)",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "title": "About Us",
+        "slug": "about",
+        "content": "# About Our Organization\n\nWe are a grassroots group...",
+        "type": "page",
+        "template": "full-width",
+        "order": 1,
+        "visibility": "public",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "type_is_page": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "article": {
+      "required_fields": ["_v", "id", "title", "slug", "content", "status", "createdBy", "createdAt"],
+      "optional_fields": ["excerpt", "author", "coAuthors", "visibility", "groupId", "publishedAt", "scheduledAt", "seo", "featuredImage", "categories", "tags", "type", "template", "order", "updatedAt"]
+    }
+  },
+  "serialization_notes": [
+    "Status: draft, published, scheduled, archived",
+    "Type: post (default), page",
+    "Slugs are URL-safe identifiers",
+    "SEO object contains meta tags for social sharing"
+  ]
+}

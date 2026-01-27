@@ -1,0 +1,152 @@
+{
+  "version": "1.0.0",
+  "description": "Documents module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "documents-001",
+      "description": "Simple markdown document",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Meeting Notes - January 2024",
+        "content": "# Meeting Notes\n\n## Attendees\n- Alice\n- Bob\n- Carol\n\n## Discussion\n...",
+        "format": "markdown",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "visibility": "group",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "markdown_content_preserved": true
+      }
+    },
+    {
+      "id": "documents-002",
+      "description": "Rich text document with collaborators",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Strategy Document",
+        "content": "{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Our strategy for 2024...\"}]}]}",
+        "format": "prosemirror",
+        "collaborators": [
+          "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+          "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+        ],
+        "locked": false,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200,
+        "updatedAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "collaborators_array_preserved": true
+      }
+    },
+    {
+      "id": "documents-003",
+      "description": "Document with version history",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "Policy Document",
+        "content": "# Organization Policy\n\nVersion 2.1...",
+        "format": "markdown",
+        "version": 3,
+        "previousVersionId": "550e8400-e29b-41d4-a716-446655440002-v2",
+        "changeDescription": "Updated section 3 based on member feedback",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200,
+        "updatedBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "updatedAt": 1704240000
+      },
+      "expected": {
+        "json_valid": true,
+        "version_tracking_preserved": true
+      }
+    },
+    {
+      "id": "documents-004",
+      "description": "Locked document for editing",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "title": "Draft Proposal",
+        "content": "Working on this...",
+        "format": "markdown",
+        "locked": true,
+        "lockedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "lockedAt": 1704240000,
+        "lockExpiresAt": 1704243600,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "lock_state_preserved": true
+      }
+    },
+    {
+      "id": "documents-005",
+      "description": "Document with tags and folder",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440004",
+        "title": "Training Materials",
+        "content": "# New Member Training\n\n...",
+        "format": "markdown",
+        "folderId": "550e8400-e29b-41d4-a716-446655440100",
+        "tags": ["training", "onboarding", "new-members"],
+        "visibility": "public",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "tags_array_preserved": true
+      }
+    },
+    {
+      "id": "documents-006",
+      "description": "Document comment",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "documentId": "550e8400-e29b-41d4-a716-446655440000",
+        "content": "Great summary of the meeting!",
+        "position": {
+          "start": 50,
+          "end": 100
+        },
+        "resolved": false,
+        "createdBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "createdAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "comment_position_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "document": {
+      "required_fields": ["_v", "id", "title", "content", "format", "createdBy", "createdAt"],
+      "optional_fields": ["groupId", "visibility", "collaborators", "locked", "lockedBy", "lockedAt", "lockExpiresAt", "version", "previousVersionId", "changeDescription", "folderId", "tags", "updatedBy", "updatedAt"]
+    },
+    "comment": {
+      "required_fields": ["_v", "id", "documentId", "content", "createdBy", "createdAt"],
+      "optional_fields": ["position", "resolved", "resolvedBy", "resolvedAt", "parentId"]
+    }
+  },
+  "serialization_notes": [
+    "Format types: markdown, prosemirror, html",
+    "Visibility: private, group, public",
+    "ProseMirror content is JSON string",
+    "Document locking prevents concurrent edits"
+  ]
+}

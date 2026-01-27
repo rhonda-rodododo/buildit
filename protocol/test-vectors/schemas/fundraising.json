@@ -1,0 +1,189 @@
+{
+  "version": "1.0.0",
+  "description": "Fundraising module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "fundraising-001",
+      "description": "Complete fundraising campaign",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Community Center Renovation Fund",
+        "description": "Help us renovate our community space",
+        "goal": 50000,
+        "raised": 12500,
+        "donorCount": 75,
+        "currency": "USD",
+        "status": "active",
+        "startsAt": 1704067200,
+        "endsAt": 1711929600,
+        "visibility": "public",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "monetary_values_preserved": true
+      }
+    },
+    {
+      "id": "fundraising-002",
+      "description": "Campaign with tiers",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Legal Defense Fund",
+        "goal": 25000,
+        "raised": 8750,
+        "currency": "USD",
+        "tiers": [
+          { "id": "tier-1", "name": "Supporter", "amount": 25, "description": "Thank you message" },
+          { "id": "tier-2", "name": "Ally", "amount": 100, "description": "Supporter + T-shirt" },
+          { "id": "tier-3", "name": "Champion", "amount": 500, "description": "Ally + invite to appreciation dinner" }
+        ],
+        "status": "active",
+        "visibility": "group",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "tiers_preserved": true
+      }
+    },
+    {
+      "id": "fundraising-003",
+      "description": "Donation record",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "campaignId": "550e8400-e29b-41d4-a716-446655440000",
+        "amount": 100,
+        "currency": "USD",
+        "tierId": "tier-2",
+        "donorPubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "anonymous": false,
+        "message": "Keep up the great work!",
+        "status": "completed",
+        "donatedAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "donation_complete": true
+      }
+    },
+    {
+      "id": "fundraising-004",
+      "description": "Anonymous donation",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440101",
+        "campaignId": "550e8400-e29b-41d4-a716-446655440000",
+        "amount": 500,
+        "currency": "USD",
+        "anonymous": true,
+        "status": "completed",
+        "donatedAt": 1704240000
+      },
+      "expected": {
+        "json_valid": true,
+        "anonymous_donation": true
+      }
+    },
+    {
+      "id": "fundraising-005",
+      "description": "Campaign update",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "campaignId": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "We hit 25% of our goal!",
+        "content": "Thanks to your generous support, we've raised $12,500 so far...",
+        "attachments": [
+          {
+            "type": "image",
+            "url": "https://files.buildit.network/progress.jpg",
+            "caption": "Progress photo"
+          }
+        ],
+        "postedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "postedAt": 1704326400
+      },
+      "expected": {
+        "json_valid": true,
+        "update_preserved": true
+      }
+    },
+    {
+      "id": "fundraising-006",
+      "description": "Completed campaign",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "Emergency Relief Fund",
+        "goal": 10000,
+        "raised": 10500,
+        "donorCount": 120,
+        "currency": "USD",
+        "status": "completed",
+        "startsAt": 1701388800,
+        "endsAt": 1702598400,
+        "completedAt": 1702512000,
+        "visibility": "public",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1701302400
+      },
+      "expected": {
+        "json_valid": true,
+        "exceeded_goal": true
+      }
+    },
+    {
+      "id": "fundraising-007",
+      "description": "Recurring donation",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440102",
+        "campaignId": "550e8400-e29b-41d4-a716-446655440001",
+        "amount": 25,
+        "currency": "USD",
+        "donorPubkey": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "recurring": {
+          "frequency": "monthly",
+          "startDate": 1704067200,
+          "endDate": null
+        },
+        "status": "active",
+        "donatedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "recurring_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "campaign": {
+      "required_fields": ["_v", "id", "title", "goal", "currency", "status", "createdBy", "createdAt"],
+      "optional_fields": ["description", "raised", "donorCount", "tiers", "startsAt", "endsAt", "completedAt", "visibility", "groupId", "featuredImage"]
+    },
+    "donation": {
+      "required_fields": ["_v", "id", "campaignId", "amount", "currency", "status", "donatedAt"],
+      "optional_fields": ["tierId", "donorPubkey", "anonymous", "message", "recurring"]
+    },
+    "update": {
+      "required_fields": ["_v", "id", "campaignId", "title", "content", "postedBy", "postedAt"],
+      "optional_fields": ["attachments"]
+    }
+  },
+  "serialization_notes": [
+    "Campaign status: draft, active, paused, completed, cancelled",
+    "Donation status: pending, completed, refunded, failed",
+    "Recurring frequency: weekly, monthly, yearly",
+    "Currency codes should be ISO 4217"
+  ]
+}

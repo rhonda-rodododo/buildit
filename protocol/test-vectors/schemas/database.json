@@ -1,0 +1,156 @@
+{
+  "version": "1.0.0",
+  "description": "Database module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "database-001",
+      "description": "Simple table with columns",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Volunteer Directory",
+        "description": "Track volunteer contact info and skills",
+        "columns": [
+          { "id": "name", "name": "Name", "type": "text", "required": true },
+          { "id": "email", "name": "Email", "type": "email" },
+          { "id": "skills", "name": "Skills", "type": "multiselect", "options": ["organizing", "legal", "medical", "translation"] },
+          { "id": "availability", "name": "Hours/Week", "type": "number" }
+        ],
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "columns_array_preserved": true
+      }
+    },
+    {
+      "id": "database-002",
+      "description": "Table row with values",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "tableId": "550e8400-e29b-41d4-a716-446655440000",
+        "values": {
+          "name": "Alice Johnson",
+          "email": "alice@example.org",
+          "skills": ["organizing", "translation"],
+          "availability": 10
+        },
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "values_object_preserved": true
+      }
+    },
+    {
+      "id": "database-003",
+      "description": "Table view configuration",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "tableId": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Available This Week",
+        "type": "table",
+        "filters": [
+          { "column": "availability", "operator": "greater_than", "value": 5 }
+        ],
+        "sorts": [
+          { "column": "name", "direction": "asc" }
+        ],
+        "visibleColumns": ["name", "email", "availability"],
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "filters_preserved": true
+      }
+    },
+    {
+      "id": "database-004",
+      "description": "Board view (Kanban)",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440201",
+        "tableId": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Task Board",
+        "type": "board",
+        "groupByColumn": "status",
+        "cardTitleColumn": "title",
+        "cardFields": ["assignee", "dueDate"],
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "view_type_board": true
+      }
+    },
+    {
+      "id": "database-005",
+      "description": "Table with relationship column",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Projects",
+        "columns": [
+          { "id": "name", "name": "Project Name", "type": "text", "required": true },
+          { "id": "lead", "name": "Project Lead", "type": "relationship", "relationshipTable": "550e8400-e29b-41d4-a716-446655440000", "relationshipType": "one-to-one" },
+          { "id": "team", "name": "Team Members", "type": "relationship", "relationshipTable": "550e8400-e29b-41d4-a716-446655440000", "relationshipType": "one-to-many" }
+        ],
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "relationship_config_preserved": true
+      }
+    },
+    {
+      "id": "database-006",
+      "description": "Calendar view",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440202",
+        "tableId": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Deadline Calendar",
+        "type": "calendar",
+        "dateColumn": "dueDate",
+        "titleColumn": "title",
+        "colorColumn": "priority",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "view_type_calendar": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "table": {
+      "required_fields": ["_v", "id", "name", "columns", "createdBy", "createdAt"],
+      "optional_fields": ["description", "groupId", "updatedAt"]
+    },
+    "row": {
+      "required_fields": ["_v", "id", "tableId", "values", "createdBy", "createdAt"],
+      "optional_fields": ["updatedAt", "updatedBy"]
+    },
+    "view": {
+      "required_fields": ["_v", "id", "tableId", "name", "type", "createdBy", "createdAt"],
+      "optional_fields": ["filters", "sorts", "visibleColumns", "groupByColumn", "cardTitleColumn", "cardFields", "dateColumn", "titleColumn", "colorColumn"]
+    }
+  },
+  "serialization_notes": [
+    "View types: table, board, calendar, gallery",
+    "Column types align with custom-fields field types",
+    "Relationship types: one-to-one, one-to-many, many-to-many",
+    "Filter operators: equals, not_equals, contains, greater_than, less_than, etc."
+  ]
+}

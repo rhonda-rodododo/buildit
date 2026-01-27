@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "description": "Newsletters module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "newsletters-001",
+      "description": "Simple newsletter",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "subject": "January Newsletter",
+        "content": "# Happy New Year!\n\nHere's what happened this month...",
+        "format": "markdown",
+        "status": "draft",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "status_draft": true
+      }
+    },
+    {
+      "id": "newsletters-002",
+      "description": "Sent newsletter with stats",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "subject": "Weekly Update",
+        "preheader": "This week's highlights and upcoming events",
+        "content": "<h1>Weekly Roundup</h1><p>...</p>",
+        "format": "html",
+        "status": "sent",
+        "sentAt": 1704153600,
+        "recipientCount": 500,
+        "openCount": 250,
+        "clickCount": 75,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "stats_preserved": true
+      }
+    },
+    {
+      "id": "newsletters-003",
+      "description": "Scheduled newsletter",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "subject": "Upcoming Event Reminder",
+        "content": "Don't forget about our event next week!",
+        "format": "markdown",
+        "status": "scheduled",
+        "scheduledAt": 1704672000,
+        "audienceFilter": {
+          "tags": ["active-members"],
+          "location": "New York"
+        },
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "audience_filter_preserved": true
+      }
+    },
+    {
+      "id": "newsletters-004",
+      "description": "Newsletter with template",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "subject": "Monthly Digest",
+        "content": "Content goes here...",
+        "format": "markdown",
+        "templateId": "550e8400-e29b-41d4-a716-446655440100",
+        "replyTo": "organizers@example.org",
+        "fromName": "BuildIt Organizing Team",
+        "status": "draft",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "template_preserved": true
+      }
+    },
+    {
+      "id": "newsletters-005",
+      "description": "Subscriber record",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "email": "subscriber@example.org",
+        "pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "status": "active",
+        "tags": ["volunteer", "local"],
+        "preferences": {
+          "frequency": "weekly",
+          "topics": ["events", "news"]
+        },
+        "subscribedAt": 1704067200,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000"
+      },
+      "expected": {
+        "json_valid": true,
+        "preferences_preserved": true
+      }
+    },
+    {
+      "id": "newsletters-006",
+      "description": "Email template",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "name": "Standard Newsletter",
+        "description": "Our standard email template with header and footer",
+        "headerHtml": "<div style='background: #333; padding: 20px;'>...</div>",
+        "footerHtml": "<div style='background: #eee; padding: 10px;'>Unsubscribe | Contact</div>",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "html_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "newsletter": {
+      "required_fields": ["_v", "id", "subject", "content", "format", "status", "createdBy", "createdAt"],
+      "optional_fields": ["preheader", "groupId", "templateId", "replyTo", "fromName", "scheduledAt", "sentAt", "recipientCount", "openCount", "clickCount", "audienceFilter"]
+    },
+    "subscriber": {
+      "required_fields": ["_v", "id", "email", "status", "subscribedAt"],
+      "optional_fields": ["pubkey", "tags", "preferences", "groupId", "unsubscribedAt"]
+    },
+    "template": {
+      "required_fields": ["_v", "id", "name", "createdBy", "createdAt"],
+      "optional_fields": ["description", "headerHtml", "footerHtml", "groupId"]
+    }
+  },
+  "serialization_notes": [
+    "Status: draft, scheduled, sent, archived",
+    "Format: markdown, html",
+    "Subscriber status: active, unsubscribed, bounced",
+    "Audience filters allow targeting specific subscriber segments"
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "version": "1.0.0",
+  "description": "Custom Fields module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "custom-fields-001",
+      "description": "Text field definition",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Dietary Restrictions",
+        "type": "text",
+        "required": false,
+        "description": "Any dietary requirements or allergies",
+        "options": {
+          "placeholder": "e.g., Vegetarian, Gluten-free",
+          "maxLength": 500
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "type_is_text": true
+      }
+    },
+    {
+      "id": "custom-fields-002",
+      "description": "Select field with choices",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Skill Level",
+        "type": "select",
+        "required": true,
+        "options": {
+          "choices": [
+            { "value": "beginner", "label": "Beginner", "color": "#4CAF50" },
+            { "value": "intermediate", "label": "Intermediate", "color": "#2196F3" },
+            { "value": "advanced", "label": "Advanced", "color": "#9C27B0" }
+          ]
+        },
+        "moduleId": "events",
+        "groupId": "550e8400-e29b-41d4-a716-446655440100"
+      },
+      "expected": {
+        "json_valid": true,
+        "choices_array_preserved": true
+      }
+    },
+    {
+      "id": "custom-fields-003",
+      "description": "Number field with min/max",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Hours Available",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 1,
+          "max": 40,
+          "step": 0.5,
+          "suffix": "hours/week"
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "min_max_preserved": true
+      }
+    },
+    {
+      "id": "custom-fields-004",
+      "description": "Field value storage",
+      "input": {
+        "_v": "1.0.0",
+        "fieldId": "550e8400-e29b-41d4-a716-446655440000",
+        "entityId": "evt-550e8400-e29b-41d4-a716-446655440099",
+        "entityType": "event",
+        "value": "Vegan, no nuts",
+        "createdAt": 1704067200,
+        "updatedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "value_preserved": true
+      }
+    },
+    {
+      "id": "custom-fields-005",
+      "description": "Field template with multiple fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "name": "Event Registration Template",
+        "description": "Standard fields for event registration",
+        "category": "events",
+        "isBuiltIn": true,
+        "fields": [
+          {
+            "_v": "1.0.0",
+            "id": "550e8400-e29b-41d4-a716-446655440011",
+            "name": "T-Shirt Size",
+            "type": "select",
+            "required": false,
+            "options": {
+              "choices": [
+                { "value": "xs", "label": "XS" },
+                { "value": "s", "label": "S" },
+                { "value": "m", "label": "M" },
+                { "value": "l", "label": "L" },
+                { "value": "xl", "label": "XL" }
+              ]
+            }
+          },
+          {
+            "_v": "1.0.0",
+            "id": "550e8400-e29b-41d4-a716-446655440012",
+            "name": "Emergency Contact",
+            "type": "phone",
+            "required": true
+          }
+        ]
+      },
+      "expected": {
+        "json_valid": true,
+        "nested_fields_preserved": true
+      }
+    },
+    {
+      "id": "custom-fields-006",
+      "description": "Relationship field",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440020",
+        "name": "Related Events",
+        "type": "relationship",
+        "options": {
+          "relationshipModule": "events",
+          "relationshipType": "many-to-many"
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "relationship_config_preserved": true
+      }
+    },
+    {
+      "id": "custom-fields-007",
+      "description": "Field with validation",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440030",
+        "name": "Union Member ID",
+        "type": "text",
+        "required": true,
+        "validation": {
+          "pattern": "^[A-Z]{2}\\d{6}$",
+          "patternMessage": "Must be 2 letters followed by 6 digits (e.g., AB123456)"
+        }
+      },
+      "expected": {
+        "json_valid": true,
+        "validation_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "field_definition": {
+      "required_fields": ["_v", "id", "name", "type"],
+      "optional_fields": ["required", "description", "defaultValue", "options", "validation", "order", "groupId", "moduleId", "createdAt", "updatedAt"]
+    },
+    "field_value": {
+      "required_fields": ["_v", "fieldId", "entityId", "entityType", "value"],
+      "optional_fields": ["createdAt", "updatedAt"]
+    },
+    "field_template": {
+      "required_fields": ["_v", "id", "name", "category", "fields"],
+      "optional_fields": ["description", "isBuiltIn", "createdBy", "createdAt"]
+    }
+  },
+  "serialization_notes": [
+    "Field types must be one of the defined enum values",
+    "Choice colors should be valid hex colors",
+    "Relationship types: one-to-one, one-to-many, many-to-many",
+    "Nested field definitions in templates must be complete"
+  ]
+}

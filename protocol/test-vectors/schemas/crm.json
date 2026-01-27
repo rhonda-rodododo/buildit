@@ -1,0 +1,163 @@
+{
+  "version": "1.0.0",
+  "description": "CRM module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "crm-001",
+      "description": "Complete contact record",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Alice Johnson",
+        "email": "alice@example.org",
+        "phone": "+1-555-0123",
+        "organization": "Local Union Chapter",
+        "title": "Shop Steward",
+        "address": {
+          "street": "123 Main St",
+          "city": "Brooklyn",
+          "state": "NY",
+          "postalCode": "11201",
+          "country": "USA"
+        },
+        "status": "active",
+        "tags": ["union-member", "volunteer", "organizer"],
+        "source": "event-signup",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "address_object_preserved": true
+      }
+    },
+    {
+      "id": "crm-002",
+      "description": "Contact with custom fields",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Bob Smith",
+        "email": "bob@example.org",
+        "status": "active",
+        "customFields": {
+          "preferred_contact": "text",
+          "languages": ["English", "Spanish"],
+          "skills": ["legal-support", "translation"],
+          "availability": "weekends"
+        },
+        "notes": "Very active volunteer, prefers text over email",
+        "lastContactedAt": 1704153600,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "custom_fields_preserved": true
+      }
+    },
+    {
+      "id": "crm-003",
+      "description": "Interaction log entry",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "contactId": "550e8400-e29b-41d4-a716-446655440000",
+        "type": "meeting",
+        "summary": "Discussed upcoming campaign strategy",
+        "notes": "Alice is excited about the new initiative. Will bring 3 coworkers to next meeting.",
+        "outcome": "positive",
+        "followUpDate": 1704672000,
+        "occurredAt": 1704153600,
+        "loggedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+      },
+      "expected": {
+        "json_valid": true,
+        "interaction_complete": true
+      }
+    },
+    {
+      "id": "crm-004",
+      "description": "CRM task",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440200",
+        "contactId": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Follow up on campaign materials",
+        "description": "Send Alice the flyers for distribution",
+        "dueAt": 1704672000,
+        "priority": "high",
+        "status": "pending",
+        "assignedTo": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdBy": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "createdAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "task_fields_preserved": true
+      }
+    },
+    {
+      "id": "crm-005",
+      "description": "Contact linked to Nostr pubkey",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "Carol Williams",
+        "pubkey": "f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "email": "carol@example.org",
+        "status": "active",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "pubkey_is_64_hex": true
+      }
+    },
+    {
+      "id": "crm-006",
+      "description": "Archived contact",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "name": "Dave Brown",
+        "email": "dave@example.org",
+        "status": "archived",
+        "notes": "Moved out of area",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200,
+        "updatedAt": 1704240000
+      },
+      "expected": {
+        "json_valid": true,
+        "status_archived": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "contact": {
+      "required_fields": ["_v", "id", "createdBy", "createdAt"],
+      "optional_fields": ["name", "email", "phone", "organization", "title", "address", "status", "tags", "source", "pubkey", "customFields", "notes", "lastContactedAt", "groupId", "updatedAt"]
+    },
+    "interaction": {
+      "required_fields": ["_v", "id", "contactId", "type", "occurredAt", "loggedBy"],
+      "optional_fields": ["summary", "notes", "outcome", "followUpDate"]
+    },
+    "task": {
+      "required_fields": ["_v", "id", "title", "createdBy", "createdAt"],
+      "optional_fields": ["contactId", "description", "dueAt", "priority", "status", "assignedTo", "completedAt"]
+    }
+  },
+  "serialization_notes": [
+    "Contact status: active, inactive, archived",
+    "Interaction types: call, email, meeting, text, event, note, other",
+    "Task priority: low, medium, high, urgent",
+    "Task status: pending, in_progress, completed, cancelled"
+  ]
+}

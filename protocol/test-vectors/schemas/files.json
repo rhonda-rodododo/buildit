@@ -1,0 +1,153 @@
+{
+  "version": "1.0.0",
+  "description": "Files module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "files-001",
+      "description": "PDF document file",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "meeting-minutes.pdf",
+        "url": "https://files.buildit.network/abc123",
+        "mimeType": "application/pdf",
+        "size": 102400,
+        "hash": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+        "encrypted": true,
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "visibility": "group",
+        "uploadedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "uploadedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "hash_is_64_hex": true
+      }
+    },
+    {
+      "id": "files-002",
+      "description": "Image with dimensions and thumbnail",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "event-photo.jpg",
+        "url": "https://files.buildit.network/def456",
+        "mimeType": "image/jpeg",
+        "size": 2048576,
+        "thumbnail": "https://files.buildit.network/def456/thumb",
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        },
+        "description": "Group photo from last meeting",
+        "uploadedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "uploadedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "dimensions_preserved": true
+      }
+    },
+    {
+      "id": "files-003",
+      "description": "Video file with duration",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "training-video.mp4",
+        "url": "https://files.buildit.network/ghi789",
+        "mimeType": "video/mp4",
+        "size": 52428800,
+        "duration": 3600.5,
+        "thumbnail": "https://files.buildit.network/ghi789/poster",
+        "dimensions": {
+          "width": 1280,
+          "height": 720
+        },
+        "uploadedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "uploadedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "duration_is_number": true
+      }
+    },
+    {
+      "id": "files-004",
+      "description": "Folder structure",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "name": "Meeting Materials",
+        "parentId": "550e8400-e29b-41d4-a716-446655440011",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "color": "#4CAF50",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "color_is_hex": true
+      }
+    },
+    {
+      "id": "files-005",
+      "description": "File share permission",
+      "input": {
+        "_v": "1.0.0",
+        "fileId": "550e8400-e29b-41d4-a716-446655440000",
+        "sharedWith": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "permission": "download",
+        "expiresAt": 1706659200,
+        "sharedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "sharedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "permission_enum_valid": true
+      }
+    },
+    {
+      "id": "files-006",
+      "description": "Private encrypted file",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440020",
+        "name": "sensitive-data.xlsx",
+        "url": "https://files.buildit.network/priv123",
+        "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "size": 51200,
+        "encrypted": true,
+        "encryptionKeyId": "key-550e8400-e29b-41d4-a716-446655440099",
+        "visibility": "private",
+        "uploadedBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "uploadedAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "visibility_private": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "file": {
+      "required_fields": ["_v", "id", "name", "url", "mimeType", "size", "uploadedBy", "uploadedAt"],
+      "optional_fields": ["hash", "description", "folderId", "groupId", "visibility", "encrypted", "encryptionKeyId", "thumbnail", "dimensions", "duration"]
+    },
+    "folder": {
+      "required_fields": ["_v", "id", "name", "createdBy", "createdAt"],
+      "optional_fields": ["parentId", "groupId", "color"]
+    },
+    "file_share": {
+      "required_fields": ["_v", "fileId", "sharedWith", "permission", "sharedBy", "sharedAt"],
+      "optional_fields": ["expiresAt"]
+    }
+  },
+  "serialization_notes": [
+    "File hashes are SHA-256 (64 hex chars)",
+    "Visibility: private, group, public",
+    "Permission: view, download, edit",
+    "Folder colors are hex format (#RRGGBB)"
+  ]
+}

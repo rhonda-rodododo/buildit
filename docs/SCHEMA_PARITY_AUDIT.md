@@ -194,10 +194,10 @@ quicktype generates duplicate interfaces:
 
 | Task | Module | Effort | Status |
 |------|--------|--------|--------|
-| Clean up generated type duplicates | All | 2h | Pending |
-| Standardize ID field naming | Messaging | 2h | Pending |
+| ~~Clean up generated type duplicates~~ | All | 2h | ✅ Done |
+| ~~Standardize ID field naming~~ | Messaging | 2h | ✅ Done |
 | ~~Add cross-client test vectors~~ | All | 4h | ✅ Done |
-| Add roundtrip serialization tests | All | 6h | Pending |
+| ~~Add roundtrip serialization tests~~ | All | 6h | ✅ Done |
 
 ---
 

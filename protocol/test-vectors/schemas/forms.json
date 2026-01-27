@@ -1,0 +1,191 @@
+{
+  "version": "1.0.0",
+  "description": "Forms module schema serialization test vectors",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "forms-001",
+      "description": "Simple poll form",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "Meeting Time Poll",
+        "description": "Vote for the best time for our next meeting",
+        "fields": [
+          {
+            "id": "time-slot",
+            "type": "radio",
+            "label": "Preferred Time",
+            "required": true,
+            "options": [
+              { "value": "morning", "label": "Morning (9-11 AM)" },
+              { "value": "afternoon", "label": "Afternoon (2-4 PM)" },
+              { "value": "evening", "label": "Evening (6-8 PM)" }
+            ]
+          }
+        ],
+        "anonymous": true,
+        "closesAt": 1704672000,
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "anonymous_is_boolean": true
+      }
+    },
+    {
+      "id": "forms-002",
+      "description": "Multi-field survey",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "title": "Member Feedback Survey",
+        "fields": [
+          {
+            "id": "rating",
+            "type": "rating",
+            "label": "How would you rate your overall experience?",
+            "required": true
+          },
+          {
+            "id": "improvements",
+            "type": "textarea",
+            "label": "What could we improve?",
+            "placeholder": "Share your thoughts..."
+          },
+          {
+            "id": "recommend",
+            "type": "scale",
+            "label": "How likely are you to recommend us?",
+            "validation": {
+              "min": 0,
+              "max": 10
+            }
+          }
+        ],
+        "visibility": "group",
+        "groupId": "grp-550e8400-e29b-41d4-a716-446655440000",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "fields_array_preserved": true
+      }
+    },
+    {
+      "id": "forms-003",
+      "description": "Form with conditional logic",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "title": "Volunteer Registration",
+        "fields": [
+          {
+            "id": "has-experience",
+            "type": "checkbox",
+            "label": "I have previous organizing experience"
+          },
+          {
+            "id": "experience-details",
+            "type": "textarea",
+            "label": "Describe your experience",
+            "conditional": {
+              "field": "has-experience",
+              "operator": "equals",
+              "value": true
+            }
+          }
+        ],
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704067200
+      },
+      "expected": {
+        "json_valid": true,
+        "conditional_logic_preserved": true
+      }
+    },
+    {
+      "id": "forms-004",
+      "description": "Form response submission",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "formId": "550e8400-e29b-41d4-a716-446655440000",
+        "answers": {
+          "time-slot": "afternoon"
+        },
+        "submittedAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "answers_object_preserved": true
+      }
+    },
+    {
+      "id": "forms-005",
+      "description": "Form response with multiple answers",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440101",
+        "formId": "550e8400-e29b-41d4-a716-446655440001",
+        "answers": {
+          "rating": 5,
+          "improvements": "More frequent updates would be great",
+          "recommend": 8
+        },
+        "respondent": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "submittedAt": 1704153600
+      },
+      "expected": {
+        "json_valid": true,
+        "mixed_value_types_preserved": true
+      }
+    },
+    {
+      "id": "forms-006",
+      "description": "Form with time constraints",
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440003",
+        "title": "Limited Registration",
+        "fields": [
+          {
+            "id": "name",
+            "type": "text",
+            "label": "Full Name",
+            "required": true
+          }
+        ],
+        "opensAt": 1704067200,
+        "closesAt": 1704672000,
+        "maxResponses": 50,
+        "allowMultiple": false,
+        "confirmationMessage": "Thank you for registering!",
+        "createdBy": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "createdAt": 1704000000
+      },
+      "expected": {
+        "json_valid": true,
+        "time_constraints_preserved": true
+      }
+    }
+  ],
+  "schema_requirements": {
+    "form": {
+      "required_fields": ["_v", "id", "title", "fields", "createdBy", "createdAt"],
+      "optional_fields": ["description", "groupId", "visibility", "anonymous", "allowMultiple", "opensAt", "closesAt", "maxResponses", "confirmationMessage", "updatedAt"]
+    },
+    "form_response": {
+      "required_fields": ["_v", "id", "formId", "answers", "submittedAt"],
+      "optional_fields": ["respondent"]
+    }
+  },
+  "serialization_notes": [
+    "Field types include: text, textarea, number, email, phone, url, date, time, datetime, select, multiselect, radio, checkbox, file, rating, scale",
+    "Conditional operators: equals, not_equals, contains, not_contains, greater, less",
+    "Answers object maps field IDs to values of appropriate types",
+    "Anonymous forms omit respondent field"
+  ]
+}
