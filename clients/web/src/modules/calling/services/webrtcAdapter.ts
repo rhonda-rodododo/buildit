@@ -525,6 +525,41 @@ export class WebRTCAdapter {
   }
 
   /**
+   * Get the peer connection (alias for mesh call manager)
+   */
+  getConnection(): RTCPeerConnection {
+    if (!this.peerConnection) {
+      throw new Error('Peer connection not initialized');
+    }
+    return this.peerConnection;
+  }
+
+  /**
+   * Check if remote description has been set
+   */
+  hasRemoteDescription(): boolean {
+    return this.peerConnection?.remoteDescription !== null;
+  }
+
+  /**
+   * Replace a track in the peer connection
+   */
+  async replaceTrack(newTrack: MediaStreamTrack, kind: 'audio' | 'video'): Promise<void> {
+    if (!this.peerConnection) {
+      throw new Error('Peer connection not initialized');
+    }
+
+    const sender = this.peerConnection
+      .getSenders()
+      .find((s) => s.track?.kind === kind);
+
+    if (sender) {
+      await sender.replaceTrack(newTrack);
+      logger.info(`Replaced ${kind} track`);
+    }
+  }
+
+  /**
    * Check if connected
    */
   isConnected(): boolean {

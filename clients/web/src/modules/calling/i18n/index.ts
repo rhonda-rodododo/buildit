@@ -108,6 +108,11 @@ export default defineModuleTranslations({
     muteAll: 'Mute All',
     unmuteAll: 'Unmute All',
     removeParticipant: 'Remove Participant',
+    gridView: 'Grid View',
+    speakerView: 'Speaker View',
+    copyLink: 'Copy Link',
+    endCallForAll: 'End Call for All',
+    stopScreenShare: 'Stop Screen Share',
 
     // Conference
     conferenceRoom: 'Conference Room',
