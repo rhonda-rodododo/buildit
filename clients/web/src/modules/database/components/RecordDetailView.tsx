@@ -430,7 +430,7 @@ export function RecordDetailView({
               <span className="text-sm truncate">{attachment.fileName || attachment.fileId}</span>
               {attachment.fileSize && (
                 <span className="text-xs text-muted-foreground">
-                  ({Math.round(attachment.fileSize / 1024)} KB)
+                  ({t('database:fileSizeKb', { size: Math.round(attachment.fileSize / 1024) })})
                 </span>
               )}
             </div>

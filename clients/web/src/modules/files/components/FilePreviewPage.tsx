@@ -271,7 +271,7 @@ export const FilePreviewPage: FC = () => {
             <div className="flex-1 min-w-0">
               <CardTitle className="truncate">{file.name}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {(file.size / 1024 / 1024).toFixed(2)} MB • {file.mimeType}
+                {t('files:fileSizeAndType', { size: (file.size / 1024 / 1024).toFixed(2), type: file.mimeType })}
               </p>
             </div>
             <div className="flex gap-2">

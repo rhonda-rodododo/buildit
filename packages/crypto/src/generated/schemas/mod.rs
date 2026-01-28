@@ -11,8 +11,8 @@
 //! ```
 
 pub mod files;
-pub mod wiki;
 pub mod calling;
+pub mod wiki;
 pub mod forms;
 pub mod governance;
 pub mod database;
@@ -21,6 +21,7 @@ pub mod events;
 pub mod documents;
 pub mod messaging;
 pub mod publishing;
+pub mod search;
 pub mod newsletters;
 pub mod mutual_aid;
 pub mod crm;

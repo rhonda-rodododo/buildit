@@ -216,7 +216,7 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      Started {formatDistanceToNow(call.callTime, { addSuffix: true })}
+                      {t('startedTimeAgo', { time: formatDistanceToNow(call.callTime, { addSuffix: true }) })}
                     </p>
                   </div>
                 </div>

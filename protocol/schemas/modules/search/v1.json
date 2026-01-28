@@ -1,0 +1,871 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/search/v1.json",
+  "title": "SearchModule",
+  "description": "Schema for BuildIt E2EE-respecting client-side search with semantic capabilities",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+  "coreModule": true,
+
+  "type": "object",
+
+  "compatibilityNotes": [
+    "This is a CORE module - changes must maintain backward compatibility",
+    "All search operations are client-side only - no server-side indexing",
+    "Content is encrypted at rest, only decrypted for local indexing",
+    "Cross-platform implementations must produce consistent search results"
+  ],
+
+  "$defs": {
+    "SearchDocument": {
+      "type": "object",
+      "description": "A document indexed for search - internal representation stored in search index",
+      "required": ["id", "moduleType", "entityId", "groupId", "title", "content", "createdAt", "updatedAt", "indexedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique document ID (format: moduleType:entityId)",
+          "pattern": "^[a-z-]+:[a-zA-Z0-9-]+$"
+        },
+        "moduleType": {
+          "type": "string",
+          "description": "Source module type (messaging, documents, events, wiki, etc.)"
+        },
+        "entityId": {
+          "type": "string",
+          "description": "Original entity ID in the source module"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Group this document belongs to"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Searchable title/name"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 1000000,
+          "description": "Searchable content body (plaintext, HTML stripped)"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 100,
+          "description": "Tags associated with this document"
+        },
+        "excerpt": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Short excerpt for display in search results"
+        },
+        "authorPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Author/creator pubkey"
+        },
+        "facets": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/FacetValue" },
+          "description": "Module-specific facets for filtering"
+        },
+        "vector": {
+          "$ref": "#/$defs/SparseVector",
+          "description": "TF-IDF vector for semantic search (optional)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "When the source entity was created (Unix timestamp ms)"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "When the source entity was last updated (Unix timestamp ms)"
+        },
+        "indexedAt": {
+          "type": "integer",
+          "description": "When this document was indexed (Unix timestamp ms)"
+        }
+      }
+    },
+
+    "FacetValue": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          },
+          "required": ["min", "max"],
+          "additionalProperties": false
+        }
+      ],
+      "description": "Facet value types - string, number, boolean, string array, or range"
+    },
+
+    "SparseVector": {
+      "type": "object",
+      "additionalProperties": { "type": "number" },
+      "description": "Sparse vector representation for TF-IDF - maps term index to weight"
+    },
+
+    "FacetDefinition": {
+      "type": "object",
+      "description": "Defines a filterable facet for a module",
+      "required": ["key", "label", "type", "multiSelect"],
+      "additionalProperties": true,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Facet key/identifier"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the facet"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["keyword", "range", "date", "boolean", "hierarchy"],
+          "description": "Type of facet"
+        },
+        "parentKey": {
+          "type": "string",
+          "description": "For hierarchical facets, the parent facet key"
+        },
+        "multiSelect": {
+          "type": "boolean",
+          "description": "Whether multiple values can be selected"
+        }
+      }
+    },
+
+    "SearchScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "global" }
+          },
+          "required": ["type"],
+          "additionalProperties": false,
+          "description": "Search across all accessible groups"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "group" },
+            "groupId": { "type": "string" }
+          },
+          "required": ["type", "groupId"],
+          "additionalProperties": false,
+          "description": "Search within a single group"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "module" },
+            "moduleType": { "type": "string" }
+          },
+          "required": ["type", "moduleType"],
+          "additionalProperties": false,
+          "description": "Search one module across all groups"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "module-in-group" },
+            "moduleType": { "type": "string" },
+            "groupId": { "type": "string" }
+          },
+          "required": ["type", "moduleType", "groupId"],
+          "additionalProperties": false,
+          "description": "Search one module within a specific group"
+        }
+      ],
+      "description": "Defines the scope of a search query"
+    },
+
+    "QueryFilter": {
+      "type": "object",
+      "description": "Filter extracted from query or applied via UI",
+      "required": ["field", "operator", "value"],
+      "additionalProperties": true,
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Filter field (e.g., 'author', 'date', 'tag')"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["eq", "ne", "gt", "lt", "gte", "lte", "contains", "in", "range"],
+          "description": "Filter operator"
+        },
+        "value": {
+          "$ref": "#/$defs/FacetValue",
+          "description": "Filter value"
+        }
+      }
+    },
+
+    "ParsedQuery": {
+      "type": "object",
+      "description": "Parsed and normalized search query",
+      "required": ["raw", "keywords", "phrases", "filters", "scope"],
+      "additionalProperties": true,
+      "properties": {
+        "raw": {
+          "type": "string",
+          "description": "Original raw query string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Extracted keywords (stemmed)"
+        },
+        "phrases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Exact phrase matches (quoted)"
+        },
+        "expandedTerms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Expanded synonyms"
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/QueryFilter" },
+          "description": "Detected filters from query syntax"
+        },
+        "scope": {
+          "$ref": "#/$defs/SearchScope",
+          "description": "Active search scope"
+        }
+      }
+    },
+
+    "SearchResult": {
+      "type": "object",
+      "description": "A search result with relevance scoring",
+      "required": ["document", "score", "matchedTerms", "matchedFields"],
+      "additionalProperties": true,
+      "properties": {
+        "document": {
+          "$ref": "#/$defs/SearchDocument",
+          "description": "The matching document"
+        },
+        "score": {
+          "type": "number",
+          "description": "Relevance score (higher is better)"
+        },
+        "matchedTerms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Matched terms for highlighting"
+        },
+        "matchedFields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fields where matches were found"
+        },
+        "highlightedExcerpt": {
+          "type": "string",
+          "description": "Highlighted excerpt with match markers"
+        }
+      }
+    },
+
+    "SearchResults": {
+      "type": "object",
+      "description": "Aggregated search results",
+      "required": ["results", "totalCount", "searchTimeMs", "query"],
+      "additionalProperties": true,
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SearchResult" },
+          "description": "Matching results"
+        },
+        "totalCount": {
+          "type": "integer",
+          "description": "Total count (may exceed results.length for pagination)"
+        },
+        "facetCounts": {
+          "$ref": "#/$defs/FacetCounts",
+          "description": "Facet counts for filtering UI"
+        },
+        "searchTimeMs": {
+          "type": "number",
+          "description": "Search execution time in milliseconds"
+        },
+        "query": {
+          "$ref": "#/$defs/ParsedQuery",
+          "description": "Query that produced these results"
+        }
+      }
+    },
+
+    "FacetCounts": {
+      "type": "object",
+      "description": "Aggregated facet counts for filtering UI",
+      "additionalProperties": true,
+      "properties": {
+        "moduleType": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Module type distribution"
+        },
+        "groups": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Group distribution"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Tag distribution"
+        },
+        "dates": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Date histogram (by day)"
+        },
+        "authors": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Author distribution"
+        },
+        "custom": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": { "type": "integer" }
+          },
+          "description": "Module-specific facet counts"
+        }
+      }
+    },
+
+    "FacetFilters": {
+      "type": "object",
+      "description": "Active facet filters for search",
+      "additionalProperties": true,
+      "properties": {
+        "moduleTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Filter by module types"
+        },
+        "groupIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Filter by group IDs"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Filter by tags"
+        },
+        "dateRange": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "integer" },
+            "end": { "type": "integer" }
+          },
+          "required": ["start", "end"],
+          "description": "Filter by date range (Unix timestamps)"
+        },
+        "authors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Filter by author pubkeys"
+        },
+        "custom": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/FacetValue" }
+          },
+          "description": "Custom facet filters by key"
+        }
+      }
+    },
+
+    "Tag": {
+      "type": "object",
+      "description": "User-defined tag for organizing content",
+      "required": ["id", "groupId", "name", "slug", "usageCount", "createdAt", "createdBy", "updatedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique tag ID"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Group this tag belongs to"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Tag display name"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "maxLength": 100,
+          "description": "URL-safe slug"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Optional tag color (hex)"
+        },
+        "parentTagId": {
+          "type": "string",
+          "description": "Parent tag ID for hierarchical tags"
+        },
+        "usageCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of entities using this tag"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix ms)"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator pubkey"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Last update timestamp (Unix ms)"
+        }
+      }
+    },
+
+    "EntityTag": {
+      "type": "object",
+      "description": "Association between an entity and a tag",
+      "required": ["id", "entityType", "entityId", "tagId", "groupId", "createdAt", "createdBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique association ID"
+        },
+        "entityType": {
+          "type": "string",
+          "description": "Module type of the tagged entity"
+        },
+        "entityId": {
+          "type": "string",
+          "description": "ID of the tagged entity"
+        },
+        "tagId": {
+          "type": "string",
+          "description": "Tag ID"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Group ID"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix ms)"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator pubkey"
+        }
+      }
+    },
+
+    "SavedSearch": {
+      "type": "object",
+      "description": "Saved search query for quick access",
+      "required": ["id", "userPubkey", "name", "query", "scope", "createdAt", "updatedAt", "useCount", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique saved search ID"
+        },
+        "userPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "User who saved this search"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Display name for the saved search"
+        },
+        "query": {
+          "type": "string",
+          "description": "Search query string"
+        },
+        "scope": {
+          "$ref": "#/$defs/SearchScope",
+          "description": "Search scope"
+        },
+        "filters": {
+          "$ref": "#/$defs/FacetFilters",
+          "description": "Active filters"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Last update timestamp"
+        },
+        "lastUsedAt": {
+          "type": "integer",
+          "description": "Last use timestamp"
+        },
+        "useCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of times this search has been used"
+        }
+      }
+    },
+
+    "RecentSearch": {
+      "type": "object",
+      "description": "Recent search entry for history",
+      "required": ["id", "userPubkey", "query", "scope", "timestamp", "resultCount", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique entry ID"
+        },
+        "userPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "User pubkey"
+        },
+        "query": {
+          "type": "string",
+          "description": "Search query"
+        },
+        "scope": {
+          "$ref": "#/$defs/SearchScope",
+          "description": "Search scope"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "When the search was performed"
+        },
+        "resultCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of results returned"
+        }
+      }
+    },
+
+    "SearchProviderConfig": {
+      "type": "object",
+      "description": "Configuration for a module's search provider",
+      "required": ["moduleType", "enabled", "facetDefinitions"],
+      "additionalProperties": true,
+      "properties": {
+        "moduleType": {
+          "type": "string",
+          "description": "Module type this provider handles"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether this provider is active"
+        },
+        "facetDefinitions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FacetDefinition" },
+          "description": "Facets this module provides"
+        },
+        "boost": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Result boost factor for this module (default: 1.0)"
+        }
+      }
+    },
+
+    "SearchOptions": {
+      "type": "object",
+      "description": "Options for fine-tuning search behavior",
+      "additionalProperties": true,
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Maximum results to return"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Results to skip (pagination)"
+        },
+        "fuzzy": {
+          "type": "boolean",
+          "description": "Enable fuzzy matching"
+        },
+        "fuzzyThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fuzzy match threshold (0-1)"
+        },
+        "prefix": {
+          "type": "boolean",
+          "description": "Enable prefix matching"
+        },
+        "boost": {
+          "type": "object",
+          "additionalProperties": { "type": "number" },
+          "description": "Field boost weights"
+        },
+        "semantic": {
+          "type": "boolean",
+          "description": "Enable semantic/TF-IDF search"
+        },
+        "semanticWeight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Semantic search weight (0-1), default 0.3"
+        },
+        "highlight": {
+          "type": "boolean",
+          "description": "Highlight matched terms in results"
+        }
+      }
+    },
+
+    "IndexStats": {
+      "type": "object",
+      "description": "Statistics about the search index",
+      "required": ["totalDocuments", "byModuleType", "byGroup", "uniqueTerms", "sizeBytes"],
+      "additionalProperties": true,
+      "properties": {
+        "totalDocuments": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total documents indexed"
+        },
+        "byModuleType": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Documents by module type"
+        },
+        "byGroup": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Documents by group"
+        },
+        "uniqueTerms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total unique terms in index"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated index size in bytes"
+        },
+        "lastFullReindex": {
+          "type": "integer",
+          "description": "Last full reindex timestamp"
+        },
+        "lastIncrementalUpdate": {
+          "type": "integer",
+          "description": "Last incremental update timestamp"
+        }
+      }
+    },
+
+    "ConceptExpansion": {
+      "type": "object",
+      "description": "Concept expansion for semantic search in organizing contexts",
+      "required": ["term", "synonyms"],
+      "additionalProperties": true,
+      "properties": {
+        "term": {
+          "type": "string",
+          "description": "Primary term"
+        },
+        "synonyms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Related/synonym terms"
+        },
+        "broader": {
+          "type": "string",
+          "description": "Broader concept"
+        },
+        "narrower": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Narrower concepts"
+        }
+      }
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_search_document",
+      "description": "Search document with required fields only",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "documents:doc-123",
+        "moduleType": "documents",
+        "entityId": "doc-123",
+        "groupId": "group-456",
+        "title": "Meeting Notes",
+        "content": "Discussion about upcoming event planning.",
+        "createdAt": 1700000000000,
+        "updatedAt": 1700000000000,
+        "indexedAt": 1700000001000
+      }
+    },
+    {
+      "name": "full_search_document",
+      "description": "Search document with all fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "events:evt-789",
+        "moduleType": "events",
+        "entityId": "evt-789",
+        "groupId": "group-456",
+        "title": "Community Meeting",
+        "content": "Monthly community gathering to discuss local issues and organize action.",
+        "tags": ["community", "organizing", "monthly"],
+        "excerpt": "Monthly community gathering to discuss local issues...",
+        "authorPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "facets": {
+          "privacyLevel": "public",
+          "hasRSVP": true,
+          "attendeeCount": 25
+        },
+        "createdAt": 1700000000000,
+        "updatedAt": 1700000500000,
+        "indexedAt": 1700000600000
+      }
+    },
+    {
+      "name": "global_search_scope",
+      "description": "Global search scope",
+      "valid": true,
+      "input": {
+        "type": "global"
+      }
+    },
+    {
+      "name": "group_search_scope",
+      "description": "Group-specific search scope",
+      "valid": true,
+      "input": {
+        "type": "group",
+        "groupId": "group-456"
+      }
+    },
+    {
+      "name": "tag_with_hierarchy",
+      "description": "Tag with parent for hierarchy",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "tag-001",
+        "groupId": "group-456",
+        "name": "Direct Action",
+        "slug": "direct-action",
+        "color": "#FF5733",
+        "parentTagId": "tag-organizing",
+        "usageCount": 15,
+        "createdAt": 1700000000000,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "updatedAt": 1700000000000
+      }
+    },
+    {
+      "name": "saved_search",
+      "description": "Saved search with filters",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "saved-001",
+        "userPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "name": "Recent Events",
+        "query": "meeting",
+        "scope": { "type": "group", "groupId": "group-456" },
+        "filters": {
+          "moduleTypes": ["events"],
+          "dateRange": { "start": 1699000000000, "end": 1700000000000 }
+        },
+        "createdAt": 1700000000000,
+        "updatedAt": 1700000000000,
+        "useCount": 5
+      }
+    },
+    {
+      "name": "facet_definition",
+      "description": "Facet definition for events module",
+      "valid": true,
+      "input": {
+        "key": "privacyLevel",
+        "label": "Privacy Level",
+        "type": "keyword",
+        "multiSelect": false
+      }
+    }
+  ]
+}

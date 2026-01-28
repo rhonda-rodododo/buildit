@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { Phone, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,7 @@ function formatDuration(start: number, end?: number): string {
 }
 
 export function CallLogList({ hotlineId }: CallLogListProps) {
+  const { t } = useTranslation('hotlines');
   const { callHistory, isLoading, loadCallHistory } = useHotlinesStore();
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export function CallLogList({ hotlineId }: CallLogListProps) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>No calls in history</p>
+        <p>{t('noCallsInHistory')}</p>
       </div>
     );
   }
@@ -73,6 +75,7 @@ export function CallLogList({ hotlineId }: CallLogListProps) {
 }
 
 function CallLogItem({ call }: { call: HotlineCall }) {
+  const { t } = useTranslation('hotlines');
   return (
     <div className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
       <div className="flex items-start justify-between">
@@ -103,7 +106,7 @@ function CallLogItem({ call }: { call: HotlineCall }) {
       {call.followUpNeeded && (
         <div className="mt-2 flex items-center gap-1 text-sm text-orange-600">
           <AlertCircle className="h-3 w-3" />
-          Follow-up needed
+          {t('followUpNeeded')}
         </div>
       )}
     </div>

@@ -114,7 +114,7 @@ export function FilePreviewModal({ fileId, groupKey, onClose, onShare }: FilePre
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-semibold truncate">{file.name}</h2>
             <p className="text-sm text-muted-foreground">
-              {(file.size / 1024 / 1024).toFixed(2)} MB • {file.mimeType}
+              {t('files:fileSizeAndType', { size: (file.size / 1024 / 1024).toFixed(2), type: file.mimeType })}
             </p>
           </div>
           <div className="flex gap-2">

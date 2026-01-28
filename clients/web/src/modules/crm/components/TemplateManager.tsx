@@ -693,7 +693,7 @@ export function TemplateManager({
                     {importPreview.meta.allowedPubkeys && (
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{importPreview.meta.allowedPubkeys.length} allowed users</span>
+                        <span>{t('crm:allowedUsersCount', { count: importPreview.meta.allowedPubkeys.length })}</span>
                       </div>
                     )}
                   </CardContent>

@@ -240,6 +240,43 @@ export interface DBBreakoutRoom {
 }
 
 /**
+ * PSTN provider configuration table
+ * Stores per-group PSTN provider settings (BYOA - Bring Your Own Asterisk/Twilio/Plivo)
+ */
+export interface DBPSTNProviderConfig {
+  groupId: string; // primary key
+  providerType: 'builtin-credits' | 'twilio' | 'plivo' | 'telnyx' | 'asterisk' | 'custom-sip';
+  encryptedCredentials?: Uint8Array; // NIP-44 encrypted credentials JSON
+  sipServer?: string;
+  sipPort?: number;
+  sipTransport?: 'udp' | 'tcp' | 'tls';
+  sipUsername?: string;
+  callerId?: string;
+  fallbackToBuiltin: boolean;
+  lastTestAt?: number;
+  testSuccess?: boolean;
+  testError?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Caller reveal audit log table
+ * Tracks when operators reveal masked caller phone numbers for accountability
+ */
+export interface DBCallerRevealAudit {
+  id?: number; // auto-increment
+  callSid: string;
+  hotlineId: string;
+  groupId: string;
+  operatorPubkey: string;
+  maskedPhone: string;
+  revealedPhone: string;
+  reason?: string;
+  timestamp: number;
+}
+
+/**
  * Calling module schema definition
  */
 export const callingSchema: TableSchema[] = [
@@ -307,5 +344,15 @@ export const callingSchema: TableSchema[] = [
     name: 'breakoutRooms',
     schema: 'id, mainRoomId, createdAt',
     indexes: ['id', 'mainRoomId', 'createdAt'],
+  },
+  {
+    name: 'pstnProviderConfig',
+    schema: 'groupId, providerType, updatedAt',
+    indexes: ['groupId', 'providerType', 'updatedAt'],
+  },
+  {
+    name: 'callerRevealAudit',
+    schema: '++id, callSid, hotlineId, groupId, operatorPubkey, timestamp',
+    indexes: ['++id', 'callSid', 'hotlineId', 'groupId', 'operatorPubkey', 'timestamp'],
   },
 ];

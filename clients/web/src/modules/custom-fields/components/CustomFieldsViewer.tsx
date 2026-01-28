@@ -4,6 +4,7 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CustomField, CustomFieldValues } from '../types';
 
 interface CustomFieldsViewerProps {
@@ -13,6 +14,7 @@ interface CustomFieldsViewerProps {
 }
 
 export function CustomFieldsViewer({ fields, values, className = '' }: CustomFieldsViewerProps) {
+  const { t } = useTranslation('custom-fields');
   const sortedFields = useMemo(() => {
     return [...fields].sort((a, b) => a.order - b.order);
   }, [fields]);
@@ -21,7 +23,7 @@ export function CustomFieldsViewer({ fields, values, className = '' }: CustomFie
     const value = values[field.name];
 
     if (value === undefined || value === null) {
-      return <span className="text-muted-foreground italic">Not set</span>;
+      return <span className="text-muted-foreground italic">{t('notSet')}</span>;
     }
 
     switch (field.widget.widget) {
@@ -43,13 +45,13 @@ export function CustomFieldsViewer({ fields, values, className = '' }: CustomFie
         const labels = selectedValues
           .map(val => field.widget.options?.find(opt => opt.value === val)?.label || val)
           .join(', ');
-        return <span>{labels || 'None selected'}</span>;
+        return <span>{labels || t('noneSelected')}</span>;
       }
 
       case 'checkbox':
         return (
           <span className={value ? 'text-green-600' : 'text-gray-500'}>
-            {value ? '✓ Yes' : '✗ No'}
+            {value ? <><span aria-hidden="true">✓</span> {t('yes')}</> : <><span aria-hidden="true">✗</span> {t('no')}</>}
           </span>
         );
 
@@ -71,7 +73,7 @@ export function CustomFieldsViewer({ fields, values, className = '' }: CustomFie
   return (
     <div className={`space-y-3 ${className}`}>
       <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-        Additional Information
+        {t('additionalInformation')}
       </h4>
       <dl className="grid grid-cols-1 gap-3">
         {sortedFields.map((field) => (

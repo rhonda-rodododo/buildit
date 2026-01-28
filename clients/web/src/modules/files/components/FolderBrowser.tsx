@@ -3,11 +3,13 @@
  * Breadcrumb navigation for folder hierarchy
  */
 
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFilesStore } from '../filesStore'
 
 export function FolderBrowser() {
+  const { t } = useTranslation('files')
   const currentFolderId = useFilesStore((state) => state.currentFolderId)
   const getFolderPath = useFilesStore((state) => state.getFolderPath)
   const setCurrentFolder = useFilesStore((state) => state.setCurrentFolder)
@@ -23,7 +25,7 @@ export function FolderBrowser() {
         className="h-8 gap-1"
       >
         <Home className="h-4 w-4" />
-        <span className="sr-only">Root</span>
+        <span className="sr-only">{t('root')}</span>
       </Button>
 
       {path.map((folder) => (

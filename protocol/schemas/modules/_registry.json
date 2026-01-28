@@ -150,6 +150,15 @@
       "dependencies": ["messaging"],
       "schemaPath": "calling/v1.json",
       "coreDependency": false
+    },
+    "search": {
+      "name": "Search",
+      "description": "E2EE-respecting client-side search with semantic capabilities",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "search/v1.json",
+      "coreDependency": true
     }
   },
 
@@ -174,6 +183,7 @@
     "governance": "40091-40099",
     "mutual-aid": "40101-40109",
     "wiki": "40111-40119",
-    "calling": "24300-24399"
+    "calling": "24300-24399",
+    "search": "40121-40129"
   }
 }

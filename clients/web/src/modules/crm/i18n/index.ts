@@ -107,6 +107,11 @@ export default defineModuleTranslations({
     eventAttendance: 'Event Attendance',
     noLinkedProfile: 'No linked social profile',
 
+    // Records
+    recordCount: '{{count}} records',
+    titleAtOrganization: '{{title}} at {{organization}}',
+    allowedUsersCount: '{{count}} allowed users',
+
     // Reports
     summaryReport: 'Summary',
     chartReport: 'Chart',
@@ -118,6 +123,28 @@ export default defineModuleTranslations({
     average: 'Average',
     minimum: 'Minimum',
     maximum: 'Maximum',
+
+    // Call History (Calling Integration)
+    callHistory: {
+      title: 'Call History',
+      description: 'View call records for this contact',
+      descriptionWithName: 'Call records for {{name}}',
+      noHistory: 'No call history yet',
+      calls: 'calls',
+      missed: 'missed',
+      inboundCall: 'Inbound Call',
+      outboundCall: 'Outbound Call',
+      status: {
+        completed: 'Completed',
+        missed: 'Missed',
+        voicemail: 'Voicemail',
+        failed: 'Failed',
+      },
+      notesDialog: {
+        title: 'Call Notes',
+        placeholder: 'Add notes about this call...',
+      },
+    },
 
     meta: {
       description: 'Manage contacts, track outreach, and coordinate campaign efforts.',

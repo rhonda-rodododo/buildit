@@ -63,6 +63,8 @@ buildit/
 3. **Cross-client consistency** - Changes affecting multiple clients should be atomic
 4. **Test vectors validate** - All clients must pass `protocol/test-vectors/`
 5. **Privacy, E2EE, zero knowledge** -  All clients must be resilient to crisis scenarios and state level repression threat models based on the ever evolving [security guidelines](docs/SECURITY.md) and [threat model](docs/THREAT_MODEL.md)
+6. **Fix actual issues, fully implement solutions** - no workarounds, everything is fully implemented, no surpressing type issues, get to the root of the problem
+7. **DRY, Clean, Readable**: All clients are made by teams claude code agents who are experts in each platform, and a team of security experts as well
 
 ### Common Commands
 

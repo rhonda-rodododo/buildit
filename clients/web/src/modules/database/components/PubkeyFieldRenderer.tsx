@@ -194,7 +194,7 @@ export function PubkeyFieldRenderer({
           {/* Status badges */}
           {userInfo.isFriend && (
             <div className="text-xs text-green-600 dark:text-green-400">
-              ✓ {t('common.friend', 'Friend')}
+              <span aria-hidden="true">✓</span> {t('common.friend', 'Friend')}
             </div>
           )}
 

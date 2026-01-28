@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FacetFilteringTestVectors",
+  "description": "Test vectors for validating facet filtering across platforms",
+  "version": "1.0.0",
+
+  "testData": {
+    "documents": [
+      {
+        "id": "documents:doc-001",
+        "moduleType": "documents",
+        "entityId": "doc-001",
+        "groupId": "group-a",
+        "title": "Meeting Notes",
+        "content": "Community organizing meeting notes",
+        "tags": ["meeting", "organizing"],
+        "authorPubkey": "pubkey-alice",
+        "facets": { "isPublic": true, "hasFolder": false },
+        "createdAt": 1700000000000,
+        "updatedAt": 1700000000000,
+        "indexedAt": 1700000001000
+      },
+      {
+        "id": "documents:doc-002",
+        "moduleType": "documents",
+        "entityId": "doc-002",
+        "groupId": "group-a",
+        "title": "Action Plan",
+        "content": "Direct action planning document",
+        "tags": ["action", "planning"],
+        "authorPubkey": "pubkey-bob",
+        "facets": { "isPublic": false, "hasFolder": true },
+        "createdAt": 1700100000000,
+        "updatedAt": 1700100000000,
+        "indexedAt": 1700100001000
+      },
+      {
+        "id": "events:evt-001",
+        "moduleType": "events",
+        "entityId": "evt-001",
+        "groupId": "group-a",
+        "title": "Town Hall",
+        "content": "Monthly community town hall meeting",
+        "tags": ["meeting", "community"],
+        "authorPubkey": "pubkey-alice",
+        "facets": { "privacyLevel": "public", "hasRSVP": true, "attendeeCount": 25 },
+        "createdAt": 1700200000000,
+        "updatedAt": 1700200000000,
+        "indexedAt": 1700200001000
+      },
+      {
+        "id": "events:evt-002",
+        "moduleType": "events",
+        "entityId": "evt-002",
+        "groupId": "group-b",
+        "title": "Strategy Session",
+        "content": "Planning strategy for campaign",
+        "tags": ["planning", "strategy"],
+        "authorPubkey": "pubkey-charlie",
+        "facets": { "privacyLevel": "members-only", "hasRSVP": true, "attendeeCount": 10 },
+        "createdAt": 1700300000000,
+        "updatedAt": 1700300000000,
+        "indexedAt": 1700300001000
+      },
+      {
+        "id": "wiki:wiki-001",
+        "moduleType": "wiki",
+        "entityId": "wiki-001",
+        "groupId": "group-a",
+        "title": "Organizing Guide",
+        "content": "Comprehensive guide to community organizing",
+        "tags": ["guide", "organizing"],
+        "authorPubkey": "pubkey-bob",
+        "facets": { "isPublished": true },
+        "createdAt": 1700400000000,
+        "updatedAt": 1700400000000,
+        "indexedAt": 1700400001000
+      }
+    ]
+  },
+
+  "testCases": [
+    {
+      "id": "facet-001",
+      "name": "Filter by single module type",
+      "description": "Filter results to only documents",
+      "input": {
+        "query": "",
+        "filters": {
+          "moduleTypes": ["documents"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "documents:doc-002"],
+        "totalCount": 2,
+        "facetCounts": {
+          "moduleType": { "documents": 2 },
+          "groups": { "group-a": 2 },
+          "tags": { "meeting": 1, "organizing": 1, "action": 1, "planning": 1 }
+        }
+      }
+    },
+    {
+      "id": "facet-002",
+      "name": "Filter by multiple module types",
+      "description": "Filter results to documents and events",
+      "input": {
+        "query": "",
+        "filters": {
+          "moduleTypes": ["documents", "events"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "documents:doc-002", "events:evt-001", "events:evt-002"],
+        "totalCount": 4
+      }
+    },
+    {
+      "id": "facet-003",
+      "name": "Filter by group",
+      "description": "Filter results to single group",
+      "input": {
+        "query": "",
+        "filters": {
+          "groupIds": ["group-a"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "documents:doc-002", "events:evt-001", "wiki:wiki-001"],
+        "totalCount": 4,
+        "facetCounts": {
+          "moduleType": { "documents": 2, "events": 1, "wiki": 1 },
+          "groups": { "group-a": 4 }
+        }
+      }
+    },
+    {
+      "id": "facet-004",
+      "name": "Filter by single tag",
+      "description": "Filter results by tag",
+      "input": {
+        "query": "",
+        "filters": {
+          "tags": ["organizing"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "wiki:wiki-001"],
+        "totalCount": 2
+      }
+    },
+    {
+      "id": "facet-005",
+      "name": "Filter by multiple tags (OR)",
+      "description": "Multiple tags should match any",
+      "input": {
+        "query": "",
+        "filters": {
+          "tags": ["organizing", "planning"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "documents:doc-002", "events:evt-002", "wiki:wiki-001"],
+        "totalCount": 4
+      }
+    },
+    {
+      "id": "facet-006",
+      "name": "Filter by author",
+      "description": "Filter by author pubkey",
+      "input": {
+        "query": "",
+        "filters": {
+          "authors": ["pubkey-alice"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "events:evt-001"],
+        "totalCount": 2
+      }
+    },
+    {
+      "id": "facet-007",
+      "name": "Filter by date range",
+      "description": "Filter by created date range",
+      "input": {
+        "query": "",
+        "filters": {
+          "dateRange": {
+            "start": 1700100000000,
+            "end": 1700300000000
+          }
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-002", "events:evt-001", "events:evt-002"],
+        "totalCount": 3
+      }
+    },
+    {
+      "id": "facet-008",
+      "name": "Filter by custom boolean facet",
+      "description": "Filter documents by isPublic facet",
+      "input": {
+        "query": "",
+        "filters": {
+          "moduleTypes": ["documents"],
+          "custom": {
+            "isPublic": [true]
+          }
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001"],
+        "totalCount": 1
+      }
+    },
+    {
+      "id": "facet-009",
+      "name": "Filter by custom keyword facet",
+      "description": "Filter events by privacy level",
+      "input": {
+        "query": "",
+        "filters": {
+          "moduleTypes": ["events"],
+          "custom": {
+            "privacyLevel": ["public"]
+          }
+        }
+      },
+      "expected": {
+        "resultIds": ["events:evt-001"],
+        "totalCount": 1
+      }
+    },
+    {
+      "id": "facet-010",
+      "name": "Combined filters with query",
+      "description": "Query plus multiple filters",
+      "input": {
+        "query": "meeting",
+        "filters": {
+          "moduleTypes": ["documents", "events"],
+          "groupIds": ["group-a"]
+        }
+      },
+      "expected": {
+        "resultIds": ["documents:doc-001", "events:evt-001"],
+        "totalCount": 2
+      }
+    },
+    {
+      "id": "facet-011",
+      "name": "Empty result with filters",
+      "description": "Filters that match nothing",
+      "input": {
+        "query": "",
+        "filters": {
+          "moduleTypes": ["messaging"]
+        }
+      },
+      "expected": {
+        "resultIds": [],
+        "totalCount": 0,
+        "facetCounts": {
+          "moduleType": {}
+        }
+      }
+    },
+    {
+      "id": "facet-012",
+      "name": "Facet counts update with filters",
+      "description": "Facet counts should reflect current filter state",
+      "input": {
+        "query": "",
+        "filters": {
+          "groupIds": ["group-a"]
+        }
+      },
+      "expected": {
+        "facetCounts": {
+          "moduleType": { "documents": 2, "events": 1, "wiki": 1 },
+          "groups": { "group-a": 4 },
+          "authors": { "pubkey-alice": 2, "pubkey-bob": 2 }
+        }
+      }
+    }
+  ],
+
+  "validationRules": [
+    {
+      "rule": "filter_intersection",
+      "description": "Multiple filter categories should AND together",
+      "example": "moduleTypes AND groupIds AND tags all must match"
+    },
+    {
+      "rule": "filter_union_within_category",
+      "description": "Multiple values within a filter category should OR together",
+      "example": "moduleTypes: ['documents', 'events'] matches either"
+    },
+    {
+      "rule": "facet_counts_accuracy",
+      "description": "Facet counts must reflect actual document counts",
+      "check": "Sum of moduleType counts equals totalCount"
+    },
+    {
+      "rule": "empty_filter_passthrough",
+      "description": "Empty filters object should return all documents",
+      "check": "filters: {} returns all documents"
+    }
+  ]
+}

@@ -97,6 +97,16 @@ export interface CreateEventFormData {
 export type VolunteerSignupStatus = 'pending' | 'confirmed' | 'declined' | 'no-show'
 
 /**
+ * Calling role types for volunteer positions
+ */
+export type VolunteerCallingRole =
+  | 'hotline-operator'
+  | 'dispatcher'
+  | 'medic'
+  | 'coordinator'
+  | 'lead'
+
+/**
  * Event Volunteer Role
  * Defines a role that volunteers can sign up for at an event
  */
@@ -112,6 +122,11 @@ export interface EventVolunteerRole {
   shiftEnd?: number // Unix timestamp
   created: number
   createdBy: string
+
+  // Calling requirements (optional)
+  callingRoleRequired?: VolunteerCallingRole // What calling role this position requires
+  hotlineAccess?: string[] // Hotline IDs this role grants access to
+  requiresPSTN?: boolean // Whether this role needs PSTN (phone) access
 }
 
 /**
@@ -181,3 +196,105 @@ export const EventVolunteerSignupSchema = z.object({
   created: z.number(),
   updated: z.number(),
 })
+
+/**
+ * Event attendance type for hybrid events
+ */
+export type EventAttendanceType = 'in-person' | 'virtual' | 'hybrid'
+
+/**
+ * Breakout room configuration for virtual events
+ */
+export interface BreakoutRoomConfig {
+  enabled: boolean
+  autoAssign: boolean
+  roomCount?: number
+  roomNames?: string[]
+  allowSelfSelect: boolean
+  duration?: number // minutes
+}
+
+/**
+ * Virtual event configuration
+ * Enables hybrid events with integrated video conferencing
+ */
+export interface EventVirtualConfig {
+  enabled: boolean
+  conferenceRoomId?: string // Auto-created when event starts
+  autoStartMinutes: number // Minutes before event to start room (default: 15)
+  waitingRoomEnabled: boolean
+  recordingEnabled: boolean
+  recordingConsentRequired: boolean
+  maxVirtualAttendees?: number
+  breakoutRoomsEnabled: boolean
+  breakoutConfig?: BreakoutRoomConfig
+  recordingUrl?: string // After event, if recorded
+  e2eeRequired: boolean
+}
+
+/**
+ * Zod schema for virtual event config
+ */
+export const EventVirtualConfigSchema = z.object({
+  enabled: z.boolean(),
+  conferenceRoomId: z.string().optional(),
+  autoStartMinutes: z.number().int().min(0).max(60).default(15),
+  waitingRoomEnabled: z.boolean().default(true),
+  recordingEnabled: z.boolean().default(false),
+  recordingConsentRequired: z.boolean().default(true),
+  maxVirtualAttendees: z.number().int().min(1).optional(),
+  breakoutRoomsEnabled: z.boolean().default(false),
+  breakoutConfig: z.object({
+    enabled: z.boolean(),
+    autoAssign: z.boolean(),
+    roomCount: z.number().int().min(2).optional(),
+    roomNames: z.array(z.string()).optional(),
+    allowSelfSelect: z.boolean(),
+    duration: z.number().int().min(1).optional(),
+  }).optional(),
+  recordingUrl: z.string().url().optional(),
+  e2eeRequired: z.boolean().default(true),
+})
+
+/**
+ * Virtual attendance tracking
+ */
+export interface VirtualAttendance {
+  id: string
+  eventId: string
+  pubkey: string
+  joinedAt: number
+  leftAt?: number
+  durationSeconds: number
+  breakoutRoomId?: string
+}
+
+/**
+ * Virtual attendance stats for an event
+ */
+export interface VirtualAttendanceStats {
+  totalVirtualAttendees: number
+  peakConcurrentAttendees: number
+  averageDurationMinutes: number
+  attendees: Array<{
+    pubkey: string
+    totalDurationMinutes: number
+    joinedAt: number
+  }>
+}
+
+/**
+ * Event with virtual configuration
+ */
+export interface EventWithVirtualConfig extends Event {
+  attendanceType: EventAttendanceType
+  virtualConfig?: EventVirtualConfig
+}
+
+/**
+ * Create event form data with virtual options
+ */
+export interface CreateEventWithVirtualFormData extends CreateEventFormData {
+  attendanceType?: EventAttendanceType
+  virtualConfig?: Partial<EventVirtualConfig>
+}

@@ -25,7 +25,8 @@ export type ModuleType =
   | 'publishing'
   | 'newsletters'
   | 'friends' // Friend relationships and contacts
-  | 'security'; // Privacy and security enhancements (Tor, etc.)
+  | 'security' // Privacy and security enhancements (Tor, etc.)
+  | 'training'; // Training and certification module
 
 /**
  * Module Capability - defines what a module can do

@@ -296,7 +296,7 @@ export function FileAnalyticsDashboard({ groupId, onClose }: FileAnalyticsDashbo
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm font-medium capitalize">{type}</span>
                                 <span className="text-sm text-muted-foreground">
-                                  {data.count} files ({formatSize(data.size)})
+                                  {t('files:fileCount', { count: data.count, size: formatSize(data.size) })}
                                 </span>
                               </div>
                               <div className="h-2 bg-muted rounded-full overflow-hidden">

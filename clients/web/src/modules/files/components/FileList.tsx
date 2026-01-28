@@ -247,7 +247,7 @@ export function FileList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleDeleteFolder(folder.id)}>
-                Delete
+                {t('fileList.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

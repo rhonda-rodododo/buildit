@@ -201,7 +201,7 @@ export function ContactProfile({
                 {contactInfo.title && contactInfo.organization && (
                   <CardDescription className="flex items-center gap-1 mt-1">
                     <Briefcase className="h-3 w-3" />
-                    {contactInfo.title} at {contactInfo.organization}
+                    {t('crm:titleAtOrganization', { title: contactInfo.title, organization: contactInfo.organization })}
                   </CardDescription>
                 )}
                 {contactInfo.nip05 && (

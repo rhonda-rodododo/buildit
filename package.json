@@ -39,5 +39,8 @@
     "json-schema-to-zod": "^2.7.0",
     "quicktype": "^23.2.6",
     "quicktype-core": "^23.2.6"
+  },
+  "dependencies": {
+    "minisearch": "^7.2.0"
   }
 }

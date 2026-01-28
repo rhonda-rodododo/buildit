@@ -1,9 +1,14 @@
 /**
  * Call Screen
  * Full-screen view for an active voice/video call
+ *
+ * Features:
+ * - Full screen call view
+ * - Minimized PiP mode within app
+ * - Popout to separate window (Tauri desktop only)
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PhoneOff,
@@ -18,6 +23,7 @@ import {
   Minimize2,
   Maximize2,
   MoreVertical,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -25,14 +31,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useCalling, useCallQuality } from '../hooks/useCalling';
 import { CallStateState, CallType, HangupReason } from '../types';
+import { useCallWindow, isTauri } from '@/hooks/useCallWindow';
+import { getDesktopCallManager } from '../services/desktopCallManager';
 
-export function CallScreen() {
+export interface CallScreenProps {
+  /** If true, the call is displayed in a popout window (Tauri desktop) */
+  isPopout?: boolean;
+  /** Callback when user clicks minimize to PiP in popout mode */
+  onMinimize?: () => void;
+  /** Callback when user toggles always-on-top in popout mode */
+  onToggleAlwaysOnTop?: (onTop: boolean) => void;
+}
+
+export function CallScreen({ isPopout = false, onMinimize, onToggleAlwaysOnTop }: CallScreenProps) {
   const { t } = useTranslation('calling');
   const {
     activeCall,
@@ -46,12 +64,15 @@ export function CallScreen() {
   } = useCalling();
 
   const quality = useCallQuality();
+  // Hook is used for isTauri check
+  useCallWindow();
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [callDuration, setCallDuration] = useState(0);
+  const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
 
   // Update call duration
   useEffect(() => {
@@ -124,14 +145,50 @@ export function CallScreen() {
   const isVideoCall = activeCall.callType === CallType.Video;
 
   const handleMinimize = () => {
-    setIsMinimized(true);
-    setCallMinimized(true);
+    if (isPopout && onMinimize) {
+      onMinimize();
+    } else {
+      setIsMinimized(true);
+      setCallMinimized(true);
+    }
   };
 
   const handleMaximize = () => {
     setIsMinimized(false);
     setCallMinimized(false);
   };
+
+  const handleToggleAlwaysOnTop = useCallback(() => {
+    const newValue = !isAlwaysOnTop;
+    setIsAlwaysOnTop(newValue);
+    if (onToggleAlwaysOnTop) {
+      onToggleAlwaysOnTop(newValue);
+    }
+  }, [isAlwaysOnTop, onToggleAlwaysOnTop]);
+
+  /**
+   * Open the call in a separate window (Tauri desktop only)
+   */
+  const handlePopoutCall = useCallback(async () => {
+    if (!activeCall || !isTauri()) return;
+
+    try {
+      const desktopManager = getDesktopCallManager();
+      await desktopManager.initialize();
+      await desktopManager.startCallInWindow({
+        callId: activeCall.callId,
+        callType: activeCall.callType,
+        remotePubkey: activeCall.remotePubkey,
+        remoteName: activeCall.remoteName,
+      });
+
+      // Minimize the in-app view since the call is now in a separate window
+      setIsMinimized(true);
+      setCallMinimized(true);
+    } catch (error) {
+      console.error('Failed to open call in new window:', error);
+    }
+  }, [activeCall, setCallMinimized]);
 
   // Minimized view (picture-in-picture style)
   if (isMinimized) {
@@ -303,6 +360,26 @@ export function CallScreen() {
                   <FlipHorizontal className="h-4 w-4 mr-2" />
                   {t('switchCamera')}
                 </DropdownMenuItem>
+                {/* Popout to separate window (Tauri desktop only) */}
+                {isTauri() && !isPopout && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handlePopoutCall}>
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      {t('popOutCall', 'Pop out call')}
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {/* Always on top toggle (only in popout mode) */}
+                {isPopout && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleToggleAlwaysOnTop}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      {isAlwaysOnTop ? t('disableAlwaysOnTop', 'Disable always on top') : t('enableAlwaysOnTop', 'Enable always on top')}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

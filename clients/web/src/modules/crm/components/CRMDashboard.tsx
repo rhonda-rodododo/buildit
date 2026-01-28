@@ -471,7 +471,7 @@ export function CRMDashboard({ groupId, userPubkey }: CRMDashboardProps) {
                 <div className="text-left">
                   <p className="font-medium">{t('crm.new', 'New')} {table.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {getRecordsByTable(table.id).length} records
+                    {t('crm:recordCount', { count: getRecordsByTable(table.id).length })}
                   </p>
                 </div>
               </Button>

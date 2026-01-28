@@ -131,7 +131,7 @@ const HeaderFooterView: FC<HeaderFooterViewProps> = ({ node, updateAttributes })
               title={t('headerFooter.showPageNumber')}
             >
               <FileText className="h-3 w-3" />
-              <span className="sr-only">Page #</span>
+              <span className="sr-only">{t('documents:pageNumber')}</span>
             </button>
           </div>
         </div>

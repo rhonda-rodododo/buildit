@@ -8,6 +8,7 @@ import type { LocalPSTNCall } from '../types';
 import { CALLING_KINDS } from '../types';
 import { useCallingStore } from '../callingStore';
 import type { SignalingService } from './signalingService';
+import { fetchWithRetry } from './utils';
 
 /**
  * PSTN bridge configuration
@@ -152,15 +153,19 @@ export class PSTNCallManager extends EventEmitter {
       throw new Error(`Cannot answer call in ${call.status} state`);
     }
 
-    // Request bridge from backend
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/answer`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        callSid,
-        operatorPubkey,
-      }),
-    });
+    // Request bridge from backend with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/answer`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callSid,
+          operatorPubkey,
+        }),
+      },
+      { maxRetries: 2 } // Lower retries for time-sensitive call operations
+    );
 
     if (!response.ok) {
       const error = await response.text();
@@ -197,17 +202,21 @@ export class PSTNCallManager extends EventEmitter {
   async dialOutbound(options: OutboundCallOptions): Promise<string> {
     const { targetPhone, hotlineId, callerId } = options;
 
-    // Request outbound call from backend
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/outbound`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        targetPhone,
-        hotlineId,
-        callerId,
-        operatorPubkey: useCallingStore.getState().localPubkey,
-      }),
-    });
+    // Request outbound call from backend with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/outbound`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetPhone,
+          hotlineId,
+          callerId,
+          operatorPubkey: useCallingStore.getState().localPubkey,
+        }),
+      },
+      { maxRetries: 2 }
+    );
 
     if (!response.ok) {
       const error = await response.text();
@@ -292,15 +301,22 @@ export class PSTNCallManager extends EventEmitter {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    // Send offer to SIP bridge
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/bridge`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        callSid,
-        sipUri,
-        sdp: offer.sdp,
-      }),
+    // Send offer to SIP bridge with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/bridge`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callSid,
+          sipUri,
+          sdp: offer.sdp,
+        }),
+      },
+      { maxRetries: 2 }
+    ).catch((error) => {
+      pc.close();
+      throw error;
     });
 
     if (!response.ok) {
@@ -357,12 +373,16 @@ export class PSTNCallManager extends EventEmitter {
       throw new Error('Call not connected');
     }
 
-    // Notify backend to play hold music to caller
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/hold`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ callSid, action: 'hold' }),
-    });
+    // Notify backend to play hold music to caller with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/hold`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callSid, action: 'hold' }),
+      },
+      { maxRetries: 2 }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to put call on hold');
@@ -382,12 +402,16 @@ export class PSTNCallManager extends EventEmitter {
       throw new Error('Call not on hold');
     }
 
-    // Notify backend to stop hold music
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/hold`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ callSid, action: 'resume' }),
-    });
+    // Notify backend to stop hold music with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/hold`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callSid, action: 'resume' }),
+      },
+      { maxRetries: 2 }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to resume call');
@@ -407,15 +431,19 @@ export class PSTNCallManager extends EventEmitter {
       throw new Error('Call not found');
     }
 
-    // Request transfer from backend
-    const response = await fetch(`${this.API_BASE}/api/pstn/voice/transfer`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        callSid,
-        targetPhone,
-      }),
-    });
+    // Request transfer from backend with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/transfer`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callSid,
+          targetPhone,
+        }),
+      },
+      { maxRetries: 2 }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to transfer call');
@@ -435,12 +463,16 @@ export class PSTNCallManager extends EventEmitter {
     const call = this.activeCalls.get(callSid);
     if (!call) return;
 
-    // Notify backend to end call
-    await fetch(`${this.API_BASE}/api/pstn/voice/hangup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ callSid }),
-    }).catch(() => {
+    // Notify backend to end call with retry (best effort)
+    await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/voice/hangup`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callSid }),
+      },
+      { maxRetries: 1 }
+    ).catch(() => {
       // Ignore errors, call might already be ended
     });
 
@@ -465,16 +497,29 @@ export class PSTNCallManager extends EventEmitter {
       throw new Error('Call not found or not inbound');
     }
 
-    // Request reveal from backend (will be audited)
-    const response = await fetch(`${this.API_BASE}/api/pstn/caller/reveal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        callSid,
-        operatorPubkey,
-        maskedId: call.callerPhone,
-      }),
-    });
+    // Request reveal from backend (will be audited) with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/caller/reveal`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callSid,
+          operatorPubkey,
+          maskedId: call.callerPhone,
+        }),
+      },
+      {
+        maxRetries: 2,
+        // Don't retry on 403 authorization errors
+        retryOn: (error) => {
+          if (error instanceof Error && error.message.includes('403')) {
+            return false;
+          }
+          return true;
+        },
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 403) {

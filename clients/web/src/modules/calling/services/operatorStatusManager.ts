@@ -8,9 +8,13 @@ import type { HotlineOperatorStatus } from '../types';
 import {
   HotlineOperatorStatusStatus,
   CALLING_KINDS,
+  HotlineOperatorStatusSchema,
 } from '../types';
 import { useCallingStore } from '../callingStore';
 import type { SignalingService } from './signalingService';
+import { getNostrClient } from '@/core/nostr/client';
+import type { Event as NostrEvent } from 'nostr-tools';
+import { logger } from '@/lib/logger';
 
 /**
  * Operator shift statistics
@@ -63,6 +67,9 @@ export class OperatorStatusManager extends EventEmitter {
   private breakStartTime: number | null = null;
   private breakType: string | null = null;
   private callDurations: number[] = [];
+  private operatorSubscriptionId: string | null = null;
+  private subscribedHotlines: Set<string> = new Set();
+  private operatorStates: Map<string, HotlineOperatorStatus> = new Map();
 
   constructor(signalingService: SignalingService, localPubkey: string) {
     super();
@@ -342,10 +349,158 @@ export class OperatorStatusManager extends EventEmitter {
   }
 
   private setupSignalingListeners(): void {
-    // TODO: Listen for operator status updates from signaling
-    // This requires extending SignalingService to support event listening
-    // or using a different approach for status synchronization
-    // For now, status updates are received through the calling store
+    // Subscribe to operator status events from all hotlines we're part of
+    // This is done when joining a hotline via subscribeToHotline()
+    logger.debug('Operator status manager initialized, ready to subscribe to hotlines');
+  }
+
+  /**
+   * Subscribe to operator status updates for a specific hotline
+   */
+  subscribeToHotline(hotlineId: string): void {
+    if (this.subscribedHotlines.has(hotlineId)) {
+      return; // Already subscribed
+    }
+
+    this.subscribedHotlines.add(hotlineId);
+    this.refreshSubscription();
+    // Announce our status to the new hotline
+    this.announceStatus();
+    logger.info(`Subscribed to operator status for hotline: ${hotlineId}`);
+  }
+
+  /**
+   * Unsubscribe from a hotline's operator status updates
+   */
+  unsubscribeFromHotline(hotlineId: string): void {
+    if (!this.subscribedHotlines.has(hotlineId)) {
+      return;
+    }
+
+    this.subscribedHotlines.delete(hotlineId);
+    this.refreshSubscription();
+    logger.info(`Unsubscribed from operator status for hotline: ${hotlineId}`);
+  }
+
+  /**
+   * Refresh the Nostr subscription with current hotline list
+   */
+  private refreshSubscription(): void {
+    // Unsubscribe from existing subscription
+    if (this.operatorSubscriptionId) {
+      try {
+        const client = getNostrClient();
+        client.unsubscribe(this.operatorSubscriptionId);
+      } catch {
+        // Ignore unsubscribe errors
+      }
+      this.operatorSubscriptionId = null;
+    }
+
+    // Don't subscribe if no hotlines
+    if (this.subscribedHotlines.size === 0) {
+      return;
+    }
+
+    const client = getNostrClient();
+    const hotlineIds = Array.from(this.subscribedHotlines);
+
+    // Subscribe to operator status events for our hotlines
+    // Using 'h' tag for hotline ID filtering
+    this.operatorSubscriptionId = client.subscribe(
+      [
+        {
+          kinds: [CALLING_KINDS.HOTLINE_OPERATOR_STATUS],
+          '#h': hotlineIds,
+          since: Math.floor(Date.now() / 1000) - 300, // Last 5 minutes
+        },
+      ],
+      (event: NostrEvent) => {
+        this.handleOperatorStatusEvent(event);
+      },
+      () => {
+        logger.info(`Subscribed to operator status for ${hotlineIds.length} hotlines`);
+      }
+    );
+  }
+
+  /**
+   * Handle incoming operator status event
+   */
+  private handleOperatorStatusEvent(event: NostrEvent): void {
+    try {
+      const content = JSON.parse(event.content);
+      const parsed = HotlineOperatorStatusSchema.safeParse(content);
+
+      if (!parsed.success) {
+        logger.debug('Invalid operator status event', parsed.error);
+        return;
+      }
+
+      const status = parsed.data;
+
+      // Don't process our own status updates
+      if (status.pubkey === this.localPubkey) {
+        return;
+      }
+
+      // Store the operator state
+      const stateKey = `${status.hotlineId}:${status.pubkey}`;
+      const previousStatus = this.operatorStates.get(stateKey);
+      this.operatorStates.set(stateKey, status);
+
+      // Update the calling store with the new status
+      useCallingStore.getState().updateRemoteOperatorStatus(status);
+
+      // Emit event for status change
+      this.emit('status-changed', status);
+
+      // Emit specific event if operator became available (for ACD)
+      if (
+        status.status === HotlineOperatorStatusStatus.Available &&
+        previousStatus?.status !== HotlineOperatorStatusStatus.Available
+      ) {
+        this.emit('operator-available', status.pubkey, status.hotlineId);
+      }
+
+      logger.debug('Received operator status update', {
+        pubkey: status.pubkey.slice(0, 8),
+        hotlineId: status.hotlineId,
+        status: status.status,
+      });
+    } catch (error) {
+      logger.error('Error processing operator status event', error);
+    }
+  }
+
+  /**
+   * Get all operators for a hotline
+   */
+  getOperatorsForHotline(hotlineId: string): HotlineOperatorStatus[] {
+    const operators: HotlineOperatorStatus[] = [];
+    for (const [key, status] of this.operatorStates) {
+      if (key.startsWith(`${hotlineId}:`)) {
+        operators.push(status);
+      }
+    }
+    return operators;
+  }
+
+  /**
+   * Get available operators for a hotline
+   */
+  getAvailableOperatorsForHotline(hotlineId: string): HotlineOperatorStatus[] {
+    return this.getOperatorsForHotline(hotlineId).filter(
+      (op) => op.status === HotlineOperatorStatusStatus.Available
+    );
+  }
+
+  /**
+   * Announce our status to all subscribed hotlines
+   */
+  private async announceStatus(): Promise<void> {
+    if (!this.currentStatus) return;
+    await this.broadcastStatus(this.currentStatus);
   }
 
   /**
@@ -356,6 +511,20 @@ export class OperatorStatusManager extends EventEmitter {
       clearTimeout(this.breakTimer);
       this.breakTimer = null;
     }
+
+    // Unsubscribe from operator status events
+    if (this.operatorSubscriptionId) {
+      try {
+        const client = getNostrClient();
+        client.unsubscribe(this.operatorSubscriptionId);
+      } catch {
+        // Ignore errors during cleanup
+      }
+      this.operatorSubscriptionId = null;
+    }
+
+    this.subscribedHotlines.clear();
+    this.operatorStates.clear();
     this.removeAllListeners();
   }
 }

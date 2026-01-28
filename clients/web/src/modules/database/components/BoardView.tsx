@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { DatabaseRecord, DatabaseTable, DatabaseView } from '../types';
 
@@ -15,6 +16,7 @@ interface BoardViewProps {
 }
 
 export function BoardView({ table, view, records, onRecordClick }: BoardViewProps) {
+  const { t } = useTranslation('database');
   // Get the grouping field from view config
   const groupByField = view.config.boardGroupBy || table.fields[0]?.name;
   const cardFields = view.config.boardCardFields || table.fields.slice(0, 3).map((f) => f.name);
@@ -65,7 +67,7 @@ export function BoardView({ table, view, records, onRecordClick }: BoardViewProp
 
   // Handle missing group field after hooks
   if (!groupField) {
-    return <div className="p-4 text-muted-foreground">No grouping field configured</div>;
+    return <div className="p-4 text-muted-foreground">{t('noGroupingField')}</div>;
   }
 
   return (
@@ -106,7 +108,7 @@ export function BoardView({ table, view, records, onRecordClick }: BoardViewProp
             ))}
             {groupRecords.length === 0 && (
               <div className="text-center text-sm text-muted-foreground py-8">
-                No records
+                {t('noRecords')}
               </div>
             )}
           </div>

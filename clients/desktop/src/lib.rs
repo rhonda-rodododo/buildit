@@ -1,13 +1,15 @@
 //! BuildIt Network Desktop Application Library
 //!
 //! This crate provides the Tauri backend for the BuildIt Network desktop application,
-//! including BLE mesh networking, secure keyring integration, and system tray support.
+//! including BLE mesh networking, secure keyring integration, system tray support,
+//! and call window management.
 
 pub mod ble;
 pub mod commands;
 pub mod crypto;
 pub mod nostr;
 pub mod tray;
+pub mod windows;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -77,6 +79,9 @@ pub fn run() {
                 });
             }
 
+            // Initialize window management
+            windows::init(app.handle())?;
+
             log::info!("BuildIt Network Desktop initialized successfully");
             Ok(())
         })
@@ -132,6 +137,17 @@ pub fn run() {
             commands::nostr_commands::verify_nostr_event,
             commands::nostr_commands::gift_wrap_message,
             commands::nostr_commands::unwrap_gift_message,
+            // Call window commands
+            windows::call_window::create_call_window,
+            windows::call_window::close_call_window,
+            windows::call_window::minimize_call_window,
+            windows::call_window::maximize_call_window,
+            windows::call_window::toggle_call_window_always_on_top,
+            windows::call_window::update_call_window_title,
+            windows::call_window::focus_call_window,
+            windows::call_window::call_window_exists,
+            windows::call_window::get_call_windows,
+            windows::call_window::close_all_call_windows,
         ])
         .run(tauri::generate_context!())
         .expect("error while running BuildIt Network Desktop");

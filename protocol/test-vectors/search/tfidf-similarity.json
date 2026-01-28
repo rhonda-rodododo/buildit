@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TFIDFSimilarityTestVectors",
+  "description": "Test vectors for validating TF-IDF semantic similarity across platforms",
+  "version": "1.0.0",
+
+  "corpus": {
+    "description": "Test corpus for TF-IDF calculations",
+    "documents": [
+      {
+        "id": "doc-001",
+        "content": "community organizing strategies for grassroots campaigns"
+      },
+      {
+        "id": "doc-002",
+        "content": "organizing community events and volunteer coordination"
+      },
+      {
+        "id": "doc-003",
+        "content": "labor union organizing and workers rights advocacy"
+      },
+      {
+        "id": "doc-004",
+        "content": "digital security for activists and community organizers"
+      },
+      {
+        "id": "doc-005",
+        "content": "fundraising strategies for nonprofit organizations"
+      }
+    ]
+  },
+
+  "testCases": [
+    {
+      "id": "tfidf-001",
+      "name": "Term frequency calculation",
+      "description": "TF should count occurrences normalized by document length",
+      "input": {
+        "document": "community community organizing community",
+        "term": "community"
+      },
+      "expected": {
+        "rawCount": 3,
+        "termFrequency": 0.75,
+        "note": "3 occurrences / 4 words = 0.75"
+      }
+    },
+    {
+      "id": "tfidf-002",
+      "name": "Inverse document frequency",
+      "description": "IDF should be higher for rare terms",
+      "input": {
+        "corpus": "use test corpus above",
+        "term": "grassroots"
+      },
+      "expected": {
+        "documentsWithTerm": 1,
+        "totalDocuments": 5,
+        "idfApproximate": 1.609,
+        "note": "ln(5/1) = 1.609"
+      }
+    },
+    {
+      "id": "tfidf-003",
+      "name": "Common term IDF",
+      "description": "Common terms have lower IDF",
+      "input": {
+        "corpus": "use test corpus above",
+        "term": "organizing"
+      },
+      "expected": {
+        "documentsWithTerm": 3,
+        "totalDocuments": 5,
+        "idfApproximate": 0.511,
+        "note": "ln(5/3) = 0.511"
+      }
+    },
+    {
+      "id": "tfidf-004",
+      "name": "Query similarity ranking",
+      "description": "Query 'community organizing' should rank doc-001 and doc-002 highest",
+      "input": {
+        "query": "community organizing",
+        "corpus": "use test corpus above"
+      },
+      "expected": {
+        "rankingOrder": ["doc-001", "doc-002", "doc-004", "doc-003", "doc-005"],
+        "topScoreHigherThan": 0.5,
+        "bottomScoreLowerThan": 0.1
+      }
+    },
+    {
+      "id": "tfidf-005",
+      "name": "Rare term boost",
+      "description": "Query with rare term should boost specific documents",
+      "input": {
+        "query": "labor union workers",
+        "corpus": "use test corpus above"
+      },
+      "expected": {
+        "topResult": "doc-003",
+        "note": "doc-003 uniquely contains labor, union, workers"
+      }
+    },
+    {
+      "id": "tfidf-006",
+      "name": "Empty query handling",
+      "description": "Empty query should return zero similarity",
+      "input": {
+        "query": "",
+        "document": "any document content"
+      },
+      "expected": {
+        "similarity": 0.0
+      }
+    },
+    {
+      "id": "tfidf-007",
+      "name": "No common terms",
+      "description": "Query with no matching terms should have zero similarity",
+      "input": {
+        "query": "completely unrelated terms xyz123",
+        "corpus": "use test corpus above"
+      },
+      "expected": {
+        "allSimilarities": 0.0
+      }
+    },
+    {
+      "id": "tfidf-008",
+      "name": "Cosine similarity bounds",
+      "description": "Cosine similarity must be between 0 and 1",
+      "input": {
+        "query": "any query",
+        "document": "any document"
+      },
+      "expected": {
+        "similarityMin": 0.0,
+        "similarityMax": 1.0
+      }
+    },
+    {
+      "id": "tfidf-009",
+      "name": "Case insensitivity",
+      "description": "Same terms in different cases should match",
+      "input": {
+        "query": "COMMUNITY ORGANIZING",
+        "document": "community organizing strategies"
+      },
+      "expected": {
+        "matchesCount": 2,
+        "similarityGreaterThan": 0.5
+      }
+    },
+    {
+      "id": "tfidf-010",
+      "name": "Stemming consistency",
+      "description": "Stemmed terms should match variants",
+      "input": {
+        "query": "organizing organizer organization",
+        "document": "the organizers organized the organization"
+      },
+      "expected": {
+        "stemmedTerms": ["organ"],
+        "allTermsMatch": true,
+        "note": "All variants should stem to same root"
+      }
+    }
+  ],
+
+  "validationRules": [
+    {
+      "rule": "similarity_bounds",
+      "description": "All similarity scores must be in [0, 1]",
+      "check": "similarity >= 0 && similarity <= 1"
+    },
+    {
+      "rule": "symmetry",
+      "description": "Cosine similarity is symmetric",
+      "check": "similarity(A, B) === similarity(B, A)"
+    },
+    {
+      "rule": "self_similarity",
+      "description": "Document similarity with itself is 1.0",
+      "check": "similarity(doc, doc) === 1.0"
+    },
+    {
+      "rule": "relative_ranking",
+      "description": "More relevant documents must score higher",
+      "tolerance": 0.01
+    }
+  ],
+
+  "algorithmSpec": {
+    "termFrequency": {
+      "formula": "tf(t, d) = count(t in d) / total_terms(d)",
+      "description": "Normalized term frequency"
+    },
+    "inverseDocumentFrequency": {
+      "formula": "idf(t, D) = ln(|D| / |{d in D : t in d}|)",
+      "description": "Natural log of total docs divided by docs containing term"
+    },
+    "tfidf": {
+      "formula": "tfidf(t, d, D) = tf(t, d) * idf(t, D)",
+      "description": "Product of TF and IDF"
+    },
+    "cosineSimilarity": {
+      "formula": "sim(q, d) = (q . d) / (||q|| * ||d||)",
+      "description": "Dot product of vectors divided by product of magnitudes"
+    }
+  }
+}

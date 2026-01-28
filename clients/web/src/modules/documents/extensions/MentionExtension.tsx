@@ -16,6 +16,7 @@ import {
   useCallback,
   FC,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { User } from 'lucide-react'
 
@@ -51,6 +52,7 @@ interface MentionListRef {
  */
 const MentionList = forwardRef<MentionListRef, MentionListProps>(
   ({ items, command }, ref) => {
+    const { t } = useTranslation('documents')
     const [selectedIndex, setSelectedIndex] = useState(0)
 
     const selectItem = useCallback(
@@ -106,7 +108,7 @@ const MentionList = forwardRef<MentionListRef, MentionListProps>(
     if (items.length === 0) {
       return (
         <div className="bg-popover text-popover-foreground border rounded-md shadow-md p-2 text-sm text-muted-foreground">
-          No users found
+          {t('noUsersFound')}
         </div>
       )
     }

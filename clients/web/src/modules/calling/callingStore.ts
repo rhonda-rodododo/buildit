@@ -100,6 +100,9 @@ interface CallingState {
   setSelectedAudioOutput: (deviceId: string | null) => void;
   setSelectedVideoInput: (deviceId: string | null) => void;
 
+  // Remote operator statuses (for ACD and UI display)
+  remoteOperatorStatuses: Map<string, HotlineOperatorStatus>;
+
   // Actions - Hotline
   setHotlineConfigs: (configs: HotlineConfig[]) => void;
   setActiveHotlineCalls: (calls: HotlineCallState[]) => void;
@@ -107,6 +110,8 @@ interface CallingState {
   updateHotlineCall: (callId: string, updates: Partial<HotlineCallState>) => void;
   removeHotlineCall: (callId: string) => void;
   setOperatorStatus: (status: HotlineOperatorStatus | null) => void;
+  updateRemoteOperatorStatus: (status: HotlineOperatorStatus) => void;
+  getRemoteOperatorStatuses: (hotlineId: string) => HotlineOperatorStatus[];
   setHotlineQueue: (queue: HotlineCallState[]) => void;
 
   // Actions - Messaging hotline
@@ -165,6 +170,7 @@ const initialState = {
   hotlineConfigs: [],
   activeHotlineCalls: [],
   operatorStatus: null,
+  remoteOperatorStatuses: new Map(),
   hotlineQueue: [],
   messagingThreads: [],
   activeThread: null,
@@ -306,6 +312,25 @@ export const useCallingStore = create<CallingState>()((set, get) => ({
     })),
 
   setOperatorStatus: (status) => set({ operatorStatus: status }),
+
+  updateRemoteOperatorStatus: (status) =>
+    set((state) => {
+      const key = `${status.hotlineId}:${status.pubkey}`;
+      const newMap = new Map(state.remoteOperatorStatuses);
+      newMap.set(key, status);
+      return { remoteOperatorStatuses: newMap };
+    }),
+
+  getRemoteOperatorStatuses: (hotlineId) => {
+    const statuses = get().remoteOperatorStatuses;
+    const result: HotlineOperatorStatus[] = [];
+    for (const [key, status] of statuses) {
+      if (key.startsWith(`${hotlineId}:`)) {
+        result.push(status);
+      }
+    }
+    return result;
+  },
 
   setHotlineQueue: (queue) => set({ hotlineQueue: queue }),
 

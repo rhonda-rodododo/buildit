@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.tauri.app/config/2/capability",
+  "identifier": "call-windows",
+  "description": "Capabilities for call windows (voice/video calls)",
+  "windows": ["call-*"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-create",
+    "core:window:allow-close",
+    "core:window:allow-set-size",
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-center",
+    "core:window:allow-set-focus",
+    "core:window:allow-set-position",
+    "core:window:allow-show",
+    "core:window:allow-unminimize",
+    "core:window:allow-set-title",
+    "core:window:allow-current-monitor",
+    "core:window:allow-outer-size",
+    "core:window:allow-is-always-on-top",
+    "notification:allow-is-permission-granted",
+    "notification:allow-request-permission",
+    "notification:allow-notify"
+  ]
+}

@@ -40,7 +40,7 @@
         "script-src": "'self' 'wasm-unsafe-eval'",
         "style-src": "'self' 'unsafe-inline'"
       },
-      "capabilities": ["default"]
+      "capabilities": ["default", "call-windows"]
     }
   },
   "bundle": {

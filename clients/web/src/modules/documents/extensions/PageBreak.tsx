@@ -8,6 +8,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Minus } from 'lucide-react'
 
 /**
@@ -15,6 +16,7 @@ import { Minus } from 'lucide-react'
  * Renders a visual divider indicating a page break
  */
 const PageBreakView: FC = () => {
+  const { t } = useTranslation('documents')
   return (
     <NodeViewWrapper className="page-break-wrapper my-6">
       <div
@@ -28,7 +30,7 @@ const PageBreakView: FC = () => {
         {/* Label badge */}
         <span className="relative z-10 bg-background px-3 py-1 text-xs text-muted-foreground border border-muted-foreground/30 rounded-full flex items-center gap-1.5">
           <Minus className="h-3 w-3" />
-          Page Break
+          {t('pageBreak')}
         </span>
       </div>
 

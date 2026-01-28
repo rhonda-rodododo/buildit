@@ -422,6 +422,13 @@ export class BuildItDB extends Dexie {
   databaseRecords?: Table<any, any>;
   databaseViews?: Table<any, any>;
   customFields?: Table<any, any>;
+  // Search module tables
+  searchIndex?: Table<any, any>;
+  tags?: Table<any, any>;
+  entityTags?: Table<any, any>;
+  savedSearches?: Table<any, any>;
+  recentSearches?: Table<any, any>;
+  searchIndexMeta?: Table<any, any>;
   [key: string]: any;
 
   constructor(moduleSchemas: Map<string, TableSchema[]>) {

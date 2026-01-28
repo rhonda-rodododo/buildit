@@ -4,6 +4,7 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { UseFormRegister, FieldValues, FieldErrors } from 'react-hook-form';
 import type { CustomField } from '../types';
 import { TextFieldInput } from './inputs/TextFieldInput';
@@ -25,6 +26,7 @@ interface FieldRendererProps {
 }
 
 export function FieldRenderer({ field, register, errors, value, onChange }: FieldRendererProps) {
+  const { t } = useTranslation('custom-fields');
   const error = errors[field.name];
   const errorMessage = error?.message as string | undefined;
 
@@ -61,7 +63,7 @@ export function FieldRenderer({ field, register, errors, value, onChange }: Fiel
       case 'relationship':
         return <RelationshipFieldInput {...commonProps} />;
       default:
-        return <div className="text-sm text-muted-foreground">Unknown field type: {field.widget.widget}</div>;
+        return <div className="text-sm text-muted-foreground">{t('unknownFieldType', { type: field.widget.widget })}</div>;
     }
   }, [field.widget.widget, commonProps]);
 

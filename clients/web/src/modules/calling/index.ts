@@ -19,6 +19,8 @@ const CallHistoryView = lazy(() => import('./components/CallHistoryView').then(m
 const CallSettingsView = lazy(() => import('./components/CallSettingsView').then(m => ({ default: m.CallSettingsView })));
 const HotlineView = lazy(() => import('./components/HotlineView').then(m => ({ default: m.HotlineView })));
 const BroadcastsView = lazy(() => import('./components/BroadcastsView').then(m => ({ default: m.BroadcastsView })));
+const PTTView = lazy(() => import('./components/PTTView').then(m => ({ default: m.PTTView })));
+const ConferenceView = lazy(() => import('./components/ConferenceView').then(m => ({ default: m.ConferenceView })));
 
 /**
  * Calling Module Plugin
@@ -256,3 +258,17 @@ export default callingModule;
 export * from './types';
 export * from './callingStore';
 export { getCallingManager, closeCallingManager } from './callingManager';
+
+// Lazy loaded components for use in other modules
+export { PTTView, ConferenceView };
+
+// PSTN components
+export { OutboundDialer } from './components/OutboundDialer';
+export { CreditsDashboard } from './components/CreditsDashboard';
+export { PSTNCallBadge } from './components/PSTNCallBadge';
+export { CallerMaskingToggle } from './components/CallerMaskingToggle';
+export { PhoneNumberManager } from './components/PhoneNumberManager';
+export { PSTNProviderSettings } from './components/PSTNProviderSettings';
+
+// PSTN provider adapters
+export * from './services/pstn';

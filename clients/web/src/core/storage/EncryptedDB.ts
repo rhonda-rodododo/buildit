@@ -78,6 +78,18 @@ export const ENCRYPTED_FIELDS: Record<string, string[]> = {
 
   // Files metadata
   files: ['name', 'description'],
+
+  // Search index (protect searchable content at rest)
+  searchIndex: ['title', 'content', 'excerpt', 'facets', 'vector', 'tags'],
+
+  // Tags (protect tag names which may reveal organizing activities)
+  tags: ['name'],
+
+  // Saved searches (protect search patterns)
+  savedSearches: ['query', 'filters'],
+
+  // Recent searches (protect search history)
+  recentSearches: ['query'],
 };
 
 // Cached local encryption key (cleared on lock)

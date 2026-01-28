@@ -422,12 +422,11 @@ export function FilesPage() {
           <div>
             <h1 className="text-2xl font-bold">{t('files.title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {quota && (
-                <>
-                  {(quota.usedBytes / 1024 / 1024).toFixed(1)} MB /{' '}
-                  {(quota.totalBytes / 1024 / 1024).toFixed(0)} MB used ({quotaPercentage}%)
-                </>
-              )}
+              {quota && t('files:storageUsed', {
+                used: (quota.usedBytes / 1024 / 1024).toFixed(1),
+                total: (quota.totalBytes / 1024 / 1024).toFixed(0),
+                percent: quotaPercentage
+              })}
             </p>
           </div>
           <div className="flex gap-2">

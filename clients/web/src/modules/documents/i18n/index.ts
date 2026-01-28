@@ -17,6 +17,13 @@ export default defineModuleTranslations({
     templates: 'Templates',
     recentDocuments: 'Recent Documents',
     allDocuments: 'All Documents',
+    addedTimeAgo: 'Added {{time}}',
+    pageNumber: 'Page #',
+    noUsersFound: 'No users found',
+    pageBreak: 'Page Break',
+    tableOfContents: 'Table of Contents',
+    refreshToc: 'Refresh table of contents',
+    noHeadingsFound: 'No headings found. Add headings (H1, H2, H3) to generate table of contents.',
     meta: {
       description: 'Create and collaborate on rich text documents.',
     },

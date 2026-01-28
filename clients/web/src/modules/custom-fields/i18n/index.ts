@@ -27,6 +27,13 @@ export default defineModuleTranslations({
       file: 'File',
       relationship: 'Relationship',
     },
+    notSet: 'Not set',
+    additionalInformation: 'Additional Information',
+    unknownFieldType: 'Unknown field type: {{type}}',
+    relationshipTo: 'Relationship to: {{type}}',
+    noneSelected: 'None selected',
+    yes: 'Yes',
+    no: 'No',
     meta: {
       description: 'Define custom fields for forms and data collection.',
     },

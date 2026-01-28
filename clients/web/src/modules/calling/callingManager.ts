@@ -12,6 +12,7 @@
 import { logger } from '@/lib/logger';
 import { db } from '@/core/storage/db';
 import { useAuthStore } from '@/stores/authStore';
+import { useContactsStore } from '@/stores/contactsStore';
 import { v4 as uuidv4 } from 'uuid';
 import {
   WebRTCAdapter,
@@ -299,9 +300,13 @@ class CallingManager {
     }
 
     // Check if we allow unknown callers
-    // TODO: Check contact list
     if (settings && !settings.allowUnknownCallers) {
-      // For now, allow all callers
+      const { isFollowing } = useContactsStore.getState();
+      if (!isFollowing(senderPubkey)) {
+        // Reject calls from unknown users
+        await this.signaling?.sendHangup(senderPubkey, offer.callId, HangupReason.Rejected);
+        return;
+      }
     }
 
     // Show incoming call UI

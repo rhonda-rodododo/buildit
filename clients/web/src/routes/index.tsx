@@ -44,6 +44,9 @@ const NotificationsDemoPage = lazy(() => import('@/pages/NotificationsDemoPage')
 const PrivacyDemoPage = lazy(() => import('@/pages/PrivacyDemoPage').then(m => ({ default: m.PrivacyDemoPage })));
 const SecurityDemoPage = lazy(() => import('@/pages/SecurityDemoPage').then(m => ({ default: m.SecurityDemoPage })));
 
+// Call window page (for Tauri desktop popout calls)
+const CallWindowPage = lazy(() => import('@/pages/CallWindowPage').then(m => ({ default: m.CallWindowPage })));
+
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 /**
@@ -180,6 +183,11 @@ export const getRoutes: () => RouteObject[] = () => [
           {
             path: 'security',
             Component: SecurityDemoPage,
+          },
+          {
+            // Call window route for Tauri desktop popout calls
+            path: 'call/:callId',
+            Component: CallWindowPage,
           },
           {
             path: 'groups',

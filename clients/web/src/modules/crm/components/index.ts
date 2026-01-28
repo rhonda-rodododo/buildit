@@ -9,3 +9,4 @@ export { StatusWorkflow } from './StatusWorkflow';
 export { IntakeForm } from './IntakeForm';
 export { ContactProfile } from './ContactProfile';
 export { TemplateManager } from './TemplateManager';
+export { ContactCallHistory } from './ContactCallHistory';

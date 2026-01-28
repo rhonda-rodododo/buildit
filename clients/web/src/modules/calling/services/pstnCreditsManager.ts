@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import type { LocalCreditBalance, PSTNUsageRecord } from '../types';
 import { CALLING_KINDS } from '../types';
 import type { SignalingService } from './signalingService';
+import { fetchWithRetry } from './utils';
 
 /**
  * Credit alert thresholds
@@ -114,11 +115,15 @@ export class PSTNCreditsManager extends EventEmitter {
       return cached;
     }
 
-    // Fetch from backend
-    const response = await fetch(`${this.API_BASE}/api/pstn/credits/${groupId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Fetch from backend with retry
+    const response = await fetchWithRetry(
+      `${this.API_BASE}/api/pstn/credits/${groupId}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      },
+      { maxRetries: 3 }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch credit balance');
@@ -152,13 +157,14 @@ export class PSTNCreditsManager extends EventEmitter {
       return cached.filter((r) => r.timestamp >= cutoff);
     }
 
-    // Fetch from backend
-    const response = await fetch(
+    // Fetch from backend with retry
+    const response = await fetchWithRetry(
       `${this.API_BASE}/api/pstn/credits/${groupId}/usage?days=${days}`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-      }
+      },
+      { maxRetries: 3 }
     );
 
     if (!response.ok) {

@@ -292,7 +292,7 @@ export const ShareDialog: FC<ShareDialogProps> = ({
                       {collab.userPubkey.slice(0, 16)}...
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Added {formatDistanceToNow(collab.addedAt, { addSuffix: true })}
+                      {t('documents:addedTimeAgo', { time: formatDistanceToNow(collab.addedAt, { addSuffix: true }) })}
                     </p>
                   </div>
                   <Select

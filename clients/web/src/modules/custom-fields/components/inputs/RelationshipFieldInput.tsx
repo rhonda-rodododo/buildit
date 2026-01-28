@@ -4,6 +4,7 @@
  */
 
 import { UseFormRegister, FieldValues } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { CustomField } from '../../types';
@@ -15,6 +16,7 @@ interface RelationshipFieldInputProps {
 }
 
 export function RelationshipFieldInput({ field, register, error }: RelationshipFieldInputProps) {
+  const { t } = useTranslation('custom-fields');
   const { schema, widget } = field;
   const relationshipLabel = widget.relationshipLabel || 'Select a related item';
 
@@ -31,7 +33,7 @@ export function RelationshipFieldInput({ field, register, error }: RelationshipF
         {...register(field.name)}
         className={error ? 'border-destructive' : ''}
       />
-      <p className="text-xs text-muted-foreground">Relationship to: {widget.relationshipType}</p>
+      <p className="text-xs text-muted-foreground">{t('relationshipTo', { type: widget.relationshipType })}</p>
       {widget.helpText && <p className="text-sm text-muted-foreground">{widget.helpText}</p>}
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>

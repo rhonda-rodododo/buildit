@@ -3,6 +3,7 @@
  * Grid view for image-based records
  */
 
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { DatabaseRecord, DatabaseTable, DatabaseView } from '../types';
 
@@ -14,6 +15,7 @@ interface GalleryViewProps {
 }
 
 export function GalleryView({ table, view, records, onRecordClick }: GalleryViewProps) {
+  const { t } = useTranslation('database');
   // Get config from view
   const imageField = view.config.galleryImageField || table.fields.find((f) => f.widget.widget === 'file')?.name;
   const titleField = view.config.galleryTitleField || table.fields[0]?.name;
@@ -49,7 +51,7 @@ export function GalleryView({ table, view, records, onRecordClick }: GalleryView
             )}
             {!imageUrl && (
               <div className="aspect-video bg-muted flex items-center justify-center">
-                <div className="text-muted-foreground text-sm">No image</div>
+                <div className="text-muted-foreground text-sm">{t('noImage')}</div>
               </div>
             )}
             <CardHeader className="pb-3">
@@ -66,7 +68,7 @@ export function GalleryView({ table, view, records, onRecordClick }: GalleryView
 
       {records.length === 0 && (
         <div className="col-span-full text-center text-muted-foreground py-12">
-          No records found
+          {t('noRecordsFound')}
         </div>
       )}
     </div>

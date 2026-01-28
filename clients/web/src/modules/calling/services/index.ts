@@ -65,3 +65,8 @@ export * from './pttAudioManager';
 // ============================================================================
 export * from './pstnCallManager';
 export * from './pstnCreditsManager';
+
+// ============================================================================
+// Desktop-specific Services (Tauri)
+// ============================================================================
+export * from './desktopCallManager';

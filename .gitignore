@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 *.local
+.turbo
 
 # Environment
 .env

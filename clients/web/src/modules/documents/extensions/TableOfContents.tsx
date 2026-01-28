@@ -8,6 +8,7 @@
 import { Node, mergeAttributes } from '@tiptap/core'
 import { ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react'
 import { FC, useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Editor } from '@tiptap/core'
 import { List, RefreshCw } from 'lucide-react'
 
@@ -42,6 +43,7 @@ interface TableOfContentsViewProps {
 }
 
 const TableOfContentsView: FC<TableOfContentsViewProps> = ({ editor, selected }) => {
+  const { t } = useTranslation('documents')
   const [headings, setHeadings] = useState<HeadingItem[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -135,12 +137,12 @@ const TableOfContentsView: FC<TableOfContentsViewProps> = ({ editor, selected })
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
           <div className="flex items-center gap-2 text-sm font-medium">
             <List className="h-4 w-4" />
-            Table of Contents
+            {t('tableOfContents')}
           </div>
           <button
             onClick={refreshHeadings}
             className="p-1 rounded hover:bg-muted transition-colors"
-            title="Refresh table of contents"
+            title={t('refreshToc')}
             type="button"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -150,7 +152,7 @@ const TableOfContentsView: FC<TableOfContentsViewProps> = ({ editor, selected })
         <div className="p-4">
           {headings.length === 0 ? (
             <div className="text-sm text-muted-foreground italic text-center py-2">
-              No headings found. Add headings (H1, H2, H3) to generate table of contents.
+              {t('noHeadingsFound')}
             </div>
           ) : (
             <nav className="space-y-1">

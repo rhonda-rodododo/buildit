@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/stores/authStore';
 import {
   Send,
   Calendar,
@@ -52,6 +53,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 
 export function BroadcastsView() {
   const { t } = useTranslation('calling');
+  const { currentIdentity } = useAuthStore();
   const { broadcasts, addBroadcast, updateBroadcast, removeBroadcast } = useCallingStore();
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -110,7 +112,7 @@ export function BroadcastsView() {
       content: newBroadcast.content,
       title: newBroadcast.title || undefined,
       targetType: newBroadcast.targetType,
-      createdBy: 'current-user', // TODO: Get from auth
+      createdBy: currentIdentity?.publicKey || '',
       status: newBroadcast.scheduledAt ? BroadcastStatus.Scheduled : BroadcastStatus.Draft,
       priority: newBroadcast.priority,
       scheduledAt: newBroadcast.scheduledAt

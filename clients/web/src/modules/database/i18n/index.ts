@@ -20,6 +20,11 @@ export default defineModuleTranslations({
     group: 'Group',
     fields: 'Fields',
     records: 'Records',
+    noGroupingField: 'No grouping field configured',
+    noRecords: 'No records',
+    noRecordsFound: 'No records found',
+    noImage: 'No image',
+    fileSizeKb: '{{size}} KB',
     meta: {
       description: 'Custom databases and structured data management.',
     },

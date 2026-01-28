@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SearchIndexingTestVectors",
+  "description": "Test vectors for validating search document indexing across platforms",
+  "version": "1.0.0",
+
+  "testCases": [
+    {
+      "id": "index-001",
+      "name": "Index plain text document",
+      "description": "Basic document indexing with title and content",
+      "input": {
+        "entity": {
+          "id": "doc-001",
+          "title": "Meeting Notes",
+          "content": "Discussion about community organizing strategies for the upcoming campaign.",
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "documents"
+      },
+      "expected": {
+        "documentId": "documents:doc-001",
+        "searchableTerms": ["meeting", "notes", "discussion", "community", "organizing", "strategies", "upcoming", "campaign"],
+        "hasVector": true
+      }
+    },
+    {
+      "id": "index-002",
+      "name": "Index document with HTML content",
+      "description": "HTML should be stripped before indexing",
+      "input": {
+        "entity": {
+          "id": "doc-002",
+          "title": "Announcement",
+          "content": "<p>Important <strong>update</strong> about the <a href='#'>rally</a> next week.</p>",
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "documents"
+      },
+      "expected": {
+        "documentId": "documents:doc-002",
+        "strippedContent": "Important update about the rally next week.",
+        "searchableTerms": ["announcement", "important", "update", "rally", "next", "week"]
+      }
+    },
+    {
+      "id": "index-003",
+      "name": "Index event with facets",
+      "description": "Events should include module-specific facets",
+      "input": {
+        "entity": {
+          "id": "evt-001",
+          "title": "Community Town Hall",
+          "description": "Monthly meeting to discuss local issues",
+          "privacyLevel": "public",
+          "rsvpEnabled": true,
+          "attendeeCount": 45,
+          "startTime": 1700500000000,
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "events"
+      },
+      "expected": {
+        "documentId": "events:evt-001",
+        "facets": {
+          "privacyLevel": "public",
+          "rsvpEnabled": true,
+          "attendeeCount": 45
+        }
+      }
+    },
+    {
+      "id": "index-004",
+      "name": "Index message with mentions",
+      "description": "Messages should be indexed with author and thread context",
+      "input": {
+        "entity": {
+          "id": "msg-001",
+          "content": "Great idea @alice! Let's organize a meeting about this.",
+          "authorPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "threadId": "thread-001",
+          "groupId": "group-123",
+          "createdAt": 1700000000000
+        },
+        "moduleType": "messaging"
+      },
+      "expected": {
+        "documentId": "messaging:msg-001",
+        "authorPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "searchableTerms": ["great", "idea", "alice", "organize", "meeting"]
+      }
+    },
+    {
+      "id": "index-005",
+      "name": "Index wiki page with hierarchical tags",
+      "description": "Wiki pages should preserve tag hierarchy",
+      "input": {
+        "entity": {
+          "id": "wiki-001",
+          "title": "Direct Action Guide",
+          "content": "A comprehensive guide to organizing direct actions effectively.",
+          "tags": ["organizing", "direct-action", "guide"],
+          "categoryPath": ["Resources", "Guides", "Tactics"],
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "wiki"
+      },
+      "expected": {
+        "documentId": "wiki:wiki-001",
+        "tags": ["organizing", "direct-action", "guide"],
+        "searchableTerms": ["direct", "action", "guide", "comprehensive", "organizing", "effectively"]
+      }
+    },
+    {
+      "id": "index-006",
+      "name": "Reindex updated document",
+      "description": "Updated documents should replace previous index entry",
+      "input": {
+        "entity": {
+          "id": "doc-001",
+          "title": "Meeting Notes - Updated",
+          "content": "Revised discussion notes with action items added.",
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700100000000
+        },
+        "moduleType": "documents",
+        "isUpdate": true
+      },
+      "expected": {
+        "documentId": "documents:doc-001",
+        "shouldReplace": true,
+        "updatedAtGreaterThan": 1700000000000
+      }
+    },
+    {
+      "id": "index-007",
+      "name": "Index document with special characters",
+      "description": "Special characters should be handled properly",
+      "input": {
+        "entity": {
+          "id": "doc-003",
+          "title": "Q&A Session - Worker's Rights 101",
+          "content": "FAQ: What are your rights? (See NLRA \u00a7 7 for details.)",
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "documents"
+      },
+      "expected": {
+        "documentId": "documents:doc-003",
+        "searchableTerms": ["qa", "session", "worker", "rights", "101", "faq", "nlra", "details"]
+      }
+    },
+    {
+      "id": "index-008",
+      "name": "Index multilingual content",
+      "description": "Non-English content should be indexed correctly",
+      "input": {
+        "entity": {
+          "id": "doc-004",
+          "title": "Reunión Comunitaria",
+          "content": "Bienvenidos a la reunión de organización comunitaria.",
+          "groupId": "group-123",
+          "createdAt": 1700000000000,
+          "updatedAt": 1700000000000
+        },
+        "moduleType": "documents"
+      },
+      "expected": {
+        "documentId": "documents:doc-004",
+        "searchableTerms": ["reunión", "comunitaria", "bienvenidos", "organización"]
+      }
+    }
+  ],
+
+  "validationRules": [
+    {
+      "rule": "document_id_format",
+      "description": "Document ID must follow moduleType:entityId format",
+      "pattern": "^[a-z-]+:[a-zA-Z0-9-]+$"
+    },
+    {
+      "rule": "required_fields",
+      "description": "All indexed documents must have these fields",
+      "fields": ["id", "moduleType", "entityId", "groupId", "title", "content", "createdAt", "updatedAt", "indexedAt"]
+    },
+    {
+      "rule": "timestamp_ordering",
+      "description": "indexedAt >= updatedAt >= createdAt",
+      "check": "indexedAt >= updatedAt && updatedAt >= createdAt"
+    },
+    {
+      "rule": "vector_consistency",
+      "description": "If semantic search is enabled, vector must be non-empty",
+      "check": "!semanticEnabled || (vector && Object.keys(vector).length > 0)"
+    }
+  ]
+}

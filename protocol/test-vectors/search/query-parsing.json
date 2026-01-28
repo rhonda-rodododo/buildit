@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QueryParsingTestVectors",
+  "description": "Test vectors for validating search query parsing across platforms",
+  "version": "1.0.0",
+
+  "testCases": [
+    {
+      "id": "parse-001",
+      "name": "Simple keyword query",
+      "description": "Single word should be parsed as keyword",
+      "input": {
+        "query": "meeting",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["meeting"],
+        "phrases": [],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-002",
+      "name": "Multiple keywords",
+      "description": "Multiple words should be parsed as separate keywords",
+      "input": {
+        "query": "community organizing strategies",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["community", "organizing", "strategies"],
+        "phrases": [],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-003",
+      "name": "Exact phrase query",
+      "description": "Quoted text should be preserved as exact phrase",
+      "input": {
+        "query": "\"direct action\"",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": [],
+        "phrases": ["direct action"],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-004",
+      "name": "Mixed keywords and phrase",
+      "description": "Combination of keywords and quoted phrase",
+      "input": {
+        "query": "community \"town hall\" meeting",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["community", "meeting"],
+        "phrases": ["town hall"],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-005",
+      "name": "Author filter",
+      "description": "author: prefix should create author filter",
+      "input": {
+        "query": "author:alice organizing",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["organizing"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "author",
+            "operator": "eq",
+            "value": "alice"
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-006",
+      "name": "Tag filter",
+      "description": "tag: or # prefix should create tag filter",
+      "input": {
+        "query": "#urgent meeting tag:important",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["meeting"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "tag",
+            "operator": "eq",
+            "value": "urgent"
+          },
+          {
+            "field": "tag",
+            "operator": "eq",
+            "value": "important"
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-007",
+      "name": "Date filter - after",
+      "description": "after: prefix should create date range filter",
+      "input": {
+        "query": "after:2024-01-01 events",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["events"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "date",
+            "operator": "gte",
+            "value": 1704067200000
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-008",
+      "name": "Date filter - before",
+      "description": "before: prefix should create date range filter",
+      "input": {
+        "query": "before:2024-12-31 announcements",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["announcements"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "date",
+            "operator": "lte",
+            "value": 1735603200000
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-009",
+      "name": "Module type filter",
+      "description": "type: or in: prefix should filter by module",
+      "input": {
+        "query": "type:events community",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["community"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "moduleType",
+            "operator": "eq",
+            "value": "events"
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-010",
+      "name": "Negation filter",
+      "description": "- prefix should exclude term",
+      "input": {
+        "query": "meeting -cancelled",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["meeting"],
+        "phrases": [],
+        "filters": [
+          {
+            "field": "content",
+            "operator": "ne",
+            "value": "cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-011",
+      "name": "Complex combined query",
+      "description": "Multiple filters, phrases, and keywords",
+      "input": {
+        "query": "\"workers rights\" type:documents author:organizer #union after:2024-06-01",
+        "scope": { "type": "group", "groupId": "group-123" }
+      },
+      "expected": {
+        "keywords": [],
+        "phrases": ["workers rights"],
+        "filters": [
+          {
+            "field": "moduleType",
+            "operator": "eq",
+            "value": "documents"
+          },
+          {
+            "field": "author",
+            "operator": "eq",
+            "value": "organizer"
+          },
+          {
+            "field": "tag",
+            "operator": "eq",
+            "value": "union"
+          },
+          {
+            "field": "date",
+            "operator": "gte",
+            "value": 1717200000000
+          }
+        ]
+      }
+    },
+    {
+      "id": "parse-012",
+      "name": "Empty query",
+      "description": "Empty or whitespace-only query",
+      "input": {
+        "query": "   ",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": [],
+        "phrases": [],
+        "filters": [],
+        "isEmpty": true
+      }
+    },
+    {
+      "id": "parse-013",
+      "name": "Query with special characters",
+      "description": "Special characters should be handled",
+      "input": {
+        "query": "Q&A worker's rights",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["qa", "workers", "rights"],
+        "phrases": [],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-014",
+      "name": "Unclosed quote",
+      "description": "Unclosed quote should be treated as keywords",
+      "input": {
+        "query": "\"direct action",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["direct", "action"],
+        "phrases": [],
+        "filters": []
+      }
+    },
+    {
+      "id": "parse-015",
+      "name": "Case insensitivity",
+      "description": "Keywords should be lowercased",
+      "input": {
+        "query": "URGENT Meeting TOMORROW",
+        "scope": { "type": "global" }
+      },
+      "expected": {
+        "keywords": ["urgent", "meeting", "tomorrow"],
+        "phrases": [],
+        "filters": []
+      }
+    }
+  ],
+
+  "validationRules": [
+    {
+      "rule": "keyword_normalization",
+      "description": "All keywords must be lowercase",
+      "check": "keywords.every(k => k === k.toLowerCase())"
+    },
+    {
+      "rule": "phrase_preservation",
+      "description": "Phrases preserve original casing but are trimmed",
+      "check": "phrases.every(p => p === p.trim())"
+    },
+    {
+      "rule": "filter_structure",
+      "description": "All filters must have field, operator, and value",
+      "check": "filters.every(f => f.field && f.operator && f.value !== undefined)"
+    },
+    {
+      "rule": "scope_preservation",
+      "description": "Scope from input must be preserved in parsed query",
+      "check": "parsedQuery.scope.type === input.scope.type"
+    }
+  ]
+}

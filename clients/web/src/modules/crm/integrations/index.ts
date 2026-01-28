@@ -11,3 +11,6 @@ export * from './messagingIntegration';
 
 // Files integration
 export * from './filesIntegration';
+
+// Calling integration
+export * from './callingIntegration';
