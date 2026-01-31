@@ -12,12 +12,8 @@ import {
   ArrowRight,
   CheckCircle,
   Clock,
-  FileText,
   Video,
-  HelpCircle,
-  PenTool,
   Radio,
-  Gamepad2,
   Play,
   Pause,
   Volume2,
@@ -30,19 +26,15 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import type {
   Lesson,
   LessonProgress,
   TrainingModule,
-  Course,
   QuizContent,
-  QuizQuestion,
   QuizAnswer,
   DocumentContent,
   VideoContent,
@@ -60,8 +52,6 @@ export function LessonPlayer() {
     startLesson,
     updateLessonProgress,
     completeLesson,
-    startQuizAttempt,
-    submitQuizAttempt,
   } = useTrainingStore();
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -253,7 +243,7 @@ interface LessonContentProps {
   progress: LessonProgress | null;
 }
 
-function LessonContent({ lesson, onComplete, isCompleted, progress }: LessonContentProps) {
+function LessonContent({ lesson, isCompleted, progress }: LessonContentProps) {
   switch (lesson.type) {
     case 'document':
       return <DocumentLesson content={lesson.content as DocumentContent} />;
@@ -413,7 +403,7 @@ interface QuizLessonProps {
 
 function QuizLesson({ content, lessonId, passingScore, isCompleted, previousScore }: QuizLessonProps) {
   const { t } = useTranslation('training');
-  const { submitQuizAttempt, completeLesson } = useTrainingStore();
+  const { completeLesson } = useTrainingStore();
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Map<string, string | string[]>>(new Map());
@@ -439,7 +429,7 @@ function QuizLesson({ content, lessonId, passingScore, isCompleted, previousScor
       totalPoints += question.points;
       const userAnswer = answers.get(question.id);
       const isCorrect = Array.isArray(question.correctAnswer)
-        ? JSON.stringify(userAnswer?.sort()) === JSON.stringify([...question.correctAnswer].sort())
+        ? JSON.stringify(Array.isArray(userAnswer) ? [...userAnswer].sort() : [userAnswer]) === JSON.stringify([...question.correctAnswer].sort())
         : userAnswer === question.correctAnswer;
 
       if (isCorrect) {
@@ -619,7 +609,6 @@ function QuizLesson({ content, lessonId, passingScore, isCompleted, previousScor
 
 function LiveSessionLesson({ content }: { content: LiveSessionContent }) {
   const { t } = useTranslation('training');
-  const { rsvpLiveSession } = useTrainingStore();
   const [rsvpStatus, setRsvpStatus] = useState<'confirmed' | 'tentative' | 'declined' | null>(null);
 
   const isUpcoming = content.scheduledAt > Date.now();

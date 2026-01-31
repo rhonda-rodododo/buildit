@@ -10,7 +10,6 @@ import {
   Users,
   Award,
   TrendingUp,
-  Clock,
   BarChart3,
   FileText,
   CheckCircle,
@@ -31,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { Course, CourseStats } from '../types';
+import type { CourseStats } from '../types';
 
 export function TrainerDashboard() {
   const { t } = useTranslation('training');
@@ -44,7 +43,7 @@ export function TrainerDashboard() {
 
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [stats, setStats] = useState<CourseStats | null>(null);
-  const [loadingStats, setLoadingStats] = useState(false);
+  const [, setLoadingStats] = useState(false);
 
   useEffect(() => {
     loadCourses({ includePublic: false });
@@ -332,7 +331,7 @@ function StatsCard({ title, value, icon: Icon, trend, trendUp, subtitle }: Stats
   );
 }
 
-function PendingReviewsList({ courseId }: { courseId: string }) {
+function PendingReviewsList({ courseId: _courseId }: { courseId: string }) {
   // This would fetch pending assignment submissions
   const pendingReviews = [
     { id: '1', learner: 'Alice', lesson: 'Threat Modeling Exercise', submittedAt: Date.now() - 3600000 },
@@ -375,7 +374,7 @@ function PendingReviewsList({ courseId }: { courseId: string }) {
   );
 }
 
-function RecentActivityList({ courseId }: { courseId: string }) {
+function RecentActivityList({ courseId: _courseId }: { courseId: string }) {
   // This would fetch recent activity
   const activities = [
     { id: '1', type: 'completed', learner: 'Alice', lesson: 'Understanding Encryption', timestamp: Date.now() - 1800000 },
@@ -436,7 +435,7 @@ function RecentActivityList({ courseId }: { courseId: string }) {
   );
 }
 
-function TopPerformersList({ courseId }: { courseId: string }) {
+function TopPerformersList({ courseId: _courseId }: { courseId: string }) {
   // This would fetch top performers
   const performers = [
     { id: '1', name: 'Alice', progress: 100, avgScore: 95 },

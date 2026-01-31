@@ -17,8 +17,6 @@ import {
   CheckCircle,
   Circle,
   Lock,
-  Users,
-  Calendar,
   ArrowLeft,
   FileText,
   HelpCircle,
@@ -352,7 +350,7 @@ interface LessonRowProps {
   isEnrolled: boolean;
 }
 
-function LessonRow({ lesson, lessonIndex, progress, isEnrolled }: LessonRowProps) {
+function LessonRow({ lesson, progress, isEnrolled }: LessonRowProps) {
   const { t } = useTranslation('training');
   const Icon = LESSON_ICONS[lesson.type] || FileText;
   const isCompleted = progress?.status === 'completed';

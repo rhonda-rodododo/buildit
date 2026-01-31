@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { useTrainingStore } from '../trainingStore';
-import type { Course, CourseQueryOptions, CourseProgress } from '../types';
+import type { Course, CourseQueryOptions } from '../types';
 
 interface UseTrainingOptions {
   autoLoad?: boolean;

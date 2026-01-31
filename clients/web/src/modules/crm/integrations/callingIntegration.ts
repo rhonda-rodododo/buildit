@@ -279,7 +279,7 @@ export class CRMCallingIntegration {
    * For dashboard/reporting
    */
   async getRecentCalls(
-    groupId?: string,
+    _groupId?: string,
     limit: number = 50
   ): Promise<CallHistoryRecord[]> {
     const allCalls: CallHistoryRecord[] = [];

@@ -6,7 +6,7 @@
 import { nanoid } from 'nanoid';
 import { logger } from '@/lib/logger';
 import { getDB, type BuildItDB } from '@/core/storage/db';
-import { useIdentityStore } from '@/core/identity';
+import { useAuthStore } from '@/stores/authStore';
 import type {
   Course,
   TrainingModule,
@@ -17,7 +17,6 @@ import type {
   QuizAttempt,
   AssignmentSubmission,
   LiveSessionRSVP,
-  LiveSessionAttendance,
   CreateCourseData,
   UpdateCourseData,
   CreateModuleData,
@@ -62,18 +61,19 @@ function dbCourseToDomain(db: DBCourse): Course {
  * Convert domain course to DB course
  */
 function courseToDB(course: Partial<Course>): Partial<DBCourse> {
-  const result: Partial<DBCourse> = { ...course };
-  if (course.prerequisites) {
-    result.prerequisites = JSON.stringify(course.prerequisites);
+  const { prerequisites, certificationEnabled, isPublic, isDefault, ...rest } = course;
+  const result: Partial<DBCourse> = { ...rest };
+  if (prerequisites) {
+    result.prerequisites = JSON.stringify(prerequisites);
   }
-  if (course.certificationEnabled !== undefined) {
-    result.certificationEnabled = course.certificationEnabled ? 1 : 0;
+  if (certificationEnabled !== undefined) {
+    result.certificationEnabled = certificationEnabled ? 1 : 0;
   }
-  if (course.isPublic !== undefined) {
-    result.isPublic = course.isPublic ? 1 : 0;
+  if (isPublic !== undefined) {
+    result.isPublic = isPublic ? 1 : 0;
   }
-  if (course.isDefault !== undefined) {
-    result.isDefault = course.isDefault ? 1 : 0;
+  if (isDefault !== undefined) {
+    result.isDefault = isDefault ? 1 : 0;
   }
   return result;
 }
@@ -93,12 +93,13 @@ function dbLessonToDomain(db: DBLesson): Lesson {
  * Convert domain lesson to DB lesson
  */
 function lessonToDB(lesson: Partial<Lesson>): Partial<DBLesson> {
-  const result: Partial<DBLesson> = { ...lesson };
-  if (lesson.content) {
-    result.content = JSON.stringify(lesson.content);
+  const { content, requiredForCertification, ...rest } = lesson;
+  const result: Partial<DBLesson> = { ...rest };
+  if (content) {
+    result.content = JSON.stringify(content);
   }
-  if (lesson.requiredForCertification !== undefined) {
-    result.requiredForCertification = lesson.requiredForCertification ? 1 : 0;
+  if (requiredForCertification !== undefined) {
+    result.requiredForCertification = requiredForCertification ? 1 : 0;
   }
   return result;
 }
@@ -134,11 +135,11 @@ class TrainingManager {
   }
 
   private getCurrentPubkey(): string {
-    const identity = useIdentityStore.getState().currentIdentity;
+    const identity = useAuthStore.getState().currentIdentity;
     if (!identity) {
       throw new Error('No identity selected');
     }
-    return identity.pubkey;
+    return identity.publicKey;
   }
 
   // =========================================================================
@@ -832,7 +833,10 @@ class TrainingManager {
     await db.table('trainingAssignmentSubmissions').add(submission);
 
     logger.info(`Submitted assignment: ${submission.id} for lesson ${lessonId}`);
-    return submission;
+    return {
+      ...submission,
+      rubricScores: submission.rubricScores ? JSON.parse(submission.rubricScores) : undefined,
+    };
   }
 
   async reviewAssignment(
@@ -864,7 +868,10 @@ class TrainingManager {
     }
 
     logger.info(`Reviewed assignment: ${submissionId}, status: ${status}`);
-    return submission;
+    return {
+      ...submission,
+      rubricScores: submission.rubricScores ? JSON.parse(submission.rubricScores) : undefined,
+    };
   }
 
   // =========================================================================

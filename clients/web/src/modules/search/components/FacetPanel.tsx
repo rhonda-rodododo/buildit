@@ -92,6 +92,7 @@ const MODULE_TYPE_LABELS: Record<ModuleType, string> = {
   newsletters: 'Newsletters',
   friends: 'Friends',
   security: 'Security',
+  training: 'Training',
 };
 
 // ============================================================================

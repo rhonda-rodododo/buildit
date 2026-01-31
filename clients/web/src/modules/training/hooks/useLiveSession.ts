@@ -5,7 +5,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTrainingStore } from '../trainingStore';
-import type { Lesson, LiveSessionContent, LiveSessionRSVP, LiveSessionAttendance } from '../types';
+import type { Lesson, LiveSessionContent, LiveSessionRSVP } from '../types';
 
 interface UseLiveSessionOptions {
   lessonId: string;
@@ -50,8 +50,8 @@ export function useLiveSession({ lessonId, autoJoin = false }: UseLiveSessionOpt
     recordLiveAttendance,
   } = useTrainingStore();
 
-  const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [content, setContent] = useState<LiveSessionContent | null>(null);
+  const [lesson] = useState<Lesson | null>(null);
+  const [content] = useState<LiveSessionContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rsvpStatus, setRsvpStatus] = useState<LiveSessionRSVP['status'] | null>(null);

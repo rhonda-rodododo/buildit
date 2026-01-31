@@ -7,7 +7,6 @@ import { logger } from '@/lib/logger';
 import { getTrainingManager } from '../trainingManager';
 import type {
   Certification,
-  UserTrainingStatus,
   Course,
 } from '../types';
 
@@ -193,7 +192,7 @@ export class TrainingCRMIntegration {
   async sendCertificationReminders(
     pubkeys: string[],
     courseId: string,
-    message: string
+    _message: string
   ): Promise<void> {
     // In a real implementation, this would send notifications via the messaging module
     logger.info(

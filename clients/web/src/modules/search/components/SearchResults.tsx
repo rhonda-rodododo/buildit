@@ -80,6 +80,7 @@ const MODULE_ICONS: Record<ModuleType, typeof FileText> = {
   newsletters: MessageSquare,
   friends: Users,
   security: FileText,
+  training: BookOpen,
 };
 
 // ============================================================================

@@ -24,11 +24,8 @@ import {
   User,
   Phone,
   Mail,
-  Clock,
-  MessageSquare,
   Plus,
   ExternalLink,
-  ChevronRight,
   Loader2,
   AlertCircle,
   Building,
@@ -223,10 +220,10 @@ export const CallerInfoPopup: FC<CallerInfoPopupProps> = ({
               </div>
             )}
 
-            {contact.customFields?.organization && (
+            {!!contact.customFields?.organization && (
               <div className="flex items-center gap-2 text-sm">
                 <Building className="h-3 w-3 text-muted-foreground" />
-                <span className="truncate">{contact.customFields.organization as string}</span>
+                <span className="truncate">{String(contact.customFields.organization)}</span>
               </div>
             )}
           </div>
@@ -261,7 +258,7 @@ export const CallerInfoPopup: FC<CallerInfoPopupProps> = ({
           )}
 
           {/* Notes Preview */}
-          {!collapsed && contact.customFields?.notes && (
+          {!collapsed && !!contact.customFields?.notes && (
             <>
               <Separator />
 
@@ -270,7 +267,7 @@ export const CallerInfoPopup: FC<CallerInfoPopupProps> = ({
                   {t('calling.callerInfo.notes')}
                 </p>
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  {contact.customFields.notes as string}
+                  {String(contact.customFields.notes)}
                 </p>
               </div>
             </>

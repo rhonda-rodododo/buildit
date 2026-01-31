@@ -11,7 +11,7 @@ import { appBasicsTemplate } from './templates/appBasics';
 import { opsecBasicsTemplate } from './templates/opsecBasics';
 import { digitalSecurityTemplate } from './templates/digitalSecurity';
 import { jailSupportTemplate } from './templates/jailSupport';
-import type { CourseTemplate, ModuleTemplate, LessonTemplate, LessonContent, DocumentContent, QuizContent, VideoContent } from './types';
+import type { CourseTemplate, LessonTemplate, LessonContent, DocumentContent, QuizContent, VideoContent } from './types';
 
 /**
  * Convert a course template to database records

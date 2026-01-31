@@ -10,7 +10,6 @@ import {
   Award,
   Calendar,
   Clock,
-  CheckCircle,
   XCircle,
   AlertTriangle,
   Search,

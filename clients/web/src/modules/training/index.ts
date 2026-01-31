@@ -5,7 +5,6 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { trainingSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
 import { GraduationCap } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';

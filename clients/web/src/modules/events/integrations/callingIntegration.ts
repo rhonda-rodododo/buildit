@@ -145,10 +145,9 @@ export class EventCallingIntegration {
       return;
     }
 
-    const message = config.message ||
-      `The virtual event "${event.title}" is starting in ${config.minutesBefore} minutes. Click to join: ${conference.joinUrl}`;
-
     // In a real implementation, would send notifications via messaging module
+    // const message = config.message ||
+    //   `The virtual event "${event.title}" is starting in ${config.minutesBefore} minutes. Click to join: ${conference.joinUrl}`;
     logger.info(`Sending join reminders for event: ${event.title}`, {
       eventId: event.id,
       recipientCount: rsvpPubkeys.length,
@@ -211,7 +210,7 @@ export class EventCallingIntegration {
   /**
    * Get virtual attendance stats for an event
    */
-  async getVirtualAttendanceStats(eventId: string): Promise<VirtualAttendanceStats> {
+  async getVirtualAttendanceStats(_eventId: string): Promise<VirtualAttendanceStats> {
     // In a real implementation, would query the database for attendance records
     // and calculate statistics
 

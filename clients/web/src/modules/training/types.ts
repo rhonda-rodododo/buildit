@@ -627,7 +627,7 @@ export const CertificationSchema = z.object({
   earnedAt: z.number(),
   expiresAt: z.number().optional(),
   verificationCode: z.string(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   revokedAt: z.number().optional(),
   revokedBy: z.string().optional(),
   revokeReason: z.string().optional(),

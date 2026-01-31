@@ -15,7 +15,6 @@ import type {
   QuizAttempt,
   AssignmentSubmission,
   LiveSessionRSVP,
-  LiveSessionAttendance,
   CreateCourseData,
   UpdateCourseData,
   CreateModuleData,
@@ -203,11 +202,11 @@ export const useTrainingStore = create<TrainingState>((set, get) => ({
   },
 
   publishCourse: async (courseId: string) => {
-    return get().updateCourse(courseId, { status: 'published' });
+    await get().updateCourse(courseId, { status: 'published' });
   },
 
   archiveCourse: async (courseId: string) => {
-    return get().updateCourse(courseId, { status: 'archived' });
+    await get().updateCourse(courseId, { status: 'archived' });
   },
 
   // Module Actions

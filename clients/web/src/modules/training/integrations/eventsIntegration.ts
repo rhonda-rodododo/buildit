@@ -6,8 +6,6 @@
 import { logger } from '@/lib/logger';
 import { getTrainingManager } from '../trainingManager';
 import type {
-  Course,
-  Lesson,
   LiveSessionContent,
 } from '../types';
 
@@ -69,8 +67,8 @@ export class TrainingEventsIntegration {
 
     let lessonName: string | undefined;
     if (config.lessonId) {
-      const lesson = await manager.getLesson(config.lessonId);
-      lessonName = lesson?.title;
+      const configLesson = await manager.getLesson(config.lessonId);
+      lessonName = configLesson?.title;
     }
 
     // In a real implementation, this would create an event via the events module
@@ -91,7 +89,7 @@ export class TrainingEventsIntegration {
   async linkEventToTraining(
     eventId: string,
     courseId: string,
-    lessonId?: string
+    _lessonId?: string
   ): Promise<void> {
     const manager = getTrainingManager();
     const course = await manager.getCourse(courseId);
@@ -123,7 +121,7 @@ export class TrainingEventsIntegration {
   /**
    * Get training info for an event
    */
-  async getTrainingForEvent(eventId: string): Promise<TrainingLinkedEvent | null> {
+  async getTrainingForEvent(_eventId: string): Promise<TrainingLinkedEvent | null> {
     // In a real implementation, would query event metadata for training link
     // For now, return null as placeholder
     return null;
@@ -134,8 +132,8 @@ export class TrainingEventsIntegration {
    * When an event with training link is scheduled, this sets up the live session
    */
   async createLiveSessionFromEvent(
-    eventId: string,
-    courseId: string,
+    _eventId: string,
+    _courseId: string,
     moduleId: string,
     instructorPubkey: string,
     scheduledAt: number,
@@ -159,7 +157,7 @@ export class TrainingEventsIntegration {
       } as LiveSessionContent,
     });
 
-    logger.info(`Created live session ${lesson.id} from event ${eventId}`);
+    logger.info(`Created live session ${lesson.id} from event ${_eventId}`);
 
     return lesson.id;
   }
@@ -201,8 +199,8 @@ export class TrainingEventsIntegration {
    * Get upcoming training events
    */
   async getUpcomingTrainingEvents(
-    groupId?: string,
-    limit: number = 10
+    _groupId?: string,
+    _limit: number = 10
   ): Promise<Array<TrainingLinkedEvent & { eventStartTime: number }>> {
     // In a real implementation, would query events module for training-linked events
     // filtered by group and sorted by start time

@@ -85,7 +85,7 @@ export class VolunteerCallingIntegration {
    */
   async checkRequirements(
     contactId: string,
-    pubkey: string,
+    _pubkey: string,
     role: EventVolunteerRole
   ): Promise<VolunteerRequirementsResult> {
     const missingTrainings: TrainingRequirementStatus[] = [];
