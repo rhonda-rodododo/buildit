@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-24 (Epic 61 Advanced Social Features completed)
+**Last Updated**: 2026-01-30 (Calling System, Calling-Integrations, and Training Module completed)
 
 ---
 
@@ -82,6 +82,24 @@ Archive of completed epics. This document provides high-level summaries only.
 | 60 | v0.60.0 | ✅ | `v0.60.0-offline-enhanced` | Offline Mode Enhancement - Queue processor, SyncStatusIndicator, cache management, background sync |
 | 59 | v0.59.0 | ✅ | `v0.59.0-mobile-ux` | Mobile-First UX - Bottom nav, swipe gestures, pull-to-refresh, infinite scroll, haptic feedback |
 | 61 | v0.61.0 | ✅ | `v0.61.0-social-advanced` | Advanced Social Features - Polls, stories, moderation, user lists, trending topics |
+| Calling-1 | - | ✅ | `8f11b94` | Core Calling Protocol - WebRTC P2P, SFU conferencing, SRTP encryption |
+| Calling-2 | - | ✅ | `8f11b94` | Core Call UI - Dialer, in-call controls, contact integration |
+| Calling-3 | - | ✅ | `8f11b94` | Nostr Signaling - NIP-17 encrypted call signaling, ICE candidates |
+| Calling-4 | - | ✅ | `8f11b94` | BLE Proximity Calling - Bluetooth mesh call initiation |
+| Calling-5 | - | ✅ | `8f11b94` | Conference Infrastructure - SFU-based multi-party, room management |
+| Calling-6 | - | ✅ | `8f11b94` | Conference Features - Screen sharing, recording, breakout rooms |
+| Calling-7 | - | ✅ | `8f11b94` | Calling Integrations - Events, CRM, Volunteers module bridges |
+| Calling-8 | - | ✅ | `8f11b94` | PSTN Gateway - Phone number bridging, emergency services |
+| Calling-9 | - | ✅ | `8f11b94` | Messaging Hotline/Blasts - Automated hotline, mass messaging, IVR |
+| CallingInt-1 | - | ✅ | `8f11b94` | Events-Calling Integration - Conference rooms for events |
+| CallingInt-2 | - | ✅ | `8f11b94` | CRM-Calling Integration - Call tracking, contact history |
+| CallingInt-3 | - | ✅ | `8f11b94` | Volunteers-Calling Integration - Volunteer coordination calls |
+| CallingInt-4 | - | ✅ | `8f11b94` | Training-Calling Integration - Live session support |
+| Training-1 | - | ✅ | `8f11b94` | Course Structure & Content Types - Courses, lessons, modules |
+| Training-2 | - | ✅ | `8f11b94` | Assessment & Certification - Quizzes, assignments, certificates |
+| Training-3 | - | ✅ | `8f11b94` | Live Sessions & Scheduling - Real-time training sessions |
+| Training-4 | - | ✅ | `8f11b94` | Analytics & Progress Tracking - Learning analytics dashboard |
+| Training-5 | - | ✅ | `8f11b94` | Default Content & Templates - Built-in training content |
 
 ---
 
@@ -2377,5 +2395,62 @@ Added advanced social features to match modern social platforms including polls,
 - `userLists` - Curated user lists
 
 **Reference**: `src/modules/microblogging/socialFeaturesStore.ts`
+
+---
+
+### Calling System (Epics 1-9) ✅
+**Commit**: `8f11b94` | **Reference**: `src/modules/calling/`
+
+Complete calling ecosystem implementation spanning 9 epics, from core P2P calling through conferencing, PSTN bridging, and mass communication tools.
+
+**Epic 1 - Core Calling Protocol**: WebRTC peer-to-peer calling with SRTP encryption, SFU conferencing architecture, call state machine, and codec negotiation.
+
+**Epic 2 - Core Call UI**: Dialer interface, in-call controls (mute, hold, transfer), call history, contact integration, and accessibility-compliant call screens.
+
+**Epic 3 - Nostr Signaling**: NIP-17 gift-wrapped encrypted call signaling, ICE candidate exchange over Nostr relays, call initiation/termination protocol.
+
+**Epic 4 - BLE Proximity Calling**: Bluetooth mesh-based call initiation for offline/proximity scenarios, BLE service discovery, and fallback to relay signaling.
+
+**Epic 5 - Conference Infrastructure**: SFU-based multi-party conferencing, room management, participant tracking, server-side mixing, and scalable room architecture.
+
+**Epic 6 - Conference Features**: Screen sharing, call recording with consent, breakout rooms, participant management, hand raising, and moderator controls.
+
+**Epic 7 - Calling Integrations**: Bridge modules connecting calling to Events (conference calls for events), CRM (call logging), and Volunteers (coordination calls).
+
+**Epic 8 - PSTN Gateway**: Phone number bridging for traditional phone calls, emergency services (911/112) routing, SIP trunking, and caller ID management. Implemented across web, iOS, and Android.
+
+**Epic 9 - Messaging Hotline/Blasts**: Automated phone hotline with IVR menus, mass voice/SMS messaging (blasts), scheduled message delivery, and response tracking.
+
+---
+
+### Calling-Integrations (Epics 1-4) ✅
+**Commit**: `8f11b94` | **Reference**: `src/modules/calling/integrations/`
+
+Cross-module integration layer connecting the calling system with other BuildIt modules.
+
+**Epic 1 - Events-Calling Integration**: Automatic conference room creation for events, one-click join from event pages, event-scoped call history.
+
+**Epic 2 - CRM-Calling Integration**: Call activity tracking in CRM contact records, call outcome logging, caller ID lookup from CRM contacts, call analytics per contact.
+
+**Epic 3 - Volunteers-Calling Integration**: Volunteer coordination conference calls, shift-based call routing, volunteer availability-aware calling, phone tree automation.
+
+**Epic 4 - Training-Calling Integration**: Live session support for training modules, instructor-led conference calls, Q&A call queues, session recording integration.
+
+---
+
+### Training Module (Epics 1-5) ✅
+**Commit**: `8f11b94` | **Reference**: `src/modules/training/`
+
+Complete training and education module for organizing skill development, onboarding, and certification.
+
+**Epic 1 - Course Structure & Content Types**: Course creation with hierarchical structure (courses > modules > lessons), support for video, text, slides, and interactive content types, curriculum builder.
+
+**Epic 2 - Assessment & Certification**: Quiz builder with multiple question types, assignment submissions with peer review, automated grading, certificate generation with verification codes, competency tracking.
+
+**Epic 3 - Live Sessions & Scheduling**: Real-time training session scheduling and management, integration with calling module for live instruction, attendance tracking, session recordings.
+
+**Epic 4 - Analytics & Progress Tracking**: Learning analytics dashboard with completion rates, time-on-task metrics, learner progress visualization, instructor performance reports, cohort comparisons.
+
+**Epic 5 - Default Content & Templates**: Built-in training content templates for common organizing skills (canvassing, de-escalation, legal observer, media training), customizable course templates, content library.
 
 ---
