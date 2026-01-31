@@ -37,11 +37,13 @@ Provide UX/UI expertise:
 
 ## Entry Files (Read These First)
 
-1. **UI components**: `src/components/ui/` - shadcn/ui design system
-2. **Module UIs**: `src/modules/*/components/` - Feature interfaces
-3. **Existing designs** - Review similar features for patterns
-4. **Tailwind config**: `tailwind.config.js` - Design tokens
-5. **shadcn/ui docs** - Component library reference (use Context7)
+1. **docs/design-principles.md** - Cross-platform UX standards
+2. **docs/personas/** - User personas across all target communities
+3. **UI components**: `src/components/ui/` - shadcn/ui design system
+4. **Module UIs**: `src/modules/*/components/` - Feature interfaces
+5. **Existing designs** - Review similar features for patterns
+6. **Tailwind config**: `tailwind.config.js` - Design tokens
+7. **shadcn/ui docs** - Component library reference (use Context7)
 
 ## Tech Stack
 

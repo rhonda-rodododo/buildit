@@ -89,7 +89,7 @@ src/core/nostr/
 
 **Purpose**: Provide end-to-end encryption with strong metadata protection
 
-**Encryption Strategy** (See ENCRYPTION_STRATEGY.md for full details):
+**Encryption Strategy** (See docs/architecture/encryption-strategy.md for full details):
 - **DMs & Small Groups**: NIP-17 (gift-wrapped NIP-44) - Best metadata protection
 - **Large Groups**: Noise Protocol (Phase 2) - Forward secrecy
 - **Future BLE**: Noise Protocol mesh (offline)

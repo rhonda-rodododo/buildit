@@ -65,15 +65,21 @@ bun run build      # Production build
 
 ### Technical Reference (Stable)
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
-- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption decisions and implementation
-- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security considerations
+- **[Encryption Strategy](../../docs/architecture/encryption-strategy.md)** - Encryption decisions and implementation
+- **[Privacy & OPSEC](../../docs/PRIVACY.md)** - Threat model and security considerations
+
+### Product Context (Shared)
+- **[Vision & Mission](../../docs/VISION.md)** - Who we serve, why we exist
+- **[User Personas](../../docs/personas/)** - Spectrum of Support personas across all target communities
+- **[Design Principles](../../docs/design-principles.md)** - Cross-platform UX standards
 
 ### Implementation Guides
 - **[docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md](./docs/SOCIAL_FEATURES_IMPLEMENTATION_GUIDE.md)** - Detailed implementation checklist for social features (Epics 21-25)
 - **[docs/GIT_WORKFLOW.md](./docs/GIT_WORKFLOW.md)** - Git worktrees for parallel Claude Code sessions
 
-### User Research (Archive)
-- **[docs/archive/](./docs/archive/)** - Historical strategy docs, user research (reference only)
+### User Research
+- **[User Personas](../../docs/personas/)** - Spectrum of Support personas across all communities
+- **[docs/archive/](./docs/archive/)** - Historical strategy docs (stubs pointing to new locations)
 
 ### Navigation & Discovery
 - **[PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation index (for humans)
@@ -430,7 +436,7 @@ registerModuleTranslations('my-module', myModuleTranslations);
 - **Official modules only**: Users cannot create modules (ensures encapsulation and quality)
 
 ## Security & Privacy
-See PRIVACY.md for threat model and security architecture.
+See [docs/PRIVACY.md](../../docs/PRIVACY.md) for threat model and security architecture.
 
 Key principles:
 - E2E encryption for private data

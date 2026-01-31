@@ -30,8 +30,8 @@ Conduct thorough security audits:
 
 ## Entry Files (Read These First)
 
-1. **PRIVACY.md** - Threat model and security requirements
-2. **ENCRYPTION_STRATEGY.md** - Encryption decisions and implementation
+1. **docs/PRIVACY.md** - Threat model and security requirements
+2. **docs/architecture/encryption-strategy.md** - Encryption decisions and implementation
 3. **ARCHITECTURE.md** - System architecture
 4. **Crypto code**:
    - `src/core/crypto/` - Encryption utilities
@@ -264,7 +264,7 @@ grep -rn "console.log" src/
 
 ## Example Execution Flow
 
-1. Read PRIVACY.md and ENCRYPTION_STRATEGY.md
+1. Read docs/PRIVACY.md and docs/architecture/encryption-strategy.md
 2. Run `bun audit` → Check for CVEs
 3. Review `src/core/crypto/` implementation
 4. Verify NIP-44 encryption: nonce handling, chacha20-poly1305 usage

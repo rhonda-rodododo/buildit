@@ -2,6 +2,23 @@
 
 > Privacy-first organizing platform for activist groups, co-ops, unions, and community organizers.
 
+## Project Vision & Philosophy
+
+BuildIt exists because organizers need tools that are private by default,
+work offline, and serve the full spectrum of engagement — from casual
+supporters to core organizers to opposition researchers.
+
+**Read these to understand WHY we build what we build:**
+- **[Vision & Mission](docs/VISION.md)** — Who we serve, why we exist, design principles
+- **[User Personas](docs/personas/)** — Spectrum of Support personas across all target communities
+- **[Design Principles](docs/design-principles.md)** — Cross-platform UX standards
+- **[Privacy & OPSEC Guide](docs/PRIVACY.md)** — User-facing security guidance
+- **[Encryption Strategy](docs/architecture/encryption-strategy.md)** — Layered encryption architecture
+
+Every feature, on every platform, should serve these communities and embody
+these principles. When in doubt, ask: "Does this help an organizer coordinate
+safely and effectively?"
+
 ## Application Architecture
 
 **There are 3 native applications** - the web client is NOT a standalone app:
@@ -43,9 +60,12 @@ buildit/
 │   ├── schemas/      # JSON Schema (SOURCE OF TRUTH for all types)
 │   └── test-vectors/ # Cross-client validation tests
 ├── docs/
-│   ├── protocol-spec/  # Protocol specifications
-│   ├── architecture/   # System design docs
-│   └── guides/         # Implementation guides
+│   ├── VISION.md        # Core vision, mission, principles
+│   ├── personas/        # Spectrum of Support user personas
+│   ├── visions/         # Multi-epic product direction docs
+│   ├── protocol-spec/   # Protocol specifications
+│   ├── architecture/    # System design docs (encryption strategy, etc.)
+│   └── guides/          # Implementation guides
 └── tools/
     └── codegen/      # Schema → TypeScript/Swift/Kotlin generators (quicktype)
 ```
@@ -130,6 +150,11 @@ Each client has a `CLAUDE.md` with platform-specific instructions:
 
 | Topic | Location |
 |-------|----------|
+| Vision & Philosophy | `docs/VISION.md` |
+| User Personas | `docs/personas/` |
+| Design Principles | `docs/design-principles.md` |
+| Product Visions | `docs/visions/` |
+| Privacy & OPSEC | `docs/PRIVACY.md` |
 | Active Roadmap | `clients/web/NEXT_ROADMAP.md` |
 | Completed Work | `clients/web/COMPLETED_ROADMAP.md` |
 | Epics | `docs/epics/*` |

@@ -819,7 +819,7 @@ const shares = splitSecret(privateKey, 5, 3)
 
 **Concept**: Ratcheting keys for forward secrecy
 
-**Implementation**: See ENCRYPTION_STRATEGY.md (Phase 2)
+**Implementation**: See docs/architecture/encryption-strategy.md (Phase 2)
 
 **Benefits**:
 - Key compromise doesn't reveal past messages
@@ -835,7 +835,7 @@ const shares = splitSecret(privateKey, 5, 3)
 ## References
 
 1. [ENCRYPTION_IMPLEMENTATION.md](./ENCRYPTION_IMPLEMENTATION.md) - Complete encryption documentation
-2. [PRIVACY.md](../PRIVACY.md) - Threat model and security considerations
+2. [PRIVACY.md](../../../docs/PRIVACY.md) - Threat model and security considerations
 3. [NIP-19 Specification](https://github.com/nostr-protocol/nips/blob/master/19.md) - nsec/npub encoding
 4. [NIP-46 Specification](https://github.com/nostr-protocol/nips/blob/master/46.md) - Remote signing (hardware wallets)
 5. [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)

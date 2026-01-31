@@ -15,24 +15,22 @@
 
 ### 🏗️ Technical Documentation
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture, data flow, module system
-- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - NIP-17/44/59 implementation, key management
-- **[PRIVACY.md](./PRIVACY.md)** - Threat model, security considerations, OPSEC
+- **[Encryption Strategy](../../docs/architecture/encryption-strategy.md)** - NIP-17/44/59 implementation, key management
+- **[Privacy & OPSEC](../../docs/PRIVACY.md)** - Threat model, security considerations, OPSEC
 - **[docs/GIT_WORKFLOW.md](./docs/GIT_WORKFLOW.md)** - Git worktrees for parallel development
 
-### 🔮 Product Visions
-Multi-epic product visions with comprehensive specifications:
-- **[docs/visions/MEDIA_COLLECTIVE.md](./docs/visions/MEDIA_COLLECTIVE.md)** - Indymedia-style federated media network
+### 🔮 Product Visions & Philosophy
+- **[Vision & Mission](../../docs/VISION.md)** - Who we serve, why we exist, core principles
+- **[Design Principles](../../docs/design-principles.md)** - Cross-platform UX standards
+- **[Media Collective Vision](../../docs/visions/media-collective.md)** - Indymedia-style federated media network
+- **[Media Collective Template](../../docs/visions/media-collective-template.md)** - Media collective template specification
 
-### 📋 Group Templates
-Detailed specifications for group templates:
-- **[docs/templates/MEDIA_COLLECTIVE_TEMPLATE.md](./docs/templates/MEDIA_COLLECTIVE_TEMPLATE.md)** - Media collective template specification
-
-### 👥 User Research & Product Strategy (For Humans)
+### 👥 User Research & Product Strategy
+- **[User Personas](../../docs/personas/)** - Spectrum of Support personas across all communities
+- **[Labor Organizing Personas](../../docs/personas/labor-organizing.md)** - 6 personas across engagement spectrum
+- **[Labor Testing Results](../../docs/personas/labor-organizing-testing-results.md)** - Gap analysis (41% current coverage)
+- **[Labor Feature Recommendations](../../docs/personas/labor-organizing-feature-recommendations.md)** - Implementation roadmap (Epics 21B-27)
 - **[README.md](./README.md)** - Project overview, tech stack, deployment guide
-- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - 6 personas across engagement spectrum
-- **[SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md)** - Gap analysis (41% current coverage)
-- **[SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md)** - Implementation roadmap (Epics 21B-27)
-- **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social layer and community management strategy
 
 ---
 
@@ -48,7 +46,7 @@ Detailed specifications for group templates:
 ## 🚀 Quick Reference by Use Case
 
 ### I want to understand BuildIt Network
-→ [README.md](./README.md) + [SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)
+→ [Vision & Mission](../../docs/VISION.md) + [User Personas](../../docs/personas/)
 
 ### I want to execute the next epic autonomously (Claude Code)
 → [CLAUDE.md](./CLAUDE.md) (Start here) + [NEXT_ROADMAP.md](./NEXT_ROADMAP.md) (Pick epic) + [.claude/subagents.yml](./.claude/subagents.yml) (Task patterns)
@@ -57,13 +55,13 @@ Detailed specifications for group templates:
 → [COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md) (Archive) + `git log <tag>` (Details)
 
 ### I want to understand users
-→ [SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md) (Who) + [SPECTRUM_USER_TESTING_RESULTS.md](./SPECTRUM_USER_TESTING_RESULTS.md) (Gaps)
+→ [User Personas](../../docs/personas/) (Who) + [Labor Testing Results](../../docs/personas/labor-organizing-testing-results.md) (Gaps)
 
 ### I want implementation details
-→ [SPECTRUM_FEATURE_RECOMMENDATIONS.md](./SPECTRUM_FEATURE_RECOMMENDATIONS.md) (Epics 21B-27 specs) + [ARCHITECTURE.md](./ARCHITECTURE.md) (System design)
+→ [Labor Feature Recommendations](../../docs/personas/labor-organizing-feature-recommendations.md) (Epics 21B-27 specs) + [ARCHITECTURE.md](./ARCHITECTURE.md) (System design)
 
 ### I want security info
-→ [PRIVACY.md](./PRIVACY.md) (Threats) + [ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md) (Solutions)
+→ [Privacy & OPSEC](../../docs/PRIVACY.md) (Threats) + [Encryption Strategy](../../docs/architecture/encryption-strategy.md) (Solutions)
 
 ---
 

@@ -38,12 +38,13 @@ Provide product management expertise:
 
 ## Entry Files (Read These First)
 
-1. **NEXT_ROADMAP.md** - Current roadmap and priorities
-2. **COMPLETED_ROADMAP.md** - What's been built
-3. **ARCHITECTURE.md** - Technical capabilities and constraints
-4. **PRIVACY.md** - Security requirements and threat model
-5. **docs/archive/** - User research and strategy docs
-6. **PRODUCT_INDEX.md** - Complete product overview
+1. **docs/VISION.md** - Project vision, mission, and principles
+2. **docs/personas/** - User personas across all target communities
+3. **NEXT_ROADMAP.md** - Current roadmap and priorities
+4. **COMPLETED_ROADMAP.md** - What's been built
+5. **ARCHITECTURE.md** - Technical capabilities and constraints
+6. **docs/PRIVACY.md** - Security requirements and threat model
+7. **PRODUCT_INDEX.md** - Complete product overview
 
 ## Core Competencies
 

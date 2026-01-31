@@ -4,6 +4,10 @@
 
 **Parent instructions**: See `/CLAUDE.md` for monorepo-wide context.
 
+**Product context**: Read [`docs/VISION.md`](../../docs/VISION.md) for who we serve and why.
+Read [`docs/design-principles.md`](../../docs/design-principles.md) for cross-platform UX standards.
+Read [`docs/personas/`](../../docs/personas/) for user personas across all target communities.
+
 ## Tech Stack
 
 - **Language**: Kotlin 1.9+

@@ -22,7 +22,7 @@ Execute epics end-to-end with full autonomy:
 1. **NEXT_ROADMAP.md** - Identify target epic, tasks, and acceptance criteria
 2. **COMPLETED_ROADMAP.md** - Understand what's already done
 3. **ARCHITECTURE.md** - System architecture and patterns
-4. **ENCRYPTION_STRATEGY.md** - If crypto/encryption related
+4. **docs/architecture/encryption-strategy.md** - If crypto/encryption related
 5. **Module-specific files** - Based on epic scope
 
 ## Execution Process

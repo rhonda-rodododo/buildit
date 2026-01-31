@@ -27,12 +27,12 @@ This project is designed for autonomous execution by Claude Code.
 - **[COMPLETED_ROADMAP.md](./COMPLETED_ROADMAP.md)** - Archive of finished epics (1-27)
 - **[.claude/subagents.yml](./.claude/subagents.yml)** - Subagent task delegation patterns
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and data flow
-- **[ENCRYPTION_STRATEGY.md](./ENCRYPTION_STRATEGY.md)** - Encryption implementation
-- **[PRIVACY.md](./PRIVACY.md)** - Threat model and security
+- **[Encryption Strategy](../../docs/architecture/encryption-strategy.md)** - Encryption implementation
+- **[Privacy & OPSEC](../../docs/PRIVACY.md)** - Threat model and security
 
 **For Humans** (Reference):
 - **[PRODUCT_INDEX.md](./PRODUCT_INDEX.md)** - Complete documentation navigation
-- **[SPECTRUM_OF_SUPPORT_PERSONAS.md](./SPECTRUM_OF_SUPPORT_PERSONAS.md)** - User personas
+- **[User Personas](../../docs/personas/)** - Spectrum of Support personas across all communities
 - **[SOCIAL_FEATURES_STRATEGY.md](./SOCIAL_FEATURES_STRATEGY.md)** - Social strategy
 
 ## 🏗️ Tech Stack

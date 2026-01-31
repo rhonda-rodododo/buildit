@@ -374,7 +374,7 @@ This document provides a detailed threat model for BuildIt, a privacy-first orga
 
 - [SECURITY.md](./SECURITY.md) - Security architecture overview
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) - Audit findings and fixes
-- [PRIVACY.md](../clients/web/PRIVACY.md) - User-facing privacy documentation
+- [PRIVACY.md](./PRIVACY.md) - User-facing privacy documentation
 - [Signal Protocol](https://signal.org/docs/) - Comparison reference
 - [NIST Post-Quantum Cryptography](https://csrc.nist.gov/projects/post-quantum-cryptography)
 
