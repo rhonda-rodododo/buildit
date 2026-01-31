@@ -5,6 +5,7 @@ import type {
   Group,
   GroupCreationParams,
   GroupMember,
+  GroupPermission,
   GroupRole,
 } from '@/types/group'
 import { generateEventId } from '@/lib/utils'
@@ -337,16 +338,16 @@ export async function getGroupMembers(
  */
 export function hasPermission(
   member: GroupMember,
-  permission: string
+  permission: GroupPermission
 ): boolean {
   // Owner has all permissions
   if (member.role === 'owner') return true
 
   // Admin has most permissions
   if (member.role === 'admin') {
-    return !['remove_members'].includes(permission) // Admins can't remove owner
+    return permission !== 'remove_members' // Admins can't remove owner
   }
 
   // Check specific permissions
-  return member.permissions?.includes(permission as any) || false
+  return member.permissions?.includes(permission) || false
 }

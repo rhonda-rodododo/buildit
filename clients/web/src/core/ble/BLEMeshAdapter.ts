@@ -121,6 +121,11 @@ export class BLEMeshAdapter implements ITransportAdapter {
   private scanInterval: number | null = null;
   private syncInterval: number | null = null;
   private seenMessageIds = new Set<string>();
+  private peerListeners = new Map<string, {
+    characteristicHandlers: Array<{ characteristic: BluetoothRemoteGATTCharacteristic; handler: (event: Event) => void }>;
+    disconnectHandler: () => void;
+    device: BluetoothDevice;
+  }>();
 
   constructor(config: Partial<BLEMeshAdapterConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -172,6 +177,35 @@ export class BLEMeshAdapter implements ITransportAdapter {
   }
 
   /**
+   * Clean up event listeners for a specific peer
+   */
+  private cleanupPeerListeners(peerId: string): void {
+    const listeners = this.peerListeners.get(peerId);
+    if (!listeners) return;
+
+    // Remove characteristic value changed listeners
+    for (const { characteristic, handler } of listeners.characteristicHandlers) {
+      try {
+        characteristic.removeEventListener('characteristicvaluechanged', handler);
+        characteristic.stopNotifications().catch(() => {
+          // Ignore errors during cleanup - characteristic may already be disconnected
+        });
+      } catch {
+        // Ignore errors during cleanup
+      }
+    }
+
+    // Remove device disconnect listener
+    try {
+      listeners.device.removeEventListener('gattserverdisconnected', listeners.disconnectHandler);
+    } catch {
+      // Ignore errors during cleanup
+    }
+
+    this.peerListeners.delete(peerId);
+  }
+
+  /**
    * Disconnect from BLE mesh network
    */
   async disconnect(): Promise<void> {
@@ -183,8 +217,9 @@ export class BLEMeshAdapter implements ITransportAdapter {
     // Stop periodic sync
     this.stopPeriodicSync();
 
-    // Disconnect all peers
+    // Clean up listeners and disconnect all peers
     for (const peer of this.peers.values()) {
+      this.cleanupPeerListeners(peer.id);
       try {
         await peer.device.gatt?.disconnect();
       } catch (error) {
@@ -193,6 +228,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
     }
 
     this.peers.clear();
+    this.peerListeners.clear();
     this.stats.connectedPeers = 0;
 
     this.setStatus(TransportStatus.DISCONNECTED);
@@ -364,6 +400,8 @@ export class BLEMeshAdapter implements ITransportAdapter {
 
       // Get characteristics
       const characteristics = new Map<string, BluetoothRemoteGATTCharacteristic>();
+      const characteristicHandlers: Array<{ characteristic: BluetoothRemoteGATTCharacteristic; handler: (event: Event) => void }> = [];
+
       for (const [name, uuid] of Object.entries(BLE_CHARACTERISTICS)) {
         try {
           const characteristic = await service.getCharacteristic(uuid);
@@ -372,14 +410,29 @@ export class BLEMeshAdapter implements ITransportAdapter {
           // Subscribe to notifications
           if (characteristic.properties.notify) {
             await characteristic.startNotifications();
-            characteristic.addEventListener('characteristicvaluechanged', (event) => {
+            const handler = (event: Event) => {
               this.handleCharacteristicChange(peerId, event);
-            });
+            };
+            characteristic.addEventListener('characteristicvaluechanged', handler);
+            characteristicHandlers.push({ characteristic, handler });
           }
         } catch (error) {
           console.warn(`[BLE Mesh] Failed to get characteristic ${name}:`, error);
         }
       }
+
+      // Handle disconnect
+      const disconnectHandler = () => {
+        this.handlePeerDisconnect(peerId);
+      };
+      device.addEventListener('gattserverdisconnected', disconnectHandler);
+
+      // Store listener references for cleanup
+      this.peerListeners.set(peerId, {
+        characteristicHandlers,
+        disconnectHandler,
+        device,
+      });
 
       // Store peer
       const peer: BLEPeer = {
@@ -395,11 +448,6 @@ export class BLEMeshAdapter implements ITransportAdapter {
       this.stats.connectedPeers = this.peers.size;
 
       logger.info(`[BLE Mesh] Connected to peer: ${peerId}`);
-
-      // Handle disconnect
-      device.addEventListener('gattserverdisconnected', () => {
-        this.handlePeerDisconnect(peerId);
-      });
     } catch (error) {
       console.error(`[BLE Mesh] Failed to connect to peer ${peerId}:`, error);
       throw error;
@@ -512,6 +560,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
   private handlePeerDisconnect(peerId: string): void {
     logger.info(`[BLE Mesh] Peer disconnected: ${peerId}`);
 
+    this.cleanupPeerListeners(peerId);
     this.peers.delete(peerId);
     this.stats.connectedPeers = this.peers.size;
 

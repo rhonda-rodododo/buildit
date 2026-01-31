@@ -16,6 +16,7 @@ import type {
 } from '@simplewebauthn/types';
 
 import type {
+  AuthenticatorTransport,
   WebAuthnCredential,
   WebAuthnRegistrationOptions,
   WebAuthnAuthenticationOptions,
@@ -107,7 +108,7 @@ export class WebAuthnService {
         aaguid: response.response.authenticatorData
           ? this.extractAAGUID(response.response.authenticatorData)
           : undefined,
-        transports: response.response.transports as any, // Type conversion for transport compatibility
+        transports: this.filterKnownTransports(response.response.transports),
         userHandle: npub,
       };
 
@@ -281,6 +282,21 @@ export class WebAuthnService {
   /**
    * Extract AAGUID from authenticator data
    */
+  private static readonly KNOWN_TRANSPORTS: ReadonlySet<string> = new Set<AuthenticatorTransport>([
+    'usb', 'nfc', 'ble', 'internal', 'hybrid',
+  ]);
+
+  /**
+   * Filter transport strings to only known AuthenticatorTransport values.
+   * The WebAuthn API may return future transport types we don't recognize.
+   */
+  private filterKnownTransports(transports?: string[]): AuthenticatorTransport[] | undefined {
+    if (!transports) return undefined;
+    return transports.filter(
+      (t): t is AuthenticatorTransport => WebAuthnService.KNOWN_TRANSPORTS.has(t)
+    );
+  }
+
   private extractAAGUID(authenticatorData: string): string | undefined {
     try {
       // AAGUID is bytes 37-52 of authenticator data

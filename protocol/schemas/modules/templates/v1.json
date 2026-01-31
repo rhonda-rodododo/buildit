@@ -1,8 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buildit.network/schemas/modules/templates/v1",
-  "title": "BuildIt Template System",
+  "title": "TemplatesModule",
   "description": "JSON Schema for the BuildIt template system. Used for codegen to produce typed template interfaces across all client platforms (TypeScript, Swift, Kotlin).",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
   "type": "object",
   "properties": {
     "module": {
