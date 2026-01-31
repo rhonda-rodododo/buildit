@@ -2,19 +2,67 @@
  * Zod Validation Schema Generator
  *
  * Generates Zod validation schemas from JSON Schema $defs.
- * Maps JSON Schema types and constraints to Zod validators.
+ * Uses json-schema-to-zod library for type/constraint mapping,
+ * with custom orchestration for $ref resolution, formatting,
+ * and module-level code generation.
  *
  * Output for each module:
  *   - Zod schemas for each $defs type
  *   - Inferred TypeScript types from Zod schemas
  */
 
+import { jsonSchemaToZod } from 'json-schema-to-zod';
+import type { ParserOverride, JsonSchemaObject } from 'json-schema-to-zod';
 import type {
   ModuleSchema,
   JsonSchemaDef,
-  JsonSchemaProperty,
 } from '../utils/json-schema';
 import { pascalCase, constCase, resolveRefName } from '../utils/json-schema';
+
+/**
+ * Create a parserOverride that resolves $ref to already-generated schema names
+ * and converts oneOf to z.union() instead of the library's verbose superRefine.
+ */
+function createParserOverride(defNames: Set<string>): ParserOverride {
+  const override: ParserOverride = (schema: JsonSchemaObject) => {
+    // Intercept $ref → return "XyzSchema" reference
+    if (schema.$ref) {
+      const refName = resolveRefName(schema.$ref as string);
+      if (refName && defNames.has(refName)) {
+        return `${refName}Schema`;
+      }
+      return 'z.unknown()';
+    }
+
+    // Intercept oneOf → z.union() instead of verbose superRefine
+    if (schema.oneOf && Array.isArray(schema.oneOf)) {
+      const branches = schema.oneOf.map((branch) => {
+        if (typeof branch === 'boolean') return 'z.any()';
+        return jsonSchemaToZod(branch, {
+          module: 'none',
+          noImport: true,
+          parserOverride: override,
+        });
+      });
+      return `z.union([${branches.join(', ')}])`;
+    }
+  };
+  return override;
+}
+
+/**
+ * Convert a single property schema to a Zod type string using the library.
+ */
+function propertyToZod(
+  prop: JsonSchemaDef,
+  parserOverride: ParserOverride,
+): string {
+  return jsonSchemaToZod(prop as JsonSchemaObject, {
+    module: 'none',
+    noImport: true,
+    parserOverride,
+  });
+}
 
 /**
  * Generate Zod validation schemas for a module.
@@ -31,6 +79,8 @@ export function generateZodSchemas(moduleName: string, schema: ModuleSchema): st
 
   // Topological sort: generate types that are referenced before types that reference them
   const sorted = topologicalSort(defs);
+  const defNames = new Set(sorted);
+  const parserOverride = createParserOverride(defNames);
 
   let code = `/**
  * @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
@@ -50,16 +100,27 @@ import { z } from 'zod';
     const def = defs[name];
     if (def.enum && def.type === 'string') {
       enumTypes.add(name);
-      code += generateEnumSchema(name, def);
+      code += generateEnumSchema(name, def, parserOverride);
+    }
+  }
+
+  // Generate union-only schemas (oneOf without type, e.g., FacetValue, SearchScope)
+  const unionTypes: Set<string> = new Set();
+  for (const name of sorted) {
+    if (enumTypes.has(name)) continue;
+    const def = defs[name];
+    if (!def.type && def.oneOf) {
+      unionTypes.add(name);
+      code += generateUnionSchema(name, def, parserOverride);
     }
   }
 
   // Generate object schemas
   for (const name of sorted) {
-    if (enumTypes.has(name)) continue;
+    if (enumTypes.has(name) || unionTypes.has(name)) continue;
     const def = defs[name];
     if (def.type === 'object') {
-      code += generateObjectSchema(name, def, defs, enumTypes);
+      code += generateObjectSchema(name, def, parserOverride);
     }
   }
 
@@ -70,26 +131,66 @@ import { z } from 'zod';
   return code;
 }
 
-function generateEnumSchema(name: string, def: JsonSchemaDef): string {
-  const values = def.enum || [];
+/**
+ * Generate a Zod enum schema using the library.
+ */
+function generateEnumSchema(
+  name: string,
+  def: JsonSchemaDef,
+  parserOverride: ParserOverride,
+): string {
   const schemaName = `${name}Schema`;
-  const valuesStr = values.map((v) => `'${v}'`).join(', ');
+
+  // Use the library to generate the enum expression
+  let zodExpr = propertyToZod(def, parserOverride);
+
+  // Strip .describe() — we use JSDoc comments for descriptions
+  zodExpr = stripDescribe(zodExpr);
 
   let code = '';
   if (def.description) {
     code += `/** ${def.description} */\n`;
   }
-  code += `export const ${schemaName} = z.enum([${valuesStr}]);\n`;
+  code += `export const ${schemaName} = ${zodExpr};\n`;
   code += `export type ${name} = z.infer<typeof ${schemaName}>;\n\n`;
 
   return code;
 }
 
+/**
+ * Generate a Zod union schema for oneOf-only $defs (no type property).
+ */
+function generateUnionSchema(
+  name: string,
+  def: JsonSchemaDef,
+  parserOverride: ParserOverride,
+): string {
+  const schemaName = `${name}Schema`;
+
+  // Use the library via our parserOverride which converts oneOf → z.union()
+  let zodExpr = propertyToZod(def, parserOverride);
+  zodExpr = stripDescribe(zodExpr);
+  zodExpr = fixRecordArgs(zodExpr);
+
+  let code = '';
+  if (def.description) {
+    code += `/** ${def.description} */\n`;
+  }
+  code += `export const ${schemaName} = ${zodExpr};\n`;
+  code += `export type ${name} = z.infer<typeof ${schemaName}>;\n\n`;
+
+  return code;
+}
+
+/**
+ * Generate a Zod object schema with per-property library conversion.
+ * Keeps our formatting (one property per line with JSDoc comments)
+ * while delegating type conversion to json-schema-to-zod.
+ */
 function generateObjectSchema(
   name: string,
   def: JsonSchemaDef,
-  allDefs: Record<string, JsonSchemaDef>,
-  enumTypes: Set<string>
+  parserOverride: ParserOverride,
 ): string {
   const properties = def.properties || {};
   const required = new Set(def.required || []);
@@ -102,17 +203,18 @@ function generateObjectSchema(
   code += `export const ${schemaName} = z.object({\n`;
 
   for (const [propName, propDef] of Object.entries(properties)) {
-    let zodType = jsonSchemaToZod(propDef, allDefs, enumTypes);
+    // Use the library for type conversion (handles constraints, formats, patterns, etc.)
+    let zodType = propertyToZod(propDef, parserOverride);
 
-    // Handle default values
-    if (propDef.default !== undefined && !required.has(propName)) {
-      const defaultVal = formatDefault(propDef.default);
-      if (defaultVal !== null) {
-        zodType += `.default(${defaultVal})`;
-      }
-    }
+    // Strip .describe() from the library output — we use JSDoc comments instead
+    zodType = stripDescribe(zodType);
 
-    // Make optional if not required
+    // Fix z.record() calls to use 2-arg form for Zod 4 compatibility
+    zodType = fixRecordArgs(zodType);
+
+    // Handle optional/default for non-required fields
+    // The library already adds .default() when the schema has a default value,
+    // so we only add .optional() for non-required fields without defaults.
     if (!required.has(propName) && propDef.default === undefined) {
       zodType += '.optional()';
     }
@@ -136,132 +238,74 @@ function generateObjectSchema(
   return code;
 }
 
-function jsonSchemaToZod(
-  prop: JsonSchemaProperty,
-  defs: Record<string, JsonSchemaDef>,
-  enumTypes: Set<string>
-): string {
-  // Handle $ref
-  if (prop.$ref) {
-    const refName = resolveRefName(prop.$ref);
-    if (refName) {
-      if (enumTypes.has(refName)) {
-        return `${refName}Schema`;
-      }
-      if (defs[refName]?.type === 'object') {
-        return `${refName}Schema`;
-      }
-      if (defs[refName]?.enum) {
-        return `${refName}Schema`;
-      }
-      // Fallback: generate inline from the referenced def
-      if (defs[refName]) {
-        return jsonSchemaToZod(defs[refName], defs, enumTypes);
-      }
-    }
-    return 'z.unknown()';
-  }
-
-  // Handle enum
-  if (prop.enum) {
-    const values = prop.enum.map((v) => `'${v}'`).join(', ');
-    return `z.enum([${values}])`;
-  }
-
-  // Handle oneOf
-  if (prop.oneOf) {
-    const branches = prop.oneOf.map((o) => jsonSchemaToZod(o, defs, enumTypes));
-    if (branches.length === 2) {
-      return `z.union([${branches.join(', ')}])`;
-    }
-    return `z.union([${branches.join(', ')}])`;
-  }
-
-  // Handle array
-  if (prop.type === 'array') {
-    let itemZod = 'z.unknown()';
-    if (prop.items) {
-      itemZod = jsonSchemaToZod(prop.items, defs, enumTypes);
-    }
-    let arrSchema = `z.array(${itemZod})`;
-    if (prop.maxItems !== undefined) {
-      arrSchema += `.max(${prop.maxItems})`;
-    }
-    if (prop.minItems !== undefined) {
-      arrSchema += `.min(${prop.minItems})`;
-    }
-    return arrSchema;
-  }
-
-  // Handle object without properties (record)
-  if (prop.type === 'object' && !prop.properties) {
-    if (prop.additionalProperties && typeof prop.additionalProperties === 'object') {
-      const valZod = jsonSchemaToZod(prop.additionalProperties as JsonSchemaProperty, defs, enumTypes);
-      return `z.record(z.string(), ${valZod})`;
-    }
-    return 'z.record(z.string(), z.unknown())';
-  }
-
-  // Handle inline object with properties
-  if (prop.type === 'object' && prop.properties) {
-    const req = new Set(prop.required || []);
-    const fields = Object.entries(prop.properties).map(([k, v]) => {
-      let fieldZod = jsonSchemaToZod(v, defs, enumTypes);
-      if (!req.has(k)) {
-        fieldZod += '.optional()';
-      }
-      return `${k}: ${fieldZod}`;
-    });
-    return `z.object({ ${fields.join(', ')} })`;
-  }
-
-  // Handle string with constraints
-  if (prop.type === 'string') {
-    let s = 'z.string()';
-    if (prop.format === 'uuid') s += '.uuid()';
-    else if (prop.format === 'email') s += '.email()';
-    else if (prop.format === 'uri') s += '.url()';
-    if (prop.pattern && prop.format !== 'uuid') {
-      // Escape backticks and backslashes for template literal
-      const escapedPattern = prop.pattern.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
-      s += `.regex(new RegExp(\`${escapedPattern}\`))`;
-    }
-    if (prop.minLength !== undefined) s += `.min(${prop.minLength})`;
-    if (prop.maxLength !== undefined) s += `.max(${prop.maxLength})`;
-    return s;
-  }
-
-  // Handle integer
-  if (prop.type === 'integer') {
-    let s = 'z.number().int()';
-    if (prop.minimum !== undefined) s += `.min(${prop.minimum})`;
-    if (prop.maximum !== undefined) s += `.max(${prop.maximum})`;
-    return s;
-  }
-
-  // Handle number
-  if (prop.type === 'number') {
-    let s = 'z.number()';
-    if (prop.minimum !== undefined) s += `.min(${prop.minimum})`;
-    if (prop.maximum !== undefined) s += `.max(${prop.maximum})`;
-    return s;
-  }
-
-  // Handle boolean
-  if (prop.type === 'boolean') {
-    return 'z.boolean()';
-  }
-
-  return 'z.unknown()';
+/**
+ * Strip .describe("...") calls from a Zod expression string.
+ * We use JSDoc comments for descriptions instead.
+ */
+function stripDescribe(zodExpr: string): string {
+  // Match .describe("...") or .describe('...') — handles escaped quotes
+  return zodExpr.replace(/\.describe\((?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\)/g, '');
 }
 
-function formatDefault(value: unknown): string | null {
-  if (typeof value === 'string') return `'${value}'`;
-  if (typeof value === 'number') return String(value);
-  if (typeof value === 'boolean') return String(value);
-  if (value === null) return 'null';
-  if (Array.isArray(value) && value.length === 0) return '[]';
-  return null;
+/**
+ * Fix z.record() calls to use 2-arg form for Zod 4 compatibility.
+ * Zod 4 requires z.record(keySchema, valueSchema) — the library generates
+ * Zod 3 style z.record(valueSchema) with a single argument.
+ *
+ * Uses a parenthesis-aware parser to correctly handle nested expressions.
+ */
+function fixRecordArgs(zodExpr: string): string {
+  const marker = 'z.record(';
+  let result = '';
+  let i = 0;
+
+  while (i < zodExpr.length) {
+    const idx = zodExpr.indexOf(marker, i);
+    if (idx === -1) {
+      result += zodExpr.slice(i);
+      break;
+    }
+
+    result += zodExpr.slice(i, idx + marker.length);
+    i = idx + marker.length;
+
+    // Extract the full arguments by counting parentheses
+    let depth = 1;
+    let argStart = i;
+    while (i < zodExpr.length && depth > 0) {
+      if (zodExpr[i] === '(') depth++;
+      else if (zodExpr[i] === ')') depth--;
+      if (depth > 0) i++;
+    }
+
+    const argsStr = zodExpr.slice(argStart, i);
+
+    // Check if there's a top-level comma (not inside nested parens)
+    let hasTopLevelComma = false;
+    let parenDepth = 0;
+    for (const ch of argsStr) {
+      if (ch === '(') parenDepth++;
+      else if (ch === ')') parenDepth--;
+      else if (ch === ',' && parenDepth === 0) {
+        hasTopLevelComma = true;
+        break;
+      }
+    }
+
+    if (hasTopLevelComma) {
+      // Already has 2+ args, recursively fix any nested z.record() in the args
+      result += fixRecordArgs(argsStr);
+    } else {
+      // Single arg — prepend z.string() key schema, recursively fix the value
+      result += `z.string(), ${fixRecordArgs(argsStr)}`;
+    }
+
+    // Append the closing paren
+    result += zodExpr[i];
+    i++;
+  }
+
+  return result;
 }
 
 /**
