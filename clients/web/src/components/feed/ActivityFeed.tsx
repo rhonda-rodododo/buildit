@@ -142,10 +142,10 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
         items.push({
           id: `proposal-${proposal.id}`,
           type: 'proposal',
-          timestamp: proposal.created, // Fixed: use 'created' not 'createdAt'
-          authorId: proposal.authorPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
+          timestamp: proposal.createdAt,
+          authorId: proposal.createdBy,
           groupId: proposal.groupId,
-          data: proposal, // Pass the full proposal object directly
+          data: proposal,
         });
       });
     }

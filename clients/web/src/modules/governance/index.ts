@@ -53,13 +53,16 @@ export const governanceModule: ModulePlugin = {
         key: 'defaultVotingMethod',
         label: 'Default Voting Method',
         type: 'select',
-        defaultValue: 'simple',
+        defaultValue: 'simple-majority',
         options: [
-          { label: 'Simple (Yes/No/Abstain)', value: 'simple' },
+          { label: 'Simple Majority (Yes/No/Abstain)', value: 'simple-majority' },
+          { label: 'Supermajority', value: 'supermajority' },
           { label: 'Ranked Choice', value: 'ranked-choice' },
+          { label: 'Approval Voting', value: 'approval' },
           { label: 'Quadratic Voting', value: 'quadratic' },
-          { label: "D'Hondt Method", value: 'dhondt' },
+          { label: "D'Hondt Method", value: 'd-hondt' },
           { label: 'Consensus', value: 'consensus' },
+          { label: 'Modified Consensus', value: 'modified-consensus' },
         ],
       },
       {
@@ -124,13 +127,14 @@ export const governanceModule: ModulePlugin = {
   seeds: governanceSeeds,
 
   getDefaultConfig: () => ({
-    defaultVotingMethod: 'simple',
+    defaultVotingMethod: 'simple-majority',
     quorumPercentage: 50,
     allowAnonymousVoting: true,
   }),
 
   validateConfig: (config: Record<string, unknown>) => {
-    if (!['simple', 'ranked-choice', 'quadratic', 'dhondt', 'consensus'].includes(config.defaultVotingMethod as string))
+    const validMethods = ['simple-majority', 'supermajority', 'ranked-choice', 'approval', 'quadratic', 'd-hondt', 'consensus', 'modified-consensus'];
+    if (!validMethods.includes(config.defaultVotingMethod as string))
       return false;
     if (typeof config.quorumPercentage !== 'number') return false;
     if (config.quorumPercentage < 0 || config.quorumPercentage > 100) return false;

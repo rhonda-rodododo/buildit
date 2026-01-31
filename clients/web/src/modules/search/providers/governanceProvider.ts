@@ -12,27 +12,7 @@ import type {
   ParsedQuery,
 } from '../types';
 import { getDB } from '@/core/storage/db';
-
-// ============================================================================
-// Types (Governance module types)
-// ============================================================================
-
-interface Proposal {
-  id: string;
-  groupId: string;
-  title: string;
-  description: string;
-  proposerPubkey: string;
-  status: 'draft' | 'active' | 'passed' | 'rejected' | 'withdrawn' | 'executed';
-  votingMethod: 'simple' | 'ranked-choice' | 'quadratic' | 'consensus' | 'dhondt';
-  createdAt: number;
-  updatedAt: number;
-  votingStart?: number;
-  votingEnd?: number;
-  tags?: string[];
-  quorum?: number;
-  passingThreshold?: number;
-}
+import type { DBProposal } from '@/modules/governance/schema';
 
 // ============================================================================
 // Helper Functions
@@ -50,14 +30,16 @@ function createExcerpt(description: string | undefined, maxLength: number = 200)
 /**
  * Get status display label
  */
-function getStatusLabel(status: Proposal['status']): string {
-  const labels: Record<Proposal['status'], string> = {
+function getStatusLabel(status: DBProposal['status']): string {
+  const labels: Record<DBProposal['status'], string> = {
     draft: 'Draft',
-    active: 'Voting',
+    discussion: 'Discussion',
+    voting: 'Voting',
     passed: 'Passed',
     rejected: 'Rejected',
+    expired: 'Expired',
     withdrawn: 'Withdrawn',
-    executed: 'Executed',
+    implemented: 'Implemented',
   };
   return labels[status] || status;
 }
@@ -73,7 +55,7 @@ export const governanceSearchProvider: ModuleSearchProvider = {
    * Index a proposal for search
    */
   indexEntity(entity: unknown, groupId: string): SearchDocument | null {
-    const proposal = entity as Proposal;
+    const proposal = entity as DBProposal;
     if (!proposal || !proposal.id) return null;
 
     return {
@@ -86,15 +68,15 @@ export const governanceSearchProvider: ModuleSearchProvider = {
       tags: proposal.tags || [],
       excerpt: createExcerpt(proposal.description, 200),
       createdAt: proposal.createdAt,
-      updatedAt: proposal.updatedAt,
-      authorPubkey: proposal.proposerPubkey,
+      updatedAt: proposal.updatedAt ?? proposal.createdAt,
+      authorPubkey: proposal.createdBy,
       facets: {
         status: proposal.status,
-        votingMethod: proposal.votingMethod,
-        isActive: proposal.status === 'active',
-        isPassed: proposal.status === 'passed' || proposal.status === 'executed',
-        hasVotingPeriod: !!proposal.votingStart && !!proposal.votingEnd,
-        ...(proposal.quorum !== undefined && { hasQuorum: proposal.quorum > 0 }),
+        votingSystem: proposal.votingSystem,
+        isActive: proposal.status === 'voting',
+        isPassed: proposal.status === 'passed' || proposal.status === 'implemented',
+        hasVotingPeriod: !!proposal.votingPeriod?.startsAt && !!proposal.votingPeriod?.endsAt,
+        ...(proposal.quorum !== undefined && { hasQuorum: proposal.quorum.type !== 'none' }),
       },
       indexedAt: Date.now(),
     };
@@ -112,8 +94,8 @@ export const governanceSearchProvider: ModuleSearchProvider = {
         multiSelect: true,
       },
       {
-        key: 'votingMethod',
-        label: 'Voting Method',
+        key: 'votingSystem',
+        label: 'Voting System',
         type: 'keyword',
         multiSelect: true,
       },
@@ -137,21 +119,21 @@ export const governanceSearchProvider: ModuleSearchProvider = {
    */
   formatResult(result: SearchResult): FormattedSearchResult {
     const proposal = result.document;
-    const status = proposal.facets?.status as Proposal['status'];
-    const votingMethod = proposal.facets?.votingMethod as string;
+    const status = proposal.facets?.status as DBProposal['status'];
+    const votingSystem = proposal.facets?.votingSystem as string;
 
     const badges: FormattedSearchResult['badges'] = [];
 
     // Status badge
     if (status) {
-      const statusVariant = status === 'active' ? 'default' :
-        status === 'passed' || status === 'executed' ? 'secondary' : 'outline';
+      const statusVariant = status === 'voting' ? 'default' :
+        status === 'passed' || status === 'implemented' ? 'secondary' : 'outline';
       badges.push({ label: getStatusLabel(status), variant: statusVariant });
     }
 
-    // Voting method badge
-    if (votingMethod && votingMethod !== 'simple') {
-      badges.push({ label: votingMethod, variant: 'outline' });
+    // Voting system badge
+    if (votingSystem && votingSystem !== 'simple-majority') {
+      badges.push({ label: votingSystem, variant: 'outline' });
     }
 
     return {

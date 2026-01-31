@@ -7,6 +7,25 @@ import type { ModuleSeed } from '@/types/modules';
 import type { DBProposal } from '../schema';
 
 import { logger } from '@/lib/logger';
+
+/** Helper to create Yes/No/Abstain vote options */
+function defaultOptions() {
+  return [
+    { id: crypto.randomUUID(), label: 'Yes', order: 0 },
+    { id: crypto.randomUUID(), label: 'No', order: 1 },
+    { id: crypto.randomUUID(), label: 'Abstain', order: 2 },
+  ];
+}
+
+/** Helper to create consensus options */
+function consensusOptions() {
+  return [
+    { id: crypto.randomUUID(), label: 'Support', order: 0 },
+    { id: crypto.randomUUID(), label: 'Stand aside', order: 1 },
+    { id: crypto.randomUUID(), label: 'Block', order: 2 },
+  ];
+}
+
 /**
  * Media Collective Governance Seeds
  * Demonstrates proposal templates specific to journalism collectives
@@ -22,6 +41,7 @@ export const mediaCollectiveGovernanceSeeds: ModuleSeed[] = [
       const mediaProposals: DBProposal[] = [
         // ACTIVE: Editorial Policy Proposal
         {
+          _v: '1.0.0',
           id: `proposal-editorial-policy-${groupId}`,
           groupId,
           title: 'Update Sourcing Requirements Policy',
@@ -48,16 +68,19 @@ Recent incidents of misinformation spreading on social media have reinforced the
 
 **Discussion Period**: 7 days
 **Voting Method**: Consensus`,
+          type: 'policy',
           status: 'discussion',
-          votingMethod: 'consensus',
-          votingDeadline: now + 10 * day,
-          authorPubkey: userPubkey,
-          created: now - 3 * day,
-          updated: now - 3 * day,
+          votingSystem: 'consensus',
+          options: consensusOptions(),
+          votingPeriod: { startsAt: now + 7 * day, endsAt: now + 10 * day },
+          createdBy: userPubkey,
+          createdAt: now - 3 * day,
+          updatedAt: now - 3 * day,
         },
 
         // ACTIVE: Coverage Priority Vote
         {
+          _v: '1.0.0',
           id: `proposal-coverage-priority-${groupId}`,
           groupId,
           title: 'Q1 2026 Coverage Priorities',
@@ -78,16 +101,26 @@ Set our coverage priorities for Q1 2026. Rank these topics in order of importanc
 Use ranked-choice voting. Top 3 will be priority beats, others covered as capacity allows.
 
 **Voting Period**: 3 days`,
+          type: 'general',
           status: 'voting',
-          votingMethod: 'ranked-choice',
-          votingDeadline: now + 3 * day,
-          authorPubkey: userPubkey,
-          created: now - 4 * day,
-          updated: now - 4 * day,
+          votingSystem: 'ranked-choice',
+          options: [
+            { id: crypto.randomUUID(), label: 'Housing Justice', order: 0 },
+            { id: crypto.randomUUID(), label: 'Labor Movement', order: 1 },
+            { id: crypto.randomUUID(), label: 'Police Accountability', order: 2 },
+            { id: crypto.randomUUID(), label: 'Climate/Environment', order: 3 },
+            { id: crypto.randomUUID(), label: 'Mutual Aid Networks', order: 4 },
+            { id: crypto.randomUUID(), label: 'Immigration', order: 5 },
+          ],
+          votingPeriod: { startsAt: now - 1 * day, endsAt: now + 3 * day },
+          createdBy: userPubkey,
+          createdAt: now - 4 * day,
+          updatedAt: now - 4 * day,
         },
 
         // ACTIVE: New Member Approval
         {
+          _v: '1.0.0',
           id: `proposal-new-member-${groupId}`,
           groupId,
           title: 'New Member: Sarah Chen',
@@ -117,16 +150,19 @@ Sarah Chen has applied to join our collective as a writer.
 
 **Vote Required**: 66% approval
 **Voting Period**: 3 days`,
+          type: 'general',
           status: 'voting',
-          votingMethod: 'simple',
-          votingDeadline: now + 3 * day,
-          authorPubkey: userPubkey,
-          created: now - 2 * day,
-          updated: now - 2 * day,
+          votingSystem: 'simple-majority',
+          options: defaultOptions(),
+          votingPeriod: { startsAt: now - 1 * day, endsAt: now + 3 * day },
+          createdBy: userPubkey,
+          createdAt: now - 2 * day,
+          updatedAt: now - 2 * day,
         },
 
         // ACTIVE: Join Coalition Vote
         {
+          _v: '1.0.0',
           id: `proposal-join-coalition-${groupId}`,
           groupId,
           title: 'Join Pacific Northwest Media Coalition',
@@ -161,16 +197,19 @@ Join the Pacific Northwest Media Coalition for content syndication and mutual su
 
 **Vote Required**: Consensus (75% quorum)
 **Voting Period**: 5 days`,
+          type: 'resolution',
           status: 'voting',
-          votingMethod: 'consensus',
-          votingDeadline: now + 5 * day,
-          authorPubkey: userPubkey,
-          created: now - 7 * day,
-          updated: now - 2 * day,
+          votingSystem: 'consensus',
+          options: consensusOptions(),
+          votingPeriod: { startsAt: now - 2 * day, endsAt: now + 5 * day },
+          createdBy: userPubkey,
+          createdAt: now - 7 * day,
+          updatedAt: now - 2 * day,
         },
 
         // COMPLETED: Editorial Board Election
         {
+          _v: '1.0.0',
           id: `proposal-editorial-board-${groupId}`,
           groupId,
           title: 'Editorial Board Election - December 2025',
@@ -198,16 +237,25 @@ Elect 3 members to serve on the editorial board for 6-month term (Dec 2025 - May
 3. Alex Martinez (38 points)
 
 Term begins January 1, 2026.`,
-          status: 'decided',
-          votingMethod: 'ranked-choice',
-          votingDeadline: now - 18 * day,
-          authorPubkey: userPubkey,
-          created: now - 30 * day,
-          updated: now - 18 * day,
+          type: 'election',
+          status: 'passed',
+          votingSystem: 'ranked-choice',
+          options: [
+            { id: crypto.randomUUID(), label: 'Maria Santos', order: 0 },
+            { id: crypto.randomUUID(), label: 'James Wright', order: 1 },
+            { id: crypto.randomUUID(), label: 'Kim Nguyen', order: 2 },
+            { id: crypto.randomUUID(), label: 'Alex Martinez', order: 3 },
+            { id: crypto.randomUUID(), label: 'Jordan Taylor', order: 4 },
+          ],
+          votingPeriod: { startsAt: now - 30 * day, endsAt: now - 18 * day },
+          createdBy: userPubkey,
+          createdAt: now - 30 * day,
+          updatedAt: now - 18 * day,
         },
 
         // COMPLETED: Content Dispute Resolution
         {
+          _v: '1.0.0',
           id: `proposal-content-dispute-${groupId}`,
           groupId,
           title: 'Content Dispute: Coverage of City Council Meeting',
@@ -238,16 +286,19 @@ After 3-day discussion period, collective voted on how to proceed.
 - Add sidebar with voting records so readers can judge
 - Update style guide to clarify news vs. analysis framing
 - No corrective action needed for writer; learning experience for all`,
-          status: 'decided',
-          votingMethod: 'consensus',
-          votingDeadline: now - 25 * day,
-          authorPubkey: userPubkey,
-          created: now - 35 * day,
-          updated: now - 25 * day,
+          type: 'resolution',
+          status: 'passed',
+          votingSystem: 'consensus',
+          options: consensusOptions(),
+          votingPeriod: { startsAt: now - 30 * day, endsAt: now - 25 * day },
+          createdBy: userPubkey,
+          createdAt: now - 35 * day,
+          updatedAt: now - 25 * day,
         },
 
         // DRAFT: Syndication Policy
         {
+          _v: '1.0.0',
           id: `proposal-syndication-policy-${groupId}`,
           groupId,
           title: 'Syndication Approval Policy',
@@ -278,11 +329,14 @@ Establish criteria for which stories automatically syndicate to coalition vs. re
 Authors flag at submission. Editors review before syndication.
 
 *Still gathering input - discussion opens next week*`,
+          type: 'policy',
           status: 'draft',
-          votingMethod: 'simple',
-          authorPubkey: userPubkey,
-          created: now - 1 * day,
-          updated: now - 1 * day,
+          votingSystem: 'simple-majority',
+          options: defaultOptions(),
+          votingPeriod: { startsAt: now + 7 * day, endsAt: now + 14 * day },
+          createdBy: userPubkey,
+          createdAt: now - 1 * day,
+          updatedAt: now - 1 * day,
         },
       ];
 

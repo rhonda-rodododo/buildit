@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   Clock,
   TrendingUp,
+  XCircle,
+  Ban,
 } from 'lucide-react';
 
 interface ProposalFeedCardProps {
@@ -52,42 +54,59 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
             {t('proposalFeedCard.statuses.voting')}
           </span>
         );
-      case 'decided':
+      case 'passed':
+      case 'implemented':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded">
             <CheckCircle2 className="w-3 h-3" />
             {t('proposalFeedCard.statuses.decided')}
           </span>
         );
-      case 'cancelled':
+      case 'rejected':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-red-500/10 text-red-500 rounded">
-            <Clock className="w-3 h-3" />
+            <XCircle className="w-3 h-3" />
+            {t('proposalFeedCard.statuses.rejected', 'Rejected')}
+          </span>
+        );
+      case 'withdrawn':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-red-500/10 text-red-500 rounded">
+            <Ban className="w-3 h-3" />
             {t('proposalFeedCard.statuses.cancelled')}
           </span>
         );
+      case 'expired':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-muted text-muted-foreground rounded">
+            <Clock className="w-3 h-3" />
+            {t('proposalFeedCard.statuses.expired', 'Expired')}
+          </span>
+        );
+      default:
+        return null;
     }
   };
 
-  const getVotingMethodLabel = (method: string) => {
-    const methodKeys: Record<string, string> = {
-      simple: 'proposalFeedCard.votingMethods.simple',
+  const getVotingSystemLabel = (system: string) => {
+    const systemKeys: Record<string, string> = {
+      'simple-majority': 'proposalFeedCard.votingMethods.simple',
+      'supermajority': 'proposalFeedCard.votingMethods.supermajority',
       'ranked-choice': 'proposalFeedCard.votingMethods.rankedChoice',
-      quadratic: 'proposalFeedCard.votingMethods.quadratic',
-      dhondt: 'proposalFeedCard.votingMethods.dhondt',
-      consensus: 'proposalFeedCard.votingMethods.consensus',
+      'approval': 'proposalFeedCard.votingMethods.approval',
+      'quadratic': 'proposalFeedCard.votingMethods.quadratic',
+      'd-hondt': 'proposalFeedCard.votingMethods.dhondt',
+      'consensus': 'proposalFeedCard.votingMethods.consensus',
+      'modified-consensus': 'proposalFeedCard.votingMethods.modifiedConsensus',
     };
-    return methodKeys[method] ? t(methodKeys[method]) : method;
-  };
-
-  const getVotingMethodIcon = () => {
-    return <TrendingUp className="w-4 h-4 text-muted-foreground" />;
+    return systemKeys[system] ? t(systemKeys[system]) : system;
   };
 
   const isVotingActive = proposal.status === 'voting';
   // Capture time once on mount to avoid impure Date.now() during render
   const [mountTime] = useState(getCurrentTime);
-  const votingDeadlinePassed = proposal.votingDeadline && proposal.votingDeadline < mountTime;
+  const votingDeadline = proposal.votingPeriod.endsAt;
+  const votingDeadlinePassed = votingDeadline < mountTime;
 
   return (
     <Card className={`p-4 ${className}`}>
@@ -97,18 +116,18 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
           {/* Avatar */}
           <Avatar className="w-10 h-10">
             <AvatarImage
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${proposal.authorPubkey}`}
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${proposal.createdBy}`}
             />
-            <AvatarFallback>{proposal.authorPubkey.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{proposal.createdBy.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
 
           {/* Creator info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm truncate">{proposal.authorPubkey}</span>
+              <span className="font-semibold text-sm truncate">{proposal.createdBy}</span>
               <span className="text-xs text-muted-foreground">{t('proposalFeedCard.createdProposal')}</span>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(proposal.created, { addSuffix: true })}
+                {formatDistanceToNow(proposal.createdAt, { addSuffix: true })}
               </span>
             </div>
           </div>
@@ -132,41 +151,41 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
         <h3 className="text-lg font-semibold">{proposal.title}</h3>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground line-clamp-3">
-          {proposal.description}
-        </p>
+        {proposal.description && (
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {proposal.description}
+          </p>
+        )}
 
         {/* Details */}
         <div className="flex items-center gap-4 text-sm flex-wrap">
-          {/* Voting method */}
+          {/* Voting system */}
           <div className="flex items-center gap-1 text-muted-foreground">
-            {getVotingMethodIcon()}
-            <span className="text-xs">{getVotingMethodLabel(proposal.votingMethod)}</span>
+            <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs">{getVotingSystemLabel(proposal.votingSystem)}</span>
           </div>
 
           {/* Voting deadline */}
-          {proposal.votingDeadline && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span className="text-xs">
-                {votingDeadlinePassed ? (
-                  <span className="text-destructive">{t('proposalFeedCard.votingEnded')}</span>
-                ) : (
-                  <>
-                    {t('proposalFeedCard.deadline')}{' '}
-                    {formatDistanceToNow(proposal.votingDeadline, { addSuffix: true })}
-                  </>
-                )}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            <span className="text-xs">
+              {votingDeadlinePassed ? (
+                <span className="text-destructive">{t('proposalFeedCard.votingEnded')}</span>
+              ) : (
+                <>
+                  {t('proposalFeedCard.deadline')}{' '}
+                  {formatDistanceToNow(votingDeadline, { addSuffix: true })}
+                </>
+              )}
+            </span>
+          </div>
         </div>
 
         {/* Voting deadline details */}
-        {proposal.votingDeadline && isVotingActive && !votingDeadlinePassed && (
+        {isVotingActive && !votingDeadlinePassed && (
           <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded text-sm">
             <span className="font-medium">{t('proposalFeedCard.votingEnds')}</span>{' '}
-            {format(proposal.votingDeadline, 'MMM d, yyyy • h:mm a')}
+            {format(votingDeadline, 'MMM d, yyyy • h:mm a')}
           </div>
         )}
 
@@ -199,7 +218,7 @@ export const ProposalFeedCard: FC<ProposalFeedCardProps> = ({ item, className })
             </>
           )}
 
-          {(proposal.status === 'decided' || votingDeadlinePassed) && (
+          {(proposal.status === 'passed' || proposal.status === 'rejected' || votingDeadlinePassed) && (
             <>
               <Button variant="outline" className="flex-1">
                 {t('proposalFeedCard.actions.viewResults')}

@@ -8,9 +8,25 @@ import type { DBProposal } from './schema';
 import { mediaCollectiveGovernanceSeeds } from './templates/mediaCollectiveSeeds';
 
 import { logger } from '@/lib/logger';
-/**
- * Seed data for governance module
- */
+
+/** Helper to create default Yes/No/Abstain vote options */
+function defaultOptions() {
+  return [
+    { id: crypto.randomUUID(), label: 'Yes', order: 0 },
+    { id: crypto.randomUUID(), label: 'No', order: 1 },
+    { id: crypto.randomUUID(), label: 'Abstain', order: 2 },
+  ];
+}
+
+/** Helper to create consensus options */
+function consensusOptions() {
+  return [
+    { id: crypto.randomUUID(), label: 'Support', order: 0 },
+    { id: crypto.randomUUID(), label: 'Stand aside', order: 1 },
+    { id: crypto.randomUUID(), label: 'Block', order: 2 },
+  ];
+}
+
 /**
  * Generic governance demo seed for activist collective and union templates
  */
@@ -23,40 +39,55 @@ const governanceDemoSeed: ModuleSeed = {
 
     const proposals: DBProposal[] = [
       {
+        _v: '1.0.0',
         id: `proposal-demo-coc-${groupId}`,
         groupId,
         title: 'Adopt Code of Conduct',
         description: `## Proposal\n\nFormally adopt a code of conduct for all group spaces and events.\n\n## Key Points\n- Prohibits harassment, discrimination, and oppressive behavior\n- Clear reporting procedures\n- Accountability processes with restorative justice approach\n- Applies to online and offline spaces\n\nPlease review and provide feedback.`,
+        type: 'policy',
         status: 'discussion',
-        votingMethod: 'consensus',
-        votingDeadline: now + 7 * day,
-        authorPubkey: userPubkey,
-        created: now - 5 * day,
-        updated: now - 5 * day,
+        votingSystem: 'consensus',
+        options: consensusOptions(),
+        votingPeriod: { startsAt: now, endsAt: now + 7 * day },
+        createdBy: userPubkey,
+        createdAt: now - 5 * day,
+        updatedAt: now - 5 * day,
       },
       {
+        _v: '1.0.0',
         id: `proposal-demo-budget-${groupId}`,
         groupId,
         title: 'Quarterly Budget Allocation',
         description: `## Proposal\n\nAllocate $3,000 quarterly budget:\n\n- **Mutual Aid Fund**: $1,200\n- **Campaign Materials**: $600\n- **Skill Shares & Training**: $500\n- **Solidarity Actions**: $400\n- **Technology & Infrastructure**: $300\n\nUse quadratic voting to express preference intensity.`,
+        type: 'budget',
         status: 'voting',
-        votingMethod: 'quadratic',
-        votingDeadline: now + 5 * day,
-        authorPubkey: userPubkey,
-        created: now - 4 * day,
-        updated: now - 4 * day,
+        votingSystem: 'quadratic',
+        options: [
+          { id: crypto.randomUUID(), label: 'Mutual Aid Fund', order: 0 },
+          { id: crypto.randomUUID(), label: 'Campaign Materials', order: 1 },
+          { id: crypto.randomUUID(), label: 'Skill Shares & Training', order: 2 },
+          { id: crypto.randomUUID(), label: 'Solidarity Actions', order: 3 },
+          { id: crypto.randomUUID(), label: 'Technology & Infrastructure', order: 4 },
+        ],
+        votingPeriod: { startsAt: now - 2 * day, endsAt: now + 5 * day },
+        createdBy: userPubkey,
+        createdAt: now - 4 * day,
+        updatedAt: now - 4 * day,
       },
       {
+        _v: '1.0.0',
         id: `proposal-demo-solidarity-${groupId}`,
         groupId,
         title: 'Solidarity Statement with Tenant Union',
         description: `## Proposal\n\nEndorse and support the Riverside Tenant Union in their rent strike.\n\n## Support Includes\n- Social media amplification\n- Presence at actions\n- Mutual aid coordination\n\n## Result\n**PASSED** - Consensus achieved.`,
-        status: 'decided',
-        votingMethod: 'consensus',
-        votingDeadline: now - 5 * day,
-        authorPubkey: userPubkey,
-        created: now - 20 * day,
-        updated: now - 5 * day,
+        type: 'resolution',
+        status: 'passed',
+        votingSystem: 'consensus',
+        options: consensusOptions(),
+        votingPeriod: { startsAt: now - 10 * day, endsAt: now - 5 * day },
+        createdBy: userPubkey,
+        createdAt: now - 20 * day,
+        updatedAt: now - 5 * day,
       },
     ];
 
@@ -78,232 +109,125 @@ export const governanceSeeds: ModuleSeed[] = [
       const exampleProposals: DBProposal[] = [
         // DRAFT PROPOSALS
         {
+          _v: '1.0.0',
           id: `proposal-draft-1-${groupId}`,
           groupId,
           title: 'Establish Conflict Resolution Committee',
-          description: `## Proposal
-
-Create a standing committee to handle internal conflicts and facilitate restorative justice processes.
-
-## Committee Structure
-- 5 rotating members
-- 6-month terms
-- Training in mediation and restorative practices required
-
-## Responsibilities
-- Mediate interpersonal conflicts
-- Facilitate accountability processes
-- Recommend policy changes to prevent future conflicts
-
-Still gathering input before moving to discussion phase.`,
+          description: `## Proposal\n\nCreate a standing committee to handle internal conflicts and facilitate restorative justice processes.\n\n## Committee Structure\n- 5 rotating members\n- 6-month terms\n- Training in mediation and restorative practices required\n\n## Responsibilities\n- Mediate interpersonal conflicts\n- Facilitate accountability processes\n- Recommend policy changes to prevent future conflicts\n\nStill gathering input before moving to discussion phase.`,
+          type: 'policy',
           status: 'draft',
-          votingMethod: 'consensus',
-          authorPubkey: userPubkey,
-          created: now - 3 * day,
-          updated: now - 3 * day,
+          votingSystem: 'consensus',
+          options: consensusOptions(),
+          votingPeriod: { startsAt: now + 7 * day, endsAt: now + 14 * day },
+          createdBy: userPubkey,
+          createdAt: now - 3 * day,
         },
 
         // DISCUSSION PHASE
         {
+          _v: '1.0.0',
           id: `proposal-discussion-simple-${groupId}`,
           groupId,
           title: 'Adopt Code of Conduct',
-          description: `## Proposal
-
-Formally adopt a code of conduct for all group spaces and events.
-
-## Key Points
-- Prohibits harassment, discrimination, oppressive behavior
-- Establishes clear reporting procedures
-- Outlines accountability processes
-- Applies to online and offline spaces
-
-## Discussion Period
-Please review the full draft and provide feedback before we move to vote.`,
+          description: `## Proposal\n\nFormally adopt a code of conduct for all group spaces and events.\n\n## Key Points\n- Prohibits harassment, discrimination, oppressive behavior\n- Establishes clear reporting procedures\n- Outlines accountability processes\n- Applies to online and offline spaces\n\n## Discussion Period\nPlease review the full draft and provide feedback before we move to vote.`,
+          type: 'policy',
           status: 'discussion',
-          votingMethod: 'simple',
-          votingDeadline: now + 7 * day,
-          authorPubkey: userPubkey,
-          created: now - 5 * day,
-          updated: now - 5 * day,
-        },
-        {
-          id: `proposal-discussion-consensus-${groupId}`,
-          groupId,
-          title: 'Adopt Consensus Decision-Making Process',
-          description: `## Proposal
-
-Adopt consensus-based decision making for all major group decisions.
-
-## Process Overview
-1. Proposal introduced and clarified
-2. Discussion and concerns raised
-3. Amendments and modifications
-4. Consensus test (stand-asides and blocks allowed)
-5. Final decision
-
-## Major Decisions Include
-- Policy changes
-- Budget allocations over $500
-- Strategic direction
-- Membership issues
-
-## Minor Decisions
-Can still use majority vote for routine/operational matters.`,
-          status: 'discussion',
-          votingMethod: 'consensus',
-          votingDeadline: now + 10 * day,
-          authorPubkey: userPubkey,
-          created: now - 8 * day,
-          updated: now - 8 * day,
+          votingSystem: 'simple-majority',
+          options: defaultOptions(),
+          votingPeriod: { startsAt: now + 2 * day, endsAt: now + 7 * day },
+          createdBy: userPubkey,
+          createdAt: now - 5 * day,
+          updatedAt: now - 5 * day,
         },
 
         // ACTIVE VOTING
         {
+          _v: '1.0.0',
           id: `proposal-voting-simple-${groupId}`,
           groupId,
           title: 'Community Garden Project',
-          description: `## Proposal
-
-Establish a community garden on the vacant lot at 5th and Oak.
-
-## Details
-- Partner with land trust for lot access
-- Initial setup: $2000 (from general fund)
-- Ongoing maintenance: volunteer-run
-- Produce distributed via mutual aid network
-
-## Vote
-Simple majority required. Voting ends in 5 days.`,
+          description: `## Proposal\n\nEstablish a community garden on the vacant lot at 5th and Oak.\n\n## Details\n- Partner with land trust for lot access\n- Initial setup: $2000 (from general fund)\n- Ongoing maintenance: volunteer-run\n- Produce distributed via mutual aid network\n\n## Vote\nSimple majority required. Voting ends in 5 days.`,
+          type: 'action',
           status: 'voting',
-          votingMethod: 'simple',
-          votingDeadline: now + 5 * day,
-          authorPubkey: userPubkey,
-          created: now - 7 * day,
-          updated: now - 7 * day,
+          votingSystem: 'simple-majority',
+          options: defaultOptions(),
+          votingPeriod: { startsAt: now - 2 * day, endsAt: now + 5 * day },
+          createdBy: userPubkey,
+          createdAt: now - 7 * day,
+          updatedAt: now - 7 * day,
         },
         {
+          _v: '1.0.0',
           id: `proposal-voting-ranked-${groupId}`,
           groupId,
           title: 'Choose New Meeting Location',
-          description: `## Proposal
-
-Our current meeting space is no longer available. Rank your preferences for our new location.
-
-## Options
-1. **Community Center** - Free, but limited availability
-2. **Public Library** - Convenient, but closes at 8pm
-3. **Union Hall** - Great space, $50/meeting fee
-4. **Rotating homes** - Free and flexible, less formal
-
-Rank all options in order of preference. We'll use ranked-choice voting to determine the winner.`,
+          description: `## Proposal\n\nOur current meeting space is no longer available. Rank your preferences.\n\n## Options\n1. **Community Center** - Free, limited availability\n2. **Public Library** - Convenient, closes at 8pm\n3. **Union Hall** - Great space, $50/meeting\n4. **Rotating homes** - Free, flexible, less formal`,
+          type: 'general',
           status: 'voting',
-          votingMethod: 'ranked-choice',
-          votingDeadline: now + 4 * day,
-          authorPubkey: userPubkey,
-          created: now - 6 * day,
-          updated: now - 6 * day,
-        },
-        {
-          id: `proposal-voting-quadratic-${groupId}`,
-          groupId,
-          title: 'Budget Allocation for Quarter',
-          description: `## Proposal
-
-Allocate $5000 quarterly budget across these initiatives. Use quadratic voting to express preference intensity.
-
-## Budget Categories
-- **Mutual Aid Fund** - Direct assistance to community members
-- **Campaign Materials** - Printing, supplies, outreach materials
-- **Skill Shares & Training** - Workshops, security training, etc.
-- **Solidarity Actions** - Support for other movements
-- **Technology** - Website, tools, infrastructure
-
-You have 100 vote credits. Cost per vote increases quadratically (1 vote = 1 credit, 2 votes = 4 credits, 3 votes = 9 credits, etc.)`,
-          status: 'voting',
-          votingMethod: 'quadratic',
-          votingDeadline: now + 6 * day,
-          authorPubkey: userPubkey,
-          created: now - 4 * day,
-          updated: now - 4 * day,
+          votingSystem: 'ranked-choice',
+          options: [
+            { id: crypto.randomUUID(), label: 'Community Center', order: 0 },
+            { id: crypto.randomUUID(), label: 'Public Library', order: 1 },
+            { id: crypto.randomUUID(), label: 'Union Hall', order: 2 },
+            { id: crypto.randomUUID(), label: 'Rotating homes', order: 3 },
+          ],
+          votingPeriod: { startsAt: now - 2 * day, endsAt: now + 4 * day },
+          createdBy: userPubkey,
+          createdAt: now - 6 * day,
+          updatedAt: now - 6 * day,
         },
 
         // DECIDED/COMPLETED
         {
+          _v: '1.0.0',
           id: `proposal-decided-1-${groupId}`,
           groupId,
           title: 'Solidarity with Tenant Union',
-          description: `## Proposal
-
-Formally endorse and provide support to the Riverside Tenant Union in their ongoing rent strike.
-
-## Support Includes
-- Social media amplification
-- Presence at actions
-- Mutual aid coordination
-- Resource sharing
-
-## Result
-**PASSED** - Consensus achieved with 2 stand-asides, no blocks.`,
-          status: 'decided',
-          votingMethod: 'consensus',
-          votingDeadline: now - 2 * day,
-          authorPubkey: userPubkey,
-          created: now - 15 * day,
-          updated: now - 15 * day,
+          description: `## Proposal\n\nFormally endorse and provide support to the Riverside Tenant Union.\n\n## Result\n**PASSED** - Consensus achieved with 2 stand-asides, no blocks.`,
+          type: 'resolution',
+          status: 'passed',
+          votingSystem: 'consensus',
+          options: consensusOptions(),
+          votingPeriod: { startsAt: now - 10 * day, endsAt: now - 2 * day },
+          createdBy: userPubkey,
+          createdAt: now - 15 * day,
+          updatedAt: now - 15 * day,
         },
         {
+          _v: '1.0.0',
           id: `proposal-decided-2-${groupId}`,
           groupId,
           title: 'Monthly Dues Structure',
-          description: `## Proposal
-
-Implement sliding-scale monthly dues to support group operations.
-
-## Proposed Structure
-- $0-10/month - Low income, students, unemployed
-- $10-25/month - Standard contribution
-- $25+/month - Solidarity rate for those who can pay more
-
-All amounts voluntary, no one turned away for lack of funds.
-
-## Result
-**PASSED** - 87% in favor, 13% opposed.`,
-          status: 'decided',
-          votingMethod: 'simple',
-          votingDeadline: now - 10 * day,
-          authorPubkey: userPubkey,
-          created: now - 25 * day,
-          updated: now - 25 * day,
+          description: `## Proposal\n\nImplement sliding-scale monthly dues to support group operations.\n\n## Result\n**PASSED** - 87% in favor, 13% opposed.`,
+          type: 'budget',
+          status: 'passed',
+          votingSystem: 'simple-majority',
+          options: defaultOptions(),
+          votingPeriod: { startsAt: now - 15 * day, endsAt: now - 10 * day },
+          createdBy: userPubkey,
+          createdAt: now - 25 * day,
+          updatedAt: now - 25 * day,
         },
         {
+          _v: '1.0.0',
           id: `proposal-decided-dhondt-${groupId}`,
           groupId,
           title: 'Delegate Selection for Coalition',
-          description: `## Proposal
-
-Select 5 delegates to represent us in the Housing Justice Coalition using D'Hondt proportional method.
-
-## Candidates
-- Alice (Tenant Rights Caucus)
-- Bob (Mutual Aid Caucus)
-- Carol (Direct Action Caucus)
-- David (Tenant Rights Caucus)
-- Eve (Policy Caucus)
-
-## Result
-**COMPLETED** - Delegates selected proportionally based on caucus strength:
-1. Alice
-2. Bob
-3. David
-4. Carol
-5. Eve`,
-          status: 'decided',
-          votingMethod: 'dhondt',
-          votingDeadline: now - 20 * day,
-          authorPubkey: userPubkey,
-          created: now - 35 * day,
-          updated: now - 35 * day,
+          description: `## Proposal\n\nSelect 5 delegates to represent us in the Housing Justice Coalition using D'Hondt proportional method.\n\n## Result\n**COMPLETED** - Delegates selected proportionally based on caucus strength.`,
+          type: 'election',
+          status: 'passed',
+          votingSystem: 'd-hondt',
+          options: [
+            { id: crypto.randomUUID(), label: 'Alice (Tenant Rights Caucus)', order: 0 },
+            { id: crypto.randomUUID(), label: 'Bob (Mutual Aid Caucus)', order: 1 },
+            { id: crypto.randomUUID(), label: 'Carol (Direct Action Caucus)', order: 2 },
+            { id: crypto.randomUUID(), label: 'David (Tenant Rights Caucus)', order: 3 },
+            { id: crypto.randomUUID(), label: 'Eve (Policy Caucus)', order: 4 },
+          ],
+          votingPeriod: { startsAt: now - 25 * day, endsAt: now - 20 * day },
+          createdBy: userPubkey,
+          createdAt: now - 35 * day,
+          updatedAt: now - 35 * day,
         },
       ];
 

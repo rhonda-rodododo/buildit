@@ -1,35 +1,37 @@
-import { FC, useState, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FileText, Vote, History, Plus } from 'lucide-react'
-import { CreateProposalDialog } from './CreateProposalDialog'
-import { useGovernanceStore } from '../governanceStore'
+import { FC, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Vote, History, Plus } from 'lucide-react';
+import { CreateProposalDialog } from './CreateProposalDialog';
+import { useGovernanceStore } from '../governanceStore';
 
 interface GovernanceViewProps {
-  groupId?: string
+  groupId?: string;
 }
 
 export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) => {
-  const { t } = useTranslation()
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const { t } = useTranslation();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Access raw state to avoid selector instability
-  const proposalsRecord = useGovernanceStore(state => state.proposals)
+  const proposalsRecord = useGovernanceStore(state => state.proposals);
 
   // Memoize filtered proposals to prevent infinite re-renders
   const { draftProposals, votingProposals, decidedProposals } = useMemo(() => {
     const allProposals = Object.values(proposalsRecord)
       .filter(p => p.groupId === groupId)
-      .sort((a, b) => b.created - a.created)
+      .sort((a, b) => b.createdAt - a.createdAt);
 
     return {
       draftProposals: allProposals.filter(p => p.status === 'draft'),
       votingProposals: allProposals.filter(p => p.status === 'voting'),
-      decidedProposals: allProposals.filter(p => p.status === 'decided'),
-    }
-  }, [proposalsRecord, groupId])
+      decidedProposals: allProposals.filter(p =>
+        p.status === 'passed' || p.status === 'rejected' || p.status === 'implemented'
+      ),
+    };
+  }, [proposalsRecord, groupId]);
 
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
@@ -74,7 +76,7 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
                       <div key={proposal.id} className="p-3 border rounded-lg hover:bg-muted/50">
                         <h4 className="font-medium">{proposal.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {proposal.description.slice(0, 100)}...
+                          {(proposal.description ?? '').slice(0, 100)}...
                         </p>
                       </div>
                     ))}
@@ -102,7 +104,7 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
                       <div key={proposal.id} className="p-3 border rounded-lg hover:bg-muted/50">
                         <h4 className="font-medium">{proposal.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {proposal.votingMethod} - {t('governance.ends')} {proposal.votingEndTime && new Date(proposal.votingEndTime).toLocaleDateString()}
+                          {proposal.votingSystem} - {t('governance.ends')} {new Date(proposal.votingPeriod.endsAt).toLocaleDateString()}
                         </p>
                       </div>
                     ))}
@@ -178,7 +180,7 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
                     <div key={proposal.id} className="p-3 border rounded-lg">
                       <h4 className="font-medium">{proposal.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {t('governance.decidedOn')} {new Date(proposal.updated).toLocaleDateString()}
+                        {t('governance.decidedOn')} {new Date(proposal.updatedAt ?? proposal.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   ))}
@@ -198,5 +200,5 @@ export const GovernanceView: FC<GovernanceViewProps> = ({ groupId = 'global' }) 
         }}
       />
     </div>
-  )
-}
+  );
+};

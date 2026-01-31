@@ -1,26 +1,26 @@
-import { create } from 'zustand'
-import type { Proposal, Vote, VotingResults } from './types'
+import { create } from 'zustand';
+import type { DBProposal, DBVote } from './schema';
+import type { VotingResults } from './types';
 
 interface GovernanceState {
-  // Use objects/arrays instead of Maps for proper Zustand reactivity
-  proposals: Record<string, Proposal>
-  votes: Record<string, Vote[]> // proposalId -> votes
-  results: Record<string, VotingResults> // proposalId -> results
+  proposals: Record<string, DBProposal>;
+  votes: Record<string, DBVote[]>; // proposalId -> votes
+  results: Record<string, VotingResults>; // proposalId -> results
 
   // Actions
-  addProposal: (proposal: Proposal) => void
-  updateProposal: (id: string, updates: Partial<Proposal>) => void
-  removeProposal: (id: string) => void
-  addVote: (vote: Vote) => void
-  setResults: (proposalId: string, results: VotingResults) => void
+  addProposal: (proposal: DBProposal) => void;
+  updateProposal: (id: string, updates: Partial<DBProposal>) => void;
+  removeProposal: (id: string) => void;
+  addVote: (vote: DBVote) => void;
+  setResults: (proposalId: string, results: VotingResults) => void;
 
   // Getters
-  getProposal: (id: string) => Proposal | undefined
-  getProposalsByGroup: (groupId: string) => Proposal[]
-  getProposalsByStatus: (groupId: string, status: Proposal['status']) => Proposal[]
-  getVotes: (proposalId: string) => Vote[]
-  getUserVote: (proposalId: string, userPubkey: string) => Vote | undefined
-  getResults: (proposalId: string) => VotingResults | undefined
+  getProposal: (id: string) => DBProposal | undefined;
+  getProposalsByGroup: (groupId: string) => DBProposal[];
+  getProposalsByStatus: (groupId: string, status: DBProposal['status']) => DBProposal[];
+  getVotes: (proposalId: string) => DBVote[];
+  getUserVote: (proposalId: string, voterId: string) => DBVote | undefined;
+  getResults: (proposalId: string) => VotingResults | undefined;
 }
 
 export const useGovernanceStore = create<GovernanceState>((set, get) => ({
@@ -36,34 +36,34 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   })),
 
   updateProposal: (id, updates) => set((state) => {
-    const existing = state.proposals[id]
-    if (!existing) return state
+    const existing = state.proposals[id];
+    if (!existing) return state;
 
     return {
       proposals: {
         ...state.proposals,
-        [id]: { ...existing, ...updates, updated: Date.now() },
+        [id]: { ...existing, ...updates, updatedAt: Date.now() },
       },
-    }
+    };
   }),
 
   removeProposal: (id) => set((state) => {
-    const { [id]: _removed, ...rest } = state.proposals
-    return { proposals: rest }
+    const { [id]: _removed, ...rest } = state.proposals;
+    return { proposals: rest };
   }),
 
   addVote: (vote) => set((state) => {
-    const proposalVotes = state.votes[vote.proposalId] || []
+    const proposalVotes = state.votes[vote.proposalId] || [];
 
     // Replace existing vote from same user or add new
-    const filteredVotes = proposalVotes.filter(v => v.voterPubkey !== vote.voterPubkey)
+    const filteredVotes = proposalVotes.filter(v => v.voterId !== vote.voterId);
 
     return {
       votes: {
         ...state.votes,
         [vote.proposalId]: [...filteredVotes, vote],
       },
-    }
+    };
   }),
 
   setResults: (proposalId, results) => set((state) => ({
@@ -78,25 +78,25 @@ export const useGovernanceStore = create<GovernanceState>((set, get) => ({
   getProposalsByGroup: (groupId) => {
     return Object.values(get().proposals)
       .filter(p => p.groupId === groupId)
-      .sort((a, b) => b.created - a.created)
+      .sort((a, b) => b.createdAt - a.createdAt);
   },
 
   getProposalsByStatus: (groupId, status) => {
     return Object.values(get().proposals)
       .filter(p => p.groupId === groupId && p.status === status)
-      .sort((a, b) => b.created - a.created)
+      .sort((a, b) => b.createdAt - a.createdAt);
   },
 
   getVotes: (proposalId) => {
-    return get().votes[proposalId] || []
+    return get().votes[proposalId] || [];
   },
 
-  getUserVote: (proposalId, userPubkey) => {
-    const votes = get().votes[proposalId] || []
-    return votes.find(v => v.voterPubkey === userPubkey)
+  getUserVote: (proposalId, voterId) => {
+    const votes = get().votes[proposalId] || [];
+    return votes.find(v => v.voterId === voterId);
   },
 
   getResults: (proposalId) => {
-    return get().results[proposalId]
+    return get().results[proposalId];
   },
-}))
+}));

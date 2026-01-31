@@ -5,7 +5,7 @@
  * Covers editorial governance, collective operations, and content decisions.
  */
 
-import type { VotingMethod } from '../types';
+import type { VotingSystem } from '../types';
 
 /**
  * Proposal Template Definition
@@ -24,8 +24,8 @@ export interface ProposalTemplate {
   /** Category for organization */
   category: 'editorial' | 'membership' | 'operations' | 'content' | 'coalition';
 
-  /** Default voting method */
-  votingMethod: VotingMethod;
+  /** Default voting system */
+  votingSystem: VotingSystem;
 
   /** Default quorum percentage (0-100) */
   quorum: number;
@@ -63,7 +63,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Editorial Policy Change',
     description: 'Propose changes to editorial guidelines, standards, or policies',
     category: 'editorial',
-    votingMethod: 'consensus',
+    votingSystem: 'consensus',
     quorum: 66,
     discussionPeriod: 7 * DAYS,
     votingPeriod: 5 * DAYS,
@@ -76,7 +76,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Coverage Priority',
     description: 'Set or change coverage priorities for the collective',
     category: 'editorial',
-    votingMethod: 'ranked-choice',
+    votingSystem: 'ranked-choice',
     quorum: 50,
     discussionPeriod: 3 * DAYS,
     votingPeriod: 3 * DAYS,
@@ -89,7 +89,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Style Guide Update',
     description: 'Propose updates to the collective\'s style guide',
     category: 'editorial',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 50,
     threshold: 66,
     discussionPeriod: 5 * DAYS,
@@ -104,7 +104,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'New Member Approval',
     description: 'Vote on accepting a new member to the collective',
     category: 'membership',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 50,
     threshold: 66,
     discussionPeriod: 5 * DAYS,
@@ -118,7 +118,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Role Assignment',
     description: 'Assign a member to a specific role (Editor, Publisher, etc.)',
     category: 'membership',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 50,
     threshold: 66,
     discussionPeriod: 3 * DAYS,
@@ -131,7 +131,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Elect Editorial Board',
     description: 'Elect members to serve on the editorial board',
     category: 'membership',
-    votingMethod: 'ranked-choice',
+    votingSystem: 'ranked-choice',
     quorum: 66,
     discussionPeriod: 7 * DAYS,
     votingPeriod: 5 * DAYS,
@@ -145,7 +145,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Join Coalition',
     description: 'Vote on joining a regional or global media coalition',
     category: 'coalition',
-    votingMethod: 'consensus',
+    votingSystem: 'consensus',
     quorum: 75,
     discussionPeriod: 7 * DAYS,
     votingPeriod: 5 * DAYS,
@@ -158,7 +158,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Leave Coalition',
     description: 'Vote on leaving a coalition the collective currently belongs to',
     category: 'coalition',
-    votingMethod: 'consensus',
+    votingSystem: 'consensus',
     quorum: 75,
     discussionPeriod: 7 * DAYS,
     votingPeriod: 5 * DAYS,
@@ -170,7 +170,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Partnership Agreement',
     description: 'Establish a partnership with another organization',
     category: 'operations',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 66,
     threshold: 75,
     discussionPeriod: 5 * DAYS,
@@ -183,7 +183,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Budget Allocation',
     description: 'Allocate collective funds for specific purposes',
     category: 'operations',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 66,
     threshold: 66,
     discussionPeriod: 5 * DAYS,
@@ -198,7 +198,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Content Dispute Resolution',
     description: 'Resolve disputes about published or pending content',
     category: 'content',
-    votingMethod: 'consensus',
+    votingSystem: 'consensus',
     quorum: 50,
     discussionPeriod: 3 * DAYS,
     votingPeriod: 2 * DAYS,
@@ -211,7 +211,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Retraction or Correction',
     description: 'Vote on retracting or correcting published content',
     category: 'content',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 50,
     threshold: 66,
     discussionPeriod: 2 * DAYS,
@@ -224,7 +224,7 @@ export const MEDIA_COLLECTIVE_PROPOSAL_TEMPLATES: ProposalTemplate[] = [
     title: 'Syndication Approval',
     description: 'Approve syndicating a specific article to coalition(s)',
     category: 'content',
-    votingMethod: 'simple',
+    votingSystem: 'simple-majority',
     quorum: 33,
     threshold: 66,
     discussionPeriod: 1 * DAYS,

@@ -136,40 +136,61 @@ export const HomePage: FC = () => {
 
       // Load seed proposals
       if (Object.keys(proposals).length === 0) {
+        const day = 24 * 60 * 60 * 1000;
         const seedProposals = [
           {
+            _v: '1.0.0',
             id: 'proposal-1',
             groupId: 'tenant-union',
             title: 'Rent Strike Resolution',
             description: 'Proposal to organize a coordinated rent strike in response to landlord refusing to make critical repairs. Includes legal support fund and media strategy.',
+            type: 'action' as const,
             status: 'voting' as const,
-            votingMethod: 'consensus' as const,
-            votingDeadline: now + 5 * 24 * 60 * 60 * 1000, // 5 days from now
-            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
-            created: now - 3 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
-            updated: now - 3 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
+            votingSystem: 'consensus' as const,
+            options: [
+              { id: crypto.randomUUID(), label: 'Support', order: 0 },
+              { id: crypto.randomUUID(), label: 'Stand aside', order: 1 },
+              { id: crypto.randomUUID(), label: 'Block', order: 2 },
+            ],
+            votingPeriod: { startsAt: now - 2 * day, endsAt: now + 5 * day },
+            createdBy: userPubkey,
+            createdAt: now - 3 * day,
           },
           {
+            _v: '1.0.0',
             id: 'proposal-2',
             groupId: 'worker-coop',
             title: 'Profit Sharing Amendment',
             description: 'Amend our bylaws to increase profit sharing from 40% to 60% for worker-owners. Remaining 40% for growth fund and community reinvestment.',
+            type: 'amendment' as const,
             status: 'discussion' as const,
-            votingMethod: 'simple' as const,
-            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
-            created: now - 6 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
-            updated: now - 6 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
+            votingSystem: 'simple-majority' as const,
+            options: [
+              { id: crypto.randomUUID(), label: 'Yes', order: 0 },
+              { id: crypto.randomUUID(), label: 'No', order: 1 },
+              { id: crypto.randomUUID(), label: 'Abstain', order: 2 },
+            ],
+            votingPeriod: { startsAt: now + 2 * day, endsAt: now + 9 * day },
+            createdBy: userPubkey,
+            createdAt: now - 6 * day,
           },
           {
+            _v: '1.0.0',
             id: 'proposal-3',
             groupId: 'community-land-trust',
             title: 'Purchase Community Garden Plot',
             description: 'Proposal to purchase the vacant lot at 456 Elm St for a community garden. Total cost $15,000. Seeking approval and fundraising plan.',
-            status: 'decided' as const,
-            votingMethod: 'quadratic' as const,
-            authorPubkey: userPubkey, // Fixed: use 'authorPubkey' not 'createdBy'
-            created: now - 15 * 24 * 60 * 60 * 1000, // Fixed: use 'created' not 'createdAt'
-            updated: now - 8 * 24 * 60 * 60 * 1000, // Fixed: use 'updated' not 'updatedAt'
+            type: 'budget' as const,
+            status: 'passed' as const,
+            votingSystem: 'quadratic' as const,
+            options: [
+              { id: crypto.randomUUID(), label: 'Approve', order: 0 },
+              { id: crypto.randomUUID(), label: 'Reject', order: 1 },
+            ],
+            votingPeriod: { startsAt: now - 15 * day, endsAt: now - 8 * day },
+            createdBy: userPubkey,
+            createdAt: now - 15 * day,
+            updatedAt: now - 8 * day,
           },
         ];
 

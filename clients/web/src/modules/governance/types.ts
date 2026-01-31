@@ -1,102 +1,119 @@
-import { z } from 'zod'
+/**
+ * Governance Module Types
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * UI-only types (CreateProposalInput, CastVoteInput, VotingResults) are defined here.
+ */
 
-export type ProposalStatus = 'draft' | 'discussion' | 'voting' | 'decided' | 'cancelled'
+// Re-export all generated Zod schemas and types
+export {
+  ProposalTypeSchema,
+  type ProposalType,
+  ProposalStatusSchema,
+  type ProposalStatus,
+  VotingSystemSchema,
+  type VotingSystem,
+  VoteOptionSchema,
+  type VoteOption,
+  QuorumRequirementSchema,
+  type QuorumRequirement,
+  PassingThresholdSchema,
+  type PassingThreshold,
+  ProposalAttachmentSchema,
+  type ProposalAttachment,
+  ProposalSchema,
+  type Proposal,
+  VoteSchema,
+  type Vote,
+  DelegationSchema,
+  type Delegation,
+  ProposalResultSchema,
+  type ProposalResult,
+  GOVERNANCE_SCHEMA_VERSION,
+} from '@/generated/validation/governance.zod';
 
-export type VotingMethod = 'simple' | 'ranked-choice' | 'quadratic' | 'consensus'
+// ── UI-Only Types ──────────────────────────────────────────────────
 
-export type VoteOption = 'yes' | 'no' | 'abstain'
+import type { VotingSystem } from '@/generated/validation/governance.zod';
 
-export const ProposalSchema = z.object({
-  id: z.string(),
-  groupId: z.string(),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
-  authorPubkey: z.string(),
-  status: z.enum(['draft', 'discussion', 'voting', 'decided', 'cancelled']),
-  votingMethod: z.enum(['simple', 'ranked-choice', 'quadratic', 'consensus']),
-  options: z.array(z.string()).optional(), // For ranked-choice or multiple options
-  votingStartTime: z.number().optional(),
-  votingEndTime: z.number().optional(),
-  quorum: z.number().min(0).max(100).optional(), // Percentage required
-  threshold: z.number().min(0).max(100).optional(), // Percentage to pass
-  created: z.number(),
-  updated: z.number(),
-})
+/**
+ * Input for creating a new proposal (form data — UI-only type)
+ */
+export interface CreateProposalInput {
+  groupId: string;
+  title: string;
+  description: string;
+  votingSystem: VotingSystem;
+  /** Text options (converted to VoteOption objects by the manager) */
+  optionLabels?: string[];
+  /** Voting duration in seconds */
+  votingDuration?: number;
+  /** Discussion period in seconds before voting starts */
+  discussionDuration?: number;
+  quorumType?: 'percentage' | 'absolute' | 'none';
+  quorumValue?: number;
+  thresholdType?: 'simple-majority' | 'supermajority' | 'unanimous' | 'custom';
+  thresholdPercentage?: number;
+  type?: 'general' | 'policy' | 'budget' | 'election' | 'amendment' | 'action' | 'resolution';
+  allowAbstain?: boolean;
+  anonymousVoting?: boolean;
+  tags?: string[];
+}
 
-export type Proposal = z.infer<typeof ProposalSchema>
+/**
+ * Input for casting a vote (form data — UI-only type)
+ */
+export interface CastVoteInput {
+  proposalId: string;
+  /** Option ID(s): single string for simple, array for ranked-choice */
+  choice: string | string[];
+  comment?: string;
+}
 
-export const VoteSchema = z.object({
-  id: z.string(),
-  proposalId: z.string(),
-  voterPubkey: z.string(),
-  vote: z.union([
-    z.enum(['yes', 'no', 'abstain']), // Simple
-    z.array(z.string()), // Ranked choice (ordered options)
-    z.record(z.string(), z.number()), // Quadratic (option -> token allocation)
-  ]),
-  weight: z.number().optional(), // For weighted voting
-  timestamp: z.number(),
-  signature: z.string(),
-})
-
-export type Vote = z.infer<typeof VoteSchema>
-
+/**
+ * Voting results (computed at runtime — UI-only type)
+ */
 export interface VotingResults {
-  proposalId: string
-  method: VotingMethod
-  totalVotes: number
-  totalEligibleVoters: number
-  turnoutPercentage: number
-  results: SimpleResults | RankedChoiceResults | QuadraticResults | ConsensusResults
-  passed: boolean
-  finalizedAt: number
+  proposalId: string;
+  votingSystem: VotingSystem;
+  totalVotes: number;
+  totalEligibleVoters: number;
+  turnoutPercentage: number;
+  results: SimpleResults | RankedChoiceResults | QuadraticResults | ConsensusResults;
+  passed: boolean;
+  finalizedAt: number;
 }
 
 export interface SimpleResults {
-  yes: number
-  no: number
-  abstain: number
-  yesPercentage: number
-  noPercentage: number
+  /** Vote counts per option ID */
+  voteCounts: Record<string, number>;
+  /** The winning option ID */
+  winnerId: string | null;
+  /** Whether the winning percentage meets the threshold */
+  thresholdMet: boolean;
 }
 
 export interface RankedChoiceResults {
   rounds: Array<{
-    round: number
-    counts: Record<string, number>
-    eliminated?: string
-  }>
-  winner: string | null
+    round: number;
+    counts: Record<string, number>;
+    eliminated?: string;
+  }>;
+  winner: string | null;
 }
 
 export interface QuadraticResults {
   options: Record<string, {
-    votes: number
-    quadraticScore: number
-  }>
-  winner: string | null
+    votes: number;
+    quadraticScore: number;
+  }>;
+  winner: string | null;
 }
 
 export interface ConsensusResults {
-  support: number
-  concerns: number
-  blocks: number
-  consensusReached: boolean
-  threshold: number
-}
-
-export interface CreateProposalInput {
-  groupId: string
-  title: string
-  description: string
-  votingMethod: VotingMethod
-  options?: string[]
-  votingDuration?: number // in seconds
-  quorum?: number
-  threshold?: number
-}
-
-export interface CastVoteInput {
-  proposalId: string
-  vote: VoteOption | string[] | Record<string, number>
+  support: number;
+  concerns: number;
+  blocks: number;
+  consensusReached: boolean;
+  threshold: number;
 }

@@ -1,22 +1,22 @@
-import { FC, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle } from 'lucide-react'
-import type { VotingMethod } from '../types'
-import { proposalManager } from '../proposalManager'
-import { getCurrentPrivateKey } from '@/stores/authStore'
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import type { VotingSystem } from '../types';
+import { proposalManager } from '../proposalManager';
+import { getCurrentPrivateKey } from '@/stores/authStore';
 
 interface CreateProposalDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  groupId: string
-  onCreated?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  groupId: string;
+  onCreated?: () => void;
 }
 
 export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
@@ -25,26 +25,26 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   groupId,
   onCreated,
 }) => {
-  const { t } = useTranslation()
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [votingMethod, setVotingMethod] = useState<VotingMethod>('simple')
-  const [options, setOptions] = useState('')
-  const [duration, setDuration] = useState('7')
-  const [quorum, setQuorum] = useState('50')
-  const [threshold, setThreshold] = useState('50')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [votingSystem, setVotingSystem] = useState<VotingSystem>('simple-majority');
+  const [options, setOptions] = useState('');
+  const [duration, setDuration] = useState('7');
+  const [quorum, setQuorum] = useState('50');
+  const [threshold, setThreshold] = useState('50');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreate = async () => {
-    const privateKey = getCurrentPrivateKey()
+    const privateKey = getCurrentPrivateKey();
     if (!privateKey) {
-      setError(t('createProposalDialog.errors.noIdentity'))
-      return
+      setError(t('createProposalDialog.errors.noIdentity'));
+      return;
     }
 
-    setError(null)
-    setIsSubmitting(true)
+    setError(null);
+    setIsSubmitting(true);
 
     try {
       await proposalManager.createProposal(
@@ -52,35 +52,37 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           groupId,
           title,
           description,
-          votingMethod,
-          options: (votingMethod === 'ranked-choice' || votingMethod === 'quadratic')
+          votingSystem,
+          optionLabels: (votingSystem === 'ranked-choice' || votingSystem === 'quadratic')
             ? options.split('\n').filter(o => o.trim())
             : undefined,
           votingDuration: parseInt(duration) * 24 * 60 * 60, // days to seconds
-          quorum: parseInt(quorum),
-          threshold: parseInt(threshold),
+          quorumType: 'percentage',
+          quorumValue: parseInt(quorum),
+          thresholdType: 'simple-majority',
+          thresholdPercentage: parseInt(threshold),
         },
         privateKey
-      )
+      );
 
       // Reset form
-      setTitle('')
-      setDescription('')
-      setVotingMethod('simple')
-      setOptions('')
-      setDuration('7')
-      setQuorum('50')
-      setThreshold('50')
+      setTitle('');
+      setDescription('');
+      setVotingSystem('simple-majority');
+      setOptions('');
+      setDuration('7');
+      setQuorum('50');
+      setThreshold('50');
 
-      onOpenChange(false)
-      onCreated?.()
+      onOpenChange(false);
+      onCreated?.();
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : t('createProposalDialog.errors.createFailed')
-      setError(errorMsg)
+      const errorMsg = err instanceof Error ? err.message : t('createProposalDialog.errors.createFailed');
+      setError(errorMsg);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,13 +125,13 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="voting-method">{t('createProposalDialog.fields.votingMethodLabel')}</Label>
-            <Select value={votingMethod} onValueChange={(v) => setVotingMethod(v as VotingMethod)}>
+            <Label htmlFor="voting-system">{t('createProposalDialog.fields.votingMethodLabel')}</Label>
+            <Select value={votingSystem} onValueChange={(v) => setVotingSystem(v as VotingSystem)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simple">{t('createProposalDialog.votingMethods.simple')}</SelectItem>
+                <SelectItem value="simple-majority">{t('createProposalDialog.votingMethods.simple')}</SelectItem>
                 <SelectItem value="ranked-choice">{t('createProposalDialog.votingMethods.rankedChoice')}</SelectItem>
                 <SelectItem value="quadratic">{t('createProposalDialog.votingMethods.quadratic')}</SelectItem>
                 <SelectItem value="consensus">{t('createProposalDialog.votingMethods.consensus')}</SelectItem>
@@ -137,7 +139,7 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
             </Select>
           </div>
 
-          {(votingMethod === 'ranked-choice' || votingMethod === 'quadratic') && (
+          {(votingSystem === 'ranked-choice' || votingSystem === 'quadratic') && (
             <div className="grid gap-2">
               <Label htmlFor="options">{t('createProposalDialog.fields.optionsLabel')}</Label>
               <Textarea
@@ -198,5 +200,5 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
