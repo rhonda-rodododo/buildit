@@ -11,7 +11,62 @@ import { logger } from '@/lib/logger';
 /**
  * Seed data for governance module
  */
+/**
+ * Generic governance demo seed for activist collective and union templates
+ */
+const governanceDemoSeed: ModuleSeed = {
+  name: 'governance-demo',
+  description: 'General governance proposals for activist collectives and organizing groups',
+  data: async (db, groupId, userPubkey) => {
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+
+    const proposals: DBProposal[] = [
+      {
+        id: `proposal-demo-coc-${groupId}`,
+        groupId,
+        title: 'Adopt Code of Conduct',
+        description: `## Proposal\n\nFormally adopt a code of conduct for all group spaces and events.\n\n## Key Points\n- Prohibits harassment, discrimination, and oppressive behavior\n- Clear reporting procedures\n- Accountability processes with restorative justice approach\n- Applies to online and offline spaces\n\nPlease review and provide feedback.`,
+        status: 'discussion',
+        votingMethod: 'consensus',
+        votingDeadline: now + 7 * day,
+        authorPubkey: userPubkey,
+        created: now - 5 * day,
+        updated: now - 5 * day,
+      },
+      {
+        id: `proposal-demo-budget-${groupId}`,
+        groupId,
+        title: 'Quarterly Budget Allocation',
+        description: `## Proposal\n\nAllocate $3,000 quarterly budget:\n\n- **Mutual Aid Fund**: $1,200\n- **Campaign Materials**: $600\n- **Skill Shares & Training**: $500\n- **Solidarity Actions**: $400\n- **Technology & Infrastructure**: $300\n\nUse quadratic voting to express preference intensity.`,
+        status: 'voting',
+        votingMethod: 'quadratic',
+        votingDeadline: now + 5 * day,
+        authorPubkey: userPubkey,
+        created: now - 4 * day,
+        updated: now - 4 * day,
+      },
+      {
+        id: `proposal-demo-solidarity-${groupId}`,
+        groupId,
+        title: 'Solidarity Statement with Tenant Union',
+        description: `## Proposal\n\nEndorse and support the Riverside Tenant Union in their rent strike.\n\n## Support Includes\n- Social media amplification\n- Presence at actions\n- Mutual aid coordination\n\n## Result\n**PASSED** - Consensus achieved.`,
+        status: 'decided',
+        votingMethod: 'consensus',
+        votingDeadline: now - 5 * day,
+        authorPubkey: userPubkey,
+        created: now - 20 * day,
+        updated: now - 5 * day,
+      },
+    ];
+
+    await db.proposals?.bulkAdd(proposals);
+    logger.info(`Seeded ${proposals.length} governance demo proposals for group ${groupId}`);
+  },
+};
+
 export const governanceSeeds: ModuleSeed[] = [
+  governanceDemoSeed,
   ...mediaCollectiveGovernanceSeeds,
   {
     name: 'comprehensive-proposals',

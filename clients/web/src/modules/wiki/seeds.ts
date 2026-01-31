@@ -11,7 +11,111 @@ import { logger } from '@/lib/logger';
 /**
  * Seed data for wiki module
  */
+/**
+ * Wiki demo seed - shorter, more focused starter pages for activist/community templates
+ */
+const wikiDemoSeed: ModuleSeed = {
+  name: 'wiki-demo',
+  description: 'Starter wiki pages for activist collectives and community groups',
+  data: async (db, groupId, userPubkey) => {
+    const now = Date.now();
+
+    const pages: DBWikiPage[] = [
+      {
+        _v: '1.0.0',
+        id: `wiki-demo-welcome-${groupId}`,
+        groupId,
+        title: 'Welcome',
+        slug: 'welcome',
+        content: `# Welcome to Our Knowledge Base\n\nThis wiki is our collective memory. Use it to document strategies, share resources, and onboard new members.\n\n## Key Pages\n- [[Code of Conduct]] - Community guidelines\n- [[Know Your Rights]] - Legal info for activists\n- [[Security Culture]] - Protecting our movement\n\n## How to Contribute\nClick "Edit" on any page to improve it. All changes are version-controlled so don't worry about making mistakes.`,
+        categoryId: 'getting-started',
+        tags: ['welcome', 'guide'],
+        status: 'published',
+        visibility: 'group',
+        version: 1,
+        createdAt: now,
+        createdBy: userPubkey,
+        updatedAt: now,
+        indexability: DEFAULT_INDEXABILITY,
+      },
+      {
+        _v: '1.0.0',
+        id: `wiki-demo-kyr-${groupId}`,
+        groupId,
+        title: 'Know Your Rights',
+        slug: 'know-your-rights',
+        content: `# Know Your Rights\n\n**This is general information, not legal advice.**\n\n## If Stopped by Police\n- "I am going to remain silent."\n- "I want to speak to a lawyer."\n- "I do not consent to a search."\n- Stay calm, keep hands visible\n\n## If Arrested\n1. Remain silent\n2. Ask for a lawyer clearly and repeatedly\n3. Don't sign anything without lawyer review\n4. Write down details when safe\n\n## Jail Support Hotline\nMemorize the number. Write it on your arm before actions.\n\n## Legal Contacts\n- National Lawyers Guild\n- ACLU\n- Local legal aid`,
+        categoryId: 'legal',
+        tags: ['legal', 'rights', 'know-your-rights'],
+        status: 'published',
+        visibility: 'group',
+        version: 1,
+        createdAt: now,
+        createdBy: userPubkey,
+        updatedAt: now,
+        indexability: DEFAULT_INDEXABILITY,
+      },
+      {
+        _v: '1.0.0',
+        id: `wiki-demo-security-${groupId}`,
+        groupId,
+        title: 'Security Culture',
+        slug: 'security-culture',
+        content: `# Security Culture\n\nSecurity culture protects our movements from surveillance and repression.\n\n## Core Principles\n- **Need-to-know**: Only share sensitive info with those who need it\n- **Encrypted communications**: Use Signal, this platform, or similar\n- **Physical awareness**: Be aware of surveillance\n\n## Before Actions\n- Secure planning spaces\n- Legal and jail support ready\n- Know your rights training completed\n\n## Digital Security\n- Use encrypted messaging\n- Strong unique passwords\n- Be careful on social media\n- Don't post action plans publicly\n\nSecurity culture isn't paranoia — it's community care.`,
+        categoryId: 'security',
+        tags: ['security', 'opsec', 'digital-safety'],
+        status: 'published',
+        visibility: 'group',
+        version: 1,
+        createdAt: now,
+        createdBy: userPubkey,
+        updatedAt: now,
+        indexability: DEFAULT_INDEXABILITY,
+      },
+    ];
+
+    await db.wikiPages?.bulkAdd(pages);
+    logger.info(`Seeded ${pages.length} wiki demo pages for group ${groupId}`);
+  },
+};
+
+/**
+ * Style guide wiki seed for media collective
+ */
+const wikiStyleguideSeed: ModuleSeed = {
+  name: 'wiki-styleguide-demo',
+  description: 'Style guide and editorial standards wiki for media collectives',
+  data: async (db, groupId, userPubkey) => {
+    const now = Date.now();
+
+    const pages: DBWikiPage[] = [
+      {
+        _v: '1.0.0',
+        id: `wiki-styleguide-main-${groupId}`,
+        groupId,
+        title: 'Editorial Style Guide',
+        slug: 'style-guide',
+        content: `# Editorial Style Guide\n\n## Voice & Tone\n- Community-centered, not corporate\n- Amplify affected voices, don't speak for them\n- Use active voice and plain language\n- Accessible to general audience\n\n## Sourcing Standards\n- Minimum two independent sources for factual claims\n- On-the-record quotes preferred\n- Anonymous sources require editor approval\n- Always verify with primary documents when available\n\n## Ethics\n- Never endanger sources or subjects\n- Get consent before naming activists\n- Don't publish identifying info from direct actions\n- Sensitive stories require editorial board review\n\n## Photo/Video\n- Blur faces at protests unless consent given\n- No photos showing illegal activity by our people\n- Credit all photographers\n- Archive originals securely`,
+        categoryId: 'editorial',
+        tags: ['style-guide', 'editorial', 'standards'],
+        status: 'published',
+        visibility: 'group',
+        version: 1,
+        createdAt: now,
+        createdBy: userPubkey,
+        updatedAt: now,
+        indexability: DEFAULT_INDEXABILITY,
+      },
+    ];
+
+    await db.wikiPages?.bulkAdd(pages);
+    logger.info(`Seeded ${pages.length} style guide wiki pages for group ${groupId}`);
+  },
+};
+
 export const wikiSeeds: ModuleSeed[] = [
+  wikiDemoSeed,
+  wikiStyleguideSeed,
   {
     name: 'comprehensive-wiki-pages',
     description: 'Comprehensive wiki starter pages with organizing resources',

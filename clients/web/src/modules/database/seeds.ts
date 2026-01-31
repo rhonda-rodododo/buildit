@@ -507,4 +507,243 @@ export const databaseSeeds: ModuleSeed[] = [
       logger.info(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
     },
   },
+
+  {
+    name: 'database-editorial-calendar-demo',
+    description: 'Editorial calendar database for media collective groups',
+    data: async (db, groupId, userPubkey) => {
+      const now = Date.now();
+      const day = 24 * 60 * 60 * 1000;
+
+      const calendarTable: DBTable = {
+        id: `table-editorial-calendar-${groupId}`,
+        groupId,
+        name: 'Editorial Calendar',
+        description: 'Track story assignments, deadlines, and publication schedule',
+        icon: '📅',
+        createdBy: userPubkey,
+        created: now,
+        updated: now,
+      };
+
+      await db.databaseTables?.add(calendarTable);
+
+      const fields = [
+        {
+          id: `field-story-title-${groupId}`,
+          groupId,
+          entityType: 'database',
+          entityId: calendarTable.id,
+          name: 'story_title',
+          label: 'Story Title',
+          schema: JSON.stringify({ type: 'string', minLength: 1, maxLength: 200 }),
+          widget: JSON.stringify({ widget: 'text' }),
+          order: 1,
+          created: now,
+          createdBy: userPubkey,
+          updated: now,
+        },
+        {
+          id: `field-story-writer-${groupId}`,
+          groupId,
+          entityType: 'database',
+          entityId: calendarTable.id,
+          name: 'assigned_writer',
+          label: 'Writer',
+          schema: JSON.stringify({ type: 'string' }),
+          widget: JSON.stringify({ widget: 'text' }),
+          order: 2,
+          created: now,
+          createdBy: userPubkey,
+          updated: now,
+        },
+        {
+          id: `field-story-deadline-${groupId}`,
+          groupId,
+          entityType: 'database',
+          entityId: calendarTable.id,
+          name: 'deadline',
+          label: 'Deadline',
+          schema: JSON.stringify({ type: 'string', format: 'date' }),
+          widget: JSON.stringify({ widget: 'date' }),
+          order: 3,
+          created: now,
+          createdBy: userPubkey,
+          updated: now,
+        },
+        {
+          id: `field-story-status-${groupId}`,
+          groupId,
+          entityType: 'database',
+          entityId: calendarTable.id,
+          name: 'status',
+          label: 'Status',
+          schema: JSON.stringify({
+            type: 'string',
+            enum: ['pitched', 'assigned', 'writing', 'editing', 'ready', 'published'],
+          }),
+          widget: JSON.stringify({
+            widget: 'select',
+            options: [
+              { value: 'pitched', label: 'Pitched' },
+              { value: 'assigned', label: 'Assigned' },
+              { value: 'writing', label: 'Writing' },
+              { value: 'editing', label: 'In Editing' },
+              { value: 'ready', label: 'Ready to Publish' },
+              { value: 'published', label: 'Published' },
+            ],
+          }),
+          order: 4,
+          created: now,
+          createdBy: userPubkey,
+          updated: now,
+        },
+        {
+          id: `field-story-beat-${groupId}`,
+          groupId,
+          entityType: 'database',
+          entityId: calendarTable.id,
+          name: 'beat',
+          label: 'Beat',
+          schema: JSON.stringify({
+            type: 'string',
+            enum: ['housing', 'labor', 'climate', 'police', 'immigration', 'mutual-aid', 'general'],
+          }),
+          widget: JSON.stringify({
+            widget: 'select',
+            options: [
+              { value: 'housing', label: 'Housing' },
+              { value: 'labor', label: 'Labor' },
+              { value: 'climate', label: 'Climate' },
+              { value: 'police', label: 'Police Accountability' },
+              { value: 'immigration', label: 'Immigration' },
+              { value: 'mutual-aid', label: 'Mutual Aid' },
+              { value: 'general', label: 'General' },
+            ],
+          }),
+          order: 5,
+          created: now,
+          createdBy: userPubkey,
+          updated: now,
+        },
+      ];
+
+      await db.customFields?.bulkAdd(fields);
+
+      // Board view grouped by status
+      const boardView: DBView = {
+        id: `view-editorial-board-${groupId}`,
+        tableId: calendarTable.id,
+        groupId,
+        name: 'Pipeline',
+        type: 'board',
+        config: JSON.stringify({
+          boardGroupBy: 'status',
+          boardCardFields: ['story_title', 'assigned_writer', 'deadline', 'beat'],
+        }),
+        filters: JSON.stringify([]),
+        sorts: JSON.stringify([{ fieldName: 'deadline', direction: 'asc' }]),
+        groups: JSON.stringify([]),
+        visibleFields: JSON.stringify(['story_title', 'assigned_writer', 'deadline', 'status', 'beat']),
+        order: 1,
+        created: now,
+        createdBy: userPubkey,
+        updated: now,
+      };
+
+      const calendarView: DBView = {
+        id: `view-editorial-calendar-${groupId}`,
+        tableId: calendarTable.id,
+        groupId,
+        name: 'Calendar',
+        type: 'calendar',
+        config: JSON.stringify({
+          calendarDateField: 'deadline',
+          calendarViewMode: 'month',
+        }),
+        filters: JSON.stringify([]),
+        sorts: JSON.stringify([]),
+        groups: JSON.stringify([]),
+        visibleFields: JSON.stringify(['story_title', 'assigned_writer', 'deadline', 'status', 'beat']),
+        order: 2,
+        created: now,
+        createdBy: userPubkey,
+        updated: now,
+      };
+
+      await db.databaseViews?.bulkAdd([boardView, calendarView]);
+
+      // Sample stories
+      const stories: DBRecord[] = [
+        {
+          id: uuid(),
+          tableId: calendarTable.id,
+          groupId,
+          customFields: JSON.stringify({
+            story_title: 'Riverside Tenants: 6-Month Follow-Up',
+            assigned_writer: 'Alex Martinez',
+            deadline: new Date(now + 7 * day).toISOString().split('T')[0],
+            status: 'writing',
+            beat: 'housing',
+          }),
+          created: now - 3 * day,
+          createdBy: userPubkey,
+          updated: now - 1 * day,
+          updatedBy: userPubkey,
+        },
+        {
+          id: uuid(),
+          tableId: calendarTable.id,
+          groupId,
+          customFields: JSON.stringify({
+            story_title: 'City Budget Investigation (Part 1)',
+            assigned_writer: 'Investigative Team',
+            deadline: new Date(now + 14 * day).toISOString().split('T')[0],
+            status: 'editing',
+            beat: 'general',
+          }),
+          created: now - 14 * day,
+          createdBy: userPubkey,
+          updated: now - 2 * day,
+          updatedBy: userPubkey,
+        },
+        {
+          id: uuid(),
+          tableId: calendarTable.id,
+          groupId,
+          customFields: JSON.stringify({
+            story_title: 'Gig Workers Organizing in the App Economy',
+            assigned_writer: 'Kim Nguyen',
+            deadline: new Date(now + 21 * day).toISOString().split('T')[0],
+            status: 'assigned',
+            beat: 'labor',
+          }),
+          created: now - 1 * day,
+          createdBy: userPubkey,
+          updated: now - 1 * day,
+          updatedBy: userPubkey,
+        },
+        {
+          id: uuid(),
+          tableId: calendarTable.id,
+          groupId,
+          customFields: JSON.stringify({
+            story_title: 'Community Fridge Network Expanding',
+            assigned_writer: 'Sarah Chen',
+            deadline: new Date(now + 5 * day).toISOString().split('T')[0],
+            status: 'ready',
+            beat: 'mutual-aid',
+          }),
+          created: now - 7 * day,
+          createdBy: userPubkey,
+          updated: now,
+          updatedBy: userPubkey,
+        },
+      ];
+
+      await db.databaseRecords?.bulkAdd(stories);
+
+      logger.info(`Seeded Editorial Calendar with ${stories.length} stories for group ${groupId}`);
+    },
+  },
 ];

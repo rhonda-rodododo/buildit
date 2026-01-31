@@ -10,6 +10,7 @@ import { lazy } from 'react';
 import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
 import publishingTranslations from './i18n';
+import { publishingSeeds } from './seeds';
 
 // Lazy load PublishingPage to reduce initial bundle size
 const PublishingPage = lazy(() => import('./components/PublishingPage').then(m => ({ default: m.PublishingPage })));
@@ -129,7 +130,7 @@ export const publishingModule: ModulePlugin = {
   schema: publishingSchema,
 
   migrations: [],
-  seeds: [],
+  seeds: publishingSeeds,
 
   getDefaultConfig: () => ({
     enableRss: true,

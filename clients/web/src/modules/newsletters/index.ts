@@ -10,6 +10,7 @@ import { lazy } from 'react';
 import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
 import newslettersTranslations from './i18n';
+import { newslettersSeeds } from './seeds';
 
 // Lazy load NewslettersPage to reduce initial bundle size
 const NewslettersPage = lazy(() => import('./components/NewslettersPage').then(m => ({ default: m.NewslettersPage })));
@@ -104,6 +105,8 @@ export const NewslettersModule: ModulePlugin = {
       label: 'Newsletters',
     },
   ],
+
+  seeds: newslettersSeeds,
 
   getDefaultConfig: () => ({
     defaultRateLimit: 30,

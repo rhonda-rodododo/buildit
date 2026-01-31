@@ -208,7 +208,97 @@ export const bailFundCampaignSeed: ModuleSeed = {
 /**
  * All Fundraising Module Seeds
  */
+/**
+ * Generic fundraising demo seed for nonprofit template
+ */
+export const fundraisingDemoSeed: ModuleSeed = {
+  name: 'fundraising-demo',
+  description: 'General fundraising campaign for nonprofit organizations',
+  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+    const now = Date.now();
+
+    const campaignId = generateEventId();
+    const campaign: Campaign = {
+      id: campaignId,
+      groupId,
+      title: 'Annual Community Support Fund',
+      slug: 'annual-fund',
+      description: '**Support our community programs!**\n\nYour donation funds essential services:\n\n- Youth tutoring and mentorship\n- Weekly food distribution\n- Emergency assistance for families\n- Community gathering space\n\nEvery dollar stays in the community.',
+      category: 'general',
+      goal: 2500000, // $25,000
+      currentAmount: 0,
+      currency: 'USD',
+      allowCustomAmount: true,
+      allowRecurring: true,
+      status: 'active',
+      created: now,
+      createdBy: userPubkey,
+      updated: now,
+      updateCount: 0,
+      endsAt: now + 180 * 24 * 60 * 60 * 1000,
+      settings: {
+        showDonorWall: true,
+        allowAnonymousDonors: true,
+        showDonorNames: true,
+        showDonorAmounts: false,
+        showDonorMessages: true,
+        sendThankYouEmail: true,
+        thankYouSubject: 'Thank You for Your Support!',
+        thankYouBody: 'Your generosity makes our community programs possible. Thank you!',
+        sendTaxReceipt: true,
+        continueAfterGoal: true,
+        notifyOnDonation: true,
+        enabledProcessors: ['stripe', 'paypal'],
+      },
+    };
+    await db.campaigns?.add(campaign);
+
+    const tiers: DonationTier[] = [
+      {
+        id: generateEventId(),
+        campaignId,
+        name: 'Friend',
+        amount: 2500, // $25
+        description: 'Provides a week of tutoring supplies for one student',
+        benefits: ['Thank you letter', 'Newsletter updates'],
+        order: 0,
+        limited: false,
+        currentCount: 0,
+      },
+      {
+        id: generateEventId(),
+        campaignId,
+        name: 'Champion',
+        amount: 10000, // $100
+        description: 'Funds a month of food distribution',
+        benefits: ['All Friend benefits', 'Invitation to annual community dinner'],
+        order: 1,
+        limited: false,
+        currentCount: 0,
+      },
+      {
+        id: generateEventId(),
+        campaignId,
+        name: 'Pillar',
+        amount: 50000, // $500
+        description: 'Supports a family with emergency assistance',
+        benefits: ['All Champion benefits', 'Recognition on donor wall', 'Annual impact report'],
+        order: 2,
+        limited: false,
+        currentCount: 0,
+      },
+    ];
+
+    for (const tier of tiers) {
+      await db.donationTiers?.add(tier);
+    }
+
+    logger.info('Seeded annual fund campaign with 3 donation tiers');
+  },
+};
+
 export const fundraisingSeeds: ModuleSeed[] = [
+  fundraisingDemoSeed,
   strikeFundCampaignSeed,
   bailFundCampaignSeed,
 ];

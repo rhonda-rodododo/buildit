@@ -12,6 +12,96 @@ import { logger } from '@/lib/logger';
  */
 export const mutualAidSeeds: ModuleSeed[] = [
   {
+    name: 'mutual-aid-demo',
+    description: 'Mutual aid examples for community hub and mutual aid network templates',
+    data: async (db, groupId, userPubkey) => {
+      const now = Date.now();
+      const day = 24 * 60 * 60 * 1000;
+
+      const requests: DBMutualAidRequest[] = [
+        {
+          id: `ma-demo-food-1-${groupId}`,
+          groupId,
+          type: 'request',
+          category: 'food',
+          title: 'Groceries for Family After Job Loss',
+          description: 'Family of 4 lost primary income. Need help with groceries for the next 2 weeks while unemployment kicks in. Vegetarian household.',
+          status: 'open',
+          location: 'East Side neighborhood',
+          createdBy: userPubkey,
+          created: now - 1 * day,
+          expiresAt: now + 14 * day,
+        },
+        {
+          id: `ma-demo-food-2-${groupId}`,
+          groupId,
+          type: 'offer',
+          category: 'food',
+          title: 'Community Garden Harvest Share',
+          description: 'Excess tomatoes, peppers, and herbs from community garden. Free to anyone who needs them. Pick up at garden gate Saturdays 9am-noon.',
+          status: 'open',
+          location: 'Community Garden, 5th Ave',
+          createdBy: userPubkey,
+          created: now,
+          expiresAt: now + 7 * day,
+        },
+        {
+          id: `ma-demo-transport-1-${groupId}`,
+          groupId,
+          type: 'request',
+          category: 'transport',
+          title: 'Ride to Medical Appointment',
+          description: 'Need ride to oncology appointment Tuesday at 2pm. Riverside to County Hospital. Can contribute gas money.',
+          status: 'open',
+          location: 'Riverside area',
+          createdBy: userPubkey,
+          created: now,
+          expiresAt: now + 5 * day,
+        },
+        {
+          id: `ma-demo-housing-1-${groupId}`,
+          groupId,
+          type: 'request',
+          category: 'housing',
+          title: 'Temporary Room After Fire',
+          description: 'Apartment fire displaced our neighbor. Needs temporary housing for 1-2 weeks while insurance processes. One adult, quiet and responsible.',
+          status: 'matched',
+          createdBy: userPubkey,
+          created: now - 3 * day,
+          expiresAt: now + 14 * day,
+        },
+        {
+          id: `ma-demo-skills-1-${groupId}`,
+          groupId,
+          type: 'offer',
+          category: 'skills',
+          title: 'Free Tax Prep Help',
+          description: 'CPA offering free tax preparation for low-income community members. Individual returns only. By appointment.',
+          status: 'open',
+          createdBy: userPubkey,
+          created: now - 2 * day,
+          expiresAt: now + 60 * day,
+        },
+        {
+          id: `ma-demo-childcare-1-${groupId}`,
+          groupId,
+          type: 'request',
+          category: 'childcare',
+          title: 'Childcare During Organizing Meeting',
+          description: 'Need childcare for 2 kids (ages 4 & 7) during our organizing meeting next Thursday, 6-8pm. Will reciprocate!',
+          status: 'open',
+          location: 'Community Center area',
+          createdBy: userPubkey,
+          created: now,
+          expiresAt: now + 7 * day,
+        },
+      ];
+
+      await db.mutualAidRequests?.bulkAdd(requests);
+      logger.info(`Seeded ${requests.length} mutual aid demo items for group ${groupId}`);
+    },
+  },
+  {
     name: 'comprehensive-mutual-aid',
     description: 'Comprehensive mutual aid examples covering all categories and scenarios',
     data: async (db, groupId, userPubkey) => {

@@ -7,6 +7,9 @@
 import { useOfflineQueueStore } from './offlineQueueStore';
 import { useConversationsStore } from '@/core/messaging/conversationsStore';
 import { usePostsStore } from '@/modules/microblogging/postsStore';
+import { getCurrentPrivateKey } from '@/stores/authStore';
+import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
+import { getNostrClient } from '@/core/nostr/client';
 import { logger } from '@/lib/logger';
 import type {
   QueueItem,
@@ -45,7 +48,7 @@ async function processMessageItem(item: MessageQueueItem): Promise<boolean> {
   try {
     const { payload } = item;
 
-    // Re-send the message using the conversations store
+    // Verify conversation still exists
     const conversationsStore = useConversationsStore.getState();
     const conversation = conversationsStore.getConversation(payload.conversationId);
 
@@ -54,11 +57,50 @@ async function processMessageItem(item: MessageQueueItem): Promise<boolean> {
       return false;
     }
 
-    // The message was already stored locally, just need to publish to Nostr
-    // This will be handled by the sendMessage function which handles network errors
-    // Nostr publish retry deferred to Epic 60
+    // Get private key for creating gift wraps
+    const privateKey = getCurrentPrivateKey();
+    if (!privateKey) {
+      logger.warn('[QueueProcessor] App is locked, cannot publish message');
+      return false;
+    }
 
-    logger.info(`[QueueProcessor] Processed message queue item: ${item.id}`);
+    const recipients = payload.recipientPubkeys;
+    if (recipients.length === 0) {
+      logger.info('[QueueProcessor] No recipients, skipping publish');
+      return true;
+    }
+
+    // Build tags for the message
+    const tags: string[][] = [
+      ['conversation', payload.conversationId],
+    ];
+    if (payload.replyTo) {
+      tags.push(['e', payload.replyTo, '', 'reply']);
+    }
+
+    // Re-create NIP-17 gift wraps and publish to Nostr
+    const client = getNostrClient();
+
+    const giftWraps =
+      payload.conversationType === 'dm' && recipients.length === 1
+        ? [createPrivateDM(payload.content, privateKey, recipients[0], tags)]
+        : createGroupMessage(payload.content, privateKey, recipients, tags);
+
+    const publishResults = await Promise.all(
+      giftWraps.map((gw) => client.publish(gw))
+    );
+
+    const failures = publishResults.flat().filter((r) => !r.success);
+    if (failures.length > 0) {
+      logger.warn(`[QueueProcessor] Some relays rejected message: ${failures.length} failures`);
+      // If ALL relays failed, mark as failed for retry
+      const successes = publishResults.flat().filter((r) => r.success);
+      if (successes.length === 0) {
+        return false;
+      }
+    }
+
+    logger.info(`[QueueProcessor] Published queued message to ${publishResults.flat().filter((r) => r.success).length} relays`);
     return true;
   } catch (error) {
     logger.error(`[QueueProcessor] Failed to process message item:`, error);

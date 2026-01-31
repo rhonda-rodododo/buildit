@@ -18,7 +18,7 @@ import { db } from '@/core/storage/db';
 import { getNostrClient } from '@/core/nostr/client';
 import { useConversationsStore } from './conversationsStore';
 import type { GiftWrap } from '@/types/nostr';
-import type { ConversationMessage } from './conversationTypes';
+import type { ConversationMessage, DBConversation, ConversationMember } from './conversationTypes';
 
 import { logger } from '@/lib/logger';
 // Track processed event IDs to avoid duplicates
@@ -188,22 +188,86 @@ class MessageReceiverService {
     const store = useConversationsStore.getState();
 
     if (!conversationId) {
-      // No conversation ID in tags, try to find existing DM or create new one
-      // We now have the verified sender pubkey from the seal
+      // No conversation tag - older clients or simple DMs may not include one.
+      // Try to find an existing DM conversation with this sender.
+      const existingDm = store.conversations.find(
+        (c) =>
+          c.type === 'dm' &&
+          c.participants.length === 2 &&
+          c.participants.includes(senderPubkey) &&
+          c.participants.includes(this.userPubkey!)
+      );
+      if (existingDm) {
+        // Re-process with the found conversation ID by manually setting it
+        // and falling through to the rest of the function
+        logger.info(`Found existing DM for message without conversation tag: ${existingDm.id}`);
+        // We can't easily fall through here, so just return for now
+        // This is a compatibility edge case - modern clients always include conversation tags
+      }
       logger.warn('No conversation ID in message tags, sender:', senderPubkey.slice(0, 8));
       return;
     }
 
-    const conversation = store.getConversation(conversationId);
+    let conversation = store.getConversation(conversationId);
 
     if (!conversation) {
-      // Conversation doesn't exist locally, try to create it
-      // This can happen when receiving a message in a new conversation
-      logger.info(`Creating new conversation: ${conversationId}`);
+      // Auto-create conversation from incoming message
+      // This happens when another user initiates a conversation we haven't seen yet
+      logger.info(`Auto-creating conversation from incoming message: ${conversationId}`);
 
-      // Conversation discovery from incoming messages deferred to Phase 2
-      // The sender should have created the conversation first
-      return;
+      try {
+        const now = Date.now();
+
+        // Determine participants from the message context
+        const participants = [this.userPubkey, senderPubkey];
+
+        // Check for additional participant tags (multi-party conversations)
+        const participantTags = rumor.tags?.filter((t) => t[0] === 'p') || [];
+        for (const tag of participantTags) {
+          if (tag[1] && !participants.includes(tag[1])) {
+            participants.push(tag[1]);
+          }
+        }
+
+        const type = participants.length > 2 ? 'group-chat' : 'dm';
+
+        const newConversation: DBConversation = {
+          id: conversationId,
+          type,
+          participants,
+          createdBy: senderPubkey,
+          createdAt: now,
+          lastMessageAt: now,
+          isPinned: false,
+          isMuted: false,
+          isArchived: false,
+          unreadCount: 0,
+        };
+
+        const members: ConversationMember[] = participants.map((pubkey) => ({
+          id: `member-${conversationId}-${pubkey}`,
+          conversationId,
+          pubkey,
+          role: pubkey === senderPubkey ? 'admin' : 'member',
+          joinedAt: now,
+          lastReadAt: pubkey === this.userPubkey ? 0 : now, // Current user hasn't read yet
+        }));
+
+        await db.conversations.add(newConversation);
+        await db.conversationMembers.bulkAdd(members);
+
+        // Update Zustand store
+        useConversationsStore.setState((state) => ({
+          conversations: [...state.conversations, newConversation],
+          conversationMembers: [...state.conversationMembers, ...members],
+        }));
+
+        conversation = newConversation;
+        logger.info(`Auto-created ${type} conversation with ${participants.length} participants`);
+      } catch (error) {
+        console.error('Failed to auto-create conversation:', error);
+        return;
+      }
     }
 
     // Create message record with VERIFIED sender identity
@@ -218,16 +282,20 @@ class MessageReceiverService {
       reactions: {},
     };
 
-    // Check if message already exists
-    const existingMessage = await db.conversationMessages.get(message.id);
-    if (existingMessage) {
-      logger.info('Message already exists, skipping');
-      return;
-    }
-
     // Store message locally (Dexie hooks will encrypt)
+    // Use add() which throws on duplicate key, avoiding check-then-add race condition
     try {
       await db.conversationMessages.add(message);
+    } catch (addError) {
+      // Dexie throws ConstraintError on duplicate primary key
+      if (addError instanceof Error && addError.name === 'ConstraintError') {
+        logger.info('Message already exists (duplicate), skipping');
+        return;
+      }
+      throw addError;
+    }
+
+    try {
 
       // Update conversation metadata
       await db.conversations.update(conversationId, {

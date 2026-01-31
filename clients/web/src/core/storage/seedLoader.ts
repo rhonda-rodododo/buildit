@@ -46,6 +46,15 @@ export async function loadAllSeeds(
       ? module.seeds.filter((s) => options.seedNames?.includes(s.name))
       : module.seeds;
 
+    if (options.seedNames && seedsToLoad.length === 0) {
+      const availableNames = module.seeds.map((s) => s.name).join(', ');
+      logger.warn(
+        `    ⚠️  No matching seeds for ${module.metadata.name}. ` +
+        `Requested: [${options.seedNames.join(', ')}], ` +
+        `Available: [${availableNames}]`
+      );
+    }
+
     for (const seed of seedsToLoad) {
       try {
         await seed.data(db, groupId, userPubkey);
@@ -112,25 +121,37 @@ export async function loadModuleSeeds(
 
 /**
  * Check if a group has demo data loaded
- * This checks for the presence of seed data records
+ * Checks for the presence of seed-loaded records across module tables.
+ * Since seeds use generateEventId() (random hex), we check for any records
+ * in seed-populated tables rather than relying on ID prefixes.
  * @param db Database instance
  * @param groupId Group ID
  * @returns True if demo data exists
  */
 export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boolean> {
-  // Check if any events exist with seed IDs
-  if (db.events) {
-    const events = await db.events.where('groupId').equals(groupId).limit(1).toArray();
-    if (events.length > 0 && events[0].id.includes('event-')) {
-      return true;
-    }
-  }
+  // Check module tables that are typically populated by seeds
+  const tablesToCheck = [
+    db.events,
+    db.wikiPages,
+    db.proposals,
+    db.mutualAidRequests,
+    db.databaseTables,
+    db.campaigns,
+    db.publications,
+    db.newsletters,
+    db.articles,
+  ];
 
-  // Check wiki pages
-  if (db.wikiPages) {
-    const wikiPages = await db.wikiPages.where('groupId').equals(groupId).limit(1).toArray();
-    if (wikiPages.length > 0 && wikiPages[0].id.includes('wiki-')) {
-      return true;
+  for (const table of tablesToCheck) {
+    if (table) {
+      try {
+        const records = await table.where('groupId').equals(groupId).limit(1).toArray();
+        if (records.length > 0) {
+          return true;
+        }
+      } catch {
+        // Table may not have groupId index, skip
+      }
     }
   }
 
@@ -138,74 +159,56 @@ export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boole
 }
 
 /**
- * Clear all seed data for a group
- * WARNING: This deletes all seeded data
+ * Clear all seed/demo data for a group
+ * Clears records from all module tables for this group.
+ * Since seeds use generateEventId() (random hex IDs), we cannot filter
+ * by ID prefix. Instead, we clear all group records from seed-populated tables.
+ * WARNING: This deletes ALL module data for the group, not just seeded data.
  * @param db Database instance
  * @param groupId Group ID
  */
 export async function clearDemoData(db: BuildItDB, groupId: string): Promise<void> {
   logger.info(`🧹 Clearing demo data for group ${groupId}...`);
 
-  // Clear events with seed IDs
-  if (db.events) {
-    await db.events
-      .where('groupId')
-      .equals(groupId)
-      .filter((e: { id: string }) => e.id.includes('event-') || e.id.includes('example-'))
-      .delete();
-  }
+  // Tables that seeds populate, grouped by module
+  const groupIdTables = [
+    // Events module
+    db.events,
+    // Mutual aid module
+    db.mutualAidRequests,
+    // Governance module
+    db.proposals,
+    db.ballots,
+    db.votes,
+    // Wiki module
+    db.wikiPages,
+    // Database module
+    db.databaseTables,
+    db.databaseRecords,
+    db.databaseViews,
+    // Custom fields module
+    db.customFields,
+    // CRM module (uses database tables, but also contacts)
+    db.contacts,
+    // Fundraising module
+    db.campaigns,
+    db.donationTiers,
+    // Publishing module
+    db.publications,
+    db.articles,
+    // Newsletters module
+    db.newsletters,
+    db.newsletterIssues,
+  ];
 
-  // Clear mutual aid with seed IDs
-  if (db.mutualAidRequests) {
-    await db.mutualAidRequests
-      .where('groupId')
-      .equals(groupId)
-      .filter((r: { id: string }) => r.id.includes('ma-') || r.id.includes('aid-') || r.id.includes('example-'))
-      .delete();
-  }
-
-  // Clear proposals with seed IDs
-  if (db.proposals) {
-    await db.proposals
-      .where('groupId')
-      .equals(groupId)
-      .filter((p: { id: string }) => p.id.includes('proposal-'))
-      .delete();
-  }
-
-  // Clear wiki pages with seed IDs
-  if (db.wikiPages) {
-    await db.wikiPages
-      .where('groupId')
-      .equals(groupId)
-      .filter((p: { id: string }) => p.id.includes('wiki-'))
-      .delete();
-  }
-
-  // Clear database tables and records with seed IDs
-  if (db.databaseTables) {
-    await db.databaseTables
-      .where('groupId')
-      .equals(groupId)
-      .filter((t: { id: string }) => t.id.includes('table-'))
-      .delete();
-  }
-
-  if (db.databaseRecords) {
-    await db.databaseRecords.where('groupId').equals(groupId).delete();
-  }
-
-  if (db.databaseViews) {
-    await db.databaseViews.where('groupId').equals(groupId).delete();
-  }
-
-  // Clear custom fields with seed IDs
-  if (db.customFields) {
-    await db.customFields
-      .where('groupId')
-      .equals(groupId)
-      .filter((f: { id: string }) => f.id.includes('field-'))
-      .delete();
+  for (const table of groupIdTables) {
+    if (table) {
+      try {
+        await table.where('groupId').equals(groupId).delete();
+      } catch {
+        // Table may not have groupId index, skip silently
+      }
+    }
   }
 
   logger.info(`✅ Demo data cleared for group ${groupId}`);
