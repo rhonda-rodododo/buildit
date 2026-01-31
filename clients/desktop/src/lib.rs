@@ -7,6 +7,7 @@
 pub mod ble;
 pub mod commands;
 pub mod crypto;
+pub mod db;
 pub mod nostr;
 pub mod tray;
 pub mod windows;
@@ -18,6 +19,7 @@ use tauri::{Emitter, Listener, Manager};
 
 use ble::manager::BleManager;
 use crypto::keyring::KeyringManager;
+use db::Database;
 use nostr::relay::NostrRelay;
 
 /// Application state shared across all Tauri commands
@@ -62,6 +64,13 @@ pub fn run() {
             // Initialize application state
             let state = AppState::new();
             app.manage(state);
+
+            // Initialize SQLite database (starts closed/locked, opened on user unlock)
+            let db_path = db::default_db_path();
+            let database = Database::new(db_path.clone());
+            database.set_app_handle(app.handle().clone());
+            app.manage(database);
+            log::info!("SQLite database configured at {:?}", db_path);
 
             // Setup system tray
             tray::setup_tray(app)?;
@@ -136,6 +145,19 @@ pub fn run() {
             commands::nostr_commands::verify_nostr_event,
             commands::nostr_commands::gift_wrap_message,
             commands::nostr_commands::unwrap_gift_message,
+            // Database commands
+            commands::db_commands::db_open,
+            commands::db_commands::db_close,
+            commands::db_commands::db_is_open,
+            commands::db_commands::db_put,
+            commands::db_commands::db_get,
+            commands::db_commands::db_get_all,
+            commands::db_commands::db_query,
+            commands::db_commands::db_delete,
+            commands::db_commands::db_bulk_put,
+            commands::db_commands::db_count,
+            commands::db_commands::db_execute_query,
+            commands::db_commands::db_clear_table,
             // Call window commands
             windows::call_window::create_call_window,
             windows::call_window::close_call_window,

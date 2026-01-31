@@ -75,6 +75,10 @@ ring = "0.17"
 # Compression for BLE chunking
 flate2 = "1.0"
 
+# SQLite with SQLCipher encryption
+rusqlite = { version = "0.31", features = ["bundled-sqlcipher", "column_decltype", "backup", "hooks", "serde_json"] }
+rusqlite_migration = "1.2"
+
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]

@@ -4,5 +4,6 @@
 
 pub mod ble_commands;
 pub mod crypto_commands;
+pub mod db_commands;
 pub mod nostr_commands;
 pub mod storage_commands;
