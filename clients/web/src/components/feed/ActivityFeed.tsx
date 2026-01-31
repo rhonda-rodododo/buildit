@@ -156,7 +156,7 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
         items.push({
           id: `wiki-${page.id}`,
           type: 'wiki-update',
-          timestamp: page.updatedAt,
+          timestamp: page.updatedAt ?? page.createdAt,
           authorId: page.lastEditedBy ?? page.createdBy,
           groupId: page.groupId,
           data: page, // Pass the full page object directly

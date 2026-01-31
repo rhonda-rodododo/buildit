@@ -25,7 +25,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
   const pages = useMemo(() => {
     const allPages = Object.values(pagesRecord)
       .filter(p => p.groupId === groupId)
-      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .sort((a, b) => (b.updatedAt ?? b.createdAt) - (a.updatedAt ?? a.createdAt))
 
     if (!searchQuery) return allPages
 
@@ -33,7 +33,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
     return allPages.filter(p =>
       p.title.toLowerCase().includes(lowercaseQuery) ||
       p.content.toLowerCase().includes(lowercaseQuery) ||
-      p.tags.some(t => t.toLowerCase().includes(lowercaseQuery))
+      (p.tags ?? []).some(t => t.toLowerCase().includes(lowercaseQuery))
     )
   }, [pagesRecord, groupId, searchQuery])
 
@@ -89,9 +89,9 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
                 <div className="text-sm text-muted-foreground line-clamp-3">
                   {page.content.substring(0, 150)}...
                 </div>
-                {page.tags.length > 0 && (
+                {(page.tags ?? []).length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {page.tags.map(tag => (
+                    {(page.tags ?? []).map(tag => (
                       <span key={tag} className="text-xs px-2 py-1 bg-muted rounded-full">
                         {tag}
                       </span>
@@ -99,7 +99,7 @@ export const WikiView: FC<WikiViewProps> = ({ groupId = 'global' }) => {
                   </div>
                 )}
                 <div className="text-xs text-muted-foreground mt-2">
-                  {t('wikiView.updated', { date: new Date(page.updatedAt).toLocaleDateString() })}
+                  {t('wikiView.updated', { date: new Date(page.updatedAt ?? page.createdAt).toLocaleDateString() })}
                 </div>
               </CardContent>
             </Card>

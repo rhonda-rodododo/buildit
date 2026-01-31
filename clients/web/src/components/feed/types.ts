@@ -7,7 +7,7 @@ import type { Post } from '@/modules/microblogging/types';
 import type { DBEvent } from '@/modules/events/schema';
 import type { DBMutualAidRequest } from '@/modules/mutual-aid/schema';
 import type { DBProposal } from '@/modules/governance/schema';
-import type { DBWikiPage } from '@/modules/wiki/schema';
+import type { WikiPage } from '@/modules/wiki/types';
 
 /**
  * Base feed item interface
@@ -57,7 +57,7 @@ export interface ProposalFeedItem extends BaseFeedItem {
  */
 export interface WikiUpdateFeedItem extends BaseFeedItem {
   type: 'wiki-update';
-  data: DBWikiPage;
+  data: WikiPage;
 }
 
 /**

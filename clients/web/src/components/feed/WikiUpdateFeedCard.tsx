@@ -59,7 +59,7 @@ export const WikiUpdateFeedCard: FC<WikiUpdateFeedCardProps> = ({ item, classNam
               <span className="font-semibold text-sm truncate">{page.lastEditedBy ?? page.createdBy}</span>
               <span className="text-xs text-muted-foreground">{getActionLabel()}</span>
               <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(page.updatedAt, { addSuffix: true })}
+                {formatDistanceToNow(page.updatedAt ?? page.createdAt, { addSuffix: true })}
               </span>
             </div>
           </div>
