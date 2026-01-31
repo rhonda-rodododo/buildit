@@ -16,7 +16,8 @@
 
 import { encryptNIP44, decryptNIP44 } from '@/core/crypto/nip44';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
-import * as nip44 from 'nostr-tools/nip44';
+import { hmac } from '@noble/hashes/hmac';
+import { sha256 } from '@noble/hashes/sha2';
 
 import { logger } from '@/lib/logger';
 // Version marker for local encrypted data
@@ -152,7 +153,9 @@ export function isTestMode(): boolean {
  * Get or derive the local encryption key
  * This is distinct from relay communication keys
  *
- * SECURITY: Uses SHA-256 derived context hash for key derivation
+ * SECURITY: Uses HMAC-SHA256 for key derivation from private key + context.
+ * This is cryptographically sound: HMAC-SHA256 is a standard PRF that produces
+ * a 32-byte key suitable for NIP-44 encryption without requiring valid curve points.
  */
 function getLocalEncryptionKey(): Uint8Array | null {
   if (localEncryptionKey) {
@@ -164,82 +167,22 @@ function getLocalEncryptionKey(): Uint8Array | null {
     return null;
   }
 
-  // Get the pre-computed context hash (must call initializeHashCache() at startup)
-  const contextHash = hashToFakePublicKey(LOCAL_KEY_CONTEXT);
-
-  // Derive a separate key for local database encryption
-  // Using NIP-44's getConversationKey with our context as the "pubkey"
-  // This creates a deterministic key from private key + context
-  localEncryptionKey = nip44.v2.utils.getConversationKey(
-    privateKey,
-    // Use a fixed "pubkey" derived from our context to create a deterministic key
-    // This is safe because it's only used locally, never for relay communication
-    contextHash
-  );
+  // Derive a separate key for local database encryption using HMAC-SHA256
+  // key = HMAC-SHA256(privateKey, context)
+  // This produces a deterministic 32-byte key without needing valid EC points
+  const contextBytes = new TextEncoder().encode(LOCAL_KEY_CONTEXT);
+  localEncryptionKey = hmac(sha256, privateKey, contextBytes);
 
   return localEncryptionKey;
 }
 
 /**
- * Create a deterministic 32-byte hex string from input using SHA-256
- * Used for deriving context-specific keys for local database encryption
- *
- * SECURITY: Uses WebCrypto SHA-256 for cryptographically secure hashing
- * This ensures proper avalanche effect and resistance to preimage attacks
- */
-let hashCache: Map<string, string> | null = null;
-
-async function hashToFakePublicKeyAsync(input: string): Promise<string> {
-  // Initialize cache lazily
-  if (!hashCache) {
-    hashCache = new Map();
-  }
-
-  // Check cache first (deterministic function, safe to cache)
-  const cached = hashCache.get(input);
-  if (cached) {
-    return cached;
-  }
-
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = new Uint8Array(hashBuffer);
-  const result = Array.from(hashArray)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-
-  // Cache the result
-  hashCache.set(input, result);
-  return result;
-}
-
-// Synchronous version using cached results
-// IMPORTANT: Must call initializeHashCache() during app startup
-function hashToFakePublicKey(input: string): string {
-  if (!hashCache) {
-    hashCache = new Map();
-  }
-
-  const cached = hashCache.get(input);
-  if (cached) {
-    return cached;
-  }
-
-  // Fallback for edge case where async init hasn't completed
-  // This should rarely happen in practice
-  throw new Error(
-    `Hash not pre-computed for "${input}". Call initializeHashCache() during app startup.`
-  );
-}
-
-/**
- * Pre-compute hash values for known contexts
- * Call this during app initialization (async)
+ * Initialize encryption subsystem (called during app startup)
+ * With HMAC-SHA256 key derivation, no pre-computation is needed.
+ * This function is kept for backward compatibility with existing call sites.
  */
 export async function initializeHashCache(): Promise<void> {
-  // Pre-compute the main context hash
-  await hashToFakePublicKeyAsync(LOCAL_KEY_CONTEXT);
+  // No-op: HMAC-SHA256 key derivation is synchronous and doesn't need pre-computation
 }
 
 /**
@@ -327,7 +270,12 @@ const groupKeyCache = new Map<string, Uint8Array>();
 
 /**
  * Derive a group-specific local encryption key
- * Uses cached SHA-256 hashes for group IDs
+ * Uses HMAC-SHA256 for deterministic key derivation from base key + group ID.
+ *
+ * SECURITY: HMAC-SHA256(baseKey, "group:" + groupId) produces a 32-byte key
+ * that is cryptographically bound to both the user's private key (via baseKey)
+ * and the group ID. This is a standard key derivation pattern that doesn't
+ * require valid EC curve points (unlike the previous getConversationKey approach).
  */
 function deriveGroupLocalKey(groupId: string): Uint8Array | null {
   const baseKey = getLocalEncryptionKey();
@@ -340,47 +288,22 @@ function deriveGroupLocalKey(groupId: string): Uint8Array | null {
     return cached;
   }
 
-  // Get or compute the hash for this group context
-  // If not cached, we need to compute synchronously
-  let contextHash: string;
-  try {
-    contextHash = hashToFakePublicKey(cacheKey);
-  } catch {
-    // Hash not pre-computed - compute synchronously using basic HKDF-expand style
-    // This is a fallback; in normal operation, precomputeGroupHash() should be called
-    // Using a deterministic derivation that's still cryptographically sound
-    // by combining the base key with the group ID
-    const groupIdBytes = new TextEncoder().encode(groupId);
-    const combined = new Uint8Array(baseKey.length + groupIdBytes.length);
-    combined.set(baseKey);
-    combined.set(groupIdBytes, baseKey.length);
+  // Derive a group-specific key using HMAC-SHA256
+  // key = HMAC-SHA256(baseKey, "group:" + groupId)
+  const contextBytes = new TextEncoder().encode(cacheKey);
+  const derived = hmac(sha256, baseKey, contextBytes);
 
-    // For groups without pre-computed hashes, derive directly from base key + groupId
-    // This is secure because baseKey is already derived from private key + SHA-256
-    const derived = nip44.v2.utils.getConversationKey(
-      baseKey,
-      // Use the first 32 bytes of group ID padded/hashed as the "pubkey"
-      Array.from(groupIdBytes.slice(0, 32).reduce((acc, b, i) => {
-        acc[i % 32] ^= b;
-        return acc;
-      }, new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('')
-    );
-
-    groupKeyCache.set(cacheKey, derived);
-    return derived;
-  }
-
-  // Derive a group-specific key using the cached hash
-  const derived = nip44.v2.utils.getConversationKey(baseKey, contextHash);
   groupKeyCache.set(cacheKey, derived);
   return derived;
 }
 
 /**
  * Pre-compute hash for a group ID (call when joining/creating groups)
+ * With HMAC-SHA256 key derivation, no pre-computation is needed.
+ * This function is kept for backward compatibility with existing call sites.
  */
-export async function precomputeGroupHash(groupId: string): Promise<void> {
-  await hashToFakePublicKeyAsync(`group:${groupId}`);
+export async function precomputeGroupHash(_groupId: string): Promise<void> {
+  // No-op: HMAC-SHA256 key derivation is synchronous and doesn't need pre-computation
 }
 
 /**
