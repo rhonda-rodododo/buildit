@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuthStore } from '@/stores/authStore';
 import {
   Phone,
   PhoneOff,
@@ -51,6 +52,7 @@ const priorityColors: Record<Priority, string> = {
 
 export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
   const { t } = useTranslation();
+  const currentIdentity = useAuthStore((state) => state.currentIdentity);
   const { activeCalls, isLoading, loadActiveCalls, startCall, endCall, updateCall } =
     useHotlinesStore();
   const [newCallOpen, setNewCallOpen] = useState(false);
@@ -75,7 +77,7 @@ export function ActiveCallsPanel({ hotlineId }: ActiveCallsPanelProps) {
       await startCall(
         hotlineId,
         { callerName, callerPhone, priority },
-        'current-user-pubkey' // TODO: Get from auth context
+        currentIdentity?.publicKey || ''
       );
       setNewCallOpen(false);
       setCallerName('');

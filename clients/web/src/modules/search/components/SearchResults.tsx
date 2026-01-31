@@ -6,6 +6,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 import {
   FileText,
   MessageSquare,
@@ -166,7 +167,7 @@ function SearchResultItem({ result, formatted, onClick }: SearchResultItemProps)
           {formatted.preview && (
             <p
               className="mt-1.5 text-sm text-muted-foreground line-clamp-2"
-              dangerouslySetInnerHTML={{ __html: formatted.preview }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatted.preview) }}
             />
           )}
 

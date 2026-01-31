@@ -6,6 +6,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 import { useTrainingStore } from '../trainingStore';
 import {
   ArrowLeft,
@@ -292,7 +293,7 @@ function DocumentLesson({ content }: { content: DocumentContent }) {
   return (
     <Card>
       <CardContent className="prose prose-slate dark:prose-invert max-w-none p-6">
-        <div dangerouslySetInnerHTML={{ __html: content.markdown || '' }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.markdown || '') }} />
       </CardContent>
     </Card>
   );
