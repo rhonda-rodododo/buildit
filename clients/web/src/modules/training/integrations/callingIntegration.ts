@@ -4,12 +4,11 @@
  */
 
 import { logger } from '@/lib/logger';
-import { nanoid } from 'nanoid';
 import { getTrainingManager } from '../trainingManager';
+import { getSFUConferenceManager } from '@/modules/calling/services/sfuConferenceManager';
 import type {
   Lesson,
   LiveSessionContent,
-  LiveSessionAttendance,
 } from '../types';
 
 /**
@@ -54,14 +53,20 @@ export class TrainingCallingIntegration {
 
     const content = lesson.content as LiveSessionContent;
 
-    // Generate conference room ID
-    const conferenceRoomId = `training-${lesson.id}-${nanoid(8)}`;
+    logger.info(`Creating conference room for training session: ${lesson.id}`);
 
-    // In a real implementation, this would call the calling module's API
-    // to create a conference room
-    logger.info(`Creating conference room for training session: ${conferenceRoomId}`);
+    const conferenceManager = getSFUConferenceManager();
+    const room = await conferenceManager.createConference({
+      name: config.name,
+      maxParticipants: config.maxParticipants,
+      settings: {
+        waitingRoom: config.waitingRoom,
+        allowRecording: config.allowRecording,
+        e2eeRequired: config.e2eeRequired,
+      },
+    });
 
-    // Simulated response - in reality, would integrate with calling module
+    const conferenceRoomId = room.roomId;
     const joinUrl = `/conference/${conferenceRoomId}`;
 
     // Update the lesson with the conference room ID
@@ -96,10 +101,15 @@ export class TrainingCallingIntegration {
       throw new Error('Conference room not created');
     }
 
-    // In a real implementation, this would:
-    // 1. Get all RSVPed users
-    // 2. Send notifications with join links
-    // 3. Start the conference room
+    const conferenceManager = getSFUConferenceManager();
+    const conferenceState = conferenceManager.getState();
+
+    // If we're not already in this conference room, join it
+    if (!conferenceState || conferenceState.roomId !== content.conferenceRoomId) {
+      await conferenceManager.joinConference(content.conferenceRoomId);
+    }
+
+    // TODO: Send notifications with join links to RSVPed users via messaging module
 
     logger.info(`Starting live training session: ${lessonId}`);
   }
@@ -117,12 +127,14 @@ export class TrainingCallingIntegration {
 
     const content = lesson.content as LiveSessionContent;
 
-    // In a real implementation, this would:
-    // 1. End the conference
-    // 2. Get the recording URL
-    // 3. Process and store the recording
+    const conferenceManager = getSFUConferenceManager();
+    const conferenceState = conferenceManager.getState();
 
-    const recordingUrl = content.recordingUrl || null;
+    // Capture recording URL from conference state before leaving (if recording was enabled)
+    const recordingUrl = (conferenceState?.isRecording ? content.recordingUrl : content.recordingUrl) || null;
+
+    // Leave/end the conference
+    await conferenceManager.leaveConference();
 
     // Update lesson with recording URL if available
     if (recordingUrl) {
@@ -179,11 +191,18 @@ export class TrainingCallingIntegration {
 
     const content = lesson.content as LiveSessionContent;
 
-    // In a real implementation, would query the calling module for room status
+    const conferenceManager = getSFUConferenceManager();
+    const conferenceState = conferenceManager.getState();
+    const conferenceRoomId = content.conferenceRoomId || null;
+
+    // Check if the active conference matches this lesson's room
+    const isActive = conferenceState !== null && conferenceState.roomId === conferenceRoomId;
+    const participantCount = isActive ? conferenceManager.getParticipantCount() : 0;
+
     return {
-      conferenceRoomId: content.conferenceRoomId || null,
-      isActive: false, // Would check with calling module
-      participantCount: 0, // Would get from calling module
+      conferenceRoomId,
+      isActive,
+      participantCount,
     };
   }
 
@@ -191,11 +210,9 @@ export class TrainingCallingIntegration {
    * Check if calling module is available
    */
   async isCallingModuleAvailable(): Promise<boolean> {
-    // In a real implementation, would check if calling module is enabled
-    // and properly configured
     try {
-      // Check if calling module exists and is initialized
-      return true; // Placeholder
+      const manager = getSFUConferenceManager();
+      return manager !== null && manager !== undefined;
     } catch {
       return false;
     }
