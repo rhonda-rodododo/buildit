@@ -5,7 +5,6 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { callingSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
 import { Phone } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -223,7 +222,7 @@ export const callingModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial calling schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Calling migration v1: Initial schema');
       },
     },

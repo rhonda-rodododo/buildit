@@ -6,6 +6,7 @@
  */
 
 import type { ModulePlugin } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import { friendsSchema, friendsMigrations, friendsSeeds } from './schema';
 import { Users } from 'lucide-react';
 import { lazy } from 'react';
@@ -133,7 +134,7 @@ export const friendsModule: ModulePlugin = {
     {
       name: 'friends-demo',
       description: 'Example friends and requests for demo purposes',
-      data: async (db, _groupId, userPubkey) => {
+      data: async (_groupId, userPubkey) => {
         // Seed friends for the current user
         const seedFriends = friendsSeeds.friends.map((f) => ({
           ...f,
@@ -142,7 +143,7 @@ export const friendsModule: ModulePlugin = {
         }));
 
         for (const friend of seedFriends) {
-          await db.friends.put(friend);
+          await dal.put('friends', friend);
         }
 
         // Seed friend requests
@@ -153,7 +154,7 @@ export const friendsModule: ModulePlugin = {
         }));
 
         for (const request of seedRequests) {
-          await db.friendRequests.put(request);
+          await dal.put('friendRequests', request);
         }
 
         // Seed invite links
@@ -164,7 +165,7 @@ export const friendsModule: ModulePlugin = {
         }));
 
         for (const invite of seedInvites) {
-          await db.friendInviteLinks.put(invite);
+          await dal.put('friendInviteLinks', invite);
         }
       },
     },

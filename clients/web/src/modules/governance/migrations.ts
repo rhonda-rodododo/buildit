@@ -13,7 +13,7 @@ export const governanceMigrations: ModuleMigration[] = [
   {
     version: 1,
     description: 'Initial proposals and votes tables',
-    migrate: async (_db) => {
+    migrate: async () => {
       logger.info('Governance module v1: Initial schema created');
     },
   },

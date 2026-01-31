@@ -19,16 +19,13 @@ describe('EncryptedDB Security', () => {
   })
 
   describe('SHA-256 Hash Function', () => {
-    it('should use crypto.subtle.digest with SHA-256', async () => {
-      const digestSpy = vi.spyOn(crypto.subtle, 'digest')
-
-      // Import the module which triggers hash cache initialization
+    it('should have initializeHashCache as a no-op (HMAC-SHA256 is synchronous)', async () => {
+      // initializeHashCache is now a no-op since HMAC-SHA256 key derivation
+      // is synchronous and doesn't need pre-computation
       const { initializeHashCache } = await import('../EncryptedDB')
 
+      // Should not throw and should complete successfully
       await initializeHashCache()
-
-      // Should have called digest with SHA-256
-      expect(digestSpy).toHaveBeenCalledWith('SHA-256', expect.any(Uint8Array))
     })
 
     it('should produce deterministic hashes', async () => {

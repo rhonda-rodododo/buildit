@@ -12,7 +12,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Helper Functions
@@ -177,16 +177,10 @@ export const documentsSearchProvider: ModuleSearchProvider = {
    * Get all documents for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.documents) return [];
-
     try {
-      const documents = await db.documents
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
-
-      return documents;
+      return await dal.query<Document>('documents', {
+        whereClause: { groupId },
+      });
     } catch (error) {
       console.error('Failed to fetch documents for indexing:', error);
       return [];

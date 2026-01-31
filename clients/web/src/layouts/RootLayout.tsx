@@ -1,54 +1,47 @@
 import { FC, Suspense, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useDeviceStore } from '@/stores/deviceStore';
 import { RouteLoader } from '@/components/ui/page-loader';
 
 /**
- * Root layout - handles app initialization
+ * Root layout - handles auth-based routing
+ *
+ * Note: App initialization (DB, modules, identities) is handled in main.tsx.
+ * This layout only handles routing based on auth state.
  */
-export const  RootLayout: FC = () => {
-  const { currentIdentity, loadIdentities } = useAuthStore();
+export const RootLayout: FC = () => {
+  const currentIdentity = useAuthStore((s) => s.currentIdentity);
   const { initializeCurrentDevice, checkWebAuthnSupport } = useDeviceStore();
   const navigate = useNavigate();
- 
+  const location = useLocation();
 
+  // Initialize device tracking on mount (one-time)
   useEffect(() => {
-    // Load identities on mount (database is initialized in main.tsx)
     (async () => {
-      await loadIdentities();
-
-      // Initialize device tracking and WebAuthn support
       await checkWebAuthnSupport();
       await initializeCurrentDevice();
-    
     })();
-  }, []);
+  }, [checkWebAuthnSupport, initializeCurrentDevice]);
 
-    useEffect(() => {
-       const { pathname } = window.location;
-      if (pathname) {
-          navigate(pathname)
-      }
-    }, [loadIdentities])
-
+  // Redirect based on auth state
   useEffect(() => {
-    // Redirect based on auth state
     if (currentIdentity) {
-      
       // If logged in and at root, go to app
-      if (window.location.pathname === '/') {
+      if (location.pathname === '/') {
         navigate('/app', { replace: true });
       }
     } else {
-      // If not logged in and not at login, go to login
-      if (!window.location.pathname.startsWith('/login')) {
-        navigate('/login', { replace: true });
+      // If not logged in and not at login/public pages, go to login
+      if (!location.pathname.startsWith('/login') && !location.pathname.startsWith('/campaigns') && !location.pathname.startsWith('/wiki')) {
+        const returnTo = location.pathname + location.search + location.hash;
+        const loginUrl = returnTo.startsWith('/app')
+          ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+          : '/login';
+        navigate(loginUrl, { replace: true });
       }
     }
-
-  }, [currentIdentity, navigate]);
-
+  }, [currentIdentity, navigate, location]);
 
   return (
     <Suspense fallback={<RouteLoader />}>

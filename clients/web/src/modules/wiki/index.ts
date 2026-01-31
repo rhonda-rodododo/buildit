@@ -6,7 +6,7 @@
 import type { ModulePlugin } from '@/types/modules';
 import { wikiSchema } from './schema';
 import { wikiSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { Book } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -109,7 +109,7 @@ export const wikiModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial wiki schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Wiki migration v1: Initial schema');
       },
     },

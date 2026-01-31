@@ -1,4 +1,5 @@
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBIdentity } from '@/core/storage/db';
 
 /**
  * Reserved usernames to prevent impersonation
@@ -93,10 +94,11 @@ export function validateUsername(username: string): UsernameValidationResult {
  * Check if username is available (not already taken)
  */
 export async function isUsernameAvailable(username: string, currentPubkey?: string): Promise<boolean> {
-  const existingIdentity = await db.identities
-    .where('username')
-    .equals(username.toLowerCase())
-    .first();
+  const results = await dal.query<DBIdentity>('identities', {
+    whereClause: { username: username.toLowerCase() },
+    limit: 1,
+  });
+  const existingIdentity = results[0];
 
   // Username is available if not found, or if it belongs to the current user
   return !existingIdentity || existingIdentity.publicKey === currentPubkey;
@@ -121,7 +123,7 @@ export function formatUsername(username: string): string {
  * Priority: displayName > username > name > npub (truncated)
  */
 export async function getDisplayName(pubkey: string): Promise<string> {
-  const identity = await db.identities.get(pubkey);
+  const identity = await dal.get<DBIdentity>('identities', pubkey);
 
   if (!identity) {
     // Truncate pubkey for display
@@ -135,7 +137,7 @@ export async function getDisplayName(pubkey: string): Promise<string> {
  * Get username for a pubkey (returns undefined if no username set)
  */
 export async function getUsername(pubkey: string): Promise<string | undefined> {
-  const identity = await db.identities.get(pubkey);
+  const identity = await dal.get<DBIdentity>('identities', pubkey);
   return identity?.username;
 }
 
@@ -145,11 +147,13 @@ export async function getUsername(pubkey: string): Promise<string | undefined> {
 export async function searchByUsername(query: string, limit = 10): Promise<Array<{ pubkey: string; username: string; displayName?: string }>> {
   const normalizedQuery = normalizeUsername(query);
 
-  const identities = await db.identities
-    .where('username')
-    .startsWithIgnoreCase(normalizedQuery)
-    .limit(limit)
-    .toArray();
+  const identities = await dal.queryCustom<DBIdentity>({
+    sql: `SELECT * FROM identities WHERE LOWER(username) LIKE ? LIMIT ?`,
+    params: [`${normalizedQuery}%`, limit],
+    dexieFallback: async (db) => {
+      return db.table('identities').where('username').startsWithIgnoreCase(normalizedQuery).limit(limit).toArray();
+    },
+  });
 
   return identities
     .filter(id => id.username) // Only include identities with usernames
@@ -163,9 +167,10 @@ export async function searchByUsername(query: string, limit = 10): Promise<Array
 /**
  * Get identity by username
  */
-export async function getIdentityByUsername(username: string) {
-  return db.identities
-    .where('username')
-    .equals(normalizeUsername(username))
-    .first();
+export async function getIdentityByUsername(username: string): Promise<DBIdentity | undefined> {
+  const results = await dal.query<DBIdentity>('identities', {
+    whereClause: { username: normalizeUsername(username) },
+    limit: 1,
+  });
+  return results[0];
 }

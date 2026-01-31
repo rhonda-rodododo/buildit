@@ -6,7 +6,6 @@
 import type { ModulePlugin } from '@/types/modules';
 import { databaseSchema } from './schema';
 import { databaseSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
 import { Database } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -99,7 +98,7 @@ export const databaseModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial database schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Database migration v1: Initial schema');
       },
     },

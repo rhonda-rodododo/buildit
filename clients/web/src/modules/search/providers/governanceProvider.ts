@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type { DBProposal } from '@/modules/governance/schema';
 
 // ============================================================================
@@ -182,14 +182,10 @@ export const governanceSearchProvider: ModuleSearchProvider = {
    * Get all proposals for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.proposals) return [];
-
     try {
-      const proposals = await db.proposals
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
+      const proposals = await dal.query<DBProposal>('proposals', {
+        whereClause: { groupId },
+      });
 
       return proposals;
     } catch (error) {

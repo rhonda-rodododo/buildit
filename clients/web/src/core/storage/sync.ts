@@ -8,7 +8,7 @@
  */
 
 import { getNostrClient } from '@/core/nostr/client';
-import { db } from './db';
+import { dal } from '@/core/storage/dal';
 import type { Event as NostrEvent, Filter } from 'nostr-tools';
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 import { startMessageReceiver, stopMessageReceiver, fetchMessageHistory } from '@/core/messaging/messageReceiver';
@@ -144,17 +144,17 @@ async function syncEvent(nostrEvent: NostrEvent, groupId: string): Promise<void>
     };
 
     // Check if event exists
-    const existing = await db.events?.get(dTag);
+    const existing = await dal.get<{ updatedAt: number }>('events', dTag);
 
     if (existing) {
       // Only update if Nostr event is newer
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-        await db.events?.update(dTag, eventData);
+        await dal.update('events', dTag, eventData);
         logger.info(`📥 Updated event: ${content.title}`);
       }
     } else {
       // Create new event
-      await db.events?.add(eventData);
+      await dal.add('events', eventData);
       logger.info(`📥 New event: ${content.title}`);
     }
   } catch (error) {
@@ -182,15 +182,19 @@ async function syncRSVP(nostrEvent: NostrEvent): Promise<void> {
     };
 
     // Upsert RSVP
-    const existing = await db.rsvps?.where({ eventId: eventIdTag, userPubkey: nostrEvent.pubkey }).first();
+    const existingResults = await dal.query<{ id?: string; timestamp: number }>('rsvps', {
+      whereClause: { eventId: eventIdTag, userPubkey: nostrEvent.pubkey },
+      limit: 1,
+    });
+    const existing = existingResults[0];
 
     if (existing && existing.id) {
       if (nostrEvent.created_at * 1000 > existing.timestamp) {
-        await db.rsvps?.update(existing.id, rsvpData);
+        await dal.update('rsvps', existing.id, rsvpData);
         logger.info(`📥 Updated RSVP for event ${eventIdTag}`);
       }
     } else {
-      await db.rsvps?.add(rsvpData);
+      await dal.add('rsvps', rsvpData);
       logger.info(`📥 New RSVP for event ${eventIdTag}`);
     }
   } catch (error) {
@@ -223,15 +227,15 @@ async function syncProposal(nostrEvent: NostrEvent, groupId: string): Promise<vo
       discussionDeadline: content.discussionDeadline,
     };
 
-    const existing = await db.proposals?.get(dTag);
+    const existing = await dal.get<{ updatedAt: number }>('proposals', dTag);
 
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-        await db.proposals?.update(dTag, proposalData);
+        await dal.update('proposals', dTag, proposalData);
         logger.info(`📥 Updated proposal: ${content.title}`);
       }
     } else {
-      await db.proposals?.add(proposalData);
+      await dal.add('proposals', proposalData);
       logger.info(`📥 New proposal: ${content.title}`);
     }
   } catch (error) {
@@ -262,15 +266,15 @@ async function syncWikiPage(nostrEvent: NostrEvent, groupId: string): Promise<vo
       version: content.version || 1,
     };
 
-    const existing = await db.wikiPages?.get(dTag);
+    const existing = await dal.get<{ updatedAt: number }>('wikiPages', dTag);
 
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-        await db.wikiPages?.update(dTag, wikiPageData);
+        await dal.update('wikiPages', dTag, wikiPageData);
         logger.info(`📥 Updated wiki page: ${content.title}`);
       }
     } else {
-      await db.wikiPages?.add(wikiPageData);
+      await dal.add('wikiPages', wikiPageData);
       logger.info(`📥 New wiki page: ${content.title}`);
     }
   } catch (error) {
@@ -303,15 +307,15 @@ async function syncMutualAid(nostrEvent: NostrEvent, groupId: string): Promise<v
       tags: content.tags?.join(',') || '',
     };
 
-    const existing = await db.mutualAidRequests?.get(dTag);
+    const existing = await dal.get<{ updatedAt: number }>('mutualAidRequests', dTag);
 
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-        await db.mutualAidRequests?.update(dTag, mutualAidData);
+        await dal.update('mutualAidRequests', dTag, mutualAidData);
         logger.info(`📥 Updated mutual aid: ${content.title}`);
       }
     } else {
-      await db.mutualAidRequests?.add(mutualAidData);
+      await dal.add('mutualAidRequests', mutualAidData);
       logger.info(`📥 New mutual aid: ${content.title}`);
     }
   } catch (error) {
@@ -341,15 +345,15 @@ async function syncDatabaseRecord(nostrEvent: NostrEvent, groupId: string): Prom
       updatedAt: nostrEvent.created_at * 1000,
     };
 
-    const existing = await db.databaseRecords?.get(dTag);
+    const existing = await dal.get<{ updatedAt: number }>('databaseRecords', dTag);
 
     if (existing) {
       if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-        await db.databaseRecords?.update(dTag, recordData);
+        await dal.update('databaseRecords', dTag, recordData);
         logger.info(`📥 Updated database record in table ${tableIdTag}`);
       }
     } else {
-      await db.databaseRecords?.add(recordData);
+      await dal.add('databaseRecords', recordData);
       logger.info(`📥 New database record in table ${tableIdTag}`);
     }
   } catch (error) {
@@ -369,9 +373,11 @@ export async function startAllGroupsSync(): Promise<void> {
   }
 
   // Get all groups user is a member of
-  const memberships = await db.groupMembers?.where('pubkey').equals(currentIdentity.publicKey).toArray();
+  const memberships = await dal.query<{ groupId: string }>('groupMembers', {
+    whereClause: { pubkey: currentIdentity.publicKey },
+  });
 
-  if (!memberships || memberships.length === 0) {
+  if (memberships.length === 0) {
     logger.info('No groups to sync');
     return;
   }

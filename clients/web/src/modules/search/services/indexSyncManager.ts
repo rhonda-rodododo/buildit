@@ -14,7 +14,7 @@ import {
   serializeTags,
   deserializeTags,
 } from '../schema';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { getMiniSearchEngine } from './miniSearchEngine';
 import { getTFIDFEngine } from './tfidfEngine';
 import { logger } from '@/lib/logger';
@@ -423,9 +423,6 @@ export class IndexSyncManager {
    * Save a search document to the database
    */
   private async saveDocument(doc: SearchDocument): Promise<void> {
-    const db = getDB();
-    if (!db.searchIndex) return;
-
     const dbDoc: DBSearchDocument = {
       id: doc.id,
       moduleType: doc.moduleType,
@@ -443,17 +440,14 @@ export class IndexSyncManager {
       indexedAt: Date.now(),
     };
 
-    await db.searchIndex.put(dbDoc);
+    await dal.put('searchIndex', dbDoc);
   }
 
   /**
    * Load a search document from the database
    */
   private async loadDocument(id: string): Promise<SearchDocument | null> {
-    const db = getDB();
-    if (!db.searchIndex) return null;
-
-    const dbDoc = await db.searchIndex.get(id);
+    const dbDoc = await dal.get<DBSearchDocument>('searchIndex', id);
     if (!dbDoc) return null;
 
     return this.dbDocToSearchDoc(dbDoc);
@@ -463,18 +457,19 @@ export class IndexSyncManager {
    * Load all search documents from the database
    */
   private async loadAllDocuments(groupIds?: string[]): Promise<SearchDocument[]> {
-    const db = getDB();
-    if (!db.searchIndex) return [];
-
     let dbDocs: DBSearchDocument[];
 
     if (groupIds && groupIds.length > 0) {
-      dbDocs = await db.searchIndex
-        .where('groupId')
-        .anyOf(groupIds)
-        .toArray();
+      dbDocs = await dal.queryCustom<DBSearchDocument>({
+        sql: `SELECT * FROM search_index WHERE group_id IN (${groupIds.map(() => '?').join(',')})`,
+        params: groupIds,
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (ids: string[]) => { toArray: () => Promise<DBSearchDocument[]> } } } };
+          return dexieDb.table('searchIndex').where('groupId').anyOf(groupIds).toArray();
+        },
+      });
     } else {
-      dbDocs = await db.searchIndex.toArray();
+      dbDocs = await dal.getAll<DBSearchDocument>('searchIndex');
     }
 
     return dbDocs.map((d) => this.dbDocToSearchDoc(d));
@@ -484,18 +479,14 @@ export class IndexSyncManager {
    * Remove a document from the database
    */
   private async removeDocument(id: string): Promise<void> {
-    const db = getDB();
-    if (!db.searchIndex) return;
-    await db.searchIndex.delete(id);
+    await dal.delete('searchIndex', id);
   }
 
   /**
    * Clear all documents from the database
    */
   private async clearAllDocuments(): Promise<void> {
-    const db = getDB();
-    if (!db.searchIndex) return;
-    await db.searchIndex.clear();
+    await dal.clearTable('searchIndex');
   }
 
   /**
@@ -524,24 +515,26 @@ export class IndexSyncManager {
    * Get/set metadata
    */
   private async getMeta(key: string): Promise<string | null> {
-    const db = getDB();
-    if (!db.searchIndexMeta) return null;
-    const meta = await db.searchIndexMeta.where('key').equals(key).first();
-    return meta?.value || null;
+    const results = await dal.query<{ id: string; key: string; value: string }>('searchIndexMeta', {
+      whereClause: { key },
+      limit: 1,
+    });
+    return results.length > 0 ? results[0].value : null;
   }
 
   private async setMeta(key: string, value: string): Promise<void> {
-    const db = getDB();
-    if (!db.searchIndexMeta) return;
+    const results = await dal.query<{ id: string; key: string; value: string }>('searchIndexMeta', {
+      whereClause: { key },
+      limit: 1,
+    });
 
-    const existing = await db.searchIndexMeta.where('key').equals(key).first();
-    if (existing) {
-      await db.searchIndexMeta.update(existing.id, {
+    if (results.length > 0) {
+      await dal.update('searchIndexMeta', results[0].id, {
         value,
         updatedAt: Date.now(),
       });
     } else {
-      await db.searchIndexMeta.add({
+      await dal.add('searchIndexMeta', {
         id: `meta-${key}`,
         key,
         value,
@@ -554,9 +547,7 @@ export class IndexSyncManager {
    * Get accessible groups for the current user
    */
   private async getAccessibleGroups(): Promise<string[]> {
-    const db = getDB();
-    if (!db.groups) return [];
-    const groups = await db.groups.toArray();
+    const groups = await dal.getAll<{ id: string }>('groups');
     return groups.map((g) => g.id);
   }
 

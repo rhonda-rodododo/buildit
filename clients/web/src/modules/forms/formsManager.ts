@@ -7,7 +7,7 @@
  * be moved to fundraisingManager and publicManager. Keeping for backwards compatibility.
  */
 
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type {
   Form,
@@ -45,13 +45,13 @@ export class FormsManager {
     const formId = generateEventId();
 
     // Get table to validate fields exist
-    const table = await db.databaseTables?.get(tableId);
+    const table = await dal.get<Record<string, unknown>>('databaseTables', tableId).catch(() => null);
     if (!table) {
       throw new Error('Table not found');
     }
 
     // Validate all fieldIds exist in table
-    const tableFieldIds = table.fields.map((f: { id: string }) => f.id);
+    const tableFieldIds = (table.fields as Array<{ id: string }>)?.map((f) => f.id) ?? [];
     const invalidFields = formData.fieldIds.filter((id) => !tableFieldIds.includes(id));
     if (invalidFields.length > 0) {
       throw new Error(`Invalid field IDs: ${invalidFields.join(', ')}`);
@@ -78,7 +78,11 @@ export class FormsManager {
     };
 
     // Store in database
-    await db.forms?.add(form);
+    try {
+      await dal.add('forms', form);
+    } catch {
+      // Table might not exist yet
+    }
 
     return form;
   }
@@ -95,7 +99,7 @@ export class FormsManager {
       name?: string;
     }
   ): Promise<{ submission: FormSubmission; record: DatabaseRecord }> {
-    const form = await db.forms?.get(formId);
+    const form = await dal.get<Form>('forms', formId).catch(() => null);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -106,21 +110,26 @@ export class FormsManager {
 
     // Check submission limits
     if (form.settings.limitSubmissions && form.settings.maxSubmissions) {
-      const count = await db.formSubmissions
-        ?.where('formId')
-        .equals(formId)
-        .count();
-      if (count && count >= form.settings.maxSubmissions) {
+      const submissions = await dal.query<FormSubmission>('formSubmissions', {
+        whereClause: { formId },
+      }).catch(() => []);
+      if (submissions.length >= form.settings.maxSubmissions) {
         throw new Error('Form has reached maximum submissions');
       }
     }
 
     // Check per-user limit (by email if anonymous)
     if (form.settings.limitPerUser && form.settings.maxPerUser && submitterInfo?.email) {
-      const count = await db.formSubmissions
-        ?.where({ formId, submittedByEmail: submitterInfo.email })
-        .count();
-      if (count && count >= form.settings.maxPerUser) {
+      const userSubmissions = await dal.queryCustom<FormSubmission>({
+        sql: 'SELECT * FROM form_submissions WHERE form_id = ?1 AND submitted_by_email = ?2',
+        params: [formId, submitterInfo.email],
+        dexieFallback: async (db) => {
+          return db.formSubmissions
+            ?.where({ formId, submittedByEmail: submitterInfo.email })
+            .toArray() ?? [];
+        },
+      });
+      if (userSubmissions.length >= form.settings.maxPerUser) {
         throw new Error('You have reached the maximum submissions allowed');
       }
     }
@@ -151,7 +160,11 @@ export class FormsManager {
       processed: false,
     };
 
-    await db.formSubmissions?.add(submission);
+    try {
+      await dal.add('formSubmissions', submission);
+    } catch {
+      // Table might not exist yet
+    }
 
     return { submission, record };
   }
@@ -160,12 +173,16 @@ export class FormsManager {
    * Get form submissions
    */
   async getFormSubmissions(formId: string): Promise<FormSubmission[]> {
-    const submissions = await db.formSubmissions
-      ?.where('formId')
-      .equals(formId)
-      .reverse()
-      .sortBy('submittedAt');
-    return submissions || [];
+    try {
+      const submissions = await dal.query<FormSubmission>('formSubmissions', {
+        whereClause: { formId },
+        orderBy: 'submittedAt',
+        orderDir: 'desc',
+      });
+      return submissions;
+    } catch {
+      return [];
+    }
   }
 
   // ============================================================================
@@ -193,10 +210,17 @@ export class FormsManager {
     const campaignId = generateEventId();
 
     // Validate slug is unique within group
-    const existing = await db.campaigns
-      ?.where({ groupId, slug: campaignData.slug })
-      .first();
-    if (existing) {
+    const existingResults = await dal.queryCustom<Campaign>({
+      sql: 'SELECT * FROM campaigns WHERE group_id = ?1 AND slug = ?2 LIMIT 1',
+      params: [groupId, campaignData.slug],
+      dexieFallback: async (db) => {
+        const result = await db.campaigns
+          ?.where({ groupId, slug: campaignData.slug })
+          .first();
+        return result ? [result] : [];
+      },
+    });
+    if (existingResults[0]) {
       throw new Error('Campaign slug already exists in this group');
     }
 
@@ -221,7 +245,11 @@ export class FormsManager {
       settings: campaignData.settings,
     };
 
-    await db.campaigns?.add(campaign);
+    try {
+      await dal.add('campaigns', campaign);
+    } catch {
+      // Table might not exist yet
+    }
 
     return campaign;
   }
@@ -246,7 +274,7 @@ export class FormsManager {
       transactionId?: string;
     }
   ): Promise<Donation> {
-    const campaign = await db.campaigns?.get(campaignId);
+    const campaign = await dal.get<Campaign>('campaigns', campaignId).catch(() => null);
     if (!campaign) {
       throw new Error('Campaign not found');
     }
@@ -262,9 +290,9 @@ export class FormsManager {
 
     // Check tier limits
     if (donationData.tierId) {
-      const tier = await db.donationTiers?.get(donationData.tierId);
+      const tier = await dal.get<Record<string, unknown>>('donationTiers', donationData.tierId).catch(() => null);
       if (tier && tier.limited && tier.maxCount) {
-        if (tier.currentCount >= tier.maxCount) {
+        if ((tier.currentCount as number) >= (tier.maxCount as number)) {
           throw new Error('This donation tier is sold out');
         }
       }
@@ -312,7 +340,11 @@ export class FormsManager {
       created: now,
     };
 
-    await db.donations?.add(donation);
+    try {
+      await dal.add('donations', donation);
+    } catch {
+      // Table might not exist yet
+    }
 
     return donation;
   }
@@ -321,7 +353,7 @@ export class FormsManager {
    * Mark donation as completed
    */
   async completeDonation(donationId: string): Promise<void> {
-    const donation = await db.donations?.get(donationId);
+    const donation = await dal.get<Donation>('donations', donationId).catch(() => null);
     if (!donation) {
       throw new Error('Donation not found');
     }
@@ -329,25 +361,25 @@ export class FormsManager {
     const now = Date.now();
 
     // Update donation status
-    await db.donations?.update(donationId, {
+    await dal.update('donations', donationId, {
       status: 'completed',
       completedAt: now,
     });
 
     // Update campaign total
-    const campaign = await db.campaigns?.get(donation.campaignId);
+    const campaign = await dal.get<Campaign>('campaigns', donation.campaignId).catch(() => null);
     if (campaign) {
-      await db.campaigns?.update(donation.campaignId, {
+      await dal.update('campaigns', donation.campaignId, {
         currentAmount: campaign.currentAmount + donation.amount,
       });
     }
 
     // Increment tier count if applicable
     if (donation.tierId) {
-      const tier = await db.donationTiers?.get(donation.tierId);
+      const tier = await dal.get<Record<string, unknown>>('donationTiers', donation.tierId).catch(() => null);
       if (tier) {
-        await db.donationTiers?.update(donation.tierId, {
-          currentCount: tier.currentCount + 1,
+        await dal.update('donationTiers', donation.tierId, {
+          currentCount: (tier.currentCount as number) + 1,
         });
       }
     }
@@ -364,7 +396,7 @@ export class FormsManager {
       content: string;
     }
   ): Promise<CampaignUpdate> {
-    const campaign = await db.campaigns?.get(campaignId);
+    const campaign = await dal.get<Campaign>('campaigns', campaignId).catch(() => null);
     if (!campaign) {
       throw new Error('Campaign not found');
     }
@@ -383,10 +415,14 @@ export class FormsManager {
       updated: now,
     };
 
-    await db.campaignUpdates?.add(update);
+    try {
+      await dal.add('campaignUpdates', update);
+    } catch {
+      // Table might not exist yet
+    }
 
     // Increment update count
-    await db.campaigns?.update(campaignId, {
+    await dal.update('campaigns', campaignId, {
       updateCount: campaign.updateCount + 1,
     });
 
@@ -412,10 +448,17 @@ export class FormsManager {
     }
   ): Promise<PublicPage> {
     // Validate slug is unique within group
-    const existing = await db.publicPages
-      ?.where({ groupId, slug: pageData.slug })
-      .first();
-    if (existing) {
+    const existingResults = await dal.queryCustom<PublicPage>({
+      sql: 'SELECT * FROM public_pages WHERE group_id = ?1 AND slug = ?2 LIMIT 1',
+      params: [groupId, pageData.slug],
+      dexieFallback: async (db) => {
+        const result = await db.publicPages
+          ?.where({ groupId, slug: pageData.slug })
+          .first();
+        return result ? [result] : [];
+      },
+    });
+    if (existingResults[0]) {
       throw new Error('Page slug already exists in this group');
     }
 
@@ -440,7 +483,11 @@ export class FormsManager {
       updated: now,
     };
 
-    await db.publicPages?.add(page);
+    try {
+      await dal.add('publicPages', page);
+    } catch {
+      // Table might not exist yet
+    }
 
     return page;
   }
@@ -450,7 +497,7 @@ export class FormsManager {
    */
   async publishPublicPage(pageId: string): Promise<void> {
     const now = Date.now();
-    await db.publicPages?.update(pageId, {
+    await dal.update('publicPages', pageId, {
       status: 'published',
       publishedAt: now,
     });
@@ -474,7 +521,11 @@ export class FormsManager {
       timestamp: Date.now(),
     };
 
-    await db.analytics?.add(analyticsEvent);
+    try {
+      await dal.add('analytics', analyticsEvent);
+    } catch {
+      // Table might not exist yet
+    }
   }
 
   /**
@@ -485,16 +536,28 @@ export class FormsManager {
     resourceId: string,
     timeframe?: { start: number; end: number }
   ): Promise<Analytics[]> {
-    let query = db.analytics?.where({ resourceType, resourceId });
-
-    if (timeframe) {
-      query = query?.and((event: Analytics) =>
-        event.timestamp >= timeframe.start && event.timestamp <= timeframe.end
-      );
+    try {
+      const results = await dal.queryCustom<Analytics>({
+        sql: timeframe
+          ? 'SELECT * FROM analytics WHERE resource_type = ?1 AND resource_id = ?2 AND timestamp >= ?3 AND timestamp <= ?4'
+          : 'SELECT * FROM analytics WHERE resource_type = ?1 AND resource_id = ?2',
+        params: timeframe
+          ? [resourceType, resourceId, timeframe.start, timeframe.end]
+          : [resourceType, resourceId],
+        dexieFallback: async (db) => {
+          let query = db.analytics?.where({ resourceType, resourceId });
+          if (timeframe) {
+            query = query?.and((event: Analytics) =>
+              event.timestamp >= timeframe.start && event.timestamp <= timeframe.end
+            );
+          }
+          return await query?.toArray() ?? [];
+        },
+      });
+      return results;
+    } catch {
+      return [];
     }
-
-    const events = await query?.toArray();
-    return events || [];
   }
 }
 

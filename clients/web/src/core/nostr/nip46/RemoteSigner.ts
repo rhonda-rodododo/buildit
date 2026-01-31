@@ -18,7 +18,8 @@
  * 4. Receive signed events back
  */
 
-import { getDB, type DBBunkerConnection } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBBunkerConnection } from '@/core/storage/db';
 import { logger } from '@/lib/logger';
 import type { Nip46Permission, Nip46Request } from '@/core/backup/types';
 import type { Nip46Response } from './BunkerService';
@@ -144,8 +145,7 @@ export class RemoteSigner {
    * Reconnect to a saved bunker connection
    */
   public async reconnect(connectionId: string): Promise<void> {
-    const db = getDB();
-    const connection = await db.bunkerConnections.get(connectionId);
+    const connection = await dal.get<DBBunkerConnection>('bunkerConnections', connectionId);
 
     if (!connection) {
       throw new Error('Connection not found');
@@ -166,7 +166,7 @@ export class RemoteSigner {
     this.clientPublicKey = this.uint8ToHex(clientPubKey);
 
     // Update last connected
-    await db.bunkerConnections.update(connectionId, {
+    await dal.update('bunkerConnections', connectionId, {
       lastConnected: Date.now(),
     });
 
@@ -344,11 +344,14 @@ export class RemoteSigner {
    * Get saved connections
    */
   public async getSavedConnections(): Promise<DBBunkerConnection[]> {
-    const db = getDB();
-    return db.bunkerConnections
-      .where('status')
-      .anyOf(['approved', 'pending'])
-      .toArray();
+    return dal.queryCustom<DBBunkerConnection>({
+      sql: `SELECT * FROM bunker_connections WHERE status IN ('approved', 'pending')`,
+      params: [],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (vals: string[]) => { toArray: () => Promise<DBBunkerConnection[]> } } } };
+        return dexieDb.table('bunkerConnections').where('status').anyOf(['approved', 'pending']).toArray();
+      },
+    });
   }
 
   /**
@@ -359,8 +362,7 @@ export class RemoteSigner {
       this.disconnect();
     }
 
-    const db = getDB();
-    await db.bunkerConnections.delete(connectionId);
+    await dal.delete('bunkerConnections', connectionId);
 
     logger.info('Deleted bunker connection', { connectionId: connectionId.slice(0, 8) });
   }
@@ -389,7 +391,6 @@ export class RemoteSigner {
   private async saveConnection(): Promise<void> {
     if (!this.bunkerPubkey || !this.clientPublicKey) return;
 
-    const db = getDB();
     const connectionId = crypto.randomUUID();
     this.connectionId = connectionId;
 
@@ -405,7 +406,7 @@ export class RemoteSigner {
       createdAt: Date.now(),
     };
 
-    await db.bunkerConnections.put(connection);
+    await dal.put('bunkerConnections', connection);
   }
 
   private emitStateChange(): void {

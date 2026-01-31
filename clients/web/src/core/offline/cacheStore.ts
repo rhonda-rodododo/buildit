@@ -5,7 +5,7 @@
  */
 
 import { create } from 'zustand';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { logger } from '@/lib/logger';
 import type {
   CacheUsage,
@@ -115,7 +115,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
         etag,
       };
 
-      await db.cacheMetadata.put(entry);
+      await dal.put('cacheMetadata', entry);
 
       // Check if we need to evict
       const { config } = get();
@@ -133,7 +133,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
   // Update last access time for a cache entry
   updateCacheAccess: async (key: string): Promise<void> => {
     try {
-      await db.cacheMetadata.update(key, { lastAccessedAt: Date.now() });
+      await dal.update('cacheMetadata', key, { lastAccessedAt: Date.now() });
     } catch (error) {
       // Entry may not exist, that's ok
       logger.debug('[CacheStore] Failed to update cache access:', error);
@@ -143,7 +143,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
   // Remove a cache entry
   removeCacheEntry: async (key: string): Promise<void> => {
     try {
-      await db.cacheMetadata.delete(key);
+      await dal.delete('cacheMetadata', key);
     } catch (error) {
       logger.error('[CacheStore] Failed to remove cache entry:', error);
     }
@@ -152,7 +152,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
   // Get a cache entry
   getCacheEntry: async (key: string): Promise<DBCacheMetadata | undefined> => {
     try {
-      return await db.cacheMetadata.get(key);
+      return await dal.get<DBCacheMetadata>('cacheMetadata', key);
     } catch (error) {
       logger.error('[CacheStore] Failed to get cache entry:', error);
       return undefined;
@@ -162,7 +162,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
   // Calculate current cache usage
   calculateUsage: async (): Promise<CacheUsage> => {
     try {
-      const entries = await db.cacheMetadata.toArray();
+      const entries = await dal.getAll<DBCacheMetadata>('cacheMetadata');
       const now = Date.now();
 
       let totalBytes = 0;
@@ -206,7 +206,10 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       }
 
       // Get entries sorted by last access time (oldest first)
-      const entries = await db.cacheMetadata.orderBy('lastAccessedAt').toArray();
+      const entries = await dal.query<DBCacheMetadata>('cacheMetadata', {
+        orderBy: 'lastAccessedAt',
+        orderDir: 'asc',
+      });
 
       let evictedBytes = 0;
       let evictedCount = 0;
@@ -224,7 +227,9 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
 
       // Delete evicted entries
       if (toDelete.length > 0) {
-        await db.cacheMetadata.bulkDelete(toDelete);
+        for (const key of toDelete) {
+          await dal.delete('cacheMetadata', key);
+        }
 
         // Also clear from browser cache if possible
         if ('caches' in window) {
@@ -261,10 +266,13 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       const maxAge = maxAgeDays ?? config.maxAgeDays;
       const cutoff = Date.now() - maxAge * 24 * 60 * 60 * 1000;
 
-      const oldEntries = await db.cacheMetadata
-        .where('lastAccessedAt')
-        .below(cutoff)
-        .toArray();
+      const oldEntries = await dal.queryCustom<DBCacheMetadata>({
+        sql: 'SELECT * FROM cache_metadata WHERE last_accessed_at < ?1',
+        params: [cutoff],
+        dexieFallback: async (db) => {
+          return db.cacheMetadata.where('lastAccessedAt').below(cutoff).toArray();
+        },
+      });
 
       if (oldEntries.length === 0) {
         set({ isProcessing: false });
@@ -272,7 +280,9 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       }
 
       const toDelete = oldEntries.map((e) => e.key);
-      await db.cacheMetadata.bulkDelete(toDelete);
+      for (const key of toDelete) {
+        await dal.delete('cacheMetadata', key);
+      }
 
       // Also clear from browser cache
       if ('caches' in window) {
@@ -305,7 +315,7 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
     set({ isProcessing: true });
 
     try {
-      await db.cacheMetadata.clear();
+      await dal.clearTable('cacheMetadata');
 
       // Clear browser caches
       if ('caches' in window) {
@@ -335,10 +345,14 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
     set({ isProcessing: true });
 
     try {
-      const entries = await db.cacheMetadata.where('type').equals(type).toArray();
+      const entries = await dal.query<DBCacheMetadata>('cacheMetadata', {
+        whereClause: { type },
+      });
       const keys = entries.map((e) => e.key);
 
-      await db.cacheMetadata.bulkDelete(keys);
+      for (const key of keys) {
+        await dal.delete('cacheMetadata', key);
+      }
 
       // Clear from browser cache
       if ('caches' in window) {
@@ -384,12 +398,20 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       // Prune old messages
       const messageCutoff = now - pruneConfig.messagesAgeDays * 24 * 60 * 60 * 1000;
       try {
-        const oldMessages = await db.conversationMessages
-          .where('timestamp')
-          .below(messageCutoff)
-          .toArray();
+        const oldMessages = await dal.queryCustom<{ id: string }>({
+          sql: 'SELECT id FROM conversation_messages WHERE timestamp < ?1',
+          params: [messageCutoff],
+          dexieFallback: async (db) => {
+            return db.conversationMessages
+              .where('timestamp')
+              .below(messageCutoff)
+              .toArray();
+          },
+        });
         if (oldMessages.length > 0) {
-          await db.conversationMessages.bulkDelete(oldMessages.map((m) => m.id));
+          for (const msg of oldMessages) {
+            await dal.delete('conversationMessages', msg.id);
+          }
           results.messages = oldMessages.length;
         }
       } catch (e) {
@@ -399,9 +421,17 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       // Prune old posts
       const postsCutoff = now - pruneConfig.postsAgeDays * 24 * 60 * 60 * 1000;
       try {
-        const oldPosts = await db.posts?.where('createdAt').below(postsCutoff).toArray();
-        if (oldPosts && oldPosts.length > 0) {
-          await db.posts.bulkDelete(oldPosts.map((p: { id: string }) => p.id));
+        const oldPosts = await dal.queryCustom<{ id: string }>({
+          sql: 'SELECT id FROM posts WHERE created_at < ?1',
+          params: [postsCutoff],
+          dexieFallback: async (db) => {
+            return db.posts?.where('createdAt').below(postsCutoff).toArray() || [];
+          },
+        }).catch(() => [] as { id: string }[]);
+        if (oldPosts.length > 0) {
+          for (const post of oldPosts) {
+            await dal.delete('posts', post.id);
+          }
           results.posts = oldPosts.length;
         }
       } catch (e) {
@@ -442,23 +472,25 @@ export const useCacheStore = create<CacheState & CacheActions>()((set, get) => (
       const data: Record<string, unknown[]> = {};
 
       // Export conversations
-      data.conversations = await db.conversations.toArray();
-      data.conversationMessages = await db.conversationMessages.toArray();
+      data.conversations = await dal.getAll('conversations');
+      data.conversationMessages = await dal.getAll('conversationMessages');
 
       // Export posts if table exists
-      if (db.posts) {
-        data.posts = await db.posts.toArray();
+      try {
+        data.posts = await dal.getAll('posts');
+      } catch {
+        // posts table may not exist
       }
 
       // Export groups
-      data.groups = await db.groups.toArray();
-      data.groupMembers = await db.groupMembers.toArray();
+      data.groups = await dal.getAll('groups');
+      data.groupMembers = await dal.getAll('groupMembers');
 
       // Export friends
-      data.friends = await db.friends.toArray();
+      data.friends = await dal.getAll('friends');
 
       // Export offline queue
-      data.offlineQueue = await db.offlineQueue.toArray();
+      data.offlineQueue = await dal.getAll('offlineQueue').catch(() => []);
 
       // Add metadata
       const exportData = {

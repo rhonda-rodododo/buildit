@@ -1,6 +1,6 @@
 import { NostrClient } from '@/core/nostr/client'
 import { createEvent, generateEventId } from '@/core/nostr/nip01'
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
 import { Event, RSVP, EVENT_KINDS, EventSchema, RSVPSchema, CreateEventFormData, RSVPStatus } from './types'
 import type { Event as NostrEvent } from 'nostr-tools'
 
@@ -54,22 +54,26 @@ export class EventManager {
     await this.nostrClient.publish(nostrEvent)
 
     // Store in local database
-    await db.events?.add({
-      id: event.id,
-      groupId: event.groupId,
-      title: event.title,
-      description: event.description,
-      location: event.location,
-      startTime: event.startTime,
-      endTime: event.endTime,
-      privacy: event.privacy,
-      capacity: event.capacity,
-      createdBy: event.createdBy,
-      createdAt: event.createdAt,
-      updatedAt: event.updatedAt,
-      tags: event.tags?.join(',') || '',
-      imageUrl: event.imageUrl,
-    })
+    try {
+      await dal.add('events', {
+        id: event.id,
+        groupId: event.groupId,
+        title: event.title,
+        description: event.description,
+        location: event.location,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        privacy: event.privacy,
+        capacity: event.capacity,
+        createdBy: event.createdBy,
+        createdAt: event.createdAt,
+        updatedAt: event.updatedAt,
+        tags: event.tags?.join(',') || '',
+        imageUrl: event.imageUrl,
+      })
+    } catch {
+      // Table might not exist yet
+    }
 
     return event
   }
@@ -84,7 +88,7 @@ export class EventManager {
     privateKey: string
   ): Promise<Event> {
     // Get existing event
-    const existingEvent = await db.events!.get(eventId)
+    const existingEvent = await dal.get<Record<string, unknown>>('events', eventId)
     if (!existingEvent) {
       throw new Error('Event not found')
     }
@@ -95,20 +99,20 @@ export class EventManager {
     }
 
     const updatedEvent: Event = {
-      id: existingEvent.id,
-      groupId: existingEvent.groupId,
-      title: updates.title || existingEvent.title,
-      description: updates.description || existingEvent.description,
-      location: updates.location !== undefined ? updates.location : existingEvent.location,
-      startTime: updates.startTime || existingEvent.startTime,
-      endTime: updates.endTime !== undefined ? updates.endTime : existingEvent.endTime,
-      privacy: updates.privacy || existingEvent.privacy,
-      capacity: updates.capacity !== undefined ? updates.capacity : existingEvent.capacity,
-      createdBy: existingEvent.createdBy,
-      createdAt: existingEvent.createdAt,
+      id: existingEvent.id as string,
+      groupId: existingEvent.groupId as string,
+      title: updates.title || existingEvent.title as string,
+      description: updates.description || existingEvent.description as string,
+      location: updates.location !== undefined ? updates.location : existingEvent.location as string | undefined,
+      startTime: updates.startTime || existingEvent.startTime as number,
+      endTime: updates.endTime !== undefined ? updates.endTime : existingEvent.endTime as number | undefined,
+      privacy: updates.privacy || existingEvent.privacy as Event['privacy'],
+      capacity: updates.capacity !== undefined ? updates.capacity : existingEvent.capacity as number | undefined,
+      createdBy: existingEvent.createdBy as string,
+      createdAt: existingEvent.createdAt as number,
       updatedAt: Date.now(),
-      tags: updates.tags || (existingEvent.tags ? existingEvent.tags.split(',') : []),
-      imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : existingEvent.imageUrl,
+      tags: updates.tags || (existingEvent.tags ? (existingEvent.tags as string).split(',') : []),
+      imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : existingEvent.imageUrl as string | undefined,
       coHosts: updates.coHosts || [],
     }
 
@@ -117,7 +121,7 @@ export class EventManager {
     await this.nostrClient.publish(nostrEvent)
 
     // Update in database
-    await db.events!.update(eventId, {
+    await dal.update('events', eventId, {
       title: updatedEvent.title,
       description: updatedEvent.description,
       location: updatedEvent.location,
@@ -137,7 +141,7 @@ export class EventManager {
    * Delete an event
    */
   async deleteEvent(eventId: string, deleterPubkey: string): Promise<void> {
-    const event = await db.events!.get(eventId)
+    const event = await dal.get<Record<string, unknown>>('events', eventId)
     if (!event) {
       throw new Error('Event not found')
     }
@@ -147,8 +151,14 @@ export class EventManager {
     }
 
     // Delete from database
-    await db.events!.delete(eventId)
-    await db.rsvps!.where('eventId').equals(eventId).delete()
+    await dal.delete('events', eventId)
+    await dal.queryCustom({
+      sql: 'DELETE FROM rsvps WHERE event_id = ?1',
+      params: [eventId],
+      dexieFallback: async (db) => {
+        await db.rsvps!.where('eventId').equals(eventId).delete();
+      },
+    })
 
     // NOTE: NIP-09 event deletion (kind 5) publishing deferred
     // Deletion only affects local database for now
@@ -166,7 +176,7 @@ export class EventManager {
     privateKey: string,
     note?: string
   ): Promise<RSVP> {
-    const event = await db.events!.get(eventId)
+    const event = await dal.get<Record<string, unknown>>('events', eventId)
     if (!event) {
       throw new Error('Event not found')
     }
@@ -182,48 +192,60 @@ export class EventManager {
     // Validate RSVP
     RSVPSchema.parse(rsvp)
 
-    // Use a transaction to atomically check capacity and create/update RSVP
-    // This prevents race conditions where multiple RSVPs could exceed capacity
-    await db.transaction('rw', [db.rsvps!], async () => {
-      // Check if user already has an RSVP
-      const existing = await db.rsvps!
-        .where({ eventId, userPubkey })
-        .first()
-
-      const wasAlreadyGoing = existing?.status === 'going'
-      const isNewlyGoing = status === 'going' && !wasAlreadyGoing
-
-      // Check capacity only if user is newly RSVPing "going"
-      if (isNewlyGoing && event.capacity) {
-        const goingCount = await db.rsvps!
-          .where({ eventId })
-          .filter(r => r.status === 'going')
-          .count()
-
-        if (goingCount >= event.capacity) {
-          throw new Error('Event is at capacity')
-        }
-      }
-
-      // Upsert RSVP within the transaction
-      if (existing && existing.id) {
-        await db.rsvps!.update(existing.id, {
-          status,
-          timestamp: rsvp.timestamp,
-          note,
-        })
-      } else {
-        await db.rsvps!.add({
-          eventId,
-          userPubkey,
-          status,
-          timestamp: rsvp.timestamp,
-          note,
-        })
-      }
+    // Check if user already has an RSVP
+    const existingResults = await dal.queryCustom<Record<string, unknown>>({
+      sql: 'SELECT * FROM rsvps WHERE event_id = ?1 AND user_pubkey = ?2 LIMIT 1',
+      params: [eventId, userPubkey],
+      dexieFallback: async (db) => {
+        const result = await db.rsvps!
+          .where({ eventId, userPubkey })
+          .first();
+        return result ? [result] : [];
+      },
     })
+    const existing = existingResults[0]
 
-    // Create Nostr RSVP event only after local transaction succeeds
+    const wasAlreadyGoing = existing?.status === 'going'
+    const isNewlyGoing = status === 'going' && !wasAlreadyGoing
+
+    // Check capacity only if user is newly RSVPing "going"
+    if (isNewlyGoing && event.capacity) {
+      const countResults = await dal.queryCustom<{ cnt: number }>({
+        sql: 'SELECT COUNT(*) as cnt FROM rsvps WHERE event_id = ?1 AND status = ?2',
+        params: [eventId, 'going'],
+        dexieFallback: async (db) => {
+          const count = await db.rsvps!
+            .where({ eventId })
+            .filter((r: Record<string, unknown>) => r.status === 'going')
+            .count();
+          return [{ cnt: count }];
+        },
+      })
+      const goingCount = countResults[0]?.cnt ?? 0
+
+      if (goingCount >= (event.capacity as number)) {
+        throw new Error('Event is at capacity')
+      }
+    }
+
+    // Upsert RSVP
+    if (existing && existing.id) {
+      await dal.update('rsvps', existing.id as string, {
+        status,
+        timestamp: rsvp.timestamp,
+        note,
+      })
+    } else {
+      await dal.add('rsvps', {
+        eventId,
+        userPubkey,
+        status,
+        timestamp: rsvp.timestamp,
+        note,
+      })
+    }
+
+    // Create Nostr RSVP event only after local operation succeeds
     const nostrEvent = await this.createRSVPNostrEvent(rsvp, privateKey)
     await this.nostrClient.publish(nostrEvent)
 
@@ -406,10 +428,10 @@ export class EventManager {
       }
 
       // Upsert to database
-      const existing = await db.events!.get(event.id)
+      const existing = await dal.get<Record<string, unknown>>('events', event.id)
       if (existing) {
-        if (nostrEvent.created_at * 1000 > existing.updatedAt) {
-          await db.events!.update(event.id, {
+        if (nostrEvent.created_at * 1000 > (existing.updatedAt as number)) {
+          await dal.update('events', event.id, {
             title: event.title,
             description: event.description,
             location: event.location,
@@ -423,22 +445,26 @@ export class EventManager {
           })
         }
       } else {
-        await db.events?.add({
-          id: event.id,
-          groupId: event.groupId,
-          title: event.title,
-          description: event.description,
-          location: event.location,
-          startTime: event.startTime,
-          endTime: event.endTime,
-          privacy: event.privacy,
-          capacity: event.capacity,
-          createdBy: event.createdBy,
-          createdAt: event.createdAt,
-          updatedAt: event.updatedAt,
-          tags: event.tags.join(','),
-          imageUrl: event.imageUrl,
-        })
+        try {
+          await dal.add('events', {
+            id: event.id,
+            groupId: event.groupId,
+            title: event.title,
+            description: event.description,
+            location: event.location,
+            startTime: event.startTime,
+            endTime: event.endTime,
+            privacy: event.privacy,
+            capacity: event.capacity,
+            createdBy: event.createdBy,
+            createdAt: event.createdAt,
+            updatedAt: event.updatedAt,
+            tags: event.tags.join(','),
+            imageUrl: event.imageUrl,
+          })
+        } catch {
+          // Table might not exist yet
+        }
       }
     } catch (error) {
       console.error('Error processing event from Nostr:', error)

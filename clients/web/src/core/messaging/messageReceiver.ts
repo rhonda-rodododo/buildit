@@ -14,7 +14,7 @@ import type { Event as NostrEvent } from 'nostr-tools';
 import { unwrapGiftWrap, isGiftWrapForRecipient, type UnwrappedMessage } from '@/core/crypto/nip17';
 import { verifyEventSignature } from '@/core/nostr/nip01';
 import { getCurrentPrivateKey } from '@/stores/authStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { getNostrClient } from '@/core/nostr/client';
 import { useConversationsStore } from './conversationsStore';
 import type { GiftWrap } from '@/types/nostr';
@@ -253,8 +253,8 @@ class MessageReceiverService {
           lastReadAt: pubkey === this.userPubkey ? 0 : now, // Current user hasn't read yet
         }));
 
-        await db.conversations.add(newConversation);
-        await db.conversationMembers.bulkAdd(members);
+        await dal.add('conversations', newConversation);
+        await dal.bulkPut('conversationMembers', members);
 
         // Update Zustand store
         useConversationsStore.setState((state) => ({
@@ -285,10 +285,15 @@ class MessageReceiverService {
     // Store message locally (Dexie hooks will encrypt)
     // Use add() which throws on duplicate key, avoiding check-then-add race condition
     try {
-      await db.conversationMessages.add(message);
+      await dal.add('conversationMessages', message);
     } catch (addError) {
       // Dexie throws ConstraintError on duplicate primary key
       if (addError instanceof Error && addError.name === 'ConstraintError') {
+        logger.info('Message already exists (duplicate), skipping');
+        return;
+      }
+      // SQLite also throws on duplicate
+      if (addError instanceof Error && addError.message.includes('already exists')) {
         logger.info('Message already exists (duplicate), skipping');
         return;
       }
@@ -298,7 +303,7 @@ class MessageReceiverService {
     try {
 
       // Update conversation metadata
-      await db.conversations.update(conversationId, {
+      await dal.update('conversations', conversationId, {
         lastMessageAt: message.timestamp,
         lastMessagePreview: rumor.content.substring(0, 100),
         unreadCount: (conversation.unreadCount || 0) + 1,

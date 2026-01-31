@@ -6,7 +6,7 @@
 import type { ModulePlugin } from '@/types/modules';
 import { mutualAidSchema } from './schema';
 import { mutualAidSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { Heart } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -150,7 +150,7 @@ export const mutualAidModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial mutual aid schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Mutual Aid migration v1: Initial schema');
       },
     },

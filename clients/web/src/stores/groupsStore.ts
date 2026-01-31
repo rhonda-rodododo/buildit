@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { Table } from 'dexie'
-import { db, type DBGroup, type DBGroupMember, type DBGroupInvitation } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import type { DBGroup, DBGroupMember, DBGroupInvitation } from '@/core/storage/db'
 import { generateSecretKey } from 'nostr-tools/pure'
 import { bytesToHex } from '@noble/hashes/utils'
 import { secureRandomString } from '@/lib/utils'
@@ -23,11 +23,19 @@ async function checkGroupAuthorization(
     return { authorized: false, currentRole: null }
   }
 
-  const membership = await db.groupMembers
-    .where(['groupId', 'pubkey'])
-    .equals([groupId, currentIdentity.publicKey])
-    .first()
+  const results = await dal.queryCustom<DBGroupMember>({
+    sql: 'SELECT * FROM group_members WHERE group_id = ?1 AND pubkey = ?2 LIMIT 1',
+    params: [groupId, currentIdentity.publicKey],
+    dexieFallback: async (db) => {
+      const result = await db.groupMembers
+        .where(['groupId', 'pubkey'])
+        .equals([groupId, currentIdentity.publicKey])
+        .first()
+      return result ? [result] : []
+    },
+  })
 
+  const membership = results[0]
   if (!membership) {
     return { authorized: false, currentRole: null }
   }
@@ -144,11 +152,11 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
             enabledModules: params.enabledModules,
           }
 
-          // Store in IndexedDB
-          await db.groups.add(dbGroup)
+          // Store in database
+          await dal.add('groups', dbGroup)
 
           // Add creator as admin member
-          await db.groupMembers.add({
+          await dal.add('groupMembers', {
             groupId: nostrGroup.id,
             pubkey: creatorPubkey,
             role: 'admin',
@@ -175,25 +183,24 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
 
         try {
           // Get groups where user is a member from local DB
-          const memberships = await db.groupMembers
-            .where('pubkey')
-            .equals(userPubkey)
-            .toArray()
+          const memberships = await dal.query<DBGroupMember>('groupMembers', {
+            whereClause: { pubkey: userPubkey },
+          })
 
           const groupIds = memberships.map(m => m.groupId)
 
-          // Fetch all groups from local DB
-          const groups = await db.groups
-            .where('id')
-            .anyOf(groupIds)
-            .toArray()
+          // Fetch all groups from local DB using queryCustom for anyOf
+          const groups = groupIds.length > 0
+            ? await dal.queryCustom<DBGroup>({
+                sql: `SELECT * FROM groups WHERE id IN (${groupIds.map((_, i) => `?${i + 1}`).join(',')})`,
+                params: groupIds,
+                dexieFallback: async (db) => {
+                  return db.groups.where('id').anyOf(groupIds).toArray()
+                },
+              })
+            : []
 
           set({ groups, isLoading: false })
-
-          // Optionally sync with Nostr in background
-          // const client = getNostrClient()
-          // const nostrGroups = await getUserGroups(client, userPubkey)
-          // ... merge with local groups ...
         } catch (error) {
           const errorMsg = error instanceof Error ? error.message : 'Failed to load groups'
           set({ error: errorMsg, isLoading: false })
@@ -202,10 +209,9 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
 
       loadGroupMembers: async (groupId) => {
         try {
-          const members = await db.groupMembers
-            .where('groupId')
-            .equals(groupId)
-            .toArray()
+          const members = await dal.query<DBGroupMember>('groupMembers', {
+            whereClause: { groupId },
+          })
 
           set((state) => {
             const newGroupMembers = new Map(state.groupMembers)
@@ -227,7 +233,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
             throw new Error(`Unauthorized: only admins can update group settings (your role: ${currentRole || 'not a member'})`)
           }
 
-          await db.groups.update(groupId, updates)
+          await dal.update('groups', groupId, updates)
 
           const updatedGroups = get().groups.map(g =>
             g.id === groupId ? { ...g, ...updates } : g
@@ -260,59 +266,62 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
             throw new Error(`Unauthorized: only admins can delete groups (your role: ${currentRole || 'not a member'})`)
           }
 
-          // Build list of tables to delete from
-          // Core tables that always exist
+          // Core tables deletion
+          await dal.delete('groups', groupId)
+
+          // Delete related data using queryCustom for where().equals().delete() patterns
           const coreTables = [
-            db.groups,
-            db.groupMembers,
-            db.messages,
-            db.moduleInstances,
-            db.conversations,
-            db.conversationMembers,
-            db.conversationMessages,
-            db.groupEntities,
-            db.groupEntityMessages,
-            db.channels,
-          ]
+            'groupMembers',
+            'messages',
+            'moduleInstances',
+            'conversations',
+            'groupEntities',
+            'groupEntityMessages',
+            'channels',
+          ] as const
+
+          for (const table of coreTables) {
+            try {
+              await dal.queryCustom({
+                sql: `DELETE FROM ${table} WHERE group_id = ?1`,
+                params: [groupId],
+                dexieFallback: async (db) => {
+                  await db.table(table).where('groupId').equals(groupId).delete()
+                  return []
+                },
+              })
+            } catch (error) {
+              logger.info(`Skipping cleanup of ${table} table (may not exist or have groupId index)`)
+            }
+          }
 
           // Module tables (may or may not exist depending on module registration)
-          const moduleTables: Array<{ name: string; table: Table | undefined }> = [
-            { name: 'events', table: db.table('events') },
-            { name: 'rsvps', table: db.table('rsvps') },
-            { name: 'mutualAidRequests', table: db.table('mutualAidRequests') },
-            { name: 'proposals', table: db.table('proposals') },
-            { name: 'wikiPages', table: db.table('wikiPages') },
-            { name: 'databaseTables', table: db.table('databaseTables') },
-            { name: 'databaseRecords', table: db.table('databaseRecords') },
-            { name: 'databaseViews', table: db.table('databaseViews') },
-            { name: 'customFieldDefinitions', table: db.table('customFieldDefinitions') },
-            { name: 'customFieldValues', table: db.table('customFieldValues') },
+          const moduleTables = [
+            'events',
+            'rsvps',
+            'mutualAidRequests',
+            'proposals',
+            'wikiPages',
+            'databaseTables',
+            'databaseRecords',
+            'databaseViews',
+            'customFieldDefinitions',
+            'customFieldValues',
           ]
 
-          // Delete group and all related data in a transaction
-          await db.transaction('rw', coreTables, async () => {
-            // Core data deletion
-            await db.groups.delete(groupId)
-            await db.groupMembers.where('groupId').equals(groupId).delete()
-            await db.messages.where('groupId').equals(groupId).delete()
-            await db.moduleInstances.where('groupId').equals(groupId).delete()
-            await db.conversations.where('groupId').equals(groupId).delete()
-            // Note: conversationMembers and conversationMessages should be cleaned up
-            // when their parent conversation is deleted (would need to query conversation IDs first)
-            await db.groupEntities.where('groupId').equals(groupId).delete()
-            await db.groupEntityMessages.where('groupId').equals(groupId).delete()
-            await db.channels.where('groupId').equals(groupId).delete()
-          })
-
-          // Delete from module tables (outside main transaction to handle missing tables gracefully)
-          for (const { name, table } of moduleTables) {
+          for (const table of moduleTables) {
             try {
-              if (table) {
-                await table.where('groupId').equals(groupId).delete()
-              }
+              await dal.queryCustom({
+                sql: `DELETE FROM ${table} WHERE group_id = ?1`,
+                params: [groupId],
+                dexieFallback: async (db) => {
+                  await db.table(table).where('groupId').equals(groupId).delete()
+                  return []
+                },
+              })
             } catch (error) {
               // Table might not exist or not have groupId index - skip silently
-              logger.info(`Skipping cleanup of ${name} table (may not exist or have groupId index)`)
+              logger.info(`Skipping cleanup of ${table} table (may not exist or have groupId index)`)
             }
           }
 
@@ -404,7 +413,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           expiresAt: Date.now() + expiresInHours * 60 * 60 * 1000,
         }
 
-        await db.groupInvitations.add(invitation)
+        await dal.add('groupInvitations', invitation)
 
         // Update sent invitations list
         set(state => ({
@@ -417,11 +426,14 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       loadPendingInvitations: async (userPubkey) => {
         try {
           const now = Date.now()
-          const invitations = await db.groupInvitations
-            .where('inviteePubkey')
-            .equals(userPubkey)
-            .and(inv => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
-            .toArray()
+          const allInvitations = await dal.query<DBGroupInvitation>('groupInvitations', {
+            whereClause: { inviteePubkey: userPubkey },
+          })
+
+          // Filter in JS for complex conditions
+          const invitations = allInvitations.filter(
+            inv => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now)
+          )
 
           set({ pendingInvitations: invitations })
         } catch (error) {
@@ -431,10 +443,9 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
 
       loadSentInvitations: async (userPubkey) => {
         try {
-          const invitations = await db.groupInvitations
-            .where('inviterPubkey')
-            .equals(userPubkey)
-            .toArray()
+          const invitations = await dal.query<DBGroupInvitation>('groupInvitations', {
+            whereClause: { inviterPubkey: userPubkey },
+          })
 
           set({ sentInvitations: invitations })
         } catch (error) {
@@ -443,16 +454,16 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       },
 
       acceptInvitation: async (invitationId, userPubkey) => {
-        const invitation = await db.groupInvitations.get(invitationId)
+        const invitation = await dal.get<DBGroupInvitation>('groupInvitations', invitationId)
         if (!invitation) throw new Error('Invitation not found')
         if (invitation.status !== 'pending') throw new Error('Invitation is no longer pending')
         if (invitation.expiresAt && invitation.expiresAt < Date.now()) {
-          await db.groupInvitations.update(invitationId, { status: 'expired' })
+          await dal.update('groupInvitations', invitationId, { status: 'expired' })
           throw new Error('Invitation has expired')
         }
 
         // Add user as group member
-        await db.groupMembers.add({
+        await dal.add('groupMembers', {
           groupId: invitation.groupId,
           pubkey: userPubkey,
           role: invitation.role,
@@ -460,13 +471,13 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         })
 
         // Update invitation status
-        await db.groupInvitations.update(invitationId, {
+        await dal.update('groupInvitations', invitationId, {
           status: 'accepted',
           acceptedAt: Date.now(),
         })
 
         // Get group name for notification
-        const group = await db.groups.get(invitation.groupId)
+        const group = await dal.get<DBGroup>('groups', invitation.groupId)
 
         // Send notification
         useNotificationStore.getState().addNotification({
@@ -484,14 +495,14 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
       },
 
       declineInvitation: async (invitationId) => {
-        await db.groupInvitations.update(invitationId, { status: 'declined' })
+        await dal.update('groupInvitations', invitationId, { status: 'declined' })
         set(state => ({
           pendingInvitations: state.pendingInvitations.filter(inv => inv.id !== invitationId)
         }))
       },
 
       revokeInvitation: async (invitationId) => {
-        await db.groupInvitations.update(invitationId, { status: 'revoked' })
+        await dal.update('groupInvitations', invitationId, { status: 'revoked' })
         set(state => ({
           sentInvitations: state.sentInvitations.map(inv =>
             inv.id === invitationId ? { ...inv, status: 'revoked' as const } : inv
@@ -518,7 +529,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
         const member = members.find(m => m.pubkey === memberPubkey)
         if (!member || !member.id) throw new Error('Member not found')
 
-        await db.groupMembers.update(member.id, { role: newRole })
+        await dal.update('groupMembers', member.id, { role: newRole })
 
         // Update adminPubkeys in group if role changed to/from admin
         const groupToUpdate = get().groups.find(g => g.id === groupId)
@@ -561,7 +572,7 @@ export const useGroupsStore = create<GroupsState & GroupsActions>()(
           throw new Error('Cannot remove yourself. Use "Leave Group" instead.')
         }
 
-        await db.groupMembers.delete(member.id)
+        await dal.delete('groupMembers', member.id)
 
         // Update adminPubkeys if member was admin
         if (group && group.adminPubkeys.includes(memberPubkey)) {

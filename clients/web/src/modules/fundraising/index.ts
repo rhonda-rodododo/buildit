@@ -6,7 +6,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { fundraisingSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { DollarSign } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -120,7 +120,7 @@ export const fundraisingModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial fundraising schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Fundraising migration v1: Initial schema (campaigns, donations, tiers)');
       },
     },

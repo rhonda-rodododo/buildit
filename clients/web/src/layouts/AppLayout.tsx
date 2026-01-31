@@ -1,5 +1,5 @@
 import { FC, Suspense, useEffect } from 'react';
-import { Navigate, Outlet, useMatch } from 'react-router-dom';
+import { Navigate, Outlet, useMatch, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { AppHeader } from '@/components/navigation/AppHeader';
@@ -16,8 +16,9 @@ import { DesktopStatusBar } from '@/components/desktop';
  * Keyboard shortcuts are handled by CommandPaletteProvider
  */
 export const AppLayout: FC = () => {
-  const { currentIdentity } = useAuthStore();
+  const { currentIdentity, lockState } = useAuthStore();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const location = useLocation();
 
   // Detect if we're in a group route (to hide main sidebar)
   const isGroupRoute = useMatch('/app/groups/:groupId/*');
@@ -31,6 +32,13 @@ export const AppLayout: FC = () => {
 
   if (!currentIdentity) {
     return <Navigate to="/login" replace />;
+  }
+
+  // If locked (e.g. after page reload), redirect to login to show unlock form
+  // Preserve the current URL so user returns here after unlock
+  if (lockState === 'locked') {
+    const returnTo = location.pathname + location.search + location.hash;
+    return <Navigate to={`/login?returnTo=${encodeURIComponent(returnTo)}`} replace />;
   }
 
   return (

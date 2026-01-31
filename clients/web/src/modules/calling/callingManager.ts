@@ -10,7 +10,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useAuthStore } from '@/stores/authStore';
 import { useContactsStore } from '@/stores/contactsStore';
 import { v4 as uuidv4 } from 'uuid';
@@ -646,7 +646,7 @@ class CallingManager {
    */
   async loadSettings(pubkey: string): Promise<void> {
     try {
-      const settings = await db.table<DBCallSettings>('callSettings').get(pubkey);
+      const settings = await dal.get<DBCallSettings>('callSettings', pubkey);
       if (settings) {
         useCallingStore.getState().setSettings({
           _v: CALLING_VERSION,
@@ -692,7 +692,7 @@ class CallingManager {
         updatedAt: Date.now(),
       };
 
-      await db.table('callSettings').put(dbSettings);
+      await dal.put('callSettings', dbSettings);
       useCallingStore.getState().setSettings(settings);
     } catch (error) {
       logger.error('Failed to save call settings', error);
@@ -704,11 +704,11 @@ class CallingManager {
    */
   async loadCallHistory(): Promise<void> {
     try {
-      const history = await db.table<DBCallHistory>('callHistory')
-        .orderBy('startedAt')
-        .reverse()
-        .limit(100)
-        .toArray();
+      const history = await dal.query<DBCallHistory>('callHistory', {
+        orderBy: 'startedAt',
+        orderDir: 'desc',
+        limit: 100,
+      });
 
       const formattedHistory: CallHistory[] = history.map((h) => ({
         _v: CALLING_VERSION,
@@ -757,7 +757,7 @@ class CallingManager {
         participantCount: entry.participantCount,
       };
 
-      await db.table('callHistory').add(dbEntry);
+      await dal.add('callHistory', dbEntry);
     } catch (error) {
       logger.error('Failed to save call history', error);
     }
@@ -768,7 +768,13 @@ class CallingManager {
    */
   async clearCallHistory(): Promise<void> {
     try {
-      await db.table('callHistory').clear();
+      await dal.queryCustom<void>({
+        sql: 'DELETE FROM call_history',
+        params: [],
+        dexieFallback: async (db) => {
+          await db.table('callHistory').clear();
+        },
+      });
       useCallingStore.getState().clearCallHistory();
     } catch (error) {
       logger.error('Failed to clear call history', error);

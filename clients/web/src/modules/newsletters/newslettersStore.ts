@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { getDB, type BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type {
   Newsletter,
   NewsletterIssue,
@@ -757,23 +757,11 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const db = await getDB() as BuildItDB & {
-        newsletters: { toArray: () => Promise<Newsletter[]> };
-        newsletterIssues: { toArray: () => Promise<NewsletterIssue[]> };
-        newsletterSubscribers: { toArray: () => Promise<NewsletterSubscriber[]> };
-        newsletterSends: { toArray: () => Promise<NewsletterSend[]> };
-      };
-
-      if (!db.newsletters) {
-        set({ isLoading: false });
-        return;
-      }
-
       const [dbNewsletters, dbIssues, dbSubscribers, dbSends] = await Promise.all([
-        db.newsletters.toArray(),
-        db.newsletterIssues.toArray(),
-        db.newsletterSubscribers.toArray(),
-        db.newsletterSends.toArray(),
+        dal.getAll<Newsletter>('newsletters').catch(() => []),
+        dal.getAll<NewsletterIssue>('newsletterIssues').catch(() => []),
+        dal.getAll<NewsletterSubscriber>('newsletterSubscribers').catch(() => []),
+        dal.getAll<NewsletterSend>('newsletterSends').catch(() => []),
       ]);
 
       const newsletters = new Map<string, Newsletter>();
@@ -796,12 +784,7 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
   // Persist newsletter
   persistNewsletter: async (newsletter) => {
     try {
-      const db = await getDB() as BuildItDB & {
-        newsletters: { put: (item: Newsletter) => Promise<void> };
-      };
-      if (db.newsletters) {
-        await db.newsletters.put(newsletter);
-      }
+      await dal.put<Newsletter>('newsletters', newsletter);
     } catch (error) {
       console.error('Failed to persist newsletter:', error);
     }
@@ -810,12 +793,7 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
   // Persist issue
   persistIssue: async (issue) => {
     try {
-      const db = await getDB() as BuildItDB & {
-        newsletterIssues: { put: (item: NewsletterIssue) => Promise<void> };
-      };
-      if (db.newsletterIssues) {
-        await db.newsletterIssues.put(issue);
-      }
+      await dal.put<NewsletterIssue>('newsletterIssues', issue);
     } catch (error) {
       console.error('Failed to persist issue:', error);
     }
@@ -824,12 +802,7 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
   // Persist subscriber
   persistSubscriber: async (subscriber) => {
     try {
-      const db = await getDB() as BuildItDB & {
-        newsletterSubscribers: { put: (item: NewsletterSubscriber) => Promise<void> };
-      };
-      if (db.newsletterSubscribers) {
-        await db.newsletterSubscribers.put(subscriber);
-      }
+      await dal.put<NewsletterSubscriber>('newsletterSubscribers', subscriber);
     } catch (error) {
       console.error('Failed to persist subscriber:', error);
     }
@@ -838,12 +811,7 @@ export const useNewslettersStore = create<NewslettersState>((set, get) => ({
   // Persist send
   persistSend: async (send) => {
     try {
-      const db = await getDB() as BuildItDB & {
-        newsletterSends: { put: (item: NewsletterSend) => Promise<void> };
-      };
-      if (db.newsletterSends) {
-        await db.newsletterSends.put(send);
-      }
+      await dal.put<NewsletterSend>('newsletterSends', send);
     } catch (error) {
       console.error('Failed to persist send:', error);
     }

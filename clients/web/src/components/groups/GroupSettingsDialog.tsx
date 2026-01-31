@@ -32,7 +32,7 @@ export const GroupSettingsDialog: FC<GroupSettingsDialogProps> = ({ group, trigg
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[90%] min-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('groupSettingsDialog.title', { groupName: group.name })}</DialogTitle>
           <DialogDescription>{t('groupSettingsDialog.description')}</DialogDescription>

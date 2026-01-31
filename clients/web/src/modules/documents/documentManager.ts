@@ -7,7 +7,7 @@ import { getPublicKey, finalizeEvent, type Event as NostrEvent } from 'nostr-too
 import jsPDF from 'jspdf'
 import type { Document, DocumentVersion, CreateDocumentInput, UpdateDocumentInput, DocumentExportFormat, DocumentCollaborationSession } from './types'
 import { useDocumentsStore } from './documentsStore'
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
 import { createDocumentRoom } from './providers/EncryptedNostrProvider'
 import type { NostrClient } from '@/core/nostr/client'
 
@@ -66,7 +66,7 @@ class DocumentManager {
     }, authorPrivkey)
 
     // Store in local DB
-    await db.table('documents').add({
+    await dal.add('documents', {
       id: document.id,
       groupId: document.groupId,
       data: document,
@@ -117,7 +117,7 @@ class DocumentManager {
     useDocumentsStore.getState().updateDocument(documentId, updatedDocument)
 
     // Update in DB
-    await db.table('documents').update(documentId, {
+    await dal.update('documents', documentId, {
       data: updatedDocument,
     })
 
@@ -134,8 +134,14 @@ class DocumentManager {
    */
   async deleteDocument(documentId: string): Promise<void> {
     // Remove from DB
-    await db.table('documents').delete(documentId)
-    await db.table('documentVersions').where('documentId').equals(documentId).delete()
+    await dal.delete('documents', documentId)
+    await dal.queryCustom({
+      sql: 'DELETE FROM document_versions WHERE document_id = ?1',
+      params: [documentId],
+      dexieFallback: async (db) => {
+        await db.table('documentVersions').where('documentId').equals(documentId).delete();
+      },
+    })
 
     // Remove from store
     useDocumentsStore.getState().deleteDocument(documentId)
@@ -164,7 +170,7 @@ class DocumentManager {
     }
 
     // Store in DB
-    await db.table('documentVersions').add({
+    await dal.add('documentVersions', {
       id: versionId,
       documentId: document.id,
       data: version,
@@ -331,7 +337,7 @@ class DocumentManager {
     }
 
     // Store in DB
-    await db.table('documentCollaboration').add(session)
+    await dal.add('documentCollaboration', session)
 
     // Create document room on Nostr
     await createDocumentRoom(
@@ -349,21 +355,34 @@ class DocumentManager {
    * End a collaboration session
    */
   async endCollaboration(documentId: string): Promise<void> {
-    await db.table('documentCollaboration')
-      .where('documentId')
-      .equals(documentId)
-      .modify({ isActive: false })
+    await dal.queryCustom({
+      sql: 'UPDATE document_collaboration SET is_active = 0 WHERE document_id = ?1',
+      params: [documentId],
+      dexieFallback: async (db) => {
+        await db.table('documentCollaboration')
+          .where('documentId')
+          .equals(documentId)
+          .modify({ isActive: false });
+      },
+    })
   }
 
   /**
    * Get active collaboration session for a document
    */
   async getCollaborationSession(documentId: string): Promise<DocumentCollaborationSession | null> {
-    const session = await db.table('documentCollaboration')
-      .where({ documentId, isActive: true })
-      .first()
+    const results = await dal.queryCustom<Record<string, unknown>>({
+      sql: 'SELECT * FROM document_collaboration WHERE document_id = ?1 AND is_active = 1 LIMIT 1',
+      params: [documentId],
+      dexieFallback: async (db) => {
+        const result = await db.table('documentCollaboration')
+          .where({ documentId, isActive: true })
+          .first();
+        return result ? [result] : [];
+      },
+    })
 
-    return session?.data || null
+    return (results[0]?.data as DocumentCollaborationSession) || null
   }
 }
 

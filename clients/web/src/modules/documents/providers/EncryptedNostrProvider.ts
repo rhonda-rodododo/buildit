@@ -27,6 +27,27 @@ import type { GiftWrap } from '@/types/nostr'
 import type { Event as NostrEvent } from 'nostr-tools'
 
 import { logger } from '@/lib/logger';
+
+/**
+ * Browser-native base64 encoding for Uint8Array (no Node.js Buffer needed)
+ */
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
+}
+
 // Custom event kind for CRDT sync (following nostr-crdt pattern)
 const CRDT_SYNC_KIND = 9001
 const CRDT_ROOM_KIND = 9000
@@ -221,7 +242,7 @@ export class EncryptedNostrProvider extends Observable<string> {
    */
   private async _broadcastMessage(message: Uint8Array): Promise<void> {
     // Convert Uint8Array to base64 for JSON serialization
-    const messageBase64 = Buffer.from(message).toString('base64')
+    const messageBase64 = uint8ArrayToBase64(message)
 
     // Create encrypted events for each recipient
     const giftWraps = this.recipientPubkeys.map(recipientPubkey => {
@@ -256,7 +277,7 @@ export class EncryptedNostrProvider extends Observable<string> {
 
       // Decode message from base64
       const messageBase64 = unwrapped.rumor.content
-      const message = new Uint8Array(Buffer.from(messageBase64, 'base64'))
+      const message = base64ToUint8Array(messageBase64)
 
       // Process sync message
       this._processSyncMessage(message)

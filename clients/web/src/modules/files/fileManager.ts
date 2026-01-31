@@ -23,7 +23,7 @@ import type {
 } from './types'
 import { fileAnalytics } from './fileAnalytics'
 import { useFilesStore } from './filesStore'
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
 
 class FileManager {
   /**
@@ -189,10 +189,10 @@ class FileManager {
       createdAt: now,
     }
 
-    await db.table('encryptedFileBlobs').add(encryptedFileBlob)
+    await dal.add('encryptedFileBlobs', encryptedFileBlob)
 
     // Store metadata in IndexedDB
-    await db.table('fileMetadata').add(fileMetadata)
+    await dal.add('fileMetadata', fileMetadata)
 
     // Update store
     useFilesStore.getState().addFile(fileMetadata)
@@ -257,7 +257,7 @@ class FileManager {
     useFilesStore.getState().updateFile(fileId, updates)
 
     // Update in DB
-    await db.table('fileMetadata').update(fileId, updatedFile)
+    await dal.update('fileMetadata', fileId, updatedFile)
 
     return updatedFile
   }
@@ -301,7 +301,7 @@ class FileManager {
       changeDescription,
     }
 
-    await db.table('fileVersions').add(version)
+    await dal.add('fileVersions', version)
 
     // Store new version blob
     const encryptedFileBlob: EncryptedFileBlob = {
@@ -312,7 +312,7 @@ class FileManager {
       createdAt: Date.now(),
     }
 
-    await db.table('encryptedFileBlobs').add(encryptedFileBlob)
+    await dal.add('encryptedFileBlobs', encryptedFileBlob)
 
     // Update file metadata
     await this.updateFile(fileId, {
@@ -325,13 +325,13 @@ class FileManager {
    * Get file version history
    */
   async getFileVersions(fileId: string): Promise<FileVersion[]> {
-    const versions = await db.table('fileVersions')
-      .where('fileId')
-      .equals(fileId)
-      .reverse()
-      .sortBy('version') as FileVersion[]
+    const versions = await dal.query<FileVersion>('fileVersions', {
+      whereClause: { fileId },
+      orderBy: 'version',
+      orderDir: 'desc',
+    })
 
-    return versions.reverse() // Most recent first
+    return versions
   }
 
   /**
@@ -342,29 +342,51 @@ class FileManager {
     versionNumber: number
   ): Promise<void> {
     // Get version metadata
-    const version = await db.table('fileVersions')
-      .where({ fileId, version: versionNumber })
-      .first() as FileVersion | undefined
+    const versions = await dal.queryCustom<FileVersion>({
+      sql: 'SELECT * FROM file_versions WHERE file_id = ?1 AND version = ?2 LIMIT 1',
+      params: [fileId, versionNumber],
+      dexieFallback: async (db) => {
+        const result = await db.table('fileVersions')
+          .where({ fileId, version: versionNumber })
+          .first();
+        return result ? [result] : [];
+      },
+    })
+    const version = versions[0]
 
     if (!version) {
       throw new Error('Version not found')
     }
 
     // Get version blob
-    const versionBlob = await db.table('encryptedFileBlobs')
-      .where('fileId')
-      .equals(`${fileId}_v${versionNumber}`)
-      .first() as EncryptedFileBlob | undefined
+    const versionBlobs = await dal.queryCustom<EncryptedFileBlob>({
+      sql: 'SELECT * FROM encrypted_file_blobs WHERE file_id = ?1 LIMIT 1',
+      params: [`${fileId}_v${versionNumber}`],
+      dexieFallback: async (db) => {
+        const result = await db.table('encryptedFileBlobs')
+          .where('fileId')
+          .equals(`${fileId}_v${versionNumber}`)
+          .first();
+        return result ? [result] : [];
+      },
+    })
+    const versionBlob = versionBlobs[0]
 
     if (!versionBlob) {
       throw new Error('Version blob not found')
     }
 
     // Replace current file blob with version blob
-    await db.table('encryptedFileBlobs')
-      .where('fileId')
-      .equals(fileId)
-      .delete()
+    await dal.queryCustom({
+      sql: 'DELETE FROM encrypted_file_blobs WHERE file_id = ?1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        await db.table('encryptedFileBlobs')
+          .where('fileId')
+          .equals(fileId)
+          .delete();
+      },
+    })
 
     const newBlob: EncryptedFileBlob = {
       id: crypto.randomUUID(),
@@ -374,7 +396,7 @@ class FileManager {
       createdAt: Date.now(),
     }
 
-    await db.table('encryptedFileBlobs').add(newBlob)
+    await dal.add('encryptedFileBlobs', newBlob)
 
     // Update file metadata
     await this.updateFile(fileId, {
@@ -392,25 +414,43 @@ class FileManager {
     }
 
     // Delete encrypted blob
-    await db.table('encryptedFileBlobs')
-      .where('fileId')
-      .equals(fileId)
-      .delete()
+    await dal.queryCustom({
+      sql: 'DELETE FROM encrypted_file_blobs WHERE file_id = ?1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        await db.table('encryptedFileBlobs')
+          .where('fileId')
+          .equals(fileId)
+          .delete();
+      },
+    })
 
     // Delete metadata
-    await db.table('fileMetadata').delete(fileId)
+    await dal.delete('fileMetadata', fileId)
 
     // Delete shares
-    await db.table('fileShares')
-      .where('fileId')
-      .equals(fileId)
-      .delete()
+    await dal.queryCustom({
+      sql: 'DELETE FROM file_shares WHERE file_id = ?1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        await db.table('fileShares')
+          .where('fileId')
+          .equals(fileId)
+          .delete();
+      },
+    })
 
     // Delete versions
-    await db.table('fileVersions')
-      .where('fileId')
-      .equals(fileId)
-      .delete()
+    await dal.queryCustom({
+      sql: 'DELETE FROM file_versions WHERE file_id = ?1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        await db.table('fileVersions')
+          .where('fileId')
+          .equals(fileId)
+          .delete();
+      },
+    })
 
     // Update storage quota
     useFilesStore.getState().updateQuotaUsage(
@@ -436,10 +476,18 @@ class FileManager {
     }
 
     // Get encrypted blob
-    const encryptedBlob = await db.table('encryptedFileBlobs')
-      .where('fileId')
-      .equals(fileId)
-      .first() as EncryptedFileBlob | undefined
+    const blobs = await dal.queryCustom<EncryptedFileBlob>({
+      sql: 'SELECT * FROM encrypted_file_blobs WHERE file_id = ?1 LIMIT 1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        const result = await db.table('encryptedFileBlobs')
+          .where('fileId')
+          .equals(fileId)
+          .first();
+        return result ? [result] : [];
+      },
+    })
+    const encryptedBlob = blobs[0]
 
     if (!encryptedBlob) {
       throw new Error('File blob not found')
@@ -481,7 +529,7 @@ class FileManager {
     }
 
     // Store in DB
-    await db.table('folders').add(folder)
+    await dal.add('folders', folder)
 
     // Update store
     useFilesStore.getState().addFolder(folder)
@@ -511,7 +559,7 @@ class FileManager {
     useFilesStore.getState().updateFolder(folderId, updates)
 
     // Update in DB
-    await db.table('folders').update(folderId, updatedFolder)
+    await dal.update('folders', folderId, updatedFolder)
 
     return updatedFolder
   }
@@ -541,7 +589,7 @@ class FileManager {
     await deleteFilesRecursive(folderId)
 
     // Delete folder from DB
-    await db.table('folders').delete(folderId)
+    await dal.delete('folders', folderId)
 
     // Remove from store
     useFilesStore.getState().deleteFolder(folderId)
@@ -590,7 +638,7 @@ class FileManager {
     }
 
     // Store in DB
-    await db.table('fileShares').add(share)
+    await dal.add('fileShares', share)
 
     // Update store
     useFilesStore.getState().addShare(share)
@@ -602,7 +650,7 @@ class FileManager {
    * Delete a share
    */
   async deleteShare(shareId: string): Promise<void> {
-    await db.table('fileShares').delete(shareId)
+    await dal.delete('fileShares', shareId)
     useFilesStore.getState().deleteShare(shareId)
   }
 
@@ -876,10 +924,18 @@ class FileManager {
     const now = Date.now()
 
     // Get original blob
-    const originalBlob = await db.table('encryptedFileBlobs')
-      .where('fileId')
-      .equals(fileId)
-      .first() as EncryptedFileBlob | undefined
+    const originalBlobs = await dal.queryCustom<EncryptedFileBlob>({
+      sql: 'SELECT * FROM encrypted_file_blobs WHERE file_id = ?1 LIMIT 1',
+      params: [fileId],
+      dexieFallback: async (db) => {
+        const result = await db.table('encryptedFileBlobs')
+          .where('fileId')
+          .equals(fileId)
+          .first();
+        return result ? [result] : [];
+      },
+    })
+    const originalBlob = originalBlobs[0]
 
     if (!originalBlob) {
       throw new Error('File blob not found')
@@ -906,8 +962,8 @@ class FileManager {
     }
 
     // Store in DB
-    await db.table('fileMetadata').add(copiedFile)
-    await db.table('encryptedFileBlobs').add(copiedBlob)
+    await dal.add('fileMetadata', copiedFile)
+    await dal.add('encryptedFileBlobs', copiedBlob)
 
     // Update store
     useFilesStore.getState().addFile(copiedFile)
@@ -984,7 +1040,7 @@ class FileManager {
       updatedAt: Date.now(),
     }
 
-    await db.table('storageQuotas').add(quota)
+    await dal.add('storageQuotas', quota)
     useFilesStore.getState().setStorageQuota(quota)
 
     return quota
@@ -994,15 +1050,13 @@ class FileManager {
    * Load all files for a group
    */
   async loadGroupFiles(groupId: string): Promise<void> {
-    const files = await db.table('fileMetadata')
-      .where('groupId')
-      .equals(groupId)
-      .toArray() as FileMetadata[]
+    const files = await dal.query<FileMetadata>('fileMetadata', {
+      whereClause: { groupId },
+    })
 
-    const folders = await db.table('folders')
-      .where('groupId')
-      .equals(groupId)
-      .toArray() as Folder[]
+    const folders = await dal.query<Folder>('folders', {
+      whereClause: { groupId },
+    })
 
     files.forEach(file => useFilesStore.getState().addFile(file))
     folders.forEach(folder => useFilesStore.getState().addFolder(folder))

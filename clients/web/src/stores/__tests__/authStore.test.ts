@@ -52,11 +52,11 @@ import { useAuthStore, getCurrentPrivateKey, getSavedIdentityPubkey, SELECTED_ID
 // Mock database
 const mockIdentities = new Map();
 
-vi.mock('@/core/storage/db', () => ({
-  db: {
+vi.mock('@/core/storage/db', () => {
+  const mockDb = {
     identities: {
-      add: vi.fn((identity) => {
-        mockIdentities.set(identity.publicKey, identity);
+      add: vi.fn((identity: Record<string, unknown>) => {
+        mockIdentities.set(identity.publicKey as string, identity);
         return Promise.resolve();
       }),
       get: vi.fn((publicKey: string) => Promise.resolve(mockIdentities.get(publicKey))),
@@ -73,8 +73,21 @@ vi.mock('@/core/storage/db', () => ({
       }),
       toArray: vi.fn(() => Promise.resolve(Array.from(mockIdentities.values()))),
     },
-  },
-}));
+    table: vi.fn(),
+  };
+  const defaultTableMock = () => ({
+    put: vi.fn(), get: vi.fn(), add: vi.fn(), delete: vi.fn(), update: vi.fn(),
+    toArray: vi.fn().mockResolvedValue([]), where: vi.fn().mockReturnThis(),
+    equals: vi.fn().mockReturnThis(), clear: vi.fn(), bulkPut: vi.fn(),
+    count: vi.fn().mockResolvedValue(0), filter: vi.fn().mockReturnThis(),
+    toCollection: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
+  });
+  mockDb.table.mockImplementation((name: string) => (mockDb as Record<string, unknown>)[name] ?? defaultTableMock());
+  return {
+    db: mockDb,
+    getDB: vi.fn(() => mockDb),
+  };
+});
 
 // Mock keyManager functions
 vi.mock('@/core/crypto/keyManager', () => ({

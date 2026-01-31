@@ -13,7 +13,7 @@ export const mutualAidMigrations: ModuleMigration[] = [
   {
     version: 1,
     description: 'Initial mutual aid requests table',
-    migrate: async (_db) => {
+    migrate: async () => {
       logger.info('Mutual Aid module v1: Initial schema created');
     },
   },

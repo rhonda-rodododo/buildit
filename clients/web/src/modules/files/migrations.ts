@@ -13,7 +13,7 @@ export const filesMigrations: ModuleMigration[] = [
   {
     version: 1,
     description: 'Files module placeholder',
-    migrate: async (_db) => {
+    migrate: async () => {
       logger.info('Files module v1: Placeholder (implementation pending)');
     },
   },

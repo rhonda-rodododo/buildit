@@ -13,7 +13,7 @@ import type {
 } from './types';
 import type { DBRecentSearch, DBSavedSearch } from './schema';
 import { serializeScope, deserializeScope, serializeFilters, deserializeFilters } from './schema';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { nanoid } from 'nanoid';
 import { logger } from '@/lib/logger';
 
@@ -146,9 +146,6 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
 
   // History actions
   addRecentSearch: async (query, scope, resultCount, userPubkey) => {
-    const db = getDB();
-    if (!db.recentSearches) return;
-
     try {
       const recentSearch: DBRecentSearch = {
         id: nanoid(),
@@ -159,22 +156,19 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
         resultCount,
       };
 
-      await db.recentSearches.add(recentSearch);
+      await dal.add<DBRecentSearch>('recentSearches', recentSearch);
 
       // Keep only last 50 searches
-      const count = await db.recentSearches
-        .where('userPubkey')
-        .equals(userPubkey)
-        .count();
+      const allRecent = await dal.query<DBRecentSearch>('recentSearches', {
+        whereClause: { userPubkey },
+      });
 
-      if (count > 50) {
-        const oldest = await db.recentSearches
-          .where('userPubkey')
-          .equals(userPubkey)
-          .sortBy('timestamp');
-
-        const toDelete = oldest.slice(0, count - 50);
-        await db.recentSearches.bulkDelete(toDelete.map((r) => r.id));
+      if (allRecent.length > 50) {
+        const sorted = allRecent.sort((a, b) => a.timestamp - b.timestamp);
+        const toDelete = sorted.slice(0, allRecent.length - 50);
+        for (const item of toDelete) {
+          await dal.delete('recentSearches', item.id);
+        }
       }
 
       // Update state
@@ -185,11 +179,16 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
   },
 
   clearRecentSearches: async (userPubkey) => {
-    const db = getDB();
-    if (!db.recentSearches) return;
-
     try {
-      await db.recentSearches.where('userPubkey').equals(userPubkey).delete();
+      await dal.queryCustom<never>({
+        sql: 'DELETE FROM recent_searches WHERE user_pubkey = ?1',
+        params: [userPubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { recentSearches: { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+          await dexieDb.recentSearches.where('userPubkey').equals(userPubkey).delete();
+          return [];
+        },
+      });
       set({ recentSearches: [] });
     } catch (error) {
       logger.error('Failed to clear recent searches:', error);
@@ -197,15 +196,12 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
   },
 
   loadRecentSearches: async (userPubkey) => {
-    const db = getDB();
-    if (!db.recentSearches) return;
-
     try {
-      const dbRecent = await db.recentSearches
-        .where('userPubkey')
-        .equals(userPubkey)
-        .reverse()
-        .sortBy('timestamp');
+      const dbRecent = await dal.query<DBRecentSearch>('recentSearches', {
+        whereClause: { userPubkey },
+        orderBy: 'timestamp',
+        orderDir: 'desc',
+      });
 
       const recentSearches: RecentSearch[] = dbRecent.slice(0, 20).map((r) => ({
         id: r.id,
@@ -224,11 +220,6 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
 
   // Saved search actions
   saveSearch: async (name, query, scope, filters, userPubkey) => {
-    const db = getDB();
-    if (!db.savedSearches) {
-      throw new Error('Saved searches table not initialized');
-    }
-
     const now = Date.now();
     const savedSearch: DBSavedSearch = {
       id: nanoid(),
@@ -242,7 +233,7 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
       useCount: 0,
     };
 
-    await db.savedSearches.add(savedSearch);
+    await dal.add<DBSavedSearch>('savedSearches', savedSearch);
 
     const result: SavedSearch = {
       id: savedSearch.id,
@@ -263,11 +254,8 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
   },
 
   deleteSavedSearch: async (id) => {
-    const db = getDB();
-    if (!db.savedSearches) return;
-
     try {
-      await db.savedSearches.delete(id);
+      await dal.delete('savedSearches', id);
       set((state) => ({
         savedSearches: state.savedSearches.filter((s) => s.id !== id),
       }));
@@ -277,14 +265,10 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
   },
 
   loadSavedSearches: async (userPubkey) => {
-    const db = getDB();
-    if (!db.savedSearches) return;
-
     try {
-      const dbSaved = await db.savedSearches
-        .where('userPubkey')
-        .equals(userPubkey)
-        .toArray();
+      const dbSaved = await dal.query<DBSavedSearch>('savedSearches', {
+        whereClause: { userPubkey },
+      });
 
       const savedSearches: SavedSearch[] = dbSaved.map((s) => ({
         id: s.id,
@@ -306,13 +290,10 @@ export const useSearchStore = create<SearchState>()((set, get) => ({
   },
 
   updateSavedSearchUsage: async (id) => {
-    const db = getDB();
-    if (!db.savedSearches) return;
-
     try {
-      const saved = await db.savedSearches.get(id);
+      const saved = await dal.get<DBSavedSearch>('savedSearches', id);
       if (saved) {
-        await db.savedSearches.update(id, {
+        await dal.update('savedSearches', id, {
           lastUsedAt: Date.now(),
           useCount: saved.useCount + 1,
         });

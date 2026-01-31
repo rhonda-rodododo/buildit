@@ -6,7 +6,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { formsSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { FileText } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -113,7 +113,7 @@ export const formsModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial forms schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Forms migration v1: Initial schema (forms, submissions)');
       },
     },

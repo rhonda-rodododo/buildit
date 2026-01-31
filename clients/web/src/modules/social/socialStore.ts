@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { useAuthStore } from '@/stores/authStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { secureRandomString } from '@/lib/utils';
 import type {
   // Polls
@@ -215,7 +215,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('polls').add(poll);
+      await dal.add<Poll>('polls', poll);
     } catch (error) {
       console.error('Failed to save poll:', error);
     }
@@ -254,7 +254,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     }));
 
     try {
-      await db.table('pollVotes').bulkAdd(votes);
+      await dal.bulkPut<PollVote>('pollVotes', votes);
 
       // Update poll vote counts
       const updatedOptions = poll.options.map((opt) => ({
@@ -262,7 +262,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
         voteCount: optionIds.includes(opt.id) ? opt.voteCount + 1 : opt.voteCount,
       }));
 
-      await db.table('polls').update(pollId, {
+      await dal.update('polls', pollId, {
         options: updatedOptions,
         totalVotes: poll.totalVotes + 1,
         voterPubkeys: [...poll.voterPubkeys, currentIdentity.publicKey],
@@ -296,7 +296,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   endPoll: async (pollId: string): Promise<void> => {
     try {
-      await db.table('polls').update(pollId, { status: 'ended' });
+      await dal.update('polls', pollId, { status: 'ended' });
     } catch (error) {
       console.error('Failed to end poll:', error);
     }
@@ -332,13 +332,16 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   loadPolls: async (): Promise<void> => {
     try {
-      const polls = await db.table('polls').orderBy('createdAt').reverse().toArray();
+      const polls = await dal.query<Poll>('polls', {
+        orderBy: 'createdAt',
+        orderDir: 'desc',
+      });
 
       // Check for expired polls and update their status
       const now = Date.now();
       const expiredPolls = polls.filter((p: Poll) => p.status === 'active' && p.endsAt <= now);
       for (const poll of expiredPolls) {
-        await db.table('polls').update(poll.id, { status: 'ended' });
+        await dal.update('polls', poll.id, { status: 'ended' });
         poll.status = 'ended';
       }
 
@@ -346,10 +349,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
       const currentIdentity = useAuthStore.getState().currentIdentity;
       const myVotes = new Map<string, string[]>();
       if (currentIdentity) {
-        const votes = await db.table('pollVotes')
-          .where('voterId')
-          .equals(currentIdentity.publicKey)
-          .toArray();
+        const votes = await dal.query<PollVote>('pollVotes', {
+          whereClause: { voterId: currentIdentity.publicKey },
+        });
 
         for (const vote of votes) {
           const existing = myVotes.get(vote.pollId) || [];
@@ -392,7 +394,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('stories').add(story);
+      await dal.add<Story>('stories', story);
     } catch (error) {
       console.error('Failed to save story:', error);
     }
@@ -409,9 +411,25 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   deleteStory: async (storyId: string): Promise<void> => {
     try {
-      await db.table('stories').delete(storyId);
-      await db.table('storyReplies').where('storyId').equals(storyId).delete();
-      await db.table('storyViews').where('storyId').equals(storyId).delete();
+      await dal.delete('stories', storyId);
+      await dal.queryCustom<never>({
+        sql: 'DELETE FROM story_replies WHERE story_id = ?1',
+        params: [storyId],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+          await dexieDb.table('storyReplies').where('storyId').equals(storyId).delete();
+          return [];
+        },
+      });
+      await dal.queryCustom<never>({
+        sql: 'DELETE FROM story_views WHERE story_id = ?1',
+        params: [storyId],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+          await dexieDb.table('storyViews').where('storyId').equals(storyId).delete();
+          return [];
+        },
+      });
     } catch (error) {
       console.error('Failed to delete story:', error);
     }
@@ -442,8 +460,8 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('storyViews').add(view);
-      await db.table('stories').update(storyId, {
+      await dal.add<StoryView>('storyViews', view);
+      await dal.update('stories', storyId, {
         viewCount: story.viewCount + 1,
         viewerPubkeys: [...story.viewerPubkeys, currentIdentity.publicKey],
       });
@@ -484,10 +502,10 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('storyReplies').add(reply);
+      await dal.add<StoryReply>('storyReplies', reply);
       const story = get().stories.find((s) => s.id === storyId);
       if (story) {
-        await db.table('stories').update(storyId, {
+        await dal.update('stories', storyId, {
           replyCount: story.replyCount + 1,
         });
       }
@@ -520,10 +538,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   getStoryReplies: async (storyId: string): Promise<StoryReply[]> => {
     try {
-      return await db.table('storyReplies')
-        .where('storyId')
-        .equals(storyId)
-        .toArray();
+      return await dal.query<StoryReply>('storyReplies', {
+        whereClause: { storyId },
+      });
     } catch (error) {
       console.error('Failed to load story replies:', error);
       return [];
@@ -532,10 +549,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   getStoryViewers: async (storyId: string): Promise<StoryView[]> => {
     try {
-      return await db.table('storyViews')
-        .where('storyId')
-        .equals(storyId)
-        .toArray();
+      return await dal.query<StoryView>('storyViews', {
+        whereClause: { storyId },
+      });
     } catch (error) {
       console.error('Failed to load story viewers:', error);
       return [];
@@ -546,10 +562,14 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     try {
       const now = Date.now();
       // Only load non-expired stories
-      const stories = await db.table('stories')
-        .where('expiresAt')
-        .above(now)
-        .toArray();
+      const stories = await dal.queryCustom<Story>({
+        sql: 'SELECT * FROM stories WHERE expires_at > ?1',
+        params: [now],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { above: (val: number) => { toArray: () => Promise<Story[]> } } } };
+          return dexieDb.table('stories').where('expiresAt').above(now).toArray();
+        },
+      });
 
       // Build story groups
       const groupMap = new Map<string, Story[]>();
@@ -562,10 +582,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
       const myStoryViews = new Set<string>();
 
       if (currentIdentity) {
-        const views = await db.table('storyViews')
-          .where('viewerId')
-          .equals(currentIdentity.publicKey)
-          .toArray();
+        const views = await dal.query<StoryView>('storyViews', {
+          whereClause: { viewerId: currentIdentity.publicKey },
+        });
         for (const view of views) {
           myStoryViews.add(view.storyId);
         }
@@ -596,15 +615,35 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
   cleanupExpiredStories: async (): Promise<void> => {
     try {
       const now = Date.now();
-      const expired = await db.table('stories')
-        .where('expiresAt')
-        .below(now)
-        .toArray();
+      const expired = await dal.queryCustom<Story>({
+        sql: 'SELECT * FROM stories WHERE expires_at < ?1',
+        params: [now],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { below: (val: number) => { toArray: () => Promise<Story[]> } } } };
+          return dexieDb.table('stories').where('expiresAt').below(now).toArray();
+        },
+      });
 
       for (const story of expired) {
-        await db.table('stories').delete(story.id);
-        await db.table('storyReplies').where('storyId').equals(story.id).delete();
-        await db.table('storyViews').where('storyId').equals(story.id).delete();
+        await dal.delete('stories', story.id);
+        await dal.queryCustom<never>({
+          sql: 'DELETE FROM story_replies WHERE story_id = ?1',
+          params: [story.id],
+          dexieFallback: async (db: unknown) => {
+            const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+            await dexieDb.table('storyReplies').where('storyId').equals(story.id).delete();
+            return [];
+          },
+        });
+        await dal.queryCustom<never>({
+          sql: 'DELETE FROM story_views WHERE story_id = ?1',
+          params: [story.id],
+          dexieFallback: async (db: unknown) => {
+            const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+            await dexieDb.table('storyViews').where('storyId').equals(story.id).delete();
+            return [];
+          },
+        });
       }
 
       // Reload stories
@@ -639,15 +678,20 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
     try {
       // Check if already muted
-      const existing = await db.table('muteRecords')
-        .where('[userPubkey+mutedPubkey]')
-        .equals([currentIdentity.publicKey, pubkey])
-        .first();
+      const existing = await dal.queryCustom<MuteRecord>({
+        sql: 'SELECT * FROM mute_records WHERE user_pubkey = ?1 AND muted_pubkey = ?2 LIMIT 1',
+        params: [currentIdentity.publicKey, pubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown) => { first: () => Promise<MuteRecord | undefined> } } } };
+          const result = await dexieDb.table('muteRecords').where('[userPubkey+mutedPubkey]').equals([currentIdentity.publicKey, pubkey]).first();
+          return result ? [result] : [];
+        },
+      });
 
-      if (existing) {
-        await db.table('muteRecords').update(existing.id, mute);
+      if (existing.length > 0) {
+        await dal.update('muteRecords', existing[0].id, mute);
       } else {
-        await db.table('muteRecords').add(mute);
+        await dal.add<MuteRecord>('muteRecords', mute);
       }
 
       // Log the action
@@ -659,7 +703,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
         reason,
         createdAt: Date.now(),
       };
-      await db.table('moderationLogs').add(logEntry);
+      await dal.add<ModerationLogEntry>('moderationLogs', logEntry);
     } catch (error) {
       console.error('Failed to mute user:', error);
     }
@@ -676,10 +720,15 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) throw new Error('Not authenticated');
 
     try {
-      await db.table('muteRecords')
-        .where('[userPubkey+mutedPubkey]')
-        .equals([currentIdentity.publicKey, pubkey])
-        .delete();
+      await dal.queryCustom<never>({
+        sql: 'DELETE FROM mute_records WHERE user_pubkey = ?1 AND muted_pubkey = ?2',
+        params: [currentIdentity.publicKey, pubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown) => { delete: () => Promise<void> } } } };
+          await dexieDb.table('muteRecords').where('[userPubkey+mutedPubkey]').equals([currentIdentity.publicKey, pubkey]).delete();
+          return [];
+        },
+      });
 
       // Log the action
       const logEntry: ModerationLogEntry = {
@@ -689,7 +738,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
         targetPubkey: pubkey,
         createdAt: Date.now(),
       };
-      await db.table('moderationLogs').add(logEntry);
+      await dal.add<ModerationLogEntry>('moderationLogs', logEntry);
     } catch (error) {
       console.error('Failed to unmute user:', error);
     }
@@ -713,13 +762,18 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
     try {
       // Check if already blocked
-      const existing = await db.table('blockRecords')
-        .where('[userPubkey+blockedPubkey]')
-        .equals([currentIdentity.publicKey, pubkey])
-        .first();
+      const existing = await dal.queryCustom<BlockRecord>({
+        sql: 'SELECT * FROM block_records WHERE user_pubkey = ?1 AND blocked_pubkey = ?2 LIMIT 1',
+        params: [currentIdentity.publicKey, pubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown) => { first: () => Promise<BlockRecord | undefined> } } } };
+          const result = await dexieDb.table('blockRecords').where('[userPubkey+blockedPubkey]').equals([currentIdentity.publicKey, pubkey]).first();
+          return result ? [result] : [];
+        },
+      });
 
-      if (!existing) {
-        await db.table('blockRecords').add(block);
+      if (existing.length === 0) {
+        await dal.add<BlockRecord>('blockRecords', block);
       }
 
       // Log the action
@@ -731,7 +785,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
         reason,
         createdAt: Date.now(),
       };
-      await db.table('moderationLogs').add(logEntry);
+      await dal.add<ModerationLogEntry>('moderationLogs', logEntry);
     } catch (error) {
       console.error('Failed to block user:', error);
     }
@@ -748,10 +802,15 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) throw new Error('Not authenticated');
 
     try {
-      await db.table('blockRecords')
-        .where('[userPubkey+blockedPubkey]')
-        .equals([currentIdentity.publicKey, pubkey])
-        .delete();
+      await dal.queryCustom<never>({
+        sql: 'DELETE FROM block_records WHERE user_pubkey = ?1 AND blocked_pubkey = ?2',
+        params: [currentIdentity.publicKey, pubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown) => { delete: () => Promise<void> } } } };
+          await dexieDb.table('blockRecords').where('[userPubkey+blockedPubkey]').equals([currentIdentity.publicKey, pubkey]).delete();
+          return [];
+        },
+      });
 
       // Log the action
       const logEntry: ModerationLogEntry = {
@@ -761,7 +820,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
         targetPubkey: pubkey,
         createdAt: Date.now(),
       };
-      await db.table('moderationLogs').add(logEntry);
+      await dal.add<ModerationLogEntry>('moderationLogs', logEntry);
     } catch (error) {
       console.error('Failed to unblock user:', error);
     }
@@ -794,7 +853,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('contentReports').add(report);
+      await dal.add<ContentReport>('contentReports', report);
     } catch (error) {
       console.error('Failed to submit report:', error);
     }
@@ -813,7 +872,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) throw new Error('Not authenticated');
 
     try {
-      await db.table('contentReports').update(reportId, {
+      await dal.update('contentReports', reportId, {
         status,
         reviewedAt: Date.now(),
         reviewedBy: currentIdentity.publicKey,
@@ -892,11 +951,11 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
     try {
       const [mutedUsers, blockedUsers, reports, rules, logs] = await Promise.all([
-        db.table('muteRecords').where('userPubkey').equals(currentIdentity.publicKey).toArray(),
-        db.table('blockRecords').where('userPubkey').equals(currentIdentity.publicKey).toArray(),
-        db.table('contentReports').toArray(),
-        db.table('autoModerationRules').toArray(),
-        db.table('moderationLogs').orderBy('createdAt').reverse().limit(100).toArray(),
+        dal.query<MuteRecord>('muteRecords', { whereClause: { userPubkey: currentIdentity.publicKey } }),
+        dal.query<BlockRecord>('blockRecords', { whereClause: { userPubkey: currentIdentity.publicKey } }),
+        dal.getAll<ContentReport>('contentReports'),
+        dal.getAll<AutoModerationRule>('autoModerationRules'),
+        dal.query<ModerationLogEntry>('moderationLogs', { orderBy: 'createdAt', orderDir: 'desc', limit: 100 }),
       ]);
 
       set({
@@ -924,7 +983,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('autoModerationRules').add(fullRule);
+      await dal.add<AutoModerationRule>('autoModerationRules', fullRule);
     } catch (error) {
       console.error('Failed to create auto-mod rule:', error);
     }
@@ -939,7 +998,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     updates: Partial<AutoModerationRule>
   ): Promise<void> => {
     try {
-      await db.table('autoModerationRules').update(ruleId, {
+      await dal.update('autoModerationRules', ruleId, {
         ...updates,
         updatedAt: Date.now(),
       });
@@ -956,7 +1015,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   deleteAutoModRule: async (ruleId: string): Promise<void> => {
     try {
-      await db.table('autoModerationRules').delete(ruleId);
+      await dal.delete('autoModerationRules', ruleId);
     } catch (error) {
       console.error('Failed to delete auto-mod rule:', error);
     }
@@ -1018,7 +1077,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('userLists').add(list);
+      await dal.add<UserList>('userLists', list);
     } catch (error) {
       console.error('Failed to create user list:', error);
     }
@@ -1032,7 +1091,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   updateUserList: async (listId: string, updates: Partial<UserList>): Promise<void> => {
     try {
-      await db.table('userLists').update(listId, {
+      await dal.update('userLists', listId, {
         ...updates,
         updatedAt: Date.now(),
       });
@@ -1049,7 +1108,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   deleteUserList: async (listId: string): Promise<void> => {
     try {
-      await db.table('userLists').delete(listId);
+      await dal.delete('userLists', listId);
     } catch (error) {
       console.error('Failed to delete user list:', error);
     }
@@ -1066,7 +1125,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     const updatedMembers = [...list.members, pubkey];
 
     try {
-      await db.table('userLists').update(listId, {
+      await dal.update('userLists', listId, {
         members: updatedMembers,
         updatedAt: Date.now(),
       });
@@ -1090,7 +1149,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     const updatedMembers = list.members.filter((m) => m !== pubkey);
 
     try {
-      await db.table('userLists').update(listId, {
+      await dal.update('userLists', listId, {
         members: updatedMembers,
         updatedAt: Date.now(),
       });
@@ -1128,10 +1187,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) return;
 
     try {
-      const lists = await db.table('userLists')
-        .where('ownerPubkey')
-        .equals(currentIdentity.publicKey)
-        .toArray();
+      const lists = await dal.query<UserList>('userLists', {
+        whereClause: { ownerPubkey: currentIdentity.publicKey },
+      });
       set({ userLists: lists });
     } catch (error) {
       console.error('Failed to load user lists:', error);
@@ -1146,10 +1204,14 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     try {
       // Get posts from last 24 hours
       const since = Date.now() - 24 * 60 * 60 * 1000;
-      const posts = await db.table('posts')
-        .where('createdAt')
-        .above(since)
-        .toArray();
+      const posts = await dal.queryCustom<{ id: string; authorId: string; hashtags?: string[] }>({
+        sql: 'SELECT * FROM posts WHERE created_at > ?1',
+        params: [since],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { above: (val: number) => { toArray: () => Promise<{ id: string; authorId: string; hashtags?: string[] }[]> } } } };
+          return dexieDb.table('posts').where('createdAt').above(since).toArray();
+        },
+      });
 
       // Count hashtags
       const hashtagCounts = new Map<string, { count: number; authors: Set<string>; postIds: string[] }>();
@@ -1192,20 +1254,18 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
     try {
       // Get friends
-      const friends = await db.table('friends')
-        .where('userPubkey')
-        .equals(currentIdentity.publicKey)
-        .toArray();
-      const friendPubkeys = new Set(friends.map((f: { friendPubkey: string }) => f.friendPubkey));
+      const friends = await dal.query<{ friendPubkey: string }>('friends', {
+        whereClause: { userPubkey: currentIdentity.publicKey },
+      });
+      const friendPubkeys = new Set(friends.map((f) => f.friendPubkey));
 
       // Get friends of friends (mutual connections)
       const suggestions: SuggestedFollow[] = [];
 
       for (const friend of friends) {
-        const friendsOfFriend = await db.table('friends')
-          .where('userPubkey')
-          .equals(friend.friendPubkey)
-          .toArray();
+        const friendsOfFriend = await dal.query<{ friendPubkey: string }>('friends', {
+          whereClause: { userPubkey: friend.friendPubkey },
+        });
 
         for (const fof of friendsOfFriend) {
           // Skip if already friends or self
@@ -1274,7 +1334,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('notifications').add(notification);
+      await dal.add<Notification>('notifications', notification);
     } catch (error) {
       console.error('Failed to create notification:', error);
     }
@@ -1287,7 +1347,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   markAsRead: async (notificationId: string): Promise<void> => {
     try {
-      await db.table('notifications').update(notificationId, { isRead: true });
+      await dal.update('notifications', notificationId, { isRead: true });
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
@@ -1305,10 +1365,16 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) return;
 
     try {
-      await db.table('notifications')
-        .where('userPubkey')
-        .equals(currentIdentity.publicKey)
-        .modify({ isRead: true });
+      // For markAllAsRead, use queryCustom since we need a bulk modify
+      await dal.queryCustom<never>({
+        sql: 'UPDATE notifications SET is_read = 1 WHERE user_pubkey = ?1',
+        params: [currentIdentity.publicKey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { modify: (changes: Record<string, unknown>) => Promise<void> } } } };
+          await dexieDb.table('notifications').where('userPubkey').equals(currentIdentity.publicKey).modify({ isRead: true });
+          return [];
+        },
+      });
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
     }
@@ -1323,7 +1389,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     const notification = get().notifications.find((n) => n.id === notificationId);
 
     try {
-      await db.table('notifications').delete(notificationId);
+      await dal.delete('notifications', notificationId);
     } catch (error) {
       console.error('Failed to delete notification:', error);
     }
@@ -1345,11 +1411,11 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) return;
 
     try {
-      const notifications = await db.table('notifications')
-        .where('userPubkey')
-        .equals(currentIdentity.publicKey)
-        .reverse()
-        .sortBy('createdAt');
+      const notifications = await dal.query<Notification>('notifications', {
+        whereClause: { userPubkey: currentIdentity.publicKey },
+        orderBy: 'createdAt',
+        orderDir: 'desc',
+      });
 
       const unreadCount = notifications.filter((n: Notification) => !n.isRead).length;
 
@@ -1387,7 +1453,7 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     };
 
     try {
-      await db.table('bookmarkCollections').add(collection);
+      await dal.add<BookmarkCollection>('bookmarkCollections', collection);
     } catch (error) {
       console.error('Failed to create bookmark collection:', error);
     }
@@ -1401,12 +1467,17 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
 
   deleteBookmarkCollection: async (collectionId: string): Promise<void> => {
     try {
-      await db.table('bookmarkCollections').delete(collectionId);
+      await dal.delete('bookmarkCollections', collectionId);
       // Move bookmarks from this collection to default
-      await db.table('bookmarks')
-        .where('collectionId')
-        .equals(collectionId)
-        .modify({ collectionId: undefined });
+      await dal.queryCustom<never>({
+        sql: 'UPDATE bookmarks SET collection_id = NULL WHERE collection_id = ?1',
+        params: [collectionId],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { modify: (changes: Record<string, unknown>) => Promise<void> } } } };
+          await dexieDb.table('bookmarks').where('collectionId').equals(collectionId).modify({ collectionId: undefined });
+          return [];
+        },
+      });
     } catch (error) {
       console.error('Failed to delete bookmark collection:', error);
     }
@@ -1429,10 +1500,9 @@ export const useSocialStore = create<SocialState>()((set, get) => ({
     if (!currentIdentity) return;
 
     try {
-      const collections = await db.table('bookmarkCollections')
-        .where('ownerPubkey')
-        .equals(currentIdentity.publicKey)
-        .toArray();
+      const collections = await dal.query<BookmarkCollection>('bookmarkCollections', {
+        whereClause: { ownerPubkey: currentIdentity.publicKey },
+      });
       set({ bookmarkCollections: collections });
     } catch (error) {
       console.error('Failed to load bookmark collections:', error);

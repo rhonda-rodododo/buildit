@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBTable, DBView, DBRecord } from './schema';
 import { v4 as uuid } from 'uuid';
 
@@ -15,7 +16,7 @@ export const databaseSeeds: ModuleSeed[] = [
   {
     name: 'sample-action-tracker',
     description: 'Action Tracker table with sample records',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
 
       // Create Action Tracker table
@@ -30,7 +31,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseTables?.add(actionTrackerTable);
+      await dal.add('databaseTables', actionTrackerTable);
 
       // Create custom fields for this table
       const tableFields = [
@@ -169,7 +170,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.customFields?.bulkAdd(tableFields);
+      await dal.bulkPut('customFields', tableFields);
 
       // Create views
       const tableView: DBView = {
@@ -232,7 +233,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseViews?.bulkAdd([tableView, boardView, calendarView]);
+      await dal.bulkPut('databaseViews', [tableView, boardView, calendarView]);
 
       // Create sample records
       const sampleRecords: DBRecord[] = [
@@ -289,7 +290,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.databaseRecords?.bulkAdd(sampleRecords);
+      await dal.bulkPut('databaseRecords', sampleRecords);
 
       logger.info(`Seeded Action Tracker database table with ${sampleRecords.length} records for group ${groupId}`);
     },
@@ -298,7 +299,7 @@ export const databaseSeeds: ModuleSeed[] = [
   {
     name: 'sample-resource-library',
     description: 'Resource Library table for organizing materials',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
 
       // Create Resource Library table
@@ -313,7 +314,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseTables?.add(resourceTable);
+      await dal.add('databaseTables', resourceTable);
 
       // Create custom fields
       const resourceFields = [
@@ -424,7 +425,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.customFields?.bulkAdd(resourceFields);
+      await dal.bulkPut('customFields', resourceFields);
 
       // Create gallery view for resources
       const galleryView: DBView = {
@@ -448,7 +449,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseViews?.add(galleryView);
+      await dal.add('databaseViews', galleryView);
 
       // Sample resource records
       const resources: DBRecord[] = [
@@ -502,7 +503,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.databaseRecords?.bulkAdd(resources);
+      await dal.bulkPut('databaseRecords', resources);
 
       logger.info(`Seeded Resource Library with ${resources.length} resources for group ${groupId}`);
     },
@@ -511,7 +512,7 @@ export const databaseSeeds: ModuleSeed[] = [
   {
     name: 'database-editorial-calendar-demo',
     description: 'Editorial calendar database for media collective groups',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const day = 24 * 60 * 60 * 1000;
 
@@ -526,7 +527,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseTables?.add(calendarTable);
+      await dal.add('databaseTables', calendarTable);
 
       const fields = [
         {
@@ -628,7 +629,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.customFields?.bulkAdd(fields);
+      await dal.bulkPut('customFields', fields);
 
       // Board view grouped by status
       const boardView: DBView = {
@@ -671,7 +672,7 @@ export const databaseSeeds: ModuleSeed[] = [
         updated: now,
       };
 
-      await db.databaseViews?.bulkAdd([boardView, calendarView]);
+      await dal.bulkPut('databaseViews', [boardView, calendarView]);
 
       // Sample stories
       const stories: DBRecord[] = [
@@ -741,7 +742,7 @@ export const databaseSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.databaseRecords?.bulkAdd(stories);
+      await dal.bulkPut('databaseRecords', stories);
 
       logger.info(`Seeded Editorial Calendar with ${stories.length} stories for group ${groupId}`);
     },

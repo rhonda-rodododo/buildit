@@ -20,6 +20,9 @@ import { webAuthnService } from '@/lib/webauthn/WebAuthnService';
 // OWASP 2023 recommended iterations for PBKDF2-SHA256
 const PBKDF2_ITERATIONS = 600_000;
 
+// sessionStorage key for session persistence across page refreshes
+const SESSION_KEY = 'buildit-session';
+
 /**
  * Security settings for an identity
  */
@@ -117,11 +120,8 @@ export class SecureKeyManager {
         window.addEventListener(event, this.recordActivity.bind(this), { passive: true });
       });
 
-      // SECURITY: Clear keys when browser window/tab closes
-      // This ensures keys don't remain in memory if the browser crashes or force-closes
-      window.addEventListener('beforeunload', () => {
-        this.lock();
-      });
+      // Note: No beforeunload lock handler. JS memory is wiped on page unload anyway.
+      // Session persistence is handled via sessionStorage (cleared on tab close).
     }
   }
 
@@ -385,6 +385,10 @@ export class SecureKeyManager {
       this._lockState = 'unlocked';
       this.lastActivityTime = Date.now();
 
+      // Persist session to sessionStorage for page refresh survival
+      // sessionStorage is per-tab and cleared on tab close
+      this.saveSession(masterKeyBits, encryptedData.publicKey);
+
       // Setup inactivity timer
       const settings = this.securitySettings.get(encryptedData.publicKey) || DEFAULT_SECURITY_SETTINGS;
       this.setupInactivityTimer(settings.inactivityTimeout);
@@ -440,6 +444,9 @@ export class SecureKeyManager {
     this.databaseKey = null;
     this.currentPublicKey = null;
 
+    // Clear session persistence
+    this.clearSession();
+
     // Clear inactivity timer
     if (this.inactivityTimer) {
       clearTimeout(this.inactivityTimer);
@@ -448,6 +455,87 @@ export class SecureKeyManager {
 
     this._lockState = 'locked';
     this.emit({ type: 'locked' });
+  }
+
+  /**
+   * Save session data to sessionStorage for page refresh persistence.
+   * sessionStorage is per-tab and cleared on tab close.
+   * This is primarily useful for development (browser context);
+   * in production Tauri, native key storage handles persistence.
+   */
+  private saveSession(masterKeyBits: ArrayBuffer, publicKey: string): void {
+    try {
+      const keyBase64 = this.bufferToBase64(new Uint8Array(masterKeyBits));
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ k: keyBase64, p: publicKey }));
+    } catch {
+      // sessionStorage may be unavailable in some contexts
+    }
+  }
+
+  /**
+   * Clear session data from sessionStorage
+   */
+  private clearSession(): void {
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  /**
+   * Restore session from sessionStorage after page refresh.
+   * Re-derives keys from stored master key bits and decrypts the private key.
+   * Requires encrypted identity data from the database.
+   */
+  public async restoreSession(
+    getEncryptedData: (publicKey: string) => Promise<EncryptedKeyData | null>
+  ): Promise<boolean> {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (!raw) return false;
+
+      const { k: keyBase64, p: publicKey } = JSON.parse(raw) as { k: string; p: string };
+      if (!keyBase64 || !publicKey) return false;
+
+      const masterKeyBits = this.base64ToBuffer(keyBase64).buffer as ArrayBuffer;
+
+      // Get encrypted identity data from database
+      const encryptedData = await getEncryptedData(publicKey);
+      if (!encryptedData) {
+        this.clearSession();
+        return false;
+      }
+
+      // Re-derive keys from stored master key bits
+      const masterKey = await this.createNonExtractableKey(masterKeyBits, ['encrypt', 'decrypt']);
+
+      // Try to decrypt the private key to verify the session is valid
+      const privateKey = await this.decryptPrivateKey(
+        encryptedData.encryptedPrivateKey,
+        encryptedData.iv,
+        masterKey
+      );
+
+      // Restore unlock state
+      this.masterKey = masterKey;
+      this.databaseKey = await this.deriveDatabaseKeyFromBits(masterKeyBits);
+      this.decryptedKeys.set(publicKey, privateKey);
+      this.currentPublicKey = publicKey;
+      this._lockState = 'unlocked';
+      this.lastActivityTime = Date.now();
+
+      // Setup inactivity timer
+      const settings = this.securitySettings.get(publicKey) || DEFAULT_SECURITY_SETTINGS;
+      this.setupInactivityTimer(settings.inactivityTimeout);
+
+      this.emit({ type: 'unlocked', publicKey });
+      return true;
+    } catch {
+      // Session data invalid or decryption failed - clear it
+      this.clearSession();
+      return false;
+    }
   }
 
   /**

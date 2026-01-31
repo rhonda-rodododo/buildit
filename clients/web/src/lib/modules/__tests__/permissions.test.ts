@@ -4,20 +4,54 @@ import { hasModulePermission, canManageModules, canConfigureModule, getUserRole 
 // Mock the database
 const mockGroupMembers = new Map();
 
-vi.mock('@/core/storage/db', () => ({
-  db: {
-    groupMembers: {
-      where: (_key: string) => ({
-        equals: (value: [string, string]) => ({
-          first: async () => {
-            const key = `${value[0]}:${value[1]}`;
-            return mockGroupMembers.get(key);
-          },
-        }),
+vi.mock('@/core/storage/db', () => {
+  const groupMembersTable = {
+    where: (_key: string) => ({
+      equals: (value: [string, string]) => ({
+        first: async () => {
+          const key = `${value[0]}:${value[1]}`;
+          return mockGroupMembers.get(key);
+        },
+        toArray: async () => {
+          const key = `${value[0]}:${value[1]}`;
+          const result = mockGroupMembers.get(key);
+          return result ? [result] : [];
+        },
       }),
-    },
-  },
-}));
+    }),
+    toCollection: () => ({
+      toArray: async () => Array.from(mockGroupMembers.values()),
+      filter: (fn: (item: Record<string, unknown>) => boolean) => ({
+        toArray: async () => Array.from(mockGroupMembers.values()).filter(fn),
+      }),
+    }),
+    filter: (fn: (item: Record<string, unknown>) => boolean) => ({
+      toArray: async () => Array.from(mockGroupMembers.values()).filter(fn),
+    }),
+    toArray: async () => Array.from(mockGroupMembers.values()),
+  };
+  const defaultTableMock = () => ({
+    put: vi.fn(), get: vi.fn(), add: vi.fn(), delete: vi.fn(), update: vi.fn(),
+    toArray: vi.fn().mockResolvedValue([]), where: vi.fn().mockReturnThis(),
+    equals: vi.fn().mockReturnThis(),
+    toCollection: vi.fn().mockReturnValue({
+      toArray: vi.fn().mockResolvedValue([]),
+      filter: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
+    }),
+    filter: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
+  });
+  const mockDb = {
+    groupMembers: groupMembersTable,
+    table: vi.fn((name: string) => {
+      if (name === 'groupMembers') return groupMembersTable;
+      return defaultTableMock();
+    }),
+  };
+  return {
+    db: mockDb,
+    getDB: vi.fn(() => mockDb),
+  };
+});
 
 describe('permissions', () => {
   const groupId = 'test-group';

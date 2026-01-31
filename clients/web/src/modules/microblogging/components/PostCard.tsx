@@ -3,7 +3,7 @@
  * Display a single post with reactions, comments, and engagement actions
  */
 
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { LazyMarkdown } from '@/components/markdown/LazyMarkdown';
@@ -68,13 +68,34 @@ const REACTION_EMOJIS: { type: ReactionType; emoji: string }[] = [
   { type: '👍', emoji: '👍' },
 ];
 
-export const PostCard: FC<PostCardProps> = ({
+const PostCardInner: FC<PostCardProps> = ({
   post,
   showThread = false,
   onCommentClick,
   className,
 }) => {
   const { t } = useTranslation();
+  // Use getState() for stable action references - avoids re-rendering on every store change
+  const actions = useMemo(() => {
+    const s = usePostsStore.getState();
+    return {
+      addReaction: s.addReaction,
+      removeReaction: s.removeReaction,
+      getMyReaction: s.getMyReaction,
+      getPostReactions: s.getPostReactions,
+      hasReposted: s.hasReposted,
+      repost: s.repost,
+      unrepost: s.unrepost,
+      quotePost: s.quotePost,
+      hasBookmarked: s.hasBookmarked,
+      bookmarkPost: s.bookmarkPost,
+      unbookmarkPost: s.unbookmarkPost,
+      getPostComments: s.getPostComments,
+      pinPost: s.pinPost,
+      unpinPost: s.unpinPost,
+      isPinned: s.isPinned,
+    };
+  }, []);
   const {
     addReaction,
     removeReaction,
@@ -91,7 +112,7 @@ export const PostCard: FC<PostCardProps> = ({
     pinPost,
     unpinPost,
     isPinned: checkIsPinned,
-  } = usePostsStore();
+  } = actions;
 
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [showComments, setShowComments] = useState(showThread);
@@ -157,13 +178,16 @@ export const PostCard: FC<PostCardProps> = ({
   };
 
   // Group reactions by type for "who reacted" display
-  const reactionsByType = postReactions.reduce((acc, reaction) => {
-    if (!acc[reaction.type]) {
-      acc[reaction.type] = [];
-    }
-    acc[reaction.type].push(reaction.userId);
-    return acc;
-  }, {} as Record<ReactionType, string[]>);
+  const reactionsByType = useMemo(() =>
+    postReactions.reduce((acc, reaction) => {
+      if (!acc[reaction.type]) {
+        acc[reaction.type] = [];
+      }
+      acc[reaction.type].push(reaction.userId);
+      return acc;
+    }, {} as Record<ReactionType, string[]>),
+    [postReactions]
+  );
 
   const getPrivacyIcon = () => {
     switch (post.visibility.privacy) {
@@ -520,3 +544,10 @@ export const PostCard: FC<PostCardProps> = ({
     </Card>
   );
 };
+
+export const PostCard = memo(PostCardInner, (prev, next) => {
+  // Only re-render when the post data actually changes
+  return prev.post === next.post
+    && prev.showThread === next.showThread
+    && prev.className === next.className;
+});

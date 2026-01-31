@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Types (CRM module types)
@@ -219,16 +219,10 @@ export const crmSearchProvider: ModuleSearchProvider = {
    * Get all contacts for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.crmContacts) return [];
-
     try {
-      const contacts = await db.crmContacts
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
-
-      return contacts;
+      return await dal.query<Contact>('crmContacts', {
+        whereClause: { groupId },
+      });
     } catch (error) {
       console.error('Failed to fetch CRM contacts for indexing:', error);
       return [];

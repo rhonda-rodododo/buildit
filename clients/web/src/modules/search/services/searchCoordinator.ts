@@ -21,7 +21,8 @@ import { getMiniSearchEngine } from './miniSearchEngine';
 import { getTFIDFEngine } from './tfidfEngine';
 import { getFacetEngine } from './facetEngine';
 import { getIndexSyncManager } from './indexSyncManager';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBSearchDocument } from '../schema';
 
 // ============================================================================
 // Types
@@ -337,14 +338,14 @@ export class SearchCoordinator {
     groupIds: string[],
     limit: number
   ): Promise<SearchResult[]> {
-    const db = getDB();
-    if (!db.searchIndex) return [];
-
-    const docs = await db.searchIndex
-      .where('groupId')
-      .anyOf(groupIds)
-      .reverse()
-      .sortBy('updatedAt');
+    const docs = await dal.queryCustom<DBSearchDocument>({
+      sql: `SELECT * FROM search_index WHERE group_id IN (${groupIds.map(() => '?').join(',')}) ORDER BY updated_at DESC LIMIT ?`,
+      params: [...groupIds, limit],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (ids: string[]) => { reverse: () => { sortBy: (key: string) => Promise<DBSearchDocument[]> } } } } };
+        return dexieDb.table('searchIndex').where('groupId').anyOf(groupIds).reverse().sortBy('updatedAt');
+      },
+    });
 
     const limited = docs.slice(0, limit);
 
@@ -374,22 +375,21 @@ export class SearchCoordinator {
    * Resolve group IDs for a search scope
    */
   private async resolveGroupIds(scope: SearchScope): Promise<string[]> {
-    const db = getDB();
-    if (!db.groups) return [];
-
     switch (scope.type) {
-      case 'global':
+      case 'global': {
         // All accessible groups
-        const allGroups = await db.groups.toArray();
+        const allGroups = await dal.getAll<{ id: string }>('groups');
         return allGroups.map((g) => g.id);
+      }
 
       case 'group':
         return [scope.groupId];
 
-      case 'module':
+      case 'module': {
         // All groups but filter results by module type
-        const groupsForModule = await db.groups.toArray();
+        const groupsForModule = await dal.getAll<{ id: string }>('groups');
         return groupsForModule.map((g) => g.id);
+      }
 
       case 'module-in-group':
         return [scope.groupId];
@@ -403,10 +403,7 @@ export class SearchCoordinator {
    * Load a document with its vector
    */
   private async loadDocumentWithVector(id: string): Promise<SearchDocument | null> {
-    const db = getDB();
-    if (!db.searchIndex) return null;
-
-    const doc = await db.searchIndex.get(id);
+    const doc = await dal.get<DBSearchDocument>('searchIndex', id);
     if (!doc) return null;
 
     return {

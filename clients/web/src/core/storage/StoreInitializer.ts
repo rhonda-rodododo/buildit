@@ -10,8 +10,16 @@
  */
 
 import { secureKeyManager, type SecureKeyManagerEvent } from '@/core/crypto/SecureKeyManager';
-import { getDB } from './db';
+import { dal } from './dal';
 import { clearLocalEncryptionKey } from './EncryptedDB';
+import type { DBGroup, DBGroupMember } from './db';
+import type { DBFriend, FriendRequest, FriendInviteLink } from '@/modules/friends/types';
+import type { DBConversation, ConversationMember } from '@/core/messaging/conversationSchema';
+import type { Event, RSVP } from '@/modules/events/types';
+import type { AidItem } from '@/modules/mutual-aid/types';
+import type { DBProposal, DBVote } from '@/modules/governance/schema';
+import type { WikiPage, WikiCategory } from '@/modules/wiki/types';
+import type { Post, Reaction, Comment, Repost, Bookmark } from '@/modules/microblogging/types';
 
 // Import stores for initialization
 import { useAuthStore } from '@/stores/authStore';
@@ -25,6 +33,8 @@ import { useConversationsStore } from '@/core/messaging/conversationsStore';
 // Module stores
 import { useEventsStore } from '@/modules/events/eventsStore';
 import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore';
+import { useGovernanceStore } from '@/modules/governance/governanceStore';
+import { useWikiStore } from '@/modules/wiki/wikiStore';
 import { useFormsStore } from '@/modules/forms/formsStore';
 import { usePublicStore } from '@/modules/public/publicStore';
 import { useFundraisingStore } from '@/modules/fundraising/fundraisingStore';
@@ -94,31 +104,31 @@ class StoreInitializerService {
   }
 
   /**
-   * Load all stores from Dexie
+   * Load all stores from database via DAL
    * Called after successful unlock
    */
   private async loadAllStores(userPubkey: string): Promise<void> {
-    const db = getDB();
-
     try {
       // Load core data in parallel
       await Promise.all([
-        this.loadGroupsStore(db, userPubkey),
-        this.loadFriendsStore(db, userPubkey),
-        this.loadConversationsStore(db, userPubkey),
-        this.loadContactsStore(db, userPubkey),
-        this.loadDeviceStore(db),
+        this.loadGroupsStore(userPubkey),
+        this.loadFriendsStore(userPubkey),
+        this.loadConversationsStore(userPubkey),
+        this.loadContactsStore(),
+        this.loadDeviceStore(),
         this.loadTorStore(),
         // Module stores
-        this.loadEventsStore(db),
-        this.loadMutualAidStore(db),
-        this.loadFormsStore(db),
-        this.loadPublicStore(db),
-        this.loadFundraisingStore(db),
-        this.loadPostsStore(db, userPubkey),
+        this.loadEventsStore(),
+        this.loadMutualAidStore(),
+        this.loadGovernanceStore(),
+        this.loadWikiStore(),
+        this.loadFormsStore(),
+        this.loadPublicStore(),
+        this.loadFundraisingStore(),
+        this.loadPostsStore(),
       ]);
 
-      logger.info('✅ All stores loaded from Dexie');
+      logger.info('✅ All stores loaded from database');
     } catch (error) {
       console.error('Error loading stores:', error);
       throw error;
@@ -126,29 +136,29 @@ class StoreInitializerService {
   }
 
   /**
-   * Load groups store from Dexie
+   * Load groups store
    */
-  private async loadGroupsStore(db: ReturnType<typeof getDB>, userPubkey: string): Promise<void> {
+  private async loadGroupsStore(userPubkey: string): Promise<void> {
     try {
-      // Get groups where user is a member
-      const memberships = await db.groupMembers
-        .where('pubkey')
-        .equals(userPubkey)
-        .toArray();
+      const memberships = await dal.query<DBGroupMember>('groupMembers', {
+        whereClause: { pubkey: userPubkey },
+      });
 
       const groupIds = memberships.map((m) => m.groupId);
 
-      const groups = groupIds.length > 0
-        ? await db.groups.where('id').anyOf(groupIds).toArray()
-        : [];
+      // Get groups by IDs
+      const groups: DBGroup[] = [];
+      for (const groupId of groupIds) {
+        const group = await dal.get<DBGroup>('groups', groupId);
+        if (group) groups.push(group);
+      }
 
       // Build group members map
-      const groupMembers = new Map<string, typeof memberships>();
+      const groupMembers = new Map<string, DBGroupMember[]>();
       for (const groupId of groupIds) {
-        const members = await db.groupMembers
-          .where('groupId')
-          .equals(groupId)
-          .toArray();
+        const members = await dal.query<DBGroupMember>('groupMembers', {
+          whereClause: { groupId },
+        });
         groupMembers.set(groupId, members);
       }
 
@@ -159,34 +169,39 @@ class StoreInitializerService {
         error: null,
       });
 
-      logger.info(`📦 Loaded ${groups.length} groups`);
+      logger.info(`Loaded ${groups.length} groups`);
     } catch (error) {
       console.error('Failed to load groups:', error);
     }
   }
 
   /**
-   * Load friends store from Dexie
+   * Load friends store
    */
-  private async loadFriendsStore(db: ReturnType<typeof getDB>, userPubkey: string): Promise<void> {
+  private async loadFriendsStore(userPubkey: string): Promise<void> {
     try {
-      const friends = await db.friends
-        .where('userPubkey')
-        .equals(userPubkey)
-        .toArray();
+      const friends = await dal.query<DBFriend>('friends', {
+        whereClause: { userPubkey },
+      });
 
-      // Get both incoming and outgoing requests
-      const friendRequests = await db.friendRequests
-        .where('toPubkey')
-        .equals(userPubkey)
-        .or('fromPubkey')
-        .equals(userPubkey)
-        .toArray();
+      // Get both incoming and outgoing requests via custom query
+      const friendRequests = await dal.queryCustom<FriendRequest>({
+        sql: 'SELECT * FROM friend_requests WHERE to_pubkey = ?1 OR from_pubkey = ?1',
+        params: [userPubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { friendRequests: { where: (k: string) => { equals: (v: string) => { or: (k: string) => { equals: (v: string) => { toArray: () => Promise<FriendRequest[]> } } } } } };
+          return dexieDb.friendRequests
+            .where('toPubkey')
+            .equals(userPubkey)
+            .or('fromPubkey')
+            .equals(userPubkey)
+            .toArray();
+        },
+      });
 
-      const inviteLinks = await db.friendInviteLinks
-        .where('creatorPubkey')
-        .equals(userPubkey)
-        .toArray();
+      const inviteLinks = await dal.query<FriendInviteLink>('friendInviteLinks', {
+        whereClause: { creatorPubkey: userPubkey },
+      });
 
       useFriendsStore.setState({
         friends,
@@ -195,29 +210,36 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      logger.info(`📦 Loaded ${friends.length} friends`);
+      logger.info(`Loaded ${friends.length} friends`);
     } catch (error) {
       console.error('Failed to load friends:', error);
     }
   }
 
   /**
-   * Load conversations store from Dexie
+   * Load conversations store
    */
-  private async loadConversationsStore(db: ReturnType<typeof getDB>, userPubkey: string): Promise<void> {
+  private async loadConversationsStore(userPubkey: string): Promise<void> {
     try {
       // Get conversations where user is a participant
-      const conversations = await db.conversations
-        .filter((c) => c.participants?.includes(userPubkey))
-        .toArray();
+      // For SQLite: use JSON contains. For Dexie: use filter
+      const conversations = await dal.queryCustom<DBConversation>({
+        sql: `SELECT * FROM conversations WHERE participants LIKE '%' || ?1 || '%'`,
+        params: [userPubkey],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { conversations: { filter: (fn: (c: DBConversation) => boolean) => { toArray: () => Promise<DBConversation[]> } } };
+          return dexieDb.conversations
+            .filter((c: DBConversation) => c.participants?.includes(userPubkey))
+            .toArray();
+        },
+      });
 
       // Get members for each conversation
-      const allMembers = [];
+      const allMembers: ConversationMember[] = [];
       for (const conv of conversations) {
-        const convMembers = await db.conversationMembers
-          .where('conversationId')
-          .equals(conv.id)
-          .toArray();
+        const convMembers = await dal.query<ConversationMember>('conversationMembers', {
+          whereClause: { conversationId: conv.id },
+        });
         allMembers.push(...convMembers);
       }
 
@@ -228,19 +250,17 @@ class StoreInitializerService {
         isLoading: false,
       });
 
-      logger.info(`📦 Loaded ${conversations.length} conversations`);
+      logger.info(`Loaded ${conversations.length} conversations`);
     } catch (error) {
       console.error('Failed to load conversations:', error);
     }
   }
 
   /**
-   * Load contacts store from Dexie
-   * Note: Contacts are not stored in Dexie yet, but initialized empty
+   * Load contacts store
+   * Note: Contacts are not stored in DB yet, but initialized empty
    */
-  private async loadContactsStore(_db: ReturnType<typeof getDB>, _userPubkey: string): Promise<void> {
-    // Contacts are currently derived from friends and fetched from Nostr
-    // Just reset to empty state for now
+  private async loadContactsStore(): Promise<void> {
     useContactsStore.setState({
       contacts: new Map(),
       profiles: new Map(),
@@ -250,30 +270,26 @@ class StoreInitializerService {
   }
 
   /**
-   * Load device store from Dexie
-   * Note: Device data is currently not persisted to Dexie
+   * Load device store
    */
-  private async loadDeviceStore(_db: ReturnType<typeof getDB>): Promise<void> {
-    // Device data will be fetched/generated on demand
-    // Just reset loading state
+  private async loadDeviceStore(): Promise<void> {
     useDeviceStore.getState().initializeCurrentDevice();
   }
 
   /**
    * Load Tor store
-   * Just initialize detection
    */
   private async loadTorStore(): Promise<void> {
     useTorStore.getState().initialize();
   }
 
   /**
-   * Load events store from Dexie
+   * Load events store
    */
-  private async loadEventsStore(db: ReturnType<typeof getDB>): Promise<void> {
+  private async loadEventsStore(): Promise<void> {
     try {
-      const events = db.events ? await db.events.toArray() : [];
-      const rsvps = db.rsvps ? await db.rsvps.toArray() : [];
+      const events = await dal.getAll<Event>('events').catch(() => [] as Event[]);
+      const rsvps = await dal.getAll<RSVP>('rsvps').catch(() => [] as RSVP[]);
 
       useEventsStore.setState({
         events,
@@ -281,36 +297,88 @@ class StoreInitializerService {
         activeEventId: null,
       });
 
-      logger.info(`📦 Loaded ${events.length} events`);
+      logger.info(`Loaded ${events.length} events`);
     } catch (error) {
       console.error('Failed to load events:', error);
     }
   }
 
   /**
-   * Load mutual aid store from Dexie
+   * Load mutual aid store
    */
-  private async loadMutualAidStore(db: ReturnType<typeof getDB>): Promise<void> {
+  private async loadMutualAidStore(): Promise<void> {
     try {
-      const aidItems = db.mutualAidRequests ? await db.mutualAidRequests.toArray() : [];
+      const aidItems = await dal.getAll<AidItem>('mutualAidRequests').catch(() => [] as AidItem[]);
 
       useMutualAidStore.setState({
         aidItems,
-        rideShares: [], // Not yet persisted to Dexie
+        rideShares: [],
         activeAidItemId: null,
       });
 
-      logger.info(`📦 Loaded ${aidItems.length} mutual aid items`);
+      logger.info(`Loaded ${aidItems.length} mutual aid items`);
     } catch (error) {
       console.error('Failed to load mutual aid:', error);
     }
   }
 
   /**
-   * Load forms store
-   * Forms are currently not persisted to Dexie
+   * Load governance store
    */
-  private async loadFormsStore(_db: ReturnType<typeof getDB>): Promise<void> {
+  private async loadGovernanceStore(): Promise<void> {
+    try {
+      const proposalsArr = await dal.getAll<DBProposal>('proposals').catch(() => [] as DBProposal[]);
+      const votesArr = await dal.getAll<DBVote>('votes').catch(() => [] as DBVote[]);
+
+      const proposals: Record<string, DBProposal> = {};
+      for (const p of proposalsArr) {
+        proposals[p.id] = p;
+      }
+
+      const votes: Record<string, DBVote[]> = {};
+      for (const v of votesArr) {
+        if (!votes[v.proposalId]) votes[v.proposalId] = [];
+        votes[v.proposalId].push(v);
+      }
+
+      useGovernanceStore.setState({ proposals, votes });
+
+      logger.info(`Loaded ${proposalsArr.length} proposals`);
+    } catch (error) {
+      console.error('Failed to load governance:', error);
+    }
+  }
+
+  /**
+   * Load wiki store
+   */
+  private async loadWikiStore(): Promise<void> {
+    try {
+      const pagesArr = await dal.getAll<WikiPage>('wikiPages').catch(() => [] as WikiPage[]);
+      const categoriesArr = await dal.getAll<WikiCategory>('wikiCategories').catch(() => [] as WikiCategory[]);
+
+      const pages: Record<string, WikiPage> = {};
+      for (const p of pagesArr) {
+        pages[p.id] = p;
+      }
+
+      const categories: Record<string, WikiCategory> = {};
+      for (const c of categoriesArr) {
+        categories[c.id] = c;
+      }
+
+      useWikiStore.setState({ pages, categories });
+
+      logger.info(`Loaded ${pagesArr.length} wiki pages`);
+    } catch (error) {
+      console.error('Failed to load wiki:', error);
+    }
+  }
+
+  /**
+   * Load forms store (not yet persisted to DB)
+   */
+  private async loadFormsStore(): Promise<void> {
     useFormsStore.setState({
       forms: new Map(),
       submissions: new Map(),
@@ -320,10 +388,9 @@ class StoreInitializerService {
   }
 
   /**
-   * Load public store
-   * Public pages are currently not persisted to Dexie
+   * Load public store (not yet persisted to DB)
    */
-  private async loadPublicStore(_db: ReturnType<typeof getDB>): Promise<void> {
+  private async loadPublicStore(): Promise<void> {
     usePublicStore.setState({
       publicPages: new Map(),
       analytics: new Map(),
@@ -334,10 +401,9 @@ class StoreInitializerService {
   }
 
   /**
-   * Load fundraising store
-   * Campaigns are currently not persisted to Dexie
+   * Load fundraising store (not yet persisted to DB)
    */
-  private async loadFundraisingStore(_db: ReturnType<typeof getDB>): Promise<void> {
+  private async loadFundraisingStore(): Promise<void> {
     useFundraisingStore.setState({
       campaigns: new Map(),
       campaignUpdates: new Map(),
@@ -349,34 +415,20 @@ class StoreInitializerService {
   }
 
   /**
-   * Load posts store from Dexie
+   * Load posts store
    */
-  private async loadPostsStore(db: ReturnType<typeof getDB>, _userPubkey: string): Promise<void> {
+  private async loadPostsStore(): Promise<void> {
     try {
-      // Check if posts table exists (it's a module table)
-      if (!db.posts) {
-        usePostsStore.setState({
-          posts: [],
-          currentPost: null,
-          reactions: [],
-          myReactions: new Map(),
-          comments: [],
-          reposts: [],
-          myReposts: new Set(),
-          bookmarks: [],
-          myBookmarks: new Set(),
-          feedFilter: { type: 'all', limit: 20 },
-          isLoadingFeed: false,
-          hasMorePosts: true,
-        });
-        return;
-      }
+      const posts = await dal.query<Post>('posts', {
+        orderBy: 'createdAt',
+        orderDir: 'desc',
+        limit: 50,
+      }).catch(() => [] as Post[]);
 
-      const posts = await db.posts.orderBy('createdAt').reverse().limit(50).toArray();
-      const reactions = await db.reactions?.toArray() || [];
-      const comments = await db.comments?.toArray() || [];
-      const reposts = await db.reposts?.toArray() || [];
-      const bookmarks = await db.bookmarks?.toArray() || [];
+      const reactions = await dal.getAll<Reaction>('reactions').catch(() => [] as Reaction[]);
+      const comments = await dal.getAll<Comment>('comments').catch(() => [] as Comment[]);
+      const reposts = await dal.getAll<Repost>('reposts').catch(() => [] as Repost[]);
+      const bookmarks = await dal.getAll<Bookmark>('bookmarks').catch(() => [] as Bookmark[]);
 
       usePostsStore.setState({
         posts,
@@ -393,7 +445,7 @@ class StoreInitializerService {
         hasMorePosts: posts.length === 50,
       });
 
-      logger.info(`📦 Loaded ${posts.length} posts`);
+      logger.info(`Loaded ${posts.length} posts`);
     } catch (error) {
       console.error('Failed to load posts:', error);
     }
@@ -464,6 +516,12 @@ class StoreInitializerService {
 
     // Clear mutual aid store
     useMutualAidStore.getState().clearAll();
+
+    // Clear governance store
+    useGovernanceStore.setState({ proposals: {}, votes: {}, results: {} });
+
+    // Clear wiki store
+    useWikiStore.setState({ pages: {}, categories: {} });
 
     // Clear forms store
     useFormsStore.getState().clearAll();

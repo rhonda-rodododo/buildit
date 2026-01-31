@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBMutualAidRequest } from './schema';
 
 import { logger } from '@/lib/logger';
@@ -14,7 +15,7 @@ export const mutualAidSeeds: ModuleSeed[] = [
   {
     name: 'mutual-aid-demo',
     description: 'Mutual aid examples for community hub and mutual aid network templates',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const day = 24 * 60 * 60 * 1000;
 
@@ -97,14 +98,14 @@ export const mutualAidSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.mutualAidRequests?.bulkAdd(requests);
+      await dal.bulkPut('mutualAidRequests', requests);
       logger.info(`Seeded ${requests.length} mutual aid demo items for group ${groupId}`);
     },
   },
   {
     name: 'comprehensive-mutual-aid',
     description: 'Comprehensive mutual aid examples covering all categories and scenarios',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const day = 24 * 60 * 60 * 1000;
 
@@ -324,7 +325,7 @@ export const mutualAidSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.mutualAidRequests?.bulkAdd(exampleRequests);
+      await dal.bulkPut('mutualAidRequests', exampleRequests);
       logger.info(`Seeded ${exampleRequests.length} mutual aid items for group ${groupId}`);
     },
   },

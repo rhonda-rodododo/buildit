@@ -194,16 +194,34 @@ describe('sync.ts', () => {
       const { startMessageReceiver, fetchMessageHistory } = await import('@/core/messaging/messageReceiver');
 
       // Need to mock db.groupMembers
+      const groupMembersTable = {
+        where: () => ({
+          equals: () => ({
+            toArray: () => Promise.resolve([]),
+          }),
+        }),
+        toCollection: () => ({
+          toArray: () => Promise.resolve([]),
+          filter: () => ({ toArray: () => Promise.resolve([]) }),
+        }),
+        filter: () => ({ toArray: () => Promise.resolve([]) }),
+        toArray: () => Promise.resolve([]),
+      };
+      const doMockDb: Record<string, unknown> = {
+        groupMembers: groupMembersTable,
+      };
+      doMockDb.table = (name: string) => (doMockDb as Record<string, unknown>)[name] ?? {
+        toArray: () => Promise.resolve([]),
+        where: () => ({ equals: () => ({ toArray: () => Promise.resolve([]) }) }),
+        toCollection: () => ({
+          toArray: () => Promise.resolve([]),
+          filter: () => ({ toArray: () => Promise.resolve([]) }),
+        }),
+        filter: () => ({ toArray: () => Promise.resolve([]) }),
+      };
       vi.doMock('./db', () => ({
-        db: {
-          groupMembers: {
-            where: () => ({
-              equals: () => ({
-                toArray: () => Promise.resolve([]),
-              }),
-            }),
-          },
-        },
+        db: doMockDb,
+        getDB: () => doMockDb,
       }));
 
       await startAllSyncs();

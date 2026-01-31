@@ -9,7 +9,7 @@ import type {
   DependencyStatus,
 } from '@/types/modules';
 import { normalizeDependency } from '@/types/modules';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useAuthStore } from './authStore';
 
 import { logger } from '@/lib/logger';
@@ -253,7 +253,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
           });
 
           // Persist to database
-          await db.moduleInstances.put({
+          await dal.put('moduleInstances', {
             id: key,
             moduleId,
             groupId,
@@ -395,7 +395,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         });
 
         // Remove from database
-        await db.moduleInstances.delete(key);
+        await dal.delete('moduleInstances', key);
 
         logger.info(`Module ${moduleId} disabled for group ${groupId}`);
       },
@@ -439,7 +439,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         });
 
         // Update database
-        await db.moduleInstances.update(key, {
+        await dal.update('moduleInstances', key, {
           config,
           updatedAt: Date.now(),
         });
@@ -472,8 +472,8 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
       },
 
       loadModuleInstances: async () => {
-        logger.info('📥 Loading module instances from database...');
-        const instances = await db.moduleInstances.toArray();
+        logger.info('Loading module instances from database...');
+        const instances = await dal.getAll<{ id: string; moduleId: string; groupId: string; state: ModuleState; config: Record<string, unknown>; enabledAt: number; enabledBy: string; lastError?: string }>('moduleInstances');
         const instanceMap = new Map<string, ModuleInstance>();
 
         for (const dbInstance of instances) {
@@ -490,7 +490,7 @@ export const useModuleStore = create<ModuleStore>()((set, get) => ({
         }
 
         set({ instances: instanceMap });
-        logger.info(`✅ Loaded ${instances.length} module instances from database`);
+        logger.info(`Loaded ${instances.length} module instances from database`);
       },
 
       // Dependency Discovery API Implementation

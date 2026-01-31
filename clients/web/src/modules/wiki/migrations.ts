@@ -13,7 +13,7 @@ export const wikiMigrations: ModuleMigration[] = [
   {
     version: 1,
     description: 'Initial wiki pages table',
-    migrate: async (_db) => {
+    migrate: async () => {
       logger.info('Wiki module v1: Initial schema created');
     },
   },

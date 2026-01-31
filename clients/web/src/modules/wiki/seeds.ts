@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBWikiPage } from './schema';
 import { DEFAULT_INDEXABILITY } from '@/types/indexability';
 
@@ -17,7 +18,7 @@ import { logger } from '@/lib/logger';
 const wikiDemoSeed: ModuleSeed = {
   name: 'wiki-demo',
   description: 'Starter wiki pages for activist collectives and community groups',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
 
     const pages: DBWikiPage[] = [
@@ -74,7 +75,7 @@ const wikiDemoSeed: ModuleSeed = {
       },
     ];
 
-    await db.wikiPages?.bulkAdd(pages);
+    await dal.bulkPut('wikiPages', pages);
     logger.info(`Seeded ${pages.length} wiki demo pages for group ${groupId}`);
   },
 };
@@ -85,7 +86,7 @@ const wikiDemoSeed: ModuleSeed = {
 const wikiStyleguideSeed: ModuleSeed = {
   name: 'wiki-styleguide-demo',
   description: 'Style guide and editorial standards wiki for media collectives',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
 
     const pages: DBWikiPage[] = [
@@ -108,7 +109,7 @@ const wikiStyleguideSeed: ModuleSeed = {
       },
     ];
 
-    await db.wikiPages?.bulkAdd(pages);
+    await dal.bulkPut('wikiPages', pages);
     logger.info(`Seeded ${pages.length} style guide wiki pages for group ${groupId}`);
   },
 };
@@ -119,7 +120,7 @@ export const wikiSeeds: ModuleSeed[] = [
   {
     name: 'comprehensive-wiki-pages',
     description: 'Comprehensive wiki starter pages with organizing resources',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
 
       const examplePages: DBWikiPage[] = [
@@ -669,7 +670,7 @@ You have the right to remain silent and you should use it! 🤐`,
         },
       ];
 
-      await db.wikiPages?.bulkAdd(examplePages);
+      await dal.bulkPut('wikiPages', examplePages);
       logger.info(`Seeded ${examplePages.length} comprehensive wiki pages for group ${groupId}`);
     },
   },

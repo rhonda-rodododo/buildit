@@ -6,7 +6,7 @@
 import type { ModulePlugin } from '@/types/modules';
 import { eventsSchema } from './schema';
 import { eventsSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { Calendar } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -153,7 +153,7 @@ export const eventsModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial events schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Events migration v1: Initial schema');
       },
     },

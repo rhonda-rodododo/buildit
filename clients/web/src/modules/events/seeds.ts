@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBEvent, DBRSVP } from './schema';
 
 import { logger } from '@/lib/logger';
@@ -14,7 +15,7 @@ import { logger } from '@/lib/logger';
 const courtEventsSeed: ModuleSeed = {
   name: 'events-court-demo',
   description: 'Court dates, arraignments, and legal defense events for movement legal defense groups',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -117,8 +118,8 @@ const courtEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
-    await db.rsvps?.bulkAdd(rsvps);
+    await dal.bulkPut('events', events);
+    await dal.bulkPut('rsvps', rsvps);
     logger.info(`Seeded ${events.length} court/legal events for group ${groupId}`);
   },
 };
@@ -129,7 +130,7 @@ const courtEventsSeed: ModuleSeed = {
 const communityEventsSeed: ModuleSeed = {
   name: 'events-community-demo',
   description: 'Community events: potlucks, skill shares, mutual aid distributions, and community meetings',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -194,7 +195,7 @@ const communityEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
+    await dal.bulkPut('events', events);
     logger.info(`Seeded ${events.length} community events for group ${groupId}`);
   },
 };
@@ -205,7 +206,7 @@ const communityEventsSeed: ModuleSeed = {
 const actionEventsSeed: ModuleSeed = {
   name: 'events-action-demo',
   description: 'Activist events: rallies, direct actions, canvassing, and strategy meetings',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -287,7 +288,7 @@ const actionEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
+    await dal.bulkPut('events', events);
     logger.info(`Seeded ${events.length} activist events for group ${groupId}`);
   },
 };
@@ -298,7 +299,7 @@ const actionEventsSeed: ModuleSeed = {
 const meetingEventsSeed: ModuleSeed = {
   name: 'events-meeting-demo',
   description: 'Union meetings: general membership, steward council, grievance hearings, and organizing meetings',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -349,7 +350,7 @@ const meetingEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
+    await dal.bulkPut('events', events);
     logger.info(`Seeded ${events.length} union meeting events for group ${groupId}`);
   },
 };
@@ -360,7 +361,7 @@ const meetingEventsSeed: ModuleSeed = {
 const tenantEventsSeed: ModuleSeed = {
   name: 'events-tenant-demo',
   description: 'Tenant union events: tenant meetings, city council hearings, rent strike actions',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -411,7 +412,7 @@ const tenantEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
+    await dal.bulkPut('events', events);
     logger.info(`Seeded ${events.length} tenant union events for group ${groupId}`);
   },
 };
@@ -422,7 +423,7 @@ const tenantEventsSeed: ModuleSeed = {
 const nonprofitEventsSeed: ModuleSeed = {
   name: 'events-nonprofit-demo',
   description: 'Nonprofit events: fundraiser galas, volunteer orientations, board meetings, program events',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const hour = 60 * 60 * 1000;
     const day = 24 * hour;
@@ -474,7 +475,7 @@ const nonprofitEventsSeed: ModuleSeed = {
       },
     ];
 
-    await db.events?.bulkAdd(events);
+    await dal.bulkPut('events', events);
     logger.info(`Seeded ${events.length} nonprofit events for group ${groupId}`);
   },
 };
@@ -493,7 +494,7 @@ export const eventsSeeds: ModuleSeed[] = [
   {
     name: 'realistic-events',
     description: 'Comprehensive event examples covering all privacy levels and event types',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const hour = 60 * 60 * 1000;
       const day = 24 * hour;
@@ -667,8 +668,8 @@ export const eventsSeeds: ModuleSeed[] = [
       ];
 
       // Insert seed data
-      await db.events?.bulkAdd(exampleEvents);
-      await db.rsvps?.bulkAdd(exampleRSVPs);
+      await dal.bulkPut('events', exampleEvents);
+      await dal.bulkPut('rsvps', exampleRSVPs);
       logger.info(`Seeded ${exampleEvents.length} events and ${exampleRSVPs.length} RSVPs for group ${groupId}`);
     },
   },

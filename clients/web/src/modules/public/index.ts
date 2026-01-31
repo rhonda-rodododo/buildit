@@ -6,7 +6,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { publicSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { Globe } from 'lucide-react';
 import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
@@ -94,7 +94,7 @@ export const publicModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial public schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Public migration v1: Initial schema (public pages, analytics)');
       },
     },

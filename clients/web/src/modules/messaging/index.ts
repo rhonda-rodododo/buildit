@@ -5,7 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { messagingSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { MessageSquare } from 'lucide-react';
 import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
@@ -88,7 +88,7 @@ export const messagingModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial messaging schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Messaging migration v1: Initial schema (messages in core DB)');
       },
     },

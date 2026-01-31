@@ -9,7 +9,8 @@
  * actually encrypted, just encoded. This was a critical security vulnerability.
  */
 
-import { db, type DBIdentity } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBIdentity } from '@/core/storage/db';
 import { hexToBytes } from '@noble/hashes/utils';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
 
@@ -37,7 +38,7 @@ export function identityNeedsMigration(identity: DBIdentity): boolean {
  * Get all identities that need migration
  */
 export async function getIdentitiesNeedingMigration(): Promise<DBIdentity[]> {
-  const allIdentities = await db.identities.toArray();
+  const allIdentities = await dal.getAll<DBIdentity>('identities');
   return allIdentities.filter(identityNeedsMigration);
 }
 
@@ -57,7 +58,7 @@ export async function hasPendingMigrations(): Promise<boolean> {
  */
 export async function migrateIdentity(publicKey: string, password: string): Promise<void> {
   // Get the identity from database
-  const identity = await db.identities.get(publicKey);
+  const identity = await dal.get<DBIdentity>('identities', publicKey);
   if (!identity) {
     throw new Error('Identity not found');
   }
@@ -89,7 +90,7 @@ export async function migrateIdentity(publicKey: string, password: string): Prom
   );
 
   // Update the identity in the database
-  await db.identities.update(publicKey, {
+  await dal.update('identities', publicKey, {
     encryptedPrivateKey: encryptedData.encryptedPrivateKey,
     salt: encryptedData.salt,
     iv: encryptedData.iv,
@@ -162,7 +163,7 @@ export async function getMigrationStatus(): Promise<MigrationStatus> {
  * Verify the migration was successful by attempting to unlock
  */
 export async function verifyMigration(publicKey: string, password: string): Promise<boolean> {
-  const identity = await db.identities.get(publicKey);
+  const identity = await dal.get<DBIdentity>('identities', publicKey);
   if (!identity) {
     return false;
   }

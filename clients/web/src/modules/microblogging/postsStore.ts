@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { useAuthStore } from '@/stores/authStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { secureRandomString } from '@/lib/utils';
 import type {
   Post,
@@ -162,7 +162,7 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
-          await db.posts.add(newPost);
+          await dal.add<Post>('posts', newPost);
         } catch (error) {
           console.error('Failed to save post to database:', error);
         }
@@ -180,7 +180,7 @@ export const usePostsStore = create<PostsState>()(
 
         // Update in database
         try {
-          await db.posts.update(input.postId, {
+          await dal.update('posts', input.postId, {
             content: input.content,
             contentWarning: input.contentWarning,
             isSensitive: input.isSensitive,
@@ -209,11 +209,44 @@ export const usePostsStore = create<PostsState>()(
       deletePost: async (postId: string): Promise<void> => {
         // Delete from database
         try {
-          await db.posts.delete(postId);
-          await db.reactions.where('postId').equals(postId).delete();
-          await db.comments.where('postId').equals(postId).delete();
-          await db.reposts.where('postId').equals(postId).delete();
-          await db.bookmarks.where('postId').equals(postId).delete();
+          await dal.delete('posts', postId);
+          // Delete related records using queryCustom for WHERE...DELETE patterns
+          await dal.queryCustom<never>({
+            sql: 'DELETE FROM reactions WHERE post_id = ?1',
+            params: [postId],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { reactions: { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+              await dexieDb.reactions.where('postId').equals(postId).delete();
+              return [];
+            },
+          });
+          await dal.queryCustom<never>({
+            sql: 'DELETE FROM comments WHERE post_id = ?1',
+            params: [postId],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { comments: { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+              await dexieDb.comments.where('postId').equals(postId).delete();
+              return [];
+            },
+          });
+          await dal.queryCustom<never>({
+            sql: 'DELETE FROM reposts WHERE post_id = ?1',
+            params: [postId],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { reposts: { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+              await dexieDb.reposts.where('postId').equals(postId).delete();
+              return [];
+            },
+          });
+          await dal.queryCustom<never>({
+            sql: 'DELETE FROM bookmarks WHERE post_id = ?1',
+            params: [postId],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { bookmarks: { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+              await dexieDb.bookmarks.where('postId').equals(postId).delete();
+              return [];
+            },
+          });
         } catch (error) {
           console.error('Failed to delete post from database:', error);
         }
@@ -330,12 +363,12 @@ export const usePostsStore = create<PostsState>()(
 
         try {
           // Fetch posts from database
-          const dbPosts = await db.posts
-            .orderBy('createdAt')
-            .reverse()
-            .offset(currentOffset)
-            .limit(limit)
-            .toArray();
+          const dbPosts = await dal.query<Post>('posts', {
+            orderBy: 'createdAt',
+            orderDir: 'desc',
+            offset: currentOffset,
+            limit,
+          });
 
           set((state) => ({
             posts: [...state.posts, ...dbPosts],
@@ -372,18 +405,26 @@ export const usePostsStore = create<PostsState>()(
         try {
           if (hasExistingReaction) {
             // Remove old reaction first
-            await db.reactions
-              .where('[postId+userId]')
-              .equals([postId, userId])
-              .delete();
+            await dal.queryCustom<never>({
+              sql: 'DELETE FROM reactions WHERE post_id = ?1 AND user_id = ?2',
+              params: [postId, userId],
+              dexieFallback: async (db: unknown) => {
+                const dexieDb = db as { reactions: { where: (key: string) => { equals: (val: unknown) => { delete: () => Promise<void> } } } };
+                await dexieDb.reactions
+                  .where('[postId+userId]')
+                  .equals([postId, userId])
+                  .delete();
+                return [];
+              },
+            });
           }
-          await db.reactions.add(newReaction);
+          await dal.add<Reaction>('reactions', newReaction);
 
           // Only increment count if this is a new reaction (not a change)
           if (!hasExistingReaction) {
-            const post = await db.posts.get(postId);
+            const post = await dal.get<Post>('posts', postId);
             if (post) {
-              await db.posts.update(postId, {
+              await dal.update('posts', postId, {
                 reactionCount: (post.reactionCount || 0) + 1,
               });
             }
@@ -475,10 +516,10 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
-          await db.comments.add(newComment);
-          const post = await db.posts.get(postId);
+          await dal.add<Comment>('comments', newComment);
+          const post = await dal.get<Post>('posts', postId);
           if (post) {
-            await db.posts.update(postId, {
+            await dal.update('posts', postId, {
               commentCount: (post.commentCount || 0) + 1,
             });
           }
@@ -531,10 +572,10 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
-          await db.reposts.add(newRepost);
-          const post = await db.posts.get(postId);
+          await dal.add<Repost>('reposts', newRepost);
+          const post = await dal.get<Post>('posts', postId);
           if (post) {
-            await db.posts.update(postId, {
+            await dal.update('posts', postId, {
               repostCount: (post.repostCount || 0) + 1,
             });
           }
@@ -625,10 +666,10 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
-          await db.bookmarks.add(newBookmark);
-          const post = await db.posts.get(postId);
+          await dal.add<Bookmark>('bookmarks', newBookmark);
+          const post = await dal.get<Post>('posts', postId);
           if (post) {
-            await db.posts.update(postId, {
+            await dal.update('posts', postId, {
               bookmarkCount: (post.bookmarkCount || 0) + 1,
             });
           }
@@ -700,11 +741,11 @@ export const usePostsStore = create<PostsState>()(
           // Fetch latest posts from database
           // Note: Nostr sync will be added in future iteration
           const limit = get().feedFilter.limit || 20;
-          const dbPosts = await db.posts
-            .orderBy('createdAt')
-            .reverse()
-            .limit(limit)
-            .toArray();
+          const dbPosts = await dal.query<Post>('posts', {
+            orderBy: 'createdAt',
+            orderDir: 'desc',
+            limit,
+          });
 
           set({
             posts: dbPosts,
@@ -756,7 +797,7 @@ export const usePostsStore = create<PostsState>()(
 
         // Persist to database
         try {
-          await db.scheduledPosts.add(scheduledPost);
+          await dal.add<ScheduledPost>('scheduledPosts', scheduledPost);
         } catch (error) {
           console.error('Failed to save scheduled post:', error);
         }
@@ -776,7 +817,7 @@ export const usePostsStore = create<PostsState>()(
         const updatedAt = Date.now();
 
         try {
-          await db.scheduledPosts.update(id, { ...updates, updatedAt });
+          await dal.update('scheduledPosts', id, { ...updates, updatedAt });
         } catch (error) {
           console.error('Failed to update scheduled post:', error);
         }
@@ -791,7 +832,7 @@ export const usePostsStore = create<PostsState>()(
       // Cancel a scheduled post
       cancelScheduledPost: async (id: string): Promise<void> => {
         try {
-          await db.scheduledPosts.update(id, { status: 'cancelled', updatedAt: Date.now() });
+          await dal.update('scheduledPosts', id, { status: 'cancelled', updatedAt: Date.now() });
         } catch (error) {
           console.error('Failed to cancel scheduled post:', error);
         }
@@ -825,7 +866,7 @@ export const usePostsStore = create<PostsState>()(
         // Update the scheduled post status
         const updatedAt = Date.now();
         try {
-          await db.scheduledPosts.update(id, {
+          await dal.update('scheduledPosts', id, {
             status: 'published',
             publishedAt: updatedAt,
             publishedPostId: post.id,
@@ -872,10 +913,9 @@ export const usePostsStore = create<PostsState>()(
         if (!currentIdentity) return;
 
         try {
-          const scheduledPosts = await db.scheduledPosts
-            .where('authorId')
-            .equals(currentIdentity.publicKey)
-            .toArray();
+          const scheduledPosts = await dal.query<ScheduledPost>('scheduledPosts', {
+            whereClause: { authorId: currentIdentity.publicKey },
+          });
 
           set({ scheduledPosts });
         } catch (error) {
@@ -890,7 +930,7 @@ export const usePostsStore = create<PostsState>()(
         const pinnedAt = Date.now();
 
         try {
-          await db.posts.update(postId, { isPinned: true, pinnedAt });
+          await dal.update('posts', postId, { isPinned: true, pinnedAt });
         } catch (error) {
           console.error('Failed to pin post:', error);
         }
@@ -905,7 +945,7 @@ export const usePostsStore = create<PostsState>()(
       // Unpin a post
       unpinPost: async (postId: string): Promise<void> => {
         try {
-          await db.posts.update(postId, { isPinned: false, pinnedAt: undefined });
+          await dal.update('posts', postId, { isPinned: false, pinnedAt: undefined });
         } catch (error) {
           console.error('Failed to unpin post:', error);
         }

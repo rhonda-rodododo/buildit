@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { BuildItDB } from '@/core/storage/db';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -310,7 +309,7 @@ export interface TableSchema {
 export interface ModuleMigration {
   version: number; // Migration version
   description: string; // What this migration does
-  migrate: (db: BuildItDB) => Promise<void> | void; // Migration function
+  migrate: () => Promise<void> | void; // Migration function
 }
 
 /**
@@ -320,7 +319,7 @@ export interface ModuleMigration {
 export interface ModuleSeed {
   name: string; // Seed name
   description: string; // What this seed provides
-  data: (db: BuildItDB, groupId: string, userPubkey: string) => Promise<void> | void; // Seed function
+  data: (groupId: string, userPubkey: string) => Promise<void> | void; // Seed function
 }
 
 /**

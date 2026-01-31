@@ -1,3 +1,7 @@
+// Buffer polyfill for browser - required by bitcoinjs-lib, bip32, etc.
+import { Buffer } from 'buffer'
+;(globalThis as Record<string, unknown>).Buffer = Buffer
+
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { useTranslation } from "react-i18next";
@@ -8,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { initializeModules } from "@/lib/modules/registry";
 import { initializeDatabase } from "@/core/storage/db";
 import { useAuthStore, getSavedIdentityPubkey } from "@/stores/authStore";
+import { secureKeyManager, type EncryptedKeyData } from "@/core/crypto/SecureKeyManager";
 import { createLogger, criticalLogger } from "@/lib/logger";
 
 const log = createLogger('init');
@@ -66,6 +71,28 @@ async function doInitialize(): Promise<boolean> {
     await initializeDatabase();
     log.info("  Step 2: ✅ Database initialized");
 
+    // Step 2a: Initialize DAL (data access layer)
+    currentStep = 'initializing DAL';
+    log.info("  Step 2a: Initializing DAL...");
+    const { dal } = await import("@/core/storage/dal");
+    await dal.init();
+    log.info("  Step 2a: ✅ DAL initialized");
+
+    // Step 2a.1: Migrate Dexie→SQLite on first Tauri launch
+    if (dal.backend === 'sqlite') {
+      currentStep = 'migrating Dexie to SQLite';
+      log.info("  Step 2a.1: Checking Dexie→SQLite migration...");
+      const { migrateDexieToSQLite } = await import("@/core/storage/dexieMigration");
+      const migrated = await migrateDexieToSQLite();
+      if (migrated > 0) {
+        log.info(`  Step 2a.1: ✅ Migrated ${migrated} records from Dexie to SQLite`);
+      } else if (migrated === 0) {
+        log.info("  Step 2a.1: ✅ No Dexie data to migrate");
+      } else {
+        log.info("  Step 2a.1: ✅ Migration already completed");
+      }
+    }
+
     // Step 2b: Start offline queue processor (requires database)
     currentStep = 'starting queue processor';
     log.info("  Step 2b: Starting offline queue processor...");
@@ -92,25 +119,63 @@ async function doInitialize(): Promise<boolean> {
     // Step 5: Load identities from DB (public info only - private keys stay encrypted)
     currentStep = 'loading identities';
     log.info("  Step 5: Loading identities...");
-    const authStore = useAuthStore.getState();
-    await authStore.loadIdentities();
+    await useAuthStore.getState().loadIdentities();
     log.info("  Step 5: ✅ Identities loaded");
 
     // Step 5b: Restore selected identity from localStorage (if any)
+    // IMPORTANT: Re-read state after loadIdentities() since it creates a new state snapshot
     const savedIdentityPubkey = getSavedIdentityPubkey();
     if (savedIdentityPubkey) {
-      const savedIdentity = authStore.identities.find(i => i.publicKey === savedIdentityPubkey);
+      const currentState = useAuthStore.getState();
+      const savedIdentity = currentState.identities.find(i => i.publicKey === savedIdentityPubkey);
       if (savedIdentity) {
         log.info("  Step 5b: Restoring saved identity selection...");
         useAuthStore.setState({ currentIdentity: savedIdentity });
         log.info("  Step 5b: ✅ Identity selection restored (still locked)");
+      } else {
+        log.info("  Step 5b: Saved identity not found in database, clearing localStorage");
+        localStorage.removeItem('buildit-selected-identity');
+      }
+    }
+
+    // Step 5c: Restore session from sessionStorage (survives page refresh)
+    // If master key bits are in sessionStorage, re-derive keys and unlock automatically
+    if (savedIdentityPubkey) {
+      currentStep = 'restoring session';
+      log.info("  Step 5c: Attempting session restore...");
+      const { dal } = await import("@/core/storage/dal");
+      type SessionIdentity = {
+        publicKey: string; encryptedPrivateKey: string; salt: string;
+        iv: string; webAuthnProtected: boolean; credentialId?: string;
+        created: number; lastUsed: number; keyVersion: number;
+      };
+      const restored = await secureKeyManager.restoreSession(async (publicKey: string): Promise<EncryptedKeyData | null> => {
+        const dbIdentity = await dal.get<SessionIdentity>('identities', publicKey);
+        if (!dbIdentity || !dbIdentity.salt) return null;
+        return {
+          publicKey: dbIdentity.publicKey,
+          encryptedPrivateKey: dbIdentity.encryptedPrivateKey,
+          salt: dbIdentity.salt,
+          iv: dbIdentity.iv,
+          webAuthnProtected: dbIdentity.webAuthnProtected,
+          credentialId: dbIdentity.credentialId,
+          createdAt: dbIdentity.created,
+          lastUnlockedAt: dbIdentity.lastUsed,
+          keyVersion: dbIdentity.keyVersion,
+        };
+      });
+      if (restored) {
+        log.info("  Step 5c: ✅ Session restored - app unlocked");
+      } else {
+        log.info("  Step 5c: No session to restore (will show unlock screen)");
       }
     }
 
     // Step 6: Start syncing Nostr events for all groups + messages (if unlocked)
     // Note: Sync will only work if the app is unlocked
     currentStep = 'starting syncs';
-    if (authStore.lockState === 'unlocked' && authStore.currentIdentity) {
+    const authState = useAuthStore.getState();
+    if (authState.lockState === 'unlocked' && authState.currentIdentity) {
       log.info("  Step 6: Starting syncs...");
       const { startAllSyncs } = await import("@/core/storage/sync");
       await startAllSyncs();

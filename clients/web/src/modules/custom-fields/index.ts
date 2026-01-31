@@ -6,7 +6,6 @@
 import type { ModulePlugin } from '@/types/modules';
 import { customFieldsSchema } from './schema';
 import { customFieldsSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
 import { Settings } from 'lucide-react';
 import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
@@ -80,7 +79,7 @@ export const customFieldsModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial custom fields schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Custom fields migration v1: Initial schema');
         // Initial schema is already defined in customFieldsSchema
       },

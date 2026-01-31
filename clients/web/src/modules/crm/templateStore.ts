@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type { CRMMultiTableTemplate, CRMTemplateCategory } from './types';
 import type { DBCustomTemplate, DBAppliedTemplate } from './schema';
 import { logger } from '@/lib/logger';
@@ -88,23 +88,28 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const db = getDB();
       let templates: DBCustomTemplate[];
 
       if (groupId) {
         // Load templates for specific group (including public ones)
-        templates = await db.table('crmCustomTemplates')
-          .where('groupId')
-          .equals(groupId)
-          .or('isPublic')
-          .equals(1) // Dexie stores booleans as 0/1
-          .toArray();
+        templates = await dal.queryCustom<DBCustomTemplate>({
+          sql: 'SELECT * FROM crm_custom_templates WHERE group_id = ?1 OR is_public = 1',
+          params: [groupId],
+          dexieFallback: async (db: unknown) => {
+            const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown) => { or: (key: string) => { equals: (val: unknown) => { toArray: () => Promise<DBCustomTemplate[]> } } } } } };
+            return dexieDb.table('crmCustomTemplates')
+              .where('groupId')
+              .equals(groupId)
+              .or('isPublic')
+              .equals(1)
+              .toArray();
+          },
+        });
       } else {
         // Load all public templates
-        templates = await db.table('crmCustomTemplates')
-          .where('isPublic')
-          .equals(1)
-          .toArray();
+        templates = await dal.query<DBCustomTemplate>('crmCustomTemplates', {
+          whereClause: { isPublic: 1 },
+        });
       }
 
       const templateMap = new Map<string, CRMMultiTableTemplate>();
@@ -144,16 +149,14 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
    */
   loadAppliedTemplates: async (groupId: string) => {
     try {
-      const db = getDB();
-      const applied = await db.table('crmAppliedTemplates')
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
+      const applied = await dal.query<DBAppliedTemplate>('crmAppliedTemplates', {
+        whereClause: { groupId },
+      });
 
       const appliedMap = new Map(get().appliedTemplates);
 
       for (const app of applied) {
-        appliedMap.set(groupId, app as DBAppliedTemplate);
+        appliedMap.set(groupId, app);
       }
 
       set({ appliedTemplates: appliedMap });
@@ -171,7 +174,6 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     userPubkey: string,
     options = {}
   ): Promise<string> => {
-    const db = getDB();
     const templateId = crypto.randomUUID();
     const now = Date.now();
 
@@ -196,7 +198,7 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
       version: '1.0.0',
     };
 
-    await db.table('crmCustomTemplates').add(dbTemplate);
+    await dal.add<DBCustomTemplate>('crmCustomTemplates', dbTemplate);
 
     // Update store
     const customTemplates = new Map(get().customTemplates);
@@ -215,7 +217,6 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     updates: Partial<CRMMultiTableTemplate>,
     _userPubkey: string
   ) => {
-    const db = getDB();
     const existing = get().customTemplates.get(templateId);
 
     if (!existing) {
@@ -233,7 +234,7 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     const [major, minor, patch] = currentVersion.split('.').map(Number);
     const newVersion = `${major}.${minor}.${patch + 1}`;
 
-    await db.table('crmCustomTemplates').update(templateId, {
+    await dal.update('crmCustomTemplates', templateId, {
       name: updated.name,
       description: updated.description,
       icon: updated.icon,
@@ -254,14 +255,12 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
    * Delete a custom template
    */
   deleteTemplate: async (templateId: string) => {
-    const db = getDB();
-
     // Check if template exists
     if (!get().customTemplates.has(templateId)) {
       throw new Error('Template not found');
     }
 
-    await db.table('crmCustomTemplates').delete(templateId);
+    await dal.delete('crmCustomTemplates', templateId);
 
     const customTemplates = new Map(get().customTemplates);
     customTemplates.delete(templateId);
@@ -352,7 +351,6 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     userPubkey: string,
     tableMapping: Record<string, string>
   ) => {
-    const db = getDB();
     const id = crypto.randomUUID();
 
     const record: DBAppliedTemplate = {
@@ -366,12 +364,17 @@ export const useTemplateStore = create<TemplateStoreState>((set, get) => ({
     };
 
     // Delete any existing applied template for this group
-    await db.table('crmAppliedTemplates')
-      .where('groupId')
-      .equals(groupId)
-      .delete();
+    await dal.queryCustom<never>({
+      sql: 'DELETE FROM crm_applied_templates WHERE group_id = ?1',
+      params: [groupId],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { delete: () => Promise<void> } } } };
+        await dexieDb.table('crmAppliedTemplates').where('groupId').equals(groupId).delete();
+        return [];
+      },
+    });
 
-    await db.table('crmAppliedTemplates').add(record);
+    await dal.add<DBAppliedTemplate>('crmAppliedTemplates', record);
 
     const appliedTemplates = new Map(get().appliedTemplates);
     appliedTemplates.set(groupId, record);

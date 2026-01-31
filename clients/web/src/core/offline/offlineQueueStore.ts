@@ -6,7 +6,7 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { secureRandomString } from '@/lib/utils';
 import { logger } from '@/lib/logger';
 import type {
@@ -118,7 +118,7 @@ export const useOfflineQueueStore = create<OfflineQueueState & OfflineQueueActio
         maxRetries: retryConfig.maxRetries,
       } as T;
 
-      // Save to IndexedDB first
+      // Save to database first
       await get().saveToDatabase(item);
 
       // Update in-memory state
@@ -479,10 +479,10 @@ export const useOfflineQueueStore = create<OfflineQueueState & OfflineQueueActio
       }
     },
 
-    // Load items from IndexedDB
+    // Load items from database
     loadFromDatabase: async (): Promise<void> => {
       try {
-        const dbItems = await db.offlineQueue?.toArray() || [];
+        const dbItems = await dal.getAll<DBOfflineQueueItem>('offlineQueue').catch(() => []);
         const itemsMap = new Map<string, QueueItem>();
         let pendingCount = 0;
         let failedCount = 0;
@@ -513,7 +513,7 @@ export const useOfflineQueueStore = create<OfflineQueueState & OfflineQueueActio
       }
     },
 
-    // Save item to IndexedDB
+    // Save item to database
     saveToDatabase: async (item: QueueItem): Promise<void> => {
       try {
         const dbItem: DBOfflineQueueItem = {
@@ -530,16 +530,16 @@ export const useOfflineQueueStore = create<OfflineQueueState & OfflineQueueActio
           authorPubkey: item.authorPubkey,
         };
 
-        await db.offlineQueue?.put(dbItem);
+        await dal.put('offlineQueue', dbItem);
       } catch (error) {
         logger.error('[OfflineQueue] Failed to save to database:', error);
       }
     },
 
-    // Delete item from IndexedDB
+    // Delete item from database
     deleteFromDatabase: async (id: string): Promise<void> => {
       try {
-        await db.offlineQueue?.delete(id);
+        await dal.delete('offlineQueue', id);
       } catch (error) {
         logger.error('[OfflineQueue] Failed to delete from database:', error);
       }

@@ -5,7 +5,7 @@
 
 import type { ModulePlugin } from '@/types/modules';
 import { crmSchema } from './schema';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { CRM_TEMPLATES } from './templates';
 import { Users } from 'lucide-react';
 import { lazy } from 'react';
@@ -87,7 +87,7 @@ export const crmModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial CRM schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('CRM migration v1: Initial schema');
       },
     },
@@ -97,7 +97,7 @@ export const crmModule: ModulePlugin = {
     {
       name: 'crm-templates',
       description: 'Seed CRM templates',
-      data: async (db: BuildItDB) => {
+      data: async () => {
         const now = Date.now();
         const dbTemplates = CRM_TEMPLATES.map((template) => ({
           id: template.id,
@@ -110,7 +110,7 @@ export const crmModule: ModulePlugin = {
           created: now,
         }));
 
-        await db.table('crmTemplates').bulkAdd(dbTemplates);
+        await dal.bulkPut('crmTemplates', dbTemplates);
       },
     },
   ],

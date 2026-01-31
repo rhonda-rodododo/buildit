@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Types (Wiki module types)
@@ -206,16 +206,10 @@ export const wikiSearchProvider: ModuleSearchProvider = {
    * Get all wiki pages for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.wikiPages) return [];
-
     try {
-      const pages = await db.wikiPages
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
-
-      return pages;
+      return await dal.query<WikiPage>('wikiPages', {
+        whereClause: { groupId },
+      });
     } catch (error) {
       console.error('Failed to fetch wiki pages for indexing:', error);
       return [];

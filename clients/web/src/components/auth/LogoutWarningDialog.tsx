@@ -28,7 +28,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { recoveryPhraseService } from '@/core/backup';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -112,7 +112,7 @@ export function LogoutWarningDialog({
   const handleConfirmBackup = async () => {
     try {
       // Mark the identity as having confirmed their backup
-      await db.identities.update(identityPubkey, {
+      await dal.update('identities', identityPubkey, {
         recoveryPhraseShownAt: Date.now(),
         recoveryPhraseConfirmedAt: Date.now(),
       });

@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Form } from './types';
 
@@ -16,13 +16,26 @@ import { logger } from '@/lib/logger';
 export const eventRegistrationFormSeed: ModuleSeed = {
   name: 'Event Registration Form',
   description: 'Sample event registration form with custom fields',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     // Find or create an events table (assumes events module is loaded)
-    let eventsTable = await db.databaseTables
-      ?.where({ groupId, name: 'Event Attendees' })
-      .first();
+    interface DatabaseTableRecord {
+      id: string;
+      groupId: string;
+      name: string;
+      description: string;
+      icon: string;
+      fields: Array<{ id: string; name: string; type: string; required: boolean; description?: string; options?: string[] }>;
+      created: number;
+      createdBy: string;
+      updated: number;
+    }
+    const eventsTableResults = await dal.query<DatabaseTableRecord>('databaseTables', {
+      whereClause: { groupId, name: 'Event Attendees' },
+      limit: 1,
+    });
+    let eventsTable: DatabaseTableRecord | undefined = eventsTableResults[0];
 
     if (!eventsTable) {
       // Create a simple events attendee table
@@ -68,7 +81,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
         createdBy: userPubkey,
         updated: now,
       };
-      await db.databaseTables?.add(eventsTable);
+      await dal.add('databaseTables', eventsTable);
     }
 
     // Create event registration form
@@ -79,7 +92,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
       tableId: eventsTable.id,
       title: 'Rally Registration',
       description: 'Register for our upcoming community rally',
-      fields: eventsTable.fields.map((field: any, index: number) => ({
+      fields: eventsTable.fields.map((field, index) => ({
         fieldId: field.id,
         order: index,
       })),
@@ -113,7 +126,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
       updated: now,
     };
 
-    await db.forms?.add(form);
+    await dal.add('forms', form);
     logger.info('✅ Created event registration form seed');
   },
 };
@@ -124,7 +137,7 @@ export const eventRegistrationFormSeed: ModuleSeed = {
 export const volunteerSignupFormSeed: ModuleSeed = {
   name: 'Volunteer Signup Form',
   description: 'Form for volunteers to sign up with skills and availability',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     // Create volunteers table
@@ -189,7 +202,7 @@ export const volunteerSignupFormSeed: ModuleSeed = {
       createdBy: userPubkey,
       updated: now,
     };
-    await db.databaseTables?.add(volunteersTable);
+    await dal.add('databaseTables', volunteersTable);
 
     // Create volunteer signup form
     const formId = generateEventId();
@@ -231,7 +244,7 @@ export const volunteerSignupFormSeed: ModuleSeed = {
       updated: now,
     };
 
-    await db.forms?.add(form);
+    await dal.add('forms', form);
     logger.info('✅ Created volunteer signup form seed');
   },
 };

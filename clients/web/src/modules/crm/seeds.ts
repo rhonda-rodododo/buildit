@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBContact } from './schema';
 
 import { logger } from '@/lib/logger';
@@ -14,7 +15,7 @@ import { logger } from '@/lib/logger';
 const exampleContactsSeed: ModuleSeed = {
   name: 'example-contacts',
   description: 'Example contacts for demonstration',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const exampleContacts: DBContact[] = [
       {
         id: `example-contact-1-${groupId}`,
@@ -49,7 +50,7 @@ const exampleContactsSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(exampleContacts);
+    await dal.bulkPut('contacts', exampleContacts);
     logger.info(`Seeded ${exampleContacts.length} example contacts for group ${groupId}`);
   },
 };
@@ -61,7 +62,7 @@ const exampleContactsSeed: ModuleSeed = {
 const nlgMassDefenseSeed: ModuleSeed = {
   name: 'crm-nlg-demo',
   description: 'NLG-style mass defense contacts: arrestees, attorneys, legal observers, and cases',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -262,7 +263,7 @@ const nlgMassDefenseSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} NLG mass defense contacts for group ${groupId}`);
   },
 };
@@ -274,7 +275,7 @@ const nlgMassDefenseSeed: ModuleSeed = {
 const streetMedicsSeed: ModuleSeed = {
   name: 'crm-street-medics-demo',
   description: 'Street medics contacts: medics, trainers, supply coordinators with certifications and deployment history',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -425,7 +426,7 @@ const streetMedicsSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} street medics contacts for group ${groupId}`);
   },
 };
@@ -437,7 +438,7 @@ const streetMedicsSeed: ModuleSeed = {
 const selfDefenseSeed: ModuleSeed = {
   name: 'crm-self-defense-demo',
   description: 'Self-defense collective contacts: safety marshals, de-escalation specialists, trainers, and coordinators',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -597,7 +598,7 @@ const selfDefenseSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} self-defense collective contacts for group ${groupId}`);
   },
 };
@@ -609,7 +610,7 @@ const selfDefenseSeed: ModuleSeed = {
 const unionChapterSeed: ModuleSeed = {
   name: 'crm-union-demo',
   description: 'Union chapter contacts: stewards, organizers, workers, and management contacts',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -704,7 +705,7 @@ const unionChapterSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} union chapter contacts for group ${groupId}`);
   },
 };
@@ -715,7 +716,7 @@ const unionChapterSeed: ModuleSeed = {
 const unionElectionSeed: ModuleSeed = {
   name: 'crm-union-election-demo',
   description: 'Union election campaign contacts: eligible voters, committee members, and outreach targets',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -791,7 +792,7 @@ const unionElectionSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} union election contacts for group ${groupId}`);
   },
 };
@@ -802,7 +803,7 @@ const unionElectionSeed: ModuleSeed = {
 const tenantUnionSeed: ModuleSeed = {
   name: 'crm-tenant-demo',
   description: 'Tenant union contacts: tenants, organizers, buildings, and landlord info',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -881,7 +882,7 @@ const tenantUnionSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} tenant union contacts for group ${groupId}`);
   },
 };
@@ -892,7 +893,7 @@ const tenantUnionSeed: ModuleSeed = {
 const nonprofitSeed: ModuleSeed = {
   name: 'crm-nonprofit-demo',
   description: 'Nonprofit contacts: donors, volunteers, board members, and beneficiaries',
-  data: async (db, groupId, _userPubkey) => {
+  data: async (groupId, _userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -970,7 +971,7 @@ const nonprofitSeed: ModuleSeed = {
       },
     ];
 
-    await db.contacts.bulkAdd(contacts);
+    await dal.bulkPut('contacts', contacts);
     logger.info(`Seeded ${contacts.length} nonprofit contacts for group ${groupId}`);
   },
 };

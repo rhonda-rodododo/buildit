@@ -12,7 +12,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Helper Functions
@@ -133,24 +133,24 @@ export const messagesSearchProvider: ModuleSearchProvider = {
    * Note: This could be expensive for large message histories
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.conversationMessages || !db.conversations) return [];
-
     try {
       // First get conversations for this group
-      const conversations = await db.conversations
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
+      const conversations = await dal.query<{ id: string }>('conversations', {
+        whereClause: { groupId },
+      });
 
       const conversationIds = conversations.map((c) => c.id);
       if (conversationIds.length === 0) return [];
 
       // Then get messages for those conversations
-      const messages = await db.conversationMessages
-        .where('conversationId')
-        .anyOf(conversationIds)
-        .toArray();
+      const messages = await dal.queryCustom<ConversationMessage>({
+        sql: `SELECT * FROM conversation_messages WHERE conversation_id IN (${conversationIds.map(() => '?').join(',')})`,
+        params: conversationIds,
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (ids: string[]) => { toArray: () => Promise<ConversationMessage[]> } } } };
+          return dexieDb.table('conversationMessages').where('conversationId').anyOf(conversationIds).toArray();
+        },
+      });
 
       return messages;
     } catch (error) {

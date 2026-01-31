@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Separator } from '@/components/ui/separator'
 import { MemberInviteDialog } from './MemberInviteDialog'
-import { db, type DBGroupMember, type DBGroupInvitation } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import type { DBGroupMember, DBGroupInvitation } from '@/core/storage/db'
 import { useAuthStore } from '@/stores/authStore'
 import { UserHandle } from '@/components/user/UserHandle'
 import { Crown, Shield, User, Eye, UserMinus, Clock, X } from 'lucide-react'
@@ -65,12 +66,18 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
     setLoading(true)
     try {
       const [loadedMembers, loadedInvites] = await Promise.all([
-        db.groupMembers.where('groupId').equals(groupId).toArray(),
-        db.groupInvitations
-          .where('groupId')
-          .equals(groupId)
-          .filter((inv) => inv.status === 'pending')
-          .toArray(),
+        dal.query<DBGroupMember>('groupMembers', { whereClause: { groupId } }),
+        dal.queryCustom<DBGroupInvitation>({
+          sql: `SELECT * FROM group_invitations WHERE group_id = ? AND status = 'pending'`,
+          params: [groupId],
+          dexieFallback: async (db) => {
+            return db.table('groupInvitations')
+              .where('groupId')
+              .equals(groupId)
+              .filter((inv: DBGroupInvitation) => inv.status === 'pending')
+              .toArray();
+          },
+        }),
       ])
       setMembers(loadedMembers)
       setPendingInvites(loadedInvites)
@@ -89,7 +96,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
     if (!member.id) return
 
     try {
-      await db.groupMembers.update(member.id, { role: newRole })
+      await dal.update('groupMembers', member.id, { role: newRole })
       setMembers((prev) =>
         prev.map((m) => (m.id === member.id ? { ...m, role: newRole } : m))
       )
@@ -103,7 +110,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
     if (!removingMember?.id) return
 
     try {
-      await db.groupMembers.delete(removingMember.id)
+      await dal.delete('groupMembers', removingMember.id)
       setMembers((prev) => prev.filter((m) => m.id !== removingMember.id))
       setRemovingMember(null)
     } catch (error) {
@@ -116,7 +123,7 @@ export const GroupMembersTab: FC<GroupMembersTabProps> = ({
     if (!revokingInvite) return
 
     try {
-      await db.groupInvitations.update(revokingInvite.id, { status: 'revoked' })
+      await dal.update('groupInvitations', revokingInvite.id, { status: 'revoked' })
       setPendingInvites((prev) => prev.filter((inv) => inv.id !== revokingInvite.id))
       setRevokingInvite(null)
     } catch (error) {

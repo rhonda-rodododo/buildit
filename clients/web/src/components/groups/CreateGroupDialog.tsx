@@ -22,7 +22,15 @@ import {
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { loadTemplateSeeds } from '@/core/storage/seedLoader'
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import { useEventsStore } from '@/modules/events/eventsStore'
+import { useMutualAidStore } from '@/modules/mutual-aid/mutualAidStore'
+import { useGovernanceStore } from '@/modules/governance/governanceStore'
+import { useWikiStore } from '@/modules/wiki/wikiStore'
+import type { Event, RSVP } from '@/modules/events/types'
+import type { AidItem } from '@/modules/mutual-aid/types'
+import type { DBProposal } from '@/modules/governance/schema'
+import type { WikiPage, WikiCategory } from '@/modules/wiki/types'
 import type { GroupPrivacyLevel, GroupModule } from '@/types/group'
 import { getAllModules } from '@/lib/modules/registry'
 import {
@@ -157,10 +165,32 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
         currentIdentity.publicKey
       )
 
-      // Enable selected modules in module store
+      // Enable selected modules in dependency order
       if (group) {
-        const { enableModule } = useModuleStore.getState()
+        const { enableModule, getNormalizedDependencies } = useModuleStore.getState()
+
+        // Topological sort: enable dependencies before dependents
+        const sorted: GroupModule[] = []
+        const visited = new Set<GroupModule>()
+        const moduleSet = new Set<GroupModule>(resolvedModules)
+
+        const visit = (moduleId: GroupModule) => {
+          if (visited.has(moduleId) || !moduleSet.has(moduleId)) return
+          visited.add(moduleId)
+          const deps = getNormalizedDependencies(moduleId)
+          for (const dep of deps) {
+            if (dep.relationship === 'requires' && moduleSet.has(dep.moduleId as GroupModule)) {
+              visit(dep.moduleId as GroupModule)
+            }
+          }
+          sorted.push(moduleId)
+        }
+
         for (const moduleId of resolvedModules) {
+          visit(moduleId)
+        }
+
+        for (const moduleId of sorted) {
           try {
             await enableModule(group.id, moduleId)
           } catch (error) {
@@ -171,10 +201,33 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
 
       // Load demo data if requested
       if (loadDemoData && group && selection) {
-        await loadTemplateSeeds(db, group.id, currentIdentity.publicKey, {
+        await loadTemplateSeeds(group.id, currentIdentity.publicKey, {
           ...selection,
           includeDemoData: true,
         })
+
+        // Refresh stores from DB so seed data is visible immediately
+        const [events, rsvps, aidItems, proposalsArr, pagesArr, categoriesArr] = await Promise.all([
+          dal.getAll<Event>('events'),
+          dal.getAll<RSVP>('rsvps'),
+          dal.getAll<AidItem>('mutualAidRequests'),
+          dal.getAll<DBProposal>('proposals'),
+          dal.getAll<WikiPage>('wikiPages'),
+          dal.getAll<WikiCategory>('wikiCategories'),
+        ])
+
+        useEventsStore.setState({ events, rsvps })
+        useMutualAidStore.setState({ aidItems })
+
+        const proposals: Record<string, (typeof proposalsArr)[number]> = {}
+        for (const p of proposalsArr) proposals[p.id] = p
+        useGovernanceStore.setState({ proposals })
+
+        const pages: Record<string, (typeof pagesArr)[number]> = {}
+        for (const p of pagesArr) pages[p.id] = p
+        const categories: Record<string, (typeof categoriesArr)[number]> = {}
+        for (const c of categoriesArr) categories[c.id] = c
+        useWikiStore.setState({ pages, categories })
       }
 
       setOpen(false)

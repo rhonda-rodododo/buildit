@@ -19,9 +19,11 @@ const { mockCacheMetadata, mockDb } = vi.hoisted(() => {
     where: vi.fn().mockReturnThis(),
     equals: vi.fn().mockReturnThis(),
     below: vi.fn().mockReturnThis(),
+    toCollection: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
+    filter: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
   };
 
-  const mockDb = {
+  const mockDb: Record<string, unknown> = {
     cacheMetadata: mockCacheMetadata,
     conversations: { toArray: vi.fn().mockResolvedValue([]) },
     conversationMessages: {
@@ -41,12 +43,19 @@ const { mockCacheMetadata, mockDb } = vi.hoisted(() => {
       bulkDelete: vi.fn().mockResolvedValue(undefined),
     },
   };
+  mockDb.table = vi.fn((name: string) => mockDb[name] ?? {
+    put: vi.fn(), get: vi.fn(), add: vi.fn(), delete: vi.fn(), update: vi.fn(),
+    toArray: vi.fn().mockResolvedValue([]), where: vi.fn().mockReturnThis(),
+    equals: vi.fn().mockReturnThis(), clear: vi.fn(), bulkPut: vi.fn(),
+    toCollection: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
+  });
 
   return { mockCacheMetadata, mockDb };
 });
 
 vi.mock('@/core/storage/db', () => ({
   db: mockDb,
+  getDB: vi.fn(() => mockDb),
 }));
 
 import { useCacheStore } from '../cacheStore';
@@ -246,11 +255,11 @@ describe('cacheStore', () => {
   describe('evictLRU', () => {
     it('should evict oldest entries to reach target size', async () => {
       const now = Date.now();
-      mockCacheMetadata.toArray.mockResolvedValueOnce([
+      const entries = [
         { key: '1', size: 30000, lastAccessedAt: now - 3000 }, // Oldest
         { key: '2', size: 20000, lastAccessedAt: now - 2000 },
         { key: '3', size: 10000, lastAccessedAt: now - 1000 }, // Newest
-      ]);
+      ];
 
       // Set usage to trigger eviction
       useCacheStore.setState({
@@ -263,13 +272,9 @@ describe('cacheStore', () => {
         },
       });
 
-      // Mock orderBy to return sorted entries
-      mockCacheMetadata.orderBy.mockReturnValueOnce({
-        toArray: vi.fn().mockResolvedValueOnce([
-          { key: '1', size: 30000, lastAccessedAt: now - 3000 },
-          { key: '2', size: 20000, lastAccessedAt: now - 2000 },
-          { key: '3', size: 10000, lastAccessedAt: now - 1000 },
-        ]),
+      // DAL's query uses db.table('cacheMetadata').toCollection().toArray() then sorts in JS
+      mockCacheMetadata.toCollection.mockReturnValueOnce({
+        toArray: vi.fn().mockResolvedValueOnce([...entries]),
       });
 
       const { evictLRU } = useCacheStore.getState();
@@ -302,7 +307,7 @@ describe('cacheStore', () => {
     it('should evict entries older than specified days', async () => {
       const cutoffDate = Date.now() - 31 * 24 * 60 * 60 * 1000; // 31 days ago
 
-      // Create a chainable mock object
+      // Create a chainable mock object for dexieFallback: db.cacheMetadata.where(...).below(...).toArray()
       const chainMock = {
         below: vi.fn(),
         toArray: vi.fn().mockResolvedValue([
@@ -317,7 +322,9 @@ describe('cacheStore', () => {
       const evictedCount = await evictByAge(30);
 
       expect(evictedCount).toBe(2);
-      expect(mockCacheMetadata.bulkDelete).toHaveBeenCalledWith(['old-1', 'old-2']);
+      // DAL now uses individual dal.delete calls instead of bulkDelete
+      expect(mockCacheMetadata.delete).toHaveBeenCalledWith('old-1');
+      expect(mockCacheMetadata.delete).toHaveBeenCalledWith('old-2');
     });
 
     it('should use default max age if not specified', async () => {
@@ -367,18 +374,25 @@ describe('cacheStore', () => {
 
   describe('clearCacheByType', () => {
     it('should clear cache entries of specific type', async () => {
+      // DAL query with single whereClause calls: db.table('cacheMetadata').where('type').equals('image')
+      // which returns mockCacheMetadata (via mockReturnThis), then .toArray()
+      const entries = [
+        { key: 'image-1', type: 'image', size: 1000 },
+        { key: 'image-2', type: 'image', size: 2000 },
+      ];
+      // Mock the where().equals() chain to return entries via toArray
       mockCacheMetadata.where.mockReturnValueOnce({
-        equals: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValueOnce([
-          { key: 'image-1', type: 'image', size: 1000 },
-          { key: 'image-2', type: 'image', size: 2000 },
-        ]),
+        equals: vi.fn().mockReturnValue({
+          toArray: vi.fn().mockResolvedValueOnce(entries),
+        }),
       });
 
       const { clearCacheByType } = useCacheStore.getState();
       await clearCacheByType('image');
 
-      expect(mockCacheMetadata.bulkDelete).toHaveBeenCalledWith(['image-1', 'image-2']);
+      // DAL now uses individual dal.delete calls instead of bulkDelete
+      expect(mockCacheMetadata.delete).toHaveBeenCalledWith('image-1');
+      expect(mockCacheMetadata.delete).toHaveBeenCalledWith('image-2');
     });
   });
 

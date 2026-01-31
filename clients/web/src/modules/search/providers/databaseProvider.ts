@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Types (Database module types)
@@ -235,15 +235,11 @@ export const databaseSearchProvider: ModuleSearchProvider = {
    * Get all database records for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.databaseRecords || !db.databaseTables) return [];
-
     try {
       // First load tables for this group to populate cache
-      const tables = await db.databaseTables
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
+      const tables = await dal.query<DatabaseTable>('databaseTables', {
+        whereClause: { groupId },
+      });
 
       // Update table cache
       for (const table of tables) {
@@ -254,10 +250,14 @@ export const databaseSearchProvider: ModuleSearchProvider = {
       const tableIds = tables.map((t) => t.id);
       if (tableIds.length === 0) return [];
 
-      const records = await db.databaseRecords
-        .where('tableId')
-        .anyOf(tableIds)
-        .toArray();
+      const records = await dal.queryCustom<DatabaseRecord>({
+        sql: `SELECT * FROM database_records WHERE table_id IN (${tableIds.map(() => '?').join(',')})`,
+        params: tableIds,
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (ids: string[]) => { toArray: () => Promise<DatabaseRecord[]> } } } };
+          return dexieDb.table('databaseRecords').where('tableId').anyOf(tableIds).toArray();
+        },
+      });
 
       return records;
     } catch (error) {

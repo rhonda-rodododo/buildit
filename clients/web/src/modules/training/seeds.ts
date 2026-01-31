@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { logger } from '@/lib/logger';
 import { nanoid } from 'nanoid';
 import { appBasicsTemplate } from './templates/appBasics';
@@ -17,7 +17,6 @@ import type { CourseTemplate, LessonTemplate, LessonContent, DocumentContent, Qu
  * Convert a course template to database records
  */
 async function seedCourseFromTemplate(
-  db: BuildItDB,
   template: CourseTemplate,
   groupId: string | undefined,
   userPubkey: string
@@ -26,7 +25,7 @@ async function seedCourseFromTemplate(
 
   // Create course
   const courseId = nanoid();
-  await db.table('trainingCourses').add({
+  await dal.add('trainingCourses', {
     id: courseId,
     groupId,
     title: template.title,
@@ -50,7 +49,7 @@ async function seedCourseFromTemplate(
     const moduleTemplate = template.modules[moduleIndex];
     const moduleId = nanoid();
 
-    await db.table('trainingModules').add({
+    await dal.add('trainingModules', {
       id: moduleId,
       courseId,
       title: moduleTemplate.title,
@@ -69,7 +68,7 @@ async function seedCourseFromTemplate(
       // Build content based on type
       const content = buildLessonContent(lessonTemplate);
 
-      await db.table('trainingLessons').add({
+      await dal.add('trainingLessons', {
         id: lessonId,
         moduleId,
         type: lessonTemplate.type,
@@ -163,7 +162,7 @@ export const trainingSeeds: ModuleSeed[] = [
   {
     name: 'default-training-templates',
     description: 'Seed default public training course templates (App Basics, Opsec, Digital Security, Jail Support)',
-    data: async (db: BuildItDB, _groupId: string, userPubkey: string) => {
+    data: async (_groupId: string, userPubkey: string) => {
       // Seed public templates (no groupId)
       const templates: CourseTemplate[] = [
         appBasicsTemplate,
@@ -174,13 +173,19 @@ export const trainingSeeds: ModuleSeed[] = [
 
       for (const template of templates) {
         // Check if course already exists
-        const existing = await db.table('trainingCourses')
-          .where('title').equals(template.title)
-          .filter(c => c.isDefault === 1)
-          .first();
+        const existingResults = await dal.queryCustom<{ title: string; isDefault: number }>({
+          sql: `SELECT * FROM training_courses WHERE title = ? AND is_default = 1 LIMIT 1`,
+          params: [template.title],
+          dexieFallback: async (db) => {
+            return db.table('trainingCourses')
+              .where('title').equals(template.title)
+              .filter((c: { isDefault: number }) => c.isDefault === 1)
+              .toArray();
+          },
+        });
 
-        if (!existing) {
-          await seedCourseFromTemplate(db, template, undefined, userPubkey);
+        if (existingResults.length === 0) {
+          await seedCourseFromTemplate(template, undefined, userPubkey);
         }
       }
 

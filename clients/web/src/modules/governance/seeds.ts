@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBProposal } from './schema';
 import { mediaCollectiveGovernanceSeeds } from './templates/mediaCollectiveSeeds';
 
@@ -33,7 +34,7 @@ function consensusOptions() {
 const governanceDemoSeed: ModuleSeed = {
   name: 'governance-demo',
   description: 'General governance proposals for activist collectives and organizing groups',
-  data: async (db, groupId, userPubkey) => {
+  data: async (groupId, userPubkey) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -91,7 +92,7 @@ const governanceDemoSeed: ModuleSeed = {
       },
     ];
 
-    await db.proposals?.bulkAdd(proposals);
+    await dal.bulkPut('proposals', proposals);
     logger.info(`Seeded ${proposals.length} governance demo proposals for group ${groupId}`);
   },
 };
@@ -102,7 +103,7 @@ export const governanceSeeds: ModuleSeed[] = [
   {
     name: 'comprehensive-proposals',
     description: 'Example proposals demonstrating all voting methods and statuses',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const day = 24 * 60 * 60 * 1000;
 
@@ -231,7 +232,7 @@ export const governanceSeeds: ModuleSeed[] = [
         },
       ];
 
-      await db.proposals?.bulkAdd(exampleProposals);
+      await dal.bulkPut('proposals', exampleProposals);
       logger.info(`Seeded ${exampleProposals.length} proposals demonstrating all voting methods for group ${groupId}`);
     },
   },

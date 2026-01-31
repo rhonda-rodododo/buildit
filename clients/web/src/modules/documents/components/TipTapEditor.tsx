@@ -225,6 +225,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
     const baseExtensions: any[] = [
       StarterKit.configure({
         codeBlock: false, // Disable default code block to use lowlight version
+        link: false, // Disable default to use custom Link config below
       }),
       Image.configure({
         inline: true,

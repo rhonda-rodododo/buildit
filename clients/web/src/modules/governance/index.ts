@@ -6,7 +6,7 @@
 import type { ModulePlugin } from '@/types/modules';
 import { governanceSchema } from './schema';
 import { governanceSeeds } from './seeds';
-import type { BuildItDB } from '@/core/storage/db';
+
 import { Vote } from 'lucide-react';
 import { lazy } from 'react';
 import { logger } from '@/lib/logger';
@@ -118,7 +118,7 @@ export const governanceModule: ModulePlugin = {
     {
       version: 1,
       description: 'Initial governance schema',
-      migrate: async (_db: BuildItDB) => {
+      migrate: async () => {
         logger.info('Governance migration v1: Initial schema');
       },
     },

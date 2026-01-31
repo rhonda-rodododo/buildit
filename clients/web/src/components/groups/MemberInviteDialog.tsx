@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UserPlus, Link2, Copy, Check } from 'lucide-react'
-import { db, type DBGroupInvitation, type DBGroupMember } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import type { DBGroupInvitation, DBGroupMember } from '@/core/storage/db'
 import { useAuthStore } from '@/stores/authStore'
 import { nanoid } from 'nanoid'
 
@@ -60,7 +61,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
         expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
       }
 
-      await db.groupInvitations.add(invitation)
+      await dal.add('groupInvitations', invitation)
 
       // Reset form
       setInviteePubkey('')
@@ -97,7 +98,7 @@ export const MemberInviteDialog: FC<MemberInviteDialogProps> = ({
         expiresAt,
       }
 
-      await db.groupInvitations.add(invitation)
+      await dal.add('groupInvitations', invitation)
 
       // Generate shareable link
       const link = `${window.location.origin}/invite/${code}`

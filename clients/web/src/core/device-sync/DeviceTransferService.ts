@@ -17,7 +17,8 @@
  */
 
 import { transferCrypto } from './TransferCrypto';
-import { getDB, type DBDeviceTransfer, type DBLinkedDevice } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBDeviceTransfer, DBLinkedDevice } from '@/core/storage/db';
 import { logger } from '@/lib/logger';
 import type {
   DeviceTransferQR,
@@ -447,16 +448,18 @@ export class DeviceTransferService {
    * Get transfer history for an identity
    */
   public async getTransferHistory(identityPubkey: string): Promise<DBDeviceTransfer[]> {
-    const db = getDB();
-    return db.deviceTransfers.where('identityPubkey').equals(identityPubkey).toArray();
+    return dal.query<DBDeviceTransfer>('deviceTransfers', {
+      whereClause: { identityPubkey },
+    });
   }
 
   /**
    * Get linked devices for an identity
    */
   public async getLinkedDevices(identityPubkey: string): Promise<DBLinkedDevice[]> {
-    const db = getDB();
-    return db.linkedDevices.where('identityPubkey').equals(identityPubkey).toArray();
+    return dal.query<DBLinkedDevice>('linkedDevices', {
+      whereClause: { identityPubkey },
+    });
   }
 
   // Private helper methods
@@ -551,7 +554,6 @@ export class DeviceTransferService {
     session: DeviceTransferSession,
     direction: 'outgoing' | 'incoming'
   ): Promise<void> {
-    const db = getDB();
     const record: DBDeviceTransfer = {
       id: session.id,
       identityPubkey: session.identityPubkey || '',
@@ -562,7 +564,7 @@ export class DeviceTransferService {
       expiresAt: session.expiresAt,
     };
 
-    await db.deviceTransfers.put(record);
+    await dal.put('deviceTransfers', record);
   }
 
   private async completeTransferRecord(
@@ -570,8 +572,7 @@ export class DeviceTransferService {
     status: 'completed' | 'failed' | 'expired',
     errorMessage?: string
   ): Promise<void> {
-    const db = getDB();
-    await db.deviceTransfers.update(sessionId, {
+    await dal.update('deviceTransfers', sessionId, {
       status,
       completedAt: Date.now(),
       errorMessage,
@@ -581,7 +582,6 @@ export class DeviceTransferService {
   private async recordLinkedDevice(session: DeviceTransferSession): Promise<void> {
     if (!session.identityPubkey) return;
 
-    const db = getDB();
     const device: DBLinkedDevice = {
       id: crypto.randomUUID(),
       identityPubkey: session.identityPubkey,
@@ -596,7 +596,7 @@ export class DeviceTransferService {
       createdAt: Date.now(),
     };
 
-    await db.linkedDevices.put(device);
+    await dal.put('linkedDevices', device);
   }
 
   /**

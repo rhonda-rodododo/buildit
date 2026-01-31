@@ -9,7 +9,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Badge } from '@/components/ui/badge'
 import { ChevronDown, Mail } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import type { DBGroupInvitation } from '@/core/storage/db'
 
 export const GroupsView: FC = () => {
   const { t } = useTranslation()
@@ -27,11 +28,18 @@ export const GroupsView: FC = () => {
 
       try {
         const now = Date.now()
-        const count = await db.groupInvitations
-          .where('inviteePubkey')
-          .equals(currentIdentity.publicKey)
-          .filter((inv) => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
-          .count()
+        const pendingInvites = await dal.queryCustom<DBGroupInvitation>({
+          sql: `SELECT * FROM group_invitations WHERE invitee_pubkey = ? AND status = 'pending' AND (expires_at IS NULL OR expires_at > ?)`,
+          params: [currentIdentity.publicKey, now],
+          dexieFallback: async (db) => {
+            return db.table('groupInvitations')
+              .where('inviteePubkey')
+              .equals(currentIdentity.publicKey)
+              .filter((inv: DBGroupInvitation) => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
+              .toArray();
+          },
+        })
+        const count = pendingInvites.length
         setInvitationCount(count)
         // Auto-open if there are invitations
         if (count > 0) {

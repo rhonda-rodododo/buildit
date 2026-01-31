@@ -17,40 +17,43 @@ describe('governanceStore', () => {
   });
 
   const createMockProposal = (overrides: Partial<Proposal> = {}): Proposal => ({
+    _v: '1.0.0',
     id: `proposal-${Date.now()}-${Math.random()}`,
     groupId: 'group-1',
     title: 'Test Proposal',
     description: 'A test proposal',
-    authorPubkey: 'user-1',
+    type: 'general',
+    createdBy: 'user-1',
     status: 'discussion',
-    votingMethod: 'simple',
-    created: Date.now(),
-    updated: Date.now(),
+    votingSystem: 'simple-majority',
+    options: [],
+    votingPeriod: { startsAt: Date.now(), endsAt: Date.now() + 86400000 },
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
     ...overrides,
-  });
+  } as Proposal);
 
   const createMockVote = (overrides: Partial<Vote> = {}): Vote => ({
+    _v: '1.0.0',
     id: `vote-${Date.now()}-${Math.random()}`,
     proposalId: 'proposal-1',
-    voterPubkey: 'user-1',
-    vote: 'yes',
-    timestamp: Date.now(),
+    voterId: 'user-1',
+    choice: 'yes',
+    castAt: Date.now(),
     signature: 'sig-123',
     ...overrides,
-  });
+  } as Vote);
 
   const createMockResults = (overrides: Partial<VotingResults> = {}): VotingResults => ({
     proposalId: 'proposal-1',
-    method: 'simple',
+    votingSystem: 'simple-majority',
     totalVotes: 10,
     totalEligibleVoters: 20,
     turnoutPercentage: 50,
     results: {
-      yes: 6,
-      no: 3,
-      abstain: 1,
-      yesPercentage: 60,
-      noPercentage: 30,
+      voteCounts: { yes: 6, no: 3, abstain: 1 },
+      winnerId: 'yes',
+      thresholdMet: true,
     },
     passed: true,
     finalizedAt: Date.now(),
@@ -103,12 +106,12 @@ describe('governanceStore', () => {
 
       it('should update the updated timestamp', () => {
         const { addProposal, updateProposal } = useGovernanceStore.getState();
-        addProposal(createMockProposal({ id: 'proposal-1', updated: 1000 }));
+        addProposal(createMockProposal({ id: 'proposal-1', updatedAt: 1000 }));
 
         updateProposal('proposal-1', { title: 'Updated' });
 
         const { proposals } = useGovernanceStore.getState();
-        expect(proposals['proposal-1'].updated).toBeGreaterThan(1000);
+        expect(proposals['proposal-1'].updatedAt).toBeGreaterThan(1000);
       });
 
       it('should not modify state for non-existent proposal', () => {
@@ -140,7 +143,7 @@ describe('governanceStore', () => {
     describe('addVote', () => {
       it('should add a vote', () => {
         const { addVote } = useGovernanceStore.getState();
-        const vote = createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1' });
+        const vote = createMockVote({ proposalId: 'proposal-1', voterId: 'user-1' });
 
         addVote(vote);
 
@@ -151,20 +154,20 @@ describe('governanceStore', () => {
       it('should replace existing vote from same user', () => {
         const { addVote } = useGovernanceStore.getState();
 
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1', vote: 'yes' }));
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1', vote: 'no' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1', choice: 'yes' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1', choice: 'no' }));
 
         const { votes } = useGovernanceStore.getState();
         expect(votes['proposal-1']).toHaveLength(1);
-        expect(votes['proposal-1'][0].vote).toBe('no');
+        expect(votes['proposal-1'][0].choice).toBe('no');
       });
 
       it('should allow multiple users to vote on same proposal', () => {
         const { addVote } = useGovernanceStore.getState();
 
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1' }));
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-2' }));
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-3' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-2' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-3' }));
 
         const { votes } = useGovernanceStore.getState();
         expect(votes['proposal-1']).toHaveLength(3);
@@ -208,9 +211,9 @@ describe('governanceStore', () => {
     describe('getProposalsByGroup', () => {
       it('should filter proposals by group', () => {
         const { addProposal, getProposalsByGroup } = useGovernanceStore.getState();
-        addProposal(createMockProposal({ id: 'p1', groupId: 'group-1', created: 1000 }));
-        addProposal(createMockProposal({ id: 'p2', groupId: 'group-2', created: 2000 }));
-        addProposal(createMockProposal({ id: 'p3', groupId: 'group-1', created: 3000 }));
+        addProposal(createMockProposal({ id: 'p1', groupId: 'group-1', createdAt: 1000 }));
+        addProposal(createMockProposal({ id: 'p2', groupId: 'group-2', createdAt: 2000 }));
+        addProposal(createMockProposal({ id: 'p3', groupId: 'group-1', createdAt: 3000 }));
 
         const proposals = getProposalsByGroup('group-1');
 
@@ -220,9 +223,9 @@ describe('governanceStore', () => {
 
       it('should sort proposals by created date descending', () => {
         const { addProposal, getProposalsByGroup } = useGovernanceStore.getState();
-        addProposal(createMockProposal({ id: 'p1', groupId: 'group-1', created: 1000 }));
-        addProposal(createMockProposal({ id: 'p2', groupId: 'group-1', created: 3000 }));
-        addProposal(createMockProposal({ id: 'p3', groupId: 'group-1', created: 2000 }));
+        addProposal(createMockProposal({ id: 'p1', groupId: 'group-1', createdAt: 1000 }));
+        addProposal(createMockProposal({ id: 'p2', groupId: 'group-1', createdAt: 3000 }));
+        addProposal(createMockProposal({ id: 'p3', groupId: 'group-1', createdAt: 2000 }));
 
         const proposals = getProposalsByGroup('group-1');
 
@@ -251,8 +254,8 @@ describe('governanceStore', () => {
     describe('getVotes', () => {
       it('should return votes for a proposal', () => {
         const { addVote, getVotes } = useGovernanceStore.getState();
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1' }));
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-2' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-2' }));
 
         const votes = getVotes('proposal-1');
 
@@ -269,17 +272,17 @@ describe('governanceStore', () => {
     describe('getUserVote', () => {
       it('should return user vote for a proposal', () => {
         const { addVote, getUserVote } = useGovernanceStore.getState();
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1', vote: 'yes' }));
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-2', vote: 'no' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1', choice: 'yes' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-2', choice: 'no' }));
 
         const vote = getUserVote('proposal-1', 'user-1');
 
-        expect(vote?.vote).toBe('yes');
+        expect(vote?.choice).toBe('yes');
       });
 
       it('should return undefined if user has not voted', () => {
         const { addVote, getUserVote } = useGovernanceStore.getState();
-        addVote(createMockVote({ proposalId: 'proposal-1', voterPubkey: 'user-1' }));
+        addVote(createMockVote({ proposalId: 'proposal-1', voterId: 'user-1' }));
 
         expect(getUserVote('proposal-1', 'user-2')).toBeUndefined();
       });

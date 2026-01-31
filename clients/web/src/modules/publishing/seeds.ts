@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Article, Publication } from './types';
 import { DEFAULT_INDEXABILITY } from '@/types/indexability';
@@ -17,7 +17,7 @@ import { logger } from '@/lib/logger';
 export const publishingDemoSeed: ModuleSeed = {
   name: 'publishing-demo',
   description: 'Sample publication with articles for media collective groups',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -58,7 +58,7 @@ export const publishingDemoSeed: ModuleSeed = {
       updatedAt: now - 1 * day,
     };
 
-    await db.publications?.add(publication);
+    await dal.add('publications', publication);
 
     // Create sample articles
     const articles: Article[] = [
@@ -158,7 +158,7 @@ export const publishingDemoSeed: ModuleSeed = {
     ];
 
     for (const article of articles) {
-      await db.articles?.add(article);
+      await dal.add('articles', article);
     }
 
     logger.info(`Seeded publication "${publication.name}" with ${articles.length} articles for group ${groupId}`);

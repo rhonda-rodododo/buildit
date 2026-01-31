@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Newsletter, NewsletterIssue } from './types';
 
@@ -16,7 +16,7 @@ import { logger } from '@/lib/logger';
 export const newslettersDemoSeed: ModuleSeed = {
   name: 'newsletters-demo',
   description: 'Sample newsletter with past issues for media collective groups',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
     const day = 24 * 60 * 60 * 1000;
 
@@ -53,7 +53,7 @@ export const newslettersDemoSeed: ModuleSeed = {
       updatedAt: now - 1 * day,
     };
 
-    await db.newsletters?.add(newsletter);
+    await dal.add('newsletters', newsletter);
 
     // Create sample issues
     const issues: NewsletterIssue[] = [
@@ -135,7 +135,7 @@ Check the Events module for the full calendar.
     ];
 
     for (const issue of issues) {
-      await db.newsletterIssues?.add(issue);
+      await dal.add('newsletterIssues', issue);
     }
 
     logger.info(`Seeded newsletter "${newsletter.name}" with ${issues.length} issues for group ${groupId}`);

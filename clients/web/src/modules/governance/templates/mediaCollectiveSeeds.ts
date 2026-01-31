@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBProposal } from '../schema';
 
 import { logger } from '@/lib/logger';
@@ -34,7 +35,7 @@ export const mediaCollectiveGovernanceSeeds: ModuleSeed[] = [
   {
     name: 'governance-media-demo',
     description: 'Media collective governance proposals demonstrating editorial and operational decisions',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now();
       const day = 24 * 60 * 60 * 1000;
 
@@ -340,7 +341,7 @@ Authors flag at submission. Editors review before syndication.
         },
       ];
 
-      await db.proposals?.bulkAdd(mediaProposals);
+      await dal.bulkPut('proposals', mediaProposals);
       logger.info(
         `Seeded ${mediaProposals.length} media collective governance proposals for group ${groupId}`
       );

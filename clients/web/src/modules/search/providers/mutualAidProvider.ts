@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Types (Mutual Aid module types)
@@ -238,16 +238,10 @@ export const mutualAidSearchProvider: ModuleSearchProvider = {
    * Get all mutual aid items for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.mutualAidRequests) return [];
-
     try {
-      const items = await db.mutualAidRequests
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
-
-      return items;
+      return await dal.query<MutualAidRequest>('mutualAidRequests', {
+        whereClause: { groupId },
+      });
     } catch (error) {
       console.error('Failed to fetch mutual aid items for indexing:', error);
       return [];

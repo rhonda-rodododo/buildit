@@ -17,11 +17,21 @@ const { mockGroups, mockGroupMembers, createMockTable } = vi.hoisted(() => ({
         toArray: vi.fn(() => Promise.resolve([])),
       })),
     })),
+    put: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(undefined),
+    add: vi.fn().mockResolvedValue(undefined),
+    delete: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn().mockResolvedValue(undefined),
+    toArray: vi.fn().mockResolvedValue([]),
+    clear: vi.fn().mockResolvedValue(undefined),
+    bulkPut: vi.fn().mockResolvedValue(undefined),
+    count: vi.fn().mockResolvedValue(0),
+    toCollection: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
   }),
 }));
 
-vi.mock('@/core/storage/db', () => ({
-  db: {
+vi.mock('@/core/storage/db', () => {
+  const mockDb = {
     groups: {
       add: vi.fn((group: DBGroup) => {
         mockGroups.set(group.id, group);
@@ -35,6 +45,7 @@ vi.mock('@/core/storage/db', () => ({
         }
         return Promise.resolve();
       }),
+      put: vi.fn().mockResolvedValue(undefined),
       delete: vi.fn((id: string) => {
         mockGroups.delete(id);
         return Promise.resolve();
@@ -45,7 +56,21 @@ vi.mock('@/core/storage/db', () => ({
             Promise.resolve(ids.map((id) => mockGroups.get(id)).filter(Boolean))
           ),
         })),
+        equals: vi.fn(() => ({
+          toArray: vi.fn(() => Promise.resolve([])),
+          delete: vi.fn(() => Promise.resolve(0)),
+        })),
       })),
+      toCollection: vi.fn(() => ({
+        toArray: vi.fn(() => Promise.resolve(Array.from(mockGroups.values()))),
+        filter: vi.fn((fn: (item: DBGroup) => boolean) => ({
+          toArray: vi.fn(() => Promise.resolve(Array.from(mockGroups.values()).filter(fn))),
+        })),
+      })),
+      filter: vi.fn((fn: (item: DBGroup) => boolean) => ({
+        toArray: vi.fn(() => Promise.resolve(Array.from(mockGroups.values()).filter(fn))),
+      })),
+      toArray: vi.fn(() => Promise.resolve(Array.from(mockGroups.values()))),
     },
     groupMembers: {
       add: vi.fn((member: DBGroupMember) => {
@@ -53,6 +78,18 @@ vi.mock('@/core/storage/db', () => ({
         return Promise.resolve();
       }),
       update: vi.fn((_id: number, _updates: Partial<DBGroupMember>) => Promise.resolve()),
+      toCollection: vi.fn(() => ({
+        toArray: vi.fn(() => Promise.resolve([...mockGroupMembers])),
+        filter: vi.fn((fn: (item: DBGroupMember) => boolean) => ({
+          toArray: vi.fn(() => Promise.resolve(mockGroupMembers.filter(fn))),
+        })),
+      })),
+      filter: vi.fn((fn: (item: DBGroupMember) => boolean) => ({
+        toArray: vi.fn(() => Promise.resolve(mockGroupMembers.filter(fn))),
+      })),
+      toArray: vi.fn(() => Promise.resolve([...mockGroupMembers])),
+      delete: vi.fn().mockResolvedValue(undefined),
+      get: vi.fn().mockResolvedValue(undefined),
       where: vi.fn((field: string | string[]) => ({
         equals: vi.fn((value: string | string[]) => {
           // Support compound index query: where(['groupId', 'pubkey']).equals([groupId, pubkey])
@@ -110,14 +147,18 @@ vi.mock('@/core/storage/db', () => ({
     groupEntityMessages: createMockTable(),
     channels: createMockTable(),
     // db.table() method for accessing module tables dynamically
-    table: vi.fn(() => createMockTable()),
+    table: vi.fn((name: string) => (mockDb as Record<string, unknown>)[name] ?? createMockTable()),
     transaction: vi.fn(
       async (_mode: string, _tables: unknown[], callback: () => Promise<void>) => {
         await callback();
       }
     ),
-  },
-}));
+  };
+  return {
+    db: mockDb,
+    getDB: vi.fn(() => mockDb),
+  };
+});
 
 // Mock authStore for authorization checks
 const mockCurrentIdentity = {

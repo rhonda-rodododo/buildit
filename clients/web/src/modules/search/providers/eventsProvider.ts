@@ -11,7 +11,7 @@ import type {
   FacetDefinition,
   ParsedQuery,
 } from '../types';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // ============================================================================
 // Types (Events module types)
@@ -245,16 +245,10 @@ export const eventsSearchProvider: ModuleSearchProvider = {
    * Get all events for indexing
    */
   async getIndexableEntities(groupId: string): Promise<unknown[]> {
-    const db = getDB();
-    if (!db.events) return [];
-
     try {
-      const events = await db.events
-        .where('groupId')
-        .equals(groupId)
-        .toArray();
-
-      return events;
+      return await dal.query<Event>('events', {
+        whereClause: { groupId },
+      });
     } catch (error) {
       console.error('Failed to fetch events for indexing:', error);
       return [];

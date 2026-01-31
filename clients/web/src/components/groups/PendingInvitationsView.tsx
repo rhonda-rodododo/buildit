@@ -7,7 +7,8 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useAuthStore } from '@/stores/authStore'
-import { db, type DBGroupInvitation, type DBGroup } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
+import type { DBGroupInvitation, DBGroup } from '@/core/storage/db'
 import { UserHandle } from '@/components/user/UserHandle'
 import { Mail, Check, X, Clock, Users, Shield, AlertCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -34,15 +35,29 @@ export const PendingInvitationsView: FC = () => {
     try {
       const now = Date.now()
       // Get pending invitations for current user
-      const pendingInvites = await db.groupInvitations
-        .where('inviteePubkey')
-        .equals(currentIdentity.publicKey)
-        .filter((inv) => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
-        .toArray()
+      const pendingInvites = await dal.queryCustom<DBGroupInvitation>({
+        sql: `SELECT * FROM group_invitations WHERE invitee_pubkey = ? AND status = 'pending' AND (expires_at IS NULL OR expires_at > ?)`,
+        params: [currentIdentity.publicKey, now],
+        dexieFallback: async (db) => {
+          return db.table('groupInvitations')
+            .where('inviteePubkey')
+            .equals(currentIdentity.publicKey)
+            .filter((inv: DBGroupInvitation) => inv.status === 'pending' && (!inv.expiresAt || inv.expiresAt > now))
+            .toArray();
+        },
+      })
 
       // Load group info for each invitation
       const groupIds = [...new Set(pendingInvites.map((inv) => inv.groupId))]
-      const groups = await db.groups.where('id').anyOf(groupIds).toArray()
+      const groups = groupIds.length > 0
+        ? await dal.queryCustom<DBGroup>({
+            sql: `SELECT * FROM groups WHERE id IN (${groupIds.map(() => '?').join(',')})`,
+            params: groupIds,
+            dexieFallback: async (db) => {
+              return db.table('groups').where('id').anyOf(groupIds).toArray();
+            },
+          })
+        : []
       const groupMap = new Map(groups.map((g) => [g.id, g]))
 
       const invitesWithGroups: InvitationWithGroup[] = pendingInvites.map((inv) => ({

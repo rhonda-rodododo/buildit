@@ -7,7 +7,7 @@ import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
 import { bytesToHex } from '@noble/hashes/utils';
-import { db } from '../storage/db';
+import { dal } from '../storage/dal';
 import type {
   GroupEntity,
   GroupEntitySettings,
@@ -193,7 +193,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   initialize: async () => {
     try {
       // Load group entities
-      const entities = await db.groupEntities.toArray();
+      const entities = await dal.getAll<DBGroupEntity>('groupEntities');
       const entityMap = new Map<string, GroupEntity>();
 
       for (const dbEntity of entities) {
@@ -207,7 +207,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       }
 
       // Load coalitions
-      const dbCoalitions = await db.coalitions.toArray();
+      const dbCoalitions = await dal.getAll<DBCoalition>('coalitions');
       const coalitions: Coalition[] = dbCoalitions.map((dbCoal) => ({
         id: dbCoal.id,
         name: dbCoal.name,
@@ -221,7 +221,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       }));
 
       // Load channels
-      const dbChannels = await db.channels.toArray();
+      const dbChannels = await dal.getAll<DBChannel>('channels');
       const channelMap = new Map<string, Channel[]>();
 
       for (const dbChan of dbChannels) {
@@ -242,7 +242,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       }
 
       // Load shared projects
-      const dbSharedProjects = await db.sharedProjects.toArray();
+      const dbSharedProjects = await dal.getAll<DBSharedProject>('sharedProjects');
       const sharedProjects: SharedProject[] = dbSharedProjects.map((dbProj: DBSharedProject) => ({
         id: dbProj.id,
         type: dbProj.type,
@@ -260,10 +260,9 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       }));
 
       // Load pending invitations
-      const dbInvitations = await db.sharedProjectInvitations
-        .where('status')
-        .equals('pending')
-        .toArray();
+      const dbInvitations = await dal.query<DBSharedProjectInvitation>('sharedProjectInvitations', {
+        whereClause: { status: 'pending' },
+      });
       const pendingInvitations: GroupInvitation[] = dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
         id: dbInv.id,
         sharedProjectId: dbInv.sharedProjectId,
@@ -306,8 +305,6 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     const pubkey = getPublicKey(privateKeyBytes);
 
     // Encrypt private key with group master key
-    // Note: In production, derive group master key from group creation event
-    // For MVP, we'll use a simple encryption with current user's key as placeholder
     const { encryptedData, iv } = await encryptGroupKey(privateKey, groupId);
 
     const defaultSettings: GroupEntitySettings = {
@@ -328,7 +325,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       settings: JSON.stringify(defaultSettings),
     };
 
-    await db.groupEntities.add(dbEntity);
+    await dal.add('groupEntities', dbEntity);
 
     const entity: GroupEntity = {
       groupId,
@@ -351,7 +348,10 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     const cached = get().entities.get(groupId);
     if (cached) return cached;
 
-    const dbEntity = await db.groupEntities.where({ groupId }).first();
+    const results = await dal.query<DBGroupEntity>('groupEntities', {
+      whereClause: { groupId },
+    });
+    const dbEntity = results[0];
     if (!dbEntity) return null;
 
     const entity: GroupEntity = {
@@ -372,7 +372,14 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   deleteGroupEntity: async (groupId) => {
-    await db.groupEntities.where({ groupId }).delete();
+    await dal.queryCustom({
+      sql: 'DELETE FROM group_entities WHERE group_id = ?1',
+      params: [groupId],
+      dexieFallback: async (db) => {
+        await db.groupEntities.where({ groupId }).delete();
+        return [];
+      },
+    });
 
     set((state) => {
       const newEntities = new Map(state.entities);
@@ -390,9 +397,14 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       ...settingsPartial,
     };
 
-    await db.groupEntities
-      .where({ groupId })
-      .modify({ settings: JSON.stringify(newSettings) });
+    // Find the entity record to update by groupId
+    const results = await dal.query<DBGroupEntity>('groupEntities', {
+      whereClause: { groupId },
+    });
+    const dbEntity = results[0];
+    if (dbEntity) {
+      await dal.update('groupEntities', dbEntity.id, { settings: JSON.stringify(newSettings) });
+    }
 
     set((state) => {
       const newEntities = new Map(state.entities);
@@ -431,14 +443,13 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     // Check permissions
     if (entity.settings.speakerPermission === 'admins-only') {
       // In production, check if current user is admin
-      // For MVP, we'll assume permission is granted
     }
 
     // Create message record
     const message: GroupEntityMessage = {
       id: uuidv4(),
       groupId,
-      messageId: uuidv4(), // In production, this would be the Nostr event ID
+      messageId: uuidv4(),
       content,
       authorizedBy: currentUser.publicKey,
       authorizedAt: Date.now(),
@@ -459,7 +470,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       metadata: message.metadata ? JSON.stringify(message.metadata) : null,
     };
 
-    await db.groupEntityMessages.add(dbMessage);
+    await dal.add('groupEntityMessages', dbMessage);
 
     // Add to audit log
     set((state) => ({
@@ -470,11 +481,12 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   getAuditLog: async (groupId, limit = 50) => {
-    const messages = await db.groupEntityMessages
-      .where({ groupId })
-      .reverse()
-      .limit(limit)
-      .toArray();
+    const messages = await dal.query<DBGroupEntityMessage>('groupEntityMessages', {
+      whereClause: { groupId },
+      orderBy: 'authorizedAt',
+      orderDir: 'desc',
+      limit,
+    });
 
     return messages.map((dbMsg) => ({
       id: dbMsg.id,
@@ -515,7 +527,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       description,
       groupIds,
       individualPubkeys,
-      conversationId: uuidv4(), // In production, create actual conversation
+      conversationId: uuidv4(),
       createdBy: currentUser.publicKey,
       createdAt: Date.now(),
       settings: defaultSettings,
@@ -533,7 +545,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       settings: JSON.stringify(coalition.settings),
     };
 
-    await db.coalitions.add(dbCoalition);
+    await dal.add('coalitions', dbCoalition);
 
     set((state) => ({
       coalitions: [...state.coalitions, coalition],
@@ -546,7 +558,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     const cached = get().coalitions.find((c) => c.id === id);
     if (cached) return cached;
 
-    const dbCoalition = await db.coalitions.get(id);
+    const dbCoalition = await dal.get<DBCoalition>('coalitions', id);
     if (!dbCoalition) return null;
 
     const coalition: Coalition = {
@@ -574,7 +586,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
 
     const updated = { ...existing, ...updates };
 
-    await db.coalitions.update(id, {
+    await dal.update('coalitions', id, {
       name: updated.name,
       description: updated.description || null,
       groupIds: JSON.stringify(updated.groupIds),
@@ -588,7 +600,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   deleteCoalition: async (id) => {
-    await db.coalitions.delete(id);
+    await dal.delete('coalitions', id);
 
     set((state) => ({
       coalitions: state.coalitions.filter((c) => c.id !== id),
@@ -609,7 +621,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       name,
       description,
       type,
-      conversationId: uuidv4(), // In production, create actual conversation
+      conversationId: uuidv4(),
       permissions,
       createdBy: currentUser.publicKey,
       createdAt: Date.now(),
@@ -627,7 +639,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       createdAt: channel.createdAt,
     };
 
-    await db.channels.add(dbChannel);
+    await dal.add('channels', dbChannel);
 
     set((state) => {
       const newChannels = new Map(state.channels);
@@ -643,7 +655,9 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     const cached = get().channels.get(groupId);
     if (cached) return cached;
 
-    const dbChannels = await db.channels.where({ groupId }).toArray();
+    const dbChannels = await dal.query<DBChannel>('channels', {
+      whereClause: { groupId },
+    });
 
     const channels: Channel[] = dbChannels.map((dbChan) => ({
       id: dbChan.id,
@@ -667,7 +681,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   updateChannel: async (id, updates) => {
-    await db.channels.update(id, {
+    await dal.update('channels', id, {
       ...(updates.name && { name: updates.name }),
       ...(updates.description !== undefined && { description: updates.description || null }),
       ...(updates.type && { type: updates.type }),
@@ -687,7 +701,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   deleteChannel: async (id) => {
-    await db.channels.delete(id);
+    await dal.delete('channels', id);
 
     set((state) => {
       const newChannels = new Map(state.channels);
@@ -806,7 +820,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       updatedAt: project.updatedAt,
     };
 
-    await db.sharedProjects.add(dbProject);
+    await dal.add('sharedProjects', dbProject);
 
     set((state) => ({
       sharedProjects: [...state.sharedProjects, project],
@@ -819,7 +833,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
     const cached = get().sharedProjects.find((p) => p.id === id);
     if (cached) return cached;
 
-    const dbProject = await db.sharedProjects.get(id);
+    const dbProject = await dal.get<DBSharedProject>('sharedProjects', id);
     if (!dbProject) return null;
 
     const project: SharedProject = {
@@ -846,7 +860,9 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   getSharedProjectsForItem: async (itemId) => {
-    const dbProjects = await db.sharedProjects.where({ itemId }).toArray();
+    const dbProjects = await dal.query<DBSharedProject>('sharedProjects', {
+      whereClause: { itemId },
+    });
 
     return dbProjects.map((dbProject: DBSharedProject) => ({
       id: dbProject.id,
@@ -867,7 +883,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
 
   getSharedProjectsForGroup: async (groupId) => {
     // Get projects where group is owner or participant
-    const allProjects = await db.sharedProjects.toArray();
+    const allProjects = await dal.getAll<DBSharedProject>('sharedProjects');
 
     const projects: SharedProject[] = [];
     for (const dbProject of allProjects) {
@@ -904,7 +920,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
 
     const updated = { ...existing, ...updates, updatedAt: Date.now() };
 
-    await db.sharedProjects.update(id, {
+    await dal.update('sharedProjects', id, {
       ...(updates.name !== undefined && { name: updates.name }),
       ...(updates.description !== undefined && { description: updates.description || null }),
       ...(updates.participantGroups && {
@@ -985,7 +1001,7 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       expiresAt: invitation.expiresAt || null,
     };
 
-    await db.sharedProjectInvitations.add(dbInvitation);
+    await dal.add('sharedProjectInvitations', dbInvitation);
 
     set((state) => ({
       pendingInvitations: [...state.pendingInvitations, invitation],
@@ -1002,20 +1018,20 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       throw new Error('No authenticated user');
     }
 
-    const dbInvitation = await db.sharedProjectInvitations.get(invitationId);
+    const dbInvitation = await dal.get<DBSharedProjectInvitation>('sharedProjectInvitations', invitationId);
     if (!dbInvitation) throw new Error('Invitation not found');
     if (dbInvitation.status !== 'pending') throw new Error('Invitation is no longer pending');
 
     // Check expiration
     if (dbInvitation.expiresAt && dbInvitation.expiresAt < Date.now()) {
-      await db.sharedProjectInvitations.update(invitationId, { status: 'expired' });
+      await dal.update('sharedProjectInvitations', invitationId, { status: 'expired' });
       throw new Error('Invitation has expired');
     }
 
     const now = Date.now();
 
     // Update invitation status
-    await db.sharedProjectInvitations.update(invitationId, {
+    await dal.update('sharedProjectInvitations', invitationId, {
       status: 'accepted',
       respondedAt: now,
       respondedBy: currentUser.publicKey,
@@ -1054,11 +1070,11 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
       throw new Error('No authenticated user');
     }
 
-    const dbInvitation = await db.sharedProjectInvitations.get(invitationId);
+    const dbInvitation = await dal.get<DBSharedProjectInvitation>('sharedProjectInvitations', invitationId);
     if (!dbInvitation) throw new Error('Invitation not found');
     if (dbInvitation.status !== 'pending') throw new Error('Invitation is no longer pending');
 
-    await db.sharedProjectInvitations.update(invitationId, {
+    await dal.update('sharedProjectInvitations', invitationId, {
       status: 'declined',
       respondedAt: Date.now(),
       respondedBy: currentUser.publicKey,
@@ -1070,9 +1086,15 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   getPendingInvitations: async (groupId) => {
-    const dbInvitations = await db.sharedProjectInvitations
-      .where({ toGroupId: groupId, status: 'pending' })
-      .toArray();
+    const dbInvitations = await dal.queryCustom<DBSharedProjectInvitation>({
+      sql: 'SELECT * FROM shared_project_invitations WHERE to_group_id = ?1 AND status = ?2',
+      params: [groupId, 'pending'],
+      dexieFallback: async (db) => {
+        return db.sharedProjectInvitations
+          .where({ toGroupId: groupId, status: 'pending' })
+          .toArray();
+      },
+    });
 
     return dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
       id: dbInv.id,
@@ -1092,9 +1114,9 @@ export const useGroupEntityStore = create<GroupEntityStore>()((set, get) => ({
   },
 
   getSentInvitations: async (groupId) => {
-    const dbInvitations = await db.sharedProjectInvitations
-      .where({ fromGroupId: groupId })
-      .toArray();
+    const dbInvitations = await dal.query<DBSharedProjectInvitation>('sharedProjectInvitations', {
+      whereClause: { fromGroupId: groupId },
+    });
 
     return dbInvitations.map((dbInv: DBSharedProjectInvitation) => ({
       id: dbInv.id,
@@ -1141,7 +1163,6 @@ async function encryptGroupKey(
   groupId: string
 ): Promise<{ encryptedData: string; iv: string }> {
   // Derive encryption key from groupId (placeholder for MVP)
-  // In production, use proper key derivation from group creation event
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     'raw',

@@ -30,7 +30,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { recoveryPhraseService } from '@/core/backup';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -130,7 +130,7 @@ export function RecoveryForm({ onBack, onSuccess, identityHint }: RecoveryFormPr
       const publicKey = getPublicKey(privateKeyBytes);
 
       // Check if this identity already exists in the database
-      const existingIdentity = await db.identities.get(publicKey);
+      const existingIdentity = await dal.get<Record<string, unknown>>('identities', publicKey);
 
       if (existingIdentity) {
         // Identity exists - we need to re-encrypt with the new password
@@ -143,11 +143,11 @@ export function RecoveryForm({ onBack, onSuccess, identityHint }: RecoveryFormPr
         );
 
         // Update the existing identity with new encrypted data
-        await db.identities.update(publicKey, {
+        await dal.update('identities', publicKey, {
           encryptedPrivateKey: encryptedData.encryptedPrivateKey,
           salt: encryptedData.salt,
           iv: encryptedData.iv,
-          keyVersion: (existingIdentity.keyVersion || 0) + 1,
+          keyVersion: ((existingIdentity.keyVersion as number) || 0) + 1,
           lastUsed: Date.now(),
         });
 
@@ -164,7 +164,7 @@ export function RecoveryForm({ onBack, onSuccess, identityHint }: RecoveryFormPr
         );
 
         // Create new identity in database
-        await db.identities.add({
+        await dal.add('identities', {
           publicKey,
           encryptedPrivateKey: encryptedData.encryptedPrivateKey,
           salt: encryptedData.salt,

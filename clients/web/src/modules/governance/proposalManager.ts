@@ -10,7 +10,7 @@ import type {
   ConsensusResults,
 } from './types';
 import { useGovernanceStore } from './governanceStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 
 // Custom event kinds for governance
 export const PROPOSAL_KIND = 32000;
@@ -118,7 +118,7 @@ class ProposalManager {
     }, authorPrivkey);
 
     // Store in local DB
-    await db.table('proposals').add({
+    await dal.add('proposals', {
       id: proposal.id,
       groupId: proposal.groupId,
       data: proposal,
@@ -161,7 +161,7 @@ class ProposalManager {
     useGovernanceStore.getState().updateProposal(proposalId, updates);
 
     // Update in DB
-    await db.table('proposals').update(proposalId, {
+    await dal.update('proposals', proposalId, {
       data: { ...proposal, ...updates },
     });
   }
@@ -216,7 +216,7 @@ class ProposalManager {
     vote.signature = event.sig;
 
     // Store in DB
-    await db.table('votes').add({
+    await dal.add('votes', {
       id: voteId,
       proposalId: input.proposalId,
       data: vote,

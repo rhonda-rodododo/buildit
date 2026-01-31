@@ -3,7 +3,7 @@
  * Epic 57: Storage analytics, activity tracking, and duplicate detection
  */
 
-import { db } from '@/core/storage/db'
+import { dal } from '@/core/storage/dal'
 import { useFilesStore } from './filesStore'
 import type {
   FileAnalytics,
@@ -100,7 +100,7 @@ class FileAnalyticsService {
       metadata,
     }
 
-    await db.table('fileActivityLogs').add(log)
+    await dal.add('fileActivityLogs', log)
   }
 
   /**
@@ -108,13 +108,14 @@ class FileAnalyticsService {
    */
   async getRecentActivity(groupId: string, limit: number = 50): Promise<FileActivityLog[]> {
     try {
-      const logs = await db.table('fileActivityLogs')
-        .where('groupId')
-        .equals(groupId)
-        .reverse()
-        .sortBy('timestamp') as FileActivityLog[]
+      const logs = await dal.query<FileActivityLog>('fileActivityLogs', {
+        whereClause: { groupId },
+        orderBy: 'timestamp',
+        orderDir: 'desc',
+        limit,
+      })
 
-      return logs.slice(0, limit)
+      return logs
     } catch {
       return []
     }
@@ -150,17 +151,18 @@ class FileAnalyticsService {
         const truncatedContent = content.substring(0, 100000) // Max 100KB of text
 
         // Check if index already exists
-        const existing = await db.table('fileContentIndex')
-          .where('fileId')
-          .equals(fileId)
-          .first()
+        const existingResults = await dal.query<{ id: string; fileId: string; content: string }>('fileContentIndex', {
+          whereClause: { fileId },
+          limit: 1,
+        })
+        const existing = existingResults[0]
 
         if (existing) {
-          await db.table('fileContentIndex').update(existing.id, {
+          await dal.update('fileContentIndex', existing.id, {
             content: truncatedContent.toLowerCase(),
           })
         } else {
-          await db.table('fileContentIndex').add({
+          await dal.add('fileContentIndex', {
             id: crypto.randomUUID(),
             fileId,
             groupId,
@@ -181,15 +183,16 @@ class FileAnalyticsService {
       const hash = await this.computeFileHash(blob)
 
       // Check if hash record exists
-      const existing = await db.table('fileHashes')
-        .where('fileId')
-        .equals(fileId)
-        .first()
+      const existingResults = await dal.query<{ id: string; fileId: string; hash: string }>('fileHashes', {
+        whereClause: { fileId },
+        limit: 1,
+      })
+      const existing = existingResults[0]
 
       if (existing) {
-        await db.table('fileHashes').update(existing.id, { hash })
+        await dal.update('fileHashes', existing.id, { hash })
       } else {
-        await db.table('fileHashes').add({
+        await dal.add('fileHashes', {
           id: crypto.randomUUID(),
           fileId,
           groupId,
@@ -206,10 +209,9 @@ class FileAnalyticsService {
    */
   async detectDuplicates(groupId: string): Promise<DuplicateFileGroup[]> {
     try {
-      const hashes = await db.table('fileHashes')
-        .where('groupId')
-        .equals(groupId)
-        .toArray() as { fileId: string; hash: string }[]
+      const hashes = await dal.query<{ fileId: string; hash: string }>('fileHashes', {
+        whereClause: { groupId },
+      })
 
       // Group by hash
       const hashGroups = new Map<string, string[]>()
@@ -272,10 +274,9 @@ class FileAnalyticsService {
 
     try {
       const normalizedQuery = query.toLowerCase()
-      const indexes = await db.table('fileContentIndex')
-        .where('groupId')
-        .equals(groupId)
-        .toArray() as { fileId: string; content: string }[]
+      const indexes = await dal.query<{ fileId: string; content: string }>('fileContentIndex', {
+        whereClause: { groupId },
+      })
 
       // Simple contains search (could be improved with fuzzy matching)
       const matchingFileIds = indexes
@@ -299,7 +300,7 @@ class FileAnalyticsService {
       ...filter,
     }
 
-    await db.table('savedSearchFilters').add(savedFilter)
+    await dal.add('savedSearchFilters', savedFilter)
     return savedFilter
   }
 
@@ -308,10 +309,9 @@ class FileAnalyticsService {
    */
   async getSavedFilters(groupId: string): Promise<SavedSearchFilter[]> {
     try {
-      return await db.table('savedSearchFilters')
-        .where('groupId')
-        .equals(groupId)
-        .toArray() as SavedSearchFilter[]
+      return await dal.query<SavedSearchFilter>('savedSearchFilters', {
+        whereClause: { groupId },
+      })
     } catch {
       return []
     }
@@ -321,7 +321,7 @@ class FileAnalyticsService {
    * Delete a saved search filter
    */
   async deleteSavedFilter(filterId: string): Promise<void> {
-    await db.table('savedSearchFilters').delete(filterId)
+    await dal.delete('savedSearchFilters', filterId)
   }
 
   /**
@@ -338,29 +338,28 @@ class FileAnalyticsService {
     }
 
     // Check for duplicate recent search
-    const existing = await db.table('recentSearches')
-      .where('groupId')
-      .equals(groupId)
-      .filter(s => s.query === query.trim())
-      .first()
+    const existingResults = await dal.query<RecentSearch>('recentSearches', {
+      whereClause: { groupId },
+    })
+    const existing = existingResults.find(s => s.query === query.trim())
 
     if (existing) {
       // Update timestamp
-      await db.table('recentSearches').update(existing.id, { timestamp: Date.now() })
+      await dal.update('recentSearches', existing.id, { timestamp: Date.now() })
     } else {
-      await db.table('recentSearches').add(recentSearch)
+      await dal.add('recentSearches', recentSearch)
     }
 
     // Keep only last 20 recent searches
-    const allRecent = await db.table('recentSearches')
-      .where('groupId')
-      .equals(groupId)
-      .reverse()
-      .sortBy('timestamp') as RecentSearch[]
+    const allRecent = await dal.query<RecentSearch>('recentSearches', {
+      whereClause: { groupId },
+      orderBy: 'timestamp',
+      orderDir: 'desc',
+    })
 
     if (allRecent.length > 20) {
       const toDelete = allRecent.slice(20)
-      await Promise.all(toDelete.map(s => db.table('recentSearches').delete(s.id)))
+      await Promise.all(toDelete.map(s => dal.delete('recentSearches', s.id)))
     }
   }
 
@@ -369,13 +368,12 @@ class FileAnalyticsService {
    */
   async getRecentSearches(groupId: string, limit: number = 10): Promise<RecentSearch[]> {
     try {
-      const searches = await db.table('recentSearches')
-        .where('groupId')
-        .equals(groupId)
-        .reverse()
-        .sortBy('timestamp') as RecentSearch[]
-
-      return searches.slice(0, limit)
+      return await dal.query<RecentSearch>('recentSearches', {
+        whereClause: { groupId },
+        orderBy: 'timestamp',
+        orderDir: 'desc',
+        limit,
+      })
     } catch {
       return []
     }
@@ -385,12 +383,11 @@ class FileAnalyticsService {
    * Clear recent searches for a group
    */
   async clearRecentSearches(groupId: string): Promise<void> {
-    const searches = await db.table('recentSearches')
-      .where('groupId')
-      .equals(groupId)
-      .toArray()
+    const searches = await dal.query<RecentSearch>('recentSearches', {
+      whereClause: { groupId },
+    })
 
-    await Promise.all(searches.map(s => db.table('recentSearches').delete(s.id)))
+    await Promise.all(searches.map(s => dal.delete('recentSearches', s.id)))
   }
 }
 

@@ -83,19 +83,9 @@ export const friendsMigrations = [
   {
     version: 1,
     description: 'Initialize friends system schema',
-    migrate: async (db: any) => {
-      // Ensure default values
-      await db.friends.toCollection().modify((friend: DBFriend) => {
-        friend.tags = friend.tags || [];
-        friend.verifiedInPerson = friend.verifiedInPerson || false;
-        friend.isFavorite = friend.isFavorite || false;
-        friend.privacySettings = friend.privacySettings || {
-          canSeeOnlineStatus: true,
-          canSeeGroups: false,
-          canSeeActivity: false,
-          canTagInPosts: true,
-        };
-      });
+    migrate: async () => {
+      // Default values are now ensured by the schema definition
+      // No data exists at v1, so no migration logic needed
     },
   },
 ];

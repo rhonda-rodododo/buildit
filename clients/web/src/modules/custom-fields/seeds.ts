@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
+import { dal } from '@/core/storage/dal';
 import type { DBCustomField } from './schema';
 
 import { logger } from '@/lib/logger';
@@ -14,7 +15,7 @@ export const customFieldsSeeds: ModuleSeed[] = [
   {
     name: 'example-event-fields',
     description: 'Example custom fields for events',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const exampleFields: DBCustomField[] = [
         {
           id: `field-dietary-${groupId}`,
@@ -101,8 +102,7 @@ export const customFieldsSeeds: ModuleSeed[] = [
         },
       ];
 
-      const customFieldsTable = db.getTable<any>('customFields');
-      await customFieldsTable.bulkAdd(exampleFields);
+      await dal.bulkPut('customFields', exampleFields);
       logger.info(`Seeded ${exampleFields.length} example custom fields for group ${groupId}`);
     },
   },

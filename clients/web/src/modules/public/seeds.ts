@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { PublicPage } from './types';
 import { DEFAULT_INDEXABILITY } from '@/types/indexability';
@@ -16,7 +16,7 @@ import { logger } from '@/lib/logger';
 export const publicLandingPageSeed: ModuleSeed = {
   name: 'Public Landing Page',
   description: 'SEO-optimized landing page for the group',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     const pageId = generateEventId();
@@ -75,7 +75,7 @@ We are a grassroots union organizing workers across industries. Join us in the f
       updated: now,
     };
 
-    await db.publicPages?.add(page);
+    await dal.add('publicPages', page);
     logger.info('✅ Created public landing page seed');
   },
 };
@@ -86,7 +86,7 @@ We are a grassroots union organizing workers across industries. Join us in the f
 export const aboutPageSeed: ModuleSeed = {
   name: 'About Page',
   description: 'Public about page for the organization',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     const pageId = generateEventId();
@@ -129,7 +129,7 @@ Want to join the movement? [Contact us](/contact) or [sign up to volunteer](/vol
       updated: now,
     };
 
-    await db.publicPages?.add(page);
+    await dal.add('publicPages', page);
     logger.info('✅ Created about page seed');
   },
 };

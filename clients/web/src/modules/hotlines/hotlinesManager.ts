@@ -3,7 +3,7 @@
  * Business logic for hotlines, calls, and dispatch operations
  */
 
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { nanoid } from 'nanoid';
 import type {
   Hotline,
@@ -102,7 +102,7 @@ export class HotlinesManager {
       updated: now,
     };
 
-    await db.hotlines.add(toDBHotline(hotline));
+    await dal.add<DBHotline>('hotlines', toDBHotline(hotline));
     return hotline;
   }
 
@@ -121,31 +121,44 @@ export class HotlinesManager {
       updateData.operatingHours = JSON.stringify(operatingHours);
     }
 
-    await db.hotlines.update(id, updateData);
+    await dal.update<DBHotline>('hotlines', id, updateData);
   }
 
   async deleteHotline(id: string): Promise<void> {
-    // Also delete related calls, dispatches, and operators
-    await db.transaction('rw', [
-      db.hotlines,
-      db.hotlineCalls,
-      db.hotlineDispatches,
-      db.hotlineOperators,
-    ], async () => {
-      await db.hotlineCalls.where('hotlineId').equals(id).delete();
-      await db.hotlineDispatches.where('hotlineId').equals(id).delete();
-      await db.hotlineOperators.where('hotlineId').equals(id).delete();
-      await db.hotlines.delete(id);
+    // Delete related calls, dispatches, and operators
+    await dal.queryCustom({
+      sql: 'DELETE FROM hotline_calls WHERE hotline_id = ?1',
+      params: [id],
+      dexieFallback: async (db) => {
+        await db.hotlineCalls.where('hotlineId').equals(id).delete();
+      },
     });
+    await dal.queryCustom({
+      sql: 'DELETE FROM hotline_dispatches WHERE hotline_id = ?1',
+      params: [id],
+      dexieFallback: async (db) => {
+        await db.hotlineDispatches.where('hotlineId').equals(id).delete();
+      },
+    });
+    await dal.queryCustom({
+      sql: 'DELETE FROM hotline_operators WHERE hotline_id = ?1',
+      params: [id],
+      dexieFallback: async (db) => {
+        await db.hotlineOperators.where('hotlineId').equals(id).delete();
+      },
+    });
+    await dal.delete('hotlines', id);
   }
 
   async getHotlines(groupId: string): Promise<Hotline[]> {
-    const records = await db.hotlines.where('groupId').equals(groupId).toArray();
+    const records = await dal.query<DBHotline>('hotlines', {
+      whereClause: { groupId },
+    });
     return records.map(toHotline);
   }
 
   async getHotlineById(id: string): Promise<Hotline | undefined> {
-    const record = await db.hotlines.get(id);
+    const record = await dal.get<DBHotline>('hotlines', id);
     return record ? toHotline(record) : undefined;
   }
 
@@ -182,7 +195,7 @@ export class HotlinesManager {
       updated: now,
     };
 
-    await db.hotlineCalls.add(toDBHotlineCall(call));
+    await dal.add<DBHotlineCall>('hotlineCalls', toDBHotlineCall(call));
     return call;
   }
 
@@ -197,12 +210,12 @@ export class HotlinesManager {
       updateData.followUpNeeded = followUpNeeded ? 1 : 0;
     }
 
-    await db.hotlineCalls.update(callId, updateData);
+    await dal.update<DBHotlineCall>('hotlineCalls', callId, updateData);
   }
 
   async endCall(callId: string, summary: string): Promise<void> {
     const now = Date.now();
-    await db.hotlineCalls.update(callId, {
+    await dal.update<DBHotlineCall>('hotlineCalls', callId, {
       status: 'completed',
       summary,
       endTime: now,
@@ -211,21 +224,25 @@ export class HotlinesManager {
   }
 
   async getActiveCalls(hotlineId: string): Promise<HotlineCall[]> {
-    const records = await db.hotlineCalls
-      .where('hotlineId')
-      .equals(hotlineId)
-      .and((call: DBHotlineCall) => call.status === 'active' || call.status === 'on-hold')
-      .toArray();
-    return records.map(toHotlineCall);
+    const records = await dal.query<DBHotlineCall>('hotlineCalls', {
+      whereClause: { hotlineId },
+    });
+    const filtered = records.filter(
+      (call: DBHotlineCall) => call.status === 'active' || call.status === 'on-hold'
+    );
+    return filtered.map(toHotlineCall);
   }
 
   async getCallLog(
     hotlineId: string,
     options?: CallLogOptions
   ): Promise<HotlineCall[]> {
-    let query = db.hotlineCalls.where('hotlineId').equals(hotlineId);
+    let records = await dal.query<DBHotlineCall>('hotlineCalls', {
+      whereClause: { hotlineId },
+    });
 
-    let records = await query.reverse().toArray();
+    // Reverse for newest first
+    records = records.reverse();
 
     // Apply filters
     if (options?.status) {
@@ -256,7 +273,7 @@ export class HotlinesManager {
   }
 
   async getCallById(callId: string): Promise<HotlineCall | undefined> {
-    const record = await db.hotlineCalls.get(callId);
+    const record = await dal.get<DBHotlineCall>('hotlineCalls', callId);
     return record ? toHotlineCall(record) : undefined;
   }
 
@@ -286,7 +303,7 @@ export class HotlinesManager {
       updated: now,
     };
 
-    await db.hotlineDispatches.add(dispatch);
+    await dal.add<DBHotlineDispatch>('hotlineDispatches', dispatch);
     return dispatch;
   }
 
@@ -305,14 +322,13 @@ export class HotlinesManager {
       updateData.responseTime = now;
     }
 
-    await db.hotlineDispatches.update(dispatchId, updateData);
+    await dal.update<DBHotlineDispatch>('hotlineDispatches', dispatchId, updateData);
   }
 
   async getDispatchesForCall(callId: string): Promise<HotlineDispatch[]> {
-    const records = await db.hotlineDispatches
-      .where('callId')
-      .equals(callId)
-      .toArray();
+    const records = await dal.query<DBHotlineDispatch>('hotlineDispatches', {
+      whereClause: { callId },
+    });
     return records.map(toHotlineDispatch);
   }
 
@@ -327,13 +343,20 @@ export class HotlinesManager {
     }
 
     // Check if already on shift
-    const existing = await db.hotlineOperators
-      .where(['hotlineId', 'operatorPubkey'])
-      .equals([hotlineId, operatorPubkey])
-      .and((op: DBHotlineOperator) => op.isActive === 1)
-      .first();
+    const existingResults = await dal.queryCustom<DBHotlineOperator>({
+      sql: 'SELECT * FROM hotline_operators WHERE hotline_id = ?1 AND operator_pubkey = ?2 AND is_active = 1 LIMIT 1',
+      params: [hotlineId, operatorPubkey],
+      dexieFallback: async (db) => {
+        const result = await db.hotlineOperators
+          .where(['hotlineId', 'operatorPubkey'])
+          .equals([hotlineId, operatorPubkey])
+          .and((op: DBHotlineOperator) => op.isActive === 1)
+          .first();
+        return result ? [result] : [];
+      },
+    });
 
-    if (existing) {
+    if (existingResults[0]) {
       throw new Error('Already on shift');
     }
 
@@ -346,40 +369,53 @@ export class HotlinesManager {
       isActive: 1,
     };
 
-    await db.hotlineOperators.add(operator);
+    await dal.add<DBHotlineOperator>('hotlineOperators', operator);
   }
 
   async endShift(hotlineId: string, operatorPubkey: string): Promise<void> {
-    const operator = await db.hotlineOperators
-      .where(['hotlineId', 'operatorPubkey'])
-      .equals([hotlineId, operatorPubkey])
-      .and((op: DBHotlineOperator) => op.isActive === 1)
-      .first();
+    const operatorResults = await dal.queryCustom<DBHotlineOperator>({
+      sql: 'SELECT * FROM hotline_operators WHERE hotline_id = ?1 AND operator_pubkey = ?2 AND is_active = 1 LIMIT 1',
+      params: [hotlineId, operatorPubkey],
+      dexieFallback: async (db) => {
+        const result = await db.hotlineOperators
+          .where(['hotlineId', 'operatorPubkey'])
+          .equals([hotlineId, operatorPubkey])
+          .and((op: DBHotlineOperator) => op.isActive === 1)
+          .first();
+        return result ? [result] : [];
+      },
+    });
+    const operator = operatorResults[0];
 
     if (!operator) {
       throw new Error('Not currently on shift');
     }
 
-    await db.hotlineOperators.update(operator.id, {
+    await dal.update<DBHotlineOperator>('hotlineOperators', operator.id, {
       isActive: 0,
       shiftEnd: Date.now(),
     });
   }
 
   async getActiveOperators(hotlineId: string): Promise<string[]> {
-    const operators = await db.hotlineOperators
-      .where('hotlineId')
-      .equals(hotlineId)
-      .and((op: DBHotlineOperator) => op.isActive === 1)
-      .toArray();
+    const operators = await dal.queryCustom<DBHotlineOperator>({
+      sql: 'SELECT * FROM hotline_operators WHERE hotline_id = ?1 AND is_active = 1',
+      params: [hotlineId],
+      dexieFallback: async (db) => {
+        return db.hotlineOperators
+          .where('hotlineId')
+          .equals(hotlineId)
+          .and((op: DBHotlineOperator) => op.isActive === 1)
+          .toArray();
+      },
+    });
     return operators.map((op: DBHotlineOperator) => op.operatorPubkey);
   }
 
   async getOperators(hotlineId: string): Promise<HotlineOperator[]> {
-    const records = await db.hotlineOperators
-      .where('hotlineId')
-      .equals(hotlineId)
-      .toArray();
+    const records = await dal.query<DBHotlineOperator>('hotlineOperators', {
+      whereClause: { hotlineId },
+    });
     return records.map(toHotlineOperator);
   }
 
@@ -392,7 +428,7 @@ export class HotlinesManager {
     recordId: string,
     tableKey: string
   ): Promise<void> {
-    await db.hotlineCalls.update(callId, {
+    await dal.update<DBHotlineCall>('hotlineCalls', callId, {
       linkedRecordId: recordId,
       linkedRecordTable: tableKey,
       updated: Date.now(),
@@ -404,10 +440,9 @@ export class HotlinesManager {
   // ============================================
 
   async getStats(hotlineId: string): Promise<HotlineStats> {
-    const calls = await db.hotlineCalls
-      .where('hotlineId')
-      .equals(hotlineId)
-      .toArray();
+    const calls = await dal.query<DBHotlineCall>('hotlineCalls', {
+      whereClause: { hotlineId },
+    });
 
     const activeCalls = calls.filter(
       (c: DBHotlineCall) => c.status === 'active' || c.status === 'on-hold'

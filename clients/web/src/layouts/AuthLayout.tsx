@@ -1,5 +1,5 @@
 import { FC, Suspense } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { RouteLoader } from '@/components/ui/page-loader';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -11,11 +11,15 @@ import { ModeToggle } from '@/components/mode-toggle';
  */
 export const AuthLayout: FC = () => {
   const { currentIdentity, lockState } = useAuthStore();
+  const [searchParams] = useSearchParams();
 
   // Only redirect to app if user has an identity AND is unlocked
   // If locked, stay on login page to unlock
   if (currentIdentity && lockState === 'unlocked') {
-    return <Navigate to="/app" replace />;
+    // Redirect to the original URL if provided (e.g. after page refresh + unlock)
+    const returnTo = searchParams.get('returnTo');
+    const target = returnTo && returnTo.startsWith('/app') ? returnTo : '/app';
+    return <Navigate to={target} replace />;
   }
 
   return (

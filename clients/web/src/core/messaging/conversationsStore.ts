@@ -9,7 +9,7 @@
 
 import { create } from 'zustand';
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
 import { getNostrClient } from '@/core/nostr/client';
 import { secureRandomString } from '@/lib/utils';
@@ -181,8 +181,8 @@ export const useConversationsStore = create<ConversationsState>()(
         }));
 
         try {
-          await db.conversations.add(conversation);
-          await db.conversationMembers.bulkAdd(members);
+          await dal.add('conversations', conversation);
+          await dal.bulkPut('conversationMembers', members);
         } catch (error) {
           console.error('Failed to create conversation:', error);
           throw error;
@@ -199,9 +199,23 @@ export const useConversationsStore = create<ConversationsState>()(
       // Delete conversation
       deleteConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.delete(conversationId);
-          await db.conversationMembers.where('conversationId').equals(conversationId).delete();
-          await db.conversationMessages.where('conversationId').equals(conversationId).delete();
+          await dal.delete('conversations', conversationId);
+          await dal.queryCustom({
+            sql: 'DELETE FROM conversation_members WHERE conversation_id = ?1',
+            params: [conversationId],
+            dexieFallback: async (db) => {
+              await db.conversationMembers.where('conversationId').equals(conversationId).delete();
+              return [];
+            },
+          });
+          await dal.queryCustom({
+            sql: 'DELETE FROM conversation_messages WHERE conversation_id = ?1',
+            params: [conversationId],
+            dexieFallback: async (db) => {
+              await db.conversationMessages.where('conversationId').equals(conversationId).delete();
+              return [];
+            },
+          });
         } catch (error) {
           console.error('Failed to delete conversation:', error);
         }
@@ -216,7 +230,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Pin conversation
       pinConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isPinned: true });
+          await dal.update('conversations', conversationId, { isPinned: true });
         } catch (error) {
           console.error('Failed to pin conversation:', error);
         }
@@ -231,7 +245,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Unpin conversation
       unpinConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isPinned: false });
+          await dal.update('conversations', conversationId, { isPinned: false });
         } catch (error) {
           console.error('Failed to unpin conversation:', error);
         }
@@ -246,7 +260,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Mute conversation
       muteConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isMuted: true });
+          await dal.update('conversations', conversationId, { isMuted: true });
         } catch (error) {
           console.error('Failed to mute conversation:', error);
         }
@@ -261,7 +275,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Unmute conversation
       unmuteConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isMuted: false });
+          await dal.update('conversations', conversationId, { isMuted: false });
         } catch (error) {
           console.error('Failed to unmute conversation:', error);
         }
@@ -276,7 +290,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Archive conversation
       archiveConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isArchived: true });
+          await dal.update('conversations', conversationId, { isArchived: true });
         } catch (error) {
           console.error('Failed to archive conversation:', error);
         }
@@ -291,7 +305,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Unarchive conversation
       unarchiveConversation: async (conversationId: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { isArchived: false });
+          await dal.update('conversations', conversationId, { isArchived: false });
         } catch (error) {
           console.error('Failed to unarchive conversation:', error);
         }
@@ -306,7 +320,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Update conversation name
       updateConversationName: async (conversationId: string, name: string): Promise<void> => {
         try {
-          await db.conversations.update(conversationId, { name });
+          await dal.update('conversations', conversationId, { name });
         } catch (error) {
           console.error('Failed to update conversation name:', error);
         }
@@ -327,16 +341,24 @@ export const useConversationsStore = create<ConversationsState>()(
 
         try {
           // Update conversation unread count
-          await db.conversations.update(conversationId, { unreadCount: 0 });
+          await dal.update('conversations', conversationId, { unreadCount: 0 });
 
           // Update member's lastReadAt
-          const member = await db.conversationMembers
-            .where('[conversationId+pubkey]')
-            .equals([conversationId, currentIdentity.publicKey])
-            .first();
+          const members = await dal.queryCustom<ConversationMember>({
+            sql: 'SELECT * FROM conversation_members WHERE conversation_id = ?1 AND pubkey = ?2 LIMIT 1',
+            params: [conversationId, currentIdentity.publicKey],
+            dexieFallback: async (db) => {
+              const result = await db.conversationMembers
+                .where('[conversationId+pubkey]')
+                .equals([conversationId, currentIdentity.publicKey])
+                .first();
+              return result ? [result] : [];
+            },
+          });
 
+          const member = members[0];
           if (member) {
-            await db.conversationMembers.update(member.id, { lastReadAt: now });
+            await dal.update('conversationMembers', member.id, { lastReadAt: now });
           }
         } catch (error) {
           console.error('Failed to mark as read:', error);
@@ -373,10 +395,10 @@ export const useConversationsStore = create<ConversationsState>()(
         };
 
         try {
-          await db.conversations.update(conversationId, {
+          await dal.update('conversations', conversationId, {
             participants: [...conv.participants, pubkey],
           });
-          await db.conversationMembers.add(member);
+          await dal.add('conversationMembers', member);
         } catch (error) {
           console.error('Failed to add member:', error);
         }
@@ -395,13 +417,20 @@ export const useConversationsStore = create<ConversationsState>()(
         if (!conv) return;
 
         try {
-          await db.conversations.update(conversationId, {
+          await dal.update('conversations', conversationId, {
             participants: conv.participants.filter((p) => p !== pubkey),
           });
-          await db.conversationMembers
-            .where('[conversationId+pubkey]')
-            .equals([conversationId, pubkey])
-            .delete();
+          await dal.queryCustom({
+            sql: 'DELETE FROM conversation_members WHERE conversation_id = ?1 AND pubkey = ?2',
+            params: [conversationId, pubkey],
+            dexieFallback: async (db) => {
+              await db.conversationMembers
+                .where('[conversationId+pubkey]')
+                .equals([conversationId, pubkey])
+                .delete();
+              return [];
+            },
+          });
         } catch (error) {
           console.error('Failed to remove member:', error);
         }
@@ -423,13 +452,21 @@ export const useConversationsStore = create<ConversationsState>()(
         role: 'admin' | 'member'
       ): Promise<void> => {
         try {
-          const member = await db.conversationMembers
-            .where('[conversationId+pubkey]')
-            .equals([conversationId, pubkey])
-            .first();
+          const members = await dal.queryCustom<ConversationMember>({
+            sql: 'SELECT * FROM conversation_members WHERE conversation_id = ?1 AND pubkey = ?2 LIMIT 1',
+            params: [conversationId, pubkey],
+            dexieFallback: async (db) => {
+              const result = await db.conversationMembers
+                .where('[conversationId+pubkey]')
+                .equals([conversationId, pubkey])
+                .first();
+              return result ? [result] : [];
+            },
+          });
 
+          const member = members[0];
           if (member) {
-            await db.conversationMembers.update(member.id, { role });
+            await dal.update('conversationMembers', member.id, { role });
           }
         } catch (error) {
           console.error('Failed to update member role:', error);
@@ -450,13 +487,21 @@ export const useConversationsStore = create<ConversationsState>()(
         const now = Date.now();
 
         try {
-          const member = await db.conversationMembers
-            .where('[conversationId+pubkey]')
-            .equals([conversationId, currentIdentity.publicKey])
-            .first();
+          const members = await dal.queryCustom<ConversationMember>({
+            sql: 'SELECT * FROM conversation_members WHERE conversation_id = ?1 AND pubkey = ?2 LIMIT 1',
+            params: [conversationId, currentIdentity.publicKey],
+            dexieFallback: async (db) => {
+              const result = await db.conversationMembers
+                .where('[conversationId+pubkey]')
+                .equals([conversationId, currentIdentity.publicKey])
+                .first();
+              return result ? [result] : [];
+            },
+          });
 
+          const member = members[0];
           if (member) {
-            await db.conversationMembers.update(member.id, { lastReadAt: now });
+            await dal.update('conversationMembers', member.id, { lastReadAt: now });
           }
         } catch (error) {
           console.error('Failed to update last read:', error);
@@ -499,10 +544,10 @@ export const useConversationsStore = create<ConversationsState>()(
           reactions: {},
         };
 
-        // Store locally first (encrypted by Dexie hooks)
+        // Store locally first (encrypted by hooks)
         try {
-          await db.conversationMessages.add(message);
-          await db.conversations.update(conversationId, {
+          await dal.add('conversationMessages', message);
+          await dal.update('conversations', conversationId, {
             lastMessageAt: now,
             lastMessagePreview: content.substring(0, 100),
           });
@@ -613,7 +658,7 @@ export const useConversationsStore = create<ConversationsState>()(
         const now = Date.now();
 
         try {
-          await db.conversationMessages.update(messageId, {
+          await dal.update('conversationMessages', messageId, {
             content: newContent,
             isEdited: true,
             editedAt: now,
@@ -634,7 +679,7 @@ export const useConversationsStore = create<ConversationsState>()(
       // Delete message
       deleteMessage: async (messageId: string): Promise<void> => {
         try {
-          await db.conversationMessages.delete(messageId);
+          await dal.delete('conversationMessages', messageId);
         } catch (error) {
           console.error('Failed to delete message:', error);
         }
@@ -661,7 +706,7 @@ export const useConversationsStore = create<ConversationsState>()(
         }
 
         try {
-          await db.conversationMessages.update(messageId, { reactions: updatedReactions });
+          await dal.update('conversationMessages', messageId, { reactions: updatedReactions });
         } catch (error) {
           console.error('Failed to add reaction:', error);
         }
@@ -692,7 +737,7 @@ export const useConversationsStore = create<ConversationsState>()(
         }
 
         try {
-          await db.conversationMessages.update(messageId, { reactions: updatedReactions });
+          await dal.update('conversationMessages', messageId, { reactions: updatedReactions });
         } catch (error) {
           console.error('Failed to remove reaction:', error);
         }
@@ -707,11 +752,10 @@ export const useConversationsStore = create<ConversationsState>()(
       // Load messages for a conversation
       loadMessages: async (conversationId: string, limit: number = 50): Promise<void> => {
         try {
-          const messages = await db.conversationMessages
-            .where('conversationId')
-            .equals(conversationId)
-            .limit(limit)
-            .toArray();
+          const messages = await dal.query<ConversationMessage>('conversationMessages', {
+            whereClause: { conversationId },
+            limit,
+          });
 
           set((state) => ({
             messages: [
@@ -737,7 +781,7 @@ export const useConversationsStore = create<ConversationsState>()(
         };
 
         try {
-          await db.userPresence.put(presence);
+          await dal.put('userPresence', presence);
         } catch (error) {
           console.error('Failed to update presence:', error);
         }
@@ -753,7 +797,15 @@ export const useConversationsStore = create<ConversationsState>()(
       // Refresh presence for multiple users
       refreshPresence: async (pubkeys: string[]): Promise<void> => {
         try {
-          const presenceData = await db.userPresence.where('pubkey').anyOf(pubkeys).toArray();
+          const presenceData = pubkeys.length > 0
+            ? await dal.queryCustom<UserPresence>({
+                sql: `SELECT * FROM user_presence WHERE pubkey IN (${pubkeys.map((_, i) => `?${i + 1}`).join(',')})`,
+                params: pubkeys,
+                dexieFallback: async (db) => {
+                  return db.userPresence.where('pubkey').anyOf(pubkeys).toArray();
+                },
+              })
+            : [];
 
           set((state) => {
             const newPresence = new Map(state.presence);
@@ -981,20 +1033,26 @@ export const useConversationsStore = create<ConversationsState>()(
         set({ isLoading: true });
 
         try {
-          // Load conversations where user is a participant
-          const conversations = await db.conversations
-            .where('*participants')
-            .equals(currentIdentity.publicKey)
-            .toArray();
+          // Load all conversations, then filter by participant in JS
+          // (multi-value index queries like *participants are Dexie-specific)
+          const allConversations = await dal.getAll<DBConversation>('conversations');
+          const conversations = allConversations.filter((c) =>
+            c.participants.includes(currentIdentity.publicKey)
+          );
 
           const conversationIds = conversations.map((c) => c.id);
 
-          const members = await db.conversationMembers
-            .where('conversationId')
-            .anyOf(conversationIds)
-            .toArray();
+          const members = conversationIds.length > 0
+            ? await dal.queryCustom<ConversationMember>({
+                sql: `SELECT * FROM conversation_members WHERE conversation_id IN (${conversationIds.map((_, i) => `?${i + 1}`).join(',')})`,
+                params: conversationIds,
+                dexieFallback: async (db) => {
+                  return db.conversationMembers.where('conversationId').anyOf(conversationIds).toArray();
+                },
+              })
+            : [];
 
-          const presenceData = await db.userPresence.toArray();
+          const presenceData = await dal.getAll<UserPresence>('userPresence');
           const presenceMap = new Map<string, UserPresence>();
           presenceData.forEach((p) => presenceMap.set(p.pubkey, p));
 

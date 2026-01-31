@@ -212,18 +212,9 @@ export const microbloggingMigrations = [
   {
     version: 1,
     description: 'Initialize microblogging schema with default values',
-    migrate: async (db: any) => {
-      // Posts table
-      await db.posts.toCollection().modify((post: Post) => {
-        // Ensure default values
-        post.reactionCount = post.reactionCount || 0;
-        post.commentCount = post.commentCount || 0;
-        post.repostCount = post.repostCount || 0;
-        post.bookmarkCount = post.bookmarkCount || 0;
-        post.mentions = post.mentions || [];
-        post.hashtags = post.hashtags || [];
-        post.links = post.links || [];
-      });
+    migrate: async () => {
+      // Default values are now ensured by the schema definition
+      // No data exists at v1, so no migration logic needed
     },
   },
 ];

@@ -15,7 +15,8 @@
 import { create } from 'zustand';
 import type { Identity } from '@/types/identity';
 import { createIdentity, importFromNsec } from '@/core/crypto/keyManager';
-import { db, type DBIdentity } from '@/core/storage/db';
+import type { DBIdentity } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import * as nip19 from 'nostr-tools/nip19';
 import { logger } from '@/lib/logger';
 import {
@@ -282,7 +283,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           lastUsed: identity.lastUsed,
         };
 
-        await db.identities.add(dbIdentity);
+        await dal.add('identities', dbIdentity);
 
         // Unlock with the new identity
         await secureKeyManager.unlockWithPassword(encryptedData, password);
@@ -319,7 +320,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         const identity = importFromNsec(nsec, name);
 
         // Check if identity already exists
-        const existing = await db.identities.get(identity.publicKey);
+        const existing = await dal.get<DBIdentity>('identities', identity.publicKey);
         if (existing) {
           throw new Error('Identity already exists');
         }
@@ -331,7 +332,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           password
         );
 
-        // Store in IndexedDB
+        // Store in database
         const dbIdentity: DBIdentity = {
           publicKey: identity.publicKey,
           encryptedPrivateKey: encryptedData.encryptedPrivateKey,
@@ -345,7 +346,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
           lastUsed: identity.lastUsed,
         };
 
-        await db.identities.add(dbIdentity);
+        await dal.add('identities', dbIdentity);
 
         // Unlock with the new identity
         await secureKeyManager.unlockWithPassword(encryptedData, password);
@@ -377,7 +378,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       set({ isLoading: true, error: null });
 
       try {
-        const dbIdentities = await db.identities.toArray();
+        const dbIdentities = await dal.getAll<DBIdentity>('identities');
         const identities = dbIdentities.map(dbIdentityToPublic);
 
         set({ identities, isLoading: false });
@@ -394,7 +395,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       set({ isLoading: true, error: null });
 
       try {
-        await db.identities.delete(publicKey);
+        await dal.delete('identities', publicKey);
 
         // SECURITY: Clear rate limit state for the removed identity
         clearRateLimitState(publicKey);
@@ -481,7 +482,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
 
       try {
         // Get encrypted data from database
-        const dbIdentity = await db.identities.get(current.publicKey);
+        const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
         if (!dbIdentity) {
           throw new Error('Identity not found in database');
         }
@@ -512,7 +513,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         }
 
         // Update last used timestamp
-        await db.identities.update(current.publicKey, { lastUsed: Date.now() });
+        await dal.update('identities', current.publicKey, { lastUsed: Date.now() });
 
         set({ isUnlocking: false, lockState: 'unlocked' });
       } catch (error) {
@@ -552,7 +553,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       set({ isLoading: true, error: null });
 
       try {
-        const dbIdentity = await db.identities.get(current.publicKey);
+        const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
         if (!dbIdentity) {
           throw new Error('Identity not found');
         }
@@ -565,7 +566,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         );
 
         // Update in database
-        await db.identities.update(current.publicKey, {
+        await dal.update('identities', current.publicKey, {
           encryptedPrivateKey: newEncryptedData.encryptedPrivateKey,
           salt: newEncryptedData.salt,
           iv: newEncryptedData.iv,
@@ -600,7 +601,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       }
 
       try {
-        const dbIdentity = await db.identities.get(current.publicKey);
+        const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
         if (!dbIdentity || !dbIdentity.salt) {
           return false;
         }
@@ -657,7 +658,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         );
 
         // Get encrypted data from database
-        const dbIdentity = await db.identities.get(current.publicKey);
+        const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
         if (!dbIdentity) {
           throw new Error('Identity not found');
         }
@@ -670,7 +671,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         );
 
         // Update in database
-        await db.identities.update(current.publicKey, {
+        await dal.update('identities', current.publicKey, {
           webAuthnProtected: true,
           credentialId: updatedData.credentialId,
           keyVersion: updatedData.keyVersion,
@@ -696,7 +697,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       set({ isLoading: true, error: null });
 
       try {
-        const dbIdentity = await db.identities.get(current.publicKey);
+        const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
         if (!dbIdentity) {
           throw new Error('Identity not found');
         }
@@ -705,7 +706,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         const updatedData = await secureKeyManager.disableWebAuthn(encryptedData, password);
 
         // Update in database
-        await db.identities.update(current.publicKey, {
+        await dal.update('identities', current.publicKey, {
           webAuthnProtected: false,
           credentialId: undefined,
           keyVersion: updatedData.keyVersion,
@@ -738,7 +739,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       secureKeyManager.setSecuritySettings(current.publicKey, newSettings);
 
       // Persist to database
-      await db.identities.update(current.publicKey, {
+      await dal.update('identities', current.publicKey, {
         securitySettings: JSON.stringify(newSettings),
       });
     },
@@ -763,7 +764,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         throw new Error('No identity selected');
       }
 
-      const dbIdentity = await db.identities.get(current.publicKey);
+      const dbIdentity = await dal.get<DBIdentity>('identities', current.publicKey);
       if (!dbIdentity) {
         throw new Error('Identity not found');
       }
@@ -789,7 +790,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         throw new Error('No identity selected');
       }
 
-      await db.identities.update(current.publicKey, updates);
+      await dal.update('identities', current.publicKey, updates);
     },
 
     /**
@@ -805,7 +806,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         };
       }
 
-      const identity = await db.identities.get(current.publicKey);
+      const identity = await dal.get<DBIdentity>('identities', current.publicKey);
       if (!identity) {
         return {
           hasValidBackup: false,

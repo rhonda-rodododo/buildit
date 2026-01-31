@@ -3,7 +3,7 @@
  * Loads demo/example data for all modules
  */
 
-import type { BuildItDB } from './db';
+import { dal } from '@/core/storage/dal';
 import { getAllModules } from '@/lib/modules/registry';
 import type { TemplateSelection, ResolvedTemplate } from '@/core/groupTemplates/types';
 import { templateRegistry } from '@/core/groupTemplates';
@@ -11,13 +11,11 @@ import { templateRegistry } from '@/core/groupTemplates';
 import { logger } from '@/lib/logger';
 /**
  * Load seed data for all modules
- * @param db Database instance
  * @param groupId Group ID to seed data for
  * @param userPubkey User public key creating the seed data
  * @param options Seed loading options
  */
 export async function loadAllSeeds(
-  db: BuildItDB,
   groupId: string,
   userPubkey: string,
   options: {
@@ -57,7 +55,7 @@ export async function loadAllSeeds(
 
     for (const seed of seedsToLoad) {
       try {
-        await seed.data(db, groupId, userPubkey);
+        await seed.data(groupId, userPubkey);
         totalSeeded++;
         logger.info(`    ✓ Loaded: ${seed.description}`);
       } catch (error) {
@@ -72,14 +70,12 @@ export async function loadAllSeeds(
 
 /**
  * Load seed data for a specific module
- * @param db Database instance
  * @param moduleId Module ID
  * @param groupId Group ID
  * @param userPubkey User public key
  * @param seedName Optional: specific seed name to load
  */
 export async function loadModuleSeeds(
-  db: BuildItDB,
   moduleId: string,
   groupId: string,
   userPubkey: string,
@@ -110,7 +106,7 @@ export async function loadModuleSeeds(
 
   for (const seed of seedsToLoad) {
     try {
-      await seed.data(db, groupId, userPubkey);
+      await seed.data(groupId, userPubkey);
       logger.info(`  ✓ Loaded: ${seed.description}`);
     } catch (error) {
       console.error(`  ✗ Failed to load ${seed.name}:`, error);
@@ -122,36 +118,34 @@ export async function loadModuleSeeds(
 /**
  * Check if a group has demo data loaded
  * Checks for the presence of seed-loaded records across module tables.
- * Since seeds use generateEventId() (random hex), we check for any records
- * in seed-populated tables rather than relying on ID prefixes.
- * @param db Database instance
  * @param groupId Group ID
  * @returns True if demo data exists
  */
-export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boolean> {
+export async function hasDemoData(groupId: string): Promise<boolean> {
   // Check module tables that are typically populated by seeds
   const tablesToCheck = [
-    db.events,
-    db.wikiPages,
-    db.proposals,
-    db.mutualAidRequests,
-    db.databaseTables,
-    db.campaigns,
-    db.publications,
-    db.newsletters,
-    db.articles,
+    'events',
+    'wikiPages',
+    'proposals',
+    'mutualAidRequests',
+    'databaseTables',
+    'campaigns',
+    'publications',
+    'newsletters',
+    'articles',
   ];
 
-  for (const table of tablesToCheck) {
-    if (table) {
-      try {
-        const records = await table.where('groupId').equals(groupId).limit(1).toArray();
-        if (records.length > 0) {
-          return true;
-        }
-      } catch {
-        // Table may not have groupId index, skip
+  for (const tableName of tablesToCheck) {
+    try {
+      const records = await dal.query<{ id: string }>(tableName, {
+        whereClause: { groupId },
+        limit: 1,
+      });
+      if (records.length > 0) {
+        return true;
       }
+    } catch {
+      // Table may not exist or not have groupId, skip
     }
   }
 
@@ -161,53 +155,38 @@ export async function hasDemoData(db: BuildItDB, groupId: string): Promise<boole
 /**
  * Clear all seed/demo data for a group
  * Clears records from all module tables for this group.
- * Since seeds use generateEventId() (random hex IDs), we cannot filter
- * by ID prefix. Instead, we clear all group records from seed-populated tables.
  * WARNING: This deletes ALL module data for the group, not just seeded data.
- * @param db Database instance
  * @param groupId Group ID
  */
-export async function clearDemoData(db: BuildItDB, groupId: string): Promise<void> {
+export async function clearDemoData(groupId: string): Promise<void> {
   logger.info(`🧹 Clearing demo data for group ${groupId}...`);
 
   // Tables that seeds populate, grouped by module
   const groupIdTables = [
-    // Events module
-    db.events,
-    // Mutual aid module
-    db.mutualAidRequests,
-    // Governance module
-    db.proposals,
-    db.ballots,
-    db.votes,
-    // Wiki module
-    db.wikiPages,
-    // Database module
-    db.databaseTables,
-    db.databaseRecords,
-    db.databaseViews,
-    // Custom fields module
-    db.customFields,
-    // CRM module (uses database tables, but also contacts)
-    db.contacts,
-    // Fundraising module
-    db.campaigns,
-    db.donationTiers,
-    // Publishing module
-    db.publications,
-    db.articles,
-    // Newsletters module
-    db.newsletters,
-    db.newsletterIssues,
+    'events',
+    'mutualAidRequests',
+    'proposals',
+    'ballots',
+    'votes',
+    'wikiPages',
+    'databaseTables',
+    'databaseRecords',
+    'databaseViews',
+    'customFields',
+    'contacts',
+    'campaigns',
+    'donationTiers',
+    'publications',
+    'articles',
+    'newsletters',
+    'newsletterIssues',
   ];
 
-  for (const table of groupIdTables) {
-    if (table) {
-      try {
-        await table.where('groupId').equals(groupId).delete();
-      } catch {
-        // Table may not have groupId index, skip silently
-      }
+  for (const tableName of groupIdTables) {
+    try {
+      await dal.deleteWhere(tableName, { groupId });
+    } catch {
+      // Table may not exist or not have groupId, skip silently
     }
   }
 
@@ -217,13 +196,11 @@ export async function clearDemoData(db: BuildItDB, groupId: string): Promise<voi
 /**
  * Load seed data based on a template selection
  * Uses the template's demoData.seeds configuration
- * @param db Database instance
  * @param groupId Group ID
  * @param userPubkey User public key
  * @param templateSelection Template selection with enhancements
  */
 export async function loadTemplateSeeds(
-  db: BuildItDB,
   groupId: string,
   userPubkey: string,
   templateSelection: TemplateSelection
@@ -241,7 +218,7 @@ export async function loadTemplateSeeds(
   logger.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
 
   // Load seeds that match the template's seed names
-  await loadAllSeeds(db, groupId, userPubkey, {
+  await loadAllSeeds(groupId, userPubkey, {
     moduleIds: resolved.enabledModules,
     seedNames: resolved.seeds,
   });
@@ -250,13 +227,11 @@ export async function loadTemplateSeeds(
 /**
  * Load seed data based on a resolved template
  * Use this when you already have the resolved template from templateRegistry
- * @param db Database instance
  * @param groupId Group ID
  * @param userPubkey User public key
  * @param resolved Already-resolved template
  */
 export async function loadResolvedTemplateSeeds(
-  db: BuildItDB,
   groupId: string,
   userPubkey: string,
   resolved: ResolvedTemplate
@@ -271,7 +246,7 @@ export async function loadResolvedTemplateSeeds(
   logger.info(`  🌱 Loading ${resolved.seeds.length} seed sets...`);
 
   // Load seeds that match the template's seed names
-  await loadAllSeeds(db, groupId, userPubkey, {
+  await loadAllSeeds(groupId, userPubkey, {
     moduleIds: resolved.enabledModules,
     seedNames: resolved.seeds,
   });

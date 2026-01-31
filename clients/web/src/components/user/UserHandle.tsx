@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ShieldCheck } from 'lucide-react';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type { DBIdentity } from '@/core/storage/db';
 
 export type UserHandleFormat = '@username' | 'display-name' | 'full' | 'username-only';
@@ -39,7 +39,7 @@ export const UserHandle: FC<UserHandleProps> = ({
   useEffect(() => {
     const loadIdentity = async () => {
       try {
-        const id = await db.identities.get(pubkey);
+        const id = await dal.get<DBIdentity>('identities', pubkey);
         setIdentity(id || null);
       } catch (error) {
         console.error('Failed to load identity:', error);

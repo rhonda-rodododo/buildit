@@ -30,7 +30,7 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { recoveryPhraseService } from '@/core/backup';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -72,7 +72,7 @@ export function BackupReminderBanner({ className }: BackupReminderBannerProps) {
       }
 
       // Check if user needs backup reminder
-      const identity = await db.identities.get(publicKey);
+      const identity = await dal.get<{ importedWithoutBackup?: boolean; recoveryPhraseConfirmedAt?: number; lastBackupAt?: number }>('identities', publicKey);
       if (!identity) {
         setShowBanner(false);
         return;
@@ -153,7 +153,7 @@ export function BackupReminderBanner({ className }: BackupReminderBannerProps) {
     if (!publicKey) return;
 
     try {
-      await db.identities.update(publicKey, {
+      await dal.update('identities', publicKey, {
         recoveryPhraseShownAt: Date.now(),
         recoveryPhraseConfirmedAt: Date.now(),
         importedWithoutBackup: false, // Clear the flag

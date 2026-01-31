@@ -3,7 +3,7 @@
  * Business logic for database operations
  */
 
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type {
   DatabaseTable,
   DatabaseView,
@@ -69,7 +69,11 @@ export class DatabaseManager {
       updated: table.updated,
     };
 
-    await db.databaseTables?.add(dbTable);
+    try {
+      await dal.add<DBTable>('databaseTables', dbTable);
+    } catch {
+      // Table might not exist yet
+    }
 
     // Add to store
     useDatabaseStore.getState().addTable(table);
@@ -101,7 +105,7 @@ export class DatabaseManager {
       dbUpdates.detailConfig = JSON.stringify(updates.detailConfig);
     }
 
-    await db.databaseTables!.update(id, dbUpdates);
+    await dal.update<DBTable>('databaseTables', id, dbUpdates);
 
     useDatabaseStore.getState().updateTable(id, { ...updates, updated: now });
   }
@@ -129,7 +133,7 @@ export class DatabaseManager {
     }
 
     // Delete the table
-    await db.databaseTables!.delete(id);
+    await dal.delete('databaseTables', id);
     useDatabaseStore.getState().deleteTable(id);
   }
 
@@ -215,7 +219,11 @@ export class DatabaseManager {
       updated: view.updated,
     };
 
-    await db.databaseViews?.add(dbView);
+    try {
+      await dal.add<DBView>('databaseViews', dbView);
+    } catch {
+      // Table might not exist yet
+    }
     useDatabaseStore.getState().addView(view);
 
     return view;
@@ -237,7 +245,7 @@ export class DatabaseManager {
       updated: now,
     };
 
-    await db.databaseViews!.update(id, dbUpdates);
+    await dal.update<DBView>('databaseViews', id, dbUpdates);
     useDatabaseStore.getState().updateView(id, { ...updates, updated: now });
   }
 
@@ -245,7 +253,7 @@ export class DatabaseManager {
    * Delete a view
    */
   async deleteView(id: string): Promise<void> {
-    await db.databaseViews!.delete(id);
+    await dal.delete('databaseViews', id);
     useDatabaseStore.getState().deleteView(id);
   }
 
@@ -284,7 +292,11 @@ export class DatabaseManager {
       updatedBy: record.updatedBy,
     };
 
-    await db.databaseRecords?.add(dbRecord);
+    try {
+      await dal.add<DBRecord>('databaseRecords', dbRecord);
+    } catch {
+      // Table might not exist yet
+    }
     useDatabaseStore.getState().addRecord(record);
 
     return record;
@@ -305,7 +317,7 @@ export class DatabaseManager {
       updated: now,
     };
 
-    await db.databaseRecords!.update(id, dbUpdates);
+    await dal.update<DBRecord>('databaseRecords', id, dbUpdates);
     useDatabaseStore.getState().updateRecord(id, tableId, { ...updates, updated: now });
   }
 
@@ -313,7 +325,7 @@ export class DatabaseManager {
    * Delete a record
    */
   async deleteRecord(id: string, tableId: string): Promise<void> {
-    await db.databaseRecords!.delete(id);
+    await dal.delete('databaseRecords', id);
     useDatabaseStore.getState().deleteRecord(id, tableId);
   }
 
@@ -389,7 +401,9 @@ export class DatabaseManager {
    * Load tables for a group
    */
   async loadTablesForGroup(groupId: string): Promise<void> {
-    const dbTables = await db.databaseTables!.where('groupId').equals(groupId).toArray();
+    const dbTables = await dal.query<DBTable>('databaseTables', {
+      whereClause: { groupId },
+    });
 
     for (const dbTable of dbTables) {
       const table: DatabaseTable = {
@@ -414,7 +428,9 @@ export class DatabaseManager {
    * Load views for a table
    */
   async loadViewsForTable(tableId: string): Promise<void> {
-    const dbViews = await db.databaseViews!.where('tableId').equals(tableId).toArray();
+    const dbViews = await dal.query<DBView>('databaseViews', {
+      whereClause: { tableId },
+    });
 
     for (const dbView of dbViews) {
       const view: DatabaseView = {
@@ -442,7 +458,9 @@ export class DatabaseManager {
    * Load records for a table
    */
   async loadRecordsForTable(tableId: string): Promise<void> {
-    const dbRecords = await db.databaseRecords!.where('tableId').equals(tableId).toArray();
+    const dbRecords = await dal.query<DBRecord>('databaseRecords', {
+      whereClause: { tableId },
+    });
 
     for (const dbRecord of dbRecords) {
       const record: DatabaseRecord = {
@@ -503,7 +521,11 @@ export class DatabaseManager {
       createdBy: relationship.createdBy,
     };
 
-    await db.databaseRelationships?.add(dbRelationship);
+    try {
+      await dal.add<DBRelationship>('databaseRelationships', dbRelationship);
+    } catch {
+      // Table might not exist yet
+    }
     useDatabaseStore.getState().addRelationship(relationship);
 
     return relationship;
@@ -513,7 +535,7 @@ export class DatabaseManager {
    * Delete a relationship
    */
   async deleteRelationship(id: string): Promise<void> {
-    await db.databaseRelationships.delete(id);
+    await dal.delete('databaseRelationships', id);
     useDatabaseStore.getState().deleteRelationship(id);
   }
 
@@ -559,7 +581,7 @@ export class DatabaseManager {
     };
 
     try {
-      await db.table('databaseRecordActivities').add(dbActivity);
+      await dal.add<DBRecordActivity>('databaseRecordActivities', dbActivity);
       useDatabaseStore.getState().addActivity(activity);
     } catch (error) {
       logger.error('Failed to log activity:', error);
@@ -577,17 +599,23 @@ export class DatabaseManager {
     limit?: number
   ): Promise<RecordActivity[]> {
     try {
-      let query = db
-        .table('databaseRecordActivities')
-        .where('[recordId+tableId]')
-        .equals([recordId, tableId])
-        .reverse();
+      const dbActivities = await dal.queryCustom<DBRecordActivity>({
+        sql: 'SELECT * FROM database_record_activities WHERE record_id = ?1 AND table_id = ?2 ORDER BY created_at DESC' + (limit ? ` LIMIT ${limit}` : ''),
+        params: [recordId, tableId],
+        dexieFallback: async (db) => {
+          let query = db
+            .table('databaseRecordActivities')
+            .where('[recordId+tableId]')
+            .equals([recordId, tableId])
+            .reverse();
 
-      if (limit) {
-        query = query.limit(limit);
-      }
+          if (limit) {
+            query = query.limit(limit);
+          }
 
-      const dbActivities = await query.toArray();
+          return query.toArray();
+        },
+      });
 
       const activities: RecordActivity[] = dbActivities.map((dbActivity: DBRecordActivity) => ({
         id: dbActivity.id,
@@ -651,7 +679,7 @@ export class DatabaseManager {
     };
 
     try {
-      await db.table('databaseRecordComments').add(dbComment);
+      await dal.add<DBRecordComment>('databaseRecordComments', dbComment);
       useDatabaseStore.getState().addComment(comment);
 
       // Log activity
@@ -679,7 +707,7 @@ export class DatabaseManager {
     const now = Date.now();
 
     try {
-      await db.table('databaseRecordComments').update(commentId, {
+      await dal.update<DBRecordComment>('databaseRecordComments', commentId, {
         content,
         updatedAt: now,
       });
@@ -696,7 +724,7 @@ export class DatabaseManager {
    */
   async deleteRecordComment(commentId: string): Promise<boolean> {
     try {
-      await db.table('databaseRecordComments').delete(commentId);
+      await dal.delete('databaseRecordComments', commentId);
       useDatabaseStore.getState().deleteComment(commentId);
       return true;
     } catch (error) {
@@ -710,11 +738,9 @@ export class DatabaseManager {
    */
   async getRecordComments(recordId: string, _tableId: string): Promise<RecordComment[]> {
     try {
-      const dbComments = await db
-        .table('databaseRecordComments')
-        .where('recordId')
-        .equals(recordId)
-        .toArray();
+      const dbComments = await dal.query<DBRecordComment>('databaseRecordComments', {
+        whereClause: { recordId },
+      });
 
       const comments: RecordComment[] = dbComments.map((dbComment: DBRecordComment) => ({
         id: dbComment.id,
@@ -809,7 +835,7 @@ export class DatabaseManager {
     };
 
     try {
-      await db.table('databaseRecordAttachments').add(dbAttachment);
+      await dal.add<DBRecordAttachment>('databaseRecordAttachments', dbAttachment);
       useDatabaseStore.getState().addAttachment(attachment);
 
       // Log activity
@@ -842,7 +868,7 @@ export class DatabaseManager {
       // Get attachment info before deleting for activity log
       const attachment = useDatabaseStore.getState().getAttachment(attachmentId);
 
-      await db.table('databaseRecordAttachments').delete(attachmentId);
+      await dal.delete('databaseRecordAttachments', attachmentId);
       useDatabaseStore.getState().deleteAttachment(attachmentId);
 
       // Log activity
@@ -868,11 +894,9 @@ export class DatabaseManager {
    */
   async getRecordAttachments(recordId: string, _tableId: string): Promise<RecordAttachment[]> {
     try {
-      const dbAttachments = await db
-        .table('databaseRecordAttachments')
-        .where('recordId')
-        .equals(recordId)
-        .toArray();
+      const dbAttachments = await dal.query<DBRecordAttachment>('databaseRecordAttachments', {
+        whereClause: { recordId },
+      });
 
       const attachments: RecordAttachment[] = dbAttachments.map((dbAttachment: DBRecordAttachment) => ({
         id: dbAttachment.id,
@@ -972,36 +996,36 @@ export class DatabaseManager {
   async deleteRecordWithRelatedData(id: string, tableId: string): Promise<void> {
     // Delete all activities for this record
     try {
-      const activities = await db
-        .table('databaseRecordActivities')
-        .where('recordId')
-        .equals(id)
-        .toArray();
-      await db.table('databaseRecordActivities').bulkDelete(activities.map((a: DBRecordActivity) => a.id));
+      const activities = await dal.query<DBRecordActivity>('databaseRecordActivities', {
+        whereClause: { recordId: id },
+      });
+      for (const a of activities) {
+        await dal.delete('databaseRecordActivities', a.id);
+      }
     } catch {
       // Table might not exist yet
     }
 
     // Delete all comments for this record
     try {
-      const comments = await db
-        .table('databaseRecordComments')
-        .where('recordId')
-        .equals(id)
-        .toArray();
-      await db.table('databaseRecordComments').bulkDelete(comments.map((c: DBRecordComment) => c.id));
+      const comments = await dal.query<DBRecordComment>('databaseRecordComments', {
+        whereClause: { recordId: id },
+      });
+      for (const c of comments) {
+        await dal.delete('databaseRecordComments', c.id);
+      }
     } catch {
       // Table might not exist yet
     }
 
     // Delete all attachments for this record
     try {
-      const attachments = await db
-        .table('databaseRecordAttachments')
-        .where('recordId')
-        .equals(id)
-        .toArray();
-      await db.table('databaseRecordAttachments').bulkDelete(attachments.map((a: DBRecordAttachment) => a.id));
+      const attachments = await dal.query<DBRecordAttachment>('databaseRecordAttachments', {
+        whereClause: { recordId: id },
+      });
+      for (const a of attachments) {
+        await dal.delete('databaseRecordAttachments', a.id);
+      }
     } catch {
       // Table might not exist yet
     }

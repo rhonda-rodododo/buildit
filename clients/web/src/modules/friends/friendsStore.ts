@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { useAuthStore } from '@/stores/authStore';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { secureRandomString } from '@/lib/utils';
 import type {
   DBFriend,
@@ -97,7 +97,7 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Persist to database
         try {
-          await db.friendRequests.add(request);
+          await dal.add<FriendRequest>('friendRequests', request);
         } catch (error) {
           console.error('Failed to save friend request:', error);
         }
@@ -159,9 +159,9 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Persist to database
         try {
-          await db.friends.add(friend1);
-          await db.friends.add(friend2);
-          await db.friendRequests.delete(requestId);
+          await dal.add<DBFriend>('friends', friend1);
+          await dal.add<DBFriend>('friends', friend2);
+          await dal.delete('friendRequests', requestId);
         } catch (error) {
           console.error('Failed to accept friend request:', error);
         }
@@ -175,7 +175,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Decline friend request
       declineFriendRequest: async (requestId: string): Promise<void> => {
         try {
-          await db.friendRequests.delete(requestId);
+          await dal.delete('friendRequests', requestId);
         } catch (error) {
           console.error('Failed to decline friend request:', error);
         }
@@ -192,14 +192,22 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Remove both directions of friendship
         try {
-          await db.friends.delete(friendId);
+          await dal.delete('friends', friendId);
           // Find and remove reverse friendship
-          const reverseFriend = await db.friends
-            .where('[userPubkey+friendPubkey]')
-            .equals([friend.friendPubkey, friend.userPubkey])
-            .first();
-          if (reverseFriend) {
-            await db.friends.delete(reverseFriend.id);
+          const reverseFriends = await dal.queryCustom<DBFriend>({
+            sql: 'SELECT * FROM friends WHERE user_pubkey = ?1 AND friend_pubkey = ?2 LIMIT 1',
+            params: [friend.friendPubkey, friend.userPubkey],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { friends: { where: (key: string) => { equals: (val: unknown) => { first: () => Promise<DBFriend | undefined> } } } };
+              const result = await dexieDb.friends
+                .where('[userPubkey+friendPubkey]')
+                .equals([friend.friendPubkey, friend.userPubkey])
+                .first();
+              return result ? [result] : [];
+            },
+          });
+          if (reverseFriends.length > 0) {
+            await dal.delete('friends', reverseFriends[0].id);
           }
         } catch (error) {
           console.error('Failed to remove friend:', error);
@@ -213,7 +221,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Block friend
       blockFriend: async (friendId: string): Promise<void> => {
         try {
-          await db.friends.update(friendId, { status: 'blocked' });
+          await dal.update('friends', friendId, { status: 'blocked' });
         } catch (error) {
           console.error('Failed to block friend:', error);
         }
@@ -228,7 +236,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Unblock friend
       unblockFriend: async (friendId: string): Promise<void> => {
         try {
-          await db.friends.update(friendId, { status: 'accepted' });
+          await dal.update('friends', friendId, { status: 'accepted' });
         } catch (error) {
           console.error('Failed to unblock friend:', error);
         }
@@ -243,7 +251,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Update friend notes
       updateFriendNotes: async (friendId: string, notes: string): Promise<void> => {
         try {
-          await db.friends.update(friendId, { notes });
+          await dal.update('friends', friendId, { notes });
         } catch (error) {
           console.error('Failed to update notes:', error);
         }
@@ -256,7 +264,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Update friend tags
       updateFriendTags: async (friendId: string, tags: string[]): Promise<void> => {
         try {
-          await db.friends.update(friendId, { tags });
+          await dal.update('friends', friendId, { tags });
         } catch (error) {
           console.error('Failed to update tags:', error);
         }
@@ -274,7 +282,7 @@ export const useFriendsStore = create<FriendsState>()(
         const isFavorite = !friend.isFavorite;
 
         try {
-          await db.friends.update(friendId, { isFavorite });
+          await dal.update('friends', friendId, { isFavorite });
         } catch (error) {
           console.error('Failed to toggle favorite:', error);
         }
@@ -292,7 +300,7 @@ export const useFriendsStore = create<FriendsState>()(
         const newSettings = { ...friend.privacySettings, ...settings };
 
         try {
-          await db.friends.update(friendId, { privacySettings: newSettings });
+          await dal.update('friends', friendId, { privacySettings: newSettings });
         } catch (error) {
           console.error('Failed to update privacy settings:', error);
         }
@@ -307,7 +315,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Mark as verified in person
       markVerifiedInPerson: async (friendId: string): Promise<void> => {
         try {
-          await db.friends.update(friendId, {
+          await dal.update('friends', friendId, {
             verifiedInPerson: true,
             trustTier: 'verified',
           });
@@ -325,7 +333,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Update trust tier
       updateTrustTier: async (friendId: string, tier: TrustTier): Promise<void> => {
         try {
-          await db.friends.update(friendId, { trustTier: tier });
+          await dal.update('friends', friendId, { trustTier: tier });
         } catch (error) {
           console.error('Failed to update trust tier:', error);
         }
@@ -351,7 +359,7 @@ export const useFriendsStore = create<FriendsState>()(
         };
 
         try {
-          await db.friendInviteLinks.add(link);
+          await dal.add<FriendInviteLink>('friendInviteLinks', link);
         } catch (error) {
           console.error('Failed to create invite link:', error);
         }
@@ -368,7 +376,8 @@ export const useFriendsStore = create<FriendsState>()(
         const currentIdentity = useAuthStore.getState().currentIdentity;
         if (!currentIdentity) throw new Error('Not authenticated');
 
-        const link = await db.friendInviteLinks.where('code').equals(code).first();
+        const links = await dal.query<FriendInviteLink>('friendInviteLinks', { whereClause: { code } });
+        const link = links[0];
         if (!link) throw new Error('Invalid invite code');
 
         if (link.expiresAt && link.expiresAt < Date.now()) {
@@ -384,7 +393,7 @@ export const useFriendsStore = create<FriendsState>()(
 
         // Increment usage count
         try {
-          await db.friendInviteLinks.update(link.id, {
+          await dal.update('friendInviteLinks', link.id, {
             currentUses: link.currentUses + 1,
           });
         } catch (error) {
@@ -395,7 +404,7 @@ export const useFriendsStore = create<FriendsState>()(
       // Delete invite link
       deleteInviteLink: async (linkId: string): Promise<void> => {
         try {
-          await db.friendInviteLinks.delete(linkId);
+          await dal.delete('friendInviteLinks', linkId);
         } catch (error) {
           console.error('Failed to delete invite link:', error);
         }
@@ -556,19 +565,27 @@ export const useFriendsStore = create<FriendsState>()(
         set({ isLoading: true });
 
         try {
-          const friends = await db.friends.where('userPubkey').equals(currentIdentity.publicKey).toArray();
+          const friends = await dal.query<DBFriend>('friends', {
+            whereClause: { userPubkey: currentIdentity.publicKey },
+          });
 
-          const requests = await db.friendRequests
-            .where('toPubkey')
-            .equals(currentIdentity.publicKey)
-            .or('fromPubkey')
-            .equals(currentIdentity.publicKey)
-            .toArray();
+          const requests = await dal.queryCustom<FriendRequest>({
+            sql: 'SELECT * FROM friend_requests WHERE to_pubkey = ?1 OR from_pubkey = ?1',
+            params: [currentIdentity.publicKey],
+            dexieFallback: async (db: unknown) => {
+              const dexieDb = db as { friendRequests: { where: (key: string) => { equals: (val: string) => { or: (key: string) => { equals: (val: string) => { toArray: () => Promise<FriendRequest[]> } } } } } };
+              return dexieDb.friendRequests
+                .where('toPubkey')
+                .equals(currentIdentity.publicKey)
+                .or('fromPubkey')
+                .equals(currentIdentity.publicKey)
+                .toArray();
+            },
+          });
 
-          const invites = await db.friendInviteLinks
-            .where('creatorPubkey')
-            .equals(currentIdentity.publicKey)
-            .toArray();
+          const invites = await dal.query<FriendInviteLink>('friendInviteLinks', {
+            whereClause: { creatorPubkey: currentIdentity.publicKey },
+          });
 
           set({
             friends,

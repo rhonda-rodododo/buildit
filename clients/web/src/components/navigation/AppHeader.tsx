@@ -12,7 +12,7 @@ import { AppSidebar } from './AppSidebar';
 import { LogoutWarningDialog } from '@/components/auth/LogoutWarningDialog';
 import { WindowControls } from '@/components/desktop';
 import { APP_CONFIG } from '@/config/app';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useTranslation } from 'react-i18next';
 
 export const AppHeader: FC = () => {
@@ -31,7 +31,7 @@ export const AppHeader: FC = () => {
       }
 
       try {
-        const identity = await db.identities.get(currentIdentity.publicKey);
+        const identity = await dal.get<{ recoveryPhraseConfirmedAt?: number; lastBackupAt?: number }>('identities', currentIdentity.publicKey);
         if (identity) {
           // User has backup if they confirmed recovery phrase OR created a backup file
           const hasConfirmedBackup = !!(

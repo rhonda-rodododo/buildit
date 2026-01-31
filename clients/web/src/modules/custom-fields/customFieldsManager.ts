@@ -3,9 +3,10 @@
  * Business logic for custom field definitions CRUD operations
  */
 
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { useCustomFieldsStore } from './customFieldsStore';
 import type { CustomField, EntityType, JSONSchemaField, FieldWidgetConfig } from './types';
+import type { DBCustomField } from './schema';
 import { CustomFieldSchema } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -80,10 +81,15 @@ export class CustomFieldsManager {
    */
   static async loadFields(groupId: string, entityType: EntityType): Promise<CustomField[]> {
     try {
-      const customFieldsTable = db.getTable<any>('customFields');
-      const dbFields = await customFieldsTable
-        .where({ groupId, entityType })
-        .sortBy('order');
+      const dbFields = await dal.queryCustom<DBCustomField>({
+        sql: `SELECT * FROM custom_fields WHERE group_id = ?1 AND entity_type = ?2 ORDER BY "order" ASC`,
+        params: [groupId, entityType],
+        dexieFallback: async (db) => {
+          return db.table('customFields')
+            .where({ groupId, entityType })
+            .sortBy('order');
+        },
+      });
 
       const fields: CustomField[] = dbFields.map((f) => ({
         id: f.id,
@@ -132,8 +138,7 @@ export class CustomFieldsManager {
       CustomFieldSchema.parse(field);
 
       // Store in DB
-      const customFieldsTable = db.getTable<any>('customFields');
-      await customFieldsTable.add({
+      await dal.add('customFields', {
         ...field,
         schema: JSON.stringify(field.schema),
         widget: JSON.stringify(field.widget),
@@ -159,8 +164,7 @@ export class CustomFieldsManager {
       CustomFieldSchema.parse(field);
 
       // Update in DB
-      const customFieldsTable = db.getTable<any>('customFields');
-      await customFieldsTable.update(field.id, {
+      await dal.update('customFields', field.id, {
         ...field,
         schema: JSON.stringify(field.schema),
         widget: JSON.stringify(field.widget),
@@ -184,8 +188,7 @@ export class CustomFieldsManager {
   static async deleteField(fieldId: string, groupId: string, entityType: EntityType): Promise<boolean> {
     try {
       // Delete field
-      const customFieldsTable = db.getTable<any>('customFields');
-      await customFieldsTable.delete(fieldId);
+      await dal.delete('customFields', fieldId);
 
       // Update store
       useCustomFieldsStore.getState().deleteField(fieldId, groupId, entityType);

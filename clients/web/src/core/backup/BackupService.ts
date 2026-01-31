@@ -9,7 +9,8 @@
  * - Non-extractable keys in memory
  */
 
-import { getDB, type DBIdentity } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBIdentity } from '@/core/storage/db';
 import { recoveryPhraseService } from './RecoveryPhraseService';
 import { logger } from '@/lib/logger';
 import type {
@@ -57,10 +58,8 @@ export class BackupService {
       deviceName?: string;
     } = {}
   ): Promise<EncryptedBackup> {
-    const db = getDB();
-
     // Get identity from database
-    const identity = await db.identities.get(identityPubkey);
+    const identity = await dal.get<DBIdentity>('identities', identityPubkey);
     if (!identity) {
       throw new Error('Identity not found');
     }
@@ -94,7 +93,9 @@ export class BackupService {
 
     // Optionally include contacts
     if (options.includeContacts) {
-      const friends = await db.friends.where('userPubkey').equals(identityPubkey).toArray();
+      const friends = await dal.query<{ friendPubkey: string; displayName?: string; username?: string }>('friends', {
+        whereClause: { userPubkey: identityPubkey },
+      });
       contents.contacts = friends.map(f => ({
         pubkey: f.friendPubkey,
         name: f.displayName || f.username,
@@ -103,10 +104,12 @@ export class BackupService {
 
     // Optionally include groups
     if (options.includeGroups) {
-      const members = await db.groupMembers.where('pubkey').equals(identityPubkey).toArray();
+      const members = await dal.query<{ groupId: string; role: string }>('groupMembers', {
+        whereClause: { pubkey: identityPubkey },
+      });
       const groups = await Promise.all(
         members.map(async (m): Promise<BackupGroup | null> => {
-          const group = await db.groups.get(m.groupId);
+          const group = await dal.get<{ id: string; name: string; description?: string }>('groups', m.groupId);
           if (!group) return null;
           return {
             id: group.id,

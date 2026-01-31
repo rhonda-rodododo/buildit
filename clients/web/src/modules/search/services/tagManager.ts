@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 import type { Tag, TagWithChildren, EntityTag } from '../types';
 import type { ModuleType } from '@/types/modules';
 import type { DBTag, DBEntityTag } from '../schema';
-import { getDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { logger } from '@/lib/logger';
 
 // ============================================================================
@@ -85,27 +85,27 @@ export class TagManager {
    * Create a new tag
    */
   async createTag(input: CreateTagInput): Promise<Tag> {
-    const db = getDB();
-    if (!db.tags) {
-      throw new Error('Tags table not initialized');
-    }
-
     const now = Date.now();
     const slug = slugify(input.name);
 
     // Check for duplicate slug in group
-    const existing = await db.tags
-      .where('[groupId+slug]')
-      .equals([input.groupId, slug])
-      .first();
+    const existing = await dal.queryCustom<DBTag>({
+      sql: `SELECT * FROM tags WHERE group_id = ? AND slug = ? LIMIT 1`,
+      params: [input.groupId, slug],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown[]) => { first: () => Promise<DBTag | undefined> } } } };
+        const result = await dexieDb.table('tags').where('[groupId+slug]').equals([input.groupId, slug]).first();
+        return result ? [result] : [];
+      },
+    });
 
-    if (existing) {
+    if (existing.length > 0) {
       throw new Error(`Tag "${input.name}" already exists in this group`);
     }
 
     // Validate parent tag if provided
     if (input.parentTagId) {
-      const parent = await db.tags.get(input.parentTagId);
+      const parent = await dal.get<DBTag>('tags', input.parentTagId);
       if (!parent) {
         throw new Error('Parent tag not found');
       }
@@ -131,7 +131,7 @@ export class TagManager {
       updatedAt: now,
     };
 
-    await db.tags.add(tag);
+    await dal.add('tags', tag);
     logger.info('Created tag:', tag.name);
 
     return dbTagToTag(tag);
@@ -141,12 +141,7 @@ export class TagManager {
    * Update a tag
    */
   async updateTag(tagId: string, input: UpdateTagInput): Promise<Tag> {
-    const db = getDB();
-    if (!db.tags) {
-      throw new Error('Tags table not initialized');
-    }
-
-    const existing = await db.tags.get(tagId);
+    const existing = await dal.get<DBTag>('tags', tagId);
     if (!existing) {
       throw new Error('Tag not found');
     }
@@ -160,12 +155,17 @@ export class TagManager {
       updates.slug = slugify(input.name);
 
       // Check for duplicate slug
-      const duplicate = await db.tags
-        .where('[groupId+slug]')
-        .equals([existing.groupId, updates.slug])
-        .first();
+      const duplicates = await dal.queryCustom<DBTag>({
+        sql: `SELECT * FROM tags WHERE group_id = ? AND slug = ? LIMIT 1`,
+        params: [existing.groupId, updates.slug],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown[]) => { first: () => Promise<DBTag | undefined> } } } };
+          const result = await dexieDb.table('tags').where('[groupId+slug]').equals([existing.groupId, updates.slug]).first();
+          return result ? [result] : [];
+        },
+      });
 
-      if (duplicate && duplicate.id !== tagId) {
+      if (duplicates.length > 0 && duplicates[0].id !== tagId) {
         throw new Error(`Tag "${input.name}" already exists in this group`);
       }
     }
@@ -179,7 +179,7 @@ export class TagManager {
         updates.parentTagId = undefined;
       } else {
         // Validate parent
-        const parent = await db.tags.get(input.parentTagId);
+        const parent = await dal.get<DBTag>('tags', input.parentTagId);
         if (!parent) {
           throw new Error('Parent tag not found');
         }
@@ -196,9 +196,9 @@ export class TagManager {
       }
     }
 
-    await db.tags.update(tagId, updates);
+    await dal.update('tags', tagId, updates);
 
-    const updated = await db.tags.get(tagId);
+    const updated = await dal.get<DBTag>('tags', tagId);
     return dbTagToTag(updated!);
   }
 
@@ -206,34 +206,28 @@ export class TagManager {
    * Delete a tag
    */
   async deleteTag(tagId: string): Promise<void> {
-    const db = getDB();
-    if (!db.tags || !db.entityTags) {
-      throw new Error('Tags tables not initialized');
-    }
-
-    const tag = await db.tags.get(tagId);
+    const tag = await dal.get<DBTag>('tags', tagId);
     if (!tag) {
       throw new Error('Tag not found');
     }
 
     // Move child tags to top level
-    const children = await db.tags
-      .where('parentTagId')
-      .equals(tagId)
-      .toArray();
+    const children = await dal.query<DBTag>('tags', {
+      whereClause: { parentTagId: tagId },
+    });
 
     for (const child of children) {
-      await db.tags.update(child.id, {
+      await dal.update('tags', child.id, {
         parentTagId: undefined,
         updatedAt: Date.now(),
       });
     }
 
     // Remove all entity-tag associations
-    await db.entityTags.where('tagId').equals(tagId).delete();
+    await dal.deleteWhere('entityTags', { tagId });
 
     // Delete the tag
-    await db.tags.delete(tagId);
+    await dal.delete('tags', tagId);
 
     logger.info('Deleted tag:', tag.name);
   }
@@ -242,12 +236,7 @@ export class TagManager {
    * Get a tag by ID
    */
   async getTag(tagId: string): Promise<Tag | null> {
-    const db = getDB();
-    if (!db.tags) {
-      return null;
-    }
-
-    const tag = await db.tags.get(tagId);
+    const tag = await dal.get<DBTag>('tags', tagId);
     return tag ? dbTagToTag(tag) : null;
   }
 
@@ -255,12 +244,9 @@ export class TagManager {
    * Get all tags for a group
    */
   async getGroupTags(groupId: string): Promise<Tag[]> {
-    const db = getDB();
-    if (!db.tags) {
-      return [];
-    }
-
-    const tags = await db.tags.where('groupId').equals(groupId).toArray();
+    const tags = await dal.query<DBTag>('tags', {
+      whereClause: { groupId },
+    });
     return tags.map(dbTagToTag);
   }
 
@@ -333,13 +319,8 @@ export class TagManager {
     groupId: string,
     createdBy: string
   ): Promise<EntityTag> {
-    const db = getDB();
-    if (!db.tags || !db.entityTags) {
-      throw new Error('Tags tables not initialized');
-    }
-
     // Verify tag exists and belongs to the group
-    const tag = await db.tags.get(tagId);
+    const tag = await dal.get<DBTag>('tags', tagId);
     if (!tag) {
       throw new Error('Tag not found');
     }
@@ -348,14 +329,18 @@ export class TagManager {
     }
 
     // Check if already tagged
-    const existing = await db.entityTags
-      .where('[entityType+entityId]')
-      .equals([entityType, entityId])
-      .and((et) => et.tagId === tagId)
-      .first();
+    const existing = await dal.queryCustom<DBEntityTag>({
+      sql: `SELECT * FROM entity_tags WHERE entity_type = ? AND entity_id = ? AND tag_id = ? LIMIT 1`,
+      params: [entityType, entityId, tagId],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown[]) => { and: (fn: (et: DBEntityTag) => boolean) => { first: () => Promise<DBEntityTag | undefined> } } } } };
+        const result = await dexieDb.table('entityTags').where('[entityType+entityId]').equals([entityType, entityId]).and((et: DBEntityTag) => et.tagId === tagId).first();
+        return result ? [result] : [];
+      },
+    });
 
-    if (existing) {
-      return dbEntityTagToEntityTag(existing);
+    if (existing.length > 0) {
+      return dbEntityTagToEntityTag(existing[0]);
     }
 
     const now = Date.now();
@@ -369,10 +354,10 @@ export class TagManager {
       createdBy,
     };
 
-    await db.entityTags.add(entityTag);
+    await dal.add('entityTags', entityTag);
 
     // Increment usage count
-    await db.tags.update(tagId, {
+    await dal.update('tags', tagId, {
       usageCount: tag.usageCount + 1,
       updatedAt: now,
     });
@@ -388,27 +373,26 @@ export class TagManager {
     entityId: string,
     tagId: string
   ): Promise<void> {
-    const db = getDB();
-    if (!db.tags || !db.entityTags) {
-      throw new Error('Tags tables not initialized');
-    }
+    const entityTags = await dal.queryCustom<DBEntityTag>({
+      sql: `SELECT * FROM entity_tags WHERE entity_type = ? AND entity_id = ? AND tag_id = ? LIMIT 1`,
+      params: [entityType, entityId, tagId],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown[]) => { and: (fn: (et: DBEntityTag) => boolean) => { first: () => Promise<DBEntityTag | undefined> } } } } };
+        const result = await dexieDb.table('entityTags').where('[entityType+entityId]').equals([entityType, entityId]).and((et: DBEntityTag) => et.tagId === tagId).first();
+        return result ? [result] : [];
+      },
+    });
 
-    const entityTag = await db.entityTags
-      .where('[entityType+entityId]')
-      .equals([entityType, entityId])
-      .and((et) => et.tagId === tagId)
-      .first();
-
-    if (!entityTag) {
+    if (entityTags.length === 0) {
       return; // Already not tagged
     }
 
-    await db.entityTags.delete(entityTag.id);
+    await dal.delete('entityTags', entityTags[0].id);
 
     // Decrement usage count
-    const tag = await db.tags.get(tagId);
+    const tag = await dal.get<DBTag>('tags', tagId);
     if (tag && tag.usageCount > 0) {
-      await db.tags.update(tagId, {
+      await dal.update('tags', tagId, {
         usageCount: tag.usageCount - 1,
         updatedAt: Date.now(),
       });
@@ -419,18 +403,26 @@ export class TagManager {
    * Get all tags for an entity
    */
   async getEntityTags(entityType: ModuleType, entityId: string): Promise<Tag[]> {
-    const db = getDB();
-    if (!db.tags || !db.entityTags) {
-      return [];
-    }
+    const entityTags = await dal.queryCustom<DBEntityTag>({
+      sql: `SELECT * FROM entity_tags WHERE entity_type = ? AND entity_id = ?`,
+      params: [entityType, entityId],
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: unknown[]) => { toArray: () => Promise<DBEntityTag[]> } } } };
+        return dexieDb.table('entityTags').where('[entityType+entityId]').equals([entityType, entityId]).toArray();
+      },
+    });
 
-    const entityTags = await db.entityTags
-      .where('[entityType+entityId]')
-      .equals([entityType, entityId])
-      .toArray();
+    if (entityTags.length === 0) return [];
 
     const tagIds = entityTags.map((et) => et.tagId);
-    const tags = await db.tags.where('id').anyOf(tagIds).toArray();
+    const tags = await dal.queryCustom<DBTag>({
+      sql: `SELECT * FROM tags WHERE id IN (${tagIds.map(() => '?').join(',')})`,
+      params: tagIds,
+      dexieFallback: async (db: unknown) => {
+        const dexieDb = db as { table: (name: string) => { where: (key: string) => { anyOf: (ids: string[]) => { toArray: () => Promise<DBTag[]> } } } };
+        return dexieDb.table('tags').where('id').anyOf(tagIds).toArray();
+      },
+    });
 
     return tags.map(dbTagToTag);
   }
@@ -442,18 +434,23 @@ export class TagManager {
     tagId: string,
     entityType?: ModuleType
   ): Promise<EntityTag[]> {
-    const db = getDB();
-    if (!db.entityTags) {
-      return [];
-    }
-
-    let query = db.entityTags.where('tagId').equals(tagId);
+    let entityTags: DBEntityTag[];
 
     if (entityType) {
-      query = query.and((et) => et.entityType === entityType);
+      entityTags = await dal.queryCustom<DBEntityTag>({
+        sql: `SELECT * FROM entity_tags WHERE tag_id = ? AND entity_type = ?`,
+        params: [tagId, entityType],
+        dexieFallback: async (db: unknown) => {
+          const dexieDb = db as { table: (name: string) => { where: (key: string) => { equals: (val: string) => { and: (fn: (et: DBEntityTag) => boolean) => { toArray: () => Promise<DBEntityTag[]> } } } } };
+          return dexieDb.table('entityTags').where('tagId').equals(tagId).and((et: DBEntityTag) => et.entityType === entityType).toArray();
+        },
+      });
+    } else {
+      entityTags = await dal.query<DBEntityTag>('entityTags', {
+        whereClause: { tagId },
+      });
     }
 
-    const entityTags = await query.toArray();
     return entityTags.map(dbEntityTagToEntityTag);
   }
 

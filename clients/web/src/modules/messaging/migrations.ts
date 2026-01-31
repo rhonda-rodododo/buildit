@@ -13,7 +13,7 @@ export const messagingMigrations: ModuleMigration[] = [
   {
     version: 1,
     description: 'Messaging module initial setup (no tables yet)',
-    migrate: async (_db) => {
+    migrate: async () => {
       logger.info('Messaging module v1: Module initialized (uses core messages table)');
     },
   },

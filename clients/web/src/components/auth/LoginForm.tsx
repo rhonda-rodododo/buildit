@@ -15,7 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, Shield, ArrowLeft } from 'lucide-react';
 import { APP_CONFIG } from '@/config/app';
 import { recoveryPhraseService } from '@/core/backup';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import RecoveryPhraseSetup from './RecoveryPhraseSetup';
 import { useTranslation } from 'react-i18next';
 
@@ -113,7 +113,7 @@ export const LoginForm: FC<LoginFormProps> = ({ onBack, defaultTab = 'create' })
 
       // For imported identities, mark that they skipped the backup flow
       // This will trigger the backup reminder banner
-      await db.identities.update(identity.publicKey, {
+      await dal.update('identities', identity.publicKey, {
         importedWithoutBackup: true,
       });
 
@@ -133,7 +133,7 @@ export const LoginForm: FC<LoginFormProps> = ({ onBack, defaultTab = 'create' })
 
     try {
       // Update the identity to mark recovery phrase as confirmed
-      await db.identities.update(pendingIdentityPubkey, {
+      await dal.update('identities', pendingIdentityPubkey, {
         recoveryPhraseShownAt: Date.now(),
         recoveryPhraseConfirmedAt: Date.now(),
       });

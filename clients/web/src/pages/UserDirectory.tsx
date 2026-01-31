@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import type { DBIdentity } from '@/core/storage/db';
 import { UserHandle } from '@/components/user/UserHandle';
 import { Search, ShieldCheck } from 'lucide-react';
@@ -26,7 +26,7 @@ export const UserDirectory: FC = () => {
     const loadUsers = async () => {
       try {
         // Get all identities with usernames
-        const allIdentities = await db.identities.toArray();
+        const allIdentities = await dal.getAll<DBIdentity>('identities');
 
         // Filter users based on privacy settings
         const visibleUsers: DBIdentity[] = [];
@@ -36,7 +36,7 @@ export const UserDirectory: FC = () => {
           if (!identity.username) continue;
 
           // Check privacy settings
-          const settings = await db.usernameSettings.get(identity.publicKey);
+          const settings = await dal.get<{ showInDirectory?: boolean; allowUsernameSearch?: boolean }>('usernameSettings', identity.publicKey);
 
           // Show if:
           // 1. No settings (defaults to public)

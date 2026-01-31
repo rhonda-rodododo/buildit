@@ -223,7 +223,7 @@ describe('Media Collective Proposal Templates', () => {
       const template = getProposalTemplateById('editorial-policy-change');
 
       expect(template).toBeDefined();
-      expect(template?.votingMethod).toBe('consensus');
+      expect(template?.votingSystem).toBe('consensus');
       expect(template?.quorum).toBe(66);
     });
 
@@ -231,7 +231,7 @@ describe('Media Collective Proposal Templates', () => {
       const template = getProposalTemplateById('coverage-priority');
 
       expect(template).toBeDefined();
-      expect(template?.votingMethod).toBe('ranked-choice');
+      expect(template?.votingSystem).toBe('ranked-choice');
       expect(template?.options).toBeDefined();
     });
 
@@ -239,7 +239,7 @@ describe('Media Collective Proposal Templates', () => {
       const template = getProposalTemplateById('new-member-approval');
 
       expect(template).toBeDefined();
-      expect(template?.votingMethod).toBe('simple');
+      expect(template?.votingSystem).toBe('simple-majority');
       expect(template?.threshold).toBe(66);
     });
 
@@ -247,7 +247,7 @@ describe('Media Collective Proposal Templates', () => {
       const template = getProposalTemplateById('join-coalition');
 
       expect(template).toBeDefined();
-      expect(template?.votingMethod).toBe('consensus');
+      expect(template?.votingSystem).toBe('consensus');
       expect(template?.quorum).toBe(75);
     });
 

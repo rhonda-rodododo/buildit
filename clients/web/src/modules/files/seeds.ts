@@ -4,6 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules'
+import { dal } from '@/core/storage/dal'
 import type { Folder, StorageQuota } from './types'
 
 /**
@@ -13,7 +14,7 @@ export const filesSeeds: ModuleSeed[] = [
   {
     name: 'basic-folders',
     description: 'Basic folder structure for file organization',
-    data: async (db, groupId, userPubkey) => {
+    data: async (groupId, userPubkey) => {
       const now = Date.now()
       const day = 24 * 60 * 60 * 1000
 
@@ -56,7 +57,7 @@ export const filesSeeds: ModuleSeed[] = [
 
       // Insert folders
       for (const folder of folders) {
-        await db.folders?.add(folder)
+        await dal.add('folders', folder)
       }
 
       // Initialize storage quota
@@ -69,7 +70,7 @@ export const filesSeeds: ModuleSeed[] = [
         updatedAt: now,
       }
 
-      await db.storageQuotas?.add(quota)
+      await dal.add('storageQuotas', quota)
     },
   },
 ]

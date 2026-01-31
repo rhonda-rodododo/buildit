@@ -21,6 +21,7 @@
  * objects directly to invoke().
  */
 
+import type { BuildItDB } from './db';
 import { logger } from '@/lib/logger';
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -47,6 +48,16 @@ export interface QueryFilter {
   limit?: number;
   /** Skip N results */
   offset?: number;
+}
+
+/** Options for raw/custom queries that need different implementations per backend */
+export interface CustomQueryOptions<T> {
+  /** SQL query string for Tauri/SQLite backend */
+  sql: string;
+  /** SQL parameters (positional) */
+  params?: unknown[];
+  /** Dexie fallback function — receives the Dexie db and returns results */
+  dexieFallback: (db: BuildItDB) => Promise<T[] | void>;
 }
 
 type ChangeCallback = (event: DataChangeEvent) => void;
@@ -92,14 +103,14 @@ class DataAccessLayer {
   // ── CRUD Operations ─────────────────────────────────────────────────────
 
   /** Insert or replace a record */
-  async put<T extends Record<string, unknown>>(table: string, record: T): Promise<void> {
+  async put<T extends object>(table: string, record: T): Promise<void> {
     if (isTauri()) {
       const { invoke } = await import('@tauri-apps/api/core');
       await invoke('db_put', { table, record });
     } else {
       const { getDB } = await import('./db');
       const db = getDB();
-      await db.table(table).put(record);
+      await db.table(table).put(record as Record<string, unknown>);
     }
   }
 
@@ -143,7 +154,7 @@ class DataAccessLayer {
         const entries = Object.entries(filter.whereClause);
         if (entries.length === 1) {
           const [key, value] = entries[0];
-          collection = db.table(table).where(key).equals(value);
+          collection = db.table(table).where(key).equals(value as string | number);
         } else if (entries.length > 1) {
           // Dexie compound filter: use filter()
           collection = db.table(table).filter((item: Record<string, unknown>) =>
@@ -192,7 +203,7 @@ class DataAccessLayer {
   }
 
   /** Bulk insert/replace records */
-  async bulkPut<T extends Record<string, unknown>>(table: string, records: T[]): Promise<number> {
+  async bulkPut<T extends object>(table: string, records: T[]): Promise<number> {
     if (records.length === 0) return 0;
 
     if (isTauri()) {
@@ -201,7 +212,7 @@ class DataAccessLayer {
     } else {
       const { getDB } = await import('./db');
       const db = getDB();
-      await db.table(table).bulkPut(records);
+      await db.table(table).bulkPut(records as Record<string, unknown>[]);
       return records.length;
     }
   }
@@ -218,7 +229,7 @@ class DataAccessLayer {
         const entries = Object.entries(filter);
         if (entries.length === 1) {
           const [key, value] = entries[0];
-          return db.table(table).where(key).equals(value).count();
+          return db.table(table).where(key).equals(value as string | number).count();
         }
         return db
           .table(table)
@@ -241,6 +252,108 @@ class DataAccessLayer {
       const db = getDB();
       await db.table(table).clear();
     }
+  }
+
+  /** Update specific fields of a record by primary key */
+  async update<T extends object>(
+    table: string,
+    key: string | number,
+    changes: Partial<T>
+  ): Promise<void> {
+    if (isTauri()) {
+      // For SQLite: read existing, merge, write back
+      const { invoke } = await import('@tauri-apps/api/core');
+      const existing = await invoke<T | null>('db_get', { table, key: String(key) });
+      if (!existing) throw new Error(`Record not found in ${table} with key ${key}`);
+      const merged = { ...existing, ...changes };
+      await invoke('db_put', { table, record: merged });
+    } else {
+      const { getDB } = await import('./db');
+      const db = getDB();
+      await db.table(table).update(key, changes as Record<string, unknown>);
+    }
+  }
+
+  /** Add a record (fails if key already exists) */
+  async add<T extends object>(table: string, record: T): Promise<void> {
+    if (isTauri()) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      // Check existence first to mirror Dexie's add() behavior
+      const pk = this.guessPrimaryKey(table, record);
+      if (pk !== undefined) {
+        const existing = await invoke('db_get', { table, key: String(pk) });
+        if (existing) throw new Error(`Key already exists in ${table}`);
+      }
+      await invoke('db_put', { table, record });
+    } else {
+      const { getDB } = await import('./db');
+      const db = getDB();
+      await db.table(table).add(record as Record<string, unknown>);
+    }
+  }
+
+  /** Delete records matching a WHERE clause */
+  async deleteWhere(table: string, whereClause: Record<string, unknown>): Promise<number> {
+    if (isTauri()) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      return invoke<number>('db_delete_where', { table, whereClause });
+    } else {
+      const { getDB } = await import('./db');
+      const db = getDB();
+      const entries = Object.entries(whereClause);
+      if (entries.length === 1) {
+        const [key, value] = entries[0];
+        return db.table(table).where(key).equals(value as string | number).delete();
+      }
+      // Multi-condition: filter then delete
+      const matches = await db.table(table).filter((item: Record<string, unknown>) =>
+        entries.every(([k, v]) => item[k] === v)
+      ).toArray();
+      const keys = matches.map((m: Record<string, unknown>) =>
+        m.id ?? m.publicKey ?? m.pubkey ?? m.key
+      ).filter(Boolean) as (string | number)[];
+      for (const key of keys) {
+        await db.table(table).delete(key);
+      }
+      return keys.length;
+    }
+  }
+
+  /**
+   * Execute a custom query with different implementations per backend.
+   * This is the escape hatch for complex queries (OR conditions, JOINs,
+   * custom filters) that don't map to the simple QueryFilter.
+   * NOTE: SQL must be a SELECT statement (Rust backend enforces this).
+   */
+  async queryCustom<T>(options: CustomQueryOptions<T>): Promise<T[]> {
+    if (isTauri()) {
+      const { invoke } = await import('@tauri-apps/api/core');
+      return invoke<T[]>('db_execute_query', {
+        sql: options.sql,
+        params: options.params ?? [],
+      });
+    } else {
+      const { getDB } = await import('./db');
+      const db = getDB();
+      const result = await options.dexieFallback(db);
+      return result ?? [];
+    }
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  /** Guess the primary key value from a record based on table conventions */
+  private guessPrimaryKey(table: string, record: object): unknown {
+    const rec = record as Record<string, unknown>;
+    // Tables with known primary keys
+    const pkMap: Record<string, string> = {
+      identities: 'publicKey',
+      usernameSettings: 'publicKey',
+      userPresence: 'pubkey',
+      cacheMetadata: 'key',
+    };
+    const pkField = pkMap[table] ?? 'id';
+    return rec[pkField];
   }
 
   // ── Database Lifecycle ──────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { db } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { validateUsername, isUsernameAvailable, normalizeUsername } from './usernameUtils';
 import type { DBUsernameSettings } from '@/core/storage/db';
 
@@ -49,13 +49,13 @@ export class UsernameManager {
 
     try {
       // Update identity in database
-      await db.identities.update(pubkey, {
+      await dal.update('identities', pubkey, {
         username: normalizedUsername,
         displayName: displayName?.trim() || undefined,
       });
 
       // Create default username settings if they don't exist
-      const existingSettings = await db.usernameSettings.get(pubkey);
+      const existingSettings = await dal.get<DBUsernameSettings>('usernameSettings', pubkey);
       if (!existingSettings) {
         const defaultSettings: DBUsernameSettings = {
           pubkey,
@@ -65,7 +65,7 @@ export class UsernameManager {
           showInDirectory: true,
           updatedAt: Date.now(),
         };
-        await db.usernameSettings.add(defaultSettings);
+        await dal.add('usernameSettings', defaultSettings);
       }
 
       // Nostr relay broadcast deferred to Phase 2 (see docs/TECH_DEBT.md)
@@ -93,7 +93,7 @@ export class UsernameManager {
    * Release username (remove from identity)
    */
   static async releaseUsername(pubkey: string): Promise<void> {
-    await db.identities.update(pubkey, {
+    await dal.update('identities', pubkey, {
       username: undefined,
       displayName: undefined,
     });
@@ -103,10 +103,10 @@ export class UsernameManager {
    * Update username privacy settings
    */
   static async updateSettings(pubkey: string, settings: Partial<Omit<DBUsernameSettings, 'pubkey'>>): Promise<void> {
-    const existing = await db.usernameSettings.get(pubkey);
+    const existing = await dal.get<DBUsernameSettings>('usernameSettings', pubkey);
 
     if (existing) {
-      await db.usernameSettings.update(pubkey, {
+      await dal.update('usernameSettings', pubkey, {
         ...settings,
         updatedAt: Date.now(),
       });
@@ -121,7 +121,7 @@ export class UsernameManager {
         updatedAt: Date.now(),
         ...settings,
       };
-      await db.usernameSettings.add(defaultSettings);
+      await dal.add('usernameSettings', defaultSettings);
     }
   }
 
@@ -129,7 +129,7 @@ export class UsernameManager {
    * Get username settings
    */
   static async getSettings(pubkey: string): Promise<DBUsernameSettings | null> {
-    const settings = await db.usernameSettings.get(pubkey);
+    const settings = await dal.get<DBUsernameSettings>('usernameSettings', pubkey);
     return settings || null;
   }
 
@@ -197,7 +197,7 @@ export class UsernameManager {
     }
 
     // Update identity
-    await db.identities.update(pubkey, {
+    await dal.update('identities', pubkey, {
       nip05: identifier,
       nip05Verified: true,
     });
@@ -209,7 +209,7 @@ export class UsernameManager {
    * Remove NIP-05 verification
    */
   static async removeNIP05(pubkey: string): Promise<void> {
-    await db.identities.update(pubkey, {
+    await dal.update('identities', pubkey, {
       nip05: undefined,
       nip05Verified: false,
     });

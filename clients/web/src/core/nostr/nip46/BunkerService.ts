@@ -18,7 +18,8 @@
  * 4. Primary approves/signs and returns result
  */
 
-import { getDB, type DBBunkerConnection } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
+import type { DBBunkerConnection } from '@/core/storage/db';
 import { logger } from '@/lib/logger';
 import type { Nip46Permission, Nip46Request, BunkerConnectionConfig } from '@/core/backup/types';
 import * as secp256k1 from '@noble/secp256k1';
@@ -165,7 +166,6 @@ export class BunkerService {
       throw new Error('Bunker not initialized');
     }
 
-    const db = getDB();
     const connectionId = crypto.randomUUID();
 
     const connection: DBBunkerConnection = {
@@ -180,7 +180,7 @@ export class BunkerService {
       createdAt: Date.now(),
     };
 
-    await db.bunkerConnections.put(connection);
+    await dal.put('bunkerConnections', connection);
 
     // Add to active connections
     this.connections.set(connectionId, {
@@ -207,13 +207,12 @@ export class BunkerService {
    * Approve a pending connection
    */
   public async approveConnection(connectionId: string): Promise<void> {
-    const db = getDB();
-    await db.bunkerConnections.update(connectionId, {
+    await dal.update('bunkerConnections', connectionId, {
       status: 'approved',
       lastConnected: Date.now(),
     });
 
-    const connection = await db.bunkerConnections.get(connectionId);
+    const connection = await dal.get<DBBunkerConnection>('bunkerConnections', connectionId);
     if (connection) {
       this.connectionListeners.forEach(l => l(connection));
     }
@@ -225,8 +224,7 @@ export class BunkerService {
    * Deny a pending connection
    */
   public async denyConnection(connectionId: string): Promise<void> {
-    const db = getDB();
-    await db.bunkerConnections.update(connectionId, {
+    await dal.update('bunkerConnections', connectionId, {
       status: 'denied',
     });
 
@@ -239,8 +237,7 @@ export class BunkerService {
    * Revoke an existing connection
    */
   public async revokeConnection(connectionId: string): Promise<void> {
-    const db = getDB();
-    await db.bunkerConnections.update(connectionId, {
+    await dal.update('bunkerConnections', connectionId, {
       status: 'revoked',
     });
 
@@ -395,8 +392,9 @@ export class BunkerService {
    * Get all connections for an identity
    */
   public async getConnections(identityPubkey: string): Promise<DBBunkerConnection[]> {
-    const db = getDB();
-    return db.bunkerConnections.where('identityPubkey').equals(identityPubkey).toArray();
+    return dal.query<DBBunkerConnection>('bunkerConnections', {
+      whereClause: { identityPubkey },
+    });
   }
 
   /**
@@ -420,11 +418,11 @@ export class BunkerService {
   ): Promise<DBBunkerConnection | undefined> {
     if (!this.bunkerPubkey) return undefined;
 
-    const db = getDB();
-    return db.bunkerConnections
-      .where(['identityPubkey', 'remotePubkey'])
-      .equals([this.bunkerPubkey, remotePubkey])
-      .first();
+    const results = await dal.query<DBBunkerConnection>('bunkerConnections', {
+      whereClause: { identityPubkey: this.bunkerPubkey, remotePubkey },
+      limit: 1,
+    });
+    return results[0];
   }
 
   private getRequiredPermission(method: string): Nip46Permission | null {

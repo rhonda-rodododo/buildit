@@ -4,7 +4,7 @@
  */
 
 import type { ModuleSeed } from '@/types/modules';
-import type { BuildItDB } from '@/core/storage/db';
+import { dal } from '@/core/storage/dal';
 import { generateEventId } from '@/core/nostr/nip01';
 import type { Campaign, DonationTier } from './types';
 
@@ -15,7 +15,7 @@ import { logger } from '@/lib/logger';
 export const strikeFundCampaignSeed: ModuleSeed = {
   name: 'Strike Fund Campaign',
   description: 'Fundraising campaign for strike support',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     // Create donors table (optional for campaign)
@@ -56,7 +56,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
       createdBy: userPubkey,
       updated: now,
     };
-    await db.databaseTables?.add(donorsTable);
+    await dal.add('databaseTables', donorsTable);
 
     // Create strike fund campaign
     const campaignId = generateEventId();
@@ -95,7 +95,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
         enabledProcessors: ['stripe', 'paypal'],
       },
     };
-    await db.campaigns?.add(campaign);
+    await dal.add('campaigns', campaign);
 
     // Create donation tiers
     const tiers: DonationTier[] = [
@@ -144,7 +144,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
     ];
 
     for (const tier of tiers) {
-      await db.donationTiers?.add(tier);
+      await dal.add('donationTiers', tier);
     }
 
     logger.info('✅ Created strike fund campaign seed with 3 donation tiers');
@@ -157,7 +157,7 @@ export const strikeFundCampaignSeed: ModuleSeed = {
 export const bailFundCampaignSeed: ModuleSeed = {
   name: 'Bail Fund Campaign',
   description: 'Emergency bail fund for protesters',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     // Create bail fund campaign (no donor table for privacy)
@@ -199,7 +199,7 @@ export const bailFundCampaignSeed: ModuleSeed = {
         },
       },
     };
-    await db.campaigns?.add(campaign);
+    await dal.add('campaigns', campaign);
 
     logger.info('✅ Created bail fund campaign seed (privacy-focused)');
   },
@@ -214,7 +214,7 @@ export const bailFundCampaignSeed: ModuleSeed = {
 export const fundraisingDemoSeed: ModuleSeed = {
   name: 'fundraising-demo',
   description: 'General fundraising campaign for nonprofit organizations',
-  data: async (db: BuildItDB, groupId: string, userPubkey: string) => {
+  data: async (groupId: string, userPubkey: string) => {
     const now = Date.now();
 
     const campaignId = generateEventId();
@@ -251,7 +251,7 @@ export const fundraisingDemoSeed: ModuleSeed = {
         enabledProcessors: ['stripe', 'paypal'],
       },
     };
-    await db.campaigns?.add(campaign);
+    await dal.add('campaigns', campaign);
 
     const tiers: DonationTier[] = [
       {
@@ -290,7 +290,7 @@ export const fundraisingDemoSeed: ModuleSeed = {
     ];
 
     for (const tier of tiers) {
-      await db.donationTiers?.add(tier);
+      await dal.add('donationTiers', tier);
     }
 
     logger.info('Seeded annual fund campaign with 3 donation tiers');
