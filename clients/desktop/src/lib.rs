@@ -14,7 +14,7 @@ pub mod windows;
 use std::collections::HashMap;
 use std::sync::Arc;
 use parking_lot::RwLock;
-use tauri::Manager;
+use tauri::{Emitter, Listener, Manager};
 
 use ble::manager::BleManager;
 use crypto::keyring::KeyringManager;
@@ -71,11 +71,10 @@ pub fn run() {
             {
                 let handle = app.handle().clone();
                 app.listen("deep-link://new-url", move |event| {
-                    if let Some(urls) = event.payload().as_str() {
-                        log::info!("Deep link received: {}", urls);
-                        // Emit to frontend for handling
-                        let _ = handle.emit("deep-link", urls);
-                    }
+                    let urls = event.payload();
+                    log::info!("Deep link received: {}", urls);
+                    // Emit to frontend for handling
+                    let _ = handle.emit("deep-link", urls);
                 });
             }
 

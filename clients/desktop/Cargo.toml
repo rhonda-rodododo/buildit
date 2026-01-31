@@ -55,6 +55,9 @@ uuid = { version = "1.0", features = ["v4"] }
 # Hex encoding/decoding
 hex = "0.4"
 
+# Cryptographically secure random number generation
+getrandom = "0.2"
+
 # Async mutex for shared state
 parking_lot = "0.12"
 

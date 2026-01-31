@@ -8,7 +8,7 @@
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem, Submenu},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    App, Manager, Runtime,
+    App, Emitter, Manager, Runtime,
 };
 
 /// Set up the system tray

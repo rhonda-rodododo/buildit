@@ -2,10 +2,11 @@
 
 use crate::error::CryptoError;
 use secp256k1::{schnorr, Message, Secp256k1, SecretKey, XOnlyPublicKey};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 /// Unsigned Nostr event (before signing)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UnsignedEvent {
     pub pubkey: String,
     pub created_at: i64,
@@ -15,7 +16,7 @@ pub struct UnsignedEvent {
 }
 
 /// Signed Nostr event
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NostrEvent {
     pub id: String,
     pub pubkey: String,
