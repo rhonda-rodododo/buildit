@@ -506,7 +506,13 @@
         "indexability": {
           "type": "object",
           "optional": false,
-          "description": "Search engine indexability settings for the page"
+          "description": "Search engine indexability settings for the page",
+          "properties": {
+            "isSearchIndexable": { "type": "boolean", "description": "Allow search engine crawlers" },
+            "isAiIndexable": { "type": "boolean", "description": "Allow AI training crawlers" },
+            "noArchive": { "type": "boolean", "description": "Prevent archival services from caching" }
+          },
+          "required": ["isSearchIndexable", "isAiIndexable"]
         }
       }
     },

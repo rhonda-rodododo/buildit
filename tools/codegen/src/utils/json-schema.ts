@@ -72,6 +72,10 @@ export interface XStorageDbOnlyField {
   default?: unknown;
   items?: Record<string, unknown>;
   enum?: string[];
+  /** For typed objects: define structure instead of Record<string, unknown> */
+  properties?: Record<string, XStorageDbOnlyField>;
+  /** Required properties for typed objects */
+  required?: string[];
 }
 
 /** Convert $defs refs to definitions refs for quicktype compatibility */

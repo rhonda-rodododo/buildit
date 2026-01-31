@@ -253,7 +253,18 @@ function dbOnlyFieldToTs(field: XStorageDbOnlyField): string {
     case 'number':
     case 'integer': return 'number';
     case 'boolean': return 'boolean';
-    case 'object': return 'Record<string, unknown>';
+    case 'object': {
+      // Generate typed interface for objects with properties
+      if (field.properties) {
+        const required = new Set(field.required || []);
+        const fields = Object.entries(field.properties).map(([name, prop]) => {
+          const opt = required.has(name) ? '' : '?';
+          return `${name}${opt}: ${dbOnlyFieldToTs(prop)}`;
+        });
+        return `{ ${fields.join('; ')} }`;
+      }
+      return 'Record<string, unknown>';
+    }
     case 'array': return 'unknown[]';
     default: return 'unknown';
   }

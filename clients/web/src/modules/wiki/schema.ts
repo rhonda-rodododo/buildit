@@ -2,31 +2,17 @@
  * Wiki Module Database Schema
  *
  * Re-exports generated types from protocol schemas.
- * DB-only field overrides (e.g., IndexabilitySettings) are applied here.
+ * All types are generated directly from protocol/schemas/modules/wiki/v1.json
  */
 
-import type { IndexabilitySettings } from '@/types/indexability';
-import {
+export {
   WIKI_TABLE_SCHEMAS,
   WIKI_TABLES,
-  type DBWikiPage as GeneratedDBWikiPage,
-  type DBPageRevision,
+  type DBWikiPage,
+  type DBPageRevision as DBWikiPageRevision,
   type DBWikiCategory,
   type PagePermissions,
 } from '@/generated/db/wiki.db';
 
-/**
- * DBWikiPage with typed indexability (generated uses Record<string, unknown>)
- */
-export interface DBWikiPage extends Omit<GeneratedDBWikiPage, 'indexability'> {
-  indexability: IndexabilitySettings;
-}
-
-// Re-export generated types
-export type { DBPageRevision as DBWikiPageRevision, DBWikiCategory, PagePermissions };
-
-// Re-export table schemas and constants
-export { WIKI_TABLE_SCHEMAS, WIKI_TABLES };
-
-/** @deprecated Use WIKI_TABLE_SCHEMAS instead */
-export const wikiSchema = WIKI_TABLE_SCHEMAS;
+// Re-export table schemas under legacy name
+export { WIKI_TABLE_SCHEMAS as wikiSchema } from '@/generated/db/wiki.db';
