@@ -1,0 +1,468 @@
+{
+  "$schema": "../_schema.json",
+  "module": "training",
+  "version": "1.0.0",
+  "description": "Training course templates with modules, lessons, quizzes, and certification tracking for organizer education",
+  "templates": [
+    {
+      "id": "app-basics",
+      "name": "BuildIt Basics",
+      "description": "Learn how to use the BuildIt app effectively. Covers identity creation, groups, messaging, and navigation.",
+      "category": "app-basics",
+      "icon": "GraduationCap",
+      "tags": ["basics", "onboarding", "identity", "groups", "messaging"],
+      "content": {
+        "difficulty": "beginner",
+        "estimatedHours": 1,
+        "imageUrl": "/images/training/app-basics.png",
+        "certificationEnabled": true,
+        "certificationExpiryDays": null,
+        "modules": [
+          {
+            "title": "Getting Started",
+            "description": "Welcome to BuildIt and creating your identity",
+            "estimatedMinutes": 20,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Welcome to BuildIt",
+                "description": "Introduction to the platform and what you'll learn",
+                "estimatedMinutes": 5,
+                "requiredForCertification": false,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Welcome to BuildIt\n\nBuildIt is a privacy-first organizing platform designed for activist groups, co-ops, unions, and community organizers.\n\n## What You'll Learn\n\nIn this course, you'll learn:\n\n- How to create and secure your identity\n- Understanding groups and how to join them\n- Secure messaging basics\n- Navigation and key features\n\n## Privacy First\n\nEverything in BuildIt is designed with privacy in mind:\n\n- **End-to-end encryption** for all messages\n- **No central servers** storing your data\n- **Your keys, your data** - only you control access\n- **BLE mesh networking** for offline resilience\n\nLet's get started!"
+                }
+              },
+              {
+                "type": "document",
+                "title": "Creating Your Identity",
+                "description": "Understanding keys and setting up your secure identity",
+                "estimatedMinutes": 10,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Creating Your Identity\n\nYour identity in BuildIt is based on cryptographic keys. Think of it like a digital passport that only you control.\n\n## Key Concepts\n\n### Public Key (npub)\n- This is like your username\n- You can share it with others\n- Used to receive encrypted messages\n\n### Private Key (nsec)\n- This is like your password\n- **NEVER share this with anyone**\n- Used to decrypt messages and sign actions\n\n## Creating Your Identity\n\n1. Open BuildIt and tap \"Create New Identity\"\n2. Choose a display name (can be a pseudonym)\n3. Optionally add a profile picture\n4. Your keys are automatically generated\n\n## Backing Up Your Keys\n\n**CRITICAL**: If you lose your private key, you lose access to all your messages and groups forever. There is no \"forgot password\" option.\n\n### Backup Options\n\n1. **Write it down** - Store on paper in a secure location\n2. **Password manager** - Use a reputable password manager\n3. **Hardware wallet** - For advanced security\n\n## Security Tips\n\n- Use a unique identity for sensitive organizing\n- Don't link your real identity unless necessary\n- Consider using Tor for additional privacy"
+                }
+              },
+              {
+                "type": "quiz",
+                "title": "Identity Basics Quiz",
+                "description": "Test your understanding of identity and key management",
+                "estimatedMinutes": 5,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "quiz",
+                  "passingScore": 70,
+                  "allowRetakes": true,
+                  "maxAttempts": 3,
+                  "shuffleQuestions": true,
+                  "shuffleOptions": true,
+                  "showCorrectAfter": true,
+                  "questions": [
+                    { "id": "q1", "type": "multiple-choice", "question": "What is your \"npub\" in BuildIt?", "options": ["Your private key", "Your public key (like a username)", "Your password", "Your email address"], "correctAnswer": "Your public key (like a username)", "explanation": "Your npub (public key) is like a username that you can share with others.", "points": 10, "order": 1 },
+                    { "id": "q2", "type": "true-false", "question": "It's safe to share your private key (nsec) with trusted group members.", "options": ["True", "False"], "correctAnswer": "False", "explanation": "NEVER share your private key with anyone. It gives complete access to your identity.", "points": 10, "order": 2 },
+                    { "id": "q3", "type": "multiple-choice", "question": "What happens if you lose your private key?", "options": ["You can reset it via email", "BuildIt support can recover it", "You permanently lose access to your identity", "You can regenerate it from your public key"], "correctAnswer": "You permanently lose access to your identity", "explanation": "There is no recovery option. Always backup your private key securely.", "points": 10, "order": 3 }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Groups & Collaboration",
+            "description": "Understanding and working with groups",
+            "estimatedMinutes": 15,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Understanding Groups",
+                "description": "Learn about group types, roles, and how to join or create groups",
+                "estimatedMinutes": 10,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Understanding Groups\n\nGroups are the core of organizing in BuildIt. They provide a secure space for collaboration.\n\n## Types of Groups\n\n### Open Groups\n- Anyone can join with the invite link\n- Good for broad coalitions and public organizing\n\n### Closed Groups\n- Require approval to join\n- Better for sensitive organizing\n\n### Secret Groups\n- Don't appear in any listings\n- Only discoverable via direct invite\n- Maximum privacy for sensitive work\n\n## Group Roles\n\n### Member\n- Can read and send messages\n- Participate in discussions\n- Access enabled modules\n\n### Moderator\n- All member permissions\n- Can approve new members\n- Can moderate content\n\n### Admin\n- All moderator permissions\n- Can change group settings\n- Can enable/disable modules\n- Can manage roles\n\n## Joining a Group\n\n1. Receive an invite link from a group member\n2. Open the link in BuildIt\n3. Review the group information\n4. Click \"Join\" (or \"Request to Join\" for closed groups)\n\n## Creating a Group\n\n1. Go to Groups > Create New\n2. Choose your group type\n3. Set up basic info (name, description, image)\n4. Configure modules (events, mutual aid, etc.)\n5. Invite members"
+                }
+              },
+              {
+                "type": "interactive",
+                "title": "Create Your First Group",
+                "description": "Hands-on exercise to create a test group",
+                "estimatedMinutes": 5,
+                "requiredForCertification": false,
+                "content": null
+              }
+            ]
+          },
+          {
+            "title": "Secure Messaging",
+            "description": "Sending encrypted messages",
+            "estimatedMinutes": 20,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Secure Messaging Basics",
+                "description": "How encryption protects your messages",
+                "estimatedMinutes": 10,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Secure Messaging\n\nAll messages in BuildIt are end-to-end encrypted. Only you and the recipient can read them.\n\n## How Encryption Works\n\n1. **Your message** is encrypted with the recipient's public key\n2. **Wrapped in a \"gift wrap\"** that hides even the metadata\n3. **Transmitted** via relays or BLE mesh\n4. **Only the recipient** can decrypt with their private key\n\n## Direct Messages (DMs)\n\n- One-on-one private conversations\n- Fully end-to-end encrypted\n- Metadata protected via NIP-17\n\n## Group Messages\n\n- Messages within a group\n- Encrypted for all group members\n- Only current members can read\n\n## Message Features\n\n- **Text formatting** - Bold, italic, links\n- **Reactions** - React with emoji\n- **Replies** - Quote and reply to messages\n- **File sharing** - Share encrypted files\n\n## Best Practices\n\n1. **Verify identities** out-of-band when possible\n2. **Don't screenshot** sensitive messages\n3. **Use disappearing messages** for sensitive content\n4. **Remember**: Old messages remain encrypted but still exist"
+                }
+              },
+              {
+                "type": "quiz",
+                "title": "Messaging Quiz",
+                "description": "Test your understanding of secure messaging",
+                "estimatedMinutes": 5,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "quiz",
+                  "passingScore": 70,
+                  "allowRetakes": true,
+                  "maxAttempts": 3,
+                  "shuffleQuestions": true,
+                  "shuffleOptions": true,
+                  "showCorrectAfter": true,
+                  "questions": [
+                    { "id": "q1", "type": "multiple-choice", "question": "Who can read your encrypted messages in BuildIt?", "options": ["BuildIt developers", "Relay operators", "Only you and the intended recipient(s)", "Anyone with your public key"], "correctAnswer": "Only you and the intended recipient(s)", "explanation": "End-to-end encryption means only the intended recipients with the correct private keys can decrypt messages.", "points": 10, "order": 1 },
+                    { "id": "q2", "type": "true-false", "question": "Group messages are encrypted for all current group members.", "options": ["True", "False"], "correctAnswer": "True", "explanation": "Group messages are encrypted so all current members can read them.", "points": 10, "order": 2 },
+                    { "id": "q3", "type": "multiple-choice", "question": "What does \"gift wrapping\" (NIP-17) protect?", "options": ["Message content only", "Metadata like sender and recipient", "Your device from malware", "Messages from being deleted"], "correctAnswer": "Metadata like sender and recipient", "explanation": "Gift wrapping (NIP-17) provides metadata protection, hiding who is talking to whom.", "points": 10, "order": 3 }
+                  ]
+                }
+              },
+              {
+                "type": "interactive",
+                "title": "Send Your First Encrypted Message",
+                "description": "Practice sending a secure message",
+                "estimatedMinutes": 5,
+                "requiredForCertification": false,
+                "content": null
+              }
+            ]
+          },
+          {
+            "title": "Navigation & Features",
+            "description": "Exploring the app interface",
+            "estimatedMinutes": 10,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "App Navigation",
+                "description": "Navigating the interface and discovering features",
+                "estimatedMinutes": 10,
+                "requiredForCertification": false,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Navigation & Features\n\nLet's explore the BuildIt interface and discover key features.\n\n## Main Navigation\n\n### Home\n- Your activity feed\n- Recent messages and updates\n- Quick actions\n\n### Groups\n- List of your groups\n- Group discovery (for open groups)\n- Create new groups\n\n### Messages\n- Direct message conversations\n- Message search\n\n### Settings\n- Profile management\n- Security settings\n- Module preferences\n\n## Key Features\n\n### Events Module\n- Create and manage events\n- RSVP tracking\n- Calendar integration\n\n### Mutual Aid Module\n- Request and offer help\n- Rideshare coordination\n- Resource sharing\n\n### Documents Module\n- Collaborative document editing\n- Encrypted file storage\n\n### Training Module\n- Take courses like this one!\n- Track certifications\n- Live training sessions\n\n## Keyboard Shortcuts (Desktop)\n\n- `Ctrl/Cmd + K` - Quick search\n- `Ctrl/Cmd + N` - New message\n- `Ctrl/Cmd + G` - Go to group\n- `Esc` - Close dialogs\n\n## Mobile Tips\n\n- Swipe right to access navigation\n- Long press for quick actions\n- Pull down to refresh"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "opsec-basics",
+      "name": "Operational Security Basics",
+      "description": "Essential security practices for organizers. Learn threat modeling, digital hygiene, compartmentalization, and security culture.",
+      "category": "opsec",
+      "icon": "Shield",
+      "tags": ["opsec", "security", "threat-modeling", "compartmentalization", "security-culture"],
+      "content": {
+        "difficulty": "beginner",
+        "estimatedHours": 2,
+        "imageUrl": "/images/training/opsec-basics.png",
+        "certificationEnabled": true,
+        "certificationExpiryDays": 365,
+        "modules": [
+          {
+            "title": "Threat Modeling",
+            "description": "Understanding your adversaries and risks",
+            "estimatedMinutes": 25,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Understanding Your Adversaries",
+                "description": "Learn to identify threats and assess your risk level",
+                "estimatedMinutes": 15,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Understanding Your Adversaries\n\nEffective security starts with understanding who might target you and what they're capable of.\n\n## Threat Modeling Basics\n\nA threat model answers these questions:\n\n1. **What am I protecting?** (assets)\n2. **Who might want to access it?** (adversaries)\n3. **How might they try to get it?** (attacks)\n4. **What are the consequences?** (impact)\n5. **What can I do about it?** (mitigations)\n\n## Common Adversaries\n\n### Doxxers / Online Harassers\n- **Capability**: OSINT, social engineering\n- **Goal**: Expose personal information\n- **Protection**: Compartmentalization, pseudonyms\n\n### Counter-Protesters / Opposition\n- **Capability**: Photography, social media monitoring\n- **Goal**: Identify participants, disrupt activities\n- **Protection**: Masks, no identifiers, counter-surveillance\n\n### Corporate Security / Private Investigators\n- **Capability**: Surveillance, legal discovery, informants\n- **Goal**: Gather intelligence on organizing activities\n- **Protection**: Operational security, need-to-know\n\n### Law Enforcement\n- **Capability**: Subpoenas, warrants, informants, surveillance tech\n- **Goal**: Intelligence gathering, prosecution\n- **Protection**: Encryption, legal strategy, security culture\n\n### State-Level Actors\n- **Capability**: Advanced persistent threats, mass surveillance\n- **Goal**: Long-term monitoring, disruption\n- **Protection**: Air gaps, specialized tools, compartmentalization\n\n## Key Principle: Proportional Response\n\nYour security measures should match your actual threat level:\n\n- **Low risk**: Basic digital hygiene\n- **Medium risk**: Encrypted communications, pseudonyms\n- **High risk**: Compartmentalization, specialized tools\n- **Critical risk**: Professional security consultation\n\nOvercomplicating security can be counterproductive. Focus on what matters for YOUR situation."
+                }
+              },
+              {
+                "type": "interactive",
+                "title": "Build Your Threat Model",
+                "description": "Interactive exercise to create your personal threat model",
+                "estimatedMinutes": 10,
+                "requiredForCertification": true,
+                "content": null
+              }
+            ]
+          },
+          {
+            "title": "Digital Hygiene",
+            "description": "Basic security practices everyone should follow",
+            "estimatedMinutes": 30,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Digital Security Hygiene",
+                "description": "Passwords, devices, networks, and social media security",
+                "estimatedMinutes": 20,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Digital Security Hygiene\n\nBasic practices that everyone should follow.\n\n## Password Security\n\n### Strong Passwords\n- Use a passphrase: \"correct horse battery staple\"\n- Minimum 16 characters\n- Unique for every account\n\n### Password Managers\n- **Recommended**: Bitwarden, 1Password, KeePassXC\n- One strong master password\n- Auto-generate all other passwords\n\n### Two-Factor Authentication (2FA)\n- **Best**: Hardware keys (YubiKey)\n- **Good**: Authenticator apps (Aegis, Google Authenticator)\n- **Avoid**: SMS-based 2FA (can be intercepted)\n\n## Device Security\n\n### Phone Security\n- Enable full-disk encryption\n- Use a strong PIN (not 4 digits)\n- Enable biometric PLUS PIN\n- Keep software updated\n- Review app permissions\n\n### Computer Security\n- Full-disk encryption (FileVault, BitLocker, LUKS)\n- Regular updates\n- Firewall enabled\n- Antivirus/anti-malware\n\n### Lost/Stolen Devices\n- Enable remote wipe capability\n- Know how to wipe quickly\n- Don't store sensitive data locally\n\n## Network Security\n\n### Public WiFi\n- Assume all traffic is monitored\n- Use VPN when possible\n- Avoid sensitive activities\n- Verify network names (evil twin attacks)\n\n### Home Network\n- Change default router password\n- Enable WPA3 (or WPA2)\n- Consider a VPN router\n- Segment IoT devices\n\n## Social Media\n\n### Privacy Settings\n- Review all privacy settings\n- Limit who can see posts\n- Disable location tagging\n- Audit connected apps\n\n### Information Exposure\n- Consider what photos reveal\n- Metadata in images\n- Check-ins and locations\n- Friend/connection lists"
+                }
+              },
+              {
+                "type": "video",
+                "title": "Setting Up a Password Manager",
+                "description": "Step-by-step guide to setting up and using a password manager",
+                "estimatedMinutes": 10,
+                "requiredForCertification": false,
+                "content": null
+              }
+            ]
+          },
+          {
+            "title": "Compartmentalization",
+            "description": "Separating identities and activities",
+            "estimatedMinutes": 25,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Compartmentalization Strategies",
+                "description": "How to separate and protect different aspects of your life",
+                "estimatedMinutes": 15,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Compartmentalization\n\nSeparating your identities and activities to limit exposure.\n\n## Why Compartmentalize?\n\nIf one area is compromised:\n- Other areas remain protected\n- Damage is contained\n- Recovery is easier\n\n## Identity Compartmentalization\n\n### Personal vs. Activist Identity\n- Separate email addresses\n- Different social media accounts\n- Distinct communication channels\n- Separate devices if high-risk\n\n### Pseudonyms\n- Use for sensitive organizing\n- Consistent within context, separate across\n- Consider backstory for cover\n- Don't link to real identity\n\n### Contact Lists\n- Don't store real names with activist names\n- Use secure contact management\n- Separate personal from organizing contacts\n\n## Communication Compartmentalization\n\n### Channel Separation\n- Different tools for different purposes\n- Don't mix personal and organizing chats\n- Separate group from individual comms\n\n### Information Silos\n- Need-to-know basis\n- Don't overshare between groups\n- Limit access to sensitive info\n\n## Physical Compartmentalization\n\n### Meeting Locations\n- Rotate locations\n- Avoid patterns\n- Counter-surveillance\n\n### Documents\n- Secure storage\n- Destroy when no longer needed\n- Never leave unattended\n\n## Device Compartmentalization\n\n### Separate Devices\n- Dedicated organizing phone\n- Different computers for different uses\n- Consider burner devices for high-risk\n\n### Virtual Machines\n- Isolate activities within one computer\n- Tails for sensitive work\n- Qubes OS for advanced users"
+                }
+              },
+              {
+                "type": "interactive",
+                "title": "Compartmentalization Audit",
+                "description": "Assess your current compartmentalization and identify improvements",
+                "estimatedMinutes": 10,
+                "requiredForCertification": false,
+                "content": null
+              }
+            ]
+          },
+          {
+            "title": "Security Culture",
+            "description": "Collective practices for group security",
+            "estimatedMinutes": 30,
+            "lessons": [
+              {
+                "type": "document",
+                "title": "Building Security Culture",
+                "description": "Norms and practices that keep everyone safer",
+                "estimatedMinutes": 15,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "document",
+                  "markdown": "# Security Culture\n\nSecurity culture is the collective practices and norms that keep everyone safer.\n\n## Core Principles\n\n### Need-to-Know\n- Only share information necessary for the task\n- Don't ask about activities you're not involved in\n- Respect others' compartmentalization\n\n### Don't Snitch\n- Don't discuss others' involvement without consent\n- Never confirm or deny participation\n- Protect identities, even casually\n\n### No Bragging\n- Don't boast about actions\n- Avoid discussing details publicly\n- Social media is not your friend\n\n### Verify Before Trust\n- Confirm identities out-of-band\n- Be wary of newcomers asking many questions\n- Trust is earned over time\n\n## Communication Norms\n\n### In Person\n- Be aware of surroundings\n- Don't discuss sensitive matters in public\n- Watch for recording devices\n\n### Digital\n- Assume messages may be seen\n- Don't put anything in writing you wouldn't want read in court\n- Use ephemeral messaging when appropriate\n\n### Meeting Security\n- Counter-surveillance arrival/departure\n- No phones in sensitive meetings\n- Need-to-know attendance lists\n\n## Red Flags\n\n### Potential Informants\n- Asking lots of questions about other people\n- Pushing for illegal activity\n- Taking photos without clear purpose\n- New person with unusual access/money\n\n### Surveillance Indicators\n- Same people appearing repeatedly\n- Unusual vehicles near locations\n- Clicking on phone lines\n- Strange account activity\n\n## Building Good Culture\n\n### Education\n- Train new members\n- Regular security refreshers\n- Share without exposing\n\n### Accountability\n- Call out bad practices gently\n- Model good behavior\n- Create space for questions\n\n### Balance\n- Security enables organizing, doesn't replace it\n- Don't let paranoia paralyze\n- Reasonable precautions, not perfect security"
+                }
+              },
+              {
+                "type": "quiz",
+                "title": "Operational Security Quiz",
+                "description": "Test your understanding of opsec principles",
+                "estimatedMinutes": 10,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "quiz",
+                  "passingScore": 70,
+                  "allowRetakes": true,
+                  "maxAttempts": 3,
+                  "shuffleQuestions": true,
+                  "shuffleOptions": true,
+                  "showCorrectAfter": true,
+                  "questions": [
+                    { "id": "q1", "type": "multiple-choice", "question": "What is the first step in threat modeling?", "options": ["Installing security software", "Identifying your adversaries", "Understanding what you're protecting (assets)", "Changing your passwords"], "correctAnswer": "Understanding what you're protecting (assets)", "explanation": "Threat modeling starts with identifying your assets - what are you trying to protect?", "points": 10, "order": 1 },
+                    { "id": "q2", "type": "multi-select", "question": "Which are recommended forms of 2FA? (Select all that apply)", "options": ["Hardware keys (YubiKey)", "SMS codes", "Authenticator apps", "Email codes"], "correctAnswer": ["Hardware keys (YubiKey)", "Authenticator apps"], "explanation": "Hardware keys and authenticator apps are more secure than SMS or email, which can be intercepted.", "points": 15, "order": 2 },
+                    { "id": "q3", "type": "true-false", "question": "Using the same strong password for all accounts is secure if the password is complex enough.", "options": ["True", "False"], "correctAnswer": "False", "explanation": "Even strong passwords should be unique per account. If one service is breached, all accounts are compromised.", "points": 10, "order": 3 },
+                    { "id": "q4", "type": "multiple-choice", "question": "What is compartmentalization in security?", "options": ["Using the strongest possible encryption", "Separating identities and activities to limit exposure", "Keeping your devices organized", "Deleting old messages"], "correctAnswer": "Separating identities and activities to limit exposure", "explanation": "Compartmentalization means separating different aspects of your life so a breach in one area doesn't compromise others.", "points": 10, "order": 4 },
+                    { "id": "q5", "type": "multiple-choice", "question": "What's the key principle for security measures?", "options": ["Always use maximum security", "Security should match your actual threat level", "More complex is always better", "Only worry about online threats"], "correctAnswer": "Security should match your actual threat level", "explanation": "Proportional response - your security measures should match your actual risks. Overcomplicating can be counterproductive.", "points": 10, "order": 5 }
+                  ]
+                }
+              },
+              {
+                "type": "interactive",
+                "title": "Security Scenario Practice",
+                "description": "Practice responding to security scenarios",
+                "estimatedMinutes": 5,
+                "requiredForCertification": false,
+                "content": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "digital-security",
+      "name": "Digital Security",
+      "description": "Advanced digital security practices including encryption, anonymity tools, metadata protection, and device security.",
+      "category": "digital-security",
+      "icon": "Lock",
+      "tags": ["encryption", "VPN", "Tor", "metadata", "device-security"],
+      "content": {
+        "difficulty": "intermediate",
+        "estimatedHours": 3,
+        "imageUrl": "/images/training/digital-security.png",
+        "certificationEnabled": true,
+        "certificationExpiryDays": 365,
+        "modules": [
+          {
+            "title": "Understanding Encryption",
+            "description": "How encryption protects your data",
+            "estimatedMinutes": 30,
+            "lessons": [
+              { "type": "document", "title": "Encryption Fundamentals", "description": "Learn how encryption works and protects your communications", "estimatedMinutes": 20, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Understanding Encryption\n\nEncryption is the foundation of digital security. Let's understand how it works.\n\n## What is Encryption?\n\nEncryption transforms readable data (plaintext) into unreadable data (ciphertext) using a key. Only those with the correct key can decrypt it.\n\n## Types of Encryption\n\n### Symmetric Encryption\n- Same key encrypts and decrypts\n- Fast and efficient\n- Challenge: How to share the key securely?\n- Example: AES (Advanced Encryption Standard)\n\n### Asymmetric (Public Key) Encryption\n- Two keys: public and private\n- Public key encrypts, private key decrypts\n- No need to share secret keys\n- Example: RSA, Elliptic Curve (secp256k1)\n\n### End-to-End Encryption (E2EE)\n- Messages encrypted on your device\n- Decrypted only on recipient's device\n- Service provider cannot read content\n- BuildIt uses E2EE for all messages\n\n## Encryption in BuildIt\n\n### NIP-44 (Content Encryption)\n- ChaCha20-Poly1305 algorithm\n- Encrypts message content\n- Shared secret derived from keys\n\n### NIP-17 (Gift Wrapping)\n- Wraps encrypted message in another layer\n- Hides metadata (who's talking to whom)\n- Additional privacy protection\n\n## Encryption Limitations\n\n- Encryption protects content, not always metadata\n- Doesn't protect if device is compromised\n- Doesn't prevent recipient from sharing\n- Key management is critical\n\n## Key Concepts\n\n### Perfect Forward Secrecy\n- Even if keys are compromised later, past messages remain secure\n- Achieved through ephemeral key exchange\n\n### Deniability\n- Cannot prove a specific person sent a message\n- Important for plausible deniability\n\n### Key Verification\n- How do you know a public key belongs to who you think?\n- Out-of-band verification is important" } },
+              { "type": "interactive", "title": "Key Verification Practice", "description": "Practice verifying keys with a partner", "estimatedMinutes": 10, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "VPNs and Tor",
+            "description": "Anonymity and privacy tools",
+            "estimatedMinutes": 35,
+            "lessons": [
+              { "type": "document", "title": "VPNs and Tor", "description": "Understanding anonymity tools and when to use them", "estimatedMinutes": 25, "requiredForCertification": true, "content": { "type": "document", "markdown": "# VPNs and Tor\n\nUnderstanding anonymity tools and when to use them.\n\n## VPNs (Virtual Private Networks)\n\n### What VPNs Do\n- Encrypt traffic between you and VPN server\n- Hide your IP from websites\n- Bypass geographic restrictions\n\n### What VPNs Don't Do\n- Make you anonymous (VPN knows your IP)\n- Protect against malware\n- Guarantee privacy (VPN sees your traffic)\n\n### Choosing a VPN\n- **No-log policy** verified by audits\n- **Jurisdiction** outside surveillance alliances\n- **Open source** clients preferred\n- **Recommended**: Mullvad, ProtonVPN, IVPN\n\n### When to Use VPN\n- Public WiFi\n- Hiding traffic from ISP\n- Accessing region-locked content\n- Basic privacy layer\n\n## Tor (The Onion Router)\n\n### How Tor Works\n1. Traffic encrypted in multiple layers\n2. Passes through 3 random relays\n3. Each relay only knows previous and next hop\n4. No single point knows both source and destination\n\n### Tor vs VPN\n| Aspect | VPN | Tor |\n|--------|-----|-----|\n| Speed | Fast | Slow |\n| Trust | Trust provider | Distributed trust |\n| Anonymity | Low | High |\n| Metadata | Provider sees | Nobody sees full picture |\n\n### Tor Browser\n- Pre-configured for anonymity\n- Blocks fingerprinting\n- Don't resize window\n- Don't install extensions\n- Don't log into personal accounts\n\n### When to Use Tor\n- High-risk research\n- Anonymous communication\n- Whistleblowing\n- Accessing .onion sites\n\n### Tor Limitations\n- Slow for large transfers\n- Exit nodes can see unencrypted traffic\n- Some sites block Tor\n- Not for real-time communication\n\n## Tails OS\n\n### What is Tails?\n- Live operating system\n- Runs from USB\n- All traffic through Tor\n- Leaves no trace\n\n### When to Use Tails\n- Maximum anonymity needs\n- Using untrusted computers\n- Sensitive research\n- At-risk journalism" } },
+              { "type": "video", "title": "Setting Up Tor Browser", "description": "How to install and use Tor Browser safely", "estimatedMinutes": 10, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "Metadata Protection",
+            "description": "Understanding and protecting against metadata surveillance",
+            "estimatedMinutes": 25,
+            "lessons": [
+              { "type": "document", "title": "Metadata and Surveillance", "description": "What metadata reveals and how to protect it", "estimatedMinutes": 20, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Metadata and Surveillance\n\nUnderstanding what data is collected beyond content.\n\n## What is Metadata?\n\nMetadata is \"data about data\" - information that describes the context of communications:\n\n- **Who** communicated\n- **When** the communication occurred\n- **How long** it lasted\n- **Where** devices were located\n- **What** type of communication\n\n## Why Metadata Matters\n\n> \"We kill people based on metadata.\" - Former NSA Director Michael Hayden\n\nMetadata reveals:\n- Social networks and associations\n- Patterns of life\n- Location history\n- Relationship dynamics\n- Activity schedules\n\n## Types of Metadata\n\n### Communication Metadata\n- Sender and recipient\n- Timestamps\n- Message size\n- Frequency of contact\n\n### Device Metadata\n- Device identifiers (IMEI, MAC)\n- Operating system\n- Installed apps\n- Battery level\n\n### Location Metadata\n- GPS coordinates\n- Cell tower connections\n- WiFi networks\n- Bluetooth beacons\n\n### Network Metadata\n- IP addresses\n- DNS queries\n- Connection timing\n- Traffic patterns\n\n## Protecting Against Metadata\n\n### Minimize Collection\n- Use privacy-respecting services\n- Disable unnecessary features\n- Review app permissions\n\n### Anonymize Metadata\n- Tor hides network metadata\n- BuildIt's NIP-17 wraps sender/recipient\n- Burner devices hide identity\n\n### Obscure Patterns\n- Vary routines\n- Use multiple channels\n- Counter-surveillance\n\n### Technical Measures\n- Airplane mode when not needed\n- Faraday bags\n- MAC address randomization\n- VPN/Tor" } },
+              { "type": "interactive", "title": "Metadata Audit", "description": "Audit your own metadata exposure", "estimatedMinutes": 5, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "Device Security",
+            "description": "Securing your phones and computers",
+            "estimatedMinutes": 40,
+            "lessons": [
+              { "type": "document", "title": "Advanced Device Security", "description": "Comprehensive device protection strategies", "estimatedMinutes": 25, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Advanced Device Security\n\nProtecting your devices from sophisticated threats.\n\n## Phone Security\n\n### Lock Screen\n- Use 6+ digit PIN (not 4)\n- Avoid biometrics at high-risk events (can be compelled)\n- Set auto-lock to minimum time\n\n### Encryption\n- Enable full-disk encryption\n- iOS: Enabled by default with passcode\n- Android: Enable in Settings > Security\n\n### App Permissions\n- Review all permissions\n- Revoke unnecessary access\n- Check regularly for new apps\n\n### High-Risk Situations\n- Use a burner phone\n- Remove SIM when not needed\n- Disable biometrics\n- Know how to quick-wipe\n\n## Computer Security\n\n### Disk Encryption\n- macOS: FileVault\n- Windows: BitLocker (Pro) or VeraCrypt\n- Linux: LUKS\n\n### Secure Boot\n- Enable UEFI Secure Boot\n- Set BIOS password\n- Disable boot from USB when not needed\n\n### Malware Protection\n- Keep OS updated\n- Use reputable antivirus\n- Don't disable security features\n- Be cautious with downloads\n\n### Browser Security\n- Use Firefox with privacy settings\n- Install uBlock Origin\n- Disable third-party cookies\n- Consider Brave or Tor Browser\n\n## Physical Security\n\n### Device Theft\n- Enable Find My / remote wipe\n- Use strong passwords\n- Encrypt everything\n- Regular backups (encrypted)\n\n### Border Crossings\n- Know your rights (varies by country)\n- Consider travel devices\n- Backup and wipe before crossing\n- Restore after crossing\n\n### Physical Access Attacks\n- Don't leave devices unattended\n- Use tamper-evident cases\n- Boot from known-good media\n\n## Secure Communications Setup\n\n### Signal (Recommended for Phone)\n- Verify Safety Numbers\n- Enable disappearing messages\n- Set PIN for account recovery\n- Disable cloud backups\n\n### Email\n- Use ProtonMail or Tutanota\n- Enable PGP where possible\n- Don't use work email for organizing\n\n### Cloud Storage\n- Use end-to-end encrypted services\n- Or encrypt files before upload\n- Consider self-hosted options" } },
+              {
+                "type": "quiz",
+                "title": "Digital Security Quiz",
+                "description": "Test your understanding of digital security concepts",
+                "estimatedMinutes": 15,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "quiz",
+                  "passingScore": 70,
+                  "allowRetakes": true,
+                  "maxAttempts": 3,
+                  "shuffleQuestions": true,
+                  "shuffleOptions": true,
+                  "showCorrectAfter": true,
+                  "questions": [
+                    { "id": "q1", "type": "multiple-choice", "question": "What is the main difference between symmetric and asymmetric encryption?", "options": ["Symmetric is stronger than asymmetric", "Symmetric uses one key, asymmetric uses a key pair", "Asymmetric is faster than symmetric", "Symmetric works offline, asymmetric requires internet"], "correctAnswer": "Symmetric uses one key, asymmetric uses a key pair", "explanation": "Symmetric encryption uses the same key for encryption and decryption, while asymmetric uses a public/private key pair.", "points": 10, "order": 1 },
+                    { "id": "q2", "type": "true-false", "question": "A VPN makes you completely anonymous online.", "options": ["True", "False"], "correctAnswer": "False", "explanation": "VPNs hide your IP from websites but the VPN provider knows your real IP. For stronger anonymity, use Tor.", "points": 10, "order": 2 },
+                    { "id": "q3", "type": "multiple-choice", "question": "What does NIP-17 (gift wrapping) protect in BuildIt?", "options": ["Message content only", "Metadata - who is communicating with whom", "Your password", "Your IP address"], "correctAnswer": "Metadata - who is communicating with whom", "explanation": "NIP-17 wraps messages to hide the sender and recipient, protecting communication metadata.", "points": 10, "order": 3 },
+                    { "id": "q4", "type": "multi-select", "question": "Which of the following are types of metadata? (Select all that apply)", "options": ["Message content", "Timestamps", "Location data", "Contact lists"], "correctAnswer": ["Timestamps", "Location data", "Contact lists"], "explanation": "Metadata is information about communications, not the content itself. Timestamps, location, and contact lists are all metadata.", "points": 15, "order": 4 },
+                    { "id": "q5", "type": "multiple-choice", "question": "When should you use Tor instead of a VPN?", "options": ["For streaming video", "When you need high-speed downloads", "When you need strong anonymity", "For all internet use"], "correctAnswer": "When you need strong anonymity", "explanation": "Tor provides stronger anonymity than VPN but is slower. Use it when anonymity is critical.", "points": 10, "order": 5 }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "jail-support",
+      "name": "Jail Support Training",
+      "description": "Essential training for jail support volunteers. Covers operations, legal basics, tracking, and self-care.",
+      "category": "legal",
+      "icon": "Gavel",
+      "tags": ["jail-support", "legal", "arrestees", "operations", "self-care"],
+      "content": {
+        "difficulty": "beginner",
+        "estimatedHours": 2.5,
+        "imageUrl": "/images/training/jail-support.png",
+        "certificationEnabled": true,
+        "certificationExpiryDays": 180,
+        "modules": [
+          {
+            "title": "Jail Support Overview",
+            "description": "Understanding the role and importance of jail support",
+            "estimatedMinutes": 25,
+            "lessons": [
+              { "type": "document", "title": "What is Jail Support?", "description": "The purpose, principles, and importance of jail support", "estimatedMinutes": 15, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Jail Support Overview\n\nJail support is the practice of supporting people who are arrested during protests or direct actions.\n\n## What is Jail Support?\n\nJail support volunteers:\n- Wait outside jails during mass arrests\n- Track who has been arrested\n- Greet people when released\n- Provide immediate necessities\n- Connect people with legal resources\n- Ensure no one is forgotten\n\n## Why Jail Support Matters\n\n- **Accountability**: Monitors police treatment\n- **Safety**: Ensures people aren't disappeared\n- **Morale**: Shows solidarity with those arrested\n- **Practical**: Provides necessities upon release\n- **Legal**: Connects people with lawyers\n\n## Before the Action\n\n### Preparation\n- Know which jail(s) are likely\n- Have bail fund contacts\n- Prepare support materials\n- Charge phones and equipment\n- Plan transportation\n\n### Communication Setup\n- Dedicated phone line or chat\n- Multiple contact methods\n- Check-in protocols\n- Emergency contacts\n\n## Key Principles\n\n### Confidentiality\n- Don't share names without consent\n- Protect people's information\n- Secure documentation\n\n### Non-Judgmental\n- Support everyone released\n- No questions about actions\n- Respect privacy\n\n### Persistence\n- Stay until everyone is out\n- Don't assume someone found another way\n- Follow up on missing people" } },
+              { "type": "video", "title": "Jail Support in Action", "description": "Real examples and testimonials from jail support volunteers", "estimatedMinutes": 10, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "Legal Basics",
+            "description": "Understanding the legal process",
+            "estimatedMinutes": 30,
+            "lessons": [
+              { "type": "document", "title": "Legal Basics for Jail Support", "description": "The arrest process, types of release, and working with legal", "estimatedMinutes": 20, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Legal Basics for Jail Support\n\nUnderstanding the legal process to better support arrestees.\n\n## The Arrest Process\n\n### Initial Arrest\n1. Person is detained\n2. Miranda rights (if interrogated)\n3. Transport to station/jail\n4. Booking and processing\n\n### Booking\n- Personal information recorded\n- Fingerprints and photos\n- Property inventoried\n- Charges filed\n\n## Types of Release\n\n### Citation Release\n- Released with citation\n- Must appear in court later\n- Often for minor charges\n\n### Own Recognizance (OR)\n- Released without bail\n- Promise to appear\n- Based on ties to community\n\n### Bail\n- Money paid for release\n- Returned if person appears in court\n- Can use bail fund\n- Bail bondsman takes percentage\n\n## What Arrestees Should Know\n\n### During Arrest\n- Stay calm\n- Don't resist physically\n- You can say: \"I am going to remain silent. I want to speak to a lawyer.\"\n- Don't consent to searches\n\n### In Custody\n- Right to remain silent\n- Right to attorney\n- Right to phone call (varies by jurisdiction)\n- Don't discuss case with other arrestees\n\n## Working with Legal\n\n### National Lawyers Guild (NLG)\n- Provides legal observers\n- Coordinates legal support\n- Mass arrest protocols\n- Local chapter contacts\n\n### Bail Funds\n- Know your local bail fund\n- Understand their process\n- Have contact info ready" } },
+              { "type": "interactive", "title": "Know Your Rights Scenario", "description": "Practice advising someone on their rights", "estimatedMinutes": 10, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "Operations",
+            "description": "Running effective jail support",
+            "estimatedMinutes": 40,
+            "lessons": [
+              { "type": "document", "title": "Jail Support Operations", "description": "Setting up, tracking, shift management, and release support", "estimatedMinutes": 25, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Jail Support Operations\n\nPractical guide to running jail support.\n\n## Setting Up\n\n### Location\n- Visible from jail exit\n- Safe distance from police\n- Legal to be there\n- Weather protection if possible\n\n### Equipment Checklist\n- Folding table and chairs\n- Canopy/umbrella (weather)\n- Water and snacks\n- First aid kit\n- Phone chargers\n- Clipboards and pens\n- Printed materials\n- Cash for emergencies\n\n## Tracking Arrestees\n\n### What to Track\n- Name (if shared)\n- Approximate arrest time\n- Location of arrest\n- Any visible injuries\n- Charge (if known)\n- Release status\n\n### Privacy Considerations\n- Only collect necessary info\n- Don't force names\n- Secure all data\n- Delete after no longer needed\n\n## Shift Management\n\n### Roles\n- **Coordinator**: Overall management\n- **Tracker**: Maintains arrestee list\n- **Greeter**: Welcomes released people\n- **Runner**: Gets supplies, transport\n- **Communications**: Manages phones/messages\n\n## Release Support\n\n### When Someone is Released\n1. Greet them warmly\n2. Ask what they need\n3. Offer water/food\n4. Ask if they need to call anyone\n5. Offer transportation\n6. Provide legal info\n7. Ask about medical needs\n8. Check if they want their info tracked" } },
+              {
+                "type": "quiz",
+                "title": "Jail Support Quiz",
+                "description": "Test your understanding of jail support operations",
+                "estimatedMinutes": 15,
+                "requiredForCertification": true,
+                "content": {
+                  "type": "quiz",
+                  "passingScore": 70,
+                  "allowRetakes": true,
+                  "maxAttempts": 3,
+                  "shuffleQuestions": true,
+                  "shuffleOptions": true,
+                  "showCorrectAfter": true,
+                  "questions": [
+                    { "id": "q1", "type": "multiple-choice", "question": "What is the primary purpose of jail support?", "options": ["To negotiate with police", "To support and track people who are arrested", "To provide legal representation", "To pay bail for everyone"], "correctAnswer": "To support and track people who are arrested", "explanation": "Jail support's main purpose is to track, support, and ensure no one is forgotten after being arrested.", "points": 10, "order": 1 },
+                    { "id": "q2", "type": "multi-select", "question": "What should jail support volunteers provide to released people? (Select all that apply)", "options": ["Water and snacks", "Legal advice", "Phone to call contacts", "Transportation assistance"], "correctAnswer": ["Water and snacks", "Phone to call contacts", "Transportation assistance"], "explanation": "Jail support provides basic necessities and logistics, but NOT legal advice - that requires a lawyer.", "points": 15, "order": 2 },
+                    { "id": "q3", "type": "true-false", "question": "Jail support volunteers should always ask released people detailed questions about what they did.", "options": ["True", "False"], "correctAnswer": "False", "explanation": "Never ask about what someone did. It's not relevant to supporting them and could compromise their legal case.", "points": 10, "order": 3 },
+                    { "id": "q4", "type": "multiple-choice", "question": "What should an arrestee say to police?", "options": ["Everything they want to know to get released faster", "\"I am going to remain silent. I want to speak to a lawyer.\"", "Deny everything", "Give a fake name"], "correctAnswer": "\"I am going to remain silent. I want to speak to a lawyer.\"", "explanation": "Invoking the right to remain silent and requesting a lawyer is the safest approach.", "points": 10, "order": 4 },
+                    { "id": "q5", "type": "multiple-choice", "question": "If someone appears to be missing (not released when expected), what should you do?", "options": ["Assume they found another way home", "Wait 24 hours before checking", "Check all possible jails and escalate to legal", "Call the police to ask"], "correctAnswer": "Check all possible jails and escalate to legal", "explanation": "Never assume someone is fine. Actively track and escalate to legal support if someone is unaccounted for.", "points": 10, "order": 5 }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Self-Care and Sustainability",
+            "description": "Taking care of yourself and your team",
+            "estimatedMinutes": 20,
+            "lessons": [
+              { "type": "document", "title": "Self-Care and Sustainability", "description": "Emotional challenges, decompression, and long-term sustainability", "estimatedMinutes": 15, "requiredForCertification": true, "content": { "type": "document", "markdown": "# Self-Care and Sustainability\n\nJail support can be emotionally demanding. Taking care of yourself is essential.\n\n## Emotional Challenges\n\n### Common Experiences\n- Frustration with the system\n- Worry for those inside\n- Exhaustion from long waits\n- Secondary trauma from stories\n- Feeling helpless\n\n### Signs of Burnout\n- Constant exhaustion\n- Cynicism or hopelessness\n- Difficulty sleeping\n- Avoiding jail support work\n- Irritability\n\n## During Shifts\n\n### Physical Care\n- Stay hydrated\n- Eat regular meals\n- Take breaks\n- Dress appropriately for weather\n- Move around periodically\n\n### Emotional Care\n- Check in with teammates\n- Take breaks from difficult conversations\n- Know your limits\n- It's okay to step back\n\n## After Shifts\n\n### Decompression\n- Don't go straight to sleep\n- Do something calming\n- Talk to someone if needed\n- Avoid alcohol as coping\n\n### Processing\n- Debrief with team\n- Name difficult moments\n- Acknowledge successes\n- Identify improvements\n\n## Long-term Sustainability\n\n### Boundaries\n- Don't do every shift\n- Have other activities\n- Maintain relationships\n- Know your limits\n\n### Support Systems\n- Movement friends\n- Non-movement friends\n- Therapy/counseling\n- Community care\n\n### No Martyrdom\n- Sustainable work > hero work\n- The movement needs you healthy\n- It's okay to take breaks" } },
+              { "type": "interactive", "title": "Self-Care Planning", "description": "Create your personal self-care plan", "estimatedMinutes": 5, "requiredForCertification": false, "content": null }
+            ]
+          },
+          {
+            "title": "Live Practice Session",
+            "description": "Practice with experienced volunteers",
+            "estimatedMinutes": 60,
+            "lessons": [
+              { "type": "live-session", "title": "Jail Support Role-Play", "description": "Practice jail support scenarios with experienced volunteers", "estimatedMinutes": 60, "requiredForCertification": true, "content": null }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

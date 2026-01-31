@@ -1,0 +1,203 @@
+{
+  "$schema": "../_schema.json",
+  "module": "crm",
+  "version": "1.0.0",
+  "description": "Multi-table CRM templates with relationships, views, seed data, and module integrations for advanced organizing use cases",
+  "templates": [
+    {
+      "id": "nlg-mass-defense",
+      "name": "NLG Mass Defense",
+      "description": "National Lawyers Guild mass defense tracking with arrestees, legal observers, attorneys, and court dates for mass arrest situations",
+      "category": "legal",
+      "icon": "scales",
+      "tags": ["NLG", "legal", "mass-defense", "arrestees", "court"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 5,
+        "tables": ["Arrestees", "Legal Observers", "Attorneys", "Court Dates", "Incident Reports"],
+        "tableDescriptions": {
+          "Arrestees": "Arrested individuals with charges, bail status, and legal representation",
+          "Legal Observers": "NLG legal observers deployed to actions",
+          "Attorneys": "Attorneys and legal workers providing defense",
+          "Court Dates": "Court appearances and scheduling",
+          "Incident Reports": "Detailed incident documentation"
+        },
+        "relationshipCount": 4
+      }
+    },
+    {
+      "id": "tenant-organizing",
+      "name": "Tenant Organizing",
+      "description": "Track tenants, buildings, issues, and campaigns for tenant organizing and rent strikes",
+      "category": "organizing",
+      "icon": "building",
+      "tags": ["tenants", "housing", "organizing", "rent-strike", "landlord"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 4,
+        "tables": ["Tenants", "Buildings", "Issues", "Campaigns"],
+        "tableDescriptions": {
+          "Tenants": "Tenant contacts with unit info and support levels",
+          "Buildings": "Building/property information with landlord details",
+          "Issues": "Maintenance issues, code violations, and complaints",
+          "Campaigns": "Organizing campaigns and rent strike coordination"
+        },
+        "relationshipCount": 4
+      }
+    },
+    {
+      "id": "nonprofit-crm",
+      "name": "Nonprofit CRM",
+      "description": "Full nonprofit CRM with donors, donations, campaigns, and engagement tracking",
+      "category": "fundraising",
+      "icon": "heart",
+      "tags": ["nonprofit", "donors", "donations", "campaigns", "fundraising"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 4,
+        "tables": ["Contacts", "Donations", "Campaigns", "Engagement Log"],
+        "tableDescriptions": {
+          "Contacts": "Donors and supporters with communication preferences",
+          "Donations": "Individual donation records linked to donors and campaigns",
+          "Campaigns": "Fundraising campaigns with goals and progress",
+          "Engagement Log": "Track all communications and touchpoints"
+        },
+        "relationshipCount": 3
+      }
+    },
+    {
+      "id": "member-management",
+      "name": "Member Management",
+      "description": "Membership management for organizations, co-ops, and unions with dues tracking and committee assignments",
+      "category": "organizing",
+      "icon": "users",
+      "tags": ["members", "dues", "committees", "organization", "co-op"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 4,
+        "tables": ["Members", "Committees", "Committee Assignments", "Dues Payments"],
+        "tableDescriptions": {
+          "Members": "Organization members with status and contact info",
+          "Committees": "Working committees and their focus areas",
+          "Committee Assignments": "Track which members serve on which committees",
+          "Dues Payments": "Membership dues and payment tracking"
+        },
+        "relationshipCount": 4
+      }
+    },
+    {
+      "id": "sales-pipeline",
+      "name": "Sales Pipeline",
+      "description": "Sales pipeline for co-ops and social enterprises with leads, deals, and activities tracking",
+      "category": "fundraising",
+      "icon": "trending-up",
+      "tags": ["sales", "pipeline", "leads", "deals", "co-op"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": false },
+        "tableCount": 3,
+        "tables": ["Leads", "Deals", "Activities"],
+        "tableDescriptions": {
+          "Leads": "Potential customers and prospects",
+          "Deals": "Active sales opportunities with stages and values",
+          "Activities": "Sales activities, follow-ups, and communications"
+        },
+        "relationshipCount": 2
+      }
+    },
+    {
+      "id": "union-election-campaign",
+      "name": "Union Election Campaign",
+      "description": "Comprehensive union election campaign management with workers, conversations, campaigns, and house visits",
+      "category": "organizing",
+      "icon": "vote",
+      "tags": ["union", "election", "campaign", "NLRB", "organizing"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 4,
+        "tables": ["Workers", "Organizers", "Campaigns", "1-on-1 Conversations"],
+        "tableDescriptions": {
+          "Workers": "Workers in the bargaining unit with support levels and concerns",
+          "Organizers": "Union organizers and staff assigned to the campaign",
+          "Campaigns": "Organizing campaigns with status and election tracking",
+          "1-on-1 Conversations": "Individual organizing conversations with workers"
+        },
+        "relationshipCount": 4
+      }
+    },
+    {
+      "id": "street-medics",
+      "name": "Street Medics",
+      "description": "Track medics, certifications, trainings, deployments, and medical supplies for street medic collectives",
+      "category": "volunteer",
+      "icon": "medical",
+      "tags": ["medics", "street-medics", "first-aid", "trainings", "supplies"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 5,
+        "tables": ["Medics", "Trainings", "Training Attendance", "Deployments", "Supply Inventory"],
+        "tableDescriptions": {
+          "Medics": "Street medics with certification levels, specialties, and availability",
+          "Trainings": "Training sessions and workshops for medics",
+          "Training Attendance": "Track who attended which trainings and certifications earned",
+          "Deployments": "Event deployments with medic staffing",
+          "Supply Inventory": "Medical supplies and equipment with reorder tracking"
+        },
+        "relationshipCount": 3,
+        "seedData": {
+          "medics": [
+            { "full_name": "Alex Rivera", "certification_level": "street_medic", "specialties": ["trauma", "chemical_exposure"], "training_status": "trainer" },
+            { "full_name": "Jordan Chen", "certification_level": "emt", "specialties": ["trauma", "chronic_conditions"], "training_status": "trained" }
+          ],
+          "supplies": [
+            { "item": "Gauze Pads (4x4)", "category": "bandages", "quantity": 100 },
+            { "item": "Saline Solution (bottles)", "category": "chemical_treatment", "quantity": 20 },
+            { "item": "Nitrile Gloves (boxes)", "category": "ppe", "quantity": 5, "needs_reorder": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "self-defense",
+      "name": "Community Self-Defense",
+      "description": "Track safety volunteers, de-escalation training, deployments, and incident documentation for community self-defense collectives",
+      "category": "volunteer",
+      "icon": "shield",
+      "tags": ["self-defense", "safety", "de-escalation", "volunteers", "incidents"],
+      "author": "BuildIt Network",
+      "version": "1.0.0",
+      "content": {
+        "integrations": { "events": true, "files": true, "messaging": true, "forms": true },
+        "tableCount": 5,
+        "tables": ["Volunteers", "Trainings", "Training Attendance", "Deployments", "Incidents"],
+        "tableDescriptions": {
+          "Volunteers": "Safety volunteers with training levels and availability",
+          "Trainings": "De-escalation and safety training sessions",
+          "Training Attendance": "Track attendance and completion",
+          "Deployments": "Event deployments and volunteer assignments",
+          "Incidents": "Incident reports with severity, response, and follow-up"
+        },
+        "relationshipCount": 4,
+        "seedData": {
+          "volunteers": [
+            { "full_name": "Sam Martinez", "training_level": "advanced", "deployments_count": 15 },
+            { "full_name": "Taylor Kim", "training_level": "trainer", "deployments_count": 25 }
+          ]
+        }
+      }
+    }
+  ]
+}

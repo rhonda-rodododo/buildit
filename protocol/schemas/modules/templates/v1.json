@@ -1,0 +1,384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/templates/v1",
+  "title": "BuildIt Template System",
+  "description": "JSON Schema for the BuildIt template system. Used for codegen to produce typed template interfaces across all client platforms (TypeScript, Swift, Kotlin).",
+  "type": "object",
+  "properties": {
+    "module": {
+      "type": "string",
+      "description": "The module this template collection belongs to",
+      "enum": ["calling", "database", "crm", "forms", "documents", "training"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of this template collection",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the template collection"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TemplateEntry"
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["module", "version", "templates"],
+
+  "$defs": {
+    "TemplateEntry": {
+      "type": "object",
+      "description": "A single template entry with metadata and module-specific content",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique kebab-case identifier",
+          "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the template's purpose",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "category": {
+          "type": "string",
+          "description": "Grouping category for filtering and display"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier - emoji or icon library reference"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "description": "Lowercase kebab-case tags for search and filtering"
+        },
+        "author": {
+          "type": "string",
+          "description": "Template author or contributing organization"
+        },
+        "version": {
+          "type": "string",
+          "description": "Template-level version for tracking updates",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "content": {
+          "description": "Module-specific template content. Structure depends on the module type.",
+          "oneOf": [
+            { "$ref": "#/$defs/CallingTemplateContent" },
+            { "$ref": "#/$defs/DatabaseTemplateContent" },
+            { "$ref": "#/$defs/CRMSingleTableContent" },
+            { "$ref": "#/$defs/CRMMultiTableContent" },
+            { "$ref": "#/$defs/FormTemplateContent" },
+            { "$ref": "#/$defs/DocumentTemplateContent" },
+            { "$ref": "#/$defs/TrainingTemplateContent" }
+          ]
+        }
+      },
+      "required": ["id", "name", "description", "content"]
+    },
+
+    "CallingTemplateContent": {
+      "type": "object",
+      "description": "Hotline message template with variable substitution",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Message text with {{variable}} placeholders"
+        },
+        "variables": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Variable names used in the message template"
+        },
+        "shortcut": {
+          "type": ["string", "null"],
+          "description": "Keyboard shortcut (e.g., 'Ctrl+G')"
+        }
+      },
+      "required": ["message", "variables"]
+    },
+
+    "FieldDefinition": {
+      "type": "object",
+      "description": "A field definition for database/CRM tables",
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["string", "number", "boolean", "array", "object"] },
+            "required": { "type": "boolean" },
+            "format": { "type": "string" },
+            "minimum": { "type": "number" },
+            "maximum": { "type": "number" },
+            "enum": { "type": "array" },
+            "enumLabels": { "type": "array", "items": { "type": "string" } },
+            "items": { "type": "object" }
+          }
+        },
+        "widget": {
+          "type": "object",
+          "properties": {
+            "widget": {
+              "type": "string",
+              "enum": ["text", "textarea", "number", "select", "multi-select", "checkbox", "date", "datetime", "relationship", "file"]
+            },
+            "placeholder": { "type": "string" },
+            "helpText": { "type": "string" },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "string" },
+                  "label": { "type": "string" }
+                },
+                "required": ["value", "label"]
+              }
+            }
+          },
+          "required": ["widget"]
+        },
+        "order": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["name", "label", "widget"]
+    },
+
+    "TableDefinition": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FieldDefinition" }
+        }
+      },
+      "required": ["name", "fields"]
+    },
+
+    "RelationshipDefinition": {
+      "type": "object",
+      "properties": {
+        "sourceTable": { "type": "string" },
+        "sourceField": { "type": "string" },
+        "targetTable": { "type": "string" },
+        "targetField": { "type": "string" },
+        "type": { "type": "string", "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"] },
+        "label": { "type": "string" },
+        "required": { "type": "boolean" },
+        "onDelete": { "type": "string", "enum": ["cascade", "set-null", "restrict"] }
+      },
+      "required": ["sourceTable", "sourceField", "targetTable", "targetField", "type"]
+    },
+
+    "ViewDefinition": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["table", "board", "calendar", "gallery"] },
+        "config": { "type": "object" },
+        "filters": { "type": "array" },
+        "sorts": { "type": "array" }
+      },
+      "required": ["name", "type"]
+    },
+
+    "DatabaseTemplateContent": {
+      "type": "object",
+      "description": "Database template with tables and relationships",
+      "properties": {
+        "tables": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TableDefinition" }
+        },
+        "relationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RelationshipDefinition" }
+        }
+      },
+      "required": ["tables", "relationships"]
+    },
+
+    "CRMSingleTableContent": {
+      "type": "object",
+      "description": "Single-table CRM template with fields and views",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FieldDefinition" }
+        },
+        "defaultViews": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ViewDefinition" }
+        }
+      },
+      "required": ["fields", "defaultViews"]
+    },
+
+    "CRMMultiTableContent": {
+      "type": "object",
+      "description": "Multi-table CRM template metadata (full schemas in client code)",
+      "properties": {
+        "integrations": {
+          "type": "object",
+          "properties": {
+            "events": { "type": "boolean" },
+            "files": { "type": "boolean" },
+            "messaging": { "type": "boolean" },
+            "forms": { "type": "boolean" }
+          }
+        },
+        "tableCount": { "type": "integer", "minimum": 1 },
+        "tables": { "type": "array", "items": { "type": "string" } },
+        "tableDescriptions": { "type": "object", "additionalProperties": { "type": "string" } },
+        "relationshipCount": { "type": "integer", "minimum": 0 },
+        "seedData": { "type": "object" }
+      },
+      "required": ["tableCount", "tables"]
+    },
+
+    "FormTemplateContent": {
+      "type": "object",
+      "description": "Form template with backing table and settings",
+      "properties": {
+        "title": { "type": "string" },
+        "formDescription": { "type": "string" },
+        "backingTable": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "icon": { "type": "string" },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "required": { "type": "boolean" },
+                  "description": { "type": "string" },
+                  "options": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["name", "type"]
+              }
+            }
+          },
+          "required": ["name", "fields"]
+        },
+        "settings": { "type": "object" }
+      },
+      "required": ["title", "backingTable"]
+    },
+
+    "DocumentTemplateContent": {
+      "type": "object",
+      "description": "Document template with HTML content",
+      "properties": {
+        "html": {
+          "type": "string",
+          "description": "HTML content for the document template"
+        }
+      },
+      "required": ["html"]
+    },
+
+    "QuizQuestion": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["multiple-choice", "true-false", "multi-select"] },
+        "question": { "type": "string" },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "correctAnswer": {},
+        "explanation": { "type": "string" },
+        "points": { "type": "integer", "minimum": 1 },
+        "order": { "type": "integer" }
+      },
+      "required": ["id", "type", "question", "options", "correctAnswer"]
+    },
+
+    "QuizContent": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "quiz" },
+        "passingScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "allowRetakes": { "type": "boolean" },
+        "maxAttempts": { "type": "integer", "minimum": 1 },
+        "shuffleQuestions": { "type": "boolean" },
+        "shuffleOptions": { "type": "boolean" },
+        "showCorrectAfter": { "type": "boolean" },
+        "questions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/QuizQuestion" }
+        }
+      },
+      "required": ["type", "questions", "passingScore"]
+    },
+
+    "LessonDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["document", "quiz", "interactive", "video", "live-session"]
+        },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "estimatedMinutes": { "type": "integer", "minimum": 1 },
+        "requiredForCertification": { "type": "boolean" },
+        "content": {}
+      },
+      "required": ["type", "title", "description", "estimatedMinutes"]
+    },
+
+    "ModuleDefinition": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "estimatedMinutes": { "type": "integer", "minimum": 1 },
+        "lessons": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LessonDefinition" }
+        }
+      },
+      "required": ["title", "description", "lessons"]
+    },
+
+    "TrainingTemplateContent": {
+      "type": "object",
+      "description": "Training course template with modules, lessons, and quizzes",
+      "properties": {
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"]
+        },
+        "estimatedHours": { "type": "number", "minimum": 0.5 },
+        "imageUrl": { "type": "string" },
+        "certificationEnabled": { "type": "boolean" },
+        "certificationExpiryDays": { "type": ["integer", "null"] },
+        "modules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ModuleDefinition" },
+          "minItems": 1
+        }
+      },
+      "required": ["difficulty", "estimatedHours", "certificationEnabled", "modules"]
+    }
+  }
+}

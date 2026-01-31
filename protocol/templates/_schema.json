@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/template-meta/v1",
+  "title": "BuildIt Template Collection",
+  "description": "Meta-schema for validating BuildIt template JSON files. All template collections across modules must conform to this schema.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this meta-schema"
+    },
+    "module": {
+      "type": "string",
+      "description": "The module this template collection belongs to",
+      "enum": ["calling", "database", "crm", "forms", "documents", "training"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of this template collection",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this template collection"
+    },
+    "templates": {
+      "type": "array",
+      "description": "Array of template definitions",
+      "items": {
+        "$ref": "#/$defs/template"
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["module", "version", "templates"],
+  "additionalProperties": false,
+  "$defs": {
+    "template": {
+      "type": "object",
+      "description": "A single template definition",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the template",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name for the template"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of what this template provides"
+        },
+        "category": {
+          "type": "string",
+          "description": "Grouping category for the template"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon identifier (emoji or icon library name)"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Searchable tags for discovery"
+        },
+        "author": {
+          "type": "string",
+          "description": "Template author or organization"
+        },
+        "version": {
+          "type": "string",
+          "description": "Template-specific version",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "content": {
+          "description": "Template content - structure varies by module type"
+        }
+      },
+      "required": ["id", "name", "description", "content"]
+    },
+    "field": {
+      "type": "object",
+      "description": "A field definition used in database, CRM, and form templates",
+      "properties": {
+        "name": { "type": "string" },
+        "label": { "type": "string" },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["string", "number", "boolean", "array", "object"]
+            },
+            "required": { "type": "boolean" },
+            "format": { "type": "string" },
+            "minimum": { "type": "number" },
+            "maximum": { "type": "number" },
+            "enum": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "enumLabels": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "items": { "type": "object" }
+          }
+        },
+        "widget": {
+          "type": "object",
+          "properties": {
+            "widget": {
+              "type": "string",
+              "enum": [
+                "text", "textarea", "number", "select", "multi-select",
+                "checkbox", "date", "datetime", "relationship", "file",
+                "url", "email", "phone", "color", "rating"
+              ]
+            },
+            "placeholder": { "type": "string" },
+            "helpText": { "type": "string" },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": { "type": "string" },
+                  "label": { "type": "string" }
+                },
+                "required": ["value", "label"]
+              }
+            }
+          },
+          "required": ["widget"]
+        },
+        "order": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["name", "label", "widget"]
+    },
+    "relationship": {
+      "type": "object",
+      "description": "A relationship between tables",
+      "properties": {
+        "sourceTable": { "type": "string" },
+        "sourceField": { "type": "string" },
+        "targetTable": { "type": "string" },
+        "targetField": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"]
+        },
+        "label": { "type": "string" },
+        "required": { "type": "boolean" },
+        "onDelete": {
+          "type": "string",
+          "enum": ["cascade", "set-null", "restrict"]
+        }
+      },
+      "required": ["sourceTable", "sourceField", "targetTable", "targetField", "type"]
+    },
+    "viewDefinition": {
+      "type": "object",
+      "description": "A view definition for table display",
+      "properties": {
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["table", "board", "calendar", "gallery"]
+        },
+        "config": { "type": "object" },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fieldName": { "type": "string" },
+              "operator": { "type": "string" },
+              "value": {}
+            }
+          }
+        },
+        "sorts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fieldName": { "type": "string" },
+              "direction": {
+                "type": "string",
+                "enum": ["asc", "desc"]
+              }
+            }
+          }
+        }
+      },
+      "required": ["name", "type"]
+    }
+  }
+}

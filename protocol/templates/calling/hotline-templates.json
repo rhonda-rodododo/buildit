@@ -1,0 +1,128 @@
+{
+  "$schema": "../_schema.json",
+  "module": "calling",
+  "version": "1.0.0",
+  "description": "Message templates for hotline operators with variable substitution and keyboard shortcuts",
+  "templates": [
+    {
+      "id": "greeting",
+      "name": "Greeting",
+      "description": "Standard greeting when answering a hotline call",
+      "category": "General",
+      "tags": ["greeting", "opening"],
+      "content": {
+        "message": "Thank you for contacting {{hotline_name}}. My name is {{operator_name}} and I'm here to help you. How can I assist you today?",
+        "variables": ["hotline_name", "operator_name"],
+        "shortcut": "Ctrl+G"
+      }
+    },
+    {
+      "id": "info-request",
+      "name": "Request Info",
+      "description": "Ask the caller for additional information about their situation",
+      "category": "General",
+      "tags": ["information", "intake"],
+      "content": {
+        "message": "To help you better, could you please provide some additional information about your situation? Specifically, I'd like to know:\n\n1. When did this occur?\n2. Who was involved?\n3. What happened?",
+        "variables": [],
+        "shortcut": "Ctrl+I"
+      }
+    },
+    {
+      "id": "followup",
+      "name": "Follow-up Scheduled",
+      "description": "Let the caller know a follow-up is scheduled",
+      "category": "General",
+      "tags": ["followup", "closing"],
+      "content": {
+        "message": "Thank you for the information, {{caller_name}}. We'll follow up with you within 24-48 hours. If you have any additional questions or concerns in the meantime, please don't hesitate to reach out.",
+        "variables": ["caller_name"],
+        "shortcut": null
+      }
+    },
+    {
+      "id": "resolved",
+      "name": "Resolution",
+      "description": "Confirm issue resolution and offer further assistance",
+      "category": "General",
+      "tags": ["resolution", "closing"],
+      "content": {
+        "message": "I'm glad we could help resolve your concern today, {{caller_name}}. Is there anything else I can assist you with before we close this conversation?",
+        "variables": ["caller_name"],
+        "shortcut": "Ctrl+R"
+      }
+    },
+    {
+      "id": "hold-on",
+      "name": "Please Hold",
+      "description": "Ask the caller to wait while looking into their issue",
+      "category": "General",
+      "tags": ["hold", "waiting"],
+      "content": {
+        "message": "Thank you for your patience. I'm looking into this for you and will respond shortly.",
+        "variables": [],
+        "shortcut": "Ctrl+H"
+      }
+    },
+    {
+      "id": "transfer-notice",
+      "name": "Transfer Notice",
+      "description": "Notify the caller they are being transferred",
+      "category": "General",
+      "tags": ["transfer", "handoff"],
+      "content": {
+        "message": "I'm going to transfer you to a colleague who can better assist with this matter. They'll have access to our conversation so you won't need to repeat yourself. Please hold.",
+        "variables": [],
+        "shortcut": null
+      }
+    },
+    {
+      "id": "after-hours",
+      "name": "After Hours",
+      "description": "Auto-response for calls outside business hours",
+      "category": "Auto-Response",
+      "tags": ["after-hours", "auto-response"],
+      "content": {
+        "message": "Thank you for contacting {{hotline_name}}. Our team is currently unavailable. Our normal hours are Monday-Friday, 9 AM - 5 PM. We'll respond to your message during the next business day.",
+        "variables": ["hotline_name"],
+        "shortcut": null
+      }
+    },
+    {
+      "id": "emergency-resources",
+      "name": "Emergency Resources",
+      "description": "Provide emergency contact information and crisis resources",
+      "category": "Safety",
+      "tags": ["emergency", "crisis", "safety"],
+      "content": {
+        "message": "If you're experiencing an emergency, please call 911. For mental health crisis support, you can reach the 988 Suicide & Crisis Lifeline by calling or texting 988. We're here to support you.",
+        "variables": [],
+        "shortcut": "Ctrl+E"
+      }
+    },
+    {
+      "id": "legal-disclaimer",
+      "name": "Legal Disclaimer",
+      "description": "Provide standard legal disclaimer about advice limitations",
+      "category": "Legal",
+      "tags": ["legal", "disclaimer"],
+      "content": {
+        "message": "Please note that the information provided here is for general guidance only and does not constitute legal advice. For specific legal questions, please consult with a qualified attorney.",
+        "variables": [],
+        "shortcut": null
+      }
+    },
+    {
+      "id": "know-your-rights",
+      "name": "Know Your Rights",
+      "description": "Provide basic rights information for someone interacting with law enforcement",
+      "category": "Legal",
+      "tags": ["rights", "legal", "law-enforcement"],
+      "content": {
+        "message": "Here are some important things to remember:\n\n\u2022 You have the right to remain silent\n\u2022 You have the right to refuse consent to search\n\u2022 You have the right to speak with an attorney\n\u2022 You have the right to make a local phone call\n\nIf you're being questioned, you can say \"I wish to remain silent\" and \"I want to speak to a lawyer.\"",
+        "variables": [],
+        "shortcut": "Ctrl+K"
+      }
+    }
+  ]
+}

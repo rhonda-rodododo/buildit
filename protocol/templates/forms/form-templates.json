@@ -1,0 +1,102 @@
+{
+  "$schema": "../_schema.json",
+  "module": "forms",
+  "version": "1.0.0",
+  "description": "Form templates for common data collection use cases in organizing",
+  "templates": [
+    {
+      "id": "event-registration",
+      "name": "Event Registration",
+      "description": "Registration form for events and rallies with attendee information and preferences",
+      "category": "events",
+      "icon": "ClipboardList",
+      "tags": ["event", "registration", "RSVP", "rally"],
+      "content": {
+        "title": "Rally Registration",
+        "formDescription": "Register for our upcoming community rally",
+        "backingTable": {
+          "name": "Event Attendees",
+          "description": "Track event attendees and their preferences",
+          "icon": "Users",
+          "fields": [
+            { "name": "Name", "type": "text", "required": true, "description": "Attendee name" },
+            { "name": "Email", "type": "text", "required": true, "description": "Contact email" },
+            { "name": "Dietary Restrictions", "type": "select", "required": false, "description": "Any dietary needs", "options": ["None", "Vegetarian", "Vegan", "Gluten-Free", "Other"] },
+            { "name": "Accessibility Needs", "type": "text", "required": false, "description": "Any accessibility requirements" }
+          ]
+        },
+        "settings": {
+          "allowAnonymous": true,
+          "requireEmail": true,
+          "multiPage": false,
+          "confirmationMessage": "Thank you for registering! We look forward to seeing you at the rally.",
+          "redirectUrl": "/events",
+          "sendAutoResponse": true,
+          "autoResponseSubject": "Rally Registration Confirmed",
+          "autoResponseBody": "Your registration for the community rally has been confirmed.",
+          "notifyOnSubmission": true,
+          "enableWebhook": false,
+          "limitSubmissions": true,
+          "maxSubmissions": 500,
+          "limitPerUser": true,
+          "maxPerUser": 1,
+          "closeOnDate": false,
+          "antiSpam": {
+            "enableHoneypot": true,
+            "enableRateLimit": true,
+            "rateLimitCount": 10,
+            "enableCaptcha": true,
+            "captchaType": "hcaptcha"
+          }
+        }
+      }
+    },
+    {
+      "id": "volunteer-signup",
+      "name": "Volunteer Sign-Up",
+      "description": "Form for volunteers to sign up with their skills and availability",
+      "category": "volunteers",
+      "icon": "Heart",
+      "tags": ["volunteer", "signup", "skills", "availability"],
+      "content": {
+        "title": "Volunteer Sign-Up",
+        "formDescription": "Join our organizing team! We need your skills and passion.",
+        "backingTable": {
+          "name": "Volunteers",
+          "description": "Volunteer database with skills and availability",
+          "icon": "Heart",
+          "fields": [
+            { "name": "Name", "type": "text", "required": true },
+            { "name": "Email", "type": "text", "required": true },
+            { "name": "Phone", "type": "text", "required": false },
+            { "name": "Skills", "type": "multi-select", "required": true, "options": ["Graphic Design", "Social Media", "Event Planning", "Legal Support", "Medical/First Aid", "Translation", "Tech Support", "Fundraising"] },
+            { "name": "Availability", "type": "multi-select", "required": true, "options": ["Weekdays", "Weekends", "Evenings", "Flexible"] },
+            { "name": "Experience", "type": "text", "required": false, "description": "Previous organizing experience" }
+          ]
+        },
+        "settings": {
+          "allowAnonymous": false,
+          "requireEmail": true,
+          "multiPage": false,
+          "confirmationMessage": "Welcome to the team! We'll be in touch soon.",
+          "sendAutoResponse": true,
+          "autoResponseSubject": "Volunteer Application Received",
+          "autoResponseBody": "Thank you for signing up to volunteer! Our team will review your application and be in touch soon.",
+          "notifyOnSubmission": true,
+          "enableWebhook": false,
+          "limitSubmissions": false,
+          "limitPerUser": true,
+          "maxPerUser": 1,
+          "closeOnDate": false,
+          "antiSpam": {
+            "enableHoneypot": true,
+            "enableRateLimit": true,
+            "rateLimitCount": 5,
+            "enableCaptcha": true,
+            "captchaType": "hcaptcha"
+          }
+        }
+      }
+    }
+  ]
+}

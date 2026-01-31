@@ -1,0 +1,184 @@
+{
+  "$schema": "../_schema.json",
+  "module": "database",
+  "version": "1.0.0",
+  "description": "Built-in database templates for common data management use cases",
+  "templates": [
+    {
+      "id": "template-contact-basic",
+      "name": "Contact Management",
+      "description": "Basic contact database with essential fields for managing people and organizations",
+      "category": "general",
+      "icon": "Users",
+      "tags": ["contacts", "people", "organizations"],
+      "content": {
+        "tables": [
+          {
+            "name": "Contacts",
+            "description": "People and organizations",
+            "fields": [
+              { "name": "first_name", "label": "First Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text", "placeholder": "John" }, "order": 0 },
+              { "name": "last_name", "label": "Last Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text", "placeholder": "Doe" }, "order": 1 },
+              { "name": "email", "label": "Email", "schema": { "type": "string" }, "widget": { "widget": "text", "placeholder": "john@example.com" }, "order": 2 },
+              { "name": "phone", "label": "Phone", "schema": { "type": "string" }, "widget": { "widget": "text", "placeholder": "+1 (555) 123-4567" }, "order": 3 },
+              { "name": "organization", "label": "Organization", "schema": { "type": "string" }, "widget": { "widget": "text", "placeholder": "Acme Inc." }, "order": 4 },
+              { "name": "title", "label": "Title", "schema": { "type": "string" }, "widget": { "widget": "text", "placeholder": "Senior Developer" }, "order": 5 },
+              { "name": "status", "label": "Status", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "active", "label": "Active" }, { "value": "inactive", "label": "Inactive" }, { "value": "prospect", "label": "Prospect" }] }, "order": 6 },
+              { "name": "tags", "label": "Tags", "schema": { "type": "array" }, "widget": { "widget": "multi-select", "options": [{ "value": "client", "label": "Client" }, { "value": "partner", "label": "Partner" }, { "value": "vendor", "label": "Vendor" }, { "value": "member", "label": "Member" }] }, "order": 7 },
+              { "name": "notes", "label": "Notes", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 8 },
+              { "name": "last_contact", "label": "Last Contact", "schema": { "type": "string", "format": "date" }, "widget": { "widget": "date" }, "order": 9 }
+            ]
+          }
+        ],
+        "relationships": []
+      }
+    },
+    {
+      "id": "template-project-tracker",
+      "name": "Project Tracker",
+      "description": "Track projects, tasks, and milestones with related tables",
+      "category": "project",
+      "icon": "Briefcase",
+      "tags": ["projects", "tasks", "milestones", "tracking"],
+      "content": {
+        "tables": [
+          {
+            "name": "Projects",
+            "description": "Main projects",
+            "fields": [
+              { "name": "name", "label": "Project Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 0 },
+              { "name": "description", "label": "Description", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 1 },
+              { "name": "status", "label": "Status", "schema": { "type": "string", "required": true }, "widget": { "widget": "select", "options": [{ "value": "planning", "label": "Planning" }, { "value": "in-progress", "label": "In Progress" }, { "value": "on-hold", "label": "On Hold" }, { "value": "completed", "label": "Completed" }, { "value": "cancelled", "label": "Cancelled" }] }, "order": 2 },
+              { "name": "priority", "label": "Priority", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "low", "label": "Low" }, { "value": "medium", "label": "Medium" }, { "value": "high", "label": "High" }, { "value": "urgent", "label": "Urgent" }] }, "order": 3 },
+              { "name": "start_date", "label": "Start Date", "schema": { "type": "string", "format": "date" }, "widget": { "widget": "date" }, "order": 4 },
+              { "name": "end_date", "label": "End Date", "schema": { "type": "string", "format": "date" }, "widget": { "widget": "date" }, "order": 5 },
+              { "name": "budget", "label": "Budget", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 6 }
+            ]
+          },
+          {
+            "name": "Tasks",
+            "description": "Project tasks",
+            "fields": [
+              { "name": "task_name", "label": "Task Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 0 },
+              { "name": "description", "label": "Description", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 1 },
+              { "name": "project", "label": "Project", "schema": { "type": "string" }, "widget": { "widget": "relationship" }, "order": 2 },
+              { "name": "status", "label": "Status", "schema": { "type": "string", "required": true }, "widget": { "widget": "select", "options": [{ "value": "todo", "label": "To Do" }, { "value": "in-progress", "label": "In Progress" }, { "value": "review", "label": "In Review" }, { "value": "done", "label": "Done" }] }, "order": 3 },
+              { "name": "assignee", "label": "Assignee", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 4 },
+              { "name": "due_date", "label": "Due Date", "schema": { "type": "string", "format": "date" }, "widget": { "widget": "date" }, "order": 5 },
+              { "name": "estimated_hours", "label": "Estimated Hours", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 6 },
+              { "name": "actual_hours", "label": "Actual Hours", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 7 }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "sourceTable": "Tasks",
+            "sourceField": "project",
+            "targetTable": "Projects",
+            "targetField": "name",
+            "type": "many-to-one",
+            "onDelete": "cascade"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-inventory",
+      "name": "Inventory Management",
+      "description": "Track inventory, stock levels, and suppliers",
+      "category": "inventory",
+      "icon": "Package",
+      "tags": ["inventory", "stock", "suppliers", "products"],
+      "content": {
+        "tables": [
+          {
+            "name": "Products",
+            "description": "Products and items",
+            "fields": [
+              { "name": "sku", "label": "SKU", "schema": { "type": "string", "required": true }, "widget": { "widget": "text", "placeholder": "PROD-001" }, "order": 0 },
+              { "name": "name", "label": "Product Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 1 },
+              { "name": "description", "label": "Description", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 2 },
+              { "name": "category", "label": "Category", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "electronics", "label": "Electronics" }, { "value": "clothing", "label": "Clothing" }, { "value": "food", "label": "Food" }, { "value": "tools", "label": "Tools" }, { "value": "other", "label": "Other" }] }, "order": 3 },
+              { "name": "quantity", "label": "Quantity in Stock", "schema": { "type": "number", "required": true }, "widget": { "widget": "number" }, "order": 4 },
+              { "name": "reorder_level", "label": "Reorder Level", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 5 },
+              { "name": "unit_price", "label": "Unit Price", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 6 },
+              { "name": "supplier", "label": "Supplier", "schema": { "type": "string" }, "widget": { "widget": "relationship" }, "order": 7 },
+              { "name": "location", "label": "Storage Location", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 8 },
+              { "name": "last_restocked", "label": "Last Restocked", "schema": { "type": "string", "format": "date" }, "widget": { "widget": "date" }, "order": 9 }
+            ]
+          },
+          {
+            "name": "Suppliers",
+            "description": "Supplier information",
+            "fields": [
+              { "name": "supplier_name", "label": "Supplier Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 0 },
+              { "name": "contact_person", "label": "Contact Person", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 1 },
+              { "name": "email", "label": "Email", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 2 },
+              { "name": "phone", "label": "Phone", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 3 },
+              { "name": "address", "label": "Address", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 4 },
+              { "name": "rating", "label": "Rating", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "5", "label": "5 Stars" }, { "value": "4", "label": "4 Stars" }, { "value": "3", "label": "3 Stars" }, { "value": "2", "label": "2 Stars" }, { "value": "1", "label": "1 Star" }] }, "order": 5 }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "sourceTable": "Products",
+            "sourceField": "supplier",
+            "targetTable": "Suppliers",
+            "targetField": "supplier_name",
+            "type": "many-to-one",
+            "onDelete": "set-null"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-event-planning",
+      "name": "Event Planning",
+      "description": "Organize events, attendees, and vendors",
+      "category": "general",
+      "icon": "Calendar",
+      "tags": ["events", "attendees", "planning"],
+      "content": {
+        "tables": [
+          {
+            "name": "Events",
+            "description": "Events and gatherings",
+            "fields": [
+              { "name": "event_name", "label": "Event Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 0 },
+              { "name": "description", "label": "Description", "schema": { "type": "string" }, "widget": { "widget": "textarea" }, "order": 1 },
+              { "name": "event_type", "label": "Event Type", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "conference", "label": "Conference" }, { "value": "workshop", "label": "Workshop" }, { "value": "meetup", "label": "Meetup" }, { "value": "party", "label": "Party" }, { "value": "fundraiser", "label": "Fundraiser" }] }, "order": 2 },
+              { "name": "start_date", "label": "Start Date & Time", "schema": { "type": "string", "format": "date-time", "required": true }, "widget": { "widget": "datetime" }, "order": 3 },
+              { "name": "end_date", "label": "End Date & Time", "schema": { "type": "string", "format": "date-time" }, "widget": { "widget": "datetime" }, "order": 4 },
+              { "name": "location", "label": "Location", "schema": { "type": "string" }, "widget": { "widget": "text" }, "order": 5 },
+              { "name": "capacity", "label": "Capacity", "schema": { "type": "number" }, "widget": { "widget": "number" }, "order": 6 },
+              { "name": "status", "label": "Status", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "planning", "label": "Planning" }, { "value": "confirmed", "label": "Confirmed" }, { "value": "cancelled", "label": "Cancelled" }, { "value": "completed", "label": "Completed" }] }, "order": 7 }
+            ]
+          },
+          {
+            "name": "Attendees",
+            "description": "Event attendees",
+            "fields": [
+              { "name": "name", "label": "Name", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 0 },
+              { "name": "email", "label": "Email", "schema": { "type": "string", "required": true }, "widget": { "widget": "text" }, "order": 1 },
+              { "name": "event", "label": "Event", "schema": { "type": "string" }, "widget": { "widget": "relationship" }, "order": 2 },
+              { "name": "ticket_type", "label": "Ticket Type", "schema": { "type": "string" }, "widget": { "widget": "select", "options": [{ "value": "general", "label": "General Admission" }, { "value": "vip", "label": "VIP" }, { "value": "staff", "label": "Staff" }, { "value": "speaker", "label": "Speaker" }] }, "order": 3 },
+              { "name": "checked_in", "label": "Checked In", "schema": { "type": "boolean" }, "widget": { "widget": "checkbox" }, "order": 4 },
+              { "name": "dietary_preferences", "label": "Dietary Preferences", "schema": { "type": "array" }, "widget": { "widget": "multi-select", "options": [{ "value": "vegetarian", "label": "Vegetarian" }, { "value": "vegan", "label": "Vegan" }, { "value": "gluten-free", "label": "Gluten-Free" }, { "value": "halal", "label": "Halal" }, { "value": "kosher", "label": "Kosher" }] }, "order": 5 }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "sourceTable": "Attendees",
+            "sourceField": "event",
+            "targetTable": "Events",
+            "targetField": "event_name",
+            "type": "many-to-one",
+            "onDelete": "cascade"
+          }
+        ]
+      }
+    }
+  ]
+}

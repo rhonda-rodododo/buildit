@@ -1,0 +1,68 @@
+{
+  "$schema": "../_schema.json",
+  "module": "documents",
+  "version": "1.0.0",
+  "description": "Pre-built document templates for common organizing documents",
+  "templates": [
+    {
+      "id": "meeting-notes",
+      "name": "Meeting Notes",
+      "description": "Template for recording meeting notes and action items",
+      "icon": "FileText",
+      "tags": ["meeting", "notes"],
+      "content": {
+        "html": "<h1>Meeting Notes</h1>\n<p><strong>Date:</strong> [Insert Date]</p>\n<p><strong>Attendees:</strong> [List attendees]</p>\n<p><strong>Facilitator:</strong> [Name]</p>\n\n<h2>Agenda</h2>\n<ol>\n  <li>Item 1</li>\n  <li>Item 2</li>\n  <li>Item 3</li>\n</ol>\n\n<h2>Discussion</h2>\n<p>[Key points discussed...]</p>\n\n<h2>Decisions Made</h2>\n<ul>\n  <li>Decision 1</li>\n  <li>Decision 2</li>\n</ul>\n\n<h2>Action Items</h2>\n<table>\n  <thead>\n    <tr>\n      <th>Action</th>\n      <th>Assignee</th>\n      <th>Due Date</th>\n      <th>Status</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Example task</td>\n      <td>Name</td>\n      <td>Date</td>\n      <td>In Progress</td>\n    </tr>\n  </tbody>\n</table>\n\n<h2>Next Meeting</h2>\n<p><strong>Date:</strong> [Next meeting date]</p>\n<p><strong>Topics:</strong> [Topics to cover]</p>"
+      }
+    },
+    {
+      "id": "proposal",
+      "name": "Proposal",
+      "description": "Template for creating formal proposals",
+      "icon": "FileText",
+      "tags": ["proposal", "governance"],
+      "content": {
+        "html": "<h1>Proposal Title</h1>\n\n<h2>Summary</h2>\n<p>[Brief 2-3 sentence summary of the proposal]</p>\n\n<h2>Background</h2>\n<p>[Context and why this proposal is needed]</p>\n\n<h2>Proposal Details</h2>\n<p>[Detailed description of what is being proposed]</p>\n\n<h3>Objectives</h3>\n<ul>\n  <li>Objective 1</li>\n  <li>Objective 2</li>\n  <li>Objective 3</li>\n</ul>\n\n<h2>Implementation Plan</h2>\n<ol>\n  <li>Step 1</li>\n  <li>Step 2</li>\n  <li>Step 3</li>\n</ol>\n\n<h2>Resources Required</h2>\n<ul>\n  <li>Resource 1</li>\n  <li>Resource 2</li>\n</ul>\n\n<h2>Timeline</h2>\n<p>[Expected duration and key milestones]</p>\n\n<h2>Expected Outcomes</h2>\n<p>[What success looks like]</p>\n\n<h2>Risks & Mitigation</h2>\n<table>\n  <thead>\n    <tr>\n      <th>Risk</th>\n      <th>Impact</th>\n      <th>Mitigation</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Example risk</td>\n      <td>High/Medium/Low</td>\n      <td>Mitigation strategy</td>\n    </tr>\n  </tbody>\n</table>"
+      }
+    },
+    {
+      "id": "manifesto",
+      "name": "Manifesto",
+      "description": "Template for writing a manifesto or statement of principles",
+      "icon": "Megaphone",
+      "tags": ["manifesto", "principles"],
+      "content": {
+        "html": "<h1>Our Manifesto</h1>\n\n<h2>Vision</h2>\n<p>[Our vision for change]</p>\n\n<h2>Core Principles</h2>\n<ol>\n  <li><strong>Principle 1:</strong> Description</li>\n  <li><strong>Principle 2:</strong> Description</li>\n  <li><strong>Principle 3:</strong> Description</li>\n  <li><strong>Principle 4:</strong> Description</li>\n</ol>\n\n<h2>Our Demands</h2>\n<ul>\n  <li>Demand 1</li>\n  <li>Demand 2</li>\n  <li>Demand 3</li>\n</ul>\n\n<h2>Why We Organize</h2>\n<p>[The problem we're addressing]</p>\n\n<h2>Our Strategy</h2>\n<p>[How we plan to achieve our goals]</p>\n\n<h2>Call to Action</h2>\n<p>[How people can join or support the movement]</p>\n\n<blockquote>\n  <p>\"Together, we can build a better future.\"</p>\n</blockquote>"
+      }
+    },
+    {
+      "id": "press-release",
+      "name": "Press Release",
+      "description": "Template for writing press releases",
+      "icon": "Newspaper",
+      "tags": ["media", "communications"],
+      "content": {
+        "html": "<h1>FOR IMMEDIATE RELEASE</h1>\n\n<p><strong>Contact:</strong> [Name]<br>\n<strong>Phone:</strong> [Phone]<br>\n<strong>Email:</strong> [Email]<br>\n<strong>Date:</strong> [Date]</p>\n\n<h2>[Headline: Clear and Attention-Grabbing]</h2>\n\n<h3>[Subheadline: Adds context to the headline]</h3>\n\n<p><strong>[CITY, State]</strong> \u2014 [Opening paragraph: Who, what, when, where, why. Most newsworthy information first.]</p>\n\n<p>[Second paragraph: Supporting details, quotes from key people, additional context]</p>\n\n<blockquote>\n  <p>\"[Quote from spokesperson or leader that adds human element or emphasizes key point]\"</p>\n  <p>\u2014 [Name, Title]</p>\n</blockquote>\n\n<p>[Third paragraph: Additional background, statistics, or context that supports the story]</p>\n\n<p>[Fourth paragraph: Information about next steps, future plans, or call to action]</p>\n\n<h3>About [Organization Name]</h3>\n<p>[Boilerplate: Standard paragraph about your organization, its mission, and history. This stays the same across press releases.]</p>\n\n<p style=\"text-align: center;\"><strong>###</strong></p>\n\n<p><em>[Note: Three hashtags (###) signal the end of the press release]</em></p>"
+      }
+    },
+    {
+      "id": "action-plan",
+      "name": "Campaign Action Plan",
+      "description": "Template for planning campaigns and direct actions",
+      "icon": "Target",
+      "tags": ["campaign", "action", "organizing"],
+      "content": {
+        "html": "<h1>Campaign Action Plan</h1>\n\n<h2>Campaign Name</h2>\n<p>[Name of the campaign]</p>\n\n<h2>Campaign Goal</h2>\n<p>[What we want to achieve - be specific and measurable]</p>\n\n<h2>Timeline</h2>\n<p><strong>Start Date:</strong> [Date]<br>\n<strong>End Date:</strong> [Date]<br>\n<strong>Duration:</strong> [Duration]</p>\n\n<h2>Key Demands</h2>\n<ol>\n  <li>Demand 1</li>\n  <li>Demand 2</li>\n  <li>Demand 3</li>\n</ol>\n\n<h2>Strategy & Tactics</h2>\n<ul>\n  <li><strong>Tactic 1:</strong> [Description]</li>\n  <li><strong>Tactic 2:</strong> [Description]</li>\n  <li><strong>Tactic 3:</strong> [Description]</li>\n</ul>\n\n<h2>Target Audiences</h2>\n<ul>\n  <li><strong>Primary:</strong> [Who we need to reach/pressure]</li>\n  <li><strong>Secondary:</strong> [Allies and supporters]</li>\n  <li><strong>Opposition:</strong> [Who opposes us and why]</li>\n</ul>\n\n<h2>Resources Needed</h2>\n<ul>\n  <li>People: [Number and roles]</li>\n  <li>Budget: [Estimated costs]</li>\n  <li>Materials: [Supplies, equipment]</li>\n  <li>Technology: [Tools and platforms]</li>\n</ul>\n\n<h2>Key Milestones</h2>\n<table>\n  <thead>\n    <tr>\n      <th>Date</th>\n      <th>Milestone</th>\n      <th>Success Criteria</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>[Date]</td>\n      <td>[Milestone 1]</td>\n      <td>[How we'll know it's done]</td>\n    </tr>\n    <tr>\n      <td>[Date]</td>\n      <td>[Milestone 2]</td>\n      <td>[How we'll know it's done]</td>\n    </tr>\n  </tbody>\n</table>\n\n<h2>Communications Plan</h2>\n<ul>\n  <li><strong>Messaging:</strong> [Key messages]</li>\n  <li><strong>Channels:</strong> [Social media, press, etc.]</li>\n  <li><strong>Spokespeople:</strong> [Who speaks for the campaign]</li>\n</ul>\n\n<h2>Risk Assessment</h2>\n<ul>\n  <li><strong>Legal risks:</strong> [Potential legal issues]</li>\n  <li><strong>Safety risks:</strong> [Physical safety concerns]</li>\n  <li><strong>Reputational risks:</strong> [PR considerations]</li>\n  <li><strong>Mitigation:</strong> [How we address these risks]</li>\n</ul>\n\n<h2>Success Metrics</h2>\n<p>[How we'll measure whether the campaign succeeded]</p>"
+      }
+    },
+    {
+      "id": "blank",
+      "name": "Blank Document",
+      "description": "Start with a blank document",
+      "icon": "File",
+      "tags": [],
+      "content": {
+        "html": "<p></p>"
+      }
+    }
+  ]
+}
