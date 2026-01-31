@@ -286,7 +286,7 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                   <div>
                     <h3 className="font-semibold">{selectedTemplate.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {resolvedModules.length} {t('templates.modulesEnabled', 'modules will be enabled')}
+                      {resolvedModules.filter(m => !['custom-fields', 'public'].includes(m)).length} {t('templates.modulesEnabled', 'modules will be enabled')}
                     </p>
                   </div>
                 </div>
@@ -342,7 +342,9 @@ export const CreateGroupDialog: FC<CreateGroupDialogProps> = ({ trigger }) => {
                     {t('templates.modulesToEnable', 'Modules to Enable')}
                   </Label>
                   <div className="flex flex-wrap gap-2">
-                    {resolvedModules.map((moduleId) => {
+                    {resolvedModules
+                      .filter(moduleId => !['custom-fields', 'public'].includes(moduleId))
+                      .map((moduleId) => {
                       const module = availableModules.find(m => m.value === moduleId)
                       return (
                         <Tooltip key={moduleId}>

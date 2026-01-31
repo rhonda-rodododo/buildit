@@ -49,7 +49,7 @@ export const GroupList: FC<GroupListProps> = ({ onSelectGroup }) => {
 
   return (
     <div className="space-y-2">
-      <h2 className="text-xl font-semibold mb-4">{t('groupList.title')}</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('groupList.yourGroups')}</h2>
       {groups.length === 0 ? (
         <Card className="p-6 text-center text-muted-foreground">
           {t('groupList.empty')}

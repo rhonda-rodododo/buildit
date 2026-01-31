@@ -42,7 +42,7 @@ interface ActivityFeedProps {
   groupId?: string; // Optional: filter to specific group
 }
 
-export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
+export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
   const { t } = useTranslation();
   const { posts, refreshFeed: refreshPosts, isLoadingFeed: _isLoadingPosts } =
     usePostsStore();
@@ -164,16 +164,30 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className}) => {
       });
     }
 
+    // Deduplicate by id (stores may contain duplicate entries)
+    const seen = new Set<string>();
+    const unique = items.filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+
     // Sort by timestamp (newest first)
-    return items.sort((a, b) => b.timestamp - a.timestamp);
-  }, [posts, eventsStore.events, mutualAidStore.aidItems, governanceStore.proposals, wikiStore.pages, contentTypeFilters]);
+    const sorted = unique.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter by groupId if provided (e.g., when viewing a specific group's feed)
+    if (groupId) {
+      return sorted.filter(item => item.groupId === groupId);
+    }
+    return sorted;
+  }, [posts, eventsStore.events, mutualAidStore.aidItems, governanceStore.proposals, wikiStore.pages, contentTypeFilters, groupId]);
 
   // Filter by tab
   const filteredItems = useMemo(() => {
     if (activeTab === 'all') {
       return feedItems;
     } else if (activeTab === 'my-groups') {
-      // Group membership filtering deferred to Phase 2
+      // Show only items that belong to a group
       return feedItems.filter(item => item.groupId !== undefined);
     } else if (activeTab === 'mentions') {
       // Mention tracking deferred to Phase 2
