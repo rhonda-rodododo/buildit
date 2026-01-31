@@ -867,5 +867,39 @@
         "multiSelect": false
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "searchDocuments": {
+        "type": "SearchDocument",
+        "primaryKey": "id",
+        "indexes": ["moduleType", "entityId", "groupId", "authorPubkey", "createdAt", "updatedAt"],
+        "multiEntryIndexes": ["*tags"]
+      },
+      "tags": {
+        "type": "Tag",
+        "primaryKey": "id",
+        "indexes": ["slug", "groupId", "usageCount"]
+      },
+      "entityTags": {
+        "type": "EntityTag",
+        "primaryKey": "id",
+        "indexes": ["tagId", "entityId", "entityType"],
+        "compoundIndexes": ["[entityId+tagId]"]
+      },
+      "savedSearches": {
+        "type": "SavedSearch",
+        "primaryKey": "id",
+        "indexes": ["groupId", "createdAt", "useCount"]
+      },
+      "recentSearches": {
+        "type": "RecentSearch",
+        "primaryKey": "id",
+        "indexes": ["searchedAt"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
+  }
 }

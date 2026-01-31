@@ -317,5 +317,45 @@
         "donatedAt": 1706200000
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "campaigns": {
+        "type": "Campaign",
+        "primaryKey": "id",
+        "indexes": ["groupId", "status", "createdAt", "endDate"]
+      },
+      "donations": {
+        "type": "Donation",
+        "primaryKey": "id",
+        "indexes": ["campaignId", "groupId", "status", "donorPubkey", "createdAt"]
+      },
+      "expenses": {
+        "type": "Expense",
+        "primaryKey": "id",
+        "indexes": ["campaignId", "category", "date"]
+      }
+    },
+    "dbOnly": {
+      "campaigns": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group this campaign belongs to"
+        },
+        "tableId": {
+          "type": "string",
+          "optional": true,
+          "description": "Linked database table ID for donor tracking"
+        },
+        "slug": {
+          "type": "string",
+          "optional": true,
+          "description": "URL-friendly campaign identifier"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

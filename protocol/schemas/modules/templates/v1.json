@@ -382,5 +382,10 @@
       },
       "required": ["difficulty", "estimatedHours", "certificationEnabled", "modules"]
     }
+  },
+  "x-storage": {
+    "tables": {},
+    "dbOnly": {},
+    "protocolOnly": []
   }
 }

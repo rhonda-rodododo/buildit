@@ -329,5 +329,30 @@
         "createdAt": 1706112000
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "newsletters": {
+        "type": "Newsletter",
+        "primaryKey": "id",
+        "indexes": ["groupId", "ownerPubkey", "createdAt"],
+        "compoundIndexes": ["[groupId+createdAt]"]
+      },
+      "newsletterCampaigns": {
+        "type": "Campaign",
+        "primaryKey": "id",
+        "indexes": ["newsletterId", "groupId", "status", "scheduledAt", "sentAt"],
+        "compoundIndexes": ["[newsletterId+status]", "[newsletterId+createdAt]", "[status+scheduledAt]"]
+      },
+      "newsletterSubscribers": {
+        "type": "Subscriber",
+        "primaryKey": "id",
+        "indexes": ["newsletterId", "subscriberPubkey", "status"],
+        "compoundIndexes": ["[newsletterId+status]", "[newsletterId+subscriberPubkey]"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
+  }
 }

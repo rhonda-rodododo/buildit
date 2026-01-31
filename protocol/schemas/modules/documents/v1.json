@@ -233,5 +233,31 @@
         "updatedBy": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "documents": {
+        "type": "Document",
+        "primaryKey": "id",
+        "indexes": ["groupId", "type", "visibility", "createdBy", "createdAt", "updatedAt"],
+        "compoundIndexes": ["[groupId+updatedAt]"]
+      },
+      "documentRevisions": {
+        "type": "DocumentRevision",
+        "primaryKey": "id",
+        "indexes": ["documentId", "version", "createdAt"]
+      }
+    },
+    "dbOnly": {
+      "documents": {
+        "folderId": {
+          "type": "string",
+          "optional": true,
+          "description": "Folder this document belongs to for organization"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

@@ -1466,5 +1466,40 @@
         "isEncrypted": true
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "callHistory": {
+        "type": "CallHistory",
+        "primaryKey": "++id",
+        "indexes": ["callId", "remotePubkey", "direction", "callType", "startedAt", "groupId"]
+      },
+      "callSettings": {
+        "type": "CallSettings",
+        "primaryKey": "pubkey",
+        "indexes": ["updatedAt"]
+      },
+      "broadcasts": {
+        "type": "Broadcast",
+        "primaryKey": "broadcastId",
+        "indexes": ["createdBy", "status", "scheduledAt", "sentAt"]
+      },
+      "conferenceRooms": {
+        "type": "ConferenceRoom",
+        "primaryKey": "roomId",
+        "indexes": ["groupId", "createdBy", "createdAt", "expiresAt"]
+      }
+    },
+    "dbOnly": {
+      "callHistory": {
+        "remoteName": {
+          "type": "string",
+          "optional": true,
+          "description": "Cached display name of remote participant"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

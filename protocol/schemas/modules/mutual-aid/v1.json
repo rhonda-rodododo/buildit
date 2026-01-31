@@ -544,5 +544,46 @@
       },
       "required": ["_v", "id", "groupId", "name", "category", "createdBy", "createdAt"]
     }
+  },
+  "x-storage": {
+    "tables": {
+      "mutualAidRequests": {
+        "type": "AidRequest",
+        "primaryKey": "id",
+        "indexes": ["groupId", "category", "status", "urgency", "requesterId", "createdAt"]
+      },
+      "mutualAidOffers": {
+        "type": "AidOffer",
+        "primaryKey": "id",
+        "indexes": ["groupId", "category", "status", "offererId", "createdAt"]
+      },
+      "rideShares": {
+        "type": "RideShare",
+        "primaryKey": "id",
+        "indexes": ["groupId", "type", "status", "departureTime", "createdAt"]
+      },
+      "resourceDirectory": {
+        "type": "ResourceDirectory",
+        "primaryKey": "id",
+        "indexes": ["groupId", "category", "verified", "createdBy", "createdAt"]
+      }
+    },
+    "dbOnly": {
+      "mutualAidRequests": {
+        "imageUrl": {
+          "type": "string",
+          "optional": true,
+          "description": "Cached image URL for request display"
+        }
+      },
+      "mutualAidOffers": {
+        "imageUrl": {
+          "type": "string",
+          "optional": true,
+          "description": "Cached image URL for offer display"
+        }
+      }
+    },
+    "protocolOnly": []
   }
 }

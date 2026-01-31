@@ -410,5 +410,27 @@
       },
       "required": ["_v", "proposalId", "outcome", "voteCounts", "totalVotes", "calculatedAt"]
     }
+  },
+  "x-storage": {
+    "tables": {
+      "proposals": {
+        "type": "Proposal",
+        "primaryKey": "id",
+        "indexes": ["groupId", "type", "status", "votingSystem", "createdBy", "createdAt", "updatedAt"]
+      },
+      "votes": {
+        "type": "Vote",
+        "primaryKey": "id",
+        "indexes": ["proposalId", "voterId", "castAt"],
+        "compoundIndexes": ["[proposalId+voterId]"]
+      },
+      "delegations": {
+        "type": "Delegation",
+        "primaryKey": "id",
+        "indexes": ["delegatorId", "delegateId", "scope", "createdAt"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
   }
 }

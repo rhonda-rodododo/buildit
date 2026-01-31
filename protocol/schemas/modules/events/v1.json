@@ -314,5 +314,31 @@
       },
       "expectedUnknownFields": ["futureField", "anotherNewField"]
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "events": {
+        "type": "Event",
+        "primaryKey": "id",
+        "indexes": ["groupId", "startAt", "createdBy", "visibility", "createdAt"]
+      },
+      "rsvps": {
+        "type": "RSVP",
+        "primaryKey": "++id",
+        "indexes": ["eventId", "pubkey", "status"],
+        "compoundIndexes": ["[eventId+pubkey]"]
+      }
+    },
+    "dbOnly": {
+      "events": {
+        "imageUrl": {
+          "type": "string",
+          "optional": true,
+          "description": "Cached image URL for event display"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

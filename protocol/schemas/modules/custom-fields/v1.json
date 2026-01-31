@@ -323,5 +323,50 @@
       },
       "required": ["_v", "id", "name", "category", "fields"]
     }
+  },
+
+  "x-storage": {
+    "tables": {
+      "customFields": {
+        "type": "FieldDefinition",
+        "primaryKey": "id",
+        "indexes": ["groupId", "entityType", "name", "label", "createdAt", "createdBy"]
+      },
+      "customFieldValues": {
+        "type": "FieldValue",
+        "primaryKey": "id",
+        "indexes": ["fieldId", "entityId"]
+      }
+    },
+    "dbOnly": {
+      "customFields": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group this field definition belongs to"
+        },
+        "entityType": {
+          "type": "string",
+          "optional": false,
+          "description": "Entity type this field applies to (event, aid-request, contact, etc.)"
+        },
+        "createdBy": {
+          "type": "string",
+          "optional": false,
+          "description": "Public key of the creator"
+        },
+        "createdAt": {
+          "type": "integer",
+          "optional": false,
+          "description": "Unix timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "optional": true,
+          "description": "Unix timestamp of last update"
+        }
+      }
+    },
+    "protocolOnly": []
   }
 }

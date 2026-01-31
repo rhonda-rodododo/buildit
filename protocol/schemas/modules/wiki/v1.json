@@ -482,5 +482,34 @@
       },
       "required": ["_v", "pageId", "title", "slug", "score"]
     }
+  },
+  "x-storage": {
+    "tables": {
+      "wikiPages": {
+        "type": "WikiPage",
+        "primaryKey": "id",
+        "indexes": ["groupId", "slug", "title", "categoryId", "status", "visibility", "updatedAt", "createdBy", "lastEditedBy"]
+      },
+      "wikiPageRevisions": {
+        "type": "PageRevision",
+        "primaryKey": "id",
+        "indexes": ["pageId", "version", "editedBy", "createdAt"]
+      },
+      "wikiCategories": {
+        "type": "WikiCategory",
+        "primaryKey": "id",
+        "indexes": ["groupId", "slug", "name", "parentId", "order"]
+      }
+    },
+    "dbOnly": {
+      "wikiPages": {
+        "indexability": {
+          "type": "object",
+          "optional": false,
+          "description": "Search engine indexability settings for the page"
+        }
+      }
+    },
+    "protocolOnly": []
   }
 }

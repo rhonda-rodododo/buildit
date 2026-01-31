@@ -262,5 +262,37 @@
         "createdAt": 1706112000
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "forms": {
+        "type": "Form",
+        "primaryKey": "id",
+        "indexes": ["groupId", "status", "createdAt"]
+      },
+      "formResponses": {
+        "type": "FormResponse",
+        "primaryKey": "id",
+        "indexes": ["formId", "groupId", "respondentPubkey", "submittedAt"]
+      }
+    },
+    "dbOnly": {
+      "forms": {
+        "tableId": {
+          "type": "string",
+          "optional": true,
+          "description": "Linked database table ID for form submissions"
+        }
+      },
+      "formResponses": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group context for this response"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

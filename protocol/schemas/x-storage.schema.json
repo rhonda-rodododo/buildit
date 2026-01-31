@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/x-storage.schema.json",
+  "title": "StorageAnnotation",
+  "description": "Validation schema for x-storage extension in protocol schemas. Defines how protocol types map to database tables across all platforms (Dexie/IndexedDB, SwiftData, Room).",
+  "version": "1.0.0",
+
+  "type": "object",
+  "properties": {
+    "tables": {
+      "type": "object",
+      "description": "Map of table names to their storage configuration. Each key is the Dexie/Room/SwiftData table name.",
+      "additionalProperties": {
+        "$ref": "#/$defs/TableDefinition"
+      }
+    },
+    "dbOnly": {
+      "type": "object",
+      "description": "Fields that exist in the DB table but NOT in the protocol type. Keyed by table name.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/DbOnlyField"
+        }
+      }
+    },
+    "protocolOnly": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Field names from protocol types that should NOT be stored in DB (transient/computed fields). Empty array means all protocol fields are stored."
+    }
+  },
+  "required": ["tables"],
+
+  "$defs": {
+    "TableDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Name of the $defs type this table stores. Must reference a key in the schema's $defs."
+        },
+        "primaryKey": {
+          "type": "string",
+          "description": "Primary key field name. Use '++id' for auto-increment, 'id' for explicit UUID, or '[field1+field2]' for compound primary key."
+        },
+        "indexes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Simple indexed fields for efficient querying."
+        },
+        "compoundIndexes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Compound indexes in Dexie format, e.g. '[field1+field2]'."
+        },
+        "multiEntryIndexes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Multi-entry indexes for array fields, e.g. '*tags'. Dexie-specific."
+        },
+        "unique": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fields that should have unique constraints (prefix with & in Dexie)."
+        }
+      },
+      "required": ["type", "primaryKey"]
+    },
+    "DbOnlyField": {
+      "type": "object",
+      "description": "A field that exists in DB but not in the protocol type.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "integer", "boolean", "object", "array"],
+          "description": "JSON Schema type of the field."
+        },
+        "optional": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the field is optional."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of why this DB-only field exists."
+        },
+        "default": {
+          "description": "Default value for the field."
+        },
+        "items": {
+          "type": "object",
+          "description": "For array types, describes the item type."
+        },
+        "enum": {
+          "type": "array",
+          "description": "Allowed values for string enum fields."
+        }
+      },
+      "required": ["type"]
+    }
+  }
+}

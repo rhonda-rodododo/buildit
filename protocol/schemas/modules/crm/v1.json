@@ -238,6 +238,50 @@
     }
   },
 
+  "x-storage": {
+    "tables": {
+      "contacts": {
+        "type": "Contact",
+        "primaryKey": "id",
+        "indexes": ["groupId", "name", "email", "status", "createdAt", "updatedAt"]
+      },
+      "interactions": {
+        "type": "Interaction",
+        "primaryKey": "id",
+        "indexes": ["contactId", "groupId", "type", "date", "followUpDate"]
+      },
+      "crmTasks": {
+        "type": "Task",
+        "primaryKey": "id",
+        "indexes": ["contactId", "groupId", "status", "priority", "dueDate", "assignedTo"]
+      }
+    },
+    "dbOnly": {
+      "contacts": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group this contact belongs to"
+        }
+      },
+      "interactions": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group context for this interaction"
+        }
+      },
+      "crmTasks": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group context for this task"
+        }
+      }
+    },
+    "protocolOnly": []
+  },
+
   "testVectors": [
     {
       "name": "minimal_contact",

@@ -306,5 +306,36 @@
         "createdAt": 1706112000
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "articles": {
+        "type": "Article",
+        "primaryKey": "id",
+        "indexes": ["publicationId", "groupId", "slug", "status", "visibility", "authorPubkey", "publishedAt", "createdAt", "updatedAt"],
+        "compoundIndexes": ["[publicationId+status]", "[publicationId+publishedAt]"]
+      },
+      "articleComments": {
+        "type": "Comment",
+        "primaryKey": "id",
+        "indexes": ["articleId", "authorPubkey", "parentId", "createdAt"]
+      },
+      "publications": {
+        "type": "Publication",
+        "primaryKey": "id",
+        "indexes": ["groupId", "slug", "ownerPubkey", "createdAt"]
+      }
+    },
+    "dbOnly": {
+      "articles": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group this article belongs to"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
 }

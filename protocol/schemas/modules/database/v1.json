@@ -260,6 +260,41 @@
     }
   },
 
+  "x-storage": {
+    "tables": {
+      "databaseTables": {
+        "type": "Table",
+        "primaryKey": "id",
+        "indexes": ["groupId", "name", "createdBy", "createdAt"]
+      },
+      "databaseRows": {
+        "type": "Row",
+        "primaryKey": "id",
+        "indexes": ["tableId", "groupId", "createdAt", "createdBy", "updatedAt"]
+      },
+      "databaseViews": {
+        "type": "View",
+        "primaryKey": "id",
+        "indexes": ["tableId", "groupId", "type", "createdAt"]
+      }
+    },
+    "dbOnly": {
+      "databaseTables": {
+        "formLayout": {
+          "type": "string",
+          "optional": true,
+          "description": "JSON serialized form layout configuration"
+        },
+        "detailConfig": {
+          "type": "string",
+          "optional": true,
+          "description": "JSON serialized detail view configuration"
+        }
+      }
+    },
+    "protocolOnly": []
+  },
+
   "testVectors": [
     {
       "name": "simple_table",

@@ -246,5 +246,29 @@
         "uploadedAt": 1706112000
       }
     }
-  ]
+  ],
+
+  "x-storage": {
+    "tables": {
+      "fileMetadata": {
+        "type": "File",
+        "primaryKey": "id",
+        "indexes": ["groupId", "folderId", "mimeType", "createdAt", "updatedAt"],
+        "compoundIndexes": ["[groupId+updatedAt]", "[groupId+folderId]"]
+      },
+      "folders": {
+        "type": "Folder",
+        "primaryKey": "id",
+        "indexes": ["groupId", "parentId", "name"],
+        "compoundIndexes": ["[groupId+parentId]"]
+      },
+      "fileShares": {
+        "type": "FileShare",
+        "primaryKey": "id",
+        "indexes": ["fileId", "groupId", "recipientPubkey", "expiresAt"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
+  }
 }
