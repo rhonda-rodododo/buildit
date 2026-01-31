@@ -77,7 +77,7 @@
         "bundleMediaFramework": true
       },
       "deb": {
-        "depends": ["libbluetooth-dev", "libdbus-1-dev"]
+        "depends": ["libbluetooth3", "libdbus-1-3"]
       }
     }
   },
