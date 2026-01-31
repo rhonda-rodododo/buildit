@@ -20,11 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.buildit.generated.schemas.HotlineCallState
-import network.buildit.generated.schemas.HotlineCallStatePriority
-import network.buildit.generated.schemas.HotlineCallStateState
-import network.buildit.generated.schemas.HotlineOperatorStatusStatus
-import network.buildit.generated.schemas.Operator
+import network.buildit.generated.schemas.calling.HotlineCallState
+import network.buildit.generated.schemas.calling.HotlineCallStatePriority
+import network.buildit.generated.schemas.calling.HotlineCallStateState
+import network.buildit.generated.schemas.calling.HotlineOperatorStatusStatus
+import network.buildit.generated.schemas.calling.Operator
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton

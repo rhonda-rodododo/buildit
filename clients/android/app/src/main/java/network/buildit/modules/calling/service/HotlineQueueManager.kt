@@ -17,13 +17,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import network.buildit.generated.schemas.HotlineCallState
-import network.buildit.generated.schemas.HotlineCallStateCallType
-import network.buildit.generated.schemas.HotlineCallStatePriority
-import network.buildit.generated.schemas.HotlineCallStateState
-import network.buildit.generated.schemas.HotlineOperatorStatusStatus
-import network.buildit.generated.schemas.Caller
-import network.buildit.generated.schemas.Operator
+import network.buildit.generated.schemas.calling.HotlineCallState
+import network.buildit.generated.schemas.calling.HotlineCallStateCallType
+import network.buildit.generated.schemas.calling.HotlineCallStatePriority
+import network.buildit.generated.schemas.calling.HotlineCallStateState
+import network.buildit.generated.schemas.calling.HotlineOperatorStatusStatus
+import network.buildit.generated.schemas.calling.Caller
+import network.buildit.generated.schemas.calling.Operator
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -64,7 +64,7 @@ data class QueuedCall(
     val callerPubkey: String? = null,
     val callerPhone: String? = null,
     val callerName: String? = null,
-    val priority: HotlineCallStatePriority,
+    var priority: HotlineCallStatePriority,
     val category: String? = null,
     val queuedAt: Long,
     var position: Int,

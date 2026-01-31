@@ -2,10 +2,10 @@ package network.buildit.modules.messaging.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import network.buildit.generated.schemas.DirectMessage
-import network.buildit.generated.schemas.GroupMessage
-import network.buildit.generated.schemas.Reaction
-import network.buildit.generated.schemas.ReadReceipt
+import network.buildit.generated.schemas.messaging.DirectMessage
+import network.buildit.generated.schemas.messaging.GroupMessage
+import network.buildit.generated.schemas.messaging.Reaction
+import network.buildit.generated.schemas.messaging.ReadReceipt
 import network.buildit.modules.messaging.data.local.MessageReactionEntity
 import network.buildit.modules.messaging.data.local.MessagingMetadataDao
 import network.buildit.modules.messaging.data.local.MessagingMetadataEntity

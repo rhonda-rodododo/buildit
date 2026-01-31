@@ -63,17 +63,30 @@ class GetCourseDetailUseCase @Inject constructor(
             repository.getLessonProgressForCourse(courseId, pubkey),
             repository.getCourseProgress(courseId, pubkey),
             repository.getCertifications(pubkey)
-        ) { course, modules, lessons, lessonProgress, courseProgress, certifications ->
+        ) { results ->
+            @Suppress("UNCHECKED_CAST")
+            val course = results[0] as? Course
+            @Suppress("UNCHECKED_CAST")
+            val modules = results[1] as List<TrainingModule>
+            @Suppress("UNCHECKED_CAST")
+            val lessons = results[2] as List<Lesson>
+            @Suppress("UNCHECKED_CAST")
+            val lessonProgress = results[3] as List<LessonProgress>
+            @Suppress("UNCHECKED_CAST")
+            val courseProgress = results[4] as? CourseProgress
+            @Suppress("UNCHECKED_CAST")
+            val certifications = results[5] as List<Certification>
+
             course?.let {
-                val progressMap = lessonProgress.associateBy { it.lessonId }
+                val progressMap = lessonProgress.associateBy { lp -> lp.lessonId }
                 val certification = certifications.find { cert ->
                     cert.courseId == courseId && cert.isValid
                 }
 
-                val modulesWithLessons = modules.sortedBy { it.order }.map { module ->
+                val modulesWithLessons = modules.sortedBy { m -> m.order }.map { module ->
                     val moduleLessons = lessons
-                        .filter { it.moduleId == module.id }
-                        .sortedBy { it.order }
+                        .filter { l -> l.moduleId == module.id }
+                        .sortedBy { l -> l.order }
                         .map { lesson ->
                             LessonWithProgress(
                                 lesson = lesson,

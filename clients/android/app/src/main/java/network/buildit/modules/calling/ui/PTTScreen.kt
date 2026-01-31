@@ -531,8 +531,8 @@ private fun SpeakerQueueSection(
                         modifier = Modifier.size(24.dp),
                         shape = CircleShape,
                         color = when (request.priority) {
-                            network.buildit.modules.calling.services.SpeakPriority.MODERATOR -> MaterialTheme.colorScheme.error
-                            network.buildit.modules.calling.services.SpeakPriority.HIGH -> MaterialTheme.colorScheme.tertiary
+                            network.buildit.modules.calling.service.SpeakPriority.MODERATOR -> MaterialTheme.colorScheme.error
+                            network.buildit.modules.calling.service.SpeakPriority.HIGH -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.secondary
                         }
                     ) {

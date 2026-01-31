@@ -4,9 +4,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import network.buildit.core.crypto.CryptoManager
+import network.buildit.core.modules.BuildItModule
+import network.buildit.core.modules.ModuleRoute
 import network.buildit.core.nostr.NostrClient
+import network.buildit.core.nostr.NostrEvent
 import network.buildit.core.storage.AppDatabase
-import network.buildit.modules.BuildItModule
 import network.buildit.modules.wiki.data.WikiRepository
 import network.buildit.modules.wiki.data.local.PageRevisionsDao
 import network.buildit.modules.wiki.data.local.WikiCategoriesDao
@@ -18,30 +21,37 @@ import javax.inject.Singleton
  * BuildIt module definition for Wiki/Knowledge Base.
  */
 class WikiBuildItModule : BuildItModule {
-    override val id: String = "wiki"
-    override val name: String = "Knowledge Base"
+    override val identifier: String = "wiki"
+    override val displayName: String = "Knowledge Base"
     override val description: String = "Collaborative wiki and documentation for your group"
     override val version: String = "1.0.0"
-    override val icon: String = "book"
-
-    override val nostrKinds: List<Int> = listOf(
-        WikiUseCase.KIND_WIKI_PAGE,      // 40301
-        WikiUseCase.KIND_WIKI_CATEGORY,  // 40302
-        WikiUseCase.KIND_PAGE_REVISION   // 40303
-    )
-
-    override val requiredPermissions: List<String> = emptyList()
     override val dependencies: List<String> = emptyList()
-
-    override fun isEnabled(): Boolean = true
 
     override suspend fun initialize() {
         // No special initialization needed
     }
 
-    override suspend fun cleanup() {
+    override suspend fun shutdown() {
         // No cleanup needed
     }
+
+    override suspend fun handleEvent(event: NostrEvent): Boolean {
+        // Handle wiki-related Nostr events
+        return when (event.kind) {
+            WikiUseCase.KIND_WIKI_PAGE,
+            WikiUseCase.KIND_WIKI_CATEGORY,
+            WikiUseCase.KIND_PAGE_REVISION -> true
+            else -> false
+        }
+    }
+
+    override fun getNavigationRoutes(): List<ModuleRoute> = emptyList()
+
+    override fun getHandledEventKinds(): List<Int> = listOf(
+        WikiUseCase.KIND_WIKI_PAGE,      // 40301
+        WikiUseCase.KIND_WIKI_CATEGORY,  // 40302
+        WikiUseCase.KIND_PAGE_REVISION   // 40303
+    )
 }
 
 /**
@@ -83,9 +93,10 @@ object WikiHiltModule {
     @Singleton
     fun provideWikiUseCase(
         repository: WikiRepository,
-        nostrClient: NostrClient
+        nostrClient: NostrClient,
+        cryptoManager: CryptoManager
     ): WikiUseCase {
-        return WikiUseCase(repository, nostrClient)
+        return WikiUseCase(repository, nostrClient, cryptoManager)
     }
 
     @Provides

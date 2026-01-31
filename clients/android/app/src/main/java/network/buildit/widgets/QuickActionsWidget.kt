@@ -58,9 +58,9 @@ class QuickActionsWidget : GlanceAppWidget() {
 
     override val sizeMode = SizeMode.Responsive(
         setOf(
-            androidx.glance.appwidget.DpSize(100.dp, 100.dp),
-            androidx.glance.appwidget.DpSize(200.dp, 100.dp),
-            androidx.glance.appwidget.DpSize(300.dp, 100.dp)
+            androidx.compose.ui.unit.DpSize(100.dp, 100.dp),
+            androidx.compose.ui.unit.DpSize(200.dp, 100.dp),
+            androidx.compose.ui.unit.DpSize(300.dp, 100.dp)
         )
     )
 

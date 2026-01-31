@@ -5808,4 +5808,131 @@
         <item quantity="one">%s reply</item>
         <item quantity="other">%s replies</item>
     </plurals>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Save</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">Chat</string>
+    <string name="nav_device_sync">Device Sync</string>
+
+    <!-- BLE Service -->
+    <string name="ble_service_notification_title">BuildIt Mesh Active</string>
+    <string name="ble_service_notification_text">Maintaining mesh network connections</string>
+
+    <!-- Notification Channels -->
+    <string name="channel_messages_name">Messages</string>
+    <string name="channel_messages_description">Direct and group message notifications</string>
+    <string name="channel_events_name">Events</string>
+    <string name="channel_events_description">Event reminders and updates</string>
+    <string name="channel_governance_name">Governance</string>
+    <string name="channel_governance_description">Proposals, votes, and governance updates</string>
+    <string name="channel_mutual_aid_name">Mutual Aid</string>
+    <string name="channel_mutual_aid_description">Mutual aid requests and offers</string>
+    <string name="channel_newsletters_name">Newsletters</string>
+    <string name="channel_newsletters_description">Newsletter and publication updates</string>
+    <string name="channel_ble_service_name">BLE Service</string>
+    <string name="channel_ble_service_description">Bluetooth mesh network service notifications</string>
+    <string name="channel_device_sync_name">Device Sync</string>
+    <string name="channel_device_sync_description">Device synchronization notifications</string>
+    <string name="channel_background_sync_name">Background Sync</string>
+    <string name="channel_background_sync_description">Background data synchronization notifications</string>
+
+    <!-- Notification Service -->
+    <string name="notification_messages_summary_title">New Messages</string>
+    <string name="notification_messages_summary_text">%d new messages</string>
+    <string name="notification_governance_new_proposal">New proposal: %s</string>
+    <string name="notification_governance_vote_reminder">Vote reminder: %s</string>
+    <string name="notification_governance_result">Proposal result: %s</string>
+    <string name="notification_newsletter_from">New newsletter from %s</string>
+    <string name="notification_sync_title">Syncing</string>
+    <string name="notification_sync_progress">Syncing data… %d%%</string>
+    <string name="notification_action_reply_hint">Reply</string>
+    <string name="notification_action_reply">Reply</string>
+    <string name="notification_action_mark_read">Mark as Read</string>
+
+    <!-- Notification Receiver -->
+    <string name="notification_sending_title">Sending Message</string>
+    <string name="notification_sending_text">Encrypting and sending your message…</string>
+    <string name="notification_sent_title">Message Sent</string>
+    <string name="notification_sent_text">Your message was delivered securely</string>
+    <string name="notification_send_failed_title">Send Failed</string>
+    <string name="notification_send_failed_text">Failed to send your message</string>
+    <string name="notification_send_failed_detail">Tap to retry sending your message</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Chat</string>
+    <string name="chat_input_placeholder">Type a message…</string>
+    <string name="chat_no_messages">No messages yet. Start the conversation!</string>
+
+    <!-- Contact Picker Screen -->
+    <string name="contact_picker_title">Select Contact</string>
+    <string name="contact_picker_search_placeholder">Search contacts…</string>
+    <string name="contact_picker_enter_pubkey">Enter Public Key</string>
+    <string name="contact_picker_enter_pubkey_hint">Paste a Nostr public key (npub or hex)</string>
+    <string name="contact_picker_no_contacts">No contacts found</string>
+    <string name="contact_picker_no_contacts_hint">Add contacts by scanning QR codes or entering public keys</string>
+
+    <!-- Device Sync Screen -->
+    <string name="device_sync_title">Device Sync</string>
+    <string name="device_sync_linked_devices">Linked Devices</string>
+    <string name="device_sync_description">Securely sync your identity and data across devices</string>
+    <string name="device_sync_show_qr">Show QR Code</string>
+    <string name="device_sync_scan_qr">Scan QR Code</string>
+    <string name="device_sync_no_devices">No linked devices</string>
+
+    <!-- Groups Screen -->
+    <string name="groups_join">Join Group</string>
+    <string name="groups_create">Create Group</string>
+    <string name="groups_empty">No groups yet</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_profile">Profile</string>
+    <string name="settings_display_name">Display Name</string>
+    <string name="settings_network">Network</string>
+    <string name="settings_ble_enabled">Bluetooth Mesh</string>
+    <string name="settings_nostr_relays">Nostr Relays</string>
+    <string name="settings_security">Security</string>
+    <string name="settings_biometric">Biometric Lock</string>
+    <string name="settings_export_keys">Export Keys</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+
+    <!-- Share Composer Screen -->
+    <string name="share_title">Share</string>
+    <string name="share_send">Send</string>
+    <string name="share_sending_to">Sending to</string>
+    <string name="share_content_preview">Content Preview</string>
+    <string name="share_add_message_placeholder">Add a message…</string>
+    <string name="share_encrypted_message">End-to-end encrypted</string>
+    <string name="share_search_contacts_placeholder">Search contacts…</string>
+    <string name="share_recent_conversations">Recent Conversations</string>
+    <string name="share_no_recent_conversations">No recent conversations</string>
+    <string name="share_search_results">Search Results</string>
+    <string name="share_no_results">No results found</string>
+    <string name="share_destination_group">Group</string>
+    <string name="share_destination_dm">Direct Message</string>
+    <string name="share_destination_contact">Contact</string>
+
+    <!-- PTT Screen -->
+    <string name="ptt_leave_channel">Leave Channel</string>
+    <string name="ptt_you_are_speaking">You are speaking</string>
+    <string name="ptt_time_remaining">Time remaining: %ds</string>
+    <string name="ptt_no_one_speaking">No one speaking</string>
+    <string name="ptt_press_to_talk">Press to talk</string>
+    <string name="ptt_push_to_talk">Push to Talk</string>
+    <string name="ptt_hold_to_talk">Hold to talk</string>
+    <string name="ptt_queue_position">Queue position: %d</string>
+    <string name="ptt_status_speaking">Speaking</string>
+    <string name="ptt_status_online">Online</string>
+    <string name="ptt_status_listening">Listening</string>
+    <string name="ptt_status_offline">Offline</string>
+    <string name="ptt_vad_full">Voice Activity Detection</string>
+    <string name="ptt_vad_description">Automatically detect when you start speaking</string>
+    <string name="ptt_timeout_info">Speaking timeout: %ds</string>
+
 </resources>

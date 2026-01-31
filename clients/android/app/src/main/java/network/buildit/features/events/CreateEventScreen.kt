@@ -46,9 +46,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.LocationClass
-import network.buildit.generated.schemas.Visibility
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.LocationClass
+import network.buildit.generated.schemas.events.Visibility
 import network.buildit.modules.events.presentation.EventsViewModel
 import network.buildit.ui.theme.BuildItTheme
 import java.text.SimpleDateFormat

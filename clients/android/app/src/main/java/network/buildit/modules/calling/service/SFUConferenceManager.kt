@@ -386,11 +386,12 @@ class SFUConferenceManager @Inject constructor(
 
     private fun configureSimulcastEncodings(sender: RtpSender) {
         val params = sender.parameters
-        params.encodings = listOf(
+        params.encodings.clear()
+        params.encodings.addAll(listOf(
             createEncoding("low", 150_000, 4.0),
             createEncoding("medium", 500_000, 2.0),
             createEncoding("high", 1_500_000, 1.0)
-        )
+        ))
         sender.parameters = params
     }
 

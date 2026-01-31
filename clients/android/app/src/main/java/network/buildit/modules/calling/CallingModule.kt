@@ -15,7 +15,7 @@ import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
 import network.buildit.core.nostr.NostrFilter
 import network.buildit.core.storage.BuildItDatabase
-import network.buildit.generated.schemas.*
+import network.buildit.generated.schemas.calling.*
 import network.buildit.modules.calling.data.CallingRepository
 import network.buildit.modules.calling.data.local.CallHistoryDao
 import network.buildit.modules.calling.data.local.CallSettingsDao

@@ -157,7 +157,7 @@ class WidgetDataProvider @Inject constructor(
         val locationText = locationJson?.let {
             // Extract address from JSON if available
             try {
-                kotlinx.serialization.json.Json.decodeFromString<network.buildit.generated.schemas.LocationClass>(it).address
+                kotlinx.serialization.json.Json.decodeFromString<network.buildit.generated.schemas.events.LocationClass>(it).address
             } catch (e: Exception) {
                 null
             }

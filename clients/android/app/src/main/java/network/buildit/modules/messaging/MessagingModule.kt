@@ -15,10 +15,10 @@ import network.buildit.core.modules.BuildItModule
 import network.buildit.core.modules.ModuleRoute
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
-import network.buildit.generated.schemas.DirectMessage
-import network.buildit.generated.schemas.GroupMessage
-import network.buildit.generated.schemas.Reaction
-import network.buildit.generated.schemas.ReadReceipt
+import network.buildit.generated.schemas.messaging.DirectMessage
+import network.buildit.generated.schemas.messaging.GroupMessage
+import network.buildit.generated.schemas.messaging.Reaction
+import network.buildit.generated.schemas.messaging.ReadReceipt
 import network.buildit.modules.messaging.domain.MessagingUseCase
 import javax.inject.Inject
 import javax.inject.Singleton

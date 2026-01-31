@@ -10,7 +10,7 @@
  * - End meeting for all
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 
 export type ParticipantRole = 'host' | 'co_host' | 'moderator' | 'participant' | 'viewer';

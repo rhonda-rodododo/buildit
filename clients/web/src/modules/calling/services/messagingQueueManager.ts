@@ -3,7 +3,7 @@
  * Manages text-based hotline intake with thread assignment and routing
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import {
   MessagingHotlineThreadStatus,
   HotlineCallStatePriority,

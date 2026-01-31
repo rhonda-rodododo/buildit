@@ -2,6 +2,7 @@ package network.buildit.modules.mutualaid.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.nostr.NostrClient
 import network.buildit.modules.mutualaid.data.MutualAidRepository
 import network.buildit.modules.mutualaid.data.local.*
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class MutualAidUseCase @Inject constructor(
     private val repository: MutualAidRepository,
-    private val nostrClient: NostrClient
+    private val nostrClient: NostrClient,
+    private val cryptoManager: CryptoManager
 ) {
     companion object {
         const val KIND_AID_REQUEST = 40101
@@ -22,9 +24,9 @@ class MutualAidUseCase @Inject constructor(
         const val KIND_FULFILLMENT = 40103
     }
 
-    // Current user ID - would be injected from identity manager
+    // Current user ID
     private val currentUserId: String
-        get() = nostrClient.getPublicKey() ?: ""
+        get() = cryptoManager.getPublicKeyHex() ?: ""
 
     // MARK: - Requests
 

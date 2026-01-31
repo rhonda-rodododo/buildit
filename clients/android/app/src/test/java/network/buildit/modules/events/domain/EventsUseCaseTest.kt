@@ -14,10 +14,10 @@ import network.buildit.core.crypto.UnsignedNostrEvent
 import network.buildit.core.modules.ModuleResult
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.Rsvp
-import network.buildit.generated.schemas.Status
-import network.buildit.generated.schemas.Visibility
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.Rsvp
+import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.Visibility
 import network.buildit.modules.events.data.EventsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

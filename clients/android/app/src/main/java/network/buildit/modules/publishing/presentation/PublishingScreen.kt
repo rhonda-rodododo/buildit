@@ -1185,7 +1185,7 @@ private fun MarkdownParagraph(text: String) {
 @Composable
 private fun BulletPoint(text: String) {
     Row(
-        modifier = Modifier.padding(vertical = 2.dp, start = 8.dp),
+        modifier = Modifier.padding(start = 8.dp, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.Top
     ) {
         Text(

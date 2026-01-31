@@ -52,7 +52,7 @@ enum class EscalationStatus(val value: String) {
  */
 data class EscalationRequest(
     val id: String,
-    val threadId: String,
+    var threadId: String,
     var callId: String? = null,
     val direction: EscalationDirection,
     val initiatedBy: EscalationInitiator,
@@ -236,7 +236,7 @@ class ChannelEscalationService @Inject constructor(
                     callerPubkey = callerPubkey,
                     callerName = callerName,
                     priority = threadState.thread.priority
-                        ?: network.buildit.generated.schemas.HotlineCallStatePriority.Medium
+                        ?: network.buildit.generated.schemas.calling.HotlineCallStatePriority.Medium
                 )
             }
 

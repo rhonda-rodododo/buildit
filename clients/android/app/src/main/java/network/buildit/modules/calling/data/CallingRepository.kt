@@ -2,8 +2,8 @@ package network.buildit.modules.calling.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import network.buildit.generated.schemas.CallHistory
-import network.buildit.generated.schemas.CallSettings
+import network.buildit.generated.schemas.calling.CallHistory
+import network.buildit.generated.schemas.calling.CallSettings
 import network.buildit.modules.calling.data.local.*
 import javax.inject.Inject
 import javax.inject.Singleton

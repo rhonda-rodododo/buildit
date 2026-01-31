@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import network.buildit.core.modules.ModuleResult
 import network.buildit.modules.publishing.data.local.*
 import network.buildit.modules.publishing.domain.ArticleOptions
@@ -339,16 +342,16 @@ class ArticleEditorViewModel @Inject constructor(
                         subtitle = currentState.subtitle,
                         excerpt = currentState.excerpt,
                         coverImage = currentState.coverImage,
-                        tagsJson = kotlinx.serialization.json.Json.encodeToString(
-                            kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()),
+                        tagsJson = Json.encodeToString(
+                            ListSerializer(String.serializer()),
                             currentState.tags
                         ),
-                        categoriesJson = kotlinx.serialization.json.Json.encodeToString(
-                            kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()),
+                        categoriesJson = Json.encodeToString(
+                            ListSerializer(String.serializer()),
                             currentState.categories
                         ),
                         seoJson = currentState.seo?.let {
-                            kotlinx.serialization.json.Json.encodeToString(SEOMetadata.serializer(), it)
+                            Json.encodeToString(SEOMetadata.serializer(), it)
                         },
                         status = status,
                         publishedAt = if (status == ArticleStatus.PUBLISHED && currentState.article.publishedAt == null) {

@@ -1,6 +1,7 @@
 [versions]
 agp = "8.2.2"
 kotlin = "1.9.22"
+kotlin-serialization = "1.6.2"
 ksp = "1.9.22-1.0.17"
 coroutines = "1.7.3"
 detekt = "1.23.5"
@@ -91,6 +92,9 @@ security-crypto = { module = "androidx.security:security-crypto", version = "1.1
 # QR Code
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
+# Kotlin Serialization
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+
 # Cryptography
 bouncycastle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 
@@ -145,6 +149,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 

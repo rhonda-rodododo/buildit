@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import network.buildit.modules.training.domain.model.*
+import network.buildit.modules.training.domain.usecase.LessonCompletionResult
+import network.buildit.modules.training.domain.usecase.QuizSubmissionResult
+import network.buildit.modules.training.domain.usecase.QuestionFeedback
 import network.buildit.modules.training.presentation.viewmodel.*
 
 /**
@@ -614,10 +617,10 @@ private fun QuestionFeedbackCard(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            feedback.explanation?.let { explanation ->
+            if (feedback.explanation != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = explanation,
+                    text = feedback.explanation,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -824,7 +827,8 @@ private fun LessonCompletedView(
             )
         }
 
-        result.certificationEarned?.let { cert ->
+        if (result.certificationEarned != null) {
+            val cert = result.certificationEarned
             Spacer(modifier = Modifier.height(24.dp))
             Card(
                 colors = CardDefaults.cardColors(

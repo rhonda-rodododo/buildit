@@ -9,7 +9,7 @@
  * - Transport-agnostic (works with BLE mesh or Nostr relays)
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 
 /** Supported reaction emojis */

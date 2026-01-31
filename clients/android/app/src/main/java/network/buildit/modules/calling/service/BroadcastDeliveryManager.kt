@@ -19,11 +19,11 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.buildit.core.nostr.NostrClient
-import network.buildit.generated.schemas.Analytics
-import network.buildit.generated.schemas.Broadcast
-import network.buildit.generated.schemas.BroadcastPriority
-import network.buildit.generated.schemas.BroadcastStatus
-import network.buildit.generated.schemas.TargetType
+import network.buildit.generated.schemas.calling.Analytics
+import network.buildit.generated.schemas.calling.Broadcast
+import network.buildit.generated.schemas.calling.BroadcastPriority
+import network.buildit.generated.schemas.calling.BroadcastStatus
+import network.buildit.generated.schemas.calling.TargetType
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject

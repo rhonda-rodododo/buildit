@@ -3,7 +3,7 @@
  * Manages operator status, shift tracking, and availability
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { HotlineOperatorStatus } from '../types';
 import {
   HotlineOperatorStatusStatus,

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import network.buildit.core.ble.BLEEvent
 import network.buildit.core.ble.BLEManager
-import network.buildit.core.ble.MeshMessage
+import network.buildit.core.ble.DecryptedMessage
 import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.crypto.GiftWrapEvent
 import network.buildit.core.nostr.ConnectionState
@@ -187,9 +187,9 @@ class TransportRouter @Inject constructor(
     /**
      * Handles an incoming BLE mesh message.
      */
-    private suspend fun handleIncomingBleMessage(message: MeshMessage) {
+    private suspend fun handleIncomingBleMessage(message: DecryptedMessage) {
         // Check for duplicate
-        if (!markAsSeen(message.id)) return
+        if (!markAsSeen(message.correlationToken)) return
 
         val content = try {
             String(message.payload, Charsets.UTF_8)
@@ -198,10 +198,10 @@ class TransportRouter @Inject constructor(
         }
 
         _incomingMessages.emit(IncomingMessage(
-            id = message.id,
-            senderPubkey = message.senderPublicKey,
+            id = message.correlationToken,
+            senderPubkey = message.senderPubkey,
             content = content,
-            timestamp = message.timestamp,
+            timestamp = System.currentTimeMillis() / 1000,
             transport = Transport.BLE
         ))
     }

@@ -7,8 +7,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import network.buildit.generated.schemas.CallHistory
-import network.buildit.generated.schemas.CallType
+import network.buildit.generated.schemas.calling.CallHistory
+import network.buildit.generated.schemas.calling.CallType
 import network.buildit.modules.calling.data.local.ActiveCallState
 import network.buildit.modules.calling.data.local.CallHistoryEntity
 import network.buildit.modules.calling.domain.CallingUseCase
@@ -48,7 +48,7 @@ class CallViewModel @Inject constructor(
         // Observe active calls
         viewModelScope.launch {
             callingUseCase.currentCall.collect { state ->
-                if (state?.callId == callId) {
+                if (state != null && state.callId == callId) {
                     _callState.value = state
                     _isMuted.value = state.isMuted
                     _isVideoEnabled.value = state.isVideoEnabled

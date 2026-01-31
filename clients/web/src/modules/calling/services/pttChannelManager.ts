@@ -3,7 +3,7 @@
  * Manages walkie-talkie style group voice communication
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { PTTChannel } from '../types';
 import { PTT_KINDS } from '../types';
 

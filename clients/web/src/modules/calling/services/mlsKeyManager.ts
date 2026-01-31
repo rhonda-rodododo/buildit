@@ -11,7 +11,7 @@
  * MLS Suite: MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 import { getCurrentPrivateKey } from '@/stores/authStore';
 

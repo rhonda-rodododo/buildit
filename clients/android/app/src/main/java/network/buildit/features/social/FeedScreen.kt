@@ -38,7 +38,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+// PullToRefreshBox requires Material3 1.3.0+; using Box as fallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -132,9 +132,7 @@ private fun FeedContent(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        PullToRefreshBox(
-            isRefreshing = isLoading,
-            onRefresh = onRefresh,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)

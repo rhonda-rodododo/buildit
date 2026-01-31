@@ -2,8 +2,8 @@ package network.buildit.modules.calling.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import network.buildit.generated.schemas.CallSettings
-import network.buildit.generated.schemas.CallType
+import network.buildit.generated.schemas.calling.CallSettings
+import network.buildit.generated.schemas.calling.CallType
 
 /**
  * Room entity for call settings.

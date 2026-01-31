@@ -9,7 +9,7 @@
  * - Multi-region SFU support with <200ms latency
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 import { v4 as uuidv4 } from 'uuid';

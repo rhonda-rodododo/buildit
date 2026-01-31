@@ -3,7 +3,7 @@
  * Handles multi-channel message broadcasts with scheduling and analytics
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import {
   BroadcastPriority,
   BroadcastStatus,

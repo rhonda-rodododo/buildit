@@ -22,6 +22,7 @@ import network.buildit.core.storage.BuildItDatabase
 import network.buildit.core.transport.MessageQueue
 import network.buildit.core.transport.TransportRouter
 import network.buildit.widgets.WidgetDataProvider
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 /**
@@ -153,6 +154,12 @@ object AppModule {
         @ApplicationContext context: Context
     ): NotificationChannels {
         return NotificationChannels(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().build()
     }
 
     @Provides

@@ -9,10 +9,10 @@ import network.buildit.core.crypto.UnsignedNostrEvent
 import network.buildit.core.modules.ModuleResult
 import network.buildit.core.modules.toModuleResult
 import network.buildit.core.nostr.NostrClient
-import network.buildit.generated.schemas.DirectMessage
-import network.buildit.generated.schemas.GroupMessage
-import network.buildit.generated.schemas.Reaction
-import network.buildit.generated.schemas.ReadReceipt
+import network.buildit.generated.schemas.messaging.DirectMessage
+import network.buildit.generated.schemas.messaging.GroupMessage
+import network.buildit.generated.schemas.messaging.Reaction
+import network.buildit.generated.schemas.messaging.ReadReceipt
 import network.buildit.modules.messaging.data.MessagingRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -221,6 +221,7 @@ class MessagingUseCase @Inject constructor(
                     sig = signed.sig
                 )
             )
+            Unit
         }.toModuleResult()
     }
 
@@ -269,6 +270,7 @@ class MessagingUseCase @Inject constructor(
         return runCatching {
             // For direct messages, conversationId is the recipient pubkey
             nostrClient.sendTypingIndicator(conversationId, conversationId)
+            Unit
         }.toModuleResult()
     }
 

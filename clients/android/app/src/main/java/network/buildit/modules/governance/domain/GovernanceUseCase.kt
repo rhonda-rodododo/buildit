@@ -2,6 +2,7 @@ package network.buildit.modules.governance.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.nostr.NostrClient
 import network.buildit.modules.governance.data.GovernanceRepository
 import network.buildit.modules.governance.data.local.*
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class GovernanceUseCase @Inject constructor(
     private val repository: GovernanceRepository,
-    private val nostrClient: NostrClient
+    private val nostrClient: NostrClient,
+    private val cryptoManager: CryptoManager
 ) {
     companion object {
         const val KIND_PROPOSAL = 40201
@@ -25,7 +27,7 @@ class GovernanceUseCase @Inject constructor(
 
     // Current user ID
     private val currentUserId: String
-        get() = nostrClient.getPublicKey() ?: ""
+        get() = cryptoManager.getPublicKeyHex() ?: ""
 
     // MARK: - Proposals
 

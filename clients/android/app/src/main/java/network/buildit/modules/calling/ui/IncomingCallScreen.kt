@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import network.buildit.generated.schemas.CallType
+import network.buildit.generated.schemas.calling.CallType
 
 /**
  * Incoming call screen.

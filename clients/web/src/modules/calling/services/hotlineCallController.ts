@@ -3,7 +3,7 @@
  * Handles call control operations: hold, resume, transfer, escalate, 3-way
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { HotlineCallState } from '../types';
 import {
   HotlineCallStateState,

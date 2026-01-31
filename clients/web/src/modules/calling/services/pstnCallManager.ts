@@ -3,7 +3,7 @@
  * Handles WebRTC-PSTN bridging for inbound and outbound phone calls
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { LocalPSTNCall } from '../types';
 import { CALLING_KINDS } from '../types';
 import { useCallingStore } from '../callingStore';

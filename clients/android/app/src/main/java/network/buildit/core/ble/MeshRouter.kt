@@ -263,14 +263,16 @@ class MeshRouter @Inject constructor(
             val routingJson = json.encodeToString(routingData)
 
             // Encrypt routing data with NIP-44 to recipient
-            val encryptedRouting = cryptoManager.nip44Encrypt(
-                routingJson.toByteArray(Charsets.UTF_8),
+            val encryptedRouting = cryptoManager.encryptNip44(
+                routingJson,
                 recipientPubkey
             ) ?: return null
 
             // Encrypt payload with NIP-44
-            val encryptedPayload = cryptoManager.nip44Encrypt(payload, recipientPubkey)
-                ?: return null
+            val encryptedPayload = cryptoManager.encryptNip44(
+                android.util.Base64.encodeToString(payload, android.util.Base64.NO_WRAP),
+                recipientPubkey
+            ) ?: return null
 
             // Get randomized timestamp (seconds, not milliseconds)
             val now = System.currentTimeMillis() / 1000
@@ -285,8 +287,10 @@ class MeshRouter @Inject constructor(
 
             // Sign with ephemeral key (simplified - in production use proper signing)
             val signatureData = messageId + encryptedRouting + encryptedPayload
-            val signature = cryptoManager.sign(signatureData.toByteArray(Charsets.UTF_8))
-                ?: ""
+            val signatureBytes = cryptoManager.sign(signatureData.toByteArray(Charsets.UTF_8))
+            val signature = signatureBytes?.let {
+                android.util.Base64.encodeToString(it, android.util.Base64.NO_WRAP)
+            } ?: ""
 
             MeshMessage(
                 id = messageId,
@@ -389,14 +393,12 @@ class MeshRouter @Inject constructor(
     private suspend fun tryDecryptMessage(message: MeshMessage): DecryptedMessage? {
         return try {
             // Try to decrypt routing data
-            val routingJson = cryptoManager.nip44Decrypt(
+            val routingJson = cryptoManager.decryptNip44(
                 message.routing.ciphertext,
                 message.routing.ephemeralPubkey
             ) ?: return null
 
-            val routingData = json.decodeFromString<DecryptedRoutingData>(
-                String(routingJson, Charsets.UTF_8)
-            )
+            val routingData = json.decodeFromString<DecryptedRoutingData>(routingJson)
 
             // Check if we're the recipient
             val ourPubkey = cryptoManager.getPublicKeyHex() ?: return null
@@ -405,10 +407,12 @@ class MeshRouter @Inject constructor(
             }
 
             // Decrypt payload
-            val decryptedPayload = cryptoManager.nip44Decrypt(
+            val decryptedPayloadStr = cryptoManager.decryptNip44(
                 message.payload,
                 message.routing.ephemeralPubkey
             ) ?: return null
+
+            val decryptedPayload = android.util.Base64.decode(decryptedPayloadStr, android.util.Base64.NO_WRAP)
 
             DecryptedMessage(
                 senderPubkey = routingData.senderPubkey,

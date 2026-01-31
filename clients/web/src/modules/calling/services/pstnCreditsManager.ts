@@ -3,7 +3,7 @@
  * Handles credit balance tracking and usage for PSTN calls
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { LocalCreditBalance, PSTNUsageRecord } from '../types';
 import { CALLING_KINDS } from '../types';
 import type { SignalingService } from './signalingService';

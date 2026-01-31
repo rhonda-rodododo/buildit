@@ -6,10 +6,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import network.buildit.core.crypto.CryptoManager
+import network.buildit.core.crypto.UnsignedNostrEvent
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
+import network.buildit.core.nostr.NostrFilter
 import network.buildit.core.storage.ContactDao
 import java.util.UUID
 import javax.inject.Inject
@@ -34,6 +37,28 @@ class SocialViewModel @Inject constructor(
 
     init {
         loadFeed()
+        collectEvents()
+    }
+
+    /**
+     * Collects incoming Nostr events and maps kind 1 to posts.
+     */
+    private fun collectEvents() {
+        viewModelScope.launch {
+            nostrClient.events.collect { event ->
+                if (event.kind == 1) {
+                    val post = eventToPost(event)
+                    if (post != null) {
+                        val currentPosts = _posts.value.toMutableList()
+                        if (currentPosts.none { it.id == post.id }) {
+                            currentPosts.add(0, post)
+                            currentPosts.sortByDescending { it.createdAt }
+                            _posts.value = currentPosts.take(100)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -45,21 +70,17 @@ class SocialViewModel @Inject constructor(
 
             try {
                 // Get followed contacts
-                val contacts = contactDao.getAllContactsSync()
+                val contacts = contactDao.getAllContacts().first()
                 val pubkeys = contacts.map { it.pubkey }
 
                 // Subscribe to kind 1 events from contacts
-                nostrClient.subscribeToKind1(pubkeys) { event ->
-                    val post = eventToPost(event)
-                    if (post != null) {
-                        val currentPosts = _posts.value.toMutableList()
-                        if (currentPosts.none { it.id == post.id }) {
-                            currentPosts.add(0, post)
-                            currentPosts.sortByDescending { it.createdAt }
-                            _posts.value = currentPosts.take(100) // Keep last 100
-                        }
-                    }
-                }
+                nostrClient.subscribe(
+                    NostrFilter(
+                        authors = pubkeys.ifEmpty { null },
+                        kinds = listOf(1),
+                        limit = 100
+                    )
+                )
 
                 _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
@@ -79,7 +100,26 @@ class SocialViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isPosting = true)
 
             try {
-                val event = nostrClient.createKind1Event(content)
+                val pubkey = cryptoManager.getPublicKeyHex() ?: throw IllegalStateException("No public key")
+                val unsigned = UnsignedNostrEvent(
+                    pubkey = pubkey,
+                    createdAt = System.currentTimeMillis() / 1000,
+                    kind = 1,
+                    tags = emptyList(),
+                    content = content
+                )
+                val signed = cryptoManager.signEvent(unsigned)
+                    ?: throw IllegalStateException("Failed to sign event")
+
+                val event = NostrEvent(
+                    id = signed.id,
+                    pubkey = signed.pubkey,
+                    createdAt = signed.createdAt,
+                    kind = signed.kind,
+                    tags = signed.tags,
+                    content = signed.content,
+                    sig = signed.sig
+                )
                 nostrClient.publishEvent(event)
 
                 // Add to local feed
@@ -108,7 +148,26 @@ class SocialViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isPosting = true)
 
             try {
-                val event = nostrClient.createReplyEvent(content, parentId)
+                val pubkey = cryptoManager.getPublicKeyHex() ?: throw IllegalStateException("No public key")
+                val unsigned = UnsignedNostrEvent(
+                    pubkey = pubkey,
+                    createdAt = System.currentTimeMillis() / 1000,
+                    kind = 1,
+                    tags = listOf(listOf("e", parentId)),
+                    content = content
+                )
+                val signed = cryptoManager.signEvent(unsigned)
+                    ?: throw IllegalStateException("Failed to sign event")
+
+                val event = NostrEvent(
+                    id = signed.id,
+                    pubkey = signed.pubkey,
+                    createdAt = signed.createdAt,
+                    kind = signed.kind,
+                    tags = signed.tags,
+                    content = signed.content,
+                    sig = signed.sig
+                )
                 nostrClient.publishEvent(event)
 
                 // Reload the thread
@@ -130,7 +189,26 @@ class SocialViewModel @Inject constructor(
     fun reactToPost(postId: String, emoji: String = "+") {
         viewModelScope.launch {
             try {
-                val event = nostrClient.createReactionEvent(postId, emoji)
+                val pubkey = cryptoManager.getPublicKeyHex() ?: throw IllegalStateException("No public key")
+                val unsigned = UnsignedNostrEvent(
+                    pubkey = pubkey,
+                    createdAt = System.currentTimeMillis() / 1000,
+                    kind = 7,
+                    tags = listOf(listOf("e", postId)),
+                    content = emoji
+                )
+                val signed = cryptoManager.signEvent(unsigned)
+                    ?: throw IllegalStateException("Failed to sign event")
+
+                val event = NostrEvent(
+                    id = signed.id,
+                    pubkey = signed.pubkey,
+                    createdAt = signed.createdAt,
+                    kind = signed.kind,
+                    tags = signed.tags,
+                    content = signed.content,
+                    sig = signed.sig
+                )
                 nostrClient.publishEvent(event)
 
                 // Update local reaction count
@@ -158,26 +236,14 @@ class SocialViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(loadingReplies = true)
 
             try {
-                nostrClient.subscribeToReplies(postId) { event ->
-                    val reply = eventToPost(event)
-                    if (reply != null) {
-                        // Update the post's reply count
-                        val currentPosts = _posts.value.toMutableList()
-                        val index = currentPosts.indexOfFirst { it.id == postId }
-                        if (index >= 0) {
-                            val post = currentPosts[index]
-                            val replies = post.replies.toMutableList()
-                            if (replies.none { it.id == reply.id }) {
-                                replies.add(reply)
-                                currentPosts[index] = post.copy(
-                                    replies = replies,
-                                    replyCount = replies.size
-                                )
-                                _posts.value = currentPosts
-                            }
-                        }
-                    }
-                }
+                // Subscribe to replies (kind 1 with e-tag referencing postId)
+                nostrClient.subscribe(
+                    NostrFilter(
+                        kinds = listOf(1),
+                        tags = mapOf("e" to listOf(postId)),
+                        limit = 50
+                    )
+                )
 
                 _uiState.value = _uiState.value.copy(loadingReplies = false)
             } catch (e: Exception) {
@@ -205,7 +271,7 @@ class SocialViewModel @Inject constructor(
             authorAvatar = contact?.avatarUrl,
             createdAt = event.createdAt,
             replyToId = event.tags.find { it.firstOrNull() == "e" }?.getOrNull(1),
-            reactionCount = 0, // Will be updated by subscription
+            reactionCount = 0,
             replyCount = 0,
             userReacted = false,
             replies = emptyList()

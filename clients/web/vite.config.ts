@@ -89,7 +89,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         globIgnores: ['stats.html'],
         // Mobile-optimized precaching: skip large chunks for faster initial load
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB max
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB max
         // Skip waiting to update immediately
         skipWaiting: true,
         clientsClaim: true,

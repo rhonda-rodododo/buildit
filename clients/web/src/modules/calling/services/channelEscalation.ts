@@ -3,7 +3,7 @@
  * Handles transitions between messaging and voice channels
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import type { MessagingThread } from './messagingQueueManager';
 
 export interface EscalationRequest {

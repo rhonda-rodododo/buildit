@@ -3,7 +3,7 @@
  * Handles audio broadcasting and receiving for push-to-talk
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 
 export interface PTTAudioConfig {
   sampleRate?: number;

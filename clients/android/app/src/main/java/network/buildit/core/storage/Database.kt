@@ -83,9 +83,19 @@ import javax.inject.Singleton
         network.buildit.modules.forms.data.local.FormEntity::class,
         network.buildit.modules.forms.data.local.FormResponseEntity::class,
         network.buildit.modules.calling.data.local.CallHistoryEntity::class,
-        network.buildit.modules.calling.data.local.CallSettingsEntity::class
+        network.buildit.modules.calling.data.local.CallSettingsEntity::class,
+        network.buildit.modules.training.data.local.CourseEntity::class,
+        network.buildit.modules.training.data.local.ModuleEntity::class,
+        network.buildit.modules.training.data.local.LessonEntity::class,
+        network.buildit.modules.training.data.local.LessonProgressEntity::class,
+        network.buildit.modules.training.data.local.CourseProgressEntity::class,
+        network.buildit.modules.training.data.local.QuizAttemptEntity::class,
+        network.buildit.modules.training.data.local.AssignmentSubmissionEntity::class,
+        network.buildit.modules.training.data.local.CertificationEntity::class,
+        network.buildit.modules.training.data.local.LiveSessionRSVPEntity::class,
+        network.buildit.modules.training.data.local.LiveSessionAttendanceEntity::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -138,6 +148,16 @@ abstract class BuildItDatabase : RoomDatabase() {
     // Calling DAOs
     abstract fun callHistoryDao(): network.buildit.modules.calling.data.local.CallHistoryDao
     abstract fun callSettingsDao(): network.buildit.modules.calling.data.local.CallSettingsDao
+
+    // Training DAOs
+    abstract fun trainingCourseDao(): network.buildit.modules.training.data.local.TrainingCourseDao
+    abstract fun trainingModuleDao(): network.buildit.modules.training.data.local.TrainingModuleDao
+    abstract fun trainingLessonDao(): network.buildit.modules.training.data.local.TrainingLessonDao
+    abstract fun trainingProgressDao(): network.buildit.modules.training.data.local.TrainingProgressDao
+    abstract fun trainingQuizDao(): network.buildit.modules.training.data.local.TrainingQuizDao
+    abstract fun trainingAssignmentDao(): network.buildit.modules.training.data.local.TrainingAssignmentDao
+    abstract fun trainingCertificationDao(): network.buildit.modules.training.data.local.TrainingCertificationDao
+    abstract fun trainingLiveSessionDao(): network.buildit.modules.training.data.local.TrainingLiveSessionDao
 }
 
 /**
@@ -429,6 +449,20 @@ class Converters {
     @TypeConverter
     fun toAidCategory(value: String): network.buildit.modules.mutualaid.data.local.AidCategory =
         network.buildit.modules.mutualaid.data.local.AidCategory.valueOf(value)
+
+    @TypeConverter
+    fun fromLocationType(value: network.buildit.modules.mutualaid.data.local.LocationType?): String? = value?.name
+
+    @TypeConverter
+    fun toLocationType(value: String?): network.buildit.modules.mutualaid.data.local.LocationType? =
+        value?.let { network.buildit.modules.mutualaid.data.local.LocationType.valueOf(it) }
+
+    @TypeConverter
+    fun fromLocationPrivacyLevel(value: network.buildit.modules.mutualaid.data.local.LocationPrivacyLevel?): String? = value?.name
+
+    @TypeConverter
+    fun toLocationPrivacyLevel(value: String?): network.buildit.modules.mutualaid.data.local.LocationPrivacyLevel? =
+        value?.let { network.buildit.modules.mutualaid.data.local.LocationPrivacyLevel.valueOf(it) }
 
     @TypeConverter
     fun fromRequestStatus(value: network.buildit.modules.mutualaid.data.local.RequestStatus): String = value.name
@@ -985,23 +1019,8 @@ object DatabaseModule {
     @Provides
     fun provideMessagingReactionDao(database: BuildItDatabase): network.buildit.modules.messaging.data.local.MessagingReactionDao = database.messagingReactionDao()
 
-    @Provides
-    fun provideWikiPagesDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.WikiPagesDao = database.wikiPagesDao()
-
-    @Provides
-    fun provideWikiCategoriesDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.WikiCategoriesDao = database.wikiCategoriesDao()
-
-    @Provides
-    fun providePageRevisionsDao(database: BuildItDatabase): network.buildit.modules.wiki.data.local.PageRevisionsDao = database.pageRevisionsDao()
-
-    @Provides
-    fun provideContactNotesDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactNotesDao = database.contactNotesDao()
-
-    @Provides
-    fun provideContactTagsDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactTagsDao = database.contactTagsDao()
-
-    @Provides
-    fun provideContactTagAssignmentsDao(database: BuildItDatabase): network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao = database.contactTagAssignmentsDao()
+    // Wiki and Contact DAOs are provided by their respective module Hilt modules
+    // (WikiModule.kt and ContactNotesModule.kt) to avoid duplicate bindings
 
     @Provides
     fun provideOfflineQueueDao(database: BuildItDatabase): network.buildit.core.sync.OfflineQueueDao = database.offlineQueueDao()

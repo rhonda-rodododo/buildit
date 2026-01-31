@@ -4,8 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import network.buildit.core.modules.BuildItModule
+import network.buildit.core.modules.ModuleRoute
+import network.buildit.core.nostr.NostrEvent
 import network.buildit.core.storage.AppDatabase
-import network.buildit.modules.BuildItModule
 import network.buildit.modules.contacts.data.ContactNotesRepository
 import network.buildit.modules.contacts.data.local.ContactNotesDao
 import network.buildit.modules.contacts.data.local.ContactTagAssignmentsDao
@@ -17,27 +19,21 @@ import javax.inject.Singleton
  * BuildIt module definition for Contact Notes and Tags.
  */
 class ContactNotesBuildItModule : BuildItModule {
-    override val id: String = "contact-notes"
-    override val name: String = "Contact Notes & Tags"
+    override val identifier: String = "contact-notes"
+    override val displayName: String = "Contact Notes & Tags"
     override val description: String = "Track notes and organize contacts with custom tags"
     override val version: String = "1.0.0"
-    override val icon: String = "note_text_badge_plus"
-
-    // Contact notes are local-only, no Nostr event kinds
-    override val nostrKinds: List<Int> = emptyList()
-
-    override val requiredPermissions: List<String> = emptyList()
-    override val dependencies: List<String> = emptyList()
-
-    override fun isEnabled(): Boolean = true
 
     override suspend fun initialize() {
         // No special initialization needed
     }
 
-    override suspend fun cleanup() {
-        // No cleanup needed
+    override suspend fun handleEvent(event: NostrEvent): Boolean {
+        // Contact notes are local-only, no Nostr events
+        return false
     }
+
+    override fun getNavigationRoutes(): List<ModuleRoute> = emptyList()
 }
 
 /**

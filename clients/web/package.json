@@ -186,6 +186,7 @@
     "dompurify": "^3.3.1",
     "ecpair": "^3.0.0",
     "ethers": "^6.16.0",
+    "eventemitter3": "^5.0.4",
     "exifreader": "^4.36.0",
     "frimousse": "^0.3.0",
     "glob": "^13.0.0",

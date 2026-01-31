@@ -9,6 +9,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import network.buildit.core.modules.BuildItModule
 import network.buildit.core.modules.ModuleRoute
@@ -163,8 +165,8 @@ class PublishingModuleImpl @Inject constructor(
                 content = articleData.content,
                 excerpt = articleData.excerpt,
                 coverImage = articleData.coverImage,
-                tagsJson = articleData.tags?.let { Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()), it) } ?: "[]",
-                categoriesJson = articleData.categories?.let { Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()), it) } ?: "[]",
+                tagsJson = articleData.tags?.let { tags -> Json.encodeToString(ListSerializer(String.serializer()), tags) } ?: "[]",
+                categoriesJson = articleData.categories?.let { cats -> Json.encodeToString(ListSerializer(String.serializer()), cats) } ?: "[]",
                 status = ArticleStatus.entries.find { it.value == articleData.status } ?: ArticleStatus.PUBLISHED,
                 visibility = PublishingVisibility.entries.find { it.value == articleData.visibility } ?: PublishingVisibility.PUBLIC,
                 groupId = groupId,
@@ -172,7 +174,7 @@ class PublishingModuleImpl @Inject constructor(
                 publishedAt = articleData.publishedAt,
                 authorPubkey = articleData.authorPubkey,
                 authorName = articleData.authorName,
-                coauthorsJson = articleData.coauthors?.let { Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()), it) } ?: "[]",
+                coauthorsJson = articleData.coauthors?.let { authors -> Json.encodeToString(ListSerializer(String.serializer()), authors) } ?: "[]",
                 readingTime = articleData.readingTime?.toInt(),
                 viewCount = articleData.viewCount?.toInt() ?: 0,
                 canonicalUrl = articleData.canonicalUrl,
@@ -233,7 +235,7 @@ class PublishingModuleImpl @Inject constructor(
                 coverImage = pubData.coverImage,
                 groupId = groupId,
                 visibility = PublishingVisibility.entries.find { it.value == pubData.visibility } ?: PublishingVisibility.PUBLIC,
-                editorsJson = pubData.editors?.let { Json.encodeToString(kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>()), it) } ?: "[]",
+                editorsJson = pubData.editors?.let { Json.encodeToString(ListSerializer(String.serializer()), it) } ?: "[]",
                 ownerPubkey = pubData.ownerPubkey,
                 createdAt = pubData.createdAt
             )

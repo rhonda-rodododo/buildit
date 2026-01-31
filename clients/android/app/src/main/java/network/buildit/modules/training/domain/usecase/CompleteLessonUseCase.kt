@@ -185,9 +185,9 @@ class CompleteLessonUseCase @Inject constructor(
             } else 0f
 
             val existingCourseProgress = repository.getCourseProgress(courseId, pubkey).first()
-            existingCourseProgress?.let {
+            if (existingCourseProgress != null) {
                 repository.saveCourseProgress(
-                    it.copy(
+                    existingCourseProgress.copy(
                         percentComplete = percentComplete,
                         lessonsCompleted = completedLessons,
                         completedAt = null,
@@ -195,6 +195,7 @@ class CompleteLessonUseCase @Inject constructor(
                     )
                 )
             }
+            Unit
         }.toModuleResult()
     }
 }

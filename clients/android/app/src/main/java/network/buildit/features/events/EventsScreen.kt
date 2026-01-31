@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import network.buildit.generated.schemas.Event
+import network.buildit.generated.schemas.events.Event
 import network.buildit.modules.events.presentation.EventsUiState
 import network.buildit.modules.events.presentation.EventsViewModel
 import network.buildit.ui.theme.BuildItTheme

@@ -646,7 +646,7 @@ class NewslettersUseCase @Inject constructor(
             }
 
             // Collect subscribers synchronously
-            val subscriberList = kotlinx.coroutines.flow.first(subscribers)
+            val subscriberList = subscribers.first()
 
             // Build CSV
             val sb = StringBuilder()

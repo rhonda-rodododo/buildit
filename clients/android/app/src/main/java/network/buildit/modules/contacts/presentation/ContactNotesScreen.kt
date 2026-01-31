@@ -504,7 +504,7 @@ private fun ColorPickerButton(
             .size(36.dp)
             .clickable(onClick = onSelect),
         border = if (isSelected) {
-            ButtonDefaults.outlinedButtonBorder()
+            ButtonDefaults.outlinedButtonBorder
         } else null
     ) {
         if (isSelected) {

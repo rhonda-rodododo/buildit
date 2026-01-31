@@ -10,7 +10,7 @@
  * - Broadcast to all breakouts
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 

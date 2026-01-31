@@ -48,9 +48,9 @@ class UpcomingEventsWidget : GlanceAppWidget() {
 
     override val sizeMode = SizeMode.Responsive(
         setOf(
-            androidx.glance.appwidget.DpSize(150.dp, 100.dp),
-            androidx.glance.appwidget.DpSize(250.dp, 150.dp),
-            androidx.glance.appwidget.DpSize(350.dp, 200.dp)
+            androidx.compose.ui.unit.DpSize(150.dp, 100.dp),
+            androidx.compose.ui.unit.DpSize(250.dp, 150.dp),
+            androidx.compose.ui.unit.DpSize(350.dp, 200.dp)
         )
     )
 

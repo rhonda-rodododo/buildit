@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import network.buildit.core.modules.ModuleResult
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.Rsvp
-import network.buildit.generated.schemas.Status
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.Rsvp
+import network.buildit.generated.schemas.events.Status
 import network.buildit.modules.events.domain.EventsUseCase
 import javax.inject.Inject
 

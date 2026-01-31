@@ -8,7 +8,7 @@
  * - Visual queue with timestamps
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { logger } from '@/lib/logger';
 
 export interface RaisedHand {

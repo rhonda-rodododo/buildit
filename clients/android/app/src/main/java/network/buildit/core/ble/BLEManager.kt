@@ -258,7 +258,7 @@ sealed class BLEEvent {
     data object Stopped : BLEEvent()
     data class DeviceConnected(val device: BluetoothDevice) : BLEEvent()
     data class DeviceDisconnected(val device: BluetoothDevice) : BLEEvent()
-    data class MessageReceived(val message: MeshMessage) : BLEEvent()
+    data class MessageReceived(val message: DecryptedMessage) : BLEEvent()
     data class Error(val exception: BLEException) : BLEEvent()
 }
 
@@ -285,23 +285,4 @@ data class DiscoveredDevice(
     val lastSeen: Long = System.currentTimeMillis()
 )
 
-/**
- * Represents a message in the mesh network.
- */
-data class MeshMessage(
-    val id: String,
-    val senderPublicKey: String,
-    val recipientPublicKey: String,
-    val payload: ByteArray,
-    val hopCount: Int,
-    val timestamp: Long
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as MeshMessage
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = id.hashCode()
-}
+// MeshMessage is defined in MeshRouter.kt

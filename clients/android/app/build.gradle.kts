@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
 }
@@ -156,6 +157,9 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.sqlcipher)
     implementation(libs.sqlite)
+
+    // Kotlin Serialization
+    implementation(libs.kotlinx.serialization.json)
 
     // OkHttp
     implementation(libs.okhttp)

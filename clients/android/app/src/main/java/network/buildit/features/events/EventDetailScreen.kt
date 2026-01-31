@@ -61,9 +61,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.Rsvp
-import network.buildit.generated.schemas.Status
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.Rsvp
+import network.buildit.generated.schemas.events.Status
 import network.buildit.modules.events.presentation.EventDetailState
 import network.buildit.modules.events.presentation.EventsViewModel
 import network.buildit.ui.theme.BuildItTheme

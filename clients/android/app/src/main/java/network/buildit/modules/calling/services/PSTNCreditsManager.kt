@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import network.buildit.generated.schemas.CreditBalance
+import network.buildit.generated.schemas.calling.CreditBalance
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.Calendar

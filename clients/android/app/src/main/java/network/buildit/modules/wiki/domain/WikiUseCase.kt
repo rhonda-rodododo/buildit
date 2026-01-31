@@ -2,6 +2,7 @@ package network.buildit.modules.wiki.domain
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.nostr.NostrClient
 import network.buildit.modules.wiki.data.WikiRepository
 import network.buildit.modules.wiki.data.local.*
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class WikiUseCase @Inject constructor(
     private val repository: WikiRepository,
-    private val nostrClient: NostrClient
+    private val nostrClient: NostrClient,
+    private val cryptoManager: CryptoManager
 ) {
     companion object {
         const val KIND_WIKI_PAGE = 40301
@@ -24,7 +26,7 @@ class WikiUseCase @Inject constructor(
 
     // Current user ID
     private val currentUserId: String
-        get() = nostrClient.getPublicKey() ?: ""
+        get() = cryptoManager.getPublicKeyHex() ?: ""
 
     // MARK: - Pages
 

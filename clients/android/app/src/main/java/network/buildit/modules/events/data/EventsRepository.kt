@@ -2,9 +2,9 @@ package network.buildit.modules.events.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.Rsvp
-import network.buildit.generated.schemas.Status
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.Rsvp
+import network.buildit.generated.schemas.events.Status
 import network.buildit.modules.events.data.local.EventEntity
 import network.buildit.modules.events.data.local.EventsDao
 import network.buildit.modules.events.data.local.RsvpEntity

@@ -31,7 +31,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+// PullToRefreshBox requires Material3 1.3.0+; using Box as fallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -117,9 +117,7 @@ private fun DocumentsContent(
                 // Search suggestions could go here
             }
 
-            PullToRefreshBox(
-                isRefreshing = isLoading,
-                onRefresh = onRefresh,
+            Box(
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (documents.isEmpty() && !isLoading) {

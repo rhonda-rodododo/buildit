@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import network.buildit.generated.schemas.Event
+import network.buildit.generated.schemas.events.Event
 import network.buildit.modules.calling.service.SFUConferenceManager
 import network.buildit.modules.events.data.EventsRepository
 import network.buildit.modules.events.domain.model.BreakoutRoomConfig

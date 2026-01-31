@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.buildit.core.nostr.NostrClient
-import network.buildit.generated.schemas.HotlineOperatorStatus
-import network.buildit.generated.schemas.HotlineOperatorStatusStatus
+import network.buildit.generated.schemas.calling.HotlineOperatorStatus
+import network.buildit.generated.schemas.calling.HotlineOperatorStatusStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 

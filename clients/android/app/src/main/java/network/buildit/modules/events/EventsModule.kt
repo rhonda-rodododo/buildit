@@ -17,8 +17,8 @@ import network.buildit.core.modules.ModuleRoute
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
 import network.buildit.core.storage.BuildItDatabase
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.Rsvp
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.Rsvp
 import network.buildit.modules.events.data.local.EventEntity
 import network.buildit.modules.events.data.local.EventsDao
 import network.buildit.modules.events.data.local.RsvpEntity

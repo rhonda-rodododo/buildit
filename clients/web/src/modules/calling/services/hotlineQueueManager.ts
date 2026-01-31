@@ -3,7 +3,7 @@
  * Manages call queues with priority ordering and automatic call distribution (ACD)
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'eventemitter3';
 import { nanoid } from 'nanoid';
 import type {
   HotlineCallState,

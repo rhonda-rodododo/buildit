@@ -5,10 +5,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.buildit.generated.schemas.CallHistory
-import network.buildit.generated.schemas.CallHistoryCallType
-import network.buildit.generated.schemas.Direction
-import network.buildit.generated.schemas.Reason
+import network.buildit.generated.schemas.calling.CallHistory
+import network.buildit.generated.schemas.calling.CallHistoryCallType
+import network.buildit.generated.schemas.calling.CallStateDirection
+import network.buildit.generated.schemas.calling.Reason
 
 /**
  * Room entity for call history records.
@@ -143,7 +143,7 @@ data class CallHistoryEntity(
             v = schemaVersion,
             callID = callId,
             callType = callType?.let { CallHistoryCallType.valueOf(it.uppercase()) },
-            direction = Direction.valueOf(direction.replaceFirstChar { it.uppercase() }),
+            direction = CallStateDirection.values().find { it.value == direction.lowercase() } ?: CallStateDirection.Outgoing,
             remotePubkey = remotePubkey,
             remoteName = remoteName,
             startedAt = startedAt,

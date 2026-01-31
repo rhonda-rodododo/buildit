@@ -5,11 +5,11 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.buildit.generated.schemas.DirectMessage
-import network.buildit.generated.schemas.GroupMessage
-import network.buildit.generated.schemas.ReadReceipt
-import network.buildit.generated.schemas.Reaction
-import network.buildit.generated.schemas.TypingIndicator
+import network.buildit.generated.schemas.messaging.DirectMessage
+import network.buildit.generated.schemas.messaging.GroupMessage
+import network.buildit.generated.schemas.messaging.ReadReceipt
+import network.buildit.generated.schemas.messaging.Reaction
+import network.buildit.generated.schemas.messaging.TypingIndicator
 
 /**
  * Extended messaging entity that wraps DirectMessage or GroupMessage schema types.

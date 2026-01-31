@@ -28,10 +28,13 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import network.buildit.core.crypto.CryptoManager
+import network.buildit.core.crypto.UnsignedNostrEvent
 import network.buildit.core.nostr.NostrClient
-import network.buildit.generated.schemas.PSTNCall
-import network.buildit.generated.schemas.PSTNCallDirection
-import network.buildit.generated.schemas.PSTNCallStatus
+import network.buildit.core.nostr.NostrEvent
+import network.buildit.generated.schemas.calling.PSTNCall
+import network.buildit.generated.schemas.calling.PSTNCallDirection
+import network.buildit.generated.schemas.calling.PSTNCallStatus
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -109,6 +112,7 @@ data class PSTNBridgeConfig(
 class PSTNCallManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val nostrClient: NostrClient,
+    private val cryptoManager: CryptoManager,
     private val httpClient: OkHttpClient
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -601,7 +605,19 @@ class PSTNCallManager @Inject constructor(
             timestamp = System.currentTimeMillis()
         ))
 
-        nostrClient.publishEvent(KIND_PSTN_BRIDGE, content, emptyList())
+        val pubkey = cryptoManager.getPublicKeyHex() ?: return
+        val unsigned = UnsignedNostrEvent(
+            pubkey = pubkey,
+            createdAt = System.currentTimeMillis() / 1000,
+            kind = KIND_PSTN_BRIDGE,
+            tags = emptyList(),
+            content = content
+        )
+        val signed = cryptoManager.signEvent(unsigned) ?: return
+        nostrClient.publishEvent(NostrEvent(
+            id = signed.id, pubkey = signed.pubkey, createdAt = signed.createdAt,
+            kind = signed.kind, tags = signed.tags, content = signed.content, sig = signed.sig
+        ))
     }
 
     private suspend fun publishOutboundEvent(callSid: String, hotlineId: String, maskedPhone: String) {
@@ -613,7 +629,19 @@ class PSTNCallManager @Inject constructor(
             timestamp = System.currentTimeMillis()
         ))
 
-        nostrClient.publishEvent(KIND_PSTN_OUTBOUND, content, emptyList())
+        val pubkey = cryptoManager.getPublicKeyHex() ?: return
+        val unsigned = UnsignedNostrEvent(
+            pubkey = pubkey,
+            createdAt = System.currentTimeMillis() / 1000,
+            kind = KIND_PSTN_OUTBOUND,
+            tags = emptyList(),
+            content = content
+        )
+        val signed = cryptoManager.signEvent(unsigned) ?: return
+        nostrClient.publishEvent(NostrEvent(
+            id = signed.id, pubkey = signed.pubkey, createdAt = signed.createdAt,
+            kind = signed.kind, tags = signed.tags, content = signed.content, sig = signed.sig
+        ))
     }
 
     /**

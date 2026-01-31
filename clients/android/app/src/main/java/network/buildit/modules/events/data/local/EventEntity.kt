@@ -5,11 +5,11 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.buildit.generated.schemas.Event
-import network.buildit.generated.schemas.LocationClass
-import network.buildit.generated.schemas.Rsvp
-import network.buildit.generated.schemas.Status
-import network.buildit.generated.schemas.Visibility
+import network.buildit.generated.schemas.events.Event
+import network.buildit.generated.schemas.events.LocationClass
+import network.buildit.generated.schemas.events.Rsvp
+import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.Visibility
 
 /**
  * Room entity for events.
@@ -67,10 +67,10 @@ data class EventEntity(
             maxAttendees = maxAttendees,
             rsvpDeadline = rsvpDeadline,
             recurrence = recurrenceJson?.let {
-                Json.decodeFromString<network.buildit.generated.schemas.RecurrenceClass>(it)
+                Json.decodeFromString<network.buildit.generated.schemas.events.RecurrenceClass>(it)
             },
             attachments = attachmentsJson?.let {
-                Json.decodeFromString<List<network.buildit.generated.schemas.AttachmentElement>>(it)
+                Json.decodeFromString<List<network.buildit.generated.schemas.events.AttachmentElement>>(it)
             },
             customFields = customFieldsJson?.let {
                 Json.decodeFromString<kotlinx.serialization.json.JsonObject>(it)
