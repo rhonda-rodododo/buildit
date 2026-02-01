@@ -78,16 +78,32 @@ export interface XStorageDbOnlyField {
   required?: string[];
 }
 
-/** Convert $defs refs to definitions refs for quicktype compatibility */
+/**
+ * Convert $defs refs to definitions refs for quicktype compatibility.
+ * Handles both local refs (#/$defs/Foo) and cross-module refs
+ * (https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview).
+ */
 export function convertRefsToDefinitions(obj: unknown): unknown {
   if (!obj || typeof obj !== 'object') return obj;
 
   const record = obj as Record<string, unknown>;
 
   if (record.$ref && typeof record.$ref === 'string') {
+    const ref = record.$ref as string;
+    // Cross-module $ref: extract just the type name and convert to local ref
+    const crossModuleMatch = ref.match(
+      /https:\/\/buildit\.network\/schemas\/modules\/[\w-]+\/v\d+\.json#\/\$defs\/(\w+)/
+    );
+    if (crossModuleMatch) {
+      return {
+        ...record,
+        $ref: `#/definitions/${crossModuleMatch[1]}`,
+      };
+    }
+    // Local $ref: #/$defs/Foo -> #/definitions/Foo
     return {
       ...record,
-      $ref: (record.$ref as string).replace('#/$defs/', '#/definitions/'),
+      $ref: ref.replace('#/$defs/', '#/definitions/'),
     };
   }
 
@@ -100,6 +116,44 @@ export function convertRefsToDefinitions(obj: unknown): unknown {
     result[key] = convertRefsToDefinitions(value);
   }
   return result;
+}
+
+/**
+ * Extract cross-module $ref URIs from a schema definition.
+ * Returns a map of { moduleName: [typeName, ...] } for all referenced external types.
+ */
+export function extractCrossModuleRefs(obj: unknown): Map<string, Set<string>> {
+  const refs = new Map<string, Set<string>>();
+
+  function walk(node: unknown): void {
+    if (!node || typeof node !== 'object') return;
+
+    const record = node as Record<string, unknown>;
+
+    if (record.$ref && typeof record.$ref === 'string') {
+      const match = (record.$ref as string).match(
+        /https:\/\/buildit\.network\/schemas\/modules\/([\w-]+)\/v\d+\.json#\/\$defs\/(\w+)/
+      );
+      if (match) {
+        const [, moduleName, typeName] = match;
+        if (!refs.has(moduleName)) refs.set(moduleName, new Set());
+        refs.get(moduleName)!.add(typeName);
+      }
+      return;
+    }
+
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+
+    for (const value of Object.values(record)) {
+      walk(value);
+    }
+  }
+
+  walk(obj);
+  return refs;
 }
 
 /** Convert kebab-case to PascalCase */

@@ -45,6 +45,9 @@ pub struct Article {
 
     pub id: String,
 
+    /// Signal-style encrypted link previews for URLs in article content
+    pub link_previews: Option<Vec<ArticleLinkPreview>>,
+
     /// Publication timestamp
     pub published_at: Option<i64>,
 
@@ -69,6 +72,57 @@ pub struct Article {
     pub view_count: Option<i64>,
 
     pub visibility: Option<Visibility>,
+}
+
+/// Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail,
+/// encrypts with content. Recipients see static previews — zero third-party requests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ArticleLinkPreview {
+    /// Open Graph og:description
+    pub description: Option<String>,
+
+    /// Base64-encoded favicon (max ~10KB)
+    pub favicon_data: Option<String>,
+
+    /// Favicon MIME type
+    pub favicon_type: Option<String>,
+
+    /// Unix timestamp when preview was generated
+    pub fetched_at: i64,
+
+    /// Who fetched the preview — sender (direct) or proxy (API worker)
+    pub fetched_by: FetchedBy,
+
+    /// Base64-encoded thumbnail (max ~50KB, encrypted with content)
+    pub image_data: Option<String>,
+
+    /// Image height in pixels
+    pub image_height: Option<i64>,
+
+    /// MIME type (image/jpeg, image/png, image/webp)
+    pub image_type: Option<String>,
+
+    /// Image width in pixels
+    pub image_width: Option<i64>,
+
+    /// Open Graph og:site_name
+    pub site_name: Option<String>,
+
+    /// Open Graph og:title
+    pub title: Option<String>,
+
+    /// Original URL
+    pub url: String,
+}
+
+/// Who fetched the preview — sender (direct) or proxy (API worker)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FetchedBy {
+    Proxy,
+
+    Sender,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -134,10 +188,55 @@ pub struct Comment {
 
     pub id: String,
 
+    /// Signal-style encrypted link previews for URLs in comment
+    pub link_previews: Option<Vec<CommentLinkPreview>>,
+
     /// Parent comment ID for replies
     pub parent_id: Option<String>,
 
     pub updated_at: Option<i64>,
+}
+
+/// Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail,
+/// encrypts with content. Recipients see static previews — zero third-party requests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentLinkPreview {
+    /// Open Graph og:description
+    pub description: Option<String>,
+
+    /// Base64-encoded favicon (max ~10KB)
+    pub favicon_data: Option<String>,
+
+    /// Favicon MIME type
+    pub favicon_type: Option<String>,
+
+    /// Unix timestamp when preview was generated
+    pub fetched_at: i64,
+
+    /// Who fetched the preview — sender (direct) or proxy (API worker)
+    pub fetched_by: FetchedBy,
+
+    /// Base64-encoded thumbnail (max ~50KB, encrypted with content)
+    pub image_data: Option<String>,
+
+    /// Image height in pixels
+    pub image_height: Option<i64>,
+
+    /// MIME type (image/jpeg, image/png, image/webp)
+    pub image_type: Option<String>,
+
+    /// Image width in pixels
+    pub image_width: Option<i64>,
+
+    /// Open Graph og:site_name
+    pub site_name: Option<String>,
+
+    /// Open Graph og:title
+    pub title: Option<String>,
+
+    /// Original URL
+    pub url: String,
 }
 
 /// A publication or blog collection

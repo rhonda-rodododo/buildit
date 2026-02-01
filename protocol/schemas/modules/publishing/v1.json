@@ -112,6 +112,12 @@
         "seo": {
           "$ref": "#/$defs/SEOMetadata"
         },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews for URLs in article content"
+        },
         "createdAt": {
           "type": "integer"
         },
@@ -178,6 +184,12 @@
         "authorName": {
           "type": "string",
           "maxLength": 128
+        },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews for URLs in comment"
         },
         "createdAt": {
           "type": "integer"

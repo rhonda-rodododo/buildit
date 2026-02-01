@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "description": "Content module schema serialization test vectors — LinkPreview and EmbedInfo",
+  "schema_version": "1.0.0",
+  "vectors": [
+    {
+      "id": "linkpreview-001",
+      "description": "LinkPreview - minimal (required fields only)",
+      "input": {
+        "url": "https://example.com",
+        "fetchedAt": 1706112000,
+        "fetchedBy": "sender"
+      },
+      "expected": {
+        "json_valid": true,
+        "required_fields_present": true,
+        "fetchedBy_is_valid_enum": true
+      }
+    },
+    {
+      "id": "linkpreview-002",
+      "description": "LinkPreview - full with image and favicon",
+      "input": {
+        "url": "https://example.com/article/community-organizing-101",
+        "title": "Community Organizing 101",
+        "description": "A comprehensive guide to building effective grassroots movements in your community.",
+        "siteName": "Example Organizing Hub",
+        "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "imageType": "image/png",
+        "imageWidth": 1200,
+        "imageHeight": 630,
+        "faviconData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "faviconType": "image/png",
+        "fetchedAt": 1706112000,
+        "fetchedBy": "sender"
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "imageData_is_valid_base64": true,
+        "faviconData_is_valid_base64": true
+      }
+    },
+    {
+      "id": "linkpreview-003",
+      "description": "LinkPreview - proxy-fetched with JPEG image",
+      "input": {
+        "url": "https://news.example.org/breaking-story",
+        "title": "Breaking: Community Wins Zoning Victory",
+        "description": "After months of organizing, the community board voted 7-2 to reject the proposed rezoning.",
+        "siteName": "Community News Network",
+        "imageData": "/9j/4AAQSkZJRg==",
+        "imageType": "image/jpeg",
+        "imageWidth": 800,
+        "imageHeight": 450,
+        "fetchedAt": 1706115600,
+        "fetchedBy": "proxy"
+      },
+      "expected": {
+        "json_valid": true,
+        "fetchedBy_is_proxy": true
+      }
+    },
+    {
+      "id": "linkpreview-004",
+      "description": "LinkPreview - title and description only (no image)",
+      "input": {
+        "url": "https://docs.example.com/getting-started",
+        "title": "Getting Started Guide",
+        "description": "Learn how to set up your organizing toolkit",
+        "siteName": "Example Docs",
+        "fetchedAt": 1706200000,
+        "fetchedBy": "sender"
+      },
+      "expected": {
+        "json_valid": true,
+        "imageData_absent": true
+      }
+    },
+    {
+      "id": "linkpreview-005",
+      "description": "Message with linkPreviews array (cross-module reference)",
+      "input": {
+        "_v": "1.0.0",
+        "content": "Check out these resources: https://example.com/guide and https://example.com/faq",
+        "linkPreviews": [
+          {
+            "url": "https://example.com/guide",
+            "title": "Organizing Guide",
+            "description": "Step-by-step guide to community organizing",
+            "siteName": "Example",
+            "fetchedAt": 1706112000,
+            "fetchedBy": "sender"
+          },
+          {
+            "url": "https://example.com/faq",
+            "title": "FAQ",
+            "description": "Frequently asked questions",
+            "fetchedAt": 1706112005,
+            "fetchedBy": "sender"
+          }
+        ]
+      },
+      "expected": {
+        "json_valid": true,
+        "linkPreviews_count": 2,
+        "all_previews_have_required_fields": true
+      }
+    },
+    {
+      "id": "embedinfo-001",
+      "description": "EmbedInfo - minimal (required fields only)",
+      "input": {
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "provider": "youtube"
+      },
+      "expected": {
+        "json_valid": true,
+        "required_fields_present": true
+      }
+    },
+    {
+      "id": "embedinfo-002",
+      "description": "EmbedInfo - YouTube with privacy embed URL and thumbnail",
+      "input": {
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "provider": "youtube",
+        "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up",
+        "thumbnailData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "thumbnailType": "image/jpeg",
+        "width": 640,
+        "height": 360
+      },
+      "expected": {
+        "json_valid": true,
+        "all_fields_present": true,
+        "embedUrl_uses_privacy_domain": true
+      }
+    },
+    {
+      "id": "embedinfo-003",
+      "description": "EmbedInfo - Vimeo",
+      "input": {
+        "url": "https://vimeo.com/123456789",
+        "provider": "vimeo",
+        "embedUrl": "https://player.vimeo.com/video/123456789?dnt=1",
+        "title": "Community Meeting Recording",
+        "width": 640,
+        "height": 360
+      },
+      "expected": {
+        "json_valid": true,
+        "embedUrl_has_dnt_param": true
+      }
+    },
+    {
+      "id": "embedinfo-004",
+      "description": "EmbedInfo - Spotify",
+      "input": {
+        "url": "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT",
+        "provider": "spotify",
+        "embedUrl": "https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT",
+        "title": "Never Gonna Give You Up",
+        "width": 300,
+        "height": 380
+      },
+      "expected": {
+        "json_valid": true,
+        "provider_is_spotify": true
+      }
+    }
+  ]
+}

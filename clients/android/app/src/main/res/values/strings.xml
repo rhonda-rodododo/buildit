@@ -5935,4 +5935,10 @@
     <string name="ptt_vad_description">Automatically detect when you start speaking</string>
     <string name="ptt_timeout_info">Speaking timeout: %ds</string>
 
+    <!-- Link Preview -->
+    <string name="link_preview_generating">Generating preview…</string>
+    <string name="link_preview_failed">Could not load preview</string>
+    <string name="link_preview_open">Open link</string>
+    <string name="link_preview_remove">Remove preview</string>
+
 </resources>

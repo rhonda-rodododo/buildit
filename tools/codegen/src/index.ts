@@ -579,6 +579,15 @@ async function main() {
   const moduleVersions: Record<string, string> = {};
   let totalTableCount = 0;
 
+  // Pre-load all schemas so cross-module $refs can be resolved
+  const allSchemas = new Map<string, ModuleSchema>();
+  for (const file of schemaFiles) {
+    const content = await readFile(file, 'utf-8');
+    const schema: ModuleSchema = JSON.parse(content);
+    const moduleName = basename(dirname(file));
+    allSchemas.set(moduleName, schema);
+  }
+
   // ── Phase 1: Quicktype generation (existing) ──────────────────────────
   if (!skipQuicktype) {
     const activeTargets = targetFilter
@@ -586,9 +595,8 @@ async function main() {
       : TARGETS;
 
     for (const file of schemaFiles) {
-      const content = await readFile(file, 'utf-8');
-      const schema: ModuleSchema = JSON.parse(content);
       const moduleName = basename(dirname(file));
+      const schema = allSchemas.get(moduleName)!;
 
       console.log(`\n📄 Processing ${moduleName}...`);
 
@@ -603,7 +611,7 @@ async function main() {
         await mkdir(target.outputDir, { recursive: true });
 
         try {
-          const generatedCode = await generateAllTypesWithQuicktype(moduleName, schema, target.lang);
+          const generatedCode = await generateAllTypesWithQuicktype(moduleName, schema, target.lang, allSchemas);
           const code = formatOutput(
             moduleName,
             schema.version || '1.0.0',

@@ -13,6 +13,7 @@ struct PostComposerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var content = ""
     @FocusState private var isFocused: Bool
+    @StateObject private var linkDetector = LinkPreviewDetector()
 
     private let maxLength = 1000
 
@@ -38,6 +39,16 @@ struct PostComposerView: View {
                                 .allowsHitTesting(false)
                         }
                     }
+
+                // Link previews
+                if !linkDetector.previews.isEmpty || linkDetector.isLoading {
+                    LinkPreviewStrip(
+                        previews: linkDetector.previews,
+                        isLoading: linkDetector.isLoading,
+                        onRemove: { url in linkDetector.removePreview(url: url) }
+                    )
+                    .padding(.vertical, 8)
+                }
 
                 Divider()
 
@@ -84,6 +95,9 @@ struct PostComposerView: View {
             .onAppear {
                 isFocused = true
             }
+            .onChange(of: content) { _, newValue in
+                linkDetector.textDidChange(newValue)
+            }
         }
     }
 
@@ -109,10 +123,11 @@ struct PostComposerView: View {
     }
 
     private func post() {
+        let previews = linkDetector.previews
         if let replyTo = replyToPost {
-            viewModel.replyToPost(parentId: replyTo.id, content: content)
+            viewModel.replyToPost(parentId: replyTo.id, content: content, linkPreviews: previews)
         } else {
-            viewModel.createPost(content: content)
+            viewModel.createPost(content: content, linkPreviews: previews)
         }
         dismiss()
     }

@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/content/v1.json",
+  "title": "ContentModule",
+  "description": "Shared content types used across all BuildIt modules — link previews, embeds, and other reusable content primitives",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+  "coreModule": true,
+
+  "type": "object",
+
+  "compatibilityNotes": [
+    "This is a CORE module — shared content types referenced by messaging, publishing, documents, etc.",
+    "New optional fields may be added (patch version)",
+    "Required fields may NEVER be added or changed",
+    "Field types may NEVER change",
+    "All types here are designed to be embedded inside encrypted payloads"
+  ],
+
+  "$defs": {
+    "LinkPreview": {
+      "type": "object",
+      "description": "Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail, encrypts with content. Recipients see static previews — zero third-party requests.",
+      "required": ["url", "fetchedAt", "fetchedBy"],
+      "additionalProperties": true,
+      "properties": {
+        "url": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Original URL"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Open Graph og:title"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Open Graph og:description"
+        },
+        "siteName": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Open Graph og:site_name"
+        },
+        "imageData": {
+          "type": "string",
+          "description": "Base64-encoded thumbnail (max ~50KB, encrypted with content)"
+        },
+        "imageType": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "MIME type (image/jpeg, image/png, image/webp)"
+        },
+        "imageWidth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Image width in pixels"
+        },
+        "imageHeight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Image height in pixels"
+        },
+        "faviconData": {
+          "type": "string",
+          "description": "Base64-encoded favicon (max ~10KB)"
+        },
+        "faviconType": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Favicon MIME type"
+        },
+        "fetchedAt": {
+          "type": "integer",
+          "description": "Unix timestamp when preview was generated"
+        },
+        "fetchedBy": {
+          "type": "string",
+          "enum": ["sender", "proxy"],
+          "description": "Who fetched the preview — sender (direct) or proxy (API worker)"
+        }
+      }
+    },
+
+    "EmbedInfo": {
+      "type": "object",
+      "description": "oEmbed/secure embed metadata for rich media (videos, audio, code snippets). Used for privacy-respecting iframe embeds.",
+      "required": ["url", "provider"],
+      "additionalProperties": true,
+      "properties": {
+        "url": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Original content URL"
+        },
+        "provider": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Provider ID (youtube, vimeo, spotify, soundcloud, etc.)"
+        },
+        "embedUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Privacy-respecting embed URL (e.g. youtube-nocookie.com)"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Content title from oEmbed response"
+        },
+        "thumbnailData": {
+          "type": "string",
+          "description": "Base64-encoded thumbnail image"
+        },
+        "thumbnailType": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Thumbnail MIME type"
+        },
+        "width": {
+          "type": "integer",
+          "default": 640,
+          "description": "Embed width in pixels"
+        },
+        "height": {
+          "type": "integer",
+          "default": 360,
+          "description": "Embed height in pixels"
+        }
+      }
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_link_preview",
+      "description": "Link preview with only required fields",
+      "valid": true,
+      "input": {
+        "url": "https://example.com",
+        "fetchedAt": 1706112000,
+        "fetchedBy": "sender"
+      }
+    },
+    {
+      "name": "full_link_preview",
+      "description": "Link preview with all fields populated",
+      "valid": true,
+      "input": {
+        "url": "https://example.com/article/community-organizing-101",
+        "title": "Community Organizing 101",
+        "description": "A comprehensive guide to building effective grassroots movements in your community.",
+        "siteName": "Example Organizing Hub",
+        "imageData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "imageType": "image/png",
+        "imageWidth": 1200,
+        "imageHeight": 630,
+        "faviconData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "faviconType": "image/png",
+        "fetchedAt": 1706112000,
+        "fetchedBy": "sender"
+      }
+    },
+    {
+      "name": "proxy_fetched_preview",
+      "description": "Link preview fetched via API proxy",
+      "valid": true,
+      "input": {
+        "url": "https://example.com/news",
+        "title": "Breaking News",
+        "description": "Latest community news and updates",
+        "fetchedAt": 1706115600,
+        "fetchedBy": "proxy"
+      }
+    },
+    {
+      "name": "minimal_embed_info",
+      "description": "Embed info with only required fields",
+      "valid": true,
+      "input": {
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "provider": "youtube"
+      }
+    },
+    {
+      "name": "full_embed_info",
+      "description": "Embed info with all fields",
+      "valid": true,
+      "input": {
+        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "provider": "youtube",
+        "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up",
+        "thumbnailData": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "thumbnailType": "image/jpeg",
+        "width": 640,
+        "height": 360
+      }
+    }
+  ],
+
+  "x-storage": {
+    "tables": {},
+    "dbOnly": {},
+    "protocolOnly": []
+  }
+}

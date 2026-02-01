@@ -12,7 +12,7 @@
  * @module lib/linkPreview
  */
 
-// Types
+// Types (LinkPreview re-exported from generated protocol schema)
 export type {
   LinkPreview,
   LinkPreviewOptions,
@@ -22,6 +22,7 @@ export type {
   LinkPreviewState,
   UseLinkPreviewResult,
 } from './types'
+export { FetchedBy } from './types'
 
 // Service
 export {

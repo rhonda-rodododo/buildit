@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS "events" (
     "recurrence" TEXT,
     "attachments" TEXT,
     "custom_fields" TEXT,
+    "link_previews" TEXT,
     "created_by" TEXT NOT NULL,
     "created_at" INTEGER NOT NULL,
     "updated_at" INTEGER,

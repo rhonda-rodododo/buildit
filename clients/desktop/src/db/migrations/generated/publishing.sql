@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS "articles" (
     "view_count" INTEGER DEFAULT 0,
     "canonical_url" TEXT,
     "seo" TEXT,
+    "link_previews" TEXT,
     "created_at" INTEGER NOT NULL,
     "updated_at" INTEGER
 );
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS "article_comments" (
     "content" TEXT NOT NULL,
     "author_pubkey" TEXT NOT NULL,
     "author_name" TEXT,
+    "link_previews" TEXT,
     "created_at" INTEGER NOT NULL,
     "updated_at" INTEGER
 );

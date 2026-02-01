@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS "documents" (
     "tags" TEXT,
     "attachments" TEXT,
     "editors" TEXT,
+    "link_previews" TEXT,
     "version" INTEGER DEFAULT 1,
     "created_by" TEXT NOT NULL,
     "created_at" INTEGER NOT NULL,

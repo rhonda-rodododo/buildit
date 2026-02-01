@@ -148,6 +148,12 @@
           "items": { "type": "string" },
           "description": "Subscriber segments to send to"
         },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews for URLs in campaign content"
+        },
         "createdBy": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"

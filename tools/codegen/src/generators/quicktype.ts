@@ -11,8 +11,8 @@ import {
   JSONSchemaInput,
   JSONSchemaStore,
 } from 'quicktype-core';
-import type { ModuleSchema } from '../utils/json-schema';
-import { convertRefsToDefinitions } from '../utils/json-schema';
+import type { ModuleSchema, JsonSchemaDef } from '../utils/json-schema';
+import { convertRefsToDefinitions, extractCrossModuleRefs } from '../utils/json-schema';
 
 /** Custom schema store for resolving local refs */
 class LocalSchemaStore extends JSONSchemaStore {
@@ -53,13 +53,34 @@ function getRendererOptions(lang: string): Record<string, string> {
 
 /**
  * Generate all type definitions for a module using quicktype.
+ *
+ * @param allSchemas - Map of all loaded module schemas (moduleName -> schema),
+ *                     used to resolve cross-module $ref URIs.
  */
 export async function generateAllTypesWithQuicktype(
   _moduleName: string,
   schema: ModuleSchema,
-  lang: string
+  lang: string,
+  allSchemas?: Map<string, ModuleSchema>
 ): Promise<string> {
   const allDefs = schema.$defs || {};
+
+  // Collect cross-module $defs referenced by this schema
+  const externalDefs: Record<string, JsonSchemaDef> = {};
+  if (allSchemas) {
+    const crossRefs = extractCrossModuleRefs(allDefs);
+    for (const [moduleName, typeNames] of crossRefs) {
+      const referencedSchema = allSchemas.get(moduleName);
+      if (referencedSchema?.$defs) {
+        for (const typeName of typeNames) {
+          const def = referencedSchema.$defs[typeName];
+          if (def) {
+            externalDefs[typeName] = def;
+          }
+        }
+      }
+    }
+  }
 
   const schemaInput = new JSONSchemaInput(new LocalSchemaStore());
 
@@ -71,8 +92,16 @@ export async function generateAllTypesWithQuicktype(
       ...convertRefsToDefinitions(def),
     };
 
+    // Add local $defs as definitions
     for (const [defName, defDef] of Object.entries(allDefs)) {
       typeSchema.definitions[defName] = convertRefsToDefinitions(defDef);
+    }
+
+    // Add cross-module $defs as definitions so quicktype can resolve them
+    for (const [defName, defDef] of Object.entries(externalDefs)) {
+      if (!typeSchema.definitions[defName]) {
+        typeSchema.definitions[defName] = convertRefsToDefinitions(defDef);
+      }
     }
 
     await schemaInput.addSource({

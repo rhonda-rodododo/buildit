@@ -39,6 +39,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.delay
+import network.buildit.generated.schemas.LinkPreview
+import network.buildit.modules.content.services.LinkPreviewService
+import network.buildit.ui.components.LinkPreviewStrip
 import network.buildit.ui.theme.BuildItTheme
 
 /**
@@ -53,9 +57,32 @@ fun PostComposerScreen(
     val uiState by viewModel.uiState.collectAsState()
     var content by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    var linkPreviews by remember { mutableStateOf<List<LinkPreview>>(emptyList()) }
+    var isGeneratingPreviews by remember { mutableStateOf(false) }
+    val linkPreviewService = remember { LinkPreviewService() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    // Debounced URL detection and preview generation
+    LaunchedEffect(content) {
+        delay(500) // Debounce
+        val urls = LinkPreviewService.extractUrls(content)
+        if (urls.isNotEmpty()) {
+            val existingUrls = linkPreviews.map { it.url }.toSet()
+            val newUrls = urls.filter { it !in existingUrls }
+            if (newUrls.isNotEmpty()) {
+                isGeneratingPreviews = true
+                val newPreviews = linkPreviewService.generatePreviews(newUrls)
+                linkPreviews = (linkPreviews + newPreviews).distinctBy { it.url }
+                isGeneratingPreviews = false
+            }
+            // Remove previews for URLs no longer in the text
+            linkPreviews = linkPreviews.filter { it.url in urls.toSet() }
+        } else {
+            linkPreviews = emptyList()
+        }
     }
 
     PostComposerContent(
@@ -63,6 +90,9 @@ fun PostComposerScreen(
         onContentChange = { content = it },
         isPosting = uiState.isPosting,
         isReply = replyToPostId != null,
+        linkPreviews = linkPreviews,
+        isGeneratingPreviews = isGeneratingPreviews,
+        onRemovePreview = { url -> linkPreviews = linkPreviews.filter { it.url != url } },
         onBackClick = onNavigateBack,
         onPostClick = {
             if (replyToPostId != null) {
@@ -83,6 +113,9 @@ private fun PostComposerContent(
     onContentChange: (String) -> Unit,
     isPosting: Boolean,
     isReply: Boolean,
+    linkPreviews: List<LinkPreview> = emptyList(),
+    isGeneratingPreviews: Boolean = false,
+    onRemovePreview: (String) -> Unit = {},
     onBackClick: () -> Unit,
     onPostClick: () -> Unit,
     focusRequester: FocusRequester
@@ -149,6 +182,16 @@ private fun PostComposerContent(
                 ),
                 textStyle = MaterialTheme.typography.bodyLarge
             )
+
+            // Link previews
+            if (linkPreviews.isNotEmpty() || isGeneratingPreviews) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LinkPreviewStrip(
+                    previews = linkPreviews,
+                    isLoading = isGeneratingPreviews,
+                    onRemove = onRemovePreview
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

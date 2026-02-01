@@ -79,6 +79,10 @@ import network.buildit.core.storage.ConversationEntity
 import network.buildit.core.storage.MessageEntity
 import network.buildit.core.storage.MessageStatus
 import network.buildit.core.transport.TransportStatus
+import kotlinx.coroutines.delay
+import network.buildit.generated.schemas.LinkPreview
+import network.buildit.modules.content.services.LinkPreviewService
+import network.buildit.ui.components.LinkPreviewStrip
 import network.buildit.ui.components.MessageBubble
 import network.buildit.ui.theme.BuildItColors
 import network.buildit.ui.theme.BuildItTheme
@@ -96,6 +100,29 @@ fun ChatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val typingUser by viewModel.isTyping.collectAsState()
+    var linkPreviews by remember { mutableStateOf<List<LinkPreview>>(emptyList()) }
+    var isGeneratingPreviews by remember { mutableStateOf(false) }
+    val linkPreviewService = remember { LinkPreviewService() }
+
+    // Debounced URL detection for active conversation input
+    val currentInputText = (uiState as? ChatUiState.ActiveConversation)?.inputText ?: ""
+    LaunchedEffect(currentInputText) {
+        delay(500) // Debounce
+        val urls = LinkPreviewService.extractUrls(currentInputText)
+        if (urls.isNotEmpty()) {
+            val existingUrls = linkPreviews.map { it.url }.toSet()
+            val newUrls = urls.filter { it !in existingUrls }
+            if (newUrls.isNotEmpty()) {
+                isGeneratingPreviews = true
+                val newPreviews = linkPreviewService.generatePreviews(newUrls)
+                linkPreviews = (linkPreviews + newPreviews).distinctBy { it.url }
+                isGeneratingPreviews = false
+            }
+            linkPreviews = linkPreviews.filter { it.url in urls.toSet() }
+        } else {
+            linkPreviews = emptyList()
+        }
+    }
 
     when (val state = uiState) {
         is ChatUiState.ConversationList -> {
@@ -115,9 +142,18 @@ fun ChatScreen(
                 transportStatus = state.transportStatus,
                 typingUser = typingUser,
                 replyToMessage = state.replyToMessage,
+                linkPreviews = linkPreviews,
+                isGeneratingPreviews = isGeneratingPreviews,
+                onRemovePreview = { url -> linkPreviews = linkPreviews.filter { it.url != url } },
                 onInputChanged = { viewModel.updateInput(it) },
-                onSend = { viewModel.sendMessage() },
-                onBack = { viewModel.closeConversation() },
+                onSend = {
+                    viewModel.sendMessage()
+                    linkPreviews = emptyList()
+                },
+                onBack = {
+                    viewModel.closeConversation()
+                    linkPreviews = emptyList()
+                },
                 onReplyToMessage = { viewModel.setReplyTo(it) },
                 onClearReply = { viewModel.clearReplyTo() }
             )
@@ -287,6 +323,9 @@ private fun ActiveConversationScreen(
     transportStatus: TransportStatus,
     typingUser: String? = null,
     replyToMessage: MessageEntity? = null,
+    linkPreviews: List<LinkPreview> = emptyList(),
+    isGeneratingPreviews: Boolean = false,
+    onRemovePreview: (String) -> Unit = {},
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
     onBack: () -> Unit,
@@ -347,6 +386,15 @@ private fun ActiveConversationScreen(
                             onDismiss = onClearReply
                         )
                     }
+                }
+
+                // Link previews
+                if (linkPreviews.isNotEmpty() || isGeneratingPreviews) {
+                    LinkPreviewStrip(
+                        previews = linkPreviews,
+                        isLoading = isGeneratingPreviews,
+                        onRemove = onRemovePreview
+                    )
                 }
 
                 // Typing indicator

@@ -53,6 +53,12 @@
             "pattern": "^[0-9a-f]{64}$"
           },
           "description": "Pubkeys of mentioned users"
+        },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews"
         }
       }
     },
@@ -93,6 +99,12 @@
             "type": "string",
             "pattern": "^[0-9a-f]{64}$"
           }
+        },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews"
         }
       }
     },

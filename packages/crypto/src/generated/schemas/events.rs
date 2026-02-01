@@ -46,6 +46,9 @@ pub struct Event {
     /// Unique event identifier
     pub id: String,
 
+    /// Signal-style encrypted link previews for URLs in event description
+    pub link_previews: Option<Vec<LinkPreview>>,
+
     pub location: Option<LocationClass>,
 
     /// Maximum number of attendees
@@ -99,6 +102,57 @@ pub enum Type {
     Image,
 
     Link,
+}
+
+/// Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail,
+/// encrypts with content. Recipients see static previews — zero third-party requests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkPreview {
+    /// Open Graph og:description
+    pub description: Option<String>,
+
+    /// Base64-encoded favicon (max ~10KB)
+    pub favicon_data: Option<String>,
+
+    /// Favicon MIME type
+    pub favicon_type: Option<String>,
+
+    /// Unix timestamp when preview was generated
+    pub fetched_at: i64,
+
+    /// Who fetched the preview — sender (direct) or proxy (API worker)
+    pub fetched_by: FetchedBy,
+
+    /// Base64-encoded thumbnail (max ~50KB, encrypted with content)
+    pub image_data: Option<String>,
+
+    /// Image height in pixels
+    pub image_height: Option<i64>,
+
+    /// MIME type (image/jpeg, image/png, image/webp)
+    pub image_type: Option<String>,
+
+    /// Image width in pixels
+    pub image_width: Option<i64>,
+
+    /// Open Graph og:site_name
+    pub site_name: Option<String>,
+
+    /// Open Graph og:title
+    pub title: Option<String>,
+
+    /// Original URL
+    pub url: String,
+}
+
+/// Who fetched the preview — sender (direct) or proxy (API worker)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FetchedBy {
+    Proxy,
+
+    Sender,
 }
 
 /// Physical location for an event

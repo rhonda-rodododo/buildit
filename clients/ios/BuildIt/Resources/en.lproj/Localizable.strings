@@ -5801,3 +5801,9 @@
 "wikiView_subtitle" = "Collaborative documentation and resources";
 "wikiView_title" = "Knowledge Base";
 "wikiView_updated" = "Updated %@";
+
+/* Link Preview */
+"link_preview.generating" = "Generating preview…";
+"link_preview.failed" = "Could not load preview";
+"link_preview.open" = "Open link";
+"link_preview.remove" = "Remove preview";

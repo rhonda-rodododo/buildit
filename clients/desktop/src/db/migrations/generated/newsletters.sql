@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS "newsletter_campaigns" (
     "open_count" INTEGER DEFAULT 0,
     "click_count" INTEGER DEFAULT 0,
     "segments" TEXT,
+    "link_previews" TEXT,
     "created_by" TEXT NOT NULL,
     "created_at" INTEGER NOT NULL,
     "updated_at" INTEGER

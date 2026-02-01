@@ -8,7 +8,7 @@
  * Note: This runs on the sender's device. The image data
  * is encrypted with the post content using NIP-17.
  *
- * Uses Cloudflare Pages Functions as API endpoints:
+ * Uses BuildIt API Worker (Cloudflare Workers) endpoints:
  * - /api/link-preview - Fetches Open Graph metadata
  * - /api/image-proxy - Proxies image fetches for CORS
  */
@@ -20,6 +20,7 @@ import type {
   OpenGraphData,
   LinkPreviewCacheEntry,
 } from './types'
+import { FetchedBy } from './types'
 
 // Default options
 const DEFAULT_OPTIONS: Required<LinkPreviewOptions> = {
@@ -37,14 +38,10 @@ const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
 
 /**
  * Get base URL for API calls
- * In development, use relative URLs (Vite proxy or local wrangler)
- * In production, use same origin (Cloudflare Pages Functions)
+ * Points to the BuildIt API Worker (shared across all platforms)
  */
 function getApiBaseUrl(): string {
-  // Always use relative URLs - works with both:
-  // - Vite dev server (with proxy config)
-  // - Cloudflare Pages (functions at /api/*)
-  return ''
+  return import.meta.env.VITE_API_URL || 'https://buildit-api.rikki-schulte.workers.dev'
 }
 
 /**
@@ -362,7 +359,7 @@ export async function generatePreview(
       description: ogData.description?.slice(0, 300), // Limit description length
       siteName: ogData.siteName,
       fetchedAt: Date.now(),
-      fetchedBy: 'sender',
+      fetchedBy: FetchedBy.Sender,
     }
 
     // Fetch and compress thumbnail if available

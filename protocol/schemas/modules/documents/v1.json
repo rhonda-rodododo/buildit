@@ -88,6 +88,12 @@
           },
           "description": "Pubkeys of users with edit permission"
         },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "https://buildit.network/schemas/modules/content/v1.json#/$defs/LinkPreview" },
+          "maxItems": 10,
+          "description": "Signal-style encrypted link previews for URLs in document"
+        },
         "version": {
           "type": "integer",
           "minimum": 1,

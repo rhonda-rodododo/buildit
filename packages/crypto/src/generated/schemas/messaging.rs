@@ -26,6 +26,9 @@ pub struct DirectMessage {
     /// Message text content
     pub content: String,
 
+    /// Signal-style encrypted link previews
+    pub link_previews: Option<Vec<DirectMessageLinkPreview>>,
+
     /// Pubkeys of mentioned users
     pub mentions: Option<Vec<String>>,
 
@@ -82,6 +85,57 @@ pub struct PurpleDimensions {
     pub width: Option<i64>,
 }
 
+/// Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail,
+/// encrypts with content. Recipients see static previews — zero third-party requests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DirectMessageLinkPreview {
+    /// Open Graph og:description
+    pub description: Option<String>,
+
+    /// Base64-encoded favicon (max ~10KB)
+    pub favicon_data: Option<String>,
+
+    /// Favicon MIME type
+    pub favicon_type: Option<String>,
+
+    /// Unix timestamp when preview was generated
+    pub fetched_at: i64,
+
+    /// Who fetched the preview — sender (direct) or proxy (API worker)
+    pub fetched_by: FetchedBy,
+
+    /// Base64-encoded thumbnail (max ~50KB, encrypted with content)
+    pub image_data: Option<String>,
+
+    /// Image height in pixels
+    pub image_height: Option<i64>,
+
+    /// MIME type (image/jpeg, image/png, image/webp)
+    pub image_type: Option<String>,
+
+    /// Image width in pixels
+    pub image_width: Option<i64>,
+
+    /// Open Graph og:site_name
+    pub site_name: Option<String>,
+
+    /// Open Graph og:title
+    pub title: Option<String>,
+
+    /// Original URL
+    pub url: String,
+}
+
+/// Who fetched the preview — sender (direct) or proxy (API worker)
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FetchedBy {
+    Proxy,
+
+    Sender,
+}
+
 /// Group message content
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -95,6 +149,9 @@ pub struct GroupMessage {
 
     /// Target group identifier
     pub group_id: String,
+
+    /// Signal-style encrypted link previews
+    pub link_previews: Option<Vec<GroupMessageLinkPreview>>,
 
     pub mentions: Option<Vec<String>>,
 
@@ -139,6 +196,48 @@ pub struct FluffyDimensions {
     pub height: Option<i64>,
 
     pub width: Option<i64>,
+}
+
+/// Privacy-preserving link preview (Signal-style). Sender fetches OG metadata + thumbnail,
+/// encrypts with content. Recipients see static previews — zero third-party requests.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GroupMessageLinkPreview {
+    /// Open Graph og:description
+    pub description: Option<String>,
+
+    /// Base64-encoded favicon (max ~10KB)
+    pub favicon_data: Option<String>,
+
+    /// Favicon MIME type
+    pub favicon_type: Option<String>,
+
+    /// Unix timestamp when preview was generated
+    pub fetched_at: i64,
+
+    /// Who fetched the preview — sender (direct) or proxy (API worker)
+    pub fetched_by: FetchedBy,
+
+    /// Base64-encoded thumbnail (max ~50KB, encrypted with content)
+    pub image_data: Option<String>,
+
+    /// Image height in pixels
+    pub image_height: Option<i64>,
+
+    /// MIME type (image/jpeg, image/png, image/webp)
+    pub image_type: Option<String>,
+
+    /// Image width in pixels
+    pub image_width: Option<i64>,
+
+    /// Open Graph og:site_name
+    pub site_name: Option<String>,
+
+    /// Open Graph og:title
+    pub title: Option<String>,
+
+    /// Original URL
+    pub url: String,
 }
 
 /// Media attachment

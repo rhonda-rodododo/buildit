@@ -245,6 +245,7 @@ struct ConversationView: View {
     @State private var messageText = ""
     @State private var messages: [QueuedMessage] = []
     @FocusState private var isInputFocused: Bool
+    @StateObject private var linkDetector = LinkPreviewDetector()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -269,6 +270,16 @@ struct ConversationView: View {
                         }
                     }
                 }
+            }
+
+            // Link previews above input
+            if !linkDetector.previews.isEmpty || linkDetector.isLoading {
+                LinkPreviewStrip(
+                    previews: linkDetector.previews,
+                    isLoading: linkDetector.isLoading,
+                    onRemove: { url in linkDetector.removePreview(url: url) }
+                )
+                .padding(.vertical, 4)
             }
 
             Divider()
@@ -328,6 +339,9 @@ struct ConversationView: View {
             loadMessages()
             viewModel.markAsRead(conversation: conversation)
         }
+        .onChange(of: messageText) { _, newValue in
+            linkDetector.textDidChange(newValue)
+        }
     }
 
     private func loadMessages() {
@@ -340,10 +354,12 @@ struct ConversationView: View {
         guard !messageText.isEmpty else { return }
 
         let text = messageText
+        let previews = linkDetector.previews
         messageText = ""
+        linkDetector.clearPreviews()
 
         Task {
-            await viewModel.sendMessage(text, to: conversation.participantPublicKey)
+            await viewModel.sendMessage(text, to: conversation.participantPublicKey, linkPreviews: previews)
             loadMessages()
         }
     }

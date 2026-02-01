@@ -1,52 +1,15 @@
 /**
  * Link Preview Types
  *
- * Types for Signal-style encrypted link previews.
- * Sender fetches Open Graph metadata, encrypts it into the post,
- * and recipients view static previews without third-party requests.
+ * Protocol type (`LinkPreview`, `FetchedBy`) comes from the generated content module.
+ * Service/hook types below are web-only implementation details.
+ *
+ * @module lib/linkPreview/types
  */
 
-/**
- * Link preview data structure
- * Encrypted with the post content using NIP-17
- */
-export interface LinkPreview {
-  /** Original URL */
-  url: string
-
-  /** Open Graph og:title */
-  title?: string
-
-  /** Open Graph og:description */
-  description?: string
-
-  /** Open Graph og:site_name */
-  siteName?: string
-
-  /** Base64-encoded thumbnail image data (stored encrypted with post) */
-  imageData?: string
-
-  /** MIME type of the image (image/jpeg, image/png, image/webp) */
-  imageType?: string
-
-  /** Image width in pixels */
-  imageWidth?: number
-
-  /** Image height in pixels */
-  imageHeight?: number
-
-  /** Favicon data as base64 (optional, small) */
-  faviconData?: string
-
-  /** Favicon MIME type */
-  faviconType?: string
-
-  /** Timestamp when preview was generated */
-  fetchedAt: number
-
-  /** Who fetched the preview */
-  fetchedBy: 'sender' | 'proxy'
-}
+// Re-export protocol types from generated content module
+export type { LinkPreview } from '@/generated/schemas/content'
+export { FetchedBy } from '@/generated/schemas/content'
 
 /**
  * Open Graph metadata extracted from a URL
@@ -105,7 +68,7 @@ export interface LinkPreviewResult {
   success: boolean
 
   /** The generated preview (if successful) */
-  preview?: LinkPreview
+  preview?: import('@/generated/schemas/content').LinkPreview
 
   /** Error message (if failed) */
   error?: string
@@ -119,7 +82,7 @@ export interface LinkPreviewResult {
  */
 export interface LinkPreviewCacheEntry {
   /** The preview data */
-  preview: LinkPreview
+  preview: import('@/generated/schemas/content').LinkPreview
 
   /** When the cache entry was created */
   cachedAt: number
@@ -139,7 +102,7 @@ export interface LinkPreviewState {
   error: string | null
 
   /** Generated previews (keyed by URL) */
-  previews: Map<string, LinkPreview>
+  previews: Map<string, import('@/generated/schemas/content').LinkPreview>
 }
 
 /**
@@ -153,7 +116,7 @@ export interface UseLinkPreviewResult {
   error: string | null
 
   /** Generated previews */
-  previews: LinkPreview[]
+  previews: import('@/generated/schemas/content').LinkPreview[]
 
   /** Manually trigger preview generation for URLs */
   generatePreviews: (urls: string[]) => Promise<void>
