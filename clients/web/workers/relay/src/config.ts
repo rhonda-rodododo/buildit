@@ -18,7 +18,7 @@ export const relayInfo: RelayInfo = {
   pubkey: '', // Set via RELAY_PUBKEY env var
   contact: '', // Set via RELAY_CONTACT env var
   supported_nips: [1, 2, 4, 9, 11, 12, 15, 16, 17, 20, 22, 28, 33, 40, 42, 44, 45, 50, 59],
-  software: 'https://github.com/Spl0itable/nosflare',
+  software: 'https://github.com/buildit-network/buildit-network',
   version: '1.0.0',
   icon: '',
   limitation: {

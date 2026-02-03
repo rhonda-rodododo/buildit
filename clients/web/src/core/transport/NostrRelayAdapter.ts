@@ -50,7 +50,7 @@ const DEFAULT_CONFIG: NostrRelayAdapterConfig = {
   relays: [
     { url: 'wss://relay.damus.io', read: true, write: true },
     { url: 'wss://relay.primal.net', read: true, write: true },
-    { url: 'wss://relay.nostr.band', read: true, write: true },
+    { url: 'wss://relay.snort.social', read: true, write: true },
     { url: 'wss://nos.lol', read: true, write: true },
   ],
   autoReconnect: true,

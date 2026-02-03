@@ -3,26 +3,56 @@
  * Tests Tor detection, configuration, and .onion relay usage
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+import { waitForAppReady, clearStorageAndReload } from './helpers/helpers';
+
+// Helper function to create identity - uses modern tab-based auth flow
+async function createIdentity(page: Page, name = 'Test User', password = 'testpassword123') {
+  const createNewTab = page.getByRole('tab', { name: /create new/i });
+  await createNewTab.click();
+  await page.waitForTimeout(300);
+
+  const panel = page.getByRole('tabpanel', { name: /create new/i });
+  await panel.getByRole('textbox', { name: /display name/i }).fill(name);
+  await panel.getByRole('textbox', { name: /^password$/i }).fill(password);
+  await panel.getByRole('textbox', { name: /confirm password/i }).fill(password);
+
+  const createButton = panel.getByRole('button', { name: /create identity/i });
+  await expect(createButton).toBeEnabled({ timeout: 5000 });
+  await createButton.click();
+
+  await page.waitForURL(/\/app/, { timeout: 15000 });
+}
 
 test.describe('Tor Integration', () => {
+  test.setTimeout(60000);
+
   test.beforeEach(async ({ page }) => {
     // Navigate to BuildIt and create/login with test identity
     await page.goto('/');
+    await clearStorageAndReload(page);
 
-    // Check if we need to create an identity
-    const hasCreateButton = await page.locator('button:has-text("Create Identity")').count();
-    if (hasCreateButton > 0) {
-      await page.click('button:has-text("Create Identity")');
-      await page.fill('[data-testid="name-input"]', 'Tor Test User');
-      await page.click('button:has-text("Continue")');
-    }
+    // Wait for login page
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+
+    // Create identity
+    await createIdentity(page, 'Tor Test User', 'torpassword123');
+
+    // Verify we're logged in
+    await expect(page).toHaveURL(/\/app/);
   });
 
   test('should display Tor tab in security settings', async ({ page }) => {
-    // Navigate to security settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
 
     // Check for Tor tab
     const torTab = page.locator('button[value="tor"]:has-text("Tor")');
@@ -38,8 +68,17 @@ test.describe('Tor Integration', () => {
 
   test('should show Tor status indicator', async ({ page }) => {
     // Navigate to security settings → Tor tab
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Check for status indicator
@@ -52,8 +91,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow toggling Tor routing', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Find the enable/disable toggle
@@ -83,8 +131,17 @@ test.describe('Tor Integration', () => {
 
   test('should display connection method options', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Find connection method selector
@@ -102,8 +159,17 @@ test.describe('Tor Integration', () => {
 
   test('should show manual proxy configuration when selected', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Enable Tor first
@@ -130,8 +196,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow updating proxy host and port', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Enable Tor
@@ -161,8 +236,17 @@ test.describe('Tor Integration', () => {
 
   test('should display onion relay list', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Scroll to relay list
@@ -179,8 +263,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow adding custom onion relay', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Find "Add Custom Relay" section
@@ -212,8 +305,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow removing custom relay', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Add a custom relay first
@@ -240,8 +342,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow running relay health check', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Find health check button
@@ -264,8 +375,17 @@ test.describe('Tor Integration', () => {
 
   test('should display enhanced security options', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Scroll to Enhanced Security section
@@ -284,8 +404,17 @@ test.describe('Tor Integration', () => {
 
   test('should allow toggling onion only mode', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Enable Tor first
@@ -309,8 +438,17 @@ test.describe('Tor Integration', () => {
 
   test('should show Tor setup information', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Scroll to bottom to find info alert
@@ -323,8 +461,17 @@ test.describe('Tor Integration', () => {
 
   test('should persist Tor configuration after reload', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Enable Tor
@@ -347,8 +494,17 @@ test.describe('Tor Integration', () => {
     await page.waitForLoadState('networkidle');
 
     // Navigate back to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Verify settings persisted
@@ -360,8 +516,17 @@ test.describe('Tor Integration', () => {
 
   test('should show warning badges for security issues', async ({ page }) => {
     // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
+    // Navigate to security settings via sidebar
+    const settingsNav = page.getByRole('link', { name: 'Settings' });
+    await settingsNav.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityNav = page.getByRole('link', { name: /security/i });
+    if (await securityNav.isVisible({ timeout: 2000 })) {
+      await securityNav.click();
+      await page.waitForLoadState('networkidle');
+    }
+
     await page.click('button[value="tor"]');
 
     // Look for security warnings section (if any warnings present)
@@ -382,18 +547,23 @@ test.describe('Tor Detection', () => {
     // For now, we test that the detection code runs without errors
 
     await page.goto('/');
+    await clearStorageAndReload(page);
 
-    // Create identity if needed
-    const hasCreateButton = await page.locator('button:has-text("Create Identity")').count();
-    if (hasCreateButton > 0) {
-      await page.click('button:has-text("Create Identity")');
-      await page.fill('[data-testid="name-input"]', 'Tor Detection Test');
-      await page.click('button:has-text("Continue")');
+    // Wait for login page and create identity
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
+    await createIdentity(page, 'Tor Detection Test', 'tordetectpass1');
+
+    // Navigate to Tor settings via sidebar
+    const settingsLink = page.getByRole('link', { name: 'Settings' });
+    await settingsLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const securityLink = page.getByRole('link', { name: /security/i });
+    if (await securityLink.isVisible({ timeout: 2000 })) {
+      await securityLink.click();
+      await page.waitForLoadState('networkidle');
     }
 
-    // Navigate to Tor settings
-    await page.click('[data-testid="settings-link"]');
-    await page.click('text=Security');
     await page.click('button[value="tor"]');
 
     // Verify detection ran (status should not be "detecting" after a few seconds)

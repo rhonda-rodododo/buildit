@@ -4,6 +4,7 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Microblogging - Posts CRUD', () => {
   let page: Page;
@@ -15,11 +16,8 @@ test.describe('Microblogging - Posts CRUD', () => {
 
     // Create identity and navigate to feed
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Navigate to activity feed (assuming sidebar link exists)
     const feedLink = page.getByRole('link', { name: /feed|activity/i }).first();
@@ -175,11 +173,8 @@ test.describe('Microblogging - Reactions', () => {
 
     // Setup: Create identity and post
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     const feedLink = page.getByRole('link', { name: /feed/i }).first();
     if (await feedLink.isVisible()) {
@@ -300,11 +295,8 @@ test.describe('Microblogging - Comments & Threading', () => {
 
     // Setup
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     const feedLink = page.getByRole('link', { name: /feed/i }).first();
     if (await feedLink.isVisible()) {
@@ -437,11 +429,8 @@ test.describe('Microblogging - Advanced Features', () => {
     page = await context.newPage();
 
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     const feedLink = page.getByRole('link', { name: /feed/i }).first();
     if (await feedLink.isVisible()) {

@@ -15,6 +15,8 @@ import {
   MessageSquare,
   Smartphone,
   Radio,
+  Link2,
+  Link2Off,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -46,6 +48,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import {
+  useLinkPreviewFromText,
+  LinkPreviewCard,
+  LinkPreviewSkeleton,
+} from '@/lib/linkPreview';
 import {
   BroadcastTargetType,
   BroadcastPriority,
@@ -111,6 +118,19 @@ export function BroadcastComposer({
   const [showEmergencyConfirm, setShowEmergencyConfirm] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkPreviewsEnabled, setLinkPreviewsEnabled] = useState(true);
+
+  // Signal-style link preview generation
+  const {
+    loading: previewLoading,
+    previews,
+    removePreview,
+    clearPreviews,
+  } = useLinkPreviewFromText(content, {
+    autoGenerate: linkPreviewsEnabled,
+    debounceMs: 800,
+    maxPreviews: 3,
+  });
 
   // Calculate recipient count
   const recipientCount = (() => {
@@ -263,7 +283,27 @@ export function BroadcastComposer({
 
           {/* Message Content */}
           <div className="space-y-2">
-            <Label htmlFor="content">{t('messageContent')}</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="content">{t('messageContent')}</Label>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-7 px-2 ${!linkPreviewsEnabled ? 'text-muted-foreground' : ''}`}
+                onClick={() => {
+                  setLinkPreviewsEnabled(!linkPreviewsEnabled);
+                  if (linkPreviewsEnabled) {
+                    clearPreviews();
+                  }
+                }}
+                aria-label={linkPreviewsEnabled ? 'Disable link previews' : 'Enable link previews'}
+              >
+                {linkPreviewsEnabled ? (
+                  <Link2 className="w-4 h-4" />
+                ) : (
+                  <Link2Off className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
             <Textarea
               id="content"
               value={content}
@@ -274,6 +314,23 @@ export function BroadcastComposer({
             <p className="text-xs text-muted-foreground text-right">
               {content.length} {t('characters')}
             </p>
+            {/* Link Previews */}
+            {linkPreviewsEnabled && (previews.length > 0 || previewLoading) && (
+              <div className="space-y-2">
+                {previewLoading && previews.length === 0 && (
+                  <LinkPreviewSkeleton compact />
+                )}
+                {previews.map((preview) => (
+                  <LinkPreviewCard
+                    key={preview.url}
+                    preview={preview}
+                    compact
+                    showRemove
+                    onRemove={() => removePreview(preview.url)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Delivery Channels */}

@@ -11,6 +11,15 @@
  */
 
 import { Node, mergeAttributes, type RawCommands, type CommandProps } from '@tiptap/core'
+
+// Augment TipTap Commands to include setSecureEmbed
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    secureEmbed: {
+      setSecureEmbed: (url: string) => ReturnType
+    }
+  }
+}
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from '@tiptap/react'
 import { FC, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'

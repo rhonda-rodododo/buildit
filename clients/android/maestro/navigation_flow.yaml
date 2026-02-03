@@ -1,0 +1,34 @@
+appId: network.buildit.dev
+---
+# Basic Navigation Flow
+# Verifies bottom navigation between all main tabs.
+
+- launchApp
+
+# Start on Chat tab
+- assertVisible:
+    text: "Chat"
+
+# Navigate to Groups
+- tapOn:
+    text: "Groups"
+- assertVisible:
+    text: "Groups"
+
+# Navigate to Device Sync
+- tapOn:
+    text: "Device Sync"
+- assertVisible:
+    text: "Device Sync"
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Settings"
+
+# Return to Chat
+- tapOn:
+    text: "Chat"
+- assertVisible:
+    text: "No messages yet. Start the conversation!"

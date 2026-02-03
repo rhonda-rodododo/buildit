@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
-import { clearStorageAndReload } from './helpers/test-utils'
+import { clearStorageAndReload } from './helpers/helpers'
 
 /**
  * Routing E2E Tests

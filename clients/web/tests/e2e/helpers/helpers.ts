@@ -131,6 +131,15 @@ export async function importIdentity(
 }
 
 /**
+ * Set up a fresh identity from scratch (clear storage, reload, create identity)
+ */
+export async function freshIdentitySetup(page: Page, name = 'Test User', password = 'testpassword123'): Promise<void> {
+  await page.goto('/');
+  await clearStorageAndReload(page);
+  await createIdentity(page, name, password);
+}
+
+/**
  * Login with a test user profile
  */
 export async function loginAsTestUser(
@@ -174,7 +183,7 @@ export async function navigateTo(
  * Navigate to settings
  */
 export async function navigateToSettings(page: Page): Promise<void> {
-  const settingsLink = page.getByRole('link', { name: 'Settings' });
+  const settingsLink = page.getByRole('link', { name: 'Settings' }).first();
   await settingsLink.click();
   await page.waitForLoadState('networkidle');
 }

@@ -27,6 +27,7 @@ import {
   Eye,
   ArrowLeft,
   Calendar,
+  Play,
 } from 'lucide-react';
 import type { NewsletterIssue, UpdateIssueInput, Newsletter } from '../types';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { SecureEmbed, EmbedInputDialog } from '@/modules/documents/extensions/SecureEmbed';
 
 interface NewsletterEditorProps {
   issue?: NewsletterIssue;
@@ -80,6 +82,7 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
       Placeholder.configure({
         placeholder: t('newsletterEditor.compose.editorPlaceholder'),
       }),
+      SecureEmbed,
     ],
     content: issue?.content || '',
     onUpdate: () => {
@@ -328,6 +331,16 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
                       >
                         —
                       </Button>
+                      <EmbedInputDialog
+                        onInsert={(url) => {
+                          editor?.chain().focus().setSecureEmbed(url).run()
+                        }}
+                        trigger={
+                          <Button variant="ghost" size="sm" title="Embed media">
+                            <Play className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
                     </div>
 
                     {/* Editor Content */}

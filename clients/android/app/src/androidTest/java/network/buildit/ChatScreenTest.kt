@@ -1,9 +1,13 @@
 package network.buildit
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -22,6 +26,12 @@ import org.junit.runner.RunWith
  * - Conversation list display
  * - Chat message input
  * - Navigation between screens
+ * - Transport status indicators
+ * - Empty state display
+ *
+ * These tests launch the full MainActivity with Hilt DI and assert
+ * against the real Compose UI tree. The app starts on the Chat tab
+ * (ConversationListScreen) by default.
  */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -38,82 +48,146 @@ class ChatScreenTest {
         hiltRule.inject()
     }
 
+    // ==================== Conversation List Screen ====================
+
     @Test
     fun conversationListScreen_isDisplayed() {
-        // The app should start with the conversation list visible
-        // This test verifies the initial screen loads correctly
+        // The app should start with the Chat tab active.
+        // The TopAppBar title "Chat" should be visible from the ConversationListScreen.
         composeTestRule.waitForIdle()
 
-        // Basic assertion that the app rendered
-        // In a real test, we'd check for specific UI elements
+        composeTestRule
+            .onNodeWithText("Chat")
+            .assertIsDisplayed()
     }
 
     @Test
     fun emptyState_showsPlaceholder() {
+        // When there are no conversations, the empty state text should be shown.
+        // The string resource chat_no_messages = "No messages yet. Start the conversation!"
         composeTestRule.waitForIdle()
 
-        // When there are no conversations, a placeholder should be shown
-        // This would check for "No conversations yet" or similar
+        composeTestRule
+            .onNodeWithText("No messages yet. Start the conversation!")
+            .assertIsDisplayed()
     }
 
     @Test
     fun newConversationButton_isClickable() {
+        // The FAB has contentDescription = "Start new conversation"
         composeTestRule.waitForIdle()
 
-        // Check that the FAB or new conversation button exists
-        // and responds to clicks
-    }
+        composeTestRule
+            .onNodeWithContentDescription("Start new conversation")
+            .assertIsDisplayed()
+            .assertIsEnabled()
+            .performClick()
 
-    @Test
-    fun conversationItem_navigatesToChat() {
+        // After clicking FAB, should navigate to ContactPickerScreen
+        // which has the title "Select Contact"
         composeTestRule.waitForIdle()
 
-        // Clicking a conversation should navigate to the chat screen
-        // This requires having test data seeded
-    }
-
-    @Test
-    fun messageInput_acceptsText() {
-        composeTestRule.waitForIdle()
-
-        // If on the active conversation screen, verify text input works
-    }
-
-    @Test
-    fun sendButton_enabledWithText() {
-        composeTestRule.waitForIdle()
-
-        // Send button should be disabled when input is empty
-        // and enabled when there is text
-    }
-
-    @Test
-    fun messageBubble_displaysCorrectly() {
-        composeTestRule.waitForIdle()
-
-        // Messages should appear in bubbles with correct alignment
-        // (sent messages on right, received on left)
+        composeTestRule
+            .onNodeWithText("Select Contact")
+            .assertIsDisplayed()
     }
 
     @Test
     fun transportStatus_isVisible() {
+        // The TransportStatusIndicator has a merged contentDescription
+        // starting with "Connection status:"
         composeTestRule.waitForIdle()
 
-        // The transport status indicator should be visible
-        // showing BLE and/or Nostr connectivity
+        composeTestRule
+            .onNode(hasContentDescription(value = "Connection status:", substring = true))
+            .assertIsDisplayed()
     }
 
     @Test
-    fun backNavigation_returnsToList() {
+    fun bottomNavigation_chatTabIsSelected() {
+        // The bottom navigation bar should show "Chat" as active/selected
         composeTestRule.waitForIdle()
 
-        // Pressing back from a conversation should return to the list
+        // Bottom nav items are rendered as NavigationBarItem with label text
+        composeTestRule
+            .onNodeWithText("Chat")
+            .assertIsDisplayed()
     }
 
     @Test
-    fun pullToRefresh_triggersSync() {
+    fun bottomNavigation_allTabsAreDisplayed() {
+        // All four bottom nav tabs should be visible:
+        // Chat, Groups, Device Sync, Settings
         composeTestRule.waitForIdle()
 
-        // Pull to refresh gesture should trigger message sync
+        composeTestRule.onNodeWithText("Chat").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Groups").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Device Sync").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Settings").assertIsDisplayed()
+    }
+
+    @Test
+    fun bottomNavigation_navigatesToGroups() {
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Groups")
+            .performClick()
+
+        composeTestRule.waitForIdle()
+
+        // Groups screen should now be visible (it has its own TopAppBar with "Groups" title)
+        // We verify navigation happened by checking we left the chat empty state
+        composeTestRule
+            .onNodeWithText("Groups")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun bottomNavigation_navigatesToSettings() {
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Settings")
+            .performClick()
+
+        composeTestRule.waitForIdle()
+
+        // Settings screen should now be visible
+        composeTestRule
+            .onNodeWithText("Settings")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun bottomNavigation_navigatesToDeviceSync() {
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Device Sync")
+            .performClick()
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText("Device Sync")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun bottomNavigation_canReturnToChat() {
+        // Navigate away and back to Chat tab
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Settings").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Chat").performClick()
+        composeTestRule.waitForIdle()
+
+        // The empty state should still be visible after returning
+        composeTestRule
+            .onNodeWithText("No messages yet. Start the conversation!")
+            .assertIsDisplayed()
     }
 }

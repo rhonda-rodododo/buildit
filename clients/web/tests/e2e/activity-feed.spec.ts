@@ -4,6 +4,7 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Activity Feed - Display & Filtering', () => {
   let page: Page;
@@ -15,11 +16,8 @@ test.describe('Activity Feed - Display & Filtering', () => {
 
     // Setup: Create identity and navigate to feed
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Navigate to activity feed
     const feedLink = page.getByRole('link', { name: /feed|activity/i }).first();
@@ -191,11 +189,8 @@ test.describe('Activity Feed - Content Moderation', () => {
     page = await context.newPage();
 
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     const feedLink = page.getByRole('link', { name: /feed/i }).first();
     if (await feedLink.isVisible()) {
@@ -303,11 +298,8 @@ test.describe('Activity Feed - Interactions', () => {
     page = await context.newPage();
 
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     const feedLink = page.getByRole('link', { name: /feed/i }).first();
     if (await feedLink.isVisible()) {
@@ -465,11 +457,8 @@ test.describe('Activity Feed - Multi-User Interactions', () => {
     try {
       // User 1: Create identity and post
       await page1.goto('/');
-      let generateButton = page1.getByRole('button', { name: /generate new identity/i });
-      if (await generateButton.isVisible()) {
-        await generateButton.click();
-      }
-      await page1.waitForURL(/\/(dashboard|groups)/);
+      await waitForAppReady(page1);
+      await createIdentity(page1, 'User One', 'testpassword123');
 
       const feedLink1 = page1.getByRole('link', { name: /feed/i }).first();
       if (await feedLink1.isVisible()) {
@@ -485,11 +474,8 @@ test.describe('Activity Feed - Multi-User Interactions', () => {
 
       // User 2: Create identity and post
       await page2.goto('/');
-      generateButton = page2.getByRole('button', { name: /generate new identity/i });
-      if (await generateButton.isVisible()) {
-        await generateButton.click();
-      }
-      await page2.waitForURL(/\/(dashboard|groups)/);
+      await waitForAppReady(page2);
+      await createIdentity(page2, 'User Two', 'testpassword123');
 
       const feedLink2 = page2.getByRole('link', { name: /feed/i }).first();
       if (await feedLink2.isVisible()) {

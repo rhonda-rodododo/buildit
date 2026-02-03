@@ -555,6 +555,45 @@ pub async fn db_execute_query(
     })
 }
 
+/// Delete records matching a WHERE clause
+#[tauri::command]
+pub async fn db_delete_where(
+    state: State<'_, Database>,
+    table: String,
+    where_clause: HashMap<String, Value>,
+) -> Result<u32, String> {
+    validate_table_name(&table)?;
+
+    if where_clause.is_empty() {
+        return Err("where_clause cannot be empty for db_delete_where (use db_clear_table instead)".to_string());
+    }
+
+    state.with_connection(|conn| {
+        let mut sql = format!("DELETE FROM \"{table}\"");
+        let mut params: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
+        let mut conditions = Vec::new();
+
+        for (key, value) in &where_clause {
+            let col = to_snake_case(key);
+            validate_column_name(&col)?;
+            params.push(json_to_sql(value));
+            conditions.push(format!("\"{}\" = ?{}", col, params.len()));
+        }
+
+        sql.push_str(" WHERE ");
+        sql.push_str(&conditions.join(" AND "));
+
+        let param_refs: Vec<&dyn rusqlite::types::ToSql> =
+            params.iter().map(|p| p.as_ref()).collect();
+
+        let affected = conn
+            .execute(&sql, param_refs.as_slice())
+            .map_err(|e| format!("db_delete_where failed: {e}"))?;
+
+        Ok(affected as u32)
+    })
+}
+
 /// Clear all data from a specific table
 #[tauri::command]
 pub async fn db_clear_table(

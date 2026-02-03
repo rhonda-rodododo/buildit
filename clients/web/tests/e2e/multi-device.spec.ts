@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { clearStorageAndReload } from './helpers/test-utils';
+import { clearStorageAndReload } from './helpers/helpers';
 
 /**
  * Multi-Device E2E Tests

@@ -146,6 +146,12 @@ export const DocumentsPage: FC = () => {
     return privateKey ? getPublicKey(privateKey) : ''
   }, [])
 
+  const collaboratorPubkeys = useMemo(() => {
+    if (!groupId) return []
+    const members = groupMembers.get(groupId)
+    return members ? members.map((m: DBGroupMember) => m.pubkey) : []
+  }, [groupMembers, groupId])
+
   // Filter and sort documents
   const filteredAndSortedDocs: DocType[] = useMemo(() => {
     // Start with a copy of the array
@@ -778,11 +784,7 @@ export const DocumentsPage: FC = () => {
                       getCurrentPrivateKey() ? getPublicKey(getCurrentPrivateKey()!) : undefined
                     }
                     userName={currentIdentity?.name || 'Anonymous'}
-                    collaboratorPubkeys={
-                      groupId && groupMembers.get(groupId)
-                        ? groupMembers.get(groupId)!.map((m: DBGroupMember) => m.pubkey)
-                        : []
-                    }
+                    collaboratorPubkeys={collaboratorPubkeys}
                   />
                 </div>
 

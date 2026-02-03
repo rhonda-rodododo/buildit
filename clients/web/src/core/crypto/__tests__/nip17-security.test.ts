@@ -97,12 +97,11 @@ describe('NIP-17 Security Functions', () => {
     it('should default to current time if no base time provided', () => {
       const before = Math.floor(Date.now() / 1000)
       const result = randomizeTimestamp()
-      const after = Math.floor(Date.now() / 1000)
       const twoDaysInSeconds = 2 * 24 * 60 * 60
 
-      // Result should be within 2 days of the current time
+      // Result should be in the past, within 2 days of current time
       expect(result).toBeGreaterThan(before - twoDaysInSeconds)
-      expect(result).toBeLessThan(after + twoDaysInSeconds)
+      expect(result).toBeLessThanOrEqual(before)
     })
 
     it('should produce different timestamps on repeated calls', () => {
@@ -137,28 +136,19 @@ describe('NIP-17 Security Functions', () => {
       expect(result).toBeLessThan(10000000000)
     })
 
-    it('should distribute timestamps roughly evenly across the 2-day window', () => {
+    it('should only produce timestamps in the past (never future)', () => {
       const baseTime = Date.now()
       const baseSeconds = Math.floor(baseTime / 1000)
-      const oneDayInSeconds = 24 * 60 * 60
+      const twoDaysInSeconds = 2 * 24 * 60 * 60
       const iterations = 1000
-
-      let beforeCount = 0
-      let afterCount = 0
 
       for (let i = 0; i < iterations; i++) {
         const result = randomizeTimestamp(baseTime)
-        if (result < baseSeconds) {
-          beforeCount++
-        } else {
-          afterCount++
-        }
+        // Must never be in the future — relays reject future timestamps
+        expect(result).toBeLessThanOrEqual(baseSeconds)
+        // Must be within the 2-day past window
+        expect(result).toBeGreaterThanOrEqual(baseSeconds - twoDaysInSeconds)
       }
-
-      // Should be roughly 50/50 before/after base time
-      const ratio = beforeCount / iterations
-      expect(ratio).toBeGreaterThan(0.35)
-      expect(ratio).toBeLessThan(0.65)
     })
 
     it('should not expose exact timing patterns', () => {

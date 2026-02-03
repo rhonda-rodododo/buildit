@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 /**
  * Visual Regression Tests
@@ -14,11 +15,8 @@ test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Login for authenticated pages
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('homepage visual snapshot', async ({ page }) => {

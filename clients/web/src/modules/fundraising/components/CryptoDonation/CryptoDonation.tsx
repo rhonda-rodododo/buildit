@@ -3,7 +3,7 @@
  * UI for cryptocurrency donations with QR codes and transaction monitoring
  */
 
-import { FC, useState, useEffect, useCallback } from 'react';
+import { FC, useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -88,6 +88,12 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
   // Mnemonic is stored in memory only (not persisted)
   const [mnemonic, setMnemonic] = useState<string>('');
 
+  // Refs to avoid circular dependencies in checkForPayment callback
+  const pendingTxRef = useRef(pendingTx);
+  const confirmedTxRef = useRef(confirmedTx);
+  pendingTxRef.current = pendingTx;
+  confirmedTxRef.current = confirmedTx;
+
   // Fetch prices on mount
   useEffect(() => {
     const fetchPrices = async () => {
@@ -153,6 +159,7 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
   }, [mnemonic, selectedCrypto, network]);
 
   // Monitor for incoming transactions
+  // Uses refs for pendingTx/confirmedTx to avoid circular dependency with monitoring useEffect
   const checkForPayment = useCallback(async () => {
     if (!paymentAddress) return;
 
@@ -180,23 +187,23 @@ export const CryptoDonation: FC<CryptoDonationProps> = ({
         // Update transaction with campaign info
         latestTx.campaignId = campaignId;
 
-        if (latestTx.status === 'confirmed' && !confirmedTx) {
+        if (latestTx.status === 'confirmed' && !confirmedTxRef.current) {
           setConfirmedTx(latestTx);
           setPendingTx(null);
           onPaymentConfirmed?.(latestTx);
           toast.success(t('cryptoDonation.toasts.paymentConfirmed'));
-        } else if (latestTx.status !== 'confirmed' && !pendingTx) {
+        } else if (latestTx.status !== 'confirmed' && !pendingTxRef.current) {
           setPendingTx(latestTx);
           onPaymentDetected?.(latestTx);
           toast.info(t('cryptoDonation.toasts.paymentDetected'));
-        } else if (pendingTx && latestTx.confirmations > pendingTx.confirmations) {
+        } else if (pendingTxRef.current && latestTx.confirmations > pendingTxRef.current.confirmations) {
           setPendingTx(latestTx);
         }
       }
     } catch (err) {
       console.error('Failed to check for payment:', err);
     }
-  }, [paymentAddress, selectedCrypto, network, campaignId, pendingTx, confirmedTx, onPaymentDetected, onPaymentConfirmed]);
+  }, [paymentAddress, selectedCrypto, network, campaignId, onPaymentDetected, onPaymentConfirmed]);
 
   // Start/stop monitoring
   useEffect(() => {

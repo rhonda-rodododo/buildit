@@ -1791,6 +1791,7 @@
     "insertImage": "插入图片",
     "insertLink": "插入链接",
     "insertTable": "插入表格",
+    "embedMedia": "嵌入媒体",
     "insertBlock": "插入块",
     "mathEquation": "数学公式",
     "diagram": "图表 (Mermaid)",

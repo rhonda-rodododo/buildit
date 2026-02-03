@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Group Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should create a new group', async ({ page }) => {

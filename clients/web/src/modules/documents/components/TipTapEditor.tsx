@@ -4,7 +4,7 @@
  * Real-time collaboration via Yjs CRDT with encrypted Nostr transport
  */
 
-import { FC, useEffect, useState, useCallback, useMemo } from 'react'
+import { FC, useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
@@ -71,6 +71,7 @@ import {
   Superscript,
   ChevronDown,
   PenLine,
+  Play,
   // Epic 56: New icons for page breaks and headers/footers
   SeparatorHorizontal,
   FileText,
@@ -83,6 +84,7 @@ import { MermaidBlock } from '../extensions/MermaidBlock'
 import { TableOfContents } from '../extensions/TableOfContents'
 import { Footnote } from '../extensions/Footnote'
 import { SuggestionModeExtension } from '../extensions/SuggestionModePlugin'
+import { SecureEmbed, EmbedInputDialog } from '../extensions/SecureEmbed'
 // Epic 56: Page breaks, Headers/Footers
 import { PageBreak } from '../extensions/PageBreak'
 import { HeaderFooter } from '../extensions/HeaderFooter'
@@ -150,7 +152,11 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
 
   const { addComment } = useDocumentsStore()
 
+  // Ref to hold the provider so we can update recipients without tearing down
+  const providerRef = useRef<EncryptedNostrProvider | null>(null)
+
   // Initialize Yjs and providers for collaboration
+  // Only tears down when identity or document fundamentally changes, NOT on collaborator list updates
   useEffect(() => {
     if (!enableCollaboration || !documentId || !groupId || !nostrClient || !userPrivateKey || !userPublicKey) {
       return
@@ -182,6 +188,7 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       awareness: awarenessInstance,
     })
     setProvider(nostrProvider)
+    providerRef.current = nostrProvider
 
     // Listen to connection status
     nostrProvider.on('status', ({ status }: { status: string }) => {
@@ -212,13 +219,23 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       setParticipants(activeParticipants)
     })
 
-    // Cleanup on unmount
+    // Cleanup on unmount or when identity/document changes
     return () => {
+      providerRef.current = null
       nostrProvider.destroy()
       indexeddbProvider.destroy()
       doc.destroy()
     }
-  }, [enableCollaboration, documentId, groupId, nostrClient, userPrivateKey, userPublicKey, userName, collaboratorPubkeys])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- collaboratorPubkeys and userName are handled by separate effects
+  }, [enableCollaboration, documentId, groupId, nostrClient, userPrivateKey, userPublicKey])
+
+  // Update recipient pubkeys on the existing provider when collaborators change
+  // This avoids tearing down the entire Yjs doc + Nostr connection
+  useEffect(() => {
+    if (providerRef.current && userPublicKey) {
+      providerRef.current.updateRecipients([userPublicKey, ...collaboratorPubkeys])
+    }
+  }, [collaboratorPubkeys, userPublicKey])
 
   // Build extensions array
   const extensions = useMemo(() => {
@@ -257,6 +274,8 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
       MermaidBlock,
       TableOfContents,
       Footnote,
+      // Secure social media embeds
+      SecureEmbed,
       // Epic 56: Page breaks and Headers/Footers
       PageBreak,
       HeaderFooter,
@@ -287,7 +306,10 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
 
   const editor = useEditor({
     extensions,
-    content: enableCollaboration ? undefined : content,
+    // Only skip content prop when Yjs collaboration is actually active (ydoc exists).
+    // If enableCollaboration is requested but Yjs hasn't initialized (no relay, no keys),
+    // we still need the content prop to render the stored content.
+    content: (enableCollaboration && ydoc) ? undefined : content,
     editable,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
@@ -643,6 +665,24 @@ export const TipTapEditor: FC<TipTapEditorProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t('editor.insertTable')}</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <EmbedInputDialog
+                  onInsert={(url) => {
+                    editor.chain().focus().setSecureEmbed(url).run()
+                  }}
+                  trigger={
+                    <Button variant="ghost" size="sm">
+                      <Play className="h-4 w-4" />
+                    </Button>
+                  }
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{t('editor.embedMedia')}</TooltipContent>
           </Tooltip>
 
           {/* Advanced Insert Dropdown - Epic 56 */}

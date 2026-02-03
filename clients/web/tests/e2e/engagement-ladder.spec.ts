@@ -4,18 +4,13 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 // Helper function to create a new identity and login
 async function loginWithNewIdentity(page: Page) {
   await page.goto('/');
-
-  const generateButton = page.getByRole('button', { name: /generate new identity/i });
-  if (await generateButton.isVisible()) {
-    await generateButton.click();
-  }
-
-  // Wait for redirect to dashboard/groups
-  await page.waitForURL(/\/(dashboard|groups|app)/);
+  await waitForAppReady(page);
+  await createIdentity(page, 'Test User', 'testpassword123');
 }
 
 // Helper function to navigate to engagement page

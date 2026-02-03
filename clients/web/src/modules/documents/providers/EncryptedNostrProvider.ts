@@ -115,6 +115,14 @@ export class EncryptedNostrProvider extends Observable<string> {
   }
 
   /**
+   * Update the list of recipient pubkeys without tearing down the provider.
+   * Useful when group membership changes while the editor is open.
+   */
+  updateRecipients(pubkeys: string[]): void {
+    this.recipientPubkeys = pubkeys
+  }
+
+  /**
    * Connect to Nostr relays and start syncing
    */
   async connect(): Promise<void> {

@@ -1,25 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Messaging', () => {
   test.beforeEach(async ({ page }) => {
     // Login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should send and view direct message', async ({ page, context }) => {
     // Open a new page for second user
     const page2 = await context.newPage();
     await page2.goto('/');
-    const generateButton2 = page2.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton2.isVisible()) {
-      await generateButton2.click();
-    }
-    await page2.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page2);
+    await createIdentity(page2, 'User Two', 'testpassword123');
 
     // Get page2's npub (if displayed)
     // For now, we'll just test the UI exists

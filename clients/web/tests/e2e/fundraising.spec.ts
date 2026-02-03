@@ -18,6 +18,7 @@
 
 import { test, expect } from '@playwright/test';
 import { nanoid } from 'nanoid';
+import { waitForAppReady } from './helpers/helpers';
 
 // Test configuration
 const TEST_GROUP_ID = 'test-group-' + nanoid(8);
@@ -29,7 +30,7 @@ test.describe('Fundraising Module', () => {
     await page.goto('/');
 
     // Wait for app to load
-    await page.waitForSelector('[data-testid="app-loaded"]', { timeout: 10000 });
+    await waitForAppReady(page);
   });
 
   test('should create a new fundraising campaign', async ({ page }) => {
@@ -304,7 +305,7 @@ test.describe('Fundraising Module - Privacy Features', () => {
   test('should support anonymous donations for bail funds', async ({ page }) => {
     // Navigate to fundraising
     await page.goto('/');
-    await page.waitForSelector('[data-testid="app-loaded"]');
+    await waitForAppReady(page);
     await page.click('[data-testid="fundraising-link"]');
 
     // Create bail fund campaign from template
@@ -328,7 +329,7 @@ test.describe('Fundraising Module - Recurring Donations', () => {
   test('should allow setting up recurring donations', async ({ page }) => {
     // Navigate to fundraising
     await page.goto('/');
-    await page.waitForSelector('[data-testid="app-loaded"]');
+    await waitForAppReady(page);
     await page.click('[data-testid="fundraising-link"]');
 
     // Edit campaign

@@ -1,12 +1,18 @@
 import { create } from 'zustand'
 import type { WikiPage, WikiCategory } from './types'
+import { generateSlug } from './types'
 
 interface WikiState {
   // Use objects/arrays instead of Maps for proper Zustand reactivity
   pages: Record<string, WikiPage>
   categories: Record<string, WikiCategory>
 
+  // Navigation state
+  currentPageId: string | null
+
   // Actions
+  setCurrentPage: (id: string | null) => void
+  createPage: (groupId: string) => string
   addPage: (page: WikiPage) => void
   updatePage: (id: string, updates: Partial<WikiPage>) => void
   removePage: (id: string) => void
@@ -24,6 +30,33 @@ interface WikiState {
 export const useWikiStore = create<WikiState>((set, get) => ({
   pages: {},
   categories: {},
+  currentPageId: null,
+
+  setCurrentPage: (id) => set({ currentPageId: id }),
+
+  createPage: (groupId) => {
+    const id = crypto.randomUUID()
+    const now = Date.now()
+    const page: WikiPage = {
+      _v: '1.0.0',
+      id,
+      groupId,
+      slug: generateSlug(`untitled-${id.slice(0, 8)}`),
+      title: '',
+      content: '',
+      version: 1,
+      status: 'draft',
+      createdBy: '0'.repeat(64), // placeholder until identity integration
+      createdAt: now,
+      updatedAt: now,
+      tags: [],
+    }
+    set((state) => ({
+      pages: { ...state.pages, [id]: page },
+      currentPageId: id,
+    }))
+    return id
+  },
 
   addPage: (page) => set((state) => ({
     pages: {

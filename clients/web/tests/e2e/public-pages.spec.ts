@@ -14,6 +14,7 @@
 
 import { test, expect } from '@playwright/test';
 import { nanoid } from 'nanoid';
+import { waitForAppReady } from './helpers/helpers';
 
 // Test configuration
 const TEST_GROUP_ID = 'test-group-' + nanoid(8);
@@ -25,7 +26,7 @@ test.describe('Public Pages Module', () => {
     await page.goto('/');
 
     // Wait for app to load
-    await page.waitForSelector('[data-testid="app-loaded"]', { timeout: 10000 });
+    await waitForAppReady(page);
   });
 
   test('should create a new public page', async ({ page }) => {

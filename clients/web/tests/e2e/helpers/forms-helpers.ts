@@ -511,11 +511,10 @@ export async function getAnalyticsMetrics(page: Page): Promise<{
  * Create identity and login
  */
 export async function createAndLoginIdentity(page: Page, name: string) {
+  const { waitForAppReady, createIdentity } = await import('./helpers');
   await page.goto('/');
-  await page.click('text=Get Started');
-  await page.fill('input[placeholder="Enter your name"]', name);
-  await page.click('button:has-text("Create Identity")');
-  await page.waitForURL(/\/app\//);
+  await waitForAppReady(page);
+  await createIdentity(page, name, 'testpassword123');
 }
 
 /**

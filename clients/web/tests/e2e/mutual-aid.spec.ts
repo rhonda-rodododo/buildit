@@ -1,14 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Mutual Aid Module', () => {
   test.beforeEach(async ({ page }) => {
     // Login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Create a group with mutual aid module enabled
     const createGroupButton = page.getByRole('button', { name: /create group|new group/i });

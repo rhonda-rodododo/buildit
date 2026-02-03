@@ -1,0 +1,35 @@
+# BuildIt Network API Worker
+# Shared API services for all platforms (desktop, iOS, Android)
+#
+# Endpoints:
+#   GET /api/link-preview?url=...  - Fetch Open Graph metadata
+#   GET /api/image-proxy?url=...   - Proxy image fetches (CORS bypass, IP hiding)
+#   GET /api/oembed?url=...        - Fetch oEmbed data from trusted providers
+#   GET /health                    - Health check
+
+name = "buildit-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Optional: KV namespace for caching (uncomment after creating)
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-namespace-id"
+
+[vars]
+ENVIRONMENT = "production"
+# Allowed origins for CORS (comma-separated, or * for all)
+ALLOWED_ORIGINS = "*"
+
+[env.dev]
+name = "buildit-api-dev"
+[env.dev.vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGINS = "*"
+
+[env.preview]
+name = "buildit-api-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+ALLOWED_ORIGINS = "*"

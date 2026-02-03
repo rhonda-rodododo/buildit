@@ -17,6 +17,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import Placeholder from '@tiptap/extension-placeholder';
+import { SecureEmbed, EmbedInputDialog } from '@/modules/documents/extensions/SecureEmbed';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -52,6 +53,7 @@ import {
   ImageIcon,
   Link as LinkIcon,
   Table as TableIcon,
+  Play,
   Save,
   Eye,
   Clock,
@@ -133,6 +135,7 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
       Placeholder.configure({
         placeholder: 'Start writing your article...',
       }),
+      SecureEmbed,
     ],
     content: article?.content || '',
     editorProps: {
@@ -558,6 +561,16 @@ export const ArticleEditor: FC<ArticleEditorProps> = ({
               <Button variant="ghost" size="sm" onClick={insertTable}>
                 <TableIcon className="h-4 w-4" />
               </Button>
+              <EmbedInputDialog
+                onInsert={(url) => {
+                  editor.chain().focus().setSecureEmbed(url).run()
+                }}
+                trigger={
+                  <Button variant="ghost" size="sm" title="Embed media">
+                    <Play className="h-4 w-4" />
+                  </Button>
+                }
+              />
 
               <Separator orientation="vertical" className="h-8" />
 

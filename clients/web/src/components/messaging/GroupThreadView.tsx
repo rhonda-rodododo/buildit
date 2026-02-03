@@ -7,6 +7,11 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Send } from 'lucide-react'
 import {
+  useLinkPreviewFromText,
+  LinkPreviewCard,
+  LinkPreviewSkeleton,
+} from '@/lib/linkPreview'
+import {
   sendGroupMessage,
   loadThreadMessages,
   subscribeToGroupThread,
@@ -24,6 +29,18 @@ export function GroupThreadView({ threadId, groupId, groupKey }: GroupThreadView
   const [newMessage, setNewMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Signal-style link preview generation
+  const {
+    loading: previewLoading,
+    previews,
+    removePreview,
+    clearPreviews,
+  } = useLinkPreviewFromText(newMessage, {
+    autoGenerate: true,
+    debounceMs: 800,
+    maxPreviews: 1,
+  })
 
   const { getThreadMessages, setThreadMessages, addThreadMessage } = useMessagingStore()
   const { currentIdentity } = useAuthStore()
@@ -102,6 +119,7 @@ export function GroupThreadView({ threadId, groupId, groupKey }: GroupThreadView
         groupKey
       )
       setNewMessage('')
+      clearPreviews()
     } catch (error) {
       console.error('Failed to send message:', error)
     } finally {
@@ -162,7 +180,24 @@ export function GroupThreadView({ threadId, groupId, groupKey }: GroupThreadView
       </div>
 
       {/* Input area */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-2">
+        {/* Link Previews */}
+        {(previews.length > 0 || previewLoading) && (
+          <div className="space-y-2">
+            {previewLoading && previews.length === 0 && (
+              <LinkPreviewSkeleton compact />
+            )}
+            {previews.map((preview) => (
+              <LinkPreviewCard
+                key={preview.url}
+                preview={preview}
+                compact
+                showRemove
+                onRemove={() => removePreview(preview.url)}
+              />
+            ))}
+          </div>
+        )}
         <div className="flex gap-2">
           <Input
             value={newMessage}

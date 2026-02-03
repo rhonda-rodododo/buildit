@@ -5,30 +5,18 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 // Test configuration
 const BASE_URL = 'http://localhost:5173';
-const TIMEOUT = 10000;
 
 /**
  * Helper: Create and login with new identity
  */
 async function setupIdentityAndNavigate(page: Page) {
-  await page.goto(BASE_URL);
-
-  // Create new identity if needed
-  const generateButton = page.getByRole('button', { name: /generate new identity|get started|create identity/i });
-  if (await generateButton.isVisible()) {
-    await generateButton.click();
-
-    // Wait for identity creation to complete
-    await page.waitForTimeout(1000);
-
-    // Check if we're logged in by waiting for app to load
-    await page.waitForURL(/\/(dashboard|app|groups|feed)/, { timeout: TIMEOUT });
-  }
-
-  await page.waitForTimeout(1500);
+  await page.goto('/');
+  await waitForAppReady(page);
+  await createIdentity(page, 'Test User', 'testpassword123');
 
   // Navigate to bulk operations page directly
   await page.goto(`${BASE_URL}/app/bulk-operations`);

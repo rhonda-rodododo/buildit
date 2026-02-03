@@ -2,31 +2,42 @@
  * E2E Tests for Custom Fields Module
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+import { waitForAppReady, clearStorageAndReload } from './helpers/helpers';
+
+// Helper function to create identity - uses modern tab-based auth flow
+async function createIdentity(page: Page, name = 'Test User', password = 'testpassword123') {
+  const createNewTab = page.getByRole('tab', { name: /create new/i });
+  await createNewTab.click();
+  await page.waitForTimeout(300);
+
+  const panel = page.getByRole('tabpanel', { name: /create new/i });
+  await panel.getByRole('textbox', { name: /display name/i }).fill(name);
+  await panel.getByRole('textbox', { name: /^password$/i }).fill(password);
+  await panel.getByRole('textbox', { name: /confirm password/i }).fill(password);
+
+  const createButton = panel.getByRole('button', { name: /create identity/i });
+  await expect(createButton).toBeEnabled({ timeout: 5000 });
+  await createButton.click();
+
+  await page.waitForURL(/\/app/, { timeout: 15000 });
+}
 
 test.describe('Custom Fields Module', () => {
+  test.setTimeout(60000);
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await clearStorageAndReload(page);
 
-    // Set up test identity - Check if already created
-    const hasIdentity = await page.locator('[data-testid="identity-selector"]').isVisible().catch(() => false);
+    // Wait for login page
+    await expect(page.getByRole('tab', { name: /create new/i })).toBeVisible({ timeout: 10000 });
 
-    if (!hasIdentity) {
-      // Create test identity
-      await page.fill('[data-testid="identity-name-input"]', 'E2E Test User');
-      await page.click('[data-testid="create-identity-button"]');
-      await page.waitForSelector('[data-testid="identity-selector"]');
-    }
+    // Create identity
+    await createIdentity(page, 'E2E Test User', 'testpassword123');
 
-    // Create test group if not exists
-    const hasGroup = await page.locator('[data-testid="group-settings"]').isVisible().catch(() => false);
-
-    if (!hasGroup) {
-      await page.click('[data-testid="create-group-button"]');
-      await page.fill('[data-testid="group-name-input"]', 'E2E Test Group');
-      await page.click('[data-testid="submit-group-button"]');
-      await page.waitForSelector('[data-testid="group-settings"]');
-    }
+    // Verify we're logged in
+    await expect(page).toHaveURL(/\/app/);
   });
 
   test('should create a custom field definition', async ({ page }) => {

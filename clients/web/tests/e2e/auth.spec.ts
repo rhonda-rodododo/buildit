@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clearStorageAndReload } from './helpers/test-utils';
+import { clearStorageAndReload } from './helpers/helpers';
 
 /**
  * Authentication E2E Tests

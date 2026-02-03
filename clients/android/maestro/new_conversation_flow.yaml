@@ -1,0 +1,26 @@
+appId: network.buildit.dev
+---
+# New Conversation Flow
+# Verifies the user can tap the FAB to start a new conversation
+# and navigate to the contact picker screen.
+
+- launchApp
+
+# Verify we're on the Chat screen
+- assertVisible:
+    text: "Chat"
+
+# Tap the new conversation FAB (identified by content description)
+- tapOn:
+    accessibilityLabel: "Start new conversation"
+
+# Should navigate to Contact Picker
+- assertVisible:
+    text: "Select Contact"
+
+# Press back to return to the conversation list
+- back
+
+# Verify we returned to the Chat screen
+- assertVisible:
+    text: "No messages yet. Start the conversation!"

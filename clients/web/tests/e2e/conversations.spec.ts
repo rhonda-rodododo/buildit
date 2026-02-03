@@ -5,19 +5,15 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
-
-// Test configuration
-const BASE_URL = 'http://localhost:5173';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 /**
  * Helper: Create a new identity and login
  */
 async function createAndLoginIdentity(page: Page, name: string) {
-  await page.goto(`${BASE_URL}/`);
-  await page.click('text=Get Started');
-  await page.fill('input[placeholder="Enter your name"]', name);
-  await page.click('button:has-text("Create Identity")');
-  await page.waitForURL(`${BASE_URL}/app/feed`);
+  await page.goto('/');
+  await waitForAppReady(page);
+  await createIdentity(page, name, 'testpassword123');
 }
 
 /**

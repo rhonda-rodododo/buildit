@@ -4,6 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 /**
  * EPIC 18: WebAuthn/Passkeys & Device Management
@@ -13,11 +14,8 @@ test.describe('Epic 18: WebAuthn/Passkeys & Device Management', () => {
   test.beforeEach(async ({ page }) => {
     // Create identity and login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should show WebAuthn setup dialog', async ({ page }) => {
@@ -127,11 +125,8 @@ test.describe('Epic 26: Anonymous Voting & Anonymous Reactions', () => {
   test.beforeEach(async ({ page }) => {
     // Create identity and login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should display anonymous reactions with toggle', async ({ page }) => {
@@ -305,11 +300,8 @@ test.describe('Epic 27: Member Verification & Infiltration Countermeasures', () 
   test.beforeEach(async ({ page }) => {
     // Create identity and login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should display Member Verification UI with trust scores', async ({ page }) => {
@@ -649,11 +641,8 @@ test.describe('Integration: Security Features', () => {
   test.beforeEach(async ({ page }) => {
     // Create identity and login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should show security demo page with all three epic features', async ({ page }) => {

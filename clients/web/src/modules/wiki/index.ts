@@ -13,7 +13,7 @@ import { logger } from '@/lib/logger';
 import { registerModuleTranslations } from '@/i18n/moduleI18n';
 import wikiTranslations from './i18n';
 
-// Lazy load WikiView to reduce initial bundle size (includes heavy md-editor)
+// Lazy load WikiView
 const WikiView = lazy(() => import('./components/WikiView').then(m => ({ default: m.WikiView })));
 
 /**
@@ -24,7 +24,7 @@ export const wikiModule: ModulePlugin = {
     id: 'wiki',
     type: 'wiki',
     name: 'Wiki',
-    description: 'Collaborative knowledge base with markdown editor and version control',
+    description: 'Collaborative knowledge base with rich text editor and version control',
     version: '1.0.0',
     author: 'BuildIt Network',
     icon: Book,

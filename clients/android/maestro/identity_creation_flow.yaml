@@ -1,0 +1,24 @@
+appId: network.buildit.dev
+---
+# Identity / Settings Flow
+# Verifies the user can navigate to Settings and see identity-related options.
+# Full identity creation requires cryptographic key generation which
+# happens automatically on first launch. This flow verifies the
+# settings screen is accessible and functional.
+
+- launchApp
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+
+# Settings screen should display
+- assertVisible:
+    text: "Settings"
+
+# Return to Chat
+- tapOn:
+    text: "Chat"
+
+- assertVisible:
+    text: "Chat"

@@ -8,6 +8,11 @@ import { getNostrClient } from '@/core/nostr/client'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UserMentionInput } from '@/components/mentions/UserMentionInput'
+import {
+  useLinkPreviewFromText,
+  LinkPreviewCard,
+  LinkPreviewSkeleton,
+} from '@/lib/linkPreview'
 
 interface MessageThreadProps {
   conversationId: string
@@ -21,6 +26,18 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
   const [messageInput, setMessageInput] = useState('')
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Signal-style link preview generation
+  const {
+    loading: previewLoading,
+    previews,
+    removePreview,
+    clearPreviews,
+  } = useLinkPreviewFromText(messageInput, {
+    autoGenerate: true,
+    debounceMs: 800,
+    maxPreviews: 1,
+  })
 
   const messages = getConversationMessages(conversationId)
   const conversation = conversations.find(c => c.id === conversationId)
@@ -107,6 +124,7 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
       )
 
       setMessageInput('')
+      clearPreviews()
     } catch (error) {
       console.error('Failed to send message:', error)
     } finally {
@@ -197,7 +215,24 @@ export const MessageThread: FC<MessageThreadProps> = ({ conversationId }) => {
       </div>
 
       {/* Input */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-2">
+        {/* Link Previews */}
+        {(previews.length > 0 || previewLoading) && (
+          <div className="space-y-2">
+            {previewLoading && previews.length === 0 && (
+              <LinkPreviewSkeleton compact />
+            )}
+            {previews.map((preview) => (
+              <LinkPreviewCard
+                key={preview.url}
+                preview={preview}
+                compact
+                showRemove
+                onRemove={() => removePreview(preview.url)}
+              />
+            ))}
+          </div>
+        )}
         <div className="flex gap-2 items-end">
           <div className="flex-1">
             <UserMentionInput

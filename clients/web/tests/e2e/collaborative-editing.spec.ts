@@ -5,9 +5,9 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test'
+import { waitForAppReady, createIdentity } from './helpers/helpers'
 
 // Test configuration
-const BASE_URL = 'http://localhost:5173'
 const TEST_GROUP_NAME = 'Test Collaboration Group'
 const TEST_DOCUMENT_TITLE = 'Collaborative Document'
 
@@ -15,15 +15,9 @@ const TEST_DOCUMENT_TITLE = 'Collaborative Document'
  * Helper: Create a new identity and login
  */
 async function createAndLoginIdentity(page: Page, name: string) {
-  await page.goto(`${BASE_URL}/`)
-
-  // Create new identity
-  await page.click('text=Get Started')
-  await page.fill('input[placeholder="Enter your name"]', name)
-  await page.click('button:has-text("Create Identity")')
-
-  // Wait for redirect to app
-  await page.waitForURL(`${BASE_URL}/app/feed`)
+  await page.goto('/')
+  await waitForAppReady(page)
+  await createIdentity(page, name, 'testpassword123')
 }
 
 /**

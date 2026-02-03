@@ -72,7 +72,7 @@ export const AppHeader: FC = () => {
   return (
     <>
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="mx-auto px-4 sm:px-6 lg:px-4 py-3 sm:py-4 lg:py-4 flex items-start justify-between ">
+        <div className="mx-auto px-4 sm:px-6 lg:px-4 py-3 sm:py-2 lg:py-2 flex items-start justify-between ">
           <div className="flex items-center gap-4">
             {/* Mobile menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -95,7 +95,6 @@ export const AppHeader: FC = () => {
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 {APP_CONFIG.name}
               </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">{APP_CONFIG.tagline}</p>
             </Link>
           </div>
 

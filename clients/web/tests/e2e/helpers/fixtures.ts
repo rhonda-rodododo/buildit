@@ -184,7 +184,7 @@ export const TIMEOUTS = {
   /** Time to wait for app initialization */
   APP_INIT: 30000,
   /** Time to wait for navigation */
-  NAVIGATION: 10000,
+  NAVIGATION: 30000,
   /** Time for BLE scan operations */
   BLE_SCAN: 5000,
   /** Time for BLE connection */

@@ -10,36 +10,19 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 // Helper function to create and login a user
 async function createUser(page: Page): Promise<{ publicKey: string; username: string }> {
   await page.goto('/');
-
-  // Wait for page to load
-  await page.waitForLoadState('networkidle');
-
-  const generateButton = page.getByRole('button', { name: /generate new identity/i });
-  if (await generateButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await generateButton.click();
-
-    // Wait for navigation after identity creation
-    await page.waitForURL(/\/(dashboard|groups|app)/, { timeout: 10000 }).catch(() => {
-      // If URL doesn't change, continue anyway (might already be logged in)
-    });
-  }
+  await waitForAppReady(page);
+  await createIdentity(page, 'Test User', 'testpassword123');
 
   // Generate a unique username for testing
   const username = `testuser${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
   // Mock public key (in real app, would be extracted from identity)
   const publicKey = `npub${Date.now()}${Math.random().toString(36).substring(2, 15)}`;
-
-  // Ensure we're on a valid page before proceeding
-  const currentUrl = page.url();
-  if (!currentUrl.includes('/app') && !currentUrl.includes('/dashboard') && !currentUrl.includes('/groups')) {
-    // Try navigating to app directly
-    await page.goto('/app');
-  }
 
   return { publicKey, username };
 }

@@ -15,7 +15,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "RELAY_DATABASE"
 database_name = "buildit-relay"
-database_id = "YOUR_D1_DATABASE_ID"  # Replace after running: wrangler d1 create buildit-relay
+database_id = "feffaaa1-7144-4099-8b93-3c5804d13b58"
 
 # Durable Object binding for WebSocket handling
 [[durable_objects.bindings]]
@@ -34,8 +34,8 @@ crons = ["0 3 * * *"]
 # Environment variables
 [vars]
 ENVIRONMENT = "production"
-# RELAY_PUBKEY = "your_hex_pubkey"  # Optional: set your relay operator pubkey
-# RELAY_CONTACT = "admin@buildit.network"  # Optional: contact email
+RELAY_PUBKEY = "dfd7fc964c1e368bd90660bedf7104bcb181963282752ee99105941ce07750d0"
+RELAY_CONTACT = "rikki.schulte@gmail.com"
 
 # Development environment
 [env.dev]

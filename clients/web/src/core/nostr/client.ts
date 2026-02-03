@@ -1,4 +1,5 @@
 import { SimplePool, type Event as NostrEvent, type Filter, mergeFilters } from 'nostr-tools'
+import type { SubCloser } from 'nostr-tools/abstract-pool'
 import type { RelayConfig, RelayStatus, Subscription, PublishResult } from '@/types/nostr'
 import { secureRandomString, secureRandomInt } from '@/lib/utils'
 
@@ -388,6 +389,7 @@ export class NostrClient {
   private relayStatus: Map<string, RelayStatus>
   private subscriptions: Map<string, Subscription>
   private obfuscatedSubscriptions: Map<string, ObfuscatedSubscription>
+  private subClosers: Map<string, SubCloser[]>
   private eventHandlers: Map<string, Set<(event: NostrEvent) => void>>
   private privacyConfig: PrivacyPublishConfig
   private messageQueue: MessageQueue
@@ -398,6 +400,7 @@ export class NostrClient {
     this.relayStatus = new Map()
     this.subscriptions = new Map()
     this.obfuscatedSubscriptions = new Map()
+    this.subClosers = new Map()
     this.eventHandlers = new Map()
 
     // Merge provided config with defaults
@@ -632,6 +635,7 @@ export class NostrClient {
     )
 
     // Subscribe to each relay with its specific filter set
+    const closers: SubCloser[] = []
     relayUrls.forEach((relayUrl, index) => {
       const relayFilters = obfuscatedFiltersPerRelay[index]
       if (relayFilters.length === 0) return
@@ -643,7 +647,7 @@ export class NostrClient {
         ? relayFilters[0]
         : mergeFilters(...relayFilters)
 
-      this.pool.subscribeMany(
+      const closer = this.pool.subscribeMany(
         [relayUrl],
         mergedFilter,
         {
@@ -668,7 +672,10 @@ export class NostrClient {
           },
         }
       )
+      closers.push(closer)
     })
+
+    this.subClosers.set(subId, closers)
 
     this.obfuscatedSubscriptions.set(subId, obfuscatedSub)
 
@@ -706,7 +713,7 @@ export class NostrClient {
     const relayUrls = this.getReadRelays()
     const mergedFilter = filters.length === 1 ? filters[0] : mergeFilters(...filters)
 
-    this.pool.subscribeMany(
+    const closer = this.pool.subscribeMany(
       relayUrls,
       mergedFilter,
       {
@@ -724,6 +731,8 @@ export class NostrClient {
         },
       }
     )
+
+    this.subClosers.set(subId, [closer])
 
     return subId
   }
@@ -939,28 +948,28 @@ export class NostrClient {
    * Unsubscribe from a subscription
    */
   unsubscribe(subId: string): void {
-    // Clean up obfuscated subscription if it exists
-    const obfuscatedSub = this.obfuscatedSubscriptions.get(subId)
-    if (obfuscatedSub) {
-      // Close all relay-specific subscriptions
-      obfuscatedSub.relaySubscriptions.forEach((_relaySubId, relayUrl) => {
-        this.pool.close([relayUrl])
-      })
-      this.obfuscatedSubscriptions.delete(subId)
+    // Close subscription handles (NOT the relay connections)
+    const closers = this.subClosers.get(subId)
+    if (closers) {
+      closers.forEach(closer => closer.close())
+      this.subClosers.delete(subId)
     }
 
+    this.obfuscatedSubscriptions.delete(subId)
     this.subscriptions.delete(subId)
-    // Note: SimplePool manages subscriptions internally
   }
 
   /**
    * Unsubscribe from all subscriptions
    */
   unsubscribeAll(): void {
-    // Clean up all obfuscated subscriptions
+    // Close all subscription handles
+    this.subClosers.forEach(closers => {
+      closers.forEach(closer => closer.close())
+    })
+    this.subClosers.clear()
     this.obfuscatedSubscriptions.clear()
     this.subscriptions.clear()
-    this.pool.close(this.getReadRelays())
   }
 
   /**
@@ -1067,12 +1076,15 @@ export class NostrClient {
 
     return new Promise((resolve) => {
       const events: NostrEvent[] = []
-      const timer = setTimeout(() => resolve(events), timeout)
+      const timer = setTimeout(() => {
+        closer.close()
+        resolve(events)
+      }, timeout)
 
       // Combine filters into a single filter for nostr-tools pool
       const combinedFilter = filters.length === 1 ? filters[0] : filters[0]
 
-      this.pool.subscribeMany(
+      const closer = this.pool.subscribeMany(
         relays,
         combinedFilter,
         {
@@ -1081,6 +1093,7 @@ export class NostrClient {
           },
           oneose: () => {
             clearTimeout(timer)
+            closer.close()
             resolve(events)
           },
         }
@@ -1194,8 +1207,14 @@ export class NostrClient {
    * Close all connections and cleanup
    */
   close(): void {
-    const allRelays = Array.from(this.relays.keys())
+    // Close all subscription handles first
+    this.subClosers.forEach(closers => {
+      closers.forEach(closer => closer.close())
+    })
+    this.subClosers.clear()
     this.messageQueue.clear()
+    // Close relay connections
+    const allRelays = Array.from(this.relays.keys())
     this.pool.close(allRelays)
     this.subscriptions.clear()
     this.obfuscatedSubscriptions.clear()
@@ -1218,7 +1237,7 @@ export function getNostrClient(relays?: RelayConfig[]): NostrClient {
     const defaultRelays: RelayConfig[] = relays || [
       { url: 'wss://relay.damus.io', read: true, write: true },
       { url: 'wss://relay.primal.net', read: true, write: true },
-      { url: 'wss://relay.nostr.band', read: true, write: true },
+      { url: 'wss://relay.snort.social', read: true, write: true },
       { url: 'wss://nos.lol', read: true, write: true },
     ]
     clientInstance = new NostrClient(defaultRelays)

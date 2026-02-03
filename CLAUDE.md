@@ -9,6 +9,7 @@ work offline, and serve the full spectrum of engagement — from casual
 supporters to core organizers to opposition researchers.
 
 **Read these to understand WHY we build what we build:**
+
 - **[Vision & Mission](docs/VISION.md)** — Who we serve, why we exist, design principles
 - **[User Personas](docs/personas/)** — Spectrum of Support personas across all target communities
 - **[Design Principles](docs/design-principles.md)** — Cross-platform UX standards
@@ -29,7 +30,17 @@ safely and effectively?"
 | **iOS** | Swift + SwiftUI | Native mobile app |
 | **Android** | Kotlin + Compose | Native mobile app |
 
-**Web presence for logged-out users**: Simple Cloudflare Workers (not a full app)
+**Web presence for logged-out users**: Cloudflare Workers SSR (not a full app)
+
+**Cloudflare Workers infrastructure:**
+
+| Worker | Purpose | Location |
+|--------|---------|----------|
+| **buildit-relay** | Nosflare-based Nostr relay (D1 + Durable Objects) | `clients/web/workers/relay/` |
+| **buildit-public** | SSR public pages for logged-out visitors | `clients/web/packages/ssr/` |
+| **buildit-api** | Shared API (link-preview, image-proxy, oEmbed) | `workers/api/` |
+
+**NOTE**: `clients/web/` is NOT deployed standalone to Cloudflare. It is only the UI layer embedded in Tauri desktop.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -43,11 +54,18 @@ safely and effectively?"
 │   Rust backend      │   Core BT       │   Android BLE           │
 │   btleplug BLE      │                 │                         │
 └─────────────────────┴─────────────────┴─────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                   CLOUDFLARE WORKERS                             │
+├─────────────────────────────┬───────────────────────────────────┤
+│   buildit-relay     │  buildit-public  │  buildit-api        │
+│   Nosflare relay    │  SSR pages       │  Link preview,      │
+│   D1 + Durable Obj  │  TanStack Start  │  image proxy, embed │
+└─────────────────────┴──────────────────┴─────────────────────┘
 ```
 
 ## Repository Structure
 
-```
+```shell
 buildit/
 ├── clients/
 │   ├── web/          # React + Vite UI layer (embedded in Tauri desktop)
@@ -59,6 +77,8 @@ buildit/
 ├── protocol/
 │   ├── schemas/      # JSON Schema (SOURCE OF TRUTH for all types)
 │   └── test-vectors/ # Cross-client validation tests
+├── workers/
+│   └── api/          # Shared Cloudflare Worker: link-preview, image-proxy, oEmbed
 ├── docs/
 │   ├── VISION.md        # Core vision, mission, principles
 │   ├── personas/        # Spectrum of Support user personas
@@ -96,17 +116,25 @@ bun run validate               # Validate all clients against protocol
 bun run test:all               # Run tests across all clients
 
 # Client-specific (from client directory)
-cd clients/web && bun run dev          # Web dev server
+cd clients/web && bun run dev          # Web dev server (Tauri UI layer)
 cd clients/web && bun run test         # Web tests
 cd clients/desktop && cargo tauri dev  # Desktop with Tauri
 cd clients/ios && xcodebuild           # iOS build
 cd clients/android && ./gradlew build  # Android build
+
+# Cloudflare Workers
+cd clients/web && bun run relay:dev     # Relay local dev
+cd clients/web && bun run relay:deploy  # Deploy relay to Cloudflare
+cd clients/web && bun run ssr:dev       # SSR local dev
+cd clients/web && bun run ssr:deploy    # Deploy SSR to Cloudflare
+cd workers/api && bun run dev           # API worker local dev
+cd workers/api && bun run deploy        # Deploy API worker to Cloudflare
 ```
 
 ### Agent Task Patterns
 
 #### Schema Change (Cross-Client)
-```
+
 1. Edit protocol/schemas/modules/{module}/v{N}.json
 2. Update protocol/schemas/modules/_registry.json
 3. Run: bun run codegen
@@ -114,18 +142,17 @@ cd clients/android && ./gradlew build  # Android build
 5. Update client code to use new fields
 6. Add test vectors to protocol/test-vectors/
 7. Single commit: "feat(protocol): add X to {module} schema"
-```
 
 #### Single Client Change
-```
+
 1. Edit files in clients/{platform}/
 2. Run tests: cd clients/{platform} && bun run test (or platform equivalent)
 3. Commit: "feat({platform}): description"
-```
 
 #### Parallel Multi-Client Implementation
-```
+
 When implementing same feature across clients:
+
 1. Create schema first (protocol/schemas/)
 2. Run codegen to generate types
 3. Spawn parallel agents:
@@ -134,11 +161,11 @@ When implementing same feature across clients:
    - Agent 3: clients/android/ implementation
 4. Each agent works independently using generated types
 5. Merge all changes in single commit
-```
 
 ### Client-Specific Context
 
 Each client has a `CLAUDE.md` with platform-specific instructions:
+
 - `clients/web/CLAUDE.md` - React, TypeScript, Vite, Tailwind
 - `clients/desktop/CLAUDE.md` - Tauri, Rust, BLE (wraps web ^)
 - `clients/ios/CLAUDE.md` - Swift, SwiftUI, Core Bluetooth
@@ -197,6 +224,7 @@ git tag v0.X.0-description
 ### Quality Gates
 
 Before marking any task complete:
+
 - [ ] Tests pass (`bun run test` or platform equivalent)
 - [ ] Types check (`bun run typecheck` or platform equivalent)
 - [ ] No regressions in other clients
@@ -205,6 +233,7 @@ Before marking any task complete:
 ## Quick Reference
 
 ### Nostr Event Kinds Used
+
 - 0: Profile metadata
 - 3: Contact list
 - 7: Reaction
@@ -214,12 +243,14 @@ Before marking any task complete:
 - 24242-24244: Device transfer
 
 ### BLE UUIDs
+
 - Service: `12345678-1234-5678-1234-56789abcdef0`
 - Message: `12345678-1234-5678-1234-56789abcdef1`
 - Identity: `12345678-1234-5678-1234-56789abcdef2`
 - Routing: `12345678-1234-5678-1234-56789abcdef3`
 
 ### Encryption
+
 - NIP-44: ChaCha20-Poly1305 (content encryption)
 - NIP-17: Gift wrap (metadata protection)
 - Argon2id: 64MB memory, 3 iterations, 4 parallelism (password-based KDF)

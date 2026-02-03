@@ -57,7 +57,7 @@ wrangler deploy
 After deploying, initialize the database:
 
 ```bash
-curl -X POST https://buildit-relay.YOUR_SUBDOMAIN.workers.dev/admin/init-db
+curl -X POST https://buildit-relay.rikki-schulte.workers.dev/admin/init-db
 ```
 
 ## Configuration

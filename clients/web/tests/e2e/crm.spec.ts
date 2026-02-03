@@ -3,11 +3,14 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/helpers';
 
 test.describe('CRM Module', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173');
-    // Setup: Create identity and group if needed
+    await page.goto('/');
+
+    // Wait for app to load
+    await waitForAppReady(page);
   });
 
   test('should display CRM templates', async ({ page }) => {

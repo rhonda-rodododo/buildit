@@ -11,9 +11,10 @@ import { detectProvider, getEmbedUrl, requiresOembed, enhanceEmbedUrl, calculate
 
 /**
  * Default oEmbed proxy URL
- * In production, this should point to your deployed Cloudflare Worker
+ * Points to the BuildIt API Worker (shared across all platforms)
  */
-const DEFAULT_PROXY_URL = import.meta.env.VITE_OEMBED_PROXY_URL || '/api/oembed'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://buildit-api.rikki-schulte.workers.dev'
+const DEFAULT_PROXY_URL = import.meta.env.VITE_OEMBED_PROXY_URL || `${API_BASE}/api/oembed`
 
 /**
  * Hook for loading embed data from URLs

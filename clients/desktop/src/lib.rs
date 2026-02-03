@@ -157,6 +157,7 @@ pub fn run() {
             commands::db_commands::db_bulk_put,
             commands::db_commands::db_count,
             commands::db_commands::db_execute_query,
+            commands::db_commands::db_delete_where,
             commands::db_commands::db_clear_table,
             // Call window commands
             windows::call_window::create_call_window,

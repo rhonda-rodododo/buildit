@@ -35,7 +35,7 @@ const SESSION_TIMEOUT_MS = 5 * 60 * 1000;
 const DEFAULT_TRANSFER_RELAYS = [
   'wss://relay.damus.io',
   'wss://nos.lol',
-  'wss://relay.nostr.band',
+  'wss://relay.snort.social',
 ];
 
 /**

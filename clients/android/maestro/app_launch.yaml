@@ -1,0 +1,21 @@
+appId: network.buildit.dev
+---
+# App Launch & Initial Screen Flow
+# Verifies the app launches successfully and shows the Chat tab by default.
+
+- launchApp
+
+- assertVisible:
+    text: "Chat"
+
+- assertVisible:
+    text: "No messages yet. Start the conversation!"
+
+- assertVisible:
+    text: "Groups"
+
+- assertVisible:
+    text: "Device Sync"
+
+- assertVisible:
+    text: "Settings"

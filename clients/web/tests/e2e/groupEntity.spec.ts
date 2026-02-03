@@ -4,18 +4,14 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Group Entity & Coalition Features', () => {
   test.beforeEach(async ({ page }) => {
     // Start at homepage and create identity
     await page.goto('/');
-
-    // Generate new identity if needed
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should display group entity components in group settings', async ({ page }) => {
@@ -104,13 +100,8 @@ test.describe('Group Entity & Coalition Features', () => {
 test.describe('Group Entity Database Operations', () => {
   test('should create and store group entity in IndexedDB', async ({ page }) => {
     await page.goto('/');
-
-    // Generate new identity if needed
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Test that IndexedDB tables exist
     const hasGroupEntityTables = await page.evaluate(async () => {
@@ -138,13 +129,8 @@ test.describe('Group Entity Database Operations', () => {
 
   test('should initialize group entity store', async ({ page }) => {
     await page.goto('/');
-
-    // Generate new identity if needed
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Test that group entity store exists and is initialized
     const storeExists = await page.evaluate(() => {
@@ -161,13 +147,8 @@ test.describe('Group Entity Database Operations', () => {
 test.describe('Group Entity UI Components', () => {
   test('should render without crashing when group entity components are loaded', async ({ page }) => {
     await page.goto('/');
-
-    // Generate new identity
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Navigate to groups page
     await page.goto('/groups');
@@ -184,13 +165,8 @@ test.describe('Group Entity UI Components', () => {
 test.describe('Group Entity Store Functions', () => {
   test('should have group entity store methods available', async ({ page }) => {
     await page.goto('/');
-
-    // Generate new identity
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-      await page.waitForURL(/\/(dashboard|groups)/);
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
 
     // Test that we can access the database and it has the group entity tables
     const hasRequiredTables = await page.evaluate(async () => {

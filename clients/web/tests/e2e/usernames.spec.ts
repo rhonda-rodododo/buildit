@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 /**
  * E2E Tests for Epic 40 - Username System
@@ -13,13 +14,8 @@ import { test, expect, type Page } from '@playwright/test';
 // Helper: Create test identity and navigate to profile settings
 async function setupProfileSettings(page: Page): Promise<void> {
   await page.goto('/');
-
-  // Generate new identity if on login page
-  const generateButton = page.getByRole('button', { name: /generate new identity/i });
-  if (await generateButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await generateButton.click();
-    await page.waitForURL(/\/(app|dashboard|groups)/, { timeout: 10000 });
-  }
+  await waitForAppReady(page);
+  await createIdentity(page, 'Test User', 'testpassword123');
 
   // Navigate to profile settings
   await page.goto('/app/settings');
@@ -143,13 +139,8 @@ test.describe('Username Registration & Validation', () => {
     // Open new page (second identity)
     const page2 = await context.newPage();
     await page2.goto('/');
-
-    // Create second identity
-    const generateButton = page2.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await generateButton.click();
-      await page2.waitForURL(/\/(app|dashboard|groups)/, { timeout: 10000 });
-    }
+    await waitForAppReady(page2);
+    await createIdentity(page2, 'User Two', 'testpassword123');
 
     // Try to claim same username
     await page2.goto('/app/settings');

@@ -4,6 +4,7 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Cross-Module Integration', () => {
   let page: Page;
@@ -15,11 +16,8 @@ test.describe('Cross-Module Integration', () => {
 
     // Create identity and login
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test.afterEach(async () => {
@@ -284,11 +282,8 @@ test.describe('Cross-Module Data Integration', () => {
     page = await context.newPage();
 
     await page.goto('/');
-    const generateButton = page.getByRole('button', { name: /generate new identity/i });
-    if (await generateButton.isVisible()) {
-      await generateButton.click();
-    }
-    await page.waitForURL(/\/(dashboard|groups)/);
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test.afterEach(async () => {

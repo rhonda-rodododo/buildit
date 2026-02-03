@@ -6,25 +6,18 @@
  */
 
 import { test, expect, type Page, type BrowserContext } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 // Test configuration
-const BASE_URL = 'http://localhost:5173';
 const TEST_GROUP_NAME = 'Wiki Test Group';
 
 /**
  * Helper: Create a new identity and login
  */
 async function createAndLoginIdentity(page: Page, name: string) {
-  await page.goto(`${BASE_URL}/`);
-
-  // Create new identity
-  const generateButton = page.getByRole('button', { name: /generate new identity/i });
-  if (await generateButton.isVisible()) {
-    await generateButton.click();
-  }
-
-  // Wait for redirect (matching auth.spec.ts pattern)
-  await page.waitForURL(/\/(dashboard|groups)/, { timeout: 10000 });
+  await page.goto('/');
+  await waitForAppReady(page);
+  await createIdentity(page, name, 'testpassword123');
 }
 
 /**

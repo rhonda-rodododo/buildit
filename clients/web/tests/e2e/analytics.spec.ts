@@ -4,33 +4,13 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, createIdentity } from './helpers/helpers';
 
 test.describe('Analytics Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
-
-    // Create a new identity if not logged in
-    // First check if we're on the Create New tab (default)
-    const createTab = page.getByRole('tab', { name: /create new/i });
-    const isLoginPage = await createTab.isVisible({ timeout: 2000 }).catch(() => false);
-
-    if (isLoginPage) {
-      // Fill the display name field (use .first() to get the one in the active tab)
-      const displayNameInput = page.getByLabel(/display name/i).first();
-      await displayNameInput.fill(`Test User ${Date.now()}`);
-
-      // Wait for button to become enabled
-      const generateButton = page.getByRole('button', { name: /create identity/i });
-      await expect(generateButton).toBeEnabled({ timeout: 5000 });
-      await generateButton.click();
-
-      // Wait for navigation to complete
-      await page.waitForURL(/\/(app|dashboard|groups)/, { timeout: 15000 });
-      await page.waitForLoadState('networkidle');
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Test User', 'testpassword123');
   });
 
   test('should navigate to analytics dashboard', async ({ page }) => {
@@ -53,23 +33,8 @@ test.describe('Analytics Dashboard', () => {
 test.describe('CRM Analytics Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Create identity if needed
-    const createTab = page.getByRole('tab', { name: /create new/i });
-    const isLoginPage = await createTab.isVisible({ timeout: 2000 }).catch(() => false);
-
-    if (isLoginPage) {
-      const displayNameInput = page.getByLabel(/display name/i).first();
-      await displayNameInput.fill(`CRM Analyst ${Date.now()}`);
-
-      const generateButton = page.getByRole('button', { name: /create identity/i });
-      await expect(generateButton).toBeEnabled({ timeout: 5000 });
-      await generateButton.click();
-
-      await page.waitForURL(/\/(app|dashboard|groups)/, { timeout: 15000 });
-      await page.waitForLoadState('networkidle');
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'CRM Analyst', 'testpassword123');
 
     // Navigate to analytics page and select CRM tab
     await page.goto('/app/analytics', { waitUntil: 'networkidle' });
@@ -201,23 +166,8 @@ test.describe('CRM Analytics Dashboard', () => {
 test.describe('Campaign Analytics Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Create identity if needed
-    const createTab = page.getByRole('tab', { name: /create new/i });
-    const isLoginPage = await createTab.isVisible({ timeout: 2000 }).catch(() => false);
-
-    if (isLoginPage) {
-      const displayNameInput = page.getByLabel(/display name/i).first();
-      await displayNameInput.fill(`Campaign Analyst ${Date.now()}`);
-
-      const generateButton = page.getByRole('button', { name: /create identity/i });
-      await expect(generateButton).toBeEnabled({ timeout: 5000 });
-      await generateButton.click();
-
-      await page.waitForURL(/\/(app|dashboard|groups)/, { timeout: 15000 });
-      await page.waitForLoadState('networkidle');
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Campaign Analyst', 'testpassword123');
 
     // Navigate to analytics page and select Campaign tab
     await page.goto('/app/analytics', { waitUntil: 'networkidle' });
@@ -403,23 +353,8 @@ test.describe('Campaign Analytics Dashboard', () => {
 test.describe('Analytics Multi-Dashboard Interaction', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    // Create identity if needed
-    const createTab = page.getByRole('tab', { name: /create new/i });
-    const isLoginPage = await createTab.isVisible({ timeout: 2000 }).catch(() => false);
-
-    if (isLoginPage) {
-      const displayNameInput = page.getByLabel(/display name/i).first();
-      await displayNameInput.fill(`Dashboard User ${Date.now()}`);
-
-      const generateButton = page.getByRole('button', { name: /create identity/i });
-      await expect(generateButton).toBeEnabled({ timeout: 5000 });
-      await generateButton.click();
-
-      await page.waitForURL(/\/(app|dashboard|groups)/, { timeout: 15000 });
-      await page.waitForLoadState('networkidle');
-    }
+    await waitForAppReady(page);
+    await createIdentity(page, 'Dashboard User', 'testpassword123');
 
     await page.goto('/app/analytics', { waitUntil: 'networkidle' });
     await page.waitForLoadState('domcontentloaded');

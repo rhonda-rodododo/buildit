@@ -128,13 +128,14 @@ export function secureRandomInt(max: number): number {
 
 /**
  * Randomize timestamp within a 2-day window for metadata protection
- * As per NIP-17 spec
- * Uses crypto.getRandomValues() to prevent timing correlation attacks
+ * As per NIP-17 spec: random timestamp up to 2 days in the PAST only.
+ * Never produces future timestamps, which relays reject as "created_at too late".
+ * Uses crypto.getRandomValues() to prevent timing correlation attacks.
  */
 export function randomizeTimestamp(baseTime: number = Date.now()): number {
   const twoDaysInSeconds = 2 * 24 * 60 * 60
-  const randomOffset = secureRandomInt(twoDaysInSeconds) - Math.floor(twoDaysInSeconds / 2)
-  return Math.floor(baseTime / 1000) + randomOffset
+  const randomOffset = secureRandomInt(twoDaysInSeconds)
+  return Math.floor(baseTime / 1000) - randomOffset
 }
 
 /**
