@@ -7,6 +7,7 @@
     "clients/web",
     "clients/web/packages/*",
     "clients/web/apps/*",
+    "workers/*",
     "tools/*"
   ],
   "scripts": {
@@ -20,7 +21,14 @@
     "i18n:validate": "cd tools/i18n-codegen && bun run validate",
     "test:all": "bun run test && cd tools/codegen && bun run validate",
     "desktop:dev": "cd clients/desktop && cargo tauri dev",
-    "desktop:build": "cd clients/desktop && cargo tauri build"
+    "desktop:build": "cd clients/desktop && cargo tauri build",
+    "workers:dev:api": "cd workers/api && bun run dev",
+    "workers:dev:relay": "cd workers/relay && bun run dev",
+    "workers:dev:ssr": "cd workers/ssr && bun run dev",
+    "workers:deploy:api": "cd workers/api && bun run deploy",
+    "workers:deploy:relay": "cd workers/relay && bun run deploy",
+    "workers:deploy:ssr": "cd workers/ssr && bun run deploy",
+    "workers:typecheck": "cd workers/api && bun run typecheck && cd ../relay && bun run typecheck && cd ../ssr && bun run typecheck"
   },
   "keywords": [
     "nostr",
@@ -30,7 +38,7 @@
     "organizing",
     "decentralized"
   ],
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "engines": {
     "node": ">=18"
   },

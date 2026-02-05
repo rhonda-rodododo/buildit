@@ -4968,5 +4968,37 @@
       "email": "Invitacion por Correo",
       "inviteLink": "Enlace de Invitacion"
     }
+  },
+  "schema": {
+    "updateAvailable": "Actualización Disponible",
+    "newerVersionDetected": "Versión más reciente detectada",
+    "unknownFieldsPreserved": "Campos desconocidos preservados",
+    "contentPartiallyReadable": "Contenido parcialmente legible",
+    "updateRecommended": "Actualización recomendada",
+    "schemaVersion": "Versión del Esquema",
+    "bundleOutdated": "Paquete desactualizado",
+    "updateNow": "Actualizar Ahora",
+    "checkForUpdates": "Buscar actualizaciones",
+    "fullyCompatible": "Totalmente Compatible",
+    "partiallyCompatible": "Parcialmente Compatible",
+    "incompatible": "Incompatible",
+    "thisVersionDeprecated": "Esta versión está obsoleta",
+    "daysUntilSunset": "{{count}} días hasta el fin de soporte",
+    "updateForFullFeatures": "Se recomienda actualizar para soporte completo de funciones",
+    "importSchemaQR": "Importar Esquema por Código QR",
+    "scanSchemaBundles": "Escanea códigos QR de paquetes de esquema para actualizar sin conexión",
+    "startScanning": "Iniciar Escaneo",
+    "stopScanning": "Detener Escaneo",
+    "manualInput": "Entrada Manual",
+    "bundleReady": "Paquete Listo",
+    "scanAgain": "Escanear de Nuevo",
+    "scanningChunks": "Escaneando fragmentos...",
+    "cameraPermissionError": "No se pudo acceder a la cámara. Por favor otorga permiso de cámara.",
+    "missingBundleHash": "Falta el hash del paquete del primer fragmento",
+    "missingChunk": "Falta el fragmento {{index}}",
+    "decodeFailed": "Error al decodificar los datos del paquete",
+    "scanHelp": "Apunta tu cámara a los códigos QR del paquete de esquema. Para paquetes de múltiples códigos, escanea cada código en secuencia. Los códigos se pueden escanear en cualquier orden.",
+    "itemsContainNewerFeatures": "{{count}} elementos de {{module}} contienen funciones de una versión más reciente. Actualiza tu app para ver todo el contenido.",
+    "dismiss": "Descartar"
   }
 }

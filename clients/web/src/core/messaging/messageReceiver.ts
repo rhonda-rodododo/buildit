@@ -19,6 +19,7 @@ import { getNostrClient } from '@/core/nostr/client';
 import { useConversationsStore } from './conversationsStore';
 import type { GiftWrap } from '@/types/nostr';
 import type { ConversationMessage, DBConversation, ConversationMember } from './conversationTypes';
+import { moduleParsers } from '@/core/schema/parser';
 
 import { logger } from '@/lib/logger';
 // Track processed event IDs to avoid duplicates
@@ -270,12 +271,32 @@ class MessageReceiverService {
       }
     }
 
+    // Parse message content with versioned schema support
+    // This enables graceful degradation and unknown field preservation
+    let messageContent = rumor.content;
+    try {
+      // Try to parse structured content (JSON) with version awareness
+      const parsed = JSON.parse(rumor.content);
+      if (typeof parsed === 'object' && parsed !== null) {
+        const parseResult = moduleParsers.directMessage(parsed);
+        messageContent = (parseResult.data as unknown as Record<string, unknown>).content as string ?? rumor.content;
+        if (parseResult.isPartial) {
+          logger.info(
+            `Message has ${parseResult.unknownFields.length} unknown fields from newer schema v${parseResult.version}`
+          );
+        }
+      }
+    } catch {
+      // Not structured JSON content - treat as plain text (standard NIP-17)
+      messageContent = rumor.content;
+    }
+
     // Create message record with VERIFIED sender identity
     const message: ConversationMessage = {
       id: giftWrap.id, // Use gift wrap ID as message ID (unique)
       conversationId,
       from: senderPubkey, // SECURITY: Now correctly using verified sender from seal
-      content: rumor.content,
+      content: messageContent,
       timestamp: rumor.created_at * 1000, // Convert to ms
       replyTo,
       isEdited: false,

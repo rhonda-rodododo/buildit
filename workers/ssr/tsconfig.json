@@ -17,8 +17,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@buildit/shared": ["../shared/src"],
-      "@buildit/shared/*": ["../shared/src/*"]
+      "@buildit/shared": ["../../clients/web/packages/shared/src"],
+      "@buildit/shared/*": ["../../clients/web/packages/shared/src/*"]
     }
   },
   "include": ["src/**/*"],

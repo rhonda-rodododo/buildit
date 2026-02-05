@@ -4970,5 +4970,37 @@
       "email": "Invitation par Email",
       "inviteLink": "Lien d'Invitation"
     }
+  },
+  "schema": {
+    "updateAvailable": "Mise à jour Disponible",
+    "newerVersionDetected": "Version plus récente détectée",
+    "unknownFieldsPreserved": "Champs inconnus préservés",
+    "contentPartiallyReadable": "Contenu partiellement lisible",
+    "updateRecommended": "Mise à jour recommandée",
+    "schemaVersion": "Version du Schéma",
+    "bundleOutdated": "Paquet obsolète",
+    "updateNow": "Mettre à jour",
+    "checkForUpdates": "Vérifier les mises à jour",
+    "fullyCompatible": "Entièrement Compatible",
+    "partiallyCompatible": "Partiellement Compatible",
+    "incompatible": "Incompatible",
+    "thisVersionDeprecated": "Cette version est obsolète",
+    "daysUntilSunset": "{{count}} jours avant la fin du support",
+    "updateForFullFeatures": "Mise à jour recommandée pour le support complet des fonctionnalités",
+    "importSchemaQR": "Importer le Schéma par Code QR",
+    "scanSchemaBundles": "Scannez les codes QR des paquets de schéma pour une mise à jour hors ligne",
+    "startScanning": "Démarrer le Scan",
+    "stopScanning": "Arrêter le Scan",
+    "manualInput": "Saisie Manuelle",
+    "bundleReady": "Paquet Prêt",
+    "scanAgain": "Scanner à Nouveau",
+    "scanningChunks": "Scan des fragments...",
+    "cameraPermissionError": "Impossible d'accéder à la caméra. Veuillez accorder la permission.",
+    "missingBundleHash": "Hash du paquet manquant dans le premier fragment",
+    "missingChunk": "Fragment {{index}} manquant",
+    "decodeFailed": "Échec du décodage des données du paquet",
+    "scanHelp": "Pointez votre caméra sur les codes QR du paquet de schéma. Pour les paquets multi-codes, scannez chaque code séquentiellement. Les codes peuvent être scannés dans n'importe quel ordre.",
+    "itemsContainNewerFeatures": "{{count}} éléments {{module}} contiennent des fonctionnalités d'une version plus récente. Mettez à jour votre app pour voir tout le contenu.",
+    "dismiss": "Fermer"
   }
 }

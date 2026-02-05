@@ -36,8 +36,8 @@ safely and effectively?"
 
 | Worker | Purpose | Location |
 |--------|---------|----------|
-| **buildit-relay** | Nosflare-based Nostr relay (D1 + Durable Objects) | `clients/web/workers/relay/` |
-| **buildit-public** | SSR public pages for logged-out visitors | `clients/web/packages/ssr/` |
+| **buildit-relay** | Nosflare-based Nostr relay (D1 + Durable Objects) | `workers/relay/` |
+| **buildit-public** | SSR public pages for logged-out visitors | `workers/ssr/` |
 | **buildit-api** | Shared API (link-preview, image-proxy, oEmbed) | `workers/api/` |
 
 **NOTE**: `clients/web/` is NOT deployed standalone to Cloudflare. It is only the UI layer embedded in Tauri desktop.
@@ -123,10 +123,10 @@ cd clients/ios && xcodebuild           # iOS build
 cd clients/android && ./gradlew build  # Android build
 
 # Cloudflare Workers
-cd clients/web && bun run relay:dev     # Relay local dev
-cd clients/web && bun run relay:deploy  # Deploy relay to Cloudflare
-cd clients/web && bun run ssr:dev       # SSR local dev
-cd clients/web && bun run ssr:deploy    # Deploy SSR to Cloudflare
+bun run workers:dev:relay               # Relay local dev
+bun run workers:deploy:relay            # Deploy relay to Cloudflare
+bun run workers:dev:ssr                 # SSR local dev
+bun run workers:deploy:ssr              # Deploy SSR to Cloudflare
 cd workers/api && bun run dev           # API worker local dev
 cd workers/api && bun run deploy        # Deploy API worker to Cloudflare
 ```

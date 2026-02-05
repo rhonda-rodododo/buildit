@@ -4970,5 +4970,37 @@
       "email": "دعوة بالبريد الإلكتروني",
       "inviteLink": "رابط الدعوة"
     }
+  },
+  "schema": {
+    "updateAvailable": "تحديث متاح",
+    "newerVersionDetected": "تم اكتشاف إصدار أحدث",
+    "unknownFieldsPreserved": "تم الاحتفاظ بالحقول غير المعروفة",
+    "contentPartiallyReadable": "المحتوى قابل للقراءة جزئياً",
+    "updateRecommended": "يُوصى بالتحديث",
+    "schemaVersion": "إصدار المخطط",
+    "bundleOutdated": "الحزمة قديمة",
+    "updateNow": "حدّث الآن",
+    "checkForUpdates": "التحقق من التحديثات",
+    "fullyCompatible": "متوافق بالكامل",
+    "partiallyCompatible": "متوافق جزئياً",
+    "incompatible": "غير متوافق",
+    "thisVersionDeprecated": "هذا الإصدار متوقف",
+    "daysUntilSunset": "{{count}} يوم حتى انتهاء الدعم",
+    "updateForFullFeatures": "يُوصى بالتحديث لدعم جميع الميزات",
+    "importSchemaQR": "استيراد المخطط عبر رمز QR",
+    "scanSchemaBundles": "امسح رموز QR لحزمة المخطط للتحديث دون اتصال",
+    "startScanning": "بدء المسح",
+    "stopScanning": "إيقاف المسح",
+    "manualInput": "إدخال يدوي",
+    "bundleReady": "الحزمة جاهزة",
+    "scanAgain": "مسح مرة أخرى",
+    "scanningChunks": "جارٍ مسح الأجزاء...",
+    "cameraPermissionError": "فشل الوصول إلى الكاميرا. يرجى منح إذن الكاميرا.",
+    "missingBundleHash": "تجزئة الحزمة مفقودة من الجزء الأول",
+    "missingChunk": "الجزء {{index}} مفقود",
+    "decodeFailed": "فشل فك تشفير بيانات الحزمة",
+    "scanHelp": "وجّه الكاميرا نحو رموز QR لحزمة المخطط...",
+    "itemsContainNewerFeatures": "{{count}} عنصر في {{module}} يحتوي على ميزات من إصدار أحدث. حدّث تطبيقك لرؤية كل المحتوى.",
+    "dismiss": "تجاهل"
   }
 }

@@ -41,6 +41,7 @@ import {
   deserializeChunk,
   MessageReassembler,
 } from './compression';
+import { BLESchemaSyncManager, type SchemaSyncMessage } from '@/core/schema/bleSync';
 
 /**
  * BLE peer connection
@@ -121,6 +122,7 @@ export class BLEMeshAdapter implements ITransportAdapter {
   private scanInterval: number | null = null;
   private syncInterval: number | null = null;
   private seenMessageIds = new Set<string>();
+  private schemaSyncManager: BLESchemaSyncManager;
   private peerListeners = new Map<string, {
     characteristicHandlers: Array<{ characteristic: BluetoothRemoteGATTCharacteristic; handler: (event: Event) => void }>;
     disconnectHandler: () => void;
@@ -129,6 +131,23 @@ export class BLEMeshAdapter implements ITransportAdapter {
 
   constructor(config: Partial<BLEMeshAdapterConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    // Initialize BLE schema sync for offline schema distribution
+    this.schemaSyncManager = new BLESchemaSyncManager(
+      `ble-${Date.now().toString(36)}`
+    );
+    this.schemaSyncManager.setSendFunction(async (message: SchemaSyncMessage) => {
+      // Send schema sync messages over BLE as JSON
+      const json = JSON.stringify(message);
+      const data = new TextEncoder().encode(json);
+      await this.broadcastChunk(data);
+    });
+  }
+
+  /**
+   * Get the schema sync manager for external configuration
+   */
+  getSchemaSyncManager(): BLESchemaSyncManager {
+    return this.schemaSyncManager;
   }
 
   /**
@@ -596,6 +615,12 @@ export class BLEMeshAdapter implements ITransportAdapter {
    * Perform periodic sync with peers
    */
   private async performSync(): Promise<void> {
+    // Request schema versions from nearby peers for offline schema sync
+    try {
+      await this.schemaSyncManager.requestVersions();
+    } catch (error) {
+      logger.info('[BLE Mesh] Schema sync request failed (non-critical):', String(error));
+    }
     // Negentropy sync protocol deferred to Phase 4+ BLE mesh
     logger.info('[BLE Mesh] Periodic sync (Negentropy not yet implemented)');
   }

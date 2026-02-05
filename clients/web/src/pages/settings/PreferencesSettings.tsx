@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ModeToggle } from '@/components/mode-toggle';
 import { ColorThemePicker } from '@/components/color-theme-picker';
+import { SchemaStatusList } from '@/components/schema/SchemaStatusCard';
 
 export const PreferencesSettings: FC = () => {
   const { t } = useTranslation();
@@ -32,6 +33,19 @@ export const PreferencesSettings: FC = () => {
             <label className="text-sm font-medium">{t('preferences.theme')}</label>
             <ColorThemePicker />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Schema Versions</CardTitle>
+          <CardDescription>
+            Module schema versions installed on this device. Schema updates enable new features
+            and ensure compatibility with other users.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SchemaStatusList />
         </CardContent>
       </Card>
     </div>

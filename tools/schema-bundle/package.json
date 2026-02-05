@@ -10,7 +10,9 @@
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target node",
     "generate": "bun run src/cli.ts generate",
-    "verify": "bun run src/cli.ts verify"
+    "verify": "bun run src/cli.ts verify",
+    "generate:standard": "bun run src/generate.ts",
+    "verify:standard": "bun run src/verify.ts"
   },
   "dependencies": {
     "@noble/ed25519": "^2.1.0",

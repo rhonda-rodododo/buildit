@@ -10,21 +10,21 @@
 //! use buildit_crypto::generated::schemas::events::Event;
 //! ```
 
-pub mod files;
-pub mod wiki;
-pub mod calling;
 pub mod forms;
-pub mod governance;
-pub mod fundraising;
-pub mod events;
-pub mod database;
-pub mod content;
-pub mod templates;
 pub mod documents;
-pub mod publishing;
-pub mod messaging;
-pub mod search;
+pub mod events;
 pub mod mutual_aid;
-pub mod newsletters;
 pub mod crm;
+pub mod publishing;
+pub mod templates;
+pub mod fundraising;
+pub mod newsletters;
+pub mod wiki;
+pub mod search;
+pub mod database;
+pub mod calling;
+pub mod files;
 pub mod custom_fields;
+pub mod content;
+pub mod governance;
+pub mod messaging;

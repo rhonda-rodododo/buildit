@@ -6,11 +6,13 @@ on:
       - 'protocol/schemas/**'
       - 'protocol/test-vectors/**'
       - 'tools/codegen/**'
+      - 'tools/schema-bundle/**'
   pull_request:
     paths:
       - 'protocol/schemas/**'
       - 'protocol/test-vectors/**'
       - 'tools/codegen/**'
+      - 'tools/schema-bundle/**'
 
 jobs:
   validate-schemas:
@@ -84,11 +86,17 @@ jobs:
         working-directory: tools/schema-bundle
         run: bun install
 
-      - name: Generate and verify bundle
+      - name: Generate bundle (internal format)
         working-directory: tools/schema-bundle
         run: |
           bun run generate -- --output ./test-bundle.json
           bun run verify -- ./test-bundle.json --allow-any-signer
+
+      - name: Generate bundle (standard format)
+        working-directory: tools/schema-bundle
+        run: |
+          bun run generate:standard -- --output ./test-standard-bundle.json
+          bun run verify:standard ./test-standard-bundle.json --allow-any-signer
 
   registry-consistency:
     name: Check Registry Consistency
@@ -97,6 +105,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Verify all modules in registry
         run: |
@@ -108,7 +121,7 @@ jobs:
                 echo "ERROR: Module '$module' not found in _registry.json"
                 exit 1
               fi
-              echo "✅ Module '$module' found in registry"
+              echo "OK: Module '$module' found in registry"
             fi
           done
 
@@ -126,7 +139,7 @@ jobs:
                 console.error('ERROR: Schema file not found:', schemaPath);
                 hasErrors = true;
               } else {
-                console.log('✅ Found:', schemaPath);
+                console.log('OK: Found:', schemaPath);
               }
             }
 
@@ -135,12 +148,26 @@ jobs:
 
       - name: Verify version formats
         run: |
-          # Check all version fields are valid semver
+          # Check all version fields are valid semver using fs.readdirSync
           node -e "
             const fs = require('fs');
-            const glob = require('glob');
+            const path = require('path');
 
-            const files = glob.sync('protocol/schemas/modules/**/v*.json');
+            function findSchemaFiles(dir) {
+              const results = [];
+              const entries = fs.readdirSync(dir, { withFileTypes: true });
+              for (const entry of entries) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                  results.push(...findSchemaFiles(fullPath));
+                } else if (entry.name.match(/^v\d+\.json$/)) {
+                  results.push(fullPath);
+                }
+              }
+              return results;
+            }
+
+            const files = findSchemaFiles('protocol/schemas/modules');
             let hasErrors = false;
             const semverRegex = /^\d+\.\d+\.\d+$/;
 
@@ -157,5 +184,114 @@ jobs:
             }
 
             if (hasErrors) process.exit(1);
-            console.log('✅ All version formats valid');
+            console.log('OK: All version formats valid (' + files.length + ' schema files checked)');
+          "
+
+  cross-version-test-vectors:
+    name: Cross-Version Test Vectors
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Validate cross-version-parsing.json structure
+        run: |
+          node -e "
+            const fs = require('fs');
+
+            // Validate cross-version-parsing.json
+            const cvPath = 'protocol/test-vectors/cross-version-parsing.json';
+            const cv = JSON.parse(fs.readFileSync(cvPath, 'utf-8'));
+
+            let errors = 0;
+
+            if (!cv.testCases || !Array.isArray(cv.testCases)) {
+              console.error('ERROR: cross-version-parsing.json missing testCases array');
+              errors++;
+            } else {
+              console.log('OK: Found ' + cv.testCases.length + ' test cases in cross-version-parsing.json');
+
+              for (const tc of cv.testCases) {
+                if (!tc.id || !tc.name || !tc.module || !tc.input || !tc.expected) {
+                  console.error('ERROR: Test case missing required fields:', tc.id || 'unknown');
+                  errors++;
+                }
+                if (tc.expected.canParse === undefined) {
+                  console.error('ERROR: Test case missing expected.canParse:', tc.id);
+                  errors++;
+                }
+              }
+            }
+
+            if (!cv.validationRules || !Array.isArray(cv.validationRules)) {
+              console.error('ERROR: Missing validationRules array');
+              errors++;
+            }
+
+            if (errors > 0) process.exit(1);
+            console.log('OK: cross-version-parsing.json structure valid');
+          "
+
+      - name: Validate schema-versioning test vectors
+        run: |
+          node -e "
+            const fs = require('fs');
+            let errors = 0;
+
+            // Validate bundle-verification.json
+            const bvPath = 'protocol/test-vectors/schema-versioning/bundle-verification.json';
+            if (!fs.existsSync(bvPath)) {
+              console.error('ERROR: Missing ' + bvPath);
+              errors++;
+            } else {
+              const bv = JSON.parse(fs.readFileSync(bvPath, 'utf-8'));
+              if (!bv.testSuites || !Array.isArray(bv.testSuites)) {
+                console.error('ERROR: bundle-verification.json missing testSuites array');
+                errors++;
+              } else {
+                let totalCases = 0;
+                for (const suite of bv.testSuites) {
+                  if (!suite.name || !suite.cases || !Array.isArray(suite.cases)) {
+                    console.error('ERROR: Test suite missing name or cases:', suite.name || 'unknown');
+                    errors++;
+                  } else {
+                    totalCases += suite.cases.length;
+                  }
+                }
+                console.log('OK: bundle-verification.json has ' + bv.testSuites.length + ' suites, ' + totalCases + ' total cases');
+              }
+            }
+
+            // Validate version-negotiation.json
+            const vnPath = 'protocol/test-vectors/schema-versioning/version-negotiation.json';
+            if (!fs.existsSync(vnPath)) {
+              console.error('ERROR: Missing ' + vnPath);
+              errors++;
+            } else {
+              const vn = JSON.parse(fs.readFileSync(vnPath, 'utf-8'));
+              if (!vn.testSuites || !Array.isArray(vn.testSuites)) {
+                console.error('ERROR: version-negotiation.json missing testSuites array');
+                errors++;
+              } else {
+                let totalCases = 0;
+                for (const suite of vn.testSuites) {
+                  if (!suite.name || !suite.cases || !Array.isArray(suite.cases)) {
+                    console.error('ERROR: Test suite missing name or cases:', suite.name || 'unknown');
+                    errors++;
+                  } else {
+                    totalCases += suite.cases.length;
+                  }
+                }
+                console.log('OK: version-negotiation.json has ' + vn.testSuites.length + ' suites, ' + totalCases + ' total cases');
+              }
+            }
+
+            if (errors > 0) process.exit(1);
+            console.log('OK: All schema-versioning test vectors valid');
           "

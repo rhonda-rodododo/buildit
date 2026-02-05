@@ -5248,5 +5248,37 @@
       "createFailed": "Failed to create channel",
       "speakFailed": "Failed to request speaking"
     }
+  },
+  "schema": {
+    "updateAvailable": "Update Available",
+    "newerVersionDetected": "Newer version detected",
+    "unknownFieldsPreserved": "Unknown fields preserved",
+    "contentPartiallyReadable": "Content partially readable",
+    "updateRecommended": "Update recommended",
+    "schemaVersion": "Schema Version",
+    "bundleOutdated": "Bundle outdated",
+    "updateNow": "Update Now",
+    "checkForUpdates": "Check for updates",
+    "fullyCompatible": "Fully Compatible",
+    "partiallyCompatible": "Partially Compatible",
+    "incompatible": "Incompatible",
+    "thisVersionDeprecated": "This version is deprecated",
+    "daysUntilSunset": "{{count}} days until sunset",
+    "updateForFullFeatures": "Update recommended for full feature support",
+    "importSchemaQR": "Import Schema via QR Code",
+    "scanSchemaBundles": "Scan schema bundle QR codes to update offline",
+    "startScanning": "Start Scanning",
+    "stopScanning": "Stop Scanning",
+    "manualInput": "Manual Input",
+    "bundleReady": "Bundle Ready",
+    "scanAgain": "Scan Again",
+    "scanningChunks": "Scanning chunks...",
+    "cameraPermissionError": "Failed to access camera. Please grant camera permission.",
+    "missingBundleHash": "Missing bundle hash from first chunk",
+    "missingChunk": "Missing chunk {{index}}",
+    "decodeFailed": "Failed to decode bundle data",
+    "scanHelp": "Point your camera at schema bundle QR codes. For multi-code bundles, scan each code in sequence. Codes can be scanned in any order.",
+    "itemsContainNewerFeatures": "{{count}} {{module}} items contain features from a newer version. Update your app to see all content.",
+    "dismiss": "Dismiss"
   }
 }

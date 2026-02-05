@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { CheckCircle, AlertCircle, AlertTriangle, Clock } from 'lucide-react'
 import type { ModuleVersionInfo } from '@/core/schema/types'
+import { getCurrentSchemaVersion, getCompatibilityStatus } from '@/core/schema/versionUtils'
 import { cn } from '@/lib/utils'
 
 interface SchemaStatusCardProps {
@@ -104,16 +105,56 @@ function getStatusVariant(
  * Schema Status List Component
  *
  * Displays a grid of module schema statuses.
+ * When no modules prop is provided, auto-generates status from all registered modules.
  */
 interface SchemaStatusListProps {
-  /** Array of module version information */
-  modules: ModuleVersionInfo[]
+  /** Array of module version information (auto-generated if not provided) */
+  modules?: ModuleVersionInfo[]
   /** Additional class names */
   className?: string
 }
 
+/**
+ * Get all module version info from the schema registry
+ */
+function getDefaultModuleVersionInfo(): ModuleVersionInfo[] {
+  const moduleIds: Array<{ id: string; name: string }> = [
+    { id: 'messaging', name: 'Messaging' },
+    { id: 'events', name: 'Events' },
+    { id: 'documents', name: 'Documents' },
+    { id: 'files', name: 'Files' },
+    { id: 'forms', name: 'Forms' },
+    { id: 'crm', name: 'CRM' },
+    { id: 'database', name: 'Database' },
+    { id: 'fundraising', name: 'Fundraising' },
+    { id: 'publishing', name: 'Publishing' },
+    { id: 'newsletters', name: 'Newsletters' },
+    { id: 'governance', name: 'Governance' },
+    { id: 'mutual-aid', name: 'Mutual Aid' },
+    { id: 'wiki', name: 'Wiki' },
+    { id: 'custom-fields', name: 'Custom Fields' },
+    { id: 'content', name: 'Content' },
+    { id: 'search', name: 'Search' },
+    { id: 'calling', name: 'Calling' },
+  ]
+
+  return moduleIds.map(({ id, name }) => {
+    const localVersion = getCurrentSchemaVersion(id)
+    const compatibility = getCompatibilityStatus(localVersion, localVersion)
+    return {
+      moduleId: id,
+      moduleName: name,
+      localVersion,
+      hasUpdate: false,
+      compatibility,
+    }
+  })
+}
+
 export function SchemaStatusList({ modules, className }: SchemaStatusListProps) {
-  const sortedModules = [...modules].sort((a, b) => {
+  const effectiveModules = modules ?? getDefaultModuleVersionInfo()
+
+  const sortedModules = [...effectiveModules].sort((a, b) => {
     // Sort by: incompatible first, then needs update, then compatible
     if (!a.compatibility.canRead && b.compatibility.canRead) return -1
     if (a.compatibility.canRead && !b.compatibility.canRead) return 1

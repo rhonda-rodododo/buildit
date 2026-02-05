@@ -4962,5 +4962,37 @@
       "email": "이메일 초대",
       "inviteLink": "초대 링크"
     }
+  },
+  "schema": {
+    "updateAvailable": "[NEEDS_TRANSLATION] Update Available",
+    "newerVersionDetected": "[NEEDS_TRANSLATION] Newer version detected",
+    "unknownFieldsPreserved": "[NEEDS_TRANSLATION] Unknown fields preserved",
+    "contentPartiallyReadable": "[NEEDS_TRANSLATION] Content partially readable",
+    "updateRecommended": "[NEEDS_TRANSLATION] Update recommended",
+    "schemaVersion": "[NEEDS_TRANSLATION] Schema Version",
+    "bundleOutdated": "[NEEDS_TRANSLATION] Bundle outdated",
+    "updateNow": "[NEEDS_TRANSLATION] Update Now",
+    "checkForUpdates": "[NEEDS_TRANSLATION] Check for updates",
+    "fullyCompatible": "[NEEDS_TRANSLATION] Fully Compatible",
+    "partiallyCompatible": "[NEEDS_TRANSLATION] Partially Compatible",
+    "incompatible": "[NEEDS_TRANSLATION] Incompatible",
+    "thisVersionDeprecated": "[NEEDS_TRANSLATION] This version is deprecated",
+    "daysUntilSunset": "[NEEDS_TRANSLATION] {{count}} days until sunset",
+    "updateForFullFeatures": "[NEEDS_TRANSLATION] Update recommended for full feature support",
+    "importSchemaQR": "[NEEDS_TRANSLATION] Import Schema via QR Code",
+    "scanSchemaBundles": "[NEEDS_TRANSLATION] Scan schema bundle QR codes to update offline",
+    "startScanning": "[NEEDS_TRANSLATION] Start Scanning",
+    "stopScanning": "[NEEDS_TRANSLATION] Stop Scanning",
+    "manualInput": "[NEEDS_TRANSLATION] Manual Input",
+    "bundleReady": "[NEEDS_TRANSLATION] Bundle Ready",
+    "scanAgain": "[NEEDS_TRANSLATION] Scan Again",
+    "scanningChunks": "[NEEDS_TRANSLATION] Scanning chunks...",
+    "cameraPermissionError": "[NEEDS_TRANSLATION] Failed to access camera. Please grant camera permission.",
+    "missingBundleHash": "[NEEDS_TRANSLATION] Missing bundle hash from first chunk",
+    "missingChunk": "[NEEDS_TRANSLATION] Missing chunk {{index}}",
+    "decodeFailed": "[NEEDS_TRANSLATION] Failed to decode bundle data",
+    "scanHelp": "[NEEDS_TRANSLATION] Point your camera at schema bundle QR codes...",
+    "itemsContainNewerFeatures": "[NEEDS_TRANSLATION] {{count}} {{module}} items contain features from a newer version. Update your app to see all content.",
+    "dismiss": "[NEEDS_TRANSLATION] Dismiss"
   }
 }

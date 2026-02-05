@@ -93,6 +93,68 @@
             "shouldApply": false,
             "error": "MISSING_SIGNATURE"
           }
+        },
+        {
+          "name": "missing_required_modules",
+          "description": "Bundle missing core dependency modules should fail validation",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {
+              "events": {
+                "version": "1.0.0",
+                "schema": {}
+              }
+            },
+            "signature": "ed25519:VALID_SIGNATURE_HERE",
+            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+          },
+          "requiredModules": ["messaging", "custom-fields", "content"],
+          "expected": {
+            "signatureValid": true,
+            "shouldApply": false,
+            "error": "MISSING_REQUIRED_MODULES",
+            "missingModules": ["messaging", "custom-fields", "content"]
+          }
+        },
+        {
+          "name": "empty_schemas_object",
+          "description": "Bundle with empty schemas object should be rejected",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {},
+            "signature": "ed25519:VALID_SIGNATURE_EMPTY",
+            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+          },
+          "expected": {
+            "shouldApply": false,
+            "error": "EMPTY_BUNDLE"
+          }
+        },
+        {
+          "name": "content_hash_mismatch",
+          "description": "Bundle with valid signature but modified content should fail",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400000,
+            "minClientVersion": "0.1.0",
+            "schemas": {
+              "events": {
+                "version": "1.0.0",
+                "schema": {"tampered": true}
+              }
+            },
+            "signature": "ed25519:SIGNATURE_FOR_DIFFERENT_CONTENT",
+            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+          },
+          "expected": {
+            "signatureValid": false,
+            "shouldApply": false,
+            "error": "CONTENT_HASH_MISMATCH"
+          }
         }
       ]
     },

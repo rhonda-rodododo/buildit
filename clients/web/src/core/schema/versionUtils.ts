@@ -184,7 +184,10 @@ export function getCurrentSchemaVersion(moduleId: string): SemanticVersion {
     'governance': '1.0.0',
     'mutual-aid': '1.0.0',
     'wiki': '1.0.0',
-    'custom-fields': '1.0.0'
+    'custom-fields': '1.0.0',
+    'content': '1.0.0',
+    'search': '1.0.0',
+    'calling': '1.0.0'
   }
   return versions[moduleId] ?? '1.0.0'
 }
