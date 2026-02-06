@@ -5,6 +5,7 @@
 
 import SwiftUI
 import AVKit
+import PDFKit
 
 /// Lesson player view
 public struct LessonPlayerView: View {
@@ -17,6 +18,8 @@ public struct LessonPlayerView: View {
     @State private var errorMessage: String?
     @State private var lessonProgress: LessonProgress?
     @State private var showQuiz = false
+    @State private var siblingLessons: [LessonEntity] = []
+    @State private var showCourseComplete = false
 
     public init(lesson: LessonEntity, store: TrainingStore, manager: TrainingManager) {
         self.lesson = lesson
@@ -115,6 +118,23 @@ public struct LessonPlayerView: View {
         }
     }
 
+    /// Index of the current lesson within the sibling lesson list
+    private var currentLessonIndex: Int? {
+        siblingLessons.firstIndex(where: { $0.id == lesson.id })
+    }
+
+    /// Whether there is a previous lesson available
+    private var hasPreviousLesson: Bool {
+        guard let index = currentLessonIndex else { return false }
+        return index > 0
+    }
+
+    /// Whether there is a next lesson available
+    private var hasNextLesson: Bool {
+        guard let index = currentLessonIndex else { return false }
+        return index < siblingLessons.count - 1
+    }
+
     private var controlsBar: some View {
         VStack(spacing: 12) {
             // Progress indicator
@@ -137,25 +157,32 @@ public struct LessonPlayerView: View {
             // Navigation buttons
             HStack(spacing: 16) {
                 Button {
-                    // Previous lesson
+                    navigateToPreviousLesson()
                 } label: {
                     Label("Previous", systemImage: "chevron.left")
                 }
-                .disabled(true) // TODO: Implement navigation
+                .disabled(!hasPreviousLesson)
 
                 Spacer()
 
                 Button {
-                    // Next lesson
+                    navigateToNextLesson()
                 } label: {
                     Label("Next", systemImage: "chevron.right")
                 }
-                .disabled(true) // TODO: Implement navigation
+                .disabled(!hasNextLesson && showCourseComplete)
             }
         }
         .padding()
         .background(Color(.systemBackground))
         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: -2)
+        .alert("Course Complete", isPresented: $showCourseComplete) {
+            Button("Done") {
+                dismiss()
+            }
+        } message: {
+            Text("Congratulations! You have completed all lessons in this module.")
+        }
     }
 
     private func loadData() async {
@@ -170,6 +197,11 @@ public struct LessonPlayerView: View {
             if let progressEntity = store.lessonProgress[lesson.id] {
                 lessonProgress = progressEntity.toProgress()
             }
+
+            // Load sibling lessons for navigation (sorted by order)
+            if siblingLessons.isEmpty {
+                siblingLessons = (try? store.getLessons(moduleId: lesson.moduleId)) ?? []
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -178,6 +210,32 @@ public struct LessonPlayerView: View {
     private func markComplete() async throws {
         try await manager.completeLesson(lesson.id)
         await loadData()
+    }
+
+    /// Navigate to the previous lesson in the module
+    private func navigateToPreviousLesson() {
+        guard let index = currentLessonIndex, index > 0 else { return }
+        let previousLesson = siblingLessons[index - 1]
+        store.setCurrentLesson(previousLesson)
+    }
+
+    /// Navigate to the next lesson in the module, marking the current one complete
+    private func navigateToNextLesson() {
+        guard let index = currentLessonIndex else { return }
+
+        // Mark the current lesson as completed
+        Task {
+            try? await manager.completeLesson(lesson.id)
+        }
+
+        // Check if this is the last lesson
+        if index >= siblingLessons.count - 1 {
+            showCourseComplete = true
+            return
+        }
+
+        let nextLesson = siblingLessons[index + 1]
+        store.setCurrentLesson(nextLesson)
     }
 }
 
@@ -207,25 +265,60 @@ struct DocumentLessonView: View {
     let content: DocumentContent
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let markdown = content.markdown {
+        if let markdown = content.markdown {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
                     Text(markdown)
                         .font(.body)
-                } else if let pdfUrl = content.pdfUrl {
-                    Text("PDF Document: \(pdfUrl)")
-                        .foregroundColor(.secondary)
-                    // TODO: Implement PDF viewer
+                }
+                .padding()
+            }
+        } else if let pdfUrl = content.pdfUrl {
+            PDFDocumentView(urlString: pdfUrl)
+        } else {
+            ContentUnavailableView(
+                "No Content",
+                systemImage: "doc.text",
+                description: Text("This document has no content.")
+            )
+        }
+    }
+}
+
+// MARK: - PDF Document View
+
+/// UIViewRepresentable wrapper for PDFKit's PDFView
+struct PDFDocumentView: UIViewRepresentable {
+    let urlString: String
+
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.autoScales = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displayDirection = .vertical
+
+        // Load the PDF document
+        if let url = URL(string: urlString) {
+            Task { @MainActor in
+                if url.isFileURL {
+                    pdfView.document = PDFDocument(url: url)
                 } else {
-                    ContentUnavailableView(
-                        "No Content",
-                        systemImage: "doc.text",
-                        description: Text("This document has no content.")
-                    )
+                    // Download remote PDFs
+                    do {
+                        let (data, _) = try await URLSession.shared.data(from: url)
+                        pdfView.document = PDFDocument(data: data)
+                    } catch {
+                        // The PDFView will remain empty, showing nothing
+                    }
                 }
             }
-            .padding()
         }
+
+        return pdfView
+    }
+
+    func updateUIView(_ uiView: PDFView, context: Context) {
+        // No update needed - the document is loaded once in makeUIView
     }
 }
 

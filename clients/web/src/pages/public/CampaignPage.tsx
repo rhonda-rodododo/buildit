@@ -53,11 +53,109 @@ export const CampaignPage: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Nostr public events integration deferred to Epic 53A - using demo data
     const loadCampaign = async () => {
       setIsLoading(true);
 
-      // Demo campaign data
+      try {
+        // Attempt to load campaign data from Nostr public events
+        const { NostrClient } = await import('@/core/nostr/client');
+        const client = new NostrClient([
+          { url: 'wss://relay.damus.io', read: true, write: false },
+          { url: 'wss://relay.primal.net', read: true, write: false },
+          { url: 'wss://nos.lol', read: true, write: false },
+        ]);
+
+        // Query for kind 30023 (long-form content) tagged with the campaign slug
+        // This is NIP-23 long-form content, used for campaign pages
+        const events = await client.query(
+          [{
+            kinds: [30023],
+            '#d': [slug || ''],
+            '#t': ['campaign'],
+            limit: 1,
+          }],
+          8000
+        );
+
+        if (events.length > 0) {
+          const event = events[0];
+          try {
+            const content = JSON.parse(event.content);
+
+            // Also query for associated public events (calendar events for this campaign)
+            const oneMonthFromNow = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+            const calendarEvents = await client.query(
+              [{
+                kinds: [31922, 31923], // NIP-52 calendar events
+                '#t': [slug || ''],
+                until: oneMonthFromNow,
+                limit: 5,
+              }],
+              5000
+            );
+
+            const upcomingEvents = calendarEvents.map((ce) => {
+              try {
+                const ceContent = JSON.parse(ce.content);
+                const startTag = ce.tags.find(t => t[0] === 'start');
+                const locationTag = ce.tags.find(t => t[0] === 'location');
+                return {
+                  id: ce.id,
+                  title: ceContent.title || ce.tags.find(t => t[0] === 'title')?.[1] || 'Untitled Event',
+                  description: ceContent.description || '',
+                  startTime: startTag ? parseInt(startTag[1]) * 1000 : Date.now(),
+                  location: locationTag?.[1],
+                };
+              } catch {
+                return null;
+              }
+            }).filter((e): e is NonNullable<typeof e> => e !== null);
+
+            // Query for recent kind 1 text notes tagged with the campaign
+            const recentNotes = await client.query(
+              [{
+                kinds: [1],
+                '#t': [slug || ''],
+                limit: 5,
+              }],
+              5000
+            );
+
+            const recentUpdates = recentNotes.map((note) => ({
+              id: note.id,
+              title: note.content.substring(0, 60) + (note.content.length > 60 ? '...' : ''),
+              content: note.content,
+              createdAt: note.created_at * 1000,
+            }));
+
+            const campaignData: CampaignData = {
+              id: event.id,
+              name: content.name || content.title || 'Campaign',
+              slug: slug || '',
+              description: content.description || '',
+              mission: content.mission || content.summary || '',
+              demands: Array.isArray(content.demands) ? content.demands : [],
+              upcomingEvents: upcomingEvents.length > 0 ? upcomingEvents : [],
+              recentUpdates: recentUpdates.length > 0 ? recentUpdates : [],
+              memberCount: content.memberCount,
+              isPublic: true,
+            };
+
+            client.close();
+            setCampaign(campaignData);
+            setIsLoading(false);
+            return;
+          } catch {
+            // JSON parsing failed, fall through to demo data
+          }
+        }
+
+        client.close();
+      } catch {
+        // Nostr query failed, fall through to demo data
+      }
+
+      // Fallback: demo campaign data when Nostr data is unavailable
       const demoData: CampaignData = {
         id: 'campaign-1',
         name: 'Climate Justice Now',
@@ -104,9 +202,6 @@ export const CampaignPage: FC = () => {
         memberCount: 342,
         isPublic: true
       };
-
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
 
       setCampaign(demoData);
       setIsLoading(false);

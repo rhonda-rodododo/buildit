@@ -9,6 +9,7 @@ import { nanoid } from 'nanoid';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, MoreVertical, Edit, Eye, Trash2, Copy, BarChart } from 'lucide-react';
 import { FormBuilder } from './FormBuilder/FormBuilder';
 import { PublicFormView } from './PublicFormView/PublicFormView';
@@ -32,10 +48,13 @@ import { TemplateGallery } from './FormTemplates/TemplateGallery';
 import { SubmissionsList } from './FormSubmissions/SubmissionsList';
 import { AnalyticsDashboard } from '@/modules/public/components/Analytics/AnalyticsDashboard';
 import { useFormsStore } from '../formsStore';
+import { useDatabaseStore } from '@/modules/database/databaseStore';
 import { useGroupContext } from '@/contexts/GroupContext';
 import { useAuthStore } from '@/stores/authStore';
-import type { Form } from '../types';
+import type { Form, FormSubmission } from '../types';
 import type { JSONSchema7 } from 'json-schema';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 type ViewMode = 'list' | 'builder' | 'preview' | 'submissions' | 'analytics' | 'templates';
 
@@ -56,6 +75,13 @@ export function FormsPage() {
   const [selectedForm, setSelectedForm] = useState<Form | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formToDelete, setFormToDelete] = useState<Form | null>(null);
+  const [submissionDetailOpen, setSubmissionDetailOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
+
+  // Database tables for form-database linking
+  const databaseTables = useDatabaseStore((state) => state.getTablesByGroup(groupId));
+
+  const [selectedTableId, setSelectedTableId] = useState<string>('default-table');
 
   const handleCreateForm = () => {
     setSelectedForm(null);
@@ -124,7 +150,7 @@ export function FormsPage() {
       const newForm: Form = {
         id: nanoid(),
         groupId,
-        tableId: 'default-table', // Database linkage deferred to Phase 2
+        tableId: selectedTableId,
         title: formData.title,
         description: formData.description,
         status: 'draft',
@@ -253,7 +279,61 @@ export function FormsPage() {
     const submissions = getSubmissionsByForm(selectedForm.id);
 
     const handleExportSubmissions = () => {
-      // CSV export deferred - see docs/TECH_DEBT.md
+      if (submissions.length === 0) {
+        toast.info(t('forms.noSubmissionsToExport', 'No submissions to export'));
+        return;
+      }
+
+      const headers = [
+        'ID',
+        'Submitted At',
+        'Name',
+        'Email',
+        'Submitted By',
+        'Status',
+        'Flagged as Spam',
+        'Processed',
+      ];
+
+      const csvRows = submissions.map((sub) => [
+        sub.id,
+        format(sub.submittedAt, 'yyyy-MM-dd HH:mm:ss'),
+        sub.submittedByName || '',
+        sub.submittedByEmail || '',
+        sub.submittedBy || '',
+        sub.processed ? 'processed' : sub.flaggedAsSpam ? 'spam' : 'new',
+        sub.flaggedAsSpam ? 'yes' : 'no',
+        sub.processed ? 'yes' : 'no',
+      ]);
+
+      const escapeCsvField = (field: string): string => {
+        if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+          return `"${field.replace(/"/g, '""')}"`;
+        }
+        return field;
+      };
+
+      const csv = [
+        headers.map(escapeCsvField).join(','),
+        ...csvRows.map((row) => row.map(escapeCsvField).join(',')),
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${selectedForm.title}-submissions-${format(Date.now(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(t('forms.exportSuccess', 'Submissions exported successfully'));
+    };
+
+    const handleViewSubmissionDetail = (submission: FormSubmission) => {
+      setSelectedSubmission(submission);
+      setSubmissionDetailOpen(true);
     };
 
     return (
@@ -265,11 +345,99 @@ export function FormsPage() {
         </div>
         <SubmissionsList
           submissions={submissions}
-          onViewDetails={() => { /* Detail view deferred to Phase 2 */ }}
+          onViewDetails={handleViewSubmissionDetail}
           onFlagSpam={flagSubmissionAsSpam}
           onMarkProcessed={markSubmissionProcessed}
           onExport={handleExportSubmissions}
         />
+
+        {/* Submission Detail Dialog */}
+        <Dialog open={submissionDetailOpen} onOpenChange={setSubmissionDetailOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{t('forms.submissionDetail', 'Submission Detail')}</DialogTitle>
+              <DialogDescription>
+                {selectedSubmission && format(selectedSubmission.submittedAt, 'MMM d, yyyy h:mm a')}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedSubmission && (
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.submissionId', 'Submission ID')}</Label>
+                    <p className="text-sm font-mono">{selectedSubmission.id}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.formId', 'Form ID')}</Label>
+                    <p className="text-sm font-mono">{selectedSubmission.formId}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.submittedBy', 'Submitted By')}</Label>
+                    <p className="text-sm">{selectedSubmission.submittedByName || selectedSubmission.submittedBy || t('forms.anonymous', 'Anonymous')}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.email', 'Email')}</Label>
+                    <p className="text-sm">{selectedSubmission.submittedByEmail || '-'}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.status', 'Status')}</Label>
+                    <div className="flex gap-1 mt-1">
+                      {selectedSubmission.flaggedAsSpam && (
+                        <Badge variant="destructive">{t('forms.spam', 'Spam')}</Badge>
+                      )}
+                      {selectedSubmission.processed && (
+                        <Badge variant="secondary">{t('forms.processed', 'Processed')}</Badge>
+                      )}
+                      {!selectedSubmission.processed && !selectedSubmission.flaggedAsSpam && (
+                        <Badge>{t('forms.new', 'New')}</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">{t('forms.recordId', 'Database Record')}</Label>
+                    <p className="text-sm font-mono">{selectedSubmission.recordId}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <div className="flex gap-2 w-full">
+                {selectedSubmission && !selectedSubmission.flaggedAsSpam && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      flagSubmissionAsSpam(selectedSubmission.id);
+                      setSubmissionDetailOpen(false);
+                    }}
+                  >
+                    {t('forms.flagAsSpam', 'Flag as Spam')}
+                  </Button>
+                )}
+                {selectedSubmission && !selectedSubmission.processed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      markSubmissionProcessed(selectedSubmission.id);
+                      setSubmissionDetailOpen(false);
+                    }}
+                  >
+                    {t('forms.markProcessed', 'Mark Processed')}
+                  </Button>
+                )}
+                <div className="flex-1" />
+                <Button variant="default" onClick={() => setSubmissionDetailOpen(false)}>
+                  {t('common.close', 'Close')}
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -312,7 +480,7 @@ export function FormsPage() {
             const newForm: Form = {
               id: nanoid(),
               groupId,
-              tableId: 'default-table', // Database linkage deferred to Phase 2
+              tableId: selectedTableId,
               title: template.name,
               description: template.description,
               status: 'draft',
@@ -367,7 +535,23 @@ export function FormsPage() {
             {t('forms.description')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {/* Database Table Selector */}
+          {databaseTables.length > 0 && (
+            <Select value={selectedTableId} onValueChange={setSelectedTableId}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder={t('forms.selectTable', 'Select table')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default-table">{t('forms.defaultTable', 'Default Table')}</SelectItem>
+                {databaseTables.map((table) => (
+                  <SelectItem key={table.id} value={table.id}>
+                    {table.icon} {table.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Button variant="outline" onClick={() => setViewMode('templates')}>
             {t('forms.viewTemplates')}
           </Button>

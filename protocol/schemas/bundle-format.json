@@ -148,9 +148,9 @@
       },
       "default": [
         {
-          "name": "BuildIt Official",
-          "pubkey": "TO_BE_GENERATED",
-          "validFrom": 0,
+          "name": "BuildIt Official (2026-02)",
+          "pubkey": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c",
+          "validFrom": 1738713600,
           "validUntil": null
         }
       ]

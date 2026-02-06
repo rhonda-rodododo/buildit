@@ -80,7 +80,7 @@ import network.buildit.core.storage.MessageEntity
 import network.buildit.core.storage.MessageStatus
 import network.buildit.core.transport.TransportStatus
 import kotlinx.coroutines.delay
-import network.buildit.generated.schemas.LinkPreview
+import network.buildit.generated.schemas.content.LinkPreview
 import network.buildit.modules.content.services.LinkPreviewService
 import network.buildit.ui.components.LinkPreviewStrip
 import network.buildit.ui.components.MessageBubble

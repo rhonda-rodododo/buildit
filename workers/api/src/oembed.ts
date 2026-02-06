@@ -227,12 +227,20 @@ export async function handleOEmbed(
     );
   }
 
-  // Validate URL
+  // Validate and normalize URL to prevent cache poisoning via encoding tricks.
+  // By parsing and re-serializing via the URL constructor, we get a canonical
+  // form that is immune to percent-encoding variations, port normalization,
+  // trailing slashes, and other URL equivalence attacks.
+  let normalizedUrl: string;
   try {
     const parsedTarget = new URL(targetUrl);
     if (!['http:', 'https:'].includes(parsedTarget.protocol)) {
       throw new Error('Invalid protocol');
     }
+    // Re-serialize to canonical form: lowercases scheme/host, resolves
+    // percent-encoding, removes default ports, sorts nothing (preserving
+    // query param order as-is since providers may be order-sensitive)
+    normalizedUrl = parsedTarget.toString();
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Invalid URL' }),
@@ -240,7 +248,7 @@ export async function handleOEmbed(
     );
   }
 
-  const domain = extractDomain(targetUrl);
+  const domain = extractDomain(normalizedUrl);
   if (!domain) {
     return new Response(
       JSON.stringify({ success: false, error: 'Could not extract domain' }),
@@ -260,8 +268,9 @@ export async function handleOEmbed(
     );
   }
 
-  // Check cache
-  const cacheKey = `oembed:${targetUrl}`;
+  // Cache key uses the normalized URL to prevent cache poisoning via
+  // URL encoding variations (e.g., %2F vs /, %20 vs +, case differences)
+  const cacheKey = `oembed:${normalizedUrl}`;
   if (env.CACHE) {
     try {
       const cached = await env.CACHE.get(cacheKey);
@@ -271,9 +280,9 @@ export async function handleOEmbed(
     } catch { /* cache miss */ }
   }
 
-  // Fetch oEmbed data
+  // Fetch oEmbed data using the normalized URL
   const oembedUrl = new URL(providerConfig.endpoint);
-  oembedUrl.searchParams.set('url', targetUrl);
+  oembedUrl.searchParams.set('url', normalizedUrl);
   oembedUrl.searchParams.set('format', 'json');
 
   try {

@@ -125,7 +125,7 @@ struct IdentityQRCodeView: View {
 
             // Copy button
             Button {
-                UIPasteboard.general.string = npub
+                SecureClipboard.copy(npub)
                 showCopied = true
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

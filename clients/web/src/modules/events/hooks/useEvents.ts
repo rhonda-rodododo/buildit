@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useEffect, useRef } from 'react'
 import { useEventsStore } from '../eventsStore'
 import { EventManager } from '../eventManager'
-import { NostrClient } from '@/core/nostr/client'
+import { NostrClient, getNostrClient as getGlobalNostrClient } from '@/core/nostr/client'
+import { createPrivateDM } from '@/core/crypto/nip17'
 import { CreateEventFormData, RSVPStatus, Event } from '../types'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
@@ -287,6 +288,109 @@ export function useEvents(groupId?: string) {
     return canViewEvent(event) ? event : undefined
   }, [getEventById, canViewEvent])
 
+  /**
+   * Send event invitations to specific pubkeys via NIP-17 encrypted DMs
+   *
+   * Creates a gift-wrapped invitation message containing event details
+   * and sends it to each specified pubkey.
+   */
+  const sendEventInvitation = useCallback(
+    async (eventId: string, inviteePubkeys: string[], personalMessage?: string) => {
+      if (!currentIdentity) {
+        throw new Error('No identity selected')
+      }
+
+      const privateKey = getCurrentPrivateKey()
+      if (!privateKey) {
+        throw new Error('App is locked')
+      }
+
+      const event = getEventById(eventId)
+      if (!event) {
+        throw new Error('Event not found')
+      }
+
+      // Build invitation content as structured JSON
+      const invitationContent = JSON.stringify({
+        type: 'event_invitation',
+        eventId: event.id,
+        title: event.title,
+        description: event.description,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        location: event.location,
+        groupId: event.groupId,
+        inviterPubkey: currentIdentity.publicKey,
+        message: personalMessage || `You're invited to ${event.title}`,
+        timestamp: Date.now(),
+      })
+
+      const client = getGlobalNostrClient()
+      const results: { pubkey: string; success: boolean; error?: string }[] = []
+
+      // Send individual NIP-17 gift-wrapped invitations to each invitee
+      for (const pubkey of inviteePubkeys) {
+        try {
+          const giftWrap = createPrivateDM(
+            invitationContent,
+            privateKey,
+            pubkey,
+            [
+              ['type', 'event_invitation'],
+              ['e', eventId],
+            ]
+          )
+
+          const publishResults = await client.publishDirectMessage(giftWrap)
+          const hasSuccess = publishResults.some(r => r.success)
+
+          results.push({
+            pubkey,
+            success: hasSuccess,
+            error: hasSuccess ? undefined : 'All relays rejected the invitation',
+          })
+        } catch (error) {
+          results.push({
+            pubkey,
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          })
+        }
+      }
+
+      // Notify the user about results
+      const successCount = results.filter(r => r.success).length
+      const failureCount = results.filter(r => !r.success).length
+
+      if (successCount > 0) {
+        addNotification({
+          type: 'event_rsvp',
+          title: 'Invitations Sent',
+          message: `Sent ${successCount} invitation${successCount > 1 ? 's' : ''} for "${event.title}"${failureCount > 0 ? ` (${failureCount} failed)` : ''}`,
+          metadata: {
+            eventId,
+            groupId: event.groupId,
+          },
+        })
+      }
+
+      if (failureCount > 0 && successCount === 0) {
+        addNotification({
+          type: 'event_rsvp',
+          title: 'Invitations Failed',
+          message: `Failed to send ${failureCount} invitation${failureCount > 1 ? 's' : ''} for "${event.title}"`,
+          metadata: {
+            eventId,
+            groupId: event.groupId,
+          },
+        })
+      }
+
+      return results
+    },
+    [currentIdentity, getEventById, addNotification]
+  )
+
   return {
     events: filteredEvents,
     publicEvents: filteredPublicEvents,
@@ -295,6 +399,7 @@ export function useEvents(groupId?: string) {
     updateEvent,
     deleteEvent,
     rsvpToEvent,
+    sendEventInvitation,
     syncEvents,
     getEventById: getEventByIdFiltered,
     getEventWithRSVPs: getEventWithRSVPData,

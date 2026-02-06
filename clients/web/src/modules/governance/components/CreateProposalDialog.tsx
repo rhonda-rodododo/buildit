@@ -33,6 +33,8 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
   const [duration, setDuration] = useState('7');
   const [quorum, setQuorum] = useState('50');
   const [threshold, setThreshold] = useState('50');
+  const [tokenBudget, setTokenBudget] = useState('100');
+  const [maxTokensPerOption, setMaxTokensPerOption] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -61,6 +63,10 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
           quorumValue: parseInt(quorum),
           thresholdType: 'simple-majority',
           thresholdPercentage: parseInt(threshold),
+          quadraticTokenBudget: votingSystem === 'quadratic' ? parseInt(tokenBudget) || 100 : undefined,
+          quadraticMaxTokensPerOption: votingSystem === 'quadratic' && maxTokensPerOption
+            ? parseInt(maxTokensPerOption)
+            : undefined,
         },
         privateKey
       );
@@ -73,6 +79,8 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
       setDuration('7');
       setQuorum('50');
       setThreshold('50');
+      setTokenBudget('100');
+      setMaxTokensPerOption('');
 
       onOpenChange(false);
       onCreated?.();
@@ -149,6 +157,44 @@ export const CreateProposalDialog: FC<CreateProposalDialogProps> = ({
                 placeholder={t('createProposalDialog.fields.optionsPlaceholder')}
                 rows={4}
               />
+            </div>
+          )}
+
+          {votingSystem === 'quadratic' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="token-budget">
+                  {t('createProposalDialog.fields.tokenBudget', 'Token Budget')}
+                </Label>
+                <Input
+                  id="token-budget"
+                  type="number"
+                  min="1"
+                  value={tokenBudget}
+                  onChange={(e) => setTokenBudget(e.target.value)}
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('createProposalDialog.fields.tokenBudgetHint', 'Tokens each voter receives to allocate')}
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="max-tokens-per-option">
+                  {t('createProposalDialog.fields.maxTokensPerOption', 'Max per Option')}
+                </Label>
+                <Input
+                  id="max-tokens-per-option"
+                  type="number"
+                  min="1"
+                  value={maxTokensPerOption}
+                  onChange={(e) => setMaxTokensPerOption(e.target.value)}
+                  placeholder={t('createProposalDialog.fields.maxTokensPlaceholder', 'No limit')}
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('createProposalDialog.fields.maxTokensHint', 'Optional cap per option')}
+                </p>
+              </div>
             </div>
           )}
 

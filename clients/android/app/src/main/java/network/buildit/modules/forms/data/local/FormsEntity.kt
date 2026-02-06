@@ -27,7 +27,8 @@ enum class FormFieldType(val displayName: String) {
     CHECKBOX("Checkboxes"),
     FILE("File Upload"),
     RATING("Rating"),
-    SCALE("Scale")
+    SCALE("Scale"),
+    LOCATION("Location")
 }
 
 /**

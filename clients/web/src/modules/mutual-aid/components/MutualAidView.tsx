@@ -3,11 +3,27 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Heart, Users } from 'lucide-react'
+import { Plus, Heart, Users, MapIcon } from 'lucide-react'
+import { MapView, MapPin as MapPinType } from '@/components/ui/MapView'
+import { useMutualAidStore } from '../mutualAidStore'
 
 export const MutualAidView: FC = () => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('browse')
+
+  // Get items from store for the map view
+  const aidItems = useMutualAidStore((state) => state.aidItems)
+
+  // Build map pins from items with location data
+  const mapPins: MapPinType[] = aidItems
+    .filter((item) => item.locationData != null)
+    .map((item) => ({
+      lat: item.locationData!.lat,
+      lng: item.locationData!.lng,
+      label: `${item.type === 'request' ? 'Request' : 'Offer'}: ${item.title}`,
+      precision: item.locationData!.precision,
+      color: item.type === 'request' ? 'red' as const : 'green' as const,
+    }))
 
   return (
     <div className="h-full p-4 space-y-6 overflow-y-auto">
@@ -27,6 +43,10 @@ export const MutualAidView: FC = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="browse">{t('mutualAid.browse')}</TabsTrigger>
+          <TabsTrigger value="map">
+            <MapIcon className="h-4 w-4 mr-1" />
+            {t('mutualAid.mapView', 'Map')}
+          </TabsTrigger>
           <TabsTrigger value="my-items">{t('mutualAid.myItems')}</TabsTrigger>
           <TabsTrigger value="matches">{t('mutualAid.matches')}</TabsTrigger>
           <TabsTrigger value="rides">{t('mutualAid.rideShare')}</TabsTrigger>
@@ -70,6 +90,30 @@ export const MutualAidView: FC = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="map" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('mutualAid.mapViewTitle', 'Nearby Requests & Offers')}</CardTitle>
+              <CardDescription>
+                {t('mutualAid.mapViewDesc', 'Red pins are requests, green pins are offers. Click a pin for details.')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {mapPins.length > 0 ? (
+                <MapView
+                  pins={mapPins}
+                  height="400px"
+                  interactive={true}
+                />
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  {t('mutualAid.noLocationItems', 'No items with location data yet. Add a location when creating requests or offers.')}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="my-items" className="mt-6">

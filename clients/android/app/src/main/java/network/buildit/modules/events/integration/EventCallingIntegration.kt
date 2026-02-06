@@ -1,5 +1,6 @@
 package network.buildit.modules.events.integration
 
+import network.buildit.core.redacted
 import android.content.Context
 import android.util.Log
 import androidx.work.Data
@@ -169,7 +170,7 @@ class EventCallingIntegration @Inject constructor(
 
         // In production, this would send via the notification service
         rsvpPubkeys.forEach { pubkey ->
-            Log.d(TAG, "Sending reminder to $pubkey: $message")
+            Log.d(TAG, "Sending reminder to ${pubkey.redacted()}: $message")
             // notificationService.sendReminder(pubkey, message, conference.joinUrl)
         }
     }
@@ -202,7 +203,7 @@ class EventCallingIntegration @Inject constructor(
                     it.pubkey == pubkey && it.leftAt == null
                 }
                 if (existingJoin != null) {
-                    Log.d(TAG, "Attendee $pubkey already joined event $eventId")
+                    Log.d(TAG, "Attendee ${pubkey.redacted()} already joined event $eventId")
                     return existingJoin
                 }
 
@@ -215,7 +216,7 @@ class EventCallingIntegration @Inject constructor(
                     durationSeconds = 0
                 )
                 records.add(attendance)
-                Log.i(TAG, "Attendee $pubkey joined event $eventId")
+                Log.i(TAG, "Attendee ${pubkey.redacted()} joined event $eventId")
                 attendance
             }
 
@@ -225,7 +226,7 @@ class EventCallingIntegration @Inject constructor(
                     it.pubkey == pubkey && it.leftAt == null
                 }
                 if (lastJoin == null) {
-                    Log.w(TAG, "No join record found for attendee $pubkey in event $eventId")
+                    Log.w(TAG, "No join record found for attendee ${pubkey.redacted()} in event $eventId")
                     return null
                 }
 
@@ -236,7 +237,7 @@ class EventCallingIntegration @Inject constructor(
                 )
                 records.remove(lastJoin)
                 records.add(updated)
-                Log.i(TAG, "Attendee $pubkey left event $eventId (duration: ${duration}s)")
+                Log.i(TAG, "Attendee ${pubkey.redacted()} left event $eventId (duration: ${duration}s)")
                 updated
             }
         }

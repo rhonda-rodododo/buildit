@@ -14,6 +14,8 @@ import { createPrivateDM, createGroupMessage } from '@/core/crypto/nip17';
 import { getNostrClient } from '@/core/nostr/client';
 import { secureRandomString } from '@/lib/utils';
 import { queueOfflineMessage } from '@/core/offline/queueProcessor';
+import { addOuterPadding, trafficShapingManager } from '@/core/messaging/trafficShaping';
+import { createEphemeralContent } from '@/core/messaging/ephemeralManager';
 import type { GiftWrap } from '@/types/nostr';
 import type {
   DBConversation,
@@ -81,7 +83,7 @@ interface ConversationsState {
   updateLastRead: (conversationId: string) => Promise<void>;
 
   // Actions - Messages
-  sendMessage: (conversationId: string, content: string, replyTo?: string) => Promise<ConversationMessage>;
+  sendMessage: (conversationId: string, content: string, replyTo?: string, ephemeralTtl?: number) => Promise<ConversationMessage>;
   editMessage: (messageId: string, newContent: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   addReaction: (messageId: string, emoji: string) => Promise<void>;
@@ -520,7 +522,8 @@ export const useConversationsStore = create<ConversationsState>()(
       sendMessage: async (
         conversationId: string,
         content: string,
-        replyTo?: string
+        replyTo?: string,
+        ephemeralTtl?: number
       ): Promise<ConversationMessage> => {
         const currentIdentity = useAuthStore.getState().currentIdentity;
         if (!currentIdentity) throw new Error('Not authenticated');
@@ -605,12 +608,28 @@ export const useConversationsStore = create<ConversationsState>()(
             tags.push(['e', replyTo, '', 'reply']); // Reply tag
           }
 
+          // PRIVACY: Prepare wire content with ephemeral envelope and outer padding
+          // 1. Wrap in ephemeral envelope if TTL is set (content stays clean locally)
+          // 2. Apply outer padding to uniform bucket sizes for traffic analysis resistance
+          let wireContent = content;
+          if (ephemeralTtl && ephemeralTtl > 0) {
+            wireContent = createEphemeralContent(wireContent, ephemeralTtl);
+          }
+
+          // Apply outer padding for traffic analysis resistance
+          // The traffic shaping manager applies padding automatically when enabled,
+          // but we also apply it here for non-batched sends
+          const shapingConfig = trafficShapingManager.getConfig();
+          if (shapingConfig.paddingEnabled) {
+            wireContent = addOuterPadding(wireContent);
+          }
+
           let giftWraps: GiftWrap[];
 
           if (conversation.type === 'dm' && recipients.length === 1) {
             // DM: Single gift wrap for the recipient
             const giftWrap = createPrivateDM(
-              content,
+              wireContent,
               privateKey,
               recipients[0],
               tags
@@ -619,7 +638,7 @@ export const useConversationsStore = create<ConversationsState>()(
           } else {
             // Group chat: Multiple gift wraps (one per participant)
             giftWraps = createGroupMessage(
-              content,
+              wireContent,
               privateKey,
               recipients,
               tags
@@ -769,6 +788,7 @@ export const useConversationsStore = create<ConversationsState>()(
       },
 
       // Update user presence
+      // Publishes presence locally and, if opted in, broadcasts via ephemeral Nostr events (kind 10002)
       updatePresence: async (status: PresenceStatus, customStatus?: string): Promise<void> => {
         const currentIdentity = useAuthStore.getState().currentIdentity;
         if (!currentIdentity) return;
@@ -792,26 +812,123 @@ export const useConversationsStore = create<ConversationsState>()(
           return { presence: newPresence };
         });
 
+        // Broadcast presence via ephemeral Nostr event if opted in
+        // Uses kind 30315 (NIP-38 user status) for presence broadcasting
+        try {
+          const { getCurrentPrivateKey: getPrivKey } = await import('@/stores/authStore');
+          const privateKey = getPrivKey();
+          if (!privateKey) return;
+
+          // Check if user has opted in to presence broadcasting
+          const settings = await dal.get<{ pubkey: string; presenceEnabled?: boolean }>(
+            'usernameSettings',
+            currentIdentity.publicKey
+          );
+          if (!settings?.presenceEnabled) return;
+
+          const { createEventFromTemplate } = await import('@/core/nostr/nip01');
+          const { getNostrClient: getClient } = await import('@/core/nostr/client');
+
+          // Kind 30315: NIP-38 user statuses (parameterized replaceable)
+          const presenceEvent = createEventFromTemplate(
+            {
+              kind: 30315,
+              content: customStatus || '',
+              tags: [
+                ['d', 'general'],
+                ['status', status],
+              ],
+              created_at: Math.floor(Date.now() / 1000),
+            },
+            privateKey
+          );
+
+          const client = getClient();
+          await client.publishWithPrivacy(presenceEvent, {
+            priority: 'low',
+            isCritical: false,
+          });
+        } catch {
+          // Presence broadcast is best-effort, don't fail
+        }
       },
 
       // Refresh presence for multiple users
+      // Queries both local database and Nostr relays for contact presence
       refreshPresence: async (pubkeys: string[]): Promise<void> => {
+        if (pubkeys.length === 0) return;
+
         try {
-          const presenceData = pubkeys.length > 0
-            ? await dal.queryCustom<UserPresence>({
-                sql: `SELECT * FROM user_presence WHERE pubkey IN (${pubkeys.map((_, i) => `?${i + 1}`).join(',')})`,
-                params: pubkeys,
-                dexieFallback: async (db) => {
-                  return db.userPresence.where('pubkey').anyOf(pubkeys).toArray();
-                },
-              })
-            : [];
+          // First load from local database
+          const presenceData = await dal.queryCustom<UserPresence>({
+            sql: `SELECT * FROM user_presence WHERE pubkey IN (${pubkeys.map((_, i) => `?${i + 1}`).join(',')})`,
+            params: pubkeys,
+            dexieFallback: async (db) => {
+              return db.userPresence.where('pubkey').anyOf(pubkeys).toArray();
+            },
+          });
 
           set((state) => {
             const newPresence = new Map(state.presence);
             presenceData.forEach((p) => newPresence.set(p.pubkey, p));
             return { presence: newPresence };
           });
+
+          // Then query Nostr relays for kind 30315 presence events from contacts
+          try {
+            const { getNostrClient: getClient } = await import('@/core/nostr/client');
+            const client = getClient();
+
+            // Query for presence events (NIP-38 user statuses)
+            const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 5 * 60;
+            const events = await client.query(
+              [{
+                kinds: [30315],
+                authors: pubkeys,
+                since: fiveMinutesAgo,
+                '#d': ['general'],
+              }],
+              5000
+            );
+
+            const remotePresence = new Map<string, UserPresence>();
+
+            for (const event of events) {
+              const statusTag = event.tags.find(t => t[0] === 'status');
+              const presenceStatus = statusTag?.[1] as PresenceStatus | undefined;
+              if (!presenceStatus || !['online', 'away', 'offline'].includes(presenceStatus)) continue;
+
+              const existing = remotePresence.get(event.pubkey);
+              // Use the most recent event per pubkey
+              if (!existing || event.created_at * 1000 > existing.lastSeen) {
+                remotePresence.set(event.pubkey, {
+                  pubkey: event.pubkey,
+                  status: presenceStatus,
+                  lastSeen: event.created_at * 1000,
+                  customStatus: event.content || undefined,
+                });
+              }
+            }
+
+            if (remotePresence.size > 0) {
+              // Persist remote presence locally
+              for (const [, p] of remotePresence) {
+                try {
+                  await dal.put('userPresence', p);
+                } catch {
+                  // Ignore individual save failures
+                }
+              }
+
+              set((state) => {
+                const newPresence = new Map(state.presence);
+                remotePresence.forEach((p, key) => newPresence.set(key, p));
+                return { presence: newPresence };
+              });
+            }
+          } catch {
+            // Remote presence refresh is best-effort
+          }
         } catch (error) {
           console.error('Failed to refresh presence:', error);
         }

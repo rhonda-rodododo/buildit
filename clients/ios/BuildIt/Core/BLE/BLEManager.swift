@@ -218,6 +218,9 @@ class BLEManager: NSObject, ObservableObject {
     /// Last known service UUID (for rotation detection)
     private var lastServiceUUID: CBUUID
 
+    /// Authenticator for BLE peer verification
+    private let authenticator = BLEAuthenticator.shared
+
     // MARK: - Initialization
 
     private override init() {
@@ -231,6 +234,7 @@ class BLEManager: NSObject, ObservableObject {
 
         setupManagers()
         setupBindings()
+        setupAuthNotifications()
         startCleanupTimer()
         startUUIDRotationTimer()
     }
@@ -277,6 +281,53 @@ class BLEManager: NSObject, ObservableObject {
                 self?.updateConnectedPeers(from: peripherals)
             }
             .store(in: &cancellables)
+    }
+
+    private func setupAuthNotifications() {
+        // Listen for authentication completion
+        NotificationCenter.default.publisher(for: .bleAuthenticationCompleted)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                guard let self = self,
+                      let peerID = notification.userInfo?["peerID"] as? UUID,
+                      let pubkey = notification.userInfo?["pubkey"] as? String else { return }
+
+                self.handleAuthenticationSuccess(peerID: peerID, pubkey: pubkey)
+            }
+            .store(in: &cancellables)
+
+        // Listen for authentication failures
+        NotificationCenter.default.publisher(for: .bleAuthenticationFailed)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] notification in
+                guard let self = self,
+                      let peerID = notification.userInfo?["peerID"] as? UUID,
+                      let error = notification.userInfo?["error"] as? String else { return }
+
+                self.handleAuthenticationFailure(peerID: peerID, error: error)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func handleAuthenticationSuccess(peerID: UUID, pubkey: String) {
+        // Update peer with verified pubkey
+        if let index = connectedPeers.firstIndex(where: { $0.id == peerID }) {
+            connectedPeers[index].verifiedPubkey = pubkey
+        }
+
+        connectionState = .authenticated
+        logger.info("[AUTH] Peer \(peerID) authenticated with pubkey \(pubkey.prefix(16))...")
+    }
+
+    private func handleAuthenticationFailure(peerID: UUID, error: String) {
+        // Remove the peer since authentication failed
+        connectedPeers.removeAll { $0.id == peerID }
+        discoveredPeers.removeAll { $0.id == peerID }
+
+        lastError = "Authentication failed: \(error)"
+        connectionState = connectedPeers.isEmpty ? .scanning : .connected
+
+        logger.error("[AUTH] SECURITY: Peer \(peerID) failed authentication: \(error)")
     }
 
     private func startCleanupTimer() {
@@ -409,47 +460,18 @@ class BLEManager: NSObject, ObservableObject {
         logger.info("Connecting to peer: \(peer.identifier)")
     }
 
-    /// Perform handshake to verify identity commitment
-    func performHandshake(with peer: DiscoveredPeer) async throws -> String {
-        guard let peripheral = peer.peripheral,
-              let theirCommitment = peer.identityCommitment else {
-            throw BLEError.peerNotConnected
-        }
+    /// Check if a peer has been authenticated via the BLE handshake.
+    ///
+    /// Authentication happens automatically when a connection is established.
+    /// The central initiates a signed challenge, the peripheral responds,
+    /// and mutual authentication is verified before any messages are exchanged.
+    func isPeerAuthenticated(_ peerID: UUID) -> Bool {
+        authenticator.isAuthenticated(peerID)
+    }
 
-        connectionState = .handshaking
-
-        // Read their handshake data (pubkey + nonce)
-        let handshakeData = try await bleCentral.readHandshake(from: peripheral)
-
-        // Parse handshake data
-        guard handshakeData.count >= 80 else { // 64 hex chars for pubkey + 16 bytes nonce
-            throw BLEError.handshakeFailed
-        }
-
-        let theirPubkeyHex = String(data: handshakeData.prefix(64), encoding: .utf8) ?? ""
-        let theirNonce = handshakeData.suffix(from: 64)
-
-        // Verify commitment
-        guard IdentityCommitment.verify(
-            commitment: theirCommitment,
-            pubkey: theirPubkeyHex,
-            nonce: theirNonce
-        ) else {
-            connectionState = .connected
-            throw BLEError.commitmentVerificationFailed
-        }
-
-        // Send our handshake data
-        if let ourCommitment = ourCommitment {
-            var ourHandshake = Data(ourCommitment.pubkey.utf8)
-            ourHandshake.append(ourCommitment.nonce)
-            try await bleCentral.writeHandshake(ourHandshake, to: peripheral)
-        }
-
-        connectionState = .authenticated
-        logger.info("Handshake completed with peer: \(theirPubkeyHex.prefix(16))...")
-
-        return theirPubkeyHex
+    /// Get the verified public key for an authenticated peer
+    func getVerifiedPubkey(for peerID: UUID) -> String? {
+        authenticator.getVerifiedPubkey(for: peerID)
     }
 
     /// Disconnect from a peer
@@ -461,22 +483,32 @@ class BLEManager: NSObject, ObservableObject {
         logger.info("Disconnecting from peer: \(peer.identifier)")
     }
 
-    /// Send a message to a specific peer
+    /// Send a message to a specific peer.
+    /// The peer must have completed mutual authentication.
     func sendMessage(_ data: Data, to peerID: UUID) async throws {
         guard let peer = connectedPeers.first(where: { $0.id == peerID }),
               let peripheral = peer.peripheral else {
             throw BLEError.peerNotConnected
         }
 
+        // Enforce authentication before allowing data exchange
+        guard authenticator.isAuthenticated(peerID) else {
+            logger.error("[AUTH] Refusing to send message to unauthenticated peer: \(peerID)")
+            throw BLEError.peerNotAuthenticated
+        }
+
         try await bleCentral.sendMessage(data, to: peripheral)
     }
 
-    /// Broadcast a message to all connected peers
+    /// Broadcast a message to all connected and authenticated peers
     func broadcastMessage(_ data: Data) async throws {
         for peer in connectedPeers {
-            if let peripheral = peer.peripheral {
-                try? await bleCentral.sendMessage(data, to: peripheral)
+            // Only send to authenticated peers
+            guard authenticator.isAuthenticated(peer.id),
+                  let peripheral = peer.peripheral else {
+                continue
             }
+            try? await bleCentral.sendMessage(data, to: peripheral)
         }
 
         // Also broadcast via peripheral manager for nearby devices
@@ -532,6 +564,9 @@ class BLEManager: NSObject, ObservableObject {
         for peer in connectedPeers {
             disconnect(from: peer)
         }
+
+        // Clear all authentication state
+        authenticator.reset()
     }
 
     // MARK: - Private Methods
@@ -621,6 +656,7 @@ extension BLEManager: CBCentralManagerDelegate {
             case .poweredOff:
                 logger.warning("Bluetooth is powered off")
                 connectionState = .disconnected
+                authenticator.reset()
             case .unauthorized:
                 logger.error("Bluetooth is unauthorized")
                 lastError = "Bluetooth access not authorized"
@@ -668,6 +704,9 @@ extension BLEManager: CBCentralManagerDelegate {
         bleCentral.handleDisconnectedPeripheral(peripheral)
 
         Task { @MainActor in
+            // Clear authentication state for this peer
+            authenticator.peerDisconnected(peripheral.identifier)
+
             logger.info("Disconnected from peripheral: \(peripheral.identifier)")
             if connectedPeers.isEmpty {
                 connectionState = .scanning
@@ -758,11 +797,13 @@ extension BLEManager: CBPeripheralManagerDelegate {
 enum BLEError: LocalizedError {
     case bluetoothNotAvailable
     case peerNotConnected
+    case peerNotAuthenticated
     case messageTooLarge
     case sendFailed
     case characteristicNotFound
     case handshakeFailed
     case commitmentVerificationFailed
+    case authenticationFailed(String)
 
     var errorDescription: String? {
         switch self {
@@ -770,6 +811,8 @@ enum BLEError: LocalizedError {
             return "Bluetooth is not available"
         case .peerNotConnected:
             return "Peer is not connected"
+        case .peerNotAuthenticated:
+            return "Peer has not completed mutual authentication"
         case .messageTooLarge:
             return "Message exceeds maximum size"
         case .sendFailed:
@@ -780,6 +823,8 @@ enum BLEError: LocalizedError {
             return "Handshake failed - invalid data"
         case .commitmentVerificationFailed:
             return "Identity commitment verification failed"
+        case .authenticationFailed(let reason):
+            return "Authentication failed: \(reason)"
         }
     }
 }

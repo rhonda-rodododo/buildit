@@ -363,8 +363,36 @@ export const DocumentsPage: FC = () => {
     }
   }
 
-  const handleCommentClick = (_comment: DocumentComment) => {
-    // Comment position navigation deferred - requires TipTap scroll integration
+  const handleCommentClick = (comment: DocumentComment) => {
+    // Navigate to the comment's position in the editor
+    // Comments are associated with a position or anchor in the document
+    const commentAnchor = comment.id;
+
+    // Try to find the comment marker in the DOM and scroll to it
+    const editorContainer = window.document.querySelector('.ProseMirror');
+    if (!editorContainer) return;
+
+    // Look for a mark or element with this comment's data attribute
+    const commentElement =
+      editorContainer.querySelector(`[data-comment-id="${commentAnchor}"]`) ||
+      editorContainer.querySelector(`[data-comment="${commentAnchor}"]`);
+
+    if (commentElement) {
+      commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Add temporary highlight effect
+      commentElement.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'rounded');
+      setTimeout(() => {
+        commentElement.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'rounded');
+      }, 2000);
+    } else {
+      // Fallback: scroll to approximate position based on creation order
+      const allCommentMarks = editorContainer.querySelectorAll('[data-comment-id], [data-comment]');
+      if (allCommentMarks.length > 0) {
+        // Scroll to the first comment marker as a fallback
+        allCommentMarks[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   }
 
   const currentDocCommentCount = currentDoc ? getCommentCount(currentDoc.id) : 0

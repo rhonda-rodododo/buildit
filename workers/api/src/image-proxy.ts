@@ -21,10 +21,30 @@ const ALLOWED_TYPES = [
   'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon',
 ];
 
+/**
+ * SSRF protection: block requests to private/internal IP ranges.
+ */
+const BLOCKED_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'];
+const BLOCKED_HOSTNAME_SUFFIXES = ['.local', '.internal', '.localhost'];
+
+function isBlockedHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  if (BLOCKED_HOSTNAMES.includes(lower)) return true;
+  if (BLOCKED_HOSTNAME_SUFFIXES.some(s => lower.endsWith(s))) return true;
+  if (/^10\./.test(lower)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(lower)) return true;
+  if (/^192\.168\./.test(lower)) return true;
+  if (/^169\.254\./.test(lower)) return true;
+  if (/^0\./.test(lower)) return true;
+  if (lower.startsWith('[fc') || lower.startsWith('[fd')) return true;
+  return false;
+}
+
 function validateUrl(urlString: string): URL | null {
   try {
     const url = new URL(urlString);
     if (url.protocol !== 'https:') return null;
+    if (isBlockedHost(url.hostname)) return null;
     return url;
   } catch {
     return null;

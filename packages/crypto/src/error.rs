@@ -58,4 +58,7 @@ pub enum CryptoError {
 
     #[error("Duress alert failed")]
     DuressAlertFailed,
+
+    #[error("Invalid version string (expected format: MAJOR.MINOR.PATCH)")]
+    InvalidVersion,
 }

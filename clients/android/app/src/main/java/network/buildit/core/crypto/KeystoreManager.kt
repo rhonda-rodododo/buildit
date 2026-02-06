@@ -553,8 +553,8 @@ class KeystoreManager @Inject constructor(
             val identityData = IdentityExportData.deserialize(serialized)
                 ?: return false
 
-            // Verify the attestation
-            if (!verifyIdentityAttestation(identityData.publicKey, identityData.attestation)) {
+            // Verify the attestation cryptographically
+            if (!verifyIdentityAttestation(identityData.publicKey, identityData.attestation, identityData.exportedAt)) {
                 return false
             }
 
@@ -660,33 +660,79 @@ class KeystoreManager @Inject constructor(
     }
 
     /**
-     * Verifies an identity attestation signature.
+     * Verifies an identity attestation signature cryptographically.
+     *
+     * The attestation is an ECDSA signature over (publicKey || exportedAt) produced by
+     * the identity key. We reconstruct the signed data and verify using the provided
+     * public key to ensure the attestation was created by the holder of the private key.
+     *
+     * @param publicKey The encoded public key from the identity export
+     * @param attestation The ECDSA signature bytes
+     * @param exportedAt The timestamp included in the signed data
+     * @return True if the signature is valid
      */
-    private fun verifyIdentityAttestation(publicKey: ByteArray, attestation: ByteArray): Boolean {
-        // For now, accept any attestation from a valid bundle
-        // In production, this would verify the signature cryptographically
-        return attestation.isNotEmpty()
+    private fun verifyIdentityAttestation(
+        publicKey: ByteArray,
+        attestation: ByteArray,
+        exportedAt: Long
+    ): Boolean {
+        if (attestation.isEmpty() || publicKey.isEmpty()) return false
+
+        return try {
+            // Reconstruct the public key from its encoded form
+            val keyFactory = java.security.KeyFactory.getInstance("EC")
+            val pubKeySpec = java.security.spec.X509EncodedKeySpec(publicKey)
+            val reconstructedKey = keyFactory.generatePublic(pubKeySpec)
+
+            // Reconstruct the data that was signed: publicKey + timestamp string
+            val signedData = publicKey + exportedAt.toString().toByteArray(Charsets.UTF_8)
+
+            // Verify the ECDSA signature (same algorithm used in createIdentityAttestation)
+            val sig = Signature.getInstance("SHA256withECDSA")
+            sig.initVerify(reconstructedKey)
+            sig.update(signedData)
+            sig.verify(attestation)
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**
-     * Stores a linked identity reference.
+     * Encrypted shared preferences for linked identity storage.
+     * Uses the same EncryptedSharedPreferences pattern as encryptedPrefs
+     * to protect linked identity public keys at rest.
+     */
+    private val linkedIdentityPrefs by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        EncryptedSharedPreferences.create(
+            context,
+            LINKED_IDENTITY_PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    /**
+     * Stores a linked identity reference in EncryptedSharedPreferences.
      */
     private fun storeLinkedIdentity(identityData: IdentityExportData) {
-        // Store the linked identity public key in shared preferences
+        // Store the linked identity public key in encrypted shared preferences
         // This allows tracking which identities this device is linked to
-        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        val linkedKeys = prefs.getStringSet(KEY_LINKED_IDENTITIES, mutableSetOf())?.toMutableSet()
+        val linkedKeys = linkedIdentityPrefs.getStringSet(KEY_LINKED_IDENTITIES, mutableSetOf())?.toMutableSet()
             ?: mutableSetOf()
         linkedKeys.add(android.util.Base64.encodeToString(identityData.publicKey, android.util.Base64.NO_WRAP))
-        prefs.edit().putStringSet(KEY_LINKED_IDENTITIES, linkedKeys).apply()
+        linkedIdentityPrefs.edit().putStringSet(KEY_LINKED_IDENTITIES, linkedKeys).apply()
     }
 
     /**
-     * Gets all linked identity public keys.
+     * Gets all linked identity public keys from EncryptedSharedPreferences.
      */
     fun getLinkedIdentities(): Set<ByteArray> {
-        val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_LINKED_IDENTITIES, emptySet())
+        return linkedIdentityPrefs.getStringSet(KEY_LINKED_IDENTITIES, emptySet())
             ?.mapNotNull {
                 try {
                     android.util.Base64.decode(it, android.util.Base64.NO_WRAP)
@@ -716,8 +762,8 @@ class KeystoreManager @Inject constructor(
 
         // Device sync constants
         private const val EXPORT_VERSION = 2  // Bumped for Argon2id migration
-        private const val PREFS_NAME = "buildit_keystore"
         private const val KEY_LINKED_IDENTITIES = "linked_identities"
+        private const val LINKED_IDENTITY_PREFS_NAME = "buildit_linked_identities_secure"
 
         // Argon2id parameters (OWASP 2023 recommended)
         // Memory-hard KDF resistant to GPU/ASIC attacks

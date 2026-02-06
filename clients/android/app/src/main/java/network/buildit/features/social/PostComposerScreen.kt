@@ -1,6 +1,7 @@
 package network.buildit.features.social
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,13 +40,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.net.Uri
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import kotlinx.coroutines.delay
-import network.buildit.generated.schemas.LinkPreview
+import network.buildit.generated.schemas.content.LinkPreview
 import network.buildit.modules.content.services.LinkPreviewService
 import network.buildit.ui.components.LinkPreviewStrip
 import network.buildit.ui.theme.BuildItTheme
@@ -60,6 +72,13 @@ fun PostComposerScreen(
     var linkPreviews by remember { mutableStateOf<List<LinkPreview>>(emptyList()) }
     var isGeneratingPreviews by remember { mutableStateOf(false) }
     val linkPreviewService = remember { LinkPreviewService() }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -93,6 +112,13 @@ fun PostComposerScreen(
         linkPreviews = linkPreviews,
         isGeneratingPreviews = isGeneratingPreviews,
         onRemovePreview = { url -> linkPreviews = linkPreviews.filter { it.url != url } },
+        selectedImageUri = selectedImageUri,
+        onImagePickerClick = {
+            photoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
+        onRemoveImage = { selectedImageUri = null },
         onBackClick = onNavigateBack,
         onPostClick = {
             if (replyToPostId != null) {
@@ -116,6 +142,9 @@ private fun PostComposerContent(
     linkPreviews: List<LinkPreview> = emptyList(),
     isGeneratingPreviews: Boolean = false,
     onRemovePreview: (String) -> Unit = {},
+    selectedImageUri: Uri? = null,
+    onImagePickerClick: () -> Unit = {},
+    onRemoveImage: () -> Unit = {},
     onBackClick: () -> Unit,
     onPostClick: () -> Unit,
     focusRequester: FocusRequester
@@ -140,7 +169,7 @@ private fun PostComposerContent(
                     } else {
                         Button(
                             onClick = onPostClick,
-                            enabled = content.isNotBlank() && content.length <= maxLength,
+                            enabled = (content.isNotBlank() || selectedImageUri != null) && content.length <= maxLength,
                             modifier = Modifier.padding(end = 8.dp)
                         ) {
                             Icon(
@@ -183,6 +212,38 @@ private fun PostComposerContent(
                 textStyle = MaterialTheme.typography.bodyLarge
             )
 
+            // Image preview
+            if (selectedImageUri != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Box {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(selectedImageUri)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Selected image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    IconButton(
+                        onClick = onRemoveImage,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Image,
+                            contentDescription = "Remove image",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+
             // Link previews
             if (linkPreviews.isNotEmpty() || isGeneratingPreviews) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -202,11 +263,15 @@ private fun PostComposerContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row {
-                    IconButton(onClick = { /* TODO: Add image */ }) {
+                    IconButton(onClick = onImagePickerClick) {
                         Icon(
                             Icons.Default.Image,
                             contentDescription = "Add Image",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = if (selectedImageUri != null) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     }
                 }

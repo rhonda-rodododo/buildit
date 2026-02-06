@@ -14,19 +14,37 @@ on:
       - 'tools/codegen/**'
       - 'tools/schema-bundle/**'
 
+concurrency:
+  group: schema-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: "latest"
+
 jobs:
   validate-schemas:
     name: Validate JSON Schemas
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            tools/codegen/node_modules
+          key: bun-codegen-${{ runner.os }}-${{ hashFiles('tools/codegen/bun.lockb', 'tools/codegen/package.json') }}
+          restore-keys: |
+            bun-codegen-${{ runner.os }}-
 
       - name: Install codegen dependencies
         working-directory: tools/codegen
@@ -44,15 +62,27 @@ jobs:
     name: Generate and Verify Types
     runs-on: ubuntu-latest
     needs: validate-schemas
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            tools/codegen/node_modules
+            clients/web/node_modules
+          key: bun-codegen-full-${{ runner.os }}-${{ hashFiles('tools/codegen/bun.lockb', 'clients/web/bun.lockb') }}
+          restore-keys: |
+            bun-codegen-full-${{ runner.os }}-
 
       - name: Install codegen dependencies
         working-directory: tools/codegen
@@ -62,25 +92,44 @@ jobs:
         working-directory: tools/codegen
         run: bun run generate:ts
 
+      - name: Install web dependencies
+        run: bun install
+
       - name: Check TypeScript compilation
         working-directory: clients/web
+        run: bun run typecheck 2>&1 || echo "Type check completed"
+
+      - name: Check for uncommitted codegen drift
         run: |
-          bun install
-          bun run typecheck 2>&1 || echo "Type check completed"
+          if ! git diff --exit-code -- '*.ts' '*.swift' '*.kt'; then
+            echo "::warning::Generated types differ from committed versions. Run 'bun run codegen' locally."
+            git diff --stat -- '*.ts' '*.swift' '*.kt'
+          fi
 
   validate-bundle:
     name: Validate Schema Bundle
     runs-on: ubuntu-latest
     needs: validate-schemas
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            tools/schema-bundle/node_modules
+          key: bun-schema-bundle-${{ runner.os }}-${{ hashFiles('tools/schema-bundle/bun.lockb', 'tools/schema-bundle/package.json') }}
+          restore-keys: |
+            bun-schema-bundle-${{ runner.os }}-
 
       - name: Install schema-bundle dependencies
         working-directory: tools/schema-bundle
@@ -101,15 +150,16 @@ jobs:
   registry-consistency:
     name: Check Registry Consistency
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Verify all modules in registry
         run: |
@@ -190,15 +240,16 @@ jobs:
   cross-version-test-vectors:
     name: Cross-Version Test Vectors
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Validate cross-version-parsing.json structure
         run: |

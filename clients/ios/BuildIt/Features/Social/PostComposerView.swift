@@ -2,8 +2,10 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // View for composing new posts and replies.
+// Epic 78: Media & File Upload System - PHPicker integration
 
 import SwiftUI
+import PhotosUI
 
 /// View for composing a new post or reply
 struct PostComposerView: View {
@@ -15,7 +17,23 @@ struct PostComposerView: View {
     @FocusState private var isFocused: Bool
     @StateObject private var linkDetector = LinkPreviewDetector()
 
+    // Media state
+    @State private var selectedPhotosPickerItems: [PhotosPickerItem] = []
+    @State private var selectedImages: [SelectedImage] = []
+    @State private var isLoadingMedia = false
+
     private let maxLength = 1000
+    private let maxMediaCount = 4
+
+    /// Whether the post button should be enabled
+    private var canPost: Bool {
+        let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasMedia = !selectedImages.isEmpty
+        let withinLimit = content.count <= maxLength
+        let notPosting = !viewModel.isPosting
+        let notLoadingMedia = !isLoadingMedia
+        return (hasContent || hasMedia) && withinLimit && notPosting && notLoadingMedia
+    }
 
     var body: some View {
         NavigationStack {
@@ -40,6 +58,26 @@ struct PostComposerView: View {
                         }
                     }
 
+                // Image previews
+                if !selectedImages.isEmpty {
+                    imagePreviewStrip
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                }
+
+                // Media loading indicator
+                if isLoadingMedia {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Processing media...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                }
+
                 // Link previews
                 if !linkDetector.previews.isEmpty || linkDetector.isLoading {
                     LinkPreviewStrip(
@@ -54,10 +92,21 @@ struct PostComposerView: View {
 
                 // Bottom toolbar
                 HStack {
-                    Button {
-                        // Add image
-                    } label: {
-                        Image(systemName: "photo")
+                    // Photo picker button
+                    PhotosPicker(
+                        selection: $selectedPhotosPickerItems,
+                        maxSelectionCount: maxMediaCount,
+                        matching: .any(of: [.images, .videos]),
+                        photoLibrary: .shared()
+                    ) {
+                        Image(systemName: selectedImages.isEmpty ? "photo" : "photo.fill")
+                            .foregroundColor(selectedImages.isEmpty ? .primary : .accentColor)
+                    }
+
+                    if !selectedImages.isEmpty {
+                        Text("\(selectedImages.count)/\(maxMediaCount)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer()
@@ -89,7 +138,7 @@ struct PostComposerView: View {
                             Text(replyToPost != nil ? "Reply" : "Post")
                         }
                     }
-                    .disabled(content.isEmpty || content.count > maxLength || viewModel.isPosting)
+                    .disabled(!canPost)
                 }
             }
             .onAppear {
@@ -97,6 +146,116 @@ struct PostComposerView: View {
             }
             .onChange(of: content) { _, newValue in
                 linkDetector.textDidChange(newValue)
+            }
+            .onChange(of: selectedPhotosPickerItems) { _, newItems in
+                Task {
+                    await loadSelectedMedia(from: newItems)
+                }
+            }
+        }
+    }
+
+    // MARK: - Image Preview Strip
+
+    private var imagePreviewStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(selectedImages) { image in
+                    ZStack(alignment: .topTrailing) {
+                        if let uiImage = image.image {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } else {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(.systemGray5))
+                                .frame(width: 80, height: 80)
+                                .overlay {
+                                    Image(systemName: "photo")
+                                        .foregroundColor(.secondary)
+                                }
+                        }
+
+                        // Remove button
+                        Button {
+                            removeImage(image)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundStyle(.white, .black.opacity(0.6))
+                        }
+                        .offset(x: 4, y: -4)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Media Loading
+
+    /// Load images from PHPicker selection.
+    /// PRIVACY: Images are loaded via transferable which strips EXIF by default
+    /// in the Photos framework (location data is not included in transferable data).
+    private func loadSelectedMedia(from items: [PhotosPickerItem]) async {
+        isLoadingMedia = true
+        var newImages: [SelectedImage] = []
+
+        for item in items {
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    // Re-draw on canvas to ensure no metadata leaks
+                    // (Photos framework strips most EXIF, but we re-render to be safe)
+                    let strippedImage = stripImageMetadata(uiImage)
+                    let selected = SelectedImage(
+                        id: UUID().uuidString,
+                        image: strippedImage,
+                        data: strippedImage.jpegData(compressionQuality: 0.85),
+                        mimeType: "image/jpeg"
+                    )
+                    newImages.append(selected)
+                }
+            } catch {
+                // Skip failed items silently - user can retry
+                print("Failed to load media item: \(error.localizedDescription)")
+            }
+        }
+
+        selectedImages = newImages
+        isLoadingMedia = false
+    }
+
+    /// Re-render a UIImage to strip any remaining metadata.
+    /// This creates a new image from the pixel data only.
+    private func stripImageMetadata(_ image: UIImage) -> UIImage {
+        let maxDimension: CGFloat = 2048
+        var size = image.size
+
+        // Resize if necessary
+        if size.width > maxDimension || size.height > maxDimension {
+            let ratio = min(maxDimension / size.width, maxDimension / size.height)
+            size = CGSize(width: size.width * ratio, height: size.height * ratio)
+        }
+
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let strippedImage = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return strippedImage
+    }
+
+    // MARK: - Actions
+
+    private func removeImage(_ image: SelectedImage) {
+        selectedImages.removeAll { $0.id == image.id }
+        // Also remove from picker selection to stay in sync
+        if let index = selectedPhotosPickerItems.firstIndex(where: { _ in true }) {
+            // PhotosPickerItem doesn't have stable identity matching,
+            // so we clear and let the user re-select if needed
+            if selectedImages.isEmpty {
+                selectedPhotosPickerItems.removeAll()
             }
         }
     }
@@ -131,6 +290,16 @@ struct PostComposerView: View {
         }
         dismiss()
     }
+}
+
+// MARK: - Selected Image Model
+
+/// Represents a selected image with its processed data.
+struct SelectedImage: Identifiable {
+    let id: String
+    let image: UIImage?
+    let data: Data?
+    let mimeType: String
 }
 
 #Preview {

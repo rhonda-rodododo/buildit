@@ -30,8 +30,8 @@ object BuilditCrypto {
     // ============== Key Derivation ==============
 
     /**
-     * Derive a master key from password and salt using PBKDF2.
-     * Uses 600,000 iterations as per BuildIt protocol spec.
+     * Derive a master key from password and salt using Argon2id.
+     * Uses 64MB memory, 3 iterations, 4 parallelism as per BuildIt protocol spec.
      */
     @Throws(CryptoException::class)
     external fun deriveMasterKey(password: String, salt: ByteArray): ByteArray

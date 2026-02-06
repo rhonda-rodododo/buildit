@@ -15,6 +15,8 @@ export {
   type QuorumRequirement,
   type PassingThreshold,
   type ProposalAttachment,
+  type QuadraticVotingConfig,
+  type QuadraticBallot,
 } from '@/generated/db/governance.db';
 
 // Re-export table schemas under legacy name

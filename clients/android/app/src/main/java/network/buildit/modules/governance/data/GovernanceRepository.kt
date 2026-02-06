@@ -56,7 +56,8 @@ class GovernanceRepository @Inject constructor(
         anonymousVoting: Boolean,
         allowDelegation: Boolean,
         createdBy: String,
-        tags: List<String>
+        tags: List<String>,
+        quadraticConfig: QuadraticVotingConfig? = null
     ): ProposalEntity {
         val proposal = ProposalEntity(
             id = java.util.UUID.randomUUID().toString(),
@@ -79,7 +80,8 @@ class GovernanceRepository @Inject constructor(
             anonymousVoting = anonymousVoting,
             allowDelegation = allowDelegation,
             createdBy = createdBy,
-            tagsJson = json.encodeToString(tags)
+            tagsJson = json.encodeToString(tags),
+            quadraticConfigJson = quadraticConfig?.let { json.encodeToString(it) }
         )
         proposalsDao.insertProposal(proposal)
         return proposal

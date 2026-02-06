@@ -32,6 +32,7 @@
 //! let plaintext = session.decrypt(&header, &ciphertext)?;
 //! ```
 
+use crate::aes::{aes_decrypt, aes_encrypt, EncryptedData};
 use crate::error::CryptoError;
 use chacha20poly1305::{
     aead::{Aead, KeyInit as AeadKeyInit},
@@ -448,11 +449,21 @@ impl RatchetSessionState {
             current_chain_key = new_chain_key;
             self.message_number_recv += 1;
 
-            // Limit stored keys
+            // Limit stored keys - remove oldest by message number
+            // SECURITY: Use deterministic removal (lowest message number) rather than
+            // HashMap iteration order, which could leak information about key usage patterns.
             if self.skipped_message_keys.len() > MAX_SKIP {
-                // Remove oldest key (this is a simplification)
-                if let Some(key_to_remove) = self.skipped_message_keys.keys().next().cloned() {
-                    self.skipped_message_keys.remove(&key_to_remove);
+                if let Some(oldest_key) = self
+                    .skipped_message_keys
+                    .keys()
+                    .min_by_key(|(_, msg_num)| *msg_num)
+                    .cloned()
+                {
+                    let mut removed = self.skipped_message_keys.remove(&oldest_key);
+                    // Zeroize removed key material
+                    if let Some(ref mut key_bytes) = removed {
+                        key_bytes.zeroize();
+                    }
                 }
             }
         }
@@ -466,16 +477,49 @@ impl RatchetSessionState {
         self.dh_self.public_key.clone()
     }
 
-    /// Serialize session state for storage
+    /// Serialize and encrypt session state for safe storage.
     ///
-    /// SECURITY: The returned bytes contain sensitive key material
-    /// and should be encrypted before storage.
-    pub fn serialize(&self) -> Result<Vec<u8>, CryptoError> {
+    /// Uses AES-256-GCM to encrypt the serialized ratchet state, ensuring
+    /// that sensitive key material (DH private keys, root keys, chain keys)
+    /// is never exposed in plaintext on storage.
+    ///
+    /// # Arguments
+    /// * `storage_key` - 32-byte AES-256 key for encrypting the session state
+    pub fn serialize_encrypted(&self, storage_key: Vec<u8>) -> Result<EncryptedData, CryptoError> {
+        let mut plaintext = serde_json::to_vec(self).map_err(|_| CryptoError::InvalidJson)?;
+        let result = aes_encrypt(storage_key, plaintext.clone());
+        plaintext.zeroize();
+        result
+    }
+
+    /// Decrypt and deserialize session state from storage.
+    ///
+    /// # Arguments
+    /// * `encrypted` - Previously encrypted session state
+    /// * `storage_key` - 32-byte AES-256 key used during encryption
+    pub fn deserialize_encrypted(
+        encrypted: EncryptedData,
+        storage_key: Vec<u8>,
+    ) -> Result<Self, CryptoError> {
+        let mut plaintext = aes_decrypt(storage_key, encrypted)?;
+        let result = serde_json::from_slice(&plaintext).map_err(|_| CryptoError::InvalidJson);
+        plaintext.zeroize();
+        result
+    }
+
+    /// Serialize session state to plaintext bytes (for internal use only).
+    ///
+    /// WARNING: Returns unencrypted key material. Use `serialize_encrypted` instead.
+    #[doc(hidden)]
+    pub fn serialize_unencrypted(&self) -> Result<Vec<u8>, CryptoError> {
         serde_json::to_vec(self).map_err(|_| CryptoError::InvalidJson)
     }
 
-    /// Deserialize session state from storage
-    pub fn deserialize(data: &[u8]) -> Result<Self, CryptoError> {
+    /// Deserialize session state from plaintext bytes (for internal use only).
+    ///
+    /// WARNING: Expects unencrypted input. Use `deserialize_encrypted` instead.
+    #[doc(hidden)]
+    pub fn deserialize_unencrypted(data: &[u8]) -> Result<Self, CryptoError> {
         serde_json::from_slice(data).map_err(|_| CryptoError::InvalidJson)
     }
 }
@@ -652,21 +696,45 @@ impl RatchetSession {
         state.get_public_key()
     }
 
-    /// Serialize session state for storage
-    ///
-    /// SECURITY: The returned bytes contain sensitive key material
-    /// and MUST be encrypted before storage using aes_encrypt().
-    pub fn serialize(&self) -> Result<Vec<u8>, CryptoError> {
-        let state = self.state.lock().map_err(|_| CryptoError::InvalidJson)?;
-        state.serialize()
-    }
-
-    /// Deserialize session state from storage
+    /// Serialize and encrypt session state for safe storage.
     ///
     /// # Arguments
-    /// * `data` - Previously serialized session state (must be decrypted first)
-    pub fn deserialize(data: Vec<u8>) -> Result<Self, CryptoError> {
-        let state = RatchetSessionState::deserialize(&data)?;
+    /// * `storage_key` - 32-byte AES-256 key for encrypting the session state
+    pub fn serialize_encrypted(&self, storage_key: Vec<u8>) -> Result<EncryptedData, CryptoError> {
+        let state = self.state.lock().map_err(|_| CryptoError::InvalidJson)?;
+        state.serialize_encrypted(storage_key)
+    }
+
+    /// Decrypt and deserialize session state from storage.
+    ///
+    /// # Arguments
+    /// * `encrypted` - Previously encrypted session state
+    /// * `storage_key` - 32-byte AES-256 key used during encryption
+    pub fn deserialize_encrypted(
+        encrypted: EncryptedData,
+        storage_key: Vec<u8>,
+    ) -> Result<Self, CryptoError> {
+        let state = RatchetSessionState::deserialize_encrypted(encrypted, storage_key)?;
+        Ok(Self {
+            state: std::sync::Mutex::new(state),
+        })
+    }
+
+    /// Serialize session state to plaintext bytes (for internal use only).
+    ///
+    /// WARNING: Returns unencrypted key material. Use `serialize_encrypted` instead.
+    #[doc(hidden)]
+    pub fn serialize_unencrypted(&self) -> Result<Vec<u8>, CryptoError> {
+        let state = self.state.lock().map_err(|_| CryptoError::InvalidJson)?;
+        state.serialize_unencrypted()
+    }
+
+    /// Deserialize session state from plaintext bytes (for internal use only).
+    ///
+    /// WARNING: Expects unencrypted input. Use `deserialize_encrypted` instead.
+    #[doc(hidden)]
+    pub fn deserialize_unencrypted(data: Vec<u8>) -> Result<Self, CryptoError> {
+        let state = RatchetSessionState::deserialize_unencrypted(&data)?;
         Ok(Self {
             state: std::sync::Mutex::new(state),
         })
@@ -784,7 +852,7 @@ mod tests {
     }
 
     #[test]
-    fn test_serialization() {
+    fn test_serialization_unencrypted() {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
@@ -793,14 +861,70 @@ mod tests {
             bob_prekey.public_key.clone(),
         ).unwrap();
 
-        // Serialize
-        let serialized = alice.serialize().unwrap();
+        // Serialize (unencrypted, for internal use)
+        let serialized = alice.serialize_unencrypted().unwrap();
 
         // Deserialize
-        let deserialized = RatchetSession::deserialize(serialized).unwrap();
+        let deserialized = RatchetSession::deserialize_unencrypted(serialized).unwrap();
 
         // Verify public key matches
         assert_eq!(alice.get_public_key(), deserialized.get_public_key());
+    }
+
+    #[test]
+    fn test_ratchet_encrypted_serialization_roundtrip() {
+        let shared_secret = generate_shared_secret();
+        let bob_prekey = DhKeyPair::generate().unwrap();
+
+        let alice = RatchetSession::initialize_alice(
+            shared_secret.clone(),
+            bob_prekey.public_key.clone(),
+        ).unwrap();
+
+        let bob = RatchetSession::initialize_bob(
+            shared_secret,
+            bob_prekey.private_key.to_vec(),
+        ).unwrap();
+
+        // Alice sends a message to advance the ratchet state
+        let msg = alice.encrypt(b"Hello Bob!".to_vec()).unwrap();
+        let _ = bob.decrypt(msg).unwrap();
+
+        // Serialize Alice's session with encryption
+        let storage_key = vec![0x42u8; 32];
+        let encrypted = alice.serialize_encrypted(storage_key.clone()).unwrap();
+
+        // Verify encrypted data is not plaintext
+        let unencrypted = alice.serialize_unencrypted().unwrap();
+        assert_ne!(encrypted.ciphertext, unencrypted);
+
+        // Deserialize from encrypted
+        let restored = RatchetSession::deserialize_encrypted(encrypted, storage_key).unwrap();
+
+        // Verify restored session works - Alice can still encrypt
+        let msg2 = restored.encrypt(b"Still works!".to_vec()).unwrap();
+        let decrypted = bob.decrypt(msg2).unwrap();
+        assert_eq!(decrypted, b"Still works!");
+    }
+
+    #[test]
+    fn test_ratchet_encrypted_serialization_wrong_key_fails() {
+        let shared_secret = generate_shared_secret();
+        let bob_prekey = DhKeyPair::generate().unwrap();
+
+        let alice = RatchetSession::initialize_alice(
+            shared_secret,
+            bob_prekey.public_key.clone(),
+        ).unwrap();
+
+        // Serialize with one key
+        let storage_key = vec![0x42u8; 32];
+        let encrypted = alice.serialize_encrypted(storage_key).unwrap();
+
+        // Try to deserialize with wrong key
+        let wrong_key = vec![0x99u8; 32];
+        let result = RatchetSession::deserialize_encrypted(encrypted, wrong_key);
+        assert!(result.is_err());
     }
 
     #[test]

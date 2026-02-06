@@ -36,15 +36,19 @@ import {
 } from '@/lib/security/rateLimiter';
 import { getTranslatedErrorMessage } from '@/lib/i18n/errorTranslations';
 
-// localStorage key for persisting selected identity across page refreshes
+// sessionStorage key for persisting selected identity within a tab session.
+// SECURITY: Uses sessionStorage instead of localStorage to prevent social graph
+// leakage from device forensics. Public keys are cleared on tab close.
 export const SELECTED_IDENTITY_KEY = 'buildit-selected-identity';
 
 /**
- * Get the saved identity public key from localStorage
- * Used by main.tsx to restore identity selection on app init
+ * Get the saved identity public key from sessionStorage.
+ * Used by main.tsx to restore identity selection on page refresh.
+ * SECURITY: Stored in sessionStorage (cleared on tab close) to limit
+ * forensic exposure of which identities are active on the device.
  */
 export function getSavedIdentityPubkey(): string | null {
-  return localStorage.getItem(SELECTED_IDENTITY_KEY);
+  return sessionStorage.getItem(SELECTED_IDENTITY_KEY);
 }
 
 /**
@@ -298,7 +302,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         }));
 
         // Persist selected identity to localStorage for session persistence
-        localStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
+        sessionStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
 
         // Return full identity with private key
         return identity;
@@ -361,7 +365,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
         }));
 
         // Persist selected identity to localStorage for session persistence
-        localStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
+        sessionStorage.setItem(SELECTED_IDENTITY_KEY, identity.publicKey);
 
         return identity;
       } catch (error) {
@@ -438,7 +442,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       if (!publicKey) {
         // Clearing current identity - lock and clear localStorage
         secureKeyManager.lock();
-        localStorage.removeItem(SELECTED_IDENTITY_KEY);
+        sessionStorage.removeItem(SELECTED_IDENTITY_KEY);
         set({ currentIdentity: null, lockState: 'locked' });
         return;
       }
@@ -453,7 +457,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       secureKeyManager.lock();
 
       // Persist selected identity to localStorage for session persistence
-      localStorage.setItem(SELECTED_IDENTITY_KEY, publicKey);
+      sessionStorage.setItem(SELECTED_IDENTITY_KEY, publicKey);
 
       set({ currentIdentity: identity, lockState: 'locked' });
     },
@@ -847,7 +851,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
       set({ currentIdentity: null });
 
       // Clear from localStorage so user goes to login on refresh
-      localStorage.removeItem(SELECTED_IDENTITY_KEY);
+      sessionStorage.removeItem(SELECTED_IDENTITY_KEY);
     },
   };
 });

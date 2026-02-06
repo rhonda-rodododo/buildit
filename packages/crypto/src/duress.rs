@@ -149,17 +149,21 @@ pub fn check_duress_password(
     stored_duress_hash: Vec<u8>,
     stored_normal_hash: Vec<u8>,
 ) -> Result<DuressCheckResult, CryptoError> {
-    // Hash the entered password
+    // SECURITY: Always perform exactly 2 Argon2 rounds regardless of which
+    // password matches. This prevents timing analysis from distinguishing
+    // duress vs normal password entry (both paths take identical time).
+    // An observer measuring power draw or timing cannot determine which
+    // password was entered, preserving plausible deniability.
+
+    // Hash #1: Check against duress hash
     let entered_hash = hash_duress_password(entered_password.clone(), salt.clone())?;
+    let is_duress: bool = entered_hash.ct_eq(&stored_duress_hash).into();
 
-    // Constant-time comparison against duress hash
-    let is_duress = entered_hash.ct_eq(&stored_duress_hash).into();
-
-    // Also check against normal password hash for validation
-    // Hash it the same way as duress (domain-separated)
+    // Hash #2: Always check against normal hash too (constant-time path)
     let entered_normal_hash = hash_duress_password(entered_password, salt)?;
     let is_normal: bool = entered_normal_hash.ct_eq(&stored_normal_hash).into();
 
+    // Both hashes always computed - no early return possible
     Ok(DuressCheckResult {
         is_duress,
         password_valid: is_duress || is_normal,

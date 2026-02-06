@@ -1,5 +1,6 @@
 package network.buildit.modules.training.integration
 
+import network.buildit.core.redacted
 import android.util.Log
 import kotlinx.coroutines.flow.first
 import network.buildit.modules.training.domain.model.*
@@ -200,7 +201,7 @@ class TrainingCallingIntegration @Inject constructor(
 
         trainingRepository.recordLiveSessionAttendance(attendance)
 
-        Log.i(TAG, "Recorded attendance: $pubkey attended ${duration / 60} minutes (complete: $wasCompleteSession)")
+        Log.i(TAG, "Recorded attendance: ${pubkey.redacted()} attended ${duration / 60} minutes (complete: $wasCompleteSession)")
 
         // If attended for significant duration, mark lesson progress
         if (duration > 30 * 60) { // 30 minutes minimum

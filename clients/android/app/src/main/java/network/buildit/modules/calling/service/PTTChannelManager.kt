@@ -1,5 +1,6 @@
 package network.buildit.modules.calling.service
 
+import network.buildit.core.redacted
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -706,7 +707,7 @@ class PTTChannelManager @Inject constructor(
 
         if (state.currentSpeaker != pubkey) return
 
-        Log.i(TAG, "Speak timeout for $pubkey in channel: $channelId")
+        Log.i(TAG, "Speak timeout for ${pubkey.redacted()} in channel: $channelId")
 
         scope.launch {
             _events.emit(PTTChannelEvent.SpeakTimeout(channelId, pubkey))

@@ -5,6 +5,7 @@
 
 import type { MediaAttachment } from '@/types/media';
 import type { LinkPreview } from '@/lib/linkPreview';
+import type { LocationValue } from '@/modules/custom-fields/types';
 
 /**
  * Privacy levels for posts
@@ -55,6 +56,9 @@ export interface Post {
   // Sender fetches Open Graph metadata and thumbnails
   // Preview data is encrypted with the post using NIP-17
   linkPreviews?: LinkPreview[];
+
+  // Location tag (optional, privacy-preserving)
+  location?: LocationValue;
 
   // Timestamps
   createdAt: number; // Unix timestamp

@@ -4,9 +4,12 @@
  */
 
 import { create } from 'zustand';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
 import { dal } from '@/core/storage/dal';
 import { secureRandomString } from '@/lib/utils';
+import { createPrivateDM } from '@/core/crypto/nip17';
+import { getNostrClient } from '@/core/nostr/client';
+import { logger } from '@/lib/logger';
 import type {
   DBFriend,
   FriendRequest,
@@ -102,6 +105,34 @@ export const useFriendsStore = create<FriendsState>()(
           console.error('Failed to save friend request:', error);
         }
 
+        // Send encrypted NIP-17 notification to the friend
+        try {
+          const privateKey = getCurrentPrivateKey();
+          if (privateKey) {
+            const notificationContent = JSON.stringify({
+              type: 'friend_request',
+              fromPubkey: currentIdentity.publicKey,
+              message: message || 'Would like to add you as a friend',
+              requestId: request.id,
+              timestamp: request.createdAt,
+            });
+
+            const giftWrap = createPrivateDM(
+              notificationContent,
+              privateKey,
+              friendPubkey,
+              [['type', 'friend_request']]
+            );
+
+            const client = getNostrClient();
+            await client.publishDirectMessage(giftWrap);
+            logger.info(`Sent friend request notification to ${friendPubkey.slice(0, 8)}...`);
+          }
+        } catch (notifError) {
+          // Non-fatal: friend request is saved locally, notification is best-effort
+          logger.warn('Failed to send friend request notification:', notifError);
+        }
+
         set((state) => ({
           friendRequests: [...state.friendRequests, request],
         }));
@@ -164,6 +195,33 @@ export const useFriendsStore = create<FriendsState>()(
           await dal.delete('friendRequests', requestId);
         } catch (error) {
           console.error('Failed to accept friend request:', error);
+        }
+
+        // Send encrypted NIP-17 acceptance notification to the requester
+        try {
+          const privateKey = getCurrentPrivateKey();
+          if (privateKey) {
+            const acceptanceContent = JSON.stringify({
+              type: 'friend_accepted',
+              fromPubkey: currentIdentity.publicKey,
+              requestId: request.id,
+              timestamp: now,
+            });
+
+            const giftWrap = createPrivateDM(
+              acceptanceContent,
+              privateKey,
+              request.fromPubkey,
+              [['type', 'friend_accepted']]
+            );
+
+            const client = getNostrClient();
+            await client.publishDirectMessage(giftWrap);
+            logger.info(`Sent friend acceptance notification to ${request.fromPubkey.slice(0, 8)}...`);
+          }
+        } catch (notifError) {
+          // Non-fatal: acceptance is saved locally, notification is best-effort
+          logger.warn('Failed to send friend acceptance notification:', notifError);
         }
 
         set((state) => ({

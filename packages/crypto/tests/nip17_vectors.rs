@@ -10,7 +10,7 @@ use buildit_crypto::*;
 fn test_nip17_rumor_format() {
     let sender = generate_keypair();
     let recipient = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let rumor = create_rumor(
         sender.public_key.clone(),
@@ -44,7 +44,7 @@ fn test_nip17_rumor_format() {
 fn test_nip17_seal_format() {
     let sender = generate_keypair();
     let recipient = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let rumor = create_rumor(
         sender.public_key.clone(),
@@ -92,7 +92,7 @@ fn test_nip17_seal_format() {
 fn test_nip17_gift_wrap_format() {
     let sender = generate_keypair();
     let recipient = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let rumor = create_rumor(
         sender.public_key.clone(),
@@ -147,7 +147,7 @@ fn test_nip17_gift_wrap_format() {
 fn test_nip17_multiple_messages() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let messages = vec![
         "First message",
@@ -191,7 +191,7 @@ fn test_nip17_wrong_recipient() {
     let alice = generate_keypair();
     let bob = generate_keypair();
     let eve = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let rumor = create_rumor(
         alice.public_key.clone(),
@@ -222,7 +222,7 @@ fn test_nip17_wrong_recipient() {
 fn test_nip17_timestamp_randomization() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let mut rumor_timestamps = Vec::new();
     let mut seal_timestamps = Vec::new();
@@ -278,7 +278,7 @@ fn test_nip17_timestamp_randomization() {
 fn test_nip17_ephemeral_key_uniqueness() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let mut ephemeral_keys = Vec::new();
 
@@ -315,7 +315,7 @@ fn test_nip17_ephemeral_key_uniqueness() {
 fn test_nip17_seal_verification() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let rumor = create_rumor(
         alice.public_key.clone(),
@@ -350,7 +350,7 @@ fn test_nip17_seal_verification() {
 fn test_nip17_large_message() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     // Create a large message (10KB)
     let large_message = "x".repeat(10000);
@@ -383,7 +383,7 @@ fn test_nip17_large_message() {
 fn test_nip17_bidirectional() {
     let alice = generate_keypair();
     let bob = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     // Alice sends to Bob
     let alice_msg = "Hello Bob!";

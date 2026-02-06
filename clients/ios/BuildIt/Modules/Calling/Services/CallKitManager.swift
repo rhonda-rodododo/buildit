@@ -298,7 +298,15 @@ extension CallKitManager: CXProviderDelegate {
         Task { @MainActor in
             logger.info("CallKit: End call action for \(action.callUUID)")
 
-            delegate?.callKitManager(self, didEndCall: action.callUUID)
+            // Distinguish between declining an unanswered call vs ending an active call
+            if let callInfo = activeCalls[action.callUUID],
+               !callInfo.isConnected,
+               callInfo.direction == .incoming {
+                delegate?.callKitManager(self, didDeclineCall: action.callUUID)
+            } else {
+                delegate?.callKitManager(self, didEndCall: action.callUUID)
+            }
+
             deactivateAudioSession()
             activeCalls.removeValue(forKey: action.callUUID)
             action.fulfill()

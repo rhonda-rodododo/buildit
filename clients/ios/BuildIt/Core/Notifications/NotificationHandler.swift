@@ -380,24 +380,97 @@ final class NotificationHandler: NSObject, ObservableObject {
     private func handleRSVPAction(response: String, userInfo: [AnyHashable: Any]) async {
         guard let eventId = userInfo["eventId"] as? String else { return }
 
-        // TODO: Implement RSVP through EventsModule
-        logger.info("RSVP \(response) for event: \(eventId)")
+        guard let eventsModule = ModuleRegistry.shared.getModule(EventsModule.self) else {
+            logger.error("EventsModule not available for RSVP action")
+            decrementBadge(for: .event)
+            return
+        }
+
+        let rsvpStatus: Status
+        switch response {
+        case "yes":
+            rsvpStatus = .going
+        case "no":
+            rsvpStatus = .notGoing
+        default:
+            rsvpStatus = .maybe
+        }
+
+        do {
+            _ = try await eventsModule.rsvp(eventId: eventId, status: rsvpStatus)
+            logger.info("RSVP \(response) submitted for event: \(eventId)")
+        } catch EventsError.eventFull {
+            logger.warning("Event \(eventId) is at full capacity")
+        } catch EventsError.rsvpDeadlinePassed {
+            logger.warning("RSVP deadline passed for event: \(eventId)")
+        } catch {
+            logger.error("Failed to submit RSVP for event \(eventId): \(error.localizedDescription)")
+        }
+
         decrementBadge(for: .event)
     }
 
     private func handleVoteAction(vote: Bool, userInfo: [AnyHashable: Any]) async {
         guard let proposalId = userInfo["proposalId"] as? String else { return }
 
-        // TODO: Implement voting through GovernanceModule
-        logger.info("Vote \(vote ? "yes" : "no") for proposal: \(proposalId)")
+        guard let governanceModule = ModuleRegistry.shared.getModule(GovernanceModule.self) else {
+            logger.error("GovernanceModule not available for vote action")
+            decrementBadge(for: .governance)
+            return
+        }
+
+        // Resolve voter ID from the current user's pubkey
+        let voterId = UserDefaults.standard.string(forKey: "currentPubkey") ?? ""
+        guard !voterId.isEmpty else {
+            logger.error("No current pubkey available for voting")
+            decrementBadge(for: .governance)
+            return
+        }
+
+        do {
+            // Fetch the proposal to determine valid option IDs for yes/no
+            if let proposal = try await governanceModule.getProposal(id: proposalId) {
+                // Find the matching option ID for the vote direction
+                let choiceId: String
+                if vote {
+                    choiceId = proposal.options.first { $0.label.lowercased() == "yes" || $0.label.lowercased() == "approve" }?.id ?? proposal.options.first?.id ?? "yes"
+                } else {
+                    choiceId = proposal.options.first { $0.label.lowercased() == "no" || $0.label.lowercased() == "reject" }?.id ?? proposal.options.last?.id ?? "no"
+                }
+
+                _ = try await governanceModule.castVote(
+                    proposalId: proposalId,
+                    choice: [choiceId],
+                    voterId: voterId
+                )
+                logger.info("Vote \(vote ? "yes" : "no") submitted for proposal: \(proposalId)")
+            } else {
+                logger.error("Proposal \(proposalId) not found for voting")
+            }
+        } catch {
+            logger.error("Failed to cast vote for proposal \(proposalId): \(error.localizedDescription)")
+        }
+
         decrementBadge(for: .governance)
     }
 
     private func handleOfferHelpAction(userInfo: [AnyHashable: Any]) async {
         guard let requestId = userInfo["requestId"] as? String else { return }
 
-        // TODO: Implement help offer through MutualAidModule
-        logger.info("Offering help for request: \(requestId)")
+        guard let mutualAidModule = ModuleRegistry.shared.getModule(MutualAidModule.self) else {
+            logger.error("MutualAidModule not available for help offer action")
+            decrementBadge(for: .mutualAid)
+            return
+        }
+
+        do {
+            _ = try await mutualAidModule.offerFulfillment(requestId: requestId)
+            logger.info("Help offer submitted for request: \(requestId)")
+        } catch {
+            logger.error("Failed to offer help for request \(requestId): \(error.localizedDescription)")
+        }
+
+        decrementBadge(for: .mutualAid)
     }
 }
 

@@ -79,7 +79,7 @@ fn test_nip44_roundtrip() {
 fn test_gift_wrap_roundtrip() {
     let sender = generate_keypair();
     let recipient = generate_keypair();
-    let now = 1700000000i64;
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
 
     let message = "This is a private gift-wrapped message";
 

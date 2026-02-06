@@ -468,9 +468,34 @@ final class BLEManagerTests: XCTestCase {
         let errors: [BLEError] = [
             .bluetoothNotAvailable,
             .peerNotConnected,
+            .peerNotAuthenticated,
             .messageTooLarge,
             .sendFailed,
-            .characteristicNotFound
+            .characteristicNotFound,
+            .handshakeFailed,
+            .commitmentVerificationFailed,
+            .authenticationFailed("test reason")
+        ]
+
+        for error in errors {
+            XCTAssertNotNil(error.errorDescription)
+            XCTAssertFalse(error.errorDescription!.isEmpty)
+        }
+    }
+
+    // MARK: - BLE Auth Error Tests
+
+    func testBLEAuthErrorDescriptions() {
+        let errors: [BLEAuthError] = [
+            .noIdentity,
+            .invalidChallenge,
+            .invalidPublicKey,
+            .signatureVerificationFailed,
+            .timestampSkewExceeded,
+            .nonceMismatch,
+            .handshakeTimeout,
+            .unexpectedResponse,
+            .peerNotAuthenticated
         ]
 
         for error in errors {
@@ -483,8 +508,8 @@ final class BLEManagerTests: XCTestCase {
 
     func testDiscoveredPeerEquality() {
         let id = UUID()
-        let peer1 = DiscoveredPeer(id: id, identifier: "Peer", rssi: -60, lastSeen: Date(), isConnected: false, peripheral: nil)
-        let peer2 = DiscoveredPeer(id: id, identifier: "Different Name", rssi: -70, lastSeen: Date(), isConnected: true, peripheral: nil)
+        let peer1 = DiscoveredPeer(id: id, identifier: "Peer", rssi: -60, lastSeen: Date(), isConnected: false, peripheral: nil, identityCommitment: nil, verifiedPubkey: nil)
+        let peer2 = DiscoveredPeer(id: id, identifier: "Different Name", rssi: -70, lastSeen: Date(), isConnected: true, peripheral: nil, identityCommitment: nil, verifiedPubkey: nil)
 
         // Equality is based on ID only
         XCTAssertEqual(peer1, peer2)
@@ -492,8 +517,8 @@ final class BLEManagerTests: XCTestCase {
 
     func testDiscoveredPeerHashing() {
         let id = UUID()
-        let peer1 = DiscoveredPeer(id: id, identifier: "Peer1", rssi: -60, lastSeen: Date(), isConnected: false, peripheral: nil)
-        let peer2 = DiscoveredPeer(id: id, identifier: "Peer2", rssi: -70, lastSeen: Date(), isConnected: true, peripheral: nil)
+        let peer1 = DiscoveredPeer(id: id, identifier: "Peer1", rssi: -60, lastSeen: Date(), isConnected: false, peripheral: nil, identityCommitment: nil, verifiedPubkey: nil)
+        let peer2 = DiscoveredPeer(id: id, identifier: "Peer2", rssi: -70, lastSeen: Date(), isConnected: true, peripheral: nil, identityCommitment: nil, verifiedPubkey: nil)
 
         // Same ID should have same hash
         XCTAssertEqual(peer1.hashValue, peer2.hashValue)
@@ -514,9 +539,11 @@ final class BLEManagerTests: XCTestCase {
             .scanning,
             .connecting,
             .connected,
-            .advertising
+            .advertising,
+            .handshaking,
+            .authenticated
         ]
 
-        XCTAssertEqual(states.count, 5)
+        XCTAssertEqual(states.count, 7)
     }
 }

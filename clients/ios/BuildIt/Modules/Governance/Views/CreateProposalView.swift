@@ -26,6 +26,9 @@ struct CreateProposalView: View {
     ]
     @State private var allowAbstain = true
     @State private var tags = ""
+    @State private var tokenBudget = 100
+    @State private var maxTokensPerOption: Int? = nil
+    @State private var useMaxPerOption = false
 
     @State private var isSubmitting = false
     @State private var errorMessage: String?
@@ -57,7 +60,7 @@ struct CreateProposalView: View {
                 // Voting Configuration
                 Section("governance_votingConfig".localized) {
                     Picker("governance_votingSystem".localized, selection: $votingSystem) {
-                        ForEach([VotingSystem.simpleMajority, .supermajority, .approval], id: \.self) { system in
+                        ForEach([VotingSystem.simpleMajority, .supermajority, .approval, .quadratic, .rankedChoice, .consensus], id: \.self) { system in
                             VStack(alignment: .leading) {
                                 Text(system.displayName)
                             }
@@ -72,6 +75,26 @@ struct CreateProposalView: View {
                     }
 
                     Stepper("Voting: \(votingDuration) day\(votingDuration == 1 ? "" : "s")", value: $votingDuration, in: 1...30)
+                }
+
+                // Quadratic Voting Configuration
+                if votingSystem == .quadratic {
+                    Section("governance_quadraticConfig".localized) {
+                        Stepper("Token Budget: \(tokenBudget)", value: $tokenBudget, in: 10...1000, step: 10)
+
+                        Text("Each voter receives \(tokenBudget) tokens to allocate. Cost of N votes = N\u{00B2} tokens.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Toggle("Limit tokens per option", isOn: $useMaxPerOption)
+
+                        if useMaxPerOption {
+                            Stepper("Max per option: \(maxTokensPerOption ?? tokenBudget)", value: Binding(
+                                get: { maxTokensPerOption ?? tokenBudget },
+                                set: { maxTokensPerOption = $0 }
+                            ), in: 1...tokenBudget)
+                        }
+                    }
                 }
 
                 // Options
@@ -209,6 +232,13 @@ struct CreateProposalView: View {
                     .map { $0.trimmingCharacters(in: .whitespaces) }
                     .filter { !$0.isEmpty }
 
+                let quadraticCfg: QuadraticVotingConfig? = votingSystem == .quadratic
+                    ? QuadraticVotingConfig(
+                        tokenBudget: tokenBudget,
+                        maxTokensPerOption: useMaxPerOption ? maxTokensPerOption : nil
+                    )
+                    : nil
+
                 _ = try await service.createProposal(
                     groupId: "default-group", // In production, get from context
                     title: title.trimmingCharacters(in: .whitespaces),
@@ -220,7 +250,8 @@ struct CreateProposalView: View {
                     votingPeriod: createVotingPeriod(),
                     allowAbstain: allowAbstain,
                     createdBy: "current-user-id", // In production, get from identity
-                    tags: parsedTags
+                    tags: parsedTags,
+                    quadraticConfig: quadraticCfg
                 )
 
                 await MainActor.run {

@@ -129,7 +129,18 @@ pub fn create_gift_wrap(
     sign_event(ephemeral.private_key.clone(), unsigned)
 }
 
+/// Maximum age of a gift wrap event before it's considered stale (7 days).
+/// NIP-17 uses timestamp randomization of +/- 2 days, so 7 days gives ample margin.
+const MAX_EVENT_AGE_SECONDS: i64 = 7 * 24 * 60 * 60;
+
+/// Maximum future timestamp tolerance (5 minutes + 2 days for NIP-17 randomization)
+const MAX_FUTURE_SECONDS: i64 = 2 * 24 * 60 * 60 + 300;
+
 /// Unwrap a gift-wrapped message
+///
+/// SECURITY: Callers MUST maintain a set of seen event IDs and reject
+/// duplicates to prevent replay attacks. This function validates timestamp
+/// freshness but cannot track seen IDs across calls (stateless).
 pub fn unwrap_gift_wrap(
     recipient_private_key: Vec<u8>,
     gift_wrap: NostrEvent,
@@ -137,6 +148,23 @@ pub fn unwrap_gift_wrap(
     // Verify gift wrap kind
     if gift_wrap.kind != KIND_GIFT_WRAP {
         return Err(CryptoError::InvalidCiphertext);
+    }
+
+    // SECURITY: Validate timestamp freshness to limit replay window.
+    // NIP-17 randomizes timestamps +/- 2 days, so we allow that range.
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+
+    if now > 0 {
+        let event_age = now - gift_wrap.created_at;
+        if event_age > MAX_EVENT_AGE_SECONDS {
+            return Err(CryptoError::InvalidCiphertext); // Too old
+        }
+        if gift_wrap.created_at > now + MAX_FUTURE_SECONDS {
+            return Err(CryptoError::InvalidCiphertext); // Too far in future
+        }
     }
 
     // Decrypt gift wrap to get seal
@@ -193,12 +221,17 @@ fn serialize_event(event: &NostrEvent) -> Result<String, CryptoError> {
 }
 
 /// Deserialize JSON to NostrEvent
+///
+/// NOTE: Prototype pollution is a JavaScript-specific vulnerability.
+/// Rust's serde deserializer is safe - it only populates explicitly defined
+/// struct fields and ignores unknown keys. The previous string-based check
+/// (__proto__, constructor, prototype) was removed because:
+/// 1. It's unnecessary in Rust (serde is type-safe)
+/// 2. It could be bypassed via Unicode escapes (\u005f\u005fproto\u005f\u005f)
+/// 3. It caused false positives on legitimate content containing those words
+/// JavaScript clients MUST implement their own prototype pollution defense
+/// using proper JSON schema validation, NOT string matching.
 fn deserialize_event(json: &str) -> Result<NostrEvent, CryptoError> {
-    // Safe parsing - check for prototype pollution
-    if json.contains("__proto__") || json.contains("constructor") || json.contains("prototype") {
-        return Err(CryptoError::InvalidJson);
-    }
-
     let parsed: EventJsonIn = serde_json::from_str(json).map_err(|_| CryptoError::InvalidJson)?;
 
     Ok(NostrEvent {
@@ -225,7 +258,12 @@ struct EventJsonOut<'a> {
 }
 
 /// JSON representation for deserialization
+///
+/// SECURITY: deny_unknown_fields rejects any fields not in the Nostr event spec.
+/// Nostr events have exactly 7 fields (id, pubkey, created_at, kind, tags, content, sig).
+/// Unknown fields are suspicious and should be rejected at the crypto layer.
 #[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 struct EventJsonIn {
     id: String,
     pubkey: String,
@@ -240,13 +278,20 @@ struct EventJsonIn {
 mod tests {
     use super::*;
 
+    fn current_timestamp() -> i64 {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64
+    }
+
     #[test]
     fn test_full_gift_wrap_flow() {
         let sender = generate_keypair();
         let recipient = generate_keypair();
 
         let message = "Hello, this is a private message!";
-        let now = 1700000000i64;
+        let now = current_timestamp();
 
         // Step 1: Create rumor
         let rumor = create_rumor(
@@ -298,7 +343,7 @@ mod tests {
         let wrong = generate_keypair();
 
         let message = "Secret message";
-        let now = 1700000000i64;
+        let now = current_timestamp();
 
         let rumor = create_rumor(
             sender.public_key.clone(),
@@ -328,7 +373,7 @@ mod tests {
         let sender = generate_keypair();
         let recipient = generate_keypair();
 
-        let now = 1700000000i64;
+        let now = current_timestamp();
         let mut timestamps = Vec::new();
 
         for _ in 0..10 {

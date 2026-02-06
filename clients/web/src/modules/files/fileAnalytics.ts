@@ -1,6 +1,7 @@
 /**
  * File Analytics Service
  * Epic 57: Storage analytics, activity tracking, and duplicate detection
+ * Epic 78: PDF text extraction for search indexing
  */
 
 import { dal } from '@/core/storage/dal'
@@ -142,8 +143,7 @@ class FileAnalyticsService {
       if (mimeType.startsWith('text/') || mimeType === 'application/json') {
         content = await blob.text()
       } else if (mimeType === 'application/pdf') {
-        // PDF text extraction deferred - see docs/TECH_DEBT.md
-        content = ''
+        content = await extractPdfText(blob)
       }
 
       // Store content index (truncate for storage efficiency)
@@ -389,6 +389,187 @@ class FileAnalyticsService {
 
     await Promise.all(searches.map(s => dal.delete('recentSearches', s.id)))
   }
+}
+
+/**
+ * Extract text from a PDF file using pdf.js
+ * Epic 78: PDF text extraction for full-text search indexing
+ *
+ * Uses the worker-less build of pdf.js to avoid worker configuration complexity.
+ * Handles encrypted PDFs gracefully by returning empty string with a warning.
+ */
+async function extractPdfText(blob: Blob): Promise<string> {
+  try {
+    // Dynamic import to keep initial bundle size small
+    const pdfjsLib = await import('pdfjs-dist')
+
+    // Use fake worker to avoid needing to configure worker path
+    // This runs pdf.js in the main thread which is acceptable for indexing
+    pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+
+    const arrayBuffer = await blob.arrayBuffer()
+    const typedArray = new Uint8Array(arrayBuffer)
+
+    let pdf: import('pdfjs-dist').PDFDocumentProxy
+    try {
+      pdf = await pdfjsLib.getDocument({
+        data: typedArray,
+        // Disable worker to avoid configuration issues
+        useWorkerFetch: false,
+        isEvalSupported: false,
+        useSystemFonts: true,
+      }).promise
+    } catch (loadError) {
+      // Check if PDF is password-protected/encrypted
+      const errorMessage = loadError instanceof Error ? loadError.message : String(loadError)
+      if (
+        errorMessage.includes('password') ||
+        errorMessage.includes('encrypted') ||
+        errorMessage.includes('PasswordRequired')
+      ) {
+        console.warn('PDF is encrypted/password-protected, skipping text extraction')
+        return ''
+      }
+      throw loadError
+    }
+
+    const textParts: string[] = []
+    const pageCount = pdf.numPages
+
+    // Extract text from each page
+    for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+      try {
+        const page = await pdf.getPage(pageNum)
+        const textContent = await page.getTextContent()
+        const pageText = textContent.items
+          .map((item) => {
+            if ('str' in item) {
+              return item.str
+            }
+            return ''
+          })
+          .join(' ')
+
+        if (pageText.trim()) {
+          textParts.push(pageText.trim())
+        }
+      } catch (pageError) {
+        console.warn(`Failed to extract text from PDF page ${pageNum}:`, pageError)
+        // Continue with other pages
+      }
+    }
+
+    // Clean up
+    await pdf.destroy()
+
+    return textParts.join('\n\n')
+  } catch (err) {
+    console.error('Failed to extract PDF text:', err)
+    return ''
+  }
+}
+
+/**
+ * Generate a thumbnail image from the first page of a PDF
+ * Epic 78: PDF thumbnail generation for file previews
+ *
+ * Renders the first page of the PDF to a canvas and returns it as a Blob.
+ * Returns null if thumbnail generation fails.
+ */
+async function generatePdfThumbnailBlob(
+  blob: Blob,
+  width: number = 400,
+  height: number = 560
+): Promise<Blob | null> {
+  try {
+    const pdfjsLib = await import('pdfjs-dist')
+    pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+
+    const arrayBuffer = await blob.arrayBuffer()
+    const typedArray = new Uint8Array(arrayBuffer)
+
+    let pdf: import('pdfjs-dist').PDFDocumentProxy
+    try {
+      pdf = await pdfjsLib.getDocument({
+        data: typedArray,
+        useWorkerFetch: false,
+        isEvalSupported: false,
+        useSystemFonts: true,
+      }).promise
+    } catch (loadError) {
+      const errorMessage = loadError instanceof Error ? loadError.message : String(loadError)
+      if (
+        errorMessage.includes('password') ||
+        errorMessage.includes('encrypted') ||
+        errorMessage.includes('PasswordRequired')
+      ) {
+        console.warn('PDF is encrypted, cannot generate thumbnail')
+        return null
+      }
+      throw loadError
+    }
+
+    const page = await pdf.getPage(1)
+    const viewport = page.getViewport({ scale: 1.0 })
+
+    // Calculate scale to fit within the target dimensions
+    const scale = Math.min(width / viewport.width, height / viewport.height)
+    const scaledViewport = page.getViewport({ scale })
+
+    // Create canvas
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.floor(scaledViewport.width)
+    canvas.height = Math.floor(scaledViewport.height)
+    const ctx = canvas.getContext('2d')
+
+    if (!ctx) {
+      await pdf.destroy()
+      return null
+    }
+
+    // Render the page (pdfjs-dist v5 requires canvas parameter)
+    await page.render({
+      canvas,
+      viewport: scaledViewport,
+    }).promise
+
+    // Convert to blob
+    const thumbnailBlob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(
+        (b) => resolve(b),
+        'image/jpeg',
+        0.8
+      )
+    })
+
+    await pdf.destroy()
+    return thumbnailBlob
+  } catch (err) {
+    console.error('Failed to generate PDF thumbnail:', err)
+    return null
+  }
+}
+
+/**
+ * Public API for PDF text extraction
+ * Can be used by other modules that need to extract text from PDFs
+ */
+export async function extractTextFromPdf(blob: Blob): Promise<string> {
+  return extractPdfText(blob)
+}
+
+/**
+ * Public API for PDF thumbnail generation
+ * Returns an object URL to the thumbnail, or null on failure
+ */
+export async function generatePdfThumbnail(
+  blob: Blob,
+  width?: number,
+  height?: number
+): Promise<string | null> {
+  const thumbnailBlob = await generatePdfThumbnailBlob(blob, width, height)
+  if (!thumbnailBlob) return null
+  return URL.createObjectURL(thumbnailBlob)
 }
 
 export const fileAnalytics = new FileAnalyticsService()

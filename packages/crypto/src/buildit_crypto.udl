@@ -126,6 +126,34 @@ namespace buildit_crypto {
     sequence<u8> hex_to_bytes(string hex_string);
 
     i64 randomize_timestamp(i64 timestamp, u32 range_seconds);
+
+    // Multi-Sig Threshold Key Management
+    [Throws=CryptoError]
+    ThresholdKeyGroup generate_threshold_key(ThresholdConfig config);
+
+    [Throws=CryptoError]
+    sequence<u8> reconstruct_secret(sequence<KeyShare> shares);
+
+    [Throws=CryptoError]
+    PartialSignature sign_with_share(KeyShare share, sequence<u8> message);
+
+    [Throws=CryptoError]
+    boolean verify_partial_signature(PartialSignature partial, sequence<u8> message);
+
+    [Throws=CryptoError]
+    KeyRotationProposal create_rotation_proposal(
+        string group_id,
+        KeyShare proposer_share,
+        u32 threshold,
+        u32 total_shares,
+        i64 created_at
+    );
+
+    [Throws=CryptoError]
+    boolean verify_rotation_proposal(
+        KeyRotationProposal proposal,
+        string proposer_public_key
+    );
 };
 
 [Error]
@@ -148,6 +176,7 @@ enum CryptoError {
     "DuressPasswordTooSimilar",
     "KeyDestructionFailed",
     "DuressAlertFailed",
+    "InvalidVersion",
 };
 
 dictionary KeyPair {
@@ -208,6 +237,51 @@ dictionary DecoyContact {
     string display_name;
 };
 
+// Multi-Sig Threshold Key Management types
+dictionary ThresholdConfig {
+    u32 threshold;
+    u32 total_shares;
+    string group_name;
+};
+
+dictionary KeyShare {
+    u32 index;
+    sequence<u8> share_secret;
+    string share_public_key;
+    string group_id;
+    u32 total_shares;
+    u32 threshold;
+};
+
+dictionary ThresholdKeyGroup {
+    string group_id;
+    string group_public_key;
+    sequence<KeyShare> shares;
+    u32 threshold;
+    u32 total_shares;
+};
+
+dictionary PartialSignature {
+    u32 signer_index;
+    sequence<u8> signature;
+    string signer_public_key;
+};
+
+dictionary AggregatedSignature {
+    sequence<u8> signature;
+    string group_public_key;
+    sequence<u32> signer_indices;
+};
+
+dictionary KeyRotationProposal {
+    string proposal_id;
+    string group_id;
+    string new_group_public_key;
+    sequence<KeyShare> new_shares;
+    i64 created_at;
+    sequence<u8> proposer_signature;
+};
+
 // Double Ratchet for Forward Secrecy
 dictionary MessageHeader {
     sequence<u8> dh_public_key;
@@ -241,11 +315,11 @@ interface RatchetSession {
     /// Get our current public DH key
     sequence<u8> get_public_key();
 
-    /// Serialize session state for storage
+    /// Serialize and encrypt session state for safe storage
     [Throws=CryptoError]
-    sequence<u8> serialize();
+    EncryptedData serialize_encrypted(sequence<u8> storage_key);
 
-    /// Deserialize session state from storage
-    [Throws=CryptoError, Name=deserialize]
-    constructor(sequence<u8> data);
+    /// Decrypt and deserialize session state from storage
+    [Throws=CryptoError, Name=deserialize_encrypted]
+    constructor(EncryptedData encrypted, sequence<u8> storage_key);
 };

@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ephemeral Message TTL Test Vectors",
+  "description": "Test vectors for ephemeral message time-to-live handling, expiration, and deletion behavior across all clients",
+
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-02-05",
+    "specification": "../spec/07-ephemeral-messages.md"
+  },
+
+  "testSuites": [
+    {
+      "name": "TTL Calculation",
+      "description": "Tests for computing message expiration time from TTL value",
+      "cases": [
+        {
+          "name": "standard_ttl_60s",
+          "description": "Message with 60-second TTL expires at creation + 60",
+          "input": {
+            "messageId": "eph-msg-001",
+            "createdAt": 1706198400,
+            "ttlSeconds": 60,
+            "content": "This message self-destructs in 60 seconds"
+          },
+          "expected": {
+            "expiresAt": 1706198460,
+            "isExpiredAt": {
+              "1706198459": false,
+              "1706198460": true,
+              "1706198500": true
+            }
+          }
+        },
+        {
+          "name": "standard_ttl_24h",
+          "description": "Message with 24-hour TTL",
+          "input": {
+            "messageId": "eph-msg-002",
+            "createdAt": 1706198400,
+            "ttlSeconds": 86400,
+            "content": "Available for 24 hours"
+          },
+          "expected": {
+            "expiresAt": 1706284800,
+            "isExpiredAt": {
+              "1706284799": false,
+              "1706284800": true
+            }
+          }
+        },
+        {
+          "name": "ttl_7_days",
+          "description": "Message with 7-day TTL",
+          "input": {
+            "messageId": "eph-msg-003",
+            "createdAt": 1706198400,
+            "ttlSeconds": 604800,
+            "content": "Weekly ephemeral message"
+          },
+          "expected": {
+            "expiresAt": 1706803200
+          }
+        },
+        {
+          "name": "ttl_zero_immediate",
+          "description": "TTL of 0 means immediately expired (view-once)",
+          "input": {
+            "messageId": "eph-msg-004",
+            "createdAt": 1706198400,
+            "ttlSeconds": 0,
+            "content": "View once only"
+          },
+          "expected": {
+            "expiresAt": 1706198400,
+            "isViewOnce": true,
+            "isExpiredAt": {
+              "1706198400": true,
+              "1706198401": true
+            }
+          }
+        },
+        {
+          "name": "ttl_minimum_5s",
+          "description": "Minimum practical TTL is 5 seconds",
+          "input": {
+            "messageId": "eph-msg-005",
+            "createdAt": 1706198400,
+            "ttlSeconds": 5,
+            "content": "Quick message"
+          },
+          "expected": {
+            "expiresAt": 1706198405,
+            "isExpiredAt": {
+              "1706198404": false,
+              "1706198405": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TTL Validation",
+      "description": "Tests for validating TTL values before message creation",
+      "cases": [
+        {
+          "name": "negative_ttl_rejected",
+          "description": "Negative TTL values must be rejected",
+          "input": {
+            "ttlSeconds": -1
+          },
+          "expected": {
+            "valid": false,
+            "error": "INVALID_TTL",
+            "reason": "TTL must be non-negative"
+          }
+        },
+        {
+          "name": "max_ttl_30_days",
+          "description": "TTL exceeding 30 days is capped or rejected",
+          "input": {
+            "ttlSeconds": 2678400
+          },
+          "expected": {
+            "valid": false,
+            "error": "TTL_EXCEEDS_MAXIMUM",
+            "maxAllowed": 2592000,
+            "reason": "TTL must not exceed 30 days (2592000 seconds)"
+          }
+        },
+        {
+          "name": "valid_ttl_range",
+          "description": "TTL within valid range (0 to 2592000 seconds)",
+          "validValues": [0, 5, 30, 60, 300, 3600, 86400, 604800, 2592000],
+          "expected": {
+            "allValid": true
+          }
+        },
+        {
+          "name": "non_integer_ttl_rejected",
+          "description": "Non-integer TTL values must be rejected",
+          "input": {
+            "ttlSeconds": 60.5
+          },
+          "expected": {
+            "valid": false,
+            "error": "INVALID_TTL_TYPE",
+            "reason": "TTL must be a non-negative integer"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expiration Behavior",
+      "description": "Tests for what happens when messages expire",
+      "cases": [
+        {
+          "name": "expired_message_not_displayed",
+          "description": "Expired messages must not be shown in the UI",
+          "input": {
+            "messages": [
+              {
+                "id": "msg-active",
+                "createdAt": 1706198400,
+                "ttlSeconds": 3600,
+                "content": "Still active"
+              },
+              {
+                "id": "msg-expired",
+                "createdAt": 1706190000,
+                "ttlSeconds": 3600,
+                "content": "Already expired"
+              }
+            ],
+            "currentTime": 1706198500
+          },
+          "expected": {
+            "visibleMessages": ["msg-active"],
+            "hiddenMessages": ["msg-expired"]
+          }
+        },
+        {
+          "name": "expired_message_deleted_from_storage",
+          "description": "Expired messages must be purged from local storage during cleanup",
+          "input": {
+            "storedMessages": [
+              {"id": "msg-1", "expiresAt": 1706190000},
+              {"id": "msg-2", "expiresAt": 1706300000},
+              {"id": "msg-3", "expiresAt": 1706195000}
+            ],
+            "cleanupTime": 1706198400
+          },
+          "expected": {
+            "deletedIds": ["msg-1", "msg-3"],
+            "retainedIds": ["msg-2"]
+          }
+        },
+        {
+          "name": "non_ephemeral_message_never_expires",
+          "description": "Messages without TTL field are permanent",
+          "input": {
+            "messageId": "msg-permanent",
+            "createdAt": 1706198400,
+            "ttlSeconds": null,
+            "content": "I persist forever"
+          },
+          "expected": {
+            "expiresAt": null,
+            "isExpiredAt": {
+              "1706198400": false,
+              "1800000000": false,
+              "9999999999": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relay Behavior",
+      "description": "Tests for how relays handle ephemeral message TTL",
+      "cases": [
+        {
+          "name": "relay_respects_ttl_on_storage",
+          "description": "Relay should not store messages past their TTL",
+          "input": {
+            "message": {
+              "id": "relay-eph-1",
+              "createdAt": 1706198400,
+              "ttlSeconds": 300
+            },
+            "relayReceiveTime": 1706198500,
+            "relayQueryTime": 1706198800
+          },
+          "expected": {
+            "shouldStoreOnReceive": true,
+            "shouldReturnOnQuery": false,
+            "reason": "Message expired at 1706198700, query at 1706198800 is past expiration"
+          }
+        },
+        {
+          "name": "relay_forwards_ephemeral_with_original_ttl",
+          "description": "Relay must forward ephemeral messages with their original TTL, not a reduced TTL",
+          "input": {
+            "message": {
+              "id": "relay-eph-2",
+              "createdAt": 1706198400,
+              "ttlSeconds": 600
+            },
+            "relayReceiveTime": 1706198500
+          },
+          "expected": {
+            "forwardedTtlSeconds": 600,
+            "forwardedCreatedAt": 1706198400,
+            "note": "TTL is relative to original createdAt, not relay time"
+          }
+        },
+        {
+          "name": "relay_rejects_already_expired",
+          "description": "Relay should reject messages that are already expired on arrival",
+          "input": {
+            "message": {
+              "id": "relay-eph-3",
+              "createdAt": 1706190000,
+              "ttlSeconds": 60
+            },
+            "relayReceiveTime": 1706198400
+          },
+          "expected": {
+            "shouldAccept": false,
+            "reason": "Message expired at 1706190060, received at 1706198400"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BLE Mesh Ephemeral",
+      "description": "Tests for ephemeral messages over BLE mesh transport",
+      "cases": [
+        {
+          "name": "ble_hop_reduces_effective_ttl",
+          "description": "Each BLE mesh hop adds latency, checking remaining TTL",
+          "input": {
+            "message": {
+              "id": "ble-eph-1",
+              "createdAt": 1706198400,
+              "ttlSeconds": 120
+            },
+            "receiveTimes": [1706198430, 1706198460, 1706198490],
+            "checkTime": 1706198550
+          },
+          "expected": {
+            "expiresAt": 1706198520,
+            "isExpiredAtCheck": true,
+            "note": "Message expired before check time despite successful relay through 3 hops"
+          }
+        },
+        {
+          "name": "ble_does_not_forward_expired",
+          "description": "BLE mesh node should not forward already-expired ephemeral messages",
+          "input": {
+            "message": {
+              "id": "ble-eph-2",
+              "createdAt": 1706198400,
+              "ttlSeconds": 30
+            },
+            "nodeReceiveTime": 1706198440
+          },
+          "expected": {
+            "shouldForward": false,
+            "reason": "Message expired at 1706198430, node received at 1706198440"
+          }
+        }
+      ]
+    },
+    {
+      "name": "View-Once Messages",
+      "description": "Tests for view-once (self-destructing after first read) messages",
+      "cases": [
+        {
+          "name": "view_once_deletes_after_read",
+          "description": "View-once message is deleted from storage after recipient reads it",
+          "input": {
+            "messageId": "view-once-1",
+            "createdAt": 1706198400,
+            "ttlSeconds": 0,
+            "readAt": 1706198450
+          },
+          "expected": {
+            "isViewOnce": true,
+            "shouldDeleteAfterRead": true,
+            "deleteDelay": "immediate"
+          }
+        },
+        {
+          "name": "view_once_with_grace_period",
+          "description": "View-once with short TTL allows brief viewing window",
+          "input": {
+            "messageId": "view-once-2",
+            "createdAt": 1706198400,
+            "ttlSeconds": 10,
+            "readAt": 1706198405
+          },
+          "expected": {
+            "isViewOnce": false,
+            "expiresAt": 1706198410,
+            "viewingWindowSeconds": 5,
+            "note": "10s TTL gives 5s remaining viewing time after read at +5s"
+          }
+        },
+        {
+          "name": "view_once_unread_still_expires",
+          "description": "View-once message expires even if never read",
+          "input": {
+            "messageId": "view-once-3",
+            "createdAt": 1706198400,
+            "ttlSeconds": 86400,
+            "readAt": null
+          },
+          "expected": {
+            "expiresAt": 1706284800,
+            "isExpiredAt": {
+              "1706284801": true
+            },
+            "note": "Even if never read, TTL-based expiration still applies"
+          }
+        }
+      ]
+    }
+  ]
+}

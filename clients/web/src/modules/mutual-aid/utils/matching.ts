@@ -1,4 +1,5 @@
 import { AidItem, RideShare, MatchResult } from '../types'
+import { haversineDistance } from '@/lib/geo/distance'
 
 /**
  * Calculate match score between a request and an offer
@@ -18,8 +19,30 @@ export function calculateMatchScore(request: AidItem, offer: AidItem): MatchResu
     reasons.push('Category match')
   }
 
-  // Location proximity (20 points) - geolocation distance deferred to Phase 2
-  if (request.location && offer.location) {
+  // Location proximity (20 points) - uses haversine distance when structured location available
+  if (request.locationData && offer.locationData) {
+    // Structured location data available - use haversine distance
+    const distanceKm = haversineDistance(
+      request.locationData.lat,
+      request.locationData.lng,
+      offer.locationData.lat,
+      offer.locationData.lng
+    )
+    if (distanceKm <= 2) {
+      score += 20
+      reasons.push(`Very close (${distanceKm.toFixed(1)}km)`)
+    } else if (distanceKm <= 10) {
+      score += 15
+      reasons.push(`Nearby (${distanceKm.toFixed(1)}km)`)
+    } else if (distanceKm <= 25) {
+      score += 10
+      reasons.push(`In area (${distanceKm.toFixed(0)}km)`)
+    } else if (distanceKm <= 50) {
+      score += 5
+      reasons.push(`Within reach (${distanceKm.toFixed(0)}km)`)
+    }
+  } else if (request.location && offer.location) {
+    // Fallback to text-based location matching
     if (request.location.toLowerCase() === offer.location.toLowerCase()) {
       score += 20
       reasons.push('Same location')
@@ -224,6 +247,35 @@ export function matchRideShares(
     .sort((a, b) => b.score - a.score)
 
   return matches
+}
+
+/**
+ * Find matches within a given radius using geographic coordinates.
+ * Useful for map-based "nearby" views of requests and offers.
+ *
+ * @param center - Center point to search around
+ * @param items - Items to filter
+ * @param radiusKm - Search radius in kilometers
+ * @returns Items within the radius, sorted by distance (closest first)
+ */
+export function findItemsWithinRadius(
+  center: { lat: number; lng: number },
+  items: AidItem[],
+  radiusKm: number
+): Array<AidItem & { distanceKm: number }> {
+  return items
+    .filter((item) => item.locationData != null)
+    .map((item) => {
+      const distanceKm = haversineDistance(
+        center.lat,
+        center.lng,
+        item.locationData!.lat,
+        item.locationData!.lng
+      )
+      return { ...item, distanceKm }
+    })
+    .filter((item) => item.distanceKm <= radiusKm)
+    .sort((a, b) => a.distanceKm - b.distanceKm)
 }
 
 /**

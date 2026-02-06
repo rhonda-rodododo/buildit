@@ -25,6 +25,7 @@ public enum FormFieldType: String, Codable, CaseIterable, Sendable {
     case file
     case rating
     case scale
+    case location
 
     var displayName: String {
         switch self {
@@ -44,6 +45,7 @@ public enum FormFieldType: String, Codable, CaseIterable, Sendable {
         case .file: return "File Upload"
         case .rating: return "Rating"
         case .scale: return "Scale"
+        case .location: return "Location"
         }
     }
 
@@ -65,6 +67,7 @@ public enum FormFieldType: String, Codable, CaseIterable, Sendable {
         case .file: return "paperclip"
         case .rating: return "star"
         case .scale: return "slider.horizontal.3"
+        case .location: return "mappin.and.ellipse"
         }
     }
 

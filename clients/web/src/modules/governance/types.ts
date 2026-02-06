@@ -19,6 +19,12 @@ export {
   type QuorumRequirement,
   PassingThresholdSchema,
   type PassingThreshold,
+  QuadraticVotingConfigSchema,
+  type QuadraticVotingConfig,
+  QuadraticBallotSchema,
+  type QuadraticBallot,
+  QuadraticOptionResultSchema,
+  type QuadraticOptionResult,
   ProposalAttachmentSchema,
   type ProposalAttachment,
   ProposalSchema,
@@ -34,7 +40,7 @@ export {
 
 // ── UI-Only Types ──────────────────────────────────────────────────
 
-import type { VotingSystem } from '@/generated/validation/governance.zod';
+import type { VotingSystem, QuadraticBallot } from '@/generated/validation/governance.zod';
 
 /**
  * Input for creating a new proposal (form data — UI-only type)
@@ -58,6 +64,10 @@ export interface CreateProposalInput {
   allowAbstain?: boolean;
   anonymousVoting?: boolean;
   tags?: string[];
+  /** Token budget for quadratic voting (required when votingSystem is 'quadratic') */
+  quadraticTokenBudget?: number;
+  /** Max tokens per option for quadratic voting (optional) */
+  quadraticMaxTokensPerOption?: number;
 }
 
 /**
@@ -65,8 +75,8 @@ export interface CreateProposalInput {
  */
 export interface CastVoteInput {
   proposalId: string;
-  /** Option ID(s): single string for simple, array for ranked-choice */
-  choice: string | string[];
+  /** Option ID(s): single string for simple, array for ranked-choice, QuadraticBallot for quadratic */
+  choice: string | string[] | QuadraticBallot;
   comment?: string;
 }
 
@@ -103,10 +113,16 @@ export interface RankedChoiceResults {
 }
 
 export interface QuadraticResults {
+  /** Per-option quadratic results with token totals, effective votes, and voter counts */
   options: Record<string, {
-    votes: number;
-    quadraticScore: number;
+    /** Total tokens allocated to this option across all voters */
+    totalTokens: number;
+    /** Sum of sqrt(tokens) across all voters — the effective vote count */
+    effectiveVotes: number;
+    /** Number of voters who allocated tokens to this option */
+    voterCount: number;
   }>;
+  /** The option ID with the highest effective votes */
   winner: string | null;
 }
 

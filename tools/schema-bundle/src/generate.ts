@@ -55,6 +55,14 @@ function bytesToHex(bytes: Uint8Array): string {
     .join('')
 }
 
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16)
+  }
+  return bytes
+}
+
 async function main() {
   const args = process.argv.slice(2)
   const outputIndex = args.findIndex(a => a === '--output' || a === '-o')
@@ -98,10 +106,24 @@ async function main() {
   const schemasJson = JSON.stringify(schemas, null, 0)
   const contentHashBytes = sha256(new TextEncoder().encode(schemasJson))
 
-  // Generate placeholder Ed25519 signing key
-  // In production, this would use a real key from secure storage
-  const signingKey = ed25519.utils.randomPrivateKey()
-  const publicKey = await ed25519.getPublicKeyAsync(signingKey)
+  // Load Ed25519 signing key from environment variable or generate ephemeral key for dev
+  let signingKey: Uint8Array
+  let publicKey: Uint8Array
+
+  const signingKeyHex = process.env.BUILDIT_BUNDLE_SIGNING_KEY
+  if (signingKeyHex) {
+    if (signingKeyHex.length !== 64 || !/^[0-9a-f]{64}$/.test(signingKeyHex)) {
+      console.error('BUILDIT_BUNDLE_SIGNING_KEY must be a 64-char hex string (32 bytes)')
+      process.exit(1)
+    }
+    signingKey = hexToBytes(signingKeyHex)
+    publicKey = await ed25519.getPublicKeyAsync(signingKey)
+    console.log('  Using official signing key from BUILDIT_BUNDLE_SIGNING_KEY')
+  } else {
+    console.warn('  WARNING: No BUILDIT_BUNDLE_SIGNING_KEY set, using ephemeral key (NOT for production)')
+    signingKey = ed25519.utils.randomPrivateKey()
+    publicKey = await ed25519.getPublicKeyAsync(signingKey)
+  }
 
   // Sign the content hash
   const signatureBytes = await ed25519.signAsync(contentHashBytes, signingKey)

@@ -31,13 +31,36 @@ interface LinkPreviewResponse {
 
 const CACHE_TTL = 60 * 60; // 1 hour
 const FETCH_TIMEOUT = 5000;
+const MAX_REDIRECTS = 3;
 const ALLOWED_PROTOCOLS = ['https:'];
 const USER_AGENT = 'BuildIt-LinkPreview/1.0 (https://buildit.network)';
+
+/**
+ * SSRF protection: block requests to private/internal IP ranges.
+ * Prevents attackers from using the link preview worker to scan internal networks.
+ */
+const BLOCKED_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'];
+const BLOCKED_HOSTNAME_SUFFIXES = ['.local', '.internal', '.localhost'];
+
+function isBlockedHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  if (BLOCKED_HOSTNAMES.includes(lower)) return true;
+  if (BLOCKED_HOSTNAME_SUFFIXES.some(s => lower.endsWith(s))) return true;
+  // Block private IP ranges
+  if (/^10\./.test(lower)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(lower)) return true;
+  if (/^192\.168\./.test(lower)) return true;
+  if (/^169\.254\./.test(lower)) return true; // Link-local / cloud metadata
+  if (/^0\./.test(lower)) return true;
+  if (lower.startsWith('[fc') || lower.startsWith('[fd')) return true; // IPv6 private
+  return false;
+}
 
 function validateUrl(urlString: string): URL | null {
   try {
     const url = new URL(urlString);
     if (!ALLOWED_PROTOCOLS.includes(url.protocol)) return null;
+    if (isBlockedHost(url.hostname)) return null;
     return url;
   } catch {
     return null;

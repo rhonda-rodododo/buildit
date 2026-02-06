@@ -58,7 +58,8 @@ class GovernanceUseCase @Inject constructor(
         allowAbstain: Boolean = true,
         anonymousVoting: Boolean = false,
         allowDelegation: Boolean = false,
-        tags: List<String> = emptyList()
+        tags: List<String> = emptyList(),
+        quadraticConfig: QuadraticVotingConfig? = null
     ): ProposalEntity {
         val nowSeconds = System.currentTimeMillis() / 1000
         // Convert durations from milliseconds to seconds
@@ -100,7 +101,10 @@ class GovernanceUseCase @Inject constructor(
             anonymousVoting = anonymousVoting,
             allowDelegation = allowDelegation,
             createdBy = currentUserId,
-            tags = tags
+            tags = tags,
+            quadraticConfig = if (votingSystem == VotingSystem.QUADRATIC) {
+                quadraticConfig ?: QuadraticVotingConfig.DEFAULT
+            } else null
         )
 
         publishProposal(proposal)
@@ -177,6 +181,97 @@ class GovernanceUseCase @Inject constructor(
 
         publishVote(vote)
         return vote
+    }
+
+    /**
+     * Cast a quadratic vote on a proposal.
+     *
+     * The ballot contains token allocations per option. Effective votes = sqrt(tokens).
+     */
+    suspend fun castQuadraticVote(
+        proposalId: String,
+        ballot: QuadraticBallot,
+        comment: String? = null
+    ): VoteEntity {
+        val proposal = repository.getProposalById(proposalId)
+            ?: throw IllegalStateException("Proposal not found")
+
+        if (!proposal.canVote) {
+            throw IllegalStateException("Voting is not open for this proposal")
+        }
+
+        if (proposal.votingSystem != VotingSystem.QUADRATIC) {
+            throw IllegalStateException("Proposal does not use quadratic voting")
+        }
+
+        val config = proposal.quadraticConfig
+            ?: throw IllegalStateException("Proposal is missing quadratic voting configuration")
+
+        if (repository.hasVoted(proposalId, currentUserId)) {
+            throw IllegalStateException("Already voted on this proposal")
+        }
+
+        val validOptionIds = proposal.options.map { it.id }.toSet()
+        if (!ballot.validate(config, validOptionIds)) {
+            throw IllegalArgumentException("Invalid quadratic ballot: exceeds budget or contains invalid options")
+        }
+
+        // Encode ballot as JSON in the comment with a marker prefix
+        val ballotJson = kotlinx.serialization.json.Json.encodeToString(
+            QuadraticBallot.serializer(), ballot
+        )
+        val enrichedComment = "__quadratic_ballot__:$ballotJson" +
+            (comment?.let { "\n$it" } ?: "")
+
+        val vote = repository.createVote(
+            proposalId = proposalId,
+            voterId = currentUserId,
+            choice = ballot.allocations.filter { it.value > 0 }.keys.toList(),
+            comment = enrichedComment
+        )
+
+        publishVote(vote)
+        return vote
+    }
+
+    /**
+     * Calculate quadratic voting results for a proposal.
+     */
+    suspend fun calculateQuadraticResults(proposalId: String): Map<String, QuadraticOptionResult> {
+        val votes = repository.getVotesForProposal(proposalId).first()
+        val optionResults = mutableMapOf<String, Triple<Int, Double, Int>>() // (totalTokens, effectiveVotes, voterCount)
+
+        for (vote in votes) {
+            val commentText = vote.comment ?: continue
+            if (!commentText.startsWith("__quadratic_ballot__:")) continue
+
+            val prefix = "__quadratic_ballot__:"
+            val ballotJsonStr = commentText.removePrefix(prefix).substringBefore("\n")
+
+            val ballot = try {
+                kotlinx.serialization.json.Json.decodeFromString(
+                    QuadraticBallot.serializer(), ballotJsonStr
+                )
+            } catch (_: Exception) { continue }
+
+            for ((optionId, tokens) in ballot.allocations) {
+                if (tokens <= 0) continue
+                val current = optionResults.getOrDefault(optionId, Triple(0, 0.0, 0))
+                optionResults[optionId] = Triple(
+                    current.first + tokens,
+                    current.second + kotlin.math.sqrt(tokens.toDouble()),
+                    current.third + 1
+                )
+            }
+        }
+
+        return optionResults.mapValues { (_, triple) ->
+            QuadraticOptionResult(
+                totalTokens = triple.first,
+                effectiveVotes = (triple.second * 1000).toLong() / 1000.0,
+                voterCount = triple.third
+            )
+        }
     }
 
     suspend fun getVoteCounts(proposalId: String): Map<String, Int> {

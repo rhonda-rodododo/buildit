@@ -103,6 +103,19 @@ impl Database {
             .ok_or_else(|| "Database is locked/closed".to_string())?;
         pool.with_connection(f)
     }
+
+    /// Execute a function with a mutable database connection reference
+    /// Required for operations that need &mut Connection (e.g., transactions)
+    pub fn with_connection_mut<F, T>(&self, f: F) -> Result<T, String>
+    where
+        F: FnOnce(&mut Connection) -> Result<T, String>,
+    {
+        let pool_guard = self.pool.read();
+        let pool = pool_guard
+            .as_ref()
+            .ok_or_else(|| "Database is locked/closed".to_string())?;
+        pool.with_connection_mut(f)
+    }
 }
 
 /// Get the default database path for the current platform

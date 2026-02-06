@@ -97,6 +97,8 @@ data class CreateProposalUiState(
     val customOptions: List<String> = listOf("Option 1", "Option 2"),
     val allowAbstain: Boolean = true,
     val tags: String = "",
+    val tokenBudget: Int = 100,
+    val maxTokensPerOption: Int? = null,
     val isSubmitting: Boolean = false,
     val isComplete: Boolean = false,
     val errorMessage: String? = null
@@ -175,6 +177,14 @@ class CreateProposalViewModel @Inject constructor(
         _uiState.update { it.copy(tags = tags) }
     }
 
+    fun updateTokenBudget(budget: Int) {
+        _uiState.update { it.copy(tokenBudget = budget.coerceIn(1, 1000)) }
+    }
+
+    fun updateMaxTokensPerOption(max: Int?) {
+        _uiState.update { it.copy(maxTokensPerOption = max?.coerceIn(1, _uiState.value.tokenBudget)) }
+    }
+
     fun isValid(): Boolean {
         val state = _uiState.value
         return state.title.isNotBlank() &&
@@ -219,6 +229,13 @@ class CreateProposalViewModel @Inject constructor(
                     .map { it.trim() }
                     .filter { it.isNotEmpty() }
 
+                val quadraticCfg = if (state.votingSystem == VotingSystem.QUADRATIC) {
+                    QuadraticVotingConfig(
+                        tokenBudget = state.tokenBudget,
+                        maxTokensPerOption = state.maxTokensPerOption
+                    )
+                } else null
+
                 useCase.createProposal(
                     groupId = groupId,
                     title = state.title.trim(),
@@ -229,7 +246,8 @@ class CreateProposalViewModel @Inject constructor(
                     discussionDurationMs = discussionDurationMs,
                     votingDurationMs = votingDurationMs,
                     allowAbstain = state.allowAbstain,
-                    tags = parsedTags
+                    tags = parsedTags,
+                    quadraticConfig = quadraticCfg
                 )
 
                 _uiState.update { it.copy(isSubmitting = false, isComplete = true) }

@@ -2,6 +2,7 @@ package network.buildit.modules.calling.services
 
 import android.content.ComponentName
 import android.content.Context
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.telecom.Connection
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -39,6 +41,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.webrtc.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -130,6 +133,15 @@ class PSTNCallManager @Inject constructor(
     // API base URL
     private val apiBase: String
         get() = config?.workerUrl ?: ""
+
+    // WebRTC peer connections per PSTN call
+    private val peerConnections = ConcurrentHashMap<String, PeerConnection>()
+    private val localAudioTracks = ConcurrentHashMap<String, AudioTrack>()
+
+    // WebRTC factory (lazily initialized)
+    private val peerConnectionFactory: PeerConnectionFactory by lazy {
+        initializePeerConnectionFactory()
+    }
 
     // State flows
     private val _activeCallsFlow = MutableStateFlow<Map<String, LocalPSTNCall>>(emptyMap())
@@ -330,23 +342,280 @@ class PSTNCallManager @Inject constructor(
     }
 
     /**
-     * Setup WebRTC connection to SIP bridge
+     * Initialize WebRTC PeerConnectionFactory
+     */
+    private fun initializePeerConnectionFactory(): PeerConnectionFactory {
+        val options = PeerConnectionFactory.InitializationOptions.builder(context)
+            .setEnableInternalTracer(false)
+            .createInitializationOptions()
+        PeerConnectionFactory.initialize(options)
+
+        return PeerConnectionFactory.builder()
+            .setOptions(PeerConnectionFactory.Options())
+            .createPeerConnectionFactory()
+    }
+
+    /**
+     * Setup WebRTC connection to SIP bridge.
+     *
+     * Creates an audio-only RTCPeerConnection, generates an SDP offer,
+     * exchanges it with the SIP bridge server, and monitors connection state.
      */
     private suspend fun setupWebRTCBridge(callSid: String, sipUri: String, webrtcConfig: WebRTCConfig?) {
-        // TODO: Implement WebRTC bridge setup using existing WebRTC infrastructure
-        // This would:
-        // 1. Get local media stream (audio only for PSTN)
-        // 2. Create RTCPeerConnection with provided config
-        // 3. Add local audio track
-        // 4. Create SDP offer
-        // 5. Send offer to SIP bridge and get answer
-        // 6. Set remote description
-        // 7. Monitor connection state
-
         Log.d(TAG, "Setting up WebRTC bridge for call: $callSid to $sipUri")
 
-        // Add call to Android telecom system for system integration
+        // 1. Configure audio for voice call
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+        audioManager.isSpeakerphoneOn = false
+
+        // 2. Build ICE server list from provided config or use defaults
+        val iceServers = buildIceServers(webrtcConfig)
+
+        val rtcConfig = PeerConnection.RTCConfiguration(iceServers).apply {
+            sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
+            bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE
+            rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
+            continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
+        }
+
+        // 3. Create PeerConnection with observer
+        val pcObserver = PSTNPeerConnectionObserver(callSid)
+        val peerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, pcObserver)
+            ?: throw Exception("Failed to create PeerConnection for call $callSid")
+
+        peerConnections[callSid] = peerConnection
+
+        // 4. Create and add local audio track (audio-only for PSTN)
+        val audioConstraints = MediaConstraints().apply {
+            mandatory.add(MediaConstraints.KeyValuePair("googEchoCancellation", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("googNoiseSuppression", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("googAutoGainControl", "true"))
+        }
+        val audioSource = peerConnectionFactory.createAudioSource(audioConstraints)
+        val audioTrack = peerConnectionFactory.createAudioTrack("pstn-audio-$callSid", audioSource)
+        audioTrack.setEnabled(true)
+        peerConnection.addTrack(audioTrack, listOf("pstn-stream-$callSid"))
+        localAudioTracks[callSid] = audioTrack
+
+        // 5. Create SDP offer
+        val offerConstraints = MediaConstraints().apply {
+            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"))
+        }
+
+        val localSdp = createOfferAndSetLocal(peerConnection, offerConstraints)
+
+        // 6. Exchange SDP with SIP bridge server
+        val answerSdp = exchangeSdpWithBridge(callSid, sipUri, localSdp.description)
+
+        // 7. Set remote description from SIP answer
+        val remoteDesc = SessionDescription(SessionDescription.Type.ANSWER, answerSdp)
+        setRemoteDescription(peerConnection, remoteDesc)
+
+        Log.d(TAG, "WebRTC bridge setup complete for call: $callSid")
+
+        // 8. Add call to Android telecom system for system integration
         addToTelecomSystem(callSid)
+    }
+
+    /**
+     * Build ICE servers from WebRTCConfig or use defaults
+     */
+    private fun buildIceServers(webrtcConfig: WebRTCConfig?): List<PeerConnection.IceServer> {
+        val servers = mutableListOf<PeerConnection.IceServer>()
+
+        if (webrtcConfig?.iceServers != null) {
+            for (server in webrtcConfig.iceServers) {
+                val builder = PeerConnection.IceServer.builder(server.urls)
+                server.username?.let { builder.setUsername(it) }
+                server.credential?.let { builder.setPassword(it) }
+                servers.add(builder.createIceServer())
+            }
+        }
+
+        // Always include default STUN servers as fallback
+        if (servers.isEmpty()) {
+            servers.add(
+                PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
+                    .createIceServer()
+            )
+            servers.add(
+                PeerConnection.IceServer.builder("stun:stun1.l.google.com:19302")
+                    .createIceServer()
+            )
+        }
+
+        return servers
+    }
+
+    /**
+     * Create an SDP offer and set it as the local description
+     */
+    private suspend fun createOfferAndSetLocal(
+        peerConnection: PeerConnection,
+        constraints: MediaConstraints
+    ): SessionDescription = suspendCancellableCoroutine { continuation ->
+        peerConnection.createOffer(object : SdpObserver {
+            override fun onCreateSuccess(sdp: SessionDescription) {
+                peerConnection.setLocalDescription(object : SdpObserver {
+                    override fun onSetSuccess() {
+                        continuation.resumeWith(Result.success(sdp))
+                    }
+                    override fun onSetFailure(error: String) {
+                        continuation.resumeWith(Result.failure(Exception("Failed to set local description: $error")))
+                    }
+                    override fun onCreateSuccess(sdp: SessionDescription?) {}
+                    override fun onCreateFailure(error: String?) {}
+                }, sdp)
+            }
+            override fun onCreateFailure(error: String) {
+                continuation.resumeWith(Result.failure(Exception("Failed to create SDP offer: $error")))
+            }
+            override fun onSetSuccess() {}
+            override fun onSetFailure(error: String?) {}
+        }, constraints)
+    }
+
+    /**
+     * Exchange SDP offer with the SIP bridge and return the SDP answer
+     */
+    private suspend fun exchangeSdpWithBridge(
+        callSid: String,
+        sipUri: String,
+        offerSdp: String
+    ): String {
+        val requestBody = json.encodeToString(BridgeSdpRequest(
+            callSid = callSid,
+            sipUri = sipUri,
+            sdp = offerSdp
+        )).toRequestBody("application/json".toMediaType())
+
+        val request = Request.Builder()
+            .url("$apiBase/api/pstn/voice/bridge")
+            .post(requestBody)
+            .build()
+
+        val response = httpClient.newCall(request).execute()
+
+        if (!response.isSuccessful) {
+            val error = response.body?.string() ?: "Unknown error"
+            throw Exception("SIP bridge SDP exchange failed: $error")
+        }
+
+        val responseBody = response.body?.string() ?: throw Exception("Empty SIP bridge response")
+        val bridgeAnswer = json.decodeFromString<BridgeSdpResponse>(responseBody)
+
+        return bridgeAnswer.sdp
+    }
+
+    /**
+     * Set remote description on a PeerConnection
+     */
+    private suspend fun setRemoteDescription(
+        peerConnection: PeerConnection,
+        description: SessionDescription
+    ) = suspendCancellableCoroutine { continuation ->
+        peerConnection.setRemoteDescription(object : SdpObserver {
+            override fun onSetSuccess() {
+                continuation.resumeWith(Result.success(Unit))
+            }
+            override fun onSetFailure(error: String) {
+                continuation.resumeWith(Result.failure(Exception("Failed to set remote description: $error")))
+            }
+            override fun onCreateSuccess(sdp: SessionDescription?) {}
+            override fun onCreateFailure(error: String?) {}
+        }, description)
+    }
+
+    /**
+     * PeerConnection observer for PSTN calls.
+     * Monitors ICE connection state and reports events.
+     */
+    private inner class PSTNPeerConnectionObserver(
+        private val callSid: String
+    ) : PeerConnection.Observer {
+
+        override fun onSignalingChange(state: PeerConnection.SignalingState) {
+            Log.d(TAG, "PSTN signaling state for $callSid: $state")
+        }
+
+        override fun onIceConnectionChange(state: PeerConnection.IceConnectionState) {
+            Log.d(TAG, "PSTN ICE connection state for $callSid: $state")
+            scope.launch {
+                when (state) {
+                    PeerConnection.IceConnectionState.CONNECTED -> {
+                        val call = activeCalls[callSid] ?: return@launch
+                        val updatedCall = call.copy(
+                            status = PSTNCallStatus.Connected,
+                            connectedAt = System.currentTimeMillis(),
+                            isWebRTCBridged = true
+                        )
+                        activeCalls[callSid] = updatedCall
+                        startDurationTimer(callSid)
+                        updateCallsFlow()
+                        _events.emit(PSTNCallEvent.Connected(updatedCall))
+                    }
+                    PeerConnection.IceConnectionState.DISCONNECTED -> {
+                        Log.w(TAG, "PSTN ICE disconnected for $callSid, may reconnect")
+                    }
+                    PeerConnection.IceConnectionState.FAILED -> {
+                        Log.e(TAG, "PSTN ICE failed for $callSid")
+                        _events.emit(PSTNCallEvent.Error(callSid, Exception("ICE connection failed")))
+                        cleanupWebRTC(callSid)
+                    }
+                    PeerConnection.IceConnectionState.CLOSED -> {
+                        Log.d(TAG, "PSTN ICE closed for $callSid")
+                    }
+                    else -> {}
+                }
+            }
+        }
+
+        override fun onIceConnectionReceivingChange(receiving: Boolean) {}
+
+        override fun onIceGatheringChange(state: PeerConnection.IceGatheringState) {
+            Log.d(TAG, "PSTN ICE gathering state for $callSid: $state")
+        }
+
+        override fun onIceCandidate(candidate: IceCandidate) {
+            // For SIP bridge, ICE candidates are gathered via trickle ICE
+            // The SIP bridge handles ICE negotiation server-side
+            Log.d(TAG, "PSTN ICE candidate for $callSid: ${candidate.sdpMid}")
+        }
+
+        override fun onIceCandidatesRemoved(candidates: Array<out IceCandidate>) {}
+
+        override fun onAddStream(stream: MediaStream) {
+            Log.d(TAG, "PSTN remote stream added for $callSid")
+        }
+
+        override fun onRemoveStream(stream: MediaStream) {
+            Log.d(TAG, "PSTN remote stream removed for $callSid")
+        }
+
+        override fun onDataChannel(channel: DataChannel) {}
+
+        override fun onRenegotiationNeeded() {
+            Log.d(TAG, "PSTN renegotiation needed for $callSid")
+        }
+
+        override fun onAddTrack(receiver: RtpReceiver, streams: Array<out MediaStream>) {}
+
+        override fun onTrack(transceiver: RtpTransceiver) {}
+    }
+
+    /**
+     * Cleanup WebRTC resources for a specific call
+     */
+    private fun cleanupWebRTC(callSid: String) {
+        localAudioTracks[callSid]?.dispose()
+        localAudioTracks.remove(callSid)
+
+        peerConnections[callSid]?.dispose()
+        peerConnections.remove(callSid)
+
+        Log.d(TAG, "Cleaned up WebRTC resources for call: $callSid")
     }
 
     /**
@@ -588,6 +857,7 @@ class PSTNCallManager @Inject constructor(
 
     private fun cleanup(callSid: String) {
         stopDurationTimer(callSid)
+        cleanupWebRTC(callSid)
         activeCalls.remove(callSid)
         updateCallsFlow()
     }
@@ -650,6 +920,13 @@ class PSTNCallManager @Inject constructor(
     fun destroy() {
         callDurations.values.forEach { it.cancel() }
         callDurations.clear()
+
+        // Clean up all WebRTC resources
+        localAudioTracks.values.forEach { it.dispose() }
+        localAudioTracks.clear()
+        peerConnections.values.forEach { it.dispose() }
+        peerConnections.clear()
+
         activeCalls.clear()
         updateCallsFlow()
     }
@@ -740,6 +1017,18 @@ private data class RevealRequest(
 @Serializable
 private data class RevealResponse(
     val phone: String
+)
+
+@Serializable
+private data class BridgeSdpRequest(
+    val callSid: String,
+    val sipUri: String,
+    val sdp: String
+)
+
+@Serializable
+private data class BridgeSdpResponse(
+    val sdp: String
 )
 
 @Serializable

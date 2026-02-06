@@ -543,7 +543,12 @@ function buildQuery(filter: NostrFilter): { sql: string; params: unknown[] } {
 
   for (const [key, values] of tagFilters) {
     const tagName = key.substring(1);
-    const tagValues = values as string[];
+    // Input validation: limit tag values to prevent DoS
+    const MAX_TAG_VALUES = 20;
+    const MAX_TAG_VALUE_LENGTH = 256;
+    const tagValues = (values as string[])
+      .slice(0, MAX_TAG_VALUES)
+      .filter(v => typeof v === 'string' && v.length <= MAX_TAG_VALUE_LENGTH);
 
     // Use denormalized columns for common tags
     if (['p', 'e', 'a', 't', 'd', 'r', 'L', 's', 'u'].includes(tagName)) {
@@ -571,14 +576,15 @@ function buildQuery(filter: NostrFilter): { sql: string; params: unknown[] } {
     }
   }
 
-  const limit = Math.min(filter.limit || 500, 500);
+  const limit = Math.min(Math.max(1, Math.floor(Number(filter.limit) || 500)), 500);
 
   let sql = 'SELECT * FROM events';
   if (conditions.length > 0) {
     sql += ` WHERE ${conditions.join(' AND ')}`;
   }
   sql += ' ORDER BY created_at DESC';
-  sql += ` LIMIT ${limit}`;
+  sql += ' LIMIT ?';
+  params.push(limit);
 
   return { sql, params };
 }
@@ -646,17 +652,17 @@ export async function pruneDatabase(env: Env): Promise<void> {
     // Calculate cutoff time
     const cutoffTime = Math.floor(Date.now() / 1000) - PRUNE_MIN_AGE_DAYS * 24 * 60 * 60;
 
-    // Build list of protected kinds
-    const protectedList = Array.from(protectedKinds).join(',');
+    // Delete old events (except protected kinds) using parameterized queries
+    const protectedArr = Array.from(protectedKinds);
+    const placeholders = protectedArr.map(() => '?').join(', ');
 
-    // Delete old events (except protected kinds)
     const result = await db
       .prepare(`
         DELETE FROM events
         WHERE created_at < ?
-        AND kind NOT IN (${protectedList})
+        AND kind NOT IN (${placeholders})
       `)
-      .bind(cutoffTime)
+      .bind(cutoffTime, ...protectedArr)
       .run();
 
     console.log(`Pruned ${result.meta.changes} old events`);
@@ -728,11 +734,19 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
     });
   }
 
-  // Database initialization (admin endpoint)
+  // Database initialization (admin endpoint - requires ADMIN_SECRET)
   if (url.pathname === '/admin/init-db' && request.method === 'POST') {
+    const authHeader = request.headers.get('Authorization');
+    const adminSecret = (env as Record<string, unknown>).ADMIN_SECRET as string | undefined;
+    if (!adminSecret || !authHeader || authHeader !== `Bearer ${adminSecret}`) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     await initializeDatabase(env.RELAY_DATABASE);
     return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json', ...getCorsHeaders() },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -745,11 +759,23 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
   });
 }
 
-function getCorsHeaders(): Record<string, string> {
+const ALLOWED_ORIGINS = [
+  'https://buildit.network',
+  'https://www.buildit.network',
+  'https://app.buildit.network',
+  'tauri://localhost',        // Tauri desktop
+  'http://localhost:1420',    // Tauri dev
+  'http://localhost:5173',    // Vite dev
+];
+
+function getCorsHeaders(request?: Request): Record<string, string> {
+  const origin = request?.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
+    'Vary': 'Origin',
   };
 }
 

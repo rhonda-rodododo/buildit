@@ -17,13 +17,13 @@ let package = Package(
     ],
     dependencies: [
         // WebRTC for voice/video calling
-        .package(url: "https://github.com/nicolo-brandini/AmaranJoshuaKarlWebRTC.git", from: "124.0.0"),
+        .package(url: "https://github.com/stasel/WebRTC.git", .upToNextMajor(from: "125.0.0")),
     ],
     targets: [
         .target(
             name: "BuildItCore",
             dependencies: [
-                .product(name: "WebRTC", package: "AmaranJoshuaKarlWebRTC"),
+                .product(name: "WebRTC", package: "WebRTC"),
             ],
             path: "BuildIt/Core"
         ),

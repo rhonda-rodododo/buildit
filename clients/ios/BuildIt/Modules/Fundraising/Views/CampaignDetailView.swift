@@ -509,7 +509,7 @@ struct CryptoAddressRow: View {
                 .lineLimit(1)
 
             Button {
-                UIPasteboard.general.string = address
+                SecureClipboard.copy(address)
                 copied = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     copied = false
@@ -636,7 +636,7 @@ struct ShareCampaignSheet: View {
                         color: .accentColor
                     ) {
                         // Copy campaign link
-                        UIPasteboard.general.string = "https://buildit.network/campaign/\(campaign.id)"
+                        SecureClipboard.copy("https://buildit.network/campaign/\(campaign.id)")
                     }
 
                     ShareOptionButton(

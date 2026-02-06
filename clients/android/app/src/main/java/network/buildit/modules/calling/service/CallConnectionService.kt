@@ -1,5 +1,6 @@
 package network.buildit.modules.calling.service
 
+import network.buildit.core.redacted
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -52,7 +53,7 @@ class CallConnectionService : ConnectionService() {
         val callerName = extras.getString(EXTRA_CALLER_NAME)
         val hasVideo = extras.getBoolean(EXTRA_HAS_VIDEO, false)
 
-        Log.d(TAG, "Creating incoming connection: $callId from $callerPubkey")
+        Log.d(TAG, "Creating incoming connection: $callId from ${callerPubkey.redacted()}")
 
         return BuildItCallConnection(callId, callerPubkey, isOutgoing = false).apply {
             setCallerDisplayName(
@@ -95,7 +96,7 @@ class CallConnectionService : ConnectionService() {
         val calleeName = extras.getString(EXTRA_CALLEE_NAME)
         val hasVideo = extras.getBoolean(EXTRA_HAS_VIDEO, false)
 
-        Log.d(TAG, "Creating outgoing connection: $callId to $calleePubkey")
+        Log.d(TAG, "Creating outgoing connection: $callId to ${calleePubkey.redacted()}")
 
         return BuildItCallConnection(callId, calleePubkey, isOutgoing = true).apply {
             setCallerDisplayName(
@@ -360,7 +361,7 @@ class CallConnectionService : ConnectionService() {
                 Uri.fromParts(SCHEME_BUILDIT, calleePubkey, null),
                 extras
             )
-            Log.d(TAG, "Placed outgoing call: $callId to $calleePubkey")
+            Log.d(TAG, "Placed outgoing call: $callId to ${calleePubkey.redacted()}")
         }
     }
 }

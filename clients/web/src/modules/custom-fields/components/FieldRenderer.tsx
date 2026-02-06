@@ -16,6 +16,9 @@ import { CheckboxFieldInput } from './inputs/CheckboxFieldInput';
 import { RadioFieldInput } from './inputs/RadioFieldInput';
 import { FileFieldInput } from './inputs/FileFieldInput';
 import { RelationshipFieldInput } from './inputs/RelationshipFieldInput';
+import { LocationInput } from './inputs/LocationInput';
+import { LocationDisplay } from './inputs/LocationDisplay';
+import type { LocationValue } from '../types';
 
 interface FieldRendererProps {
   field: CustomField;
@@ -23,9 +26,11 @@ interface FieldRendererProps {
   errors: FieldErrors<FieldValues>;
   value?: unknown;
   onChange?: (value: unknown) => void;
+  /** Render mode: 'edit' for forms, 'view' for read-only display */
+  mode?: 'edit' | 'view';
 }
 
-export function FieldRenderer({ field, register, errors, value, onChange }: FieldRendererProps) {
+export function FieldRenderer({ field, register, errors, value, onChange, mode = 'edit' }: FieldRendererProps) {
   const { t } = useTranslation('custom-fields');
   const error = errors[field.name];
   const errorMessage = error?.message as string | undefined;
@@ -62,6 +67,11 @@ export function FieldRenderer({ field, register, errors, value, onChange }: Fiel
         return <FileFieldInput {...commonProps} />;
       case 'relationship':
         return <RelationshipFieldInput {...commonProps} />;
+      case 'location':
+        if (mode === 'view' && value) {
+          return <LocationDisplay value={value as LocationValue} />;
+        }
+        return <LocationInput {...commonProps} />;
       default:
         return <div className="text-sm text-muted-foreground">{t('unknownFieldType', { type: field.widget.widget })}</div>;
     }

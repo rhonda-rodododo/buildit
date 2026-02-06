@@ -74,8 +74,17 @@ class CryptoManager: NSObject, ObservableObject {
     private let keychainManager = KeychainManager.shared
     private let logger = Logger(subsystem: "com.buildit", category: "CryptoManager")
 
-    // Cache for shared secrets - cleared on background for security
-    private var sharedSecretCache: [String: SymmetricKey] = [:]
+    // Cache for shared secrets - entries expire after TTL, capped at maxCacheSize.
+    // Also cleared entirely on background for defense-in-depth.
+    private static let cacheTTL: TimeInterval = 300 // 5 minutes
+    private static let maxCacheSize = 50
+
+    private struct CacheEntry {
+        let key: SymmetricKey
+        let timestamp: Date
+    }
+
+    private var sharedSecretCache: [String: CacheEntry] = [:]
     private let cacheLock = NSLock()
 
     // MARK: - Initialization
@@ -397,13 +406,24 @@ class CryptoManager: NSObject, ObservableObject {
         return NostrKeyPair(privateKey: privateKey, publicKey: publicKey)
     }
 
+    /// Evicts expired entries from the cache. Must be called while holding cacheLock.
+    private func evictExpiredCacheEntries() {
+        let now = Date()
+        sharedSecretCache = sharedSecretCache.filter { _, entry in
+            now.timeIntervalSince(entry.timestamp) < Self.cacheTTL
+        }
+    }
+
     private func getSharedSecret(with publicKeyHex: String) throws -> SymmetricKey {
         cacheLock.lock()
+
+        // Evict expired entries on every access
+        evictExpiredCacheEntries()
 
         // Check cache first (while holding lock)
         if let cached = sharedSecretCache[publicKeyHex] {
             cacheLock.unlock()
-            return cached
+            return cached.key
         }
 
         cacheLock.unlock()
@@ -429,7 +449,15 @@ class CryptoManager: NSObject, ObservableObject {
 
         // Cache it (with lock)
         cacheLock.lock()
-        sharedSecretCache[publicKeyHex] = symmetricKey
+
+        // Enforce size limit: if at capacity, evict the oldest entry
+        if sharedSecretCache.count >= Self.maxCacheSize {
+            if let oldestKey = sharedSecretCache.min(by: { $0.value.timestamp < $1.value.timestamp })?.key {
+                sharedSecretCache.removeValue(forKey: oldestKey)
+            }
+        }
+
+        sharedSecretCache[publicKeyHex] = CacheEntry(key: symmetricKey, timestamp: Date())
         cacheLock.unlock()
 
         return symmetricKey

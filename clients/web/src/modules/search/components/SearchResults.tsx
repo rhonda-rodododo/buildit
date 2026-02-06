@@ -16,6 +16,7 @@ import {
   HeartHandshake,
   Vote,
   FolderOpen,
+  Store,
   Clock,
   ChevronRight,
 } from 'lucide-react';
@@ -82,6 +83,7 @@ const MODULE_ICONS: Record<ModuleType, typeof FileText> = {
   friends: Users,
   security: FileText,
   training: BookOpen,
+  marketplace: Store,
 };
 
 // ============================================================================

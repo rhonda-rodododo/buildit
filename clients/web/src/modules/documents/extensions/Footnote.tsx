@@ -6,11 +6,14 @@
  */
 
 import { Node, mergeAttributes } from '@tiptap/core'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react'
 import { FC, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { secureRandomInt } from '@/lib/utils'
 import { X } from 'lucide-react'
+
+const footnoteRenumberKey = new PluginKey('footnoteRenumber')
 
 export interface FootnoteOptions {
   HTMLAttributes: Record<string, unknown>
@@ -174,10 +177,6 @@ const FootnoteView: FC<FootnoteViewProps> = ({ node, updateAttributes, deleteNod
   )
 }
 
-// Auto-numbering footnotes deferred - see docs/TECH_DEBT.md
-// Counter for footnote numbers (resets per document)
-// let footnoteCounter = 0
-
 export const Footnote = Node.create<FootnoteOptions>({
   name: 'footnote',
 
@@ -263,9 +262,50 @@ export const Footnote = Node.create<FootnoteOptions>({
         },
     }
   },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: footnoteRenumberKey,
+        appendTransaction: (_transactions, _oldState, newState) => {
+          // Collect all footnote positions and their current numbers
+          const footnotes: Array<{ pos: number; currentNumber: number }> = []
+          let sequenceNumber = 0
+
+          newState.doc.descendants((node, pos) => {
+            if (node.type.name === 'footnote') {
+              sequenceNumber++
+              footnotes.push({ pos, currentNumber: node.attrs.number })
+            }
+          })
+
+          // Check if renumbering is needed
+          let needsRenumber = false
+          sequenceNumber = 0
+          for (const fn of footnotes) {
+            sequenceNumber++
+            if (fn.currentNumber !== sequenceNumber) {
+              needsRenumber = true
+              break
+            }
+          }
+
+          if (!needsRenumber) return null
+
+          // Create a transaction to renumber all footnotes
+          const tr = newState.tr
+          sequenceNumber = 0
+          for (const fn of footnotes) {
+            sequenceNumber++
+            if (fn.currentNumber !== sequenceNumber) {
+              tr.setNodeAttribute(fn.pos, 'number', sequenceNumber)
+            }
+          }
+
+          return tr
+        },
+      }),
+    ]
+  },
 })
 
-// Footnote counter reset function - will be enabled with auto-numbering
-// export const resetFootnoteCounter = () => {
-//   footnoteCounter = 0
-// }

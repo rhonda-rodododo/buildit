@@ -9,8 +9,11 @@
         <exclude domain="external" />
     </cloud-backup>
     <device-transfer>
-        <!-- Allow device-to-device transfer for migration -->
+        <!-- Allow device-to-device transfer for migration, but exclude sensitive prefs -->
         <include domain="sharedpref" path="." />
+        <exclude domain="sharedpref" path="buildit_secure_keys.xml" />
+        <exclude domain="sharedpref" path="buildit_linked_identities_secure.xml" />
+        <exclude domain="sharedpref" path="buildit_tofu_pins.xml" />
         <exclude domain="database" path="." />
     </device-transfer>
 </data-extraction-rules>

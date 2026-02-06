@@ -1,5 +1,6 @@
 package network.buildit.modules.training.integration
 
+import network.buildit.core.redacted
 import android.util.Log
 import kotlinx.coroutines.flow.first
 import network.buildit.modules.training.domain.model.*
@@ -195,7 +196,7 @@ class TrainingEventsIntegration @Inject constructor(
 
         trainingRepository.saveLiveSessionRSVP(rsvp)
 
-        Log.i(TAG, "Synced RSVP from event: $pubkey -> $status for $lessonId")
+        Log.i(TAG, "Synced RSVP from event: ${pubkey.redacted()} -> $status for $lessonId")
     }
 
     /**

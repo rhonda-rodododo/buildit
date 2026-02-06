@@ -393,12 +393,61 @@ final class BackgroundFetchManager: ObservableObject {
         // Sync through Nostr
         await NostrClient.shared.performBackgroundSync()
 
-        // TODO: Check for new events through EventsModule and schedule notifications
-        // This would require querying the EventsStore for new events
+        // Get last sync time for events
+        let lastSync = lastSyncTimestamps[.eventSync] ?? Date(timeIntervalSinceNow: -3600)
+
+        // Query EventsModule for new and upcoming events
+        if let eventsModule = ModuleRegistry.shared.getModule(EventsModule.self) {
+            do {
+                let events = try await eventsModule.getEvents()
+
+                for event in events {
+                    guard !isCancelled() else { break }
+
+                    let eventCreatedAt = Date(timeIntervalSince1970: TimeInterval(event.createdAt))
+
+                    // Schedule notifications for newly created events
+                    if eventCreatedAt > lastSync {
+                        newItems += 1
+                        do {
+                            try await notificationService.scheduleEventNotification(
+                                eventId: event.id,
+                                eventTitle: event.title,
+                                eventDate: Date(timeIntervalSince1970: TimeInterval(event.startAt)),
+                                location: event.location?.name
+                            )
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+
+                    // Schedule reminder notifications for upcoming events (within next 24 hours)
+                    let eventStart = Date(timeIntervalSince1970: TimeInterval(event.startAt))
+                    let now = Date()
+                    let twentyFourHours: TimeInterval = 24 * 60 * 60
+                    if eventStart > now && eventStart < now.addingTimeInterval(twentyFourHours) {
+                        do {
+                            try await notificationService.scheduleEventNotification(
+                                eventId: event.id,
+                                eventTitle: event.title,
+                                eventDate: eventStart,
+                                location: event.location?.name,
+                                isReminder: true,
+                                reminderOffset: 60 * 60  // 1 hour before
+                            )
+                        } catch {
+                            errors.append(error)
+                        }
+                    }
+                }
+            } catch {
+                errors.append(error)
+            }
+        }
 
         return SyncResult(
             taskIdentifier: .eventSync,
-            success: true,
+            success: errors.isEmpty,
             newItemCount: newItems,
             errors: errors,
             duration: Date().timeIntervalSince(startTime)
@@ -414,10 +463,75 @@ final class BackgroundFetchManager: ObservableObject {
             return SyncResult(taskIdentifier: .contentRefresh, success: false)
         }
 
-        // Refresh subscriptions
+        // Refresh Nostr subscriptions first
         NostrClient.shared.refreshSubscriptions()
 
-        // TODO: Sync other content types (wiki, governance, mutual aid)
+        // Check battery level - skip heavy syncs on low battery
+        let batteryLevel = UIDevice.current.batteryLevel
+        let isLowBattery = batteryLevel >= 0 && batteryLevel < 0.2
+
+        // Sync wiki content
+        if !isCancelled() {
+            if let wikiModule = ModuleRegistry.shared.getModule(WikiModule.self) {
+                do {
+                    let pages = try await wikiModule.getPages()
+                    newItems += pages.count
+                } catch {
+                    errors.append(error)
+                    logger.error("Wiki sync failed: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        // Sync governance proposals (check for new ones and upcoming deadlines)
+        if !isCancelled() {
+            if let governanceModule = ModuleRegistry.shared.getModule(GovernanceModule.self) {
+                do {
+                    let proposals = try await governanceModule.getProposals(activeOnly: true)
+                    newItems += proposals.count
+
+                    // Schedule notifications for proposals with upcoming deadlines
+                    if !isLowBattery {
+                        for proposal in proposals {
+                            guard !isCancelled() else { break }
+                            let deadline = proposal.votingPeriod.endsAt
+                            let now = Date()
+                            let sixHours: TimeInterval = 6 * 60 * 60
+                            // Notify if deadline is within 6 hours
+                            if deadline > now && deadline < now.addingTimeInterval(sixHours) {
+                                do {
+                                    try await notificationService.scheduleGovernanceNotification(
+                                        proposalId: proposal.id,
+                                        proposalTitle: proposal.title,
+                                        proposerName: String(proposal.createdBy.prefix(8)) + "...",
+                                        groupId: proposal.groupId,
+                                        deadline: deadline
+                                    )
+                                } catch {
+                                    errors.append(error)
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                    errors.append(error)
+                    logger.error("Governance sync failed: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        // Sync mutual aid requests (skip on low battery to conserve power)
+        if !isCancelled() && !isLowBattery {
+            if let mutualAidModule = ModuleRegistry.shared.getModule(MutualAidModule.self) {
+                do {
+                    let requests = try await mutualAidModule.getRequests(activeOnly: true)
+                    newItems += requests.count
+                } catch {
+                    errors.append(error)
+                    logger.error("Mutual aid sync failed: \(error.localizedDescription)")
+                }
+            }
+        }
 
         return SyncResult(
             taskIdentifier: .contentRefresh,

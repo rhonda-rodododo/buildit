@@ -6,6 +6,7 @@
 
 import Foundation
 import AVFoundation
+import CallKit
 import WebRTC
 import os.log
 
@@ -27,6 +28,13 @@ public class CallingService: ObservableObject {
     private let cryptoManager: CryptoManager
     private let logger = Logger(subsystem: "com.buildit", category: "CallingService")
 
+    // CallKit integration
+    public let callKitManager: CallKitManager
+
+    // Mapping between CallKit UUIDs and our string call IDs
+    private var callIdToUUID: [String: UUID] = [:]
+    private var uuidToCallId: [UUID: String] = [:]
+
     // WebRTC manager
     private var webRTCManager: WebRTCManager?
 
@@ -41,10 +49,17 @@ public class CallingService: ObservableObject {
 
     // MARK: - Initialization
 
-    public init(store: CallingStore) {
+    public init(store: CallingStore) throws {
         self.store = store
         self.nostrClient = NostrClient.shared
         self.cryptoManager = CryptoManager.shared
+        self.callKitManager = CallKitManager()
+    }
+
+    /// Wire up CallKit delegate after init completes.
+    /// Call this once after creating CallingService.
+    public func configureCallKit() {
+        callKitManager.delegate = self
     }
 
     // MARK: - Call Initiation
@@ -111,6 +126,15 @@ public class CallingService: ObservableObject {
 
         // Update state to ringing
         currentCallState?.state = .ringing
+
+        // Report to CallKit
+        let callUUID = mapCallIdToUUID(callId)
+        try await callKitManager.startOutgoingCall(
+            callId: callUUID,
+            remotePubkey: recipientPubkey,
+            remoteName: callState.remoteName,
+            hasVideo: type == .video
+        )
 
         // Save to history
         try await store.saveCallState(callState)
@@ -195,6 +219,12 @@ public class CallingService: ObservableObject {
 
         incomingCall = nil
 
+        // Report decline to CallKit
+        if let callUUID = callIdToUUID[callId] {
+            callKitManager.reportCallEnded(callId: callUUID, reason: .declinedElsewhere)
+            unmapCallId(callId)
+        }
+
         // Save to history
         var historyCopy = call
         historyCopy.state = .ended
@@ -229,6 +259,12 @@ public class CallingService: ObservableObject {
 
         // Clean up WebRTC
         await cleanupWebRTC()
+
+        // End via CallKit
+        if let callUUID = callIdToUUID[callId] {
+            try? await callKitManager.endCall(callId: callUUID)
+            unmapCallId(callId)
+        }
 
         // Update state
         call.state = .ended
@@ -482,6 +518,20 @@ public class CallingService: ObservableObject {
         // Store the SDP offer for later (when accepting)
         pendingRemoteSDP[offer.callID] = offer.sdp
 
+        // Report to CallKit for native iOS incoming call UI
+        let callUUID = mapCallIdToUUID(offer.callID)
+        do {
+            try await callKitManager.reportIncomingCall(
+                callId: callUUID,
+                remotePubkey: event.pubkey,
+                remoteName: nil,
+                hasVideo: offer.callType == .video
+            )
+        } catch {
+            logger.error("Failed to report incoming call to CallKit: \(error.localizedDescription)")
+            // Still show in-app UI even if CallKit fails
+        }
+
         logger.info("Incoming \(offer.callType.rawValue) call from \(event.pubkey.prefix(8))")
     }
 
@@ -511,6 +561,11 @@ public class CallingService: ObservableObject {
         call.state = .connecting
         call.connectedAt = Date()
         currentCallState = call
+
+        // Report connection progress to CallKit
+        if let callUUID = callIdToUUID[answer.callID] {
+            callKitManager.reportOutgoingCallStartedConnecting(callId: callUUID)
+        }
 
         // Process any buffered ICE candidates
         if let candidates = pendingIceCandidates[answer.callID] {
@@ -558,6 +613,12 @@ public class CallingService: ObservableObject {
         if let call = incomingCall, call.callId == hangup.callID {
             incomingCall = nil
 
+            // Report to CallKit
+            if let callUUID = callIdToUUID[hangup.callID] {
+                callKitManager.reportCallEnded(callId: callUUID, reason: .remoteEnded)
+                unmapCallId(hangup.callID)
+            }
+
             var historyCopy = call
             historyCopy.state = .ended
             historyCopy.endedAt = Date()
@@ -567,6 +628,21 @@ public class CallingService: ObservableObject {
             logger.info("Incoming call cancelled: \(hangup.callID)")
         } else if var call = currentCallState, call.callId == hangup.callID {
             await cleanupWebRTC()
+
+            // Report to CallKit
+            if let callUUID = callIdToUUID[hangup.callID] {
+                let reason: CXCallEndedReason
+                switch hangup.reason {
+                case .busy:
+                    reason = .unanswered
+                case .rejected:
+                    reason = .declinedElsewhere
+                default:
+                    reason = .remoteEnded
+                }
+                callKitManager.reportCallEnded(callId: callUUID, reason: reason)
+                unmapCallId(hangup.callID)
+            }
 
             call.state = .ended
             call.endedAt = Date()
@@ -778,6 +854,15 @@ extension CallingService: WebRTCManagerDelegate {
         case .connected:
             currentCallState?.state = .connected
             currentCallState?.connectedAt = Date()
+
+            // Report connected to CallKit
+            if let callId = currentCallState?.callId, let callUUID = callIdToUUID[callId] {
+                if currentCallState?.direction == .outgoing {
+                    callKitManager.reportOutgoingCallConnected(callId: callUUID)
+                } else {
+                    callKitManager.reportCallConnected(callId: callUUID)
+                }
+            }
         case .disconnected, .failed:
             currentCallState?.state = .reconnecting
         case .closed:
@@ -801,6 +886,99 @@ extension CallingService: WebRTCManagerDelegate {
     func webRTCManagerDidNeedNegotiation(_ manager: WebRTCManager) {
         // Handle renegotiation if needed
         logger.debug("Negotiation needed")
+    }
+}
+
+// MARK: - CallKit UUID Mapping
+
+extension CallingService {
+    /// Map a string call ID to a UUID for CallKit
+    private func mapCallIdToUUID(_ callId: String) -> UUID {
+        if let existing = callIdToUUID[callId] {
+            return existing
+        }
+        let uuid = UUID()
+        callIdToUUID[callId] = uuid
+        uuidToCallId[uuid] = callId
+        return uuid
+    }
+
+    /// Remove the mapping for a call ID
+    private func unmapCallId(_ callId: String) {
+        if let uuid = callIdToUUID.removeValue(forKey: callId) {
+            uuidToCallId.removeValue(forKey: uuid)
+        }
+    }
+}
+
+// MARK: - CallKitManagerDelegate
+
+extension CallingService: CallKitManagerDelegate {
+    func callKitManager(_ manager: CallKitManager, didAcceptCall callId: UUID) {
+        guard let stringCallId = uuidToCallId[callId] else {
+            logger.warning("CallKit accepted unknown call UUID: \(callId)")
+            return
+        }
+
+        Task {
+            do {
+                try await acceptCall(stringCallId)
+            } catch {
+                logger.error("Failed to accept call from CallKit: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func callKitManager(_ manager: CallKitManager, didDeclineCall callId: UUID) {
+        guard let stringCallId = uuidToCallId[callId] else {
+            logger.warning("CallKit declined unknown call UUID: \(callId)")
+            return
+        }
+
+        Task {
+            do {
+                try await declineCall(stringCallId, reason: .rejected)
+            } catch {
+                logger.error("Failed to decline call from CallKit: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func callKitManager(_ manager: CallKitManager, didEndCall callId: UUID) {
+        guard let stringCallId = uuidToCallId[callId] else {
+            logger.warning("CallKit ended unknown call UUID: \(callId)")
+            return
+        }
+
+        Task {
+            do {
+                try await endCall(stringCallId, reason: .completed)
+            } catch {
+                logger.error("Failed to end call from CallKit: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func callKitManager(_ manager: CallKitManager, didMuteCall callId: UUID, muted: Bool) {
+        guard let stringCallId = uuidToCallId[callId] else { return }
+
+        Task {
+            if (currentCallState?.isMuted ?? false) != muted {
+                await toggleMute(stringCallId)
+            }
+        }
+    }
+
+    func callKitManager(_ manager: CallKitManager, didHoldCall callId: UUID, onHold: Bool) {
+        guard let stringCallId = uuidToCallId[callId] else { return }
+
+        // Update local state to reflect hold status from CallKit
+        if var call = currentCallState, call.callId == stringCallId {
+            call.state = onHold ? .onHold : .connected
+            currentCallState = call
+        }
+
+        logger.debug("Call \(stringCallId) hold state: \(onHold)")
     }
 }
 

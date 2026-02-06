@@ -7,6 +7,7 @@
 
 import type { SchemaBundle, DeviceSchemaInfo, SemanticVersion } from './types'
 import { compareVersions, getCurrentSchemaVersion } from './versionUtils'
+import { verifyBundleSignature } from './bundleVerifier'
 
 /**
  * BLE Schema Sync message types
@@ -358,13 +359,15 @@ export class BLESchemaSyncManager {
       const json = new TextDecoder().decode(bytes)
       const bundle = JSON.parse(json) as SchemaBundle
 
-      // Verify hash
-      // In production, use proper verification from verifier module
-      if (bundle.contentHash === bundleHash) {
-        this.onBundleReceived?.(bundle)
-      } else {
-        console.error('Bundle hash mismatch')
+      // SECURITY: Verify Ed25519 signature before accepting bundle
+      // This prevents malicious bundles from being injected via BLE
+      const verification = await verifyBundleSignature(bundle)
+      if (!verification.valid) {
+        console.error('Bundle signature verification failed:', verification.error)
+        return
       }
+
+      this.onBundleReceived?.(bundle)
     } catch (error) {
       console.error('Failed to parse bundle:', error)
     }

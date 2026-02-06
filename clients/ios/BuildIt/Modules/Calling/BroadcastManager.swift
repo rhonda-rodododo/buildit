@@ -6,6 +6,7 @@
 
 import Foundation
 import Combine
+import MessageUI
 import os.log
 
 /// Delivery channel for broadcast recipients
@@ -189,14 +190,20 @@ public class BroadcastManager: ObservableObject {
     private let cryptoManager: CryptoManager
     private let logger = Logger(subsystem: "com.buildit", category: "BroadcastManager")
 
+    // Messaging gateways
+    private let smsGateway: SMSGateway
+    private let rcsGateway: RCSGateway
+
     /// Event stream for broadcast changes
     public let eventSubject = PassthroughSubject<BroadcastEvent, Never>()
 
     // MARK: - Initialization
 
-    public init() {
+    public init(smsGateway: SMSGateway? = nil, rcsGateway: RCSGateway? = nil) {
         self.nostrClient = NostrClient.shared
         self.cryptoManager = CryptoManager.shared
+        self.smsGateway = smsGateway ?? TwilioSMSGateway()
+        self.rcsGateway = rcsGateway ?? RCSBusinessMessagingGateway()
     }
 
     /// Initialize with sender context
@@ -536,16 +543,17 @@ public class BroadcastManager: ObservableObject {
         for recipient in recipients {
             guard let phone = recipient.phone else {
                 updateRecipientStatus(&state, recipientId: recipient.id, status: .failed, reason: "No phone number")
+                state.failedCount += 1
+                broadcasts[state.broadcastId] = state
+                eventSubject.send(.progress(state))
                 continue
             }
 
             do {
-                // Rate limiting
+                // Rate limiting: 1 message per second to respect carrier limits
                 try await Task.sleep(nanoseconds: Self.SMS_RATE_LIMIT_MS)
 
-                // TODO: Integrate with SMS gateway (Twilio, etc.)
-                // For now, simulate sending
-                try await simulateSMSSend(to: phone, content: state.content)
+                try await smsGateway.send(to: phone, body: state.content)
 
                 updateRecipientStatus(&state, recipientId: recipient.id, status: .sent)
                 state.sentCount += 1
@@ -560,19 +568,32 @@ public class BroadcastManager: ObservableObject {
         }
     }
 
-    /// Send to RCS recipients
+    /// Send to RCS recipients with SMS fallback
     private func sendToRCS(
         _ state: inout BroadcastState,
         recipients: [BroadcastRecipient]
     ) async throws {
-        // Similar to SMS but via RCS gateway
         for recipient in recipients {
+            guard let phone = recipient.phone else {
+                updateRecipientStatus(&state, recipientId: recipient.id, status: .failed, reason: "No phone number")
+                state.failedCount += 1
+                broadcasts[state.broadcastId] = state
+                eventSubject.send(.progress(state))
+                continue
+            }
+
             do {
+                // Rate limiting
                 try await Task.sleep(nanoseconds: Self.SMS_RATE_LIMIT_MS)
 
-                // TODO: Integrate with RCS Business Messaging API
-                // For now, simulate sending
-                try await simulateRCSSend(to: recipient.pubkey, content: state.content)
+                // Try RCS first, fall back to SMS
+                do {
+                    try await rcsGateway.send(to: phone, body: state.content, richContent: nil)
+                } catch RCSGatewayError.recipientNotSupported {
+                    // Fallback to SMS when RCS is unavailable for this recipient
+                    logger.info("RCS unavailable for \(phone.suffix(4)), falling back to SMS")
+                    try await smsGateway.send(to: phone, body: state.content)
+                }
 
                 updateRecipientStatus(&state, recipientId: recipient.id, status: .sent)
                 state.sentCount += 1
@@ -590,16 +611,6 @@ public class BroadcastManager: ObservableObject {
     /// Send NIP-17 encrypted direct message
     private func sendNIP17Message(content: String, to recipientPubkey: String) async throws {
         _ = try await nostrClient.sendDirectMessage(content, to: recipientPubkey)
-    }
-
-    private func simulateSMSSend(to phone: String, content: String) async throws {
-        // Placeholder for SMS gateway integration
-        logger.debug("Would send SMS to \(phone): \(content.prefix(50))")
-    }
-
-    private func simulateRCSSend(to recipient: String, content: String) async throws {
-        // Placeholder for RCS gateway integration
-        logger.debug("Would send RCS to \(recipient): \(content.prefix(50))")
     }
 
     // MARK: - Receipt Handling
@@ -871,4 +882,312 @@ public enum BroadcastError: LocalizedError {
             return "Failed to send broadcast: \(reason)"
         }
     }
+}
+
+// MARK: - SMS Gateway
+
+/// Protocol for SMS delivery
+public protocol SMSGateway: Sendable {
+    /// Send an SMS message to a phone number
+    func send(to phone: String, body: String) async throws
+
+    /// Check delivery status for a message
+    func checkDeliveryStatus(messageId: String) async throws -> DeliveryStatus
+}
+
+/// Errors specific to SMS delivery
+public enum SMSGatewayError: LocalizedError {
+    case invalidPhoneNumber
+    case rateLimited
+    case deliveryFailed(String)
+    case configurationMissing
+
+    public var errorDescription: String? {
+        switch self {
+        case .invalidPhoneNumber:
+            return "Invalid phone number format"
+        case .rateLimited:
+            return "SMS rate limit exceeded"
+        case .deliveryFailed(let reason):
+            return "SMS delivery failed: \(reason)"
+        case .configurationMissing:
+            return "SMS gateway configuration is missing"
+        }
+    }
+}
+
+/// Twilio-based SMS gateway for server-side SMS delivery
+public final class TwilioSMSGateway: SMSGateway {
+    private let logger = Logger(subsystem: "com.buildit", category: "TwilioSMSGateway")
+
+    // API endpoint configured via BuildIt worker
+    private let apiBaseURL: String
+    private let session: URLSession
+
+    // Rate limiting state (not Sendable across isolation domains)
+    private let rateLimiter = SMSRateLimiter()
+
+    public init(apiBaseURL: String? = nil) {
+        self.apiBaseURL = apiBaseURL ?? "https://api.buildit.network"
+        self.session = URLSession.shared
+    }
+
+    public func send(to phone: String, body: String) async throws {
+        // Validate phone number format (E.164)
+        guard isValidE164(phone) else {
+            throw SMSGatewayError.invalidPhoneNumber
+        }
+
+        // Check rate limit
+        guard await rateLimiter.allowSend() else {
+            throw SMSGatewayError.rateLimited
+        }
+
+        // Send via BuildIt API worker which proxies to Twilio
+        let url = URL(string: "\(apiBaseURL)/api/sms/send")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let payload = SMSSendRequest(to: phone, body: body)
+        request.httpBody = try JSONEncoder().encode(payload)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw SMSGatewayError.deliveryFailed("Invalid response")
+        }
+
+        switch httpResponse.statusCode {
+        case 200...299:
+            let result = try JSONDecoder().decode(SMSSendResponse.self, from: data)
+            logger.info("SMS sent successfully, messageId: \(result.messageId)")
+        case 429:
+            throw SMSGatewayError.rateLimited
+        default:
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw SMSGatewayError.deliveryFailed(errorText)
+        }
+    }
+
+    public func checkDeliveryStatus(messageId: String) async throws -> DeliveryStatus {
+        let url = URL(string: "\(apiBaseURL)/api/sms/status/\(messageId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            return .pending
+        }
+
+        let result = try JSONDecoder().decode(SMSStatusResponse.self, from: data)
+        switch result.status {
+        case "delivered": return .delivered
+        case "sent": return .sent
+        case "failed": return .failed
+        default: return .pending
+        }
+    }
+
+    /// Validate E.164 phone number format
+    private func isValidE164(_ phone: String) -> Bool {
+        let pattern = "^\\+[1-9]\\d{1,14}$"
+        return phone.range(of: pattern, options: .regularExpression) != nil
+    }
+}
+
+/// Rate limiter for SMS sending (1 message per second)
+private actor SMSRateLimiter {
+    private var lastSendTime: Date?
+
+    func allowSend() -> Bool {
+        let now = Date()
+        if let last = lastSendTime, now.timeIntervalSince(last) < 1.0 {
+            return false
+        }
+        lastSendTime = now
+        return true
+    }
+}
+
+// MARK: - SMS API Types
+
+private struct SMSSendRequest: Codable {
+    let to: String
+    let body: String
+}
+
+private struct SMSSendResponse: Codable {
+    let messageId: String
+    let status: String
+}
+
+private struct SMSStatusResponse: Codable {
+    let messageId: String
+    let status: String
+}
+
+// MARK: - RCS Gateway
+
+/// Protocol for RCS Business Messaging delivery
+public protocol RCSGateway: Sendable {
+    /// Send an RCS message to a phone number
+    /// - Parameters:
+    ///   - phone: E.164 formatted phone number
+    ///   - body: Plain text message body
+    ///   - richContent: Optional rich content (images, cards, etc.)
+    func send(to phone: String, body: String, richContent: RCSRichContent?) async throws
+
+    /// Check if a recipient supports RCS
+    func checkRCSCapability(phone: String) async throws -> Bool
+}
+
+/// Rich content for RCS messages
+public struct RCSRichContent: Sendable {
+    public let imageURL: String?
+    public let cardTitle: String?
+    public let cardDescription: String?
+    public let actionURL: String?
+
+    public init(
+        imageURL: String? = nil,
+        cardTitle: String? = nil,
+        cardDescription: String? = nil,
+        actionURL: String? = nil
+    ) {
+        self.imageURL = imageURL
+        self.cardTitle = cardTitle
+        self.cardDescription = cardDescription
+        self.actionURL = actionURL
+    }
+}
+
+/// Errors specific to RCS delivery
+public enum RCSGatewayError: LocalizedError {
+    case recipientNotSupported
+    case invalidPhoneNumber
+    case rateLimited
+    case deliveryFailed(String)
+    case configurationMissing
+
+    public var errorDescription: String? {
+        switch self {
+        case .recipientNotSupported:
+            return "Recipient does not support RCS"
+        case .invalidPhoneNumber:
+            return "Invalid phone number format"
+        case .rateLimited:
+            return "RCS rate limit exceeded"
+        case .deliveryFailed(let reason):
+            return "RCS delivery failed: \(reason)"
+        case .configurationMissing:
+            return "RCS gateway configuration is missing"
+        }
+    }
+}
+
+/// RCS Business Messaging gateway implementation
+public final class RCSBusinessMessagingGateway: RCSGateway {
+    private let logger = Logger(subsystem: "com.buildit", category: "RCSGateway")
+
+    // API endpoint configured via BuildIt worker
+    private let apiBaseURL: String
+    private let session: URLSession
+
+    public init(apiBaseURL: String? = nil) {
+        self.apiBaseURL = apiBaseURL ?? "https://api.buildit.network"
+        self.session = URLSession.shared
+    }
+
+    public func send(to phone: String, body: String, richContent: RCSRichContent?) async throws {
+        // Validate phone number format (E.164)
+        guard isValidE164(phone) else {
+            throw RCSGatewayError.invalidPhoneNumber
+        }
+
+        // Check RCS capability first
+        let supportsRCS = try await checkRCSCapability(phone: phone)
+        guard supportsRCS else {
+            throw RCSGatewayError.recipientNotSupported
+        }
+
+        // Build RCS message payload
+        let url = URL(string: "\(apiBaseURL)/api/rcs/send")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let payload = RCSSendRequest(
+            to: phone,
+            body: body,
+            imageURL: richContent?.imageURL,
+            cardTitle: richContent?.cardTitle,
+            cardDescription: richContent?.cardDescription,
+            actionURL: richContent?.actionURL
+        )
+        request.httpBody = try JSONEncoder().encode(payload)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw RCSGatewayError.deliveryFailed("Invalid response")
+        }
+
+        switch httpResponse.statusCode {
+        case 200...299:
+            let result = try JSONDecoder().decode(RCSSendResponse.self, from: data)
+            logger.info("RCS sent successfully, messageId: \(result.messageId)")
+        case 429:
+            throw RCSGatewayError.rateLimited
+        case 404:
+            throw RCSGatewayError.recipientNotSupported
+        default:
+            let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw RCSGatewayError.deliveryFailed(errorText)
+        }
+    }
+
+    public func checkRCSCapability(phone: String) async throws -> Bool {
+        let url = URL(string: "\(apiBaseURL)/api/rcs/capability?phone=\(phone)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            // If capability check fails, assume not supported (safe fallback)
+            return false
+        }
+
+        let result = try JSONDecoder().decode(RCSCapabilityResponse.self, from: data)
+        return result.rcsEnabled
+    }
+
+    /// Validate E.164 phone number format
+    private func isValidE164(_ phone: String) -> Bool {
+        let pattern = "^\\+[1-9]\\d{1,14}$"
+        return phone.range(of: pattern, options: .regularExpression) != nil
+    }
+}
+
+// MARK: - RCS API Types
+
+private struct RCSSendRequest: Codable {
+    let to: String
+    let body: String
+    let imageURL: String?
+    let cardTitle: String?
+    let cardDescription: String?
+    let actionURL: String?
+}
+
+private struct RCSSendResponse: Codable {
+    let messageId: String
+    let status: String
+}
+
+private struct RCSCapabilityResponse: Codable {
+    let phone: String
+    let rcsEnabled: Bool
 }

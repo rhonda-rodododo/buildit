@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cross-Version Parsing V2 Test Vectors",
+  "description": "Additional test vectors for version negotiation covering edge cases, multi-module scenarios, and migration paths",
+
+  "metadata": {
+    "version": "2.0.0",
+    "lastUpdated": "2026-02-05",
+    "specification": "../spec/10-version-negotiation.md"
+  },
+
+  "testSuites": [
+    {
+      "name": "Multi-Module Version Negotiation",
+      "description": "Tests for handling messages where different modules have different versions",
+      "cases": [
+        {
+          "name": "mixed_module_versions",
+          "description": "Client supports events v1.2 but only messaging v1.0",
+          "input": {
+            "clientModuleVersions": {
+              "events": "1.2.0",
+              "messaging": "1.0.0",
+              "governance": "1.0.0"
+            },
+            "incomingMessage": {
+              "_v": "1.5.0",
+              "_module": "events",
+              "_minReader": "1.1.0",
+              "id": "evt-001",
+              "title": "Cross-version Event"
+            }
+          },
+          "expected": {
+            "canParse": true,
+            "displayMode": "full",
+            "note": "Events module v1.2.0 meets minReader v1.1.0"
+          }
+        },
+        {
+          "name": "mixed_module_one_too_old",
+          "description": "Client has updated messaging but old governance",
+          "input": {
+            "clientModuleVersions": {
+              "events": "1.0.0",
+              "messaging": "2.0.0",
+              "governance": "1.0.0"
+            },
+            "incomingMessage": {
+              "_v": "2.0.0",
+              "_module": "governance",
+              "_minReader": "1.5.0",
+              "id": "prop-001",
+              "title": "New Governance Feature"
+            }
+          },
+          "expected": {
+            "canParse": false,
+            "displayMode": "partial",
+            "updateRequired": true,
+            "updateModule": "governance",
+            "updateVersion": "1.5.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prerelease Version Handling",
+      "description": "Tests for handling prerelease/beta version identifiers",
+      "cases": [
+        {
+          "name": "prerelease_ignored_in_comparison",
+          "description": "Prerelease tags are stripped for comparison purposes",
+          "input": {
+            "writerVersion": "1.2.0-beta.1",
+            "minReaderVersion": "1.0.0",
+            "readerVersion": "1.1.0"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full",
+            "note": "Prerelease suffix stripped: 1.2.0-beta.1 treated as 1.2.0"
+          }
+        },
+        {
+          "name": "prerelease_reader_meets_requirement",
+          "description": "Prerelease reader version meets stable requirement",
+          "input": {
+            "writerVersion": "1.5.0",
+            "minReaderVersion": "1.3.0",
+            "readerVersion": "1.4.0-rc.1"
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full"
+          }
+        },
+        {
+          "name": "prerelease_reader_below_requirement",
+          "description": "Prerelease reader below minReader requirement",
+          "input": {
+            "writerVersion": "1.5.0",
+            "minReaderVersion": "1.3.0",
+            "readerVersion": "1.2.0-alpha.3"
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "partial"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Version String Edge Cases",
+      "description": "Tests for parsing unusual or malformed version strings",
+      "cases": [
+        {
+          "name": "missing_version_field",
+          "description": "Message without _v field defaults to 1.0.0",
+          "input": {
+            "message": {
+              "_module": "messaging",
+              "content": "Hello from old client"
+            }
+          },
+          "expected": {
+            "inferredVersion": "1.0.0",
+            "canParse": true,
+            "displayMode": "full",
+            "note": "Missing _v treated as legacy 1.0.0 message"
+          }
+        },
+        {
+          "name": "invalid_version_format",
+          "description": "Malformed version string is rejected safely",
+          "input": {
+            "message": {
+              "_v": "not.a.version",
+              "_module": "messaging",
+              "content": "Bad version"
+            }
+          },
+          "expected": {
+            "canParse": false,
+            "displayMode": "partial",
+            "error": "INVALID_VERSION_FORMAT",
+            "note": "Content should still be readable despite invalid version"
+          }
+        },
+        {
+          "name": "version_with_only_major_minor",
+          "description": "Two-component version string treated as x.y.0",
+          "input": {
+            "message": {
+              "_v": "1.2",
+              "_module": "events"
+            }
+          },
+          "expected": {
+            "normalizedVersion": "1.2.0",
+            "canParse": true
+          }
+        },
+        {
+          "name": "version_with_leading_v",
+          "description": "Version string with leading 'v' prefix is handled",
+          "input": {
+            "message": {
+              "_v": "v1.0.0",
+              "_module": "events"
+            }
+          },
+          "expected": {
+            "normalizedVersion": "1.0.0",
+            "canParse": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backward Compatibility Chain",
+      "description": "Tests verifying older clients can always read newer content with graceful degradation",
+      "cases": [
+        {
+          "name": "v1_reads_v2_preserving_core_fields",
+          "description": "v1.0 reader extracts core fields from v2.0 message",
+          "input": {
+            "readerVersion": "1.0.0",
+            "message": {
+              "_v": "2.0.0",
+              "_minReader": "2.0.0",
+              "_module": "events",
+              "id": "bc-evt-001",
+              "title": "V2 Event with Rich Location",
+              "startAt": 1706198400,
+              "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "createdAt": 1706112000,
+              "location": {
+                "name": "Community Center",
+                "address": "123 Main St",
+                "coordinates": {"lat": 40.7128, "lng": -74.006},
+                "indoor": true,
+                "accessibility": ["wheelchair", "elevator"]
+              },
+              "registration": {
+                "required": true,
+                "maxCapacity": 100,
+                "waitlist": true
+              }
+            }
+          },
+          "expected": {
+            "canFullyParse": false,
+            "displayMode": "placeholder",
+            "extractableFields": {
+              "id": "bc-evt-001",
+              "title": "V2 Event with Rich Location",
+              "startAt": 1706198400
+            },
+            "unknownFields": ["location", "registration"],
+            "note": "Core fields (id, title, startAt) always readable for crisis resilience"
+          }
+        },
+        {
+          "name": "v1_5_reads_v2_partial_compatibility",
+          "description": "v1.5 reader can partially parse v2.0 content",
+          "input": {
+            "readerVersion": "1.5.0",
+            "message": {
+              "_v": "2.0.0",
+              "_minReader": "1.3.0",
+              "_module": "events",
+              "id": "bc-evt-002",
+              "title": "Partially Compatible Event",
+              "startAt": 1706198400,
+              "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "createdAt": 1706112000,
+              "newField": "future data"
+            }
+          },
+          "expected": {
+            "canFullyParse": true,
+            "displayMode": "full",
+            "note": "Reader v1.5.0 meets minReader v1.3.0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bundle Version vs Schema Version",
+      "description": "Tests distinguishing between schema bundle version and individual schema module versions",
+      "cases": [
+        {
+          "name": "bundle_newer_than_module",
+          "description": "Bundle is v2.0 but events module is still v1.5",
+          "input": {
+            "bundleVersion": "2.0.0",
+            "moduleVersions": {
+              "events": "1.5.0",
+              "messaging": "2.0.0",
+              "governance": "1.3.0"
+            }
+          },
+          "expected": {
+            "note": "Bundle version and module versions are independent",
+            "eventsVersion": "1.5.0",
+            "messagingVersion": "2.0.0"
+          }
+        },
+        {
+          "name": "client_checks_module_version_not_bundle",
+          "description": "Client should check per-module version, not bundle version",
+          "input": {
+            "clientBundleVersion": "1.0.0",
+            "clientModuleVersions": {
+              "events": "1.2.0"
+            },
+            "incomingMessage": {
+              "_v": "1.1.0",
+              "_module": "events",
+              "id": "ver-check-1",
+              "title": "Version Check Test"
+            }
+          },
+          "expected": {
+            "canParse": true,
+            "displayMode": "full",
+            "checkedVersion": "events:1.2.0",
+            "note": "Comparison uses events module version (1.2.0), not bundle version (1.0.0)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Schema Migration Paths",
+      "description": "Tests for data migration when upgrading schema versions",
+      "cases": [
+        {
+          "name": "migrate_v1_event_to_v1_5_format",
+          "description": "Old v1.0 event data can be upgraded to v1.5 format",
+          "input": {
+            "oldEvent": {
+              "_v": "1.0.0",
+              "id": "mig-evt-001",
+              "title": "Old Format Event",
+              "startAt": 1706198400,
+              "createdBy": "pubkey123",
+              "createdAt": 1706112000
+            },
+            "targetVersion": "1.5.0"
+          },
+          "expected": {
+            "migratedEvent": {
+              "_v": "1.5.0",
+              "id": "mig-evt-001",
+              "title": "Old Format Event",
+              "startAt": 1706198400,
+              "createdBy": "pubkey123",
+              "createdAt": 1706112000
+            },
+            "addedDefaults": [],
+            "dataLoss": false,
+            "note": "Minor version upgrades should never lose data"
+          }
+        },
+        {
+          "name": "unknown_fields_preserved_during_migration",
+          "description": "Unknown fields survive schema migration",
+          "input": {
+            "event": {
+              "_v": "1.0.0",
+              "id": "mig-evt-002",
+              "title": "Event with Extra",
+              "startAt": 1706198400,
+              "createdBy": "pubkey123",
+              "createdAt": 1706112000,
+              "customPlugin": {"data": "preserved"}
+            },
+            "targetVersion": "1.5.0"
+          },
+          "expected": {
+            "unknownFieldsPreserved": true,
+            "preservedFields": {
+              "customPlugin": {"data": "preserved"}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

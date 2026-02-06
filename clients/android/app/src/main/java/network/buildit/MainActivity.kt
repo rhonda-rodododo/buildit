@@ -44,6 +44,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.deeplink.DeepLinkDestination
 import network.buildit.core.deeplink.DeepLinkHandler
 import network.buildit.core.deeplink.DeepLinkRouter
@@ -75,6 +76,9 @@ class MainActivity : ComponentActivity() {
     }
 
     @Inject
+    lateinit var cryptoManager: CryptoManager
+
+    @Inject
     lateinit var deepLinkHandler: DeepLinkHandler
 
     @Inject
@@ -90,6 +94,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BuildItTheme {
                 BuildItContent(
+                    cryptoManager = cryptoManager,
                     deepLinkRouter = deepLinkRouter,
                     deepLinkHandler = deepLinkHandler
                 )
@@ -236,6 +241,7 @@ sealed class Screen(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun BuildItContent(
+    cryptoManager: CryptoManager? = null,
     deepLinkRouter: DeepLinkRouter? = null,
     deepLinkHandler: DeepLinkHandler? = null
 ) {
@@ -244,7 +250,8 @@ fun BuildItContent(
     // Handle pending deep links
     HandleDeepLinks(
         navController = navController,
-        deepLinkRouter = deepLinkRouter
+        deepLinkRouter = deepLinkRouter,
+        cryptoManager = cryptoManager
     )
 
     // Request necessary permissions
@@ -345,10 +352,16 @@ fun BuildItContent(
                 SettingsScreen()
             }
             composable(Screen.ContactPicker.route) {
+                val chatViewModel: ChatViewModel = hiltViewModel()
                 ContactPickerScreen(
                     onContactSelected = { pubkey ->
                         navController.popBackStack()
-                        // TODO: Start conversation with selected pubkey
+                        // Create or find an existing conversation with the selected pubkey
+                        // and navigate to it by opening the conversation in ChatViewModel
+                        kotlinx.coroutines.MainScope().launch {
+                            val conversationId = chatViewModel.createConversation(pubkey)
+                            chatViewModel.openConversation(conversationId)
+                        }
                     },
                     onBack = {
                         navController.popBackStack()
@@ -372,7 +385,8 @@ fun BuildItContent(
 @Composable
 private fun HandleDeepLinks(
     navController: NavController,
-    deepLinkRouter: DeepLinkRouter?
+    deepLinkRouter: DeepLinkRouter?,
+    cryptoManager: CryptoManager? = null
 ) {
     if (deepLinkRouter == null) return
 
@@ -383,9 +397,8 @@ private fun HandleDeepLinks(
 
         Log.d("HandleDeepLinks", "Processing pending deep link: $destination")
 
-        // For now, assume user is authenticated
-        // TODO: Add actual authentication check when auth system is implemented
-        val isAuthenticated = true
+        // Check authentication by verifying a keypair exists
+        val isAuthenticated = cryptoManager?.getPublicKeyHex() != null
 
         when (val result = deepLinkRouter.navigateWithAuth(
             navController = navController,

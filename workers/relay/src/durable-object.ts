@@ -438,8 +438,18 @@ export class RelayWebSocket implements DurableObject {
   // WEBSOCKET MESSAGE HANDLERS
   // =========================================================================
 
+  // Maximum allowed WebSocket message size (64KB) to prevent abuse
+  private readonly MAX_MESSAGE_SIZE = 65536;
+
   async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string): Promise<void> {
     this.lastActivityTime = Date.now();
+
+    // Enforce maximum message size to prevent memory exhaustion attacks
+    const messageSize = typeof message === 'string' ? message.length : message.byteLength;
+    if (messageSize > this.MAX_MESSAGE_SIZE) {
+      this.sendError(ws, `Message too large: ${messageSize} bytes exceeds ${this.MAX_MESSAGE_SIZE} byte limit`);
+      return;
+    }
 
     const attachment = ws.deserializeAttachment() as SessionAttachment | null;
     if (!attachment) {

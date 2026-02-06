@@ -19,11 +19,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { QRCodeSVG } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { User, QrCode, Mail, Link as LinkIcon, Copy, Check, Camera, X } from 'lucide-react';
+import { User, QrCode, Mail, Link as LinkIcon, Copy, Check, Camera, X, AtSign, Loader2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useFriendsStore } from '../friendsStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore';
+import { UsernameManager } from '@/core/username/usernameManager';
 import type { FriendQRData } from '../types';
 import { toast } from 'sonner';
+import { schnorr } from '@noble/curves/secp256k1';
+import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 
 interface AddFriendDialogProps {
   open: boolean;
@@ -35,15 +39,21 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
   const { currentIdentity } = useAuthStore();
   const { addFriend, createInviteLink } = useFriendsStore();
 
-  // Tab 1: Username search
+  // Tab 1: Username / Pubkey / NIP-05 search
   const [usernameQuery, setUsernameQuery] = useState('');
   const [friendMessage, setFriendMessage] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+
+  // NIP-05 resolution state
+  const [nip05Query, setNip05Query] = useState('');
+  const [nip05Resolving, setNip05Resolving] = useState(false);
+  const [nip05Result, setNip05Result] = useState<{ verified: boolean; pubkey?: string; error?: string } | null>(null);
 
   // Tab 2: QR code
   const [qrData, setQrData] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string>('');
+  const [scanVerified, setScanVerified] = useState<boolean | null>(null);
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
   const videoRef = useRef<string>('qr-reader');
 
@@ -55,21 +65,69 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
   const [inviteLink, setInviteLink] = useState('');
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
 
-  // Generate QR code for current user
+  /**
+   * QR_EXPIRY_MS: Maximum age of a QR code before it is rejected (10 minutes).
+   * This limits the window for replay attacks if someone photographs the QR.
+   */
+  const QR_EXPIRY_MS = 10 * 60 * 1000;
+
+  /**
+   * Generate a random nonce for QR payload uniqueness.
+   * Uses crypto.getRandomValues for cryptographic security.
+   */
+  const generateNonce = (): string => {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return bytesToHex(bytes);
+  };
+
+  /**
+   * Create the signable message from QR payload fields.
+   * The signature covers pubkey + timestamp + nonce to prevent replay and tampering.
+   */
+  const createSignableMessage = (pubkey: string, timestamp: number, nonce: string): Uint8Array => {
+    const message = `buildit-qr:${pubkey}:${timestamp}:${nonce}`;
+    return sha256(new TextEncoder().encode(message));
+  };
+
+  // Generate signed QR code for current user
   useEffect(() => {
     if (!currentIdentity) return;
 
-    const qrPayload: FriendQRData = {
+    const privateKey = getCurrentPrivateKey();
+    const timestamp = Date.now();
+    const nonce = generateNonce();
+
+    let signature = '';
+
+    if (privateKey) {
+      try {
+        // Sign the QR payload with the user's private key (Schnorr/BIP-340)
+        const messageHash = createSignableMessage(
+          currentIdentity.publicKey,
+          timestamp,
+          nonce
+        );
+        const sig = schnorr.sign(messageHash, privateKey);
+        signature = bytesToHex(sig);
+      } catch (err) {
+        console.error('Failed to sign QR payload:', err);
+        // Fall back to unsigned QR (will show as unverified on scan)
+      }
+    }
+
+    const qrPayload: FriendQRData & { nonce: string } = {
       pubkey: currentIdentity.publicKey,
       username: currentIdentity.username,
-      timestamp: Date.now(),
-      signature: '', // Signature implementation deferred to Phase 2
+      timestamp,
+      nonce,
+      signature,
     };
 
     setQrData(JSON.stringify(qrPayload));
   }, [currentIdentity]);
 
-  // Handle username search and add
+  // Handle username/pubkey search and add
   const handleAddByUsername = async () => {
     if (!usernameQuery.trim()) {
       toast.error(t('addFriendDialog.toasts.enterUsername'));
@@ -78,12 +136,85 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
 
     setIsSearching(true);
     try {
-      // NIP-05 search deferred to Phase 2 - currently accepts pubkey
-      await addFriend(usernameQuery, 'username', friendMessage || undefined);
+      // Detect if input looks like a NIP-05 identifier (contains @)
+      const query = usernameQuery.trim();
+      let pubkeyToAdd = query;
+
+      if (query.includes('@')) {
+        // Resolve NIP-05 identifier to pubkey
+        const result = await UsernameManager.verifyNIP05(query);
+        if (!result.verified || !result.pubkey) {
+          toast.error(result.error || t('addFriendDialog.toasts.nip05NotFound'));
+          setIsSearching(false);
+          return;
+        }
+        pubkeyToAdd = result.pubkey;
+      }
+
+      // Validate hex pubkey format (64 char hex string)
+      if (!/^[0-9a-f]{64}$/.test(pubkeyToAdd)) {
+        toast.error(t('addFriendDialog.toasts.invalidPubkey'));
+        setIsSearching(false);
+        return;
+      }
+
+      await addFriend(pubkeyToAdd, 'username', friendMessage || undefined);
       toast.success(t('addFriendDialog.toasts.requestSent'));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message || t('addFriendDialog.toasts.requestSent'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.requestFailed');
+      toast.error(message);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Resolve NIP-05 identifier
+  const handleNip05Resolve = async () => {
+    const query = nip05Query.trim();
+    if (!query) {
+      toast.error(t('addFriendDialog.toasts.enterNip05'));
+      return;
+    }
+
+    if (!query.includes('@')) {
+      toast.error(t('addFriendDialog.toasts.invalidNip05Format'));
+      return;
+    }
+
+    setNip05Resolving(true);
+    setNip05Result(null);
+
+    try {
+      const result = await UsernameManager.verifyNIP05(query);
+      setNip05Result(result);
+
+      if (result.verified && result.pubkey) {
+        toast.success(t('addFriendDialog.toasts.nip05Resolved'));
+      } else {
+        toast.error(result.error || t('addFriendDialog.toasts.nip05NotFound'));
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.nip05Failed');
+      setNip05Result({ verified: false, error: message });
+      toast.error(message);
+    } finally {
+      setNip05Resolving(false);
+    }
+  };
+
+  // Add friend from NIP-05 resolved pubkey
+  const handleAddFromNip05 = async () => {
+    if (!nip05Result?.pubkey) return;
+
+    setIsSearching(true);
+    try {
+      await addFriend(nip05Result.pubkey, 'username', friendMessage || undefined);
+      toast.success(t('addFriendDialog.toasts.requestSent'));
+      onOpenChange(false);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.requestFailed');
+      toast.error(message);
     } finally {
       setIsSearching(false);
     }
@@ -131,21 +262,72 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     setIsScanning(false);
   };
 
-  // Handle scanned QR code
+  // Handle scanned QR code with signature verification
   const handleQRScan = async (data: string) => {
     try {
-      const qrData: FriendQRData = JSON.parse(data);
+      const parsed = JSON.parse(data) as FriendQRData & { nonce?: string };
 
-      // Signature verification deferred to Phase 2
-      if (!qrData.pubkey) {
+      // Validate required fields
+      if (!parsed.pubkey || !/^[0-9a-f]{64}$/.test(parsed.pubkey)) {
         throw new Error(t('addFriendDialog.toasts.invalidQrCode'));
       }
 
-      await addFriend(qrData.pubkey, 'qr', friendMessage || undefined);
+      if (!parsed.timestamp || typeof parsed.timestamp !== 'number') {
+        throw new Error(t('addFriendDialog.toasts.invalidQrCode'));
+      }
+
+      // SECURITY: Reject QR codes older than 10 minutes to prevent replay attacks
+      const age = Date.now() - parsed.timestamp;
+      if (age > QR_EXPIRY_MS) {
+        setScanVerified(false);
+        toast.error('QR code has expired. Ask your friend to generate a new one.');
+        return;
+      }
+
+      // Also reject QR codes from the future (clock skew tolerance: 1 minute)
+      if (parsed.timestamp > Date.now() + 60_000) {
+        setScanVerified(false);
+        toast.error('QR code timestamp is in the future. Check device clocks.');
+        return;
+      }
+
+      // SECURITY: Verify the Schnorr signature if present
+      let verified = false;
+      if (parsed.signature && parsed.nonce) {
+        try {
+          const messageHash = createSignableMessage(
+            parsed.pubkey,
+            parsed.timestamp,
+            parsed.nonce
+          );
+          const sigBytes = hexToBytes(parsed.signature);
+          const pubkeyBytes = hexToBytes(parsed.pubkey);
+          verified = schnorr.verify(sigBytes, messageHash, pubkeyBytes);
+        } catch (verifyErr) {
+          console.error('QR signature verification error:', verifyErr);
+          verified = false;
+        }
+      }
+
+      setScanVerified(verified);
+
+      // Reject QR codes with invalid signatures when a signature was provided
+      if (parsed.signature && !verified) {
+        toast.error('QR code signature is invalid. This may be a forged code.');
+        return;
+      }
+
+      if (!parsed.signature) {
+        // QR code from older client without signing - warn but allow
+        toast.warning('QR code is unsigned. Verify identity through another channel.');
+      }
+
+      await addFriend(parsed.pubkey, 'qr', friendMessage || undefined);
       toast.success(t('addFriendDialog.toasts.requestSent'));
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message || t('addFriendDialog.toasts.invalidQrCode'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.invalidQrCode');
+      toast.error(message);
     }
   };
 
@@ -223,16 +405,86 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
             </TabsTrigger>
           </TabsList>
 
-          {/* Tab 1: Username Search */}
+          {/* Tab 1: Username / Pubkey / NIP-05 Search */}
           <TabsContent value="username" className="space-y-4 pt-4">
+            {/* Direct pubkey or NIP-05 entry */}
             <div className="space-y-2">
               <Label htmlFor="username">{t('addFriendDialog.username.label')}</Label>
               <Input
                 id="username"
-                placeholder={t('addFriendDialog.username.placeholder')}
+                placeholder="npub1... or user@domain.com"
                 value={usernameQuery}
                 onChange={(e) => setUsernameQuery(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Enter a hex pubkey or NIP-05 identifier (user@domain.com)
+              </p>
+            </div>
+
+            {/* NIP-05 Lookup Section */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <AtSign className="h-4 w-4" />
+                NIP-05 Lookup
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="user@domain.com"
+                  value={nip05Query}
+                  onChange={(e) => {
+                    setNip05Query(e.target.value);
+                    setNip05Result(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleNip05Resolve();
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleNip05Resolve}
+                  disabled={nip05Resolving}
+                >
+                  {nip05Resolving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    'Resolve'
+                  )}
+                </Button>
+              </div>
+
+              {/* NIP-05 Result */}
+              {nip05Result && (
+                <div className={`rounded-md p-3 text-sm ${
+                  nip05Result.verified
+                    ? 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800'
+                    : 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800'
+                }`}>
+                  {nip05Result.verified ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-600" />
+                        <span className="font-medium text-green-700 dark:text-green-400">Verified</span>
+                      </div>
+                      <div className="font-mono text-xs break-all text-muted-foreground">
+                        {nip05Result.pubkey}
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={handleAddFromNip05}
+                        disabled={isSearching}
+                        className="w-full"
+                      >
+                        {isSearching ? t('addFriendDialog.username.sending') : 'Add as Friend'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                      <X className="h-4 w-4" />
+                      <span>{nip05Result.error || 'Verification failed'}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -296,7 +548,25 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
                   )}
                 </div>
                 {scanResult && (
-                  <p className="text-xs text-green-600">{t('addFriendDialog.qr.scannedSuccessfully')}</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    {scanVerified === true ? (
+                      <>
+                        <ShieldCheck className="h-4 w-4 text-green-600" />
+                        <span className="text-green-600 font-medium">
+                          Signature verified - identity confirmed
+                        </span>
+                      </>
+                    ) : scanVerified === false ? (
+                      <>
+                        <ShieldAlert className="h-4 w-4 text-red-500" />
+                        <span className="text-red-500 font-medium">
+                          Signature invalid or QR expired
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-green-600">{t('addFriendDialog.qr.scannedSuccessfully')}</span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

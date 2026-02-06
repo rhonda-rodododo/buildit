@@ -25,7 +25,8 @@ export type ModuleType =
   | 'newsletters'
   | 'friends' // Friend relationships and contacts
   | 'security' // Privacy and security enhancements (Tor, etc.)
-  | 'training'; // Training and certification module
+  | 'training' // Training and certification module
+  | 'marketplace'; // Cooperative marketplace, skill exchange, resource sharing
 
 /**
  * Module Capability - defines what a module can do

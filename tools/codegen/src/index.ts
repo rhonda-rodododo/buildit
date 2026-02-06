@@ -608,7 +608,12 @@ async function main() {
       }
 
       for (const target of activeTargets) {
-        await mkdir(target.outputDir, { recursive: true });
+        // Kotlin uses per-module subdirectories to match package structure
+        const kotlinModuleName = moduleName.replace(/-/g, '_');
+        const outputDir = target.lang === 'kotlin'
+          ? join(target.outputDir, kotlinModuleName)
+          : target.outputDir;
+        await mkdir(outputDir, { recursive: true });
 
         try {
           const generatedCode = await generateAllTypesWithQuicktype(moduleName, schema, target.lang, allSchemas);
@@ -619,8 +624,10 @@ async function main() {
             generatedCode,
             target.lang
           );
-          const outputName = target.lang === 'rust' ? snakeCase(moduleName) : moduleName;
-          const outputFile = join(target.outputDir, `${outputName}${target.ext}`);
+          const outputName = target.lang === 'rust' ? snakeCase(moduleName)
+            : target.lang === 'kotlin' ? kotlinModuleName
+            : moduleName;
+          const outputFile = join(outputDir, `${outputName}${target.ext}`);
           await writeFile(outputFile, code);
           console.log(`  ✅ ${target.name}: ${outputName}${target.ext}`);
         } catch (error) {

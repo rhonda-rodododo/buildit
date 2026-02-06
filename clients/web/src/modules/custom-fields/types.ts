@@ -20,7 +20,25 @@ export type FieldType =
   | 'radio'
   | 'file'
   | 'relationship'
-  | 'pubkey';
+  | 'pubkey'
+  | 'location';
+
+/**
+ * Location precision levels for privacy-preserving location sharing.
+ * "neighborhood" is the default - exact is opt-in with a privacy warning.
+ */
+export type LocationPrecision = 'exact' | 'neighborhood' | 'city' | 'region';
+
+/**
+ * Structured location value stored by location fields.
+ * Coordinates + human-readable label + privacy precision.
+ */
+export interface LocationValue {
+  lat: number;
+  lng: number;
+  label: string;
+  precision: LocationPrecision;
+}
 
 /**
  * Entity Types that can have custom fields
@@ -96,6 +114,11 @@ export interface FieldWidgetConfig {
   // Pubkey specific (social linking)
   pubkeySource?: 'group_members' | 'friends' | 'any'; // Where to search for users
   pubkeyDisplayFormat?: 'name' | 'name_with_avatar' | 'avatar_only'; // How to display
+
+  // Location specific
+  defaultPrecision?: LocationPrecision; // Default precision level (default: 'neighborhood')
+  allowExactLocation?: boolean; // Whether 'exact' is available (default: false for safety)
+  showMapPreview?: boolean; // Whether to show inline map preview (default: true)
 
   // Layout
   gridColumn?: string; // CSS grid column value
@@ -177,6 +200,13 @@ export interface FormSchema {
  * Zod Schemas for Validation
  */
 
+export const LocationValueSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  label: z.string().max(500),
+  precision: z.enum(['exact', 'neighborhood', 'city', 'region']),
+});
+
 export const JSONSchemaFieldSchema: z.ZodType<JSONSchemaField> = z.object({
   type: z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object']),
   title: z.string().optional(),
@@ -199,7 +229,7 @@ export const JSONSchemaFieldSchema: z.ZodType<JSONSchemaField> = z.object({
 }) as z.ZodType<JSONSchemaField>;
 
 export const FieldWidgetConfigSchema = z.object({
-  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship', 'pubkey']),
+  widget: z.enum(['text', 'textarea', 'number', 'date', 'datetime', 'select', 'multi-select', 'checkbox', 'radio', 'file', 'relationship', 'pubkey', 'location']),
   placeholder: z.string().optional(),
   helpText: z.string().optional(),
   className: z.string().optional(),
@@ -213,6 +243,9 @@ export const FieldWidgetConfigSchema = z.object({
   relationshipDisplayField: z.string().optional(),
   pubkeySource: z.enum(['group_members', 'friends', 'any']).optional(),
   pubkeyDisplayFormat: z.enum(['name', 'name_with_avatar', 'avatar_only']).optional(),
+  defaultPrecision: z.enum(['exact', 'neighborhood', 'city', 'region']).optional(),
+  allowExactLocation: z.boolean().optional(),
+  showMapPreview: z.boolean().optional(),
   gridColumn: z.string().optional(),
   hidden: z.boolean().optional(),
   disabled: z.boolean().optional(),
@@ -265,7 +298,7 @@ export interface FieldTypeDefinition {
   label: string;
   description: string;
   icon: string;
-  jsonSchemaType: 'string' | 'number' | 'integer' | 'boolean' | 'array';
+  jsonSchemaType: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object';
   supportsOptions: boolean;
 }
 
@@ -364,6 +397,14 @@ export const FIELD_TYPE_DEFINITIONS: Record<FieldType, FieldTypeDefinition> = {
     description: 'Link to a Nostr user profile',
     icon: 'User',
     jsonSchemaType: 'string',
+    supportsOptions: false,
+  },
+  location: {
+    widget: 'location',
+    label: 'Location',
+    description: 'Geographic location with privacy controls',
+    icon: 'MapPin',
+    jsonSchemaType: 'object',
     supportsOptions: false,
   },
 };

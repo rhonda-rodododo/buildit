@@ -43,11 +43,66 @@ export const PublicWikiPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Nostr public wiki integration deferred to Epic 53A - using demo data
     const loadPage = async () => {
       setIsLoading(true);
 
-      // Demo wiki pages
+      // Attempt to load wiki page from Nostr kind:30023 (NIP-23 long-form content)
+      try {
+        const { NostrClient } = await import('@/core/nostr/client');
+        const client = new NostrClient([
+          { url: 'wss://relay.damus.io', read: true, write: false },
+          { url: 'wss://relay.primal.net', read: true, write: false },
+          { url: 'wss://nos.lol', read: true, write: false },
+        ]);
+
+        // Query for kind 30023 wiki-tagged long-form content with matching slug
+        const events = await client.query(
+          [{
+            kinds: [30023],
+            '#d': [slug || ''],
+            '#t': ['wiki'],
+            limit: 1,
+          }],
+          8000
+        );
+
+        if (events.length > 0) {
+          const event = events[0];
+          const titleTag = event.tags.find(t => t[0] === 'title');
+          const publishedTag = event.tags.find(t => t[0] === 'published_at');
+          const tags = event.tags.filter(t => t[0] === 't').map(t => t[1]);
+          const dTag = event.tags.find(t => t[0] === 'd')?.[1] || '';
+
+          // Determine category from tags
+          const categoryTag = event.tags.find(t => t[0] === 'category');
+          const category = categoryTag?.[1] || tags[0] || 'general';
+
+          const wikiPage: WikiPage = {
+            id: event.id,
+            title: titleTag?.[1] || 'Untitled',
+            slug: dTag,
+            content: event.content,
+            category,
+            tags,
+            version: 1,
+            updatedAt: publishedTag
+              ? parseInt(publishedTag[1]) * 1000
+              : event.created_at * 1000,
+            isPublic: true,
+          };
+
+          client.close();
+          setPage(wikiPage);
+          setIsLoading(false);
+          return;
+        }
+
+        client.close();
+      } catch {
+        // Nostr query failed, fall through to demo data
+      }
+
+      // Fallback: demo wiki pages when Nostr data is unavailable
       const demoPages: WikiPage[] = [
         {
           id: 'wiki-1',

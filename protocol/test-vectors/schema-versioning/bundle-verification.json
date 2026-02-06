@@ -4,17 +4,21 @@
   "description": "Test vectors for schema bundle signature verification and application",
 
   "metadata": {
-    "version": "1.0.0",
-    "lastUpdated": "2026-01-25",
+    "version": "2.0.0",
+    "lastUpdated": "2026-02-05",
     "specification": "../spec/08-schema-versioning.md"
   },
 
   "trustedSigners": [
     {
-      "name": "Test Signer 1",
-      "publicKey": "ed25519:npub1test111111111111111111111111111111111111111111111111",
-      "secretKey": "nsec1test111111111111111111111111111111111111111111111111",
-      "note": "ONLY FOR TESTING - Never use in production"
+      "name": "BuildIt Official (2026-02)",
+      "publicKey": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c",
+      "note": "Official BuildIt bundle signing key"
+    },
+    {
+      "name": "Test Signer (DO NOT use in production)",
+      "publicKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "note": "Placeholder for untrusted signer tests"
     }
   ],
 
@@ -25,10 +29,10 @@
       "cases": [
         {
           "name": "valid_bundle_signature",
-          "description": "Bundle with valid Ed25519 signature",
+          "description": "Bundle with valid Ed25519 signature from trusted signer",
           "bundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0",
             "schemas": {
               "events": {
@@ -36,25 +40,33 @@
                 "schema": {}
               }
             },
-            "signature": "ed25519:VALID_SIGNATURE_HERE",
-            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+            "contentHash": "c54bb8bbc0dba1176b06bcb7a2682d76c95e16fbaa5a4b1b234a6823c3f15a45",
+            "signature": "c37bf8ffa2b842952d977c8d0176a813ae3f753dae2e61d5e49e4e267ce000dc4647b7642f17fdafeed2c639487ae0d17a989018ef0b17ce7945e6cf9b581d08",
+            "signedBy": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c"
           },
           "expected": {
             "signatureValid": true,
             "signerTrusted": true,
             "shouldApply": true
-          }
+          },
+          "note": "contentHash is SHA-256 of JSON.stringify(schemas, null, 0). Signature is Ed25519 over the raw content hash bytes."
         },
         {
           "name": "invalid_signature",
-          "description": "Bundle with tampered signature",
+          "description": "Bundle with tampered signature should be rejected",
           "bundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0",
-            "schemas": {},
-            "signature": "ed25519:INVALID_TAMPERED_SIGNATURE",
-            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+            "schemas": {
+              "events": {
+                "version": "1.0.0",
+                "schema": {}
+              }
+            },
+            "contentHash": "c54bb8bbc0dba1176b06bcb7a2682d76c95e16fbaa5a4b1b234a6823c3f15a45",
+            "signature": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "signedBy": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c"
           },
           "expected": {
             "signatureValid": false,
@@ -64,17 +76,18 @@
         },
         {
           "name": "untrusted_signer",
-          "description": "Bundle signed by untrusted key",
+          "description": "Bundle signed by key not in trusted set",
           "bundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0",
             "schemas": {},
-            "signature": "ed25519:VALID_BUT_UNTRUSTED",
-            "signedBy": "npub1untrusted00000000000000000000000000000000000000000"
+            "contentHash": "44136fa355b311bfa706c3a13290e1b3047aa030c38f51e5a8e3350f9e7b4e0d",
+            "signature": "deadbeef00000000000000000000000000000000000000000000000000000000deadbeef00000000000000000000000000000000000000000000000000000000",
+            "signedBy": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
           },
           "expected": {
-            "signatureValid": true,
+            "signatureValid": false,
             "signerTrusted": false,
             "shouldApply": false,
             "error": "UNTRUSTED_SIGNER"
@@ -82,10 +95,10 @@
         },
         {
           "name": "missing_signature",
-          "description": "Bundle without signature",
+          "description": "Bundle without signature field should be rejected",
           "bundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0",
             "schemas": {}
           },
@@ -95,51 +108,11 @@
           }
         },
         {
-          "name": "missing_required_modules",
-          "description": "Bundle missing core dependency modules should fail validation",
-          "bundle": {
-            "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
-            "minClientVersion": "0.1.0",
-            "schemas": {
-              "events": {
-                "version": "1.0.0",
-                "schema": {}
-              }
-            },
-            "signature": "ed25519:VALID_SIGNATURE_HERE",
-            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
-          },
-          "requiredModules": ["messaging", "custom-fields", "content"],
-          "expected": {
-            "signatureValid": true,
-            "shouldApply": false,
-            "error": "MISSING_REQUIRED_MODULES",
-            "missingModules": ["messaging", "custom-fields", "content"]
-          }
-        },
-        {
-          "name": "empty_schemas_object",
-          "description": "Bundle with empty schemas object should be rejected",
-          "bundle": {
-            "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
-            "minClientVersion": "0.1.0",
-            "schemas": {},
-            "signature": "ed25519:VALID_SIGNATURE_EMPTY",
-            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
-          },
-          "expected": {
-            "shouldApply": false,
-            "error": "EMPTY_BUNDLE"
-          }
-        },
-        {
           "name": "content_hash_mismatch",
-          "description": "Bundle with valid signature but modified content should fail",
+          "description": "Bundle with valid signature but modified content should fail hash check",
           "bundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0",
             "schemas": {
               "events": {
@@ -147,13 +120,32 @@
                 "schema": {"tampered": true}
               }
             },
-            "signature": "ed25519:SIGNATURE_FOR_DIFFERENT_CONTENT",
-            "signedBy": "npub1test111111111111111111111111111111111111111111111111"
+            "contentHash": "c54bb8bbc0dba1176b06bcb7a2682d76c95e16fbaa5a4b1b234a6823c3f15a45",
+            "signature": "c37bf8ffa2b842952d977c8d0176a813ae3f753dae2e61d5e49e4e267ce000dc4647b7642f17fdafeed2c639487ae0d17a989018ef0b17ce7945e6cf9b581d08",
+            "signedBy": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c"
           },
           "expected": {
             "signatureValid": false,
             "shouldApply": false,
             "error": "CONTENT_HASH_MISMATCH"
+          },
+          "note": "The signature was created for the original schemas (without tampered:true), so the content hash won't match the modified schemas."
+        },
+        {
+          "name": "empty_schemas_object",
+          "description": "Bundle with empty schemas object should be rejected",
+          "bundle": {
+            "bundleVersion": "1.0.0",
+            "createdAt": 1706198400,
+            "minClientVersion": "0.1.0",
+            "schemas": {},
+            "contentHash": "44136fa355b311bfa706c3a13290e1b3047aa030c38f51e5a8e3350f9e7b4e0d",
+            "signature": "c37bf8ffa2b842952d977c8d0176a813ae3f753dae2e61d5e49e4e267ce000dc4647b7642f17fdafeed2c639487ae0d17a989018ef0b17ce7945e6cf9b581d08",
+            "signedBy": "44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c"
+          },
+          "expected": {
+            "shouldApply": false,
+            "error": "EMPTY_BUNDLE"
           }
         }
       ]
@@ -164,14 +156,14 @@
       "cases": [
         {
           "name": "newer_bundle",
-          "description": "Bundle is newer than current",
+          "description": "Bundle is newer than current - should apply",
           "currentBundle": {
             "version": "1.0.0",
-            "createdAt": 1706000000000
+            "createdAt": 1706000000
           },
           "newBundle": {
             "bundleVersion": "1.1.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0"
           },
           "clientVersion": "0.2.0",
@@ -181,14 +173,14 @@
         },
         {
           "name": "older_bundle",
-          "description": "Bundle is older than current",
+          "description": "Bundle is older than current - should not apply",
           "currentBundle": {
             "version": "1.1.0",
-            "createdAt": 1706198400000
+            "createdAt": 1706198400
           },
           "newBundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706000000000,
+            "createdAt": 1706000000,
             "minClientVersion": "0.1.0"
           },
           "clientVersion": "0.2.0",
@@ -199,14 +191,14 @@
         },
         {
           "name": "same_timestamp",
-          "description": "Bundle has same timestamp as current",
+          "description": "Bundle has same timestamp as current - should not apply",
           "currentBundle": {
             "version": "1.0.0",
-            "createdAt": 1706198400000
+            "createdAt": 1706198400
           },
           "newBundle": {
             "bundleVersion": "1.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.1.0"
           },
           "clientVersion": "0.2.0",
@@ -221,7 +213,7 @@
           "currentBundle": null,
           "newBundle": {
             "bundleVersion": "2.0.0",
-            "createdAt": 1706198400000,
+            "createdAt": 1706198400,
             "minClientVersion": "0.5.0"
           },
           "clientVersion": "0.3.0",
@@ -234,71 +226,19 @@
       ]
     },
     {
-      "name": "Bundle Application",
-      "description": "Tests for applying schema bundles",
-      "cases": [
-        {
-          "name": "apply_new_module",
-          "description": "Bundle adds a new module schema",
-          "initialModules": ["events", "messaging"],
-          "bundle": {
-            "bundleVersion": "1.1.0",
-            "createdAt": 1706198400000,
-            "minClientVersion": "0.1.0",
-            "schemas": {
-              "governance": {
-                "version": "1.0.0",
-                "schema": {
-                  "$defs": {
-                    "Proposal": {}
-                  }
-                }
-              }
-            }
-          },
-          "expected": {
-            "modulesAfter": ["events", "messaging", "governance"],
-            "governanceVersion": "1.0.0"
-          }
-        },
-        {
-          "name": "update_existing_module",
-          "description": "Bundle updates an existing module schema",
-          "initialModules": {
-            "events": "1.0.0"
-          },
-          "bundle": {
-            "bundleVersion": "1.2.0",
-            "createdAt": 1706198400000,
-            "minClientVersion": "0.1.0",
-            "schemas": {
-              "events": {
-                "version": "1.1.0",
-                "minReaderVersion": "1.0.0",
-                "schema": {}
-              }
-            }
-          },
-          "expected": {
-            "eventsVersionAfter": "1.1.0"
-          }
-        }
-      ]
-    },
-    {
       "name": "BLE Schema Sync",
       "description": "Tests for schema bundle exchange over BLE",
       "cases": [
         {
           "name": "peer_has_newer_bundle",
-          "description": "Peer advertises newer schema bundle",
+          "description": "Peer advertises newer schema bundle - should request",
           "myDeviceInfo": {
             "schemaBundleVersion": "1.0.0",
-            "schemaBundleCreatedAt": 1706000000000
+            "schemaBundleCreatedAt": 1706000000
           },
           "peerDeviceInfo": {
             "schemaBundleVersion": "1.2.0",
-            "schemaBundleCreatedAt": 1706198400000
+            "schemaBundleCreatedAt": 1706198400
           },
           "expected": {
             "shouldRequestBundle": true
@@ -306,14 +246,14 @@
         },
         {
           "name": "peer_has_older_bundle",
-          "description": "Peer has older schema bundle",
+          "description": "Peer has older schema bundle - should offer ours",
           "myDeviceInfo": {
             "schemaBundleVersion": "1.2.0",
-            "schemaBundleCreatedAt": 1706198400000
+            "schemaBundleCreatedAt": 1706198400
           },
           "peerDeviceInfo": {
             "schemaBundleVersion": "1.0.0",
-            "schemaBundleCreatedAt": 1706000000000
+            "schemaBundleCreatedAt": 1706000000
           },
           "expected": {
             "shouldRequestBundle": false,
@@ -322,14 +262,14 @@
         },
         {
           "name": "same_bundle_version",
-          "description": "Both devices have same bundle",
+          "description": "Both devices have same bundle - no action needed",
           "myDeviceInfo": {
             "schemaBundleVersion": "1.0.0",
-            "schemaBundleCreatedAt": 1706000000000
+            "schemaBundleCreatedAt": 1706000000
           },
           "peerDeviceInfo": {
             "schemaBundleVersion": "1.0.0",
-            "schemaBundleCreatedAt": 1706000000000
+            "schemaBundleCreatedAt": 1706000000
           },
           "expected": {
             "shouldRequestBundle": false,

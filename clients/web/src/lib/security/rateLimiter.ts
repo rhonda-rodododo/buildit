@@ -195,46 +195,37 @@ export async function withRateLimit<T>(
 }
 
 /**
- * Constant-time string comparison to prevent timing attacks
- * SECURITY: Uses XOR comparison with fixed-time loop
+ * Constant-time string comparison to prevent timing attacks.
+ * SECURITY: Always iterates over the longer string's length to prevent
+ * length-based timing leaks. Length difference is folded into the result
+ * via XOR, not via early return.
  */
 export function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    // Still do the comparison to maintain constant time
-    // but use dummy string of same length
-    const dummy = 'x'.repeat(a.length);
-    let result = 0;
-    for (let i = 0; i < a.length; i++) {
-      result |= a.charCodeAt(i) ^ dummy.charCodeAt(i);
-    }
-    return false;
-  }
-
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  const maxLen = Math.max(a.length, b.length);
+  // XOR lengths into result so different lengths always fail
+  let result = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    // Use charCode 0 as fallback for out-of-bounds index
+    const ca = i < a.length ? a.charCodeAt(i) : 0;
+    const cb = i < b.length ? b.charCodeAt(i) : 0;
+    result |= ca ^ cb;
   }
   return result === 0;
 }
 
 /**
- * Constant-time Uint8Array comparison
- * SECURITY: Uses XOR comparison with fixed-time loop
+ * Constant-time Uint8Array comparison.
+ * SECURITY: Always iterates over the longer array's length to prevent
+ * length-based timing leaks.
  */
 export function timingSafeEqualBytes(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) {
-    // Still do the comparison to maintain constant time
-    const dummy = new Uint8Array(a.length);
-    let result = 0;
-    for (let i = 0; i < a.length; i++) {
-      result |= a[i] ^ dummy[i];
-    }
-    return false;
-  }
-
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a[i] ^ b[i];
+  const maxLen = Math.max(a.length, b.length);
+  // XOR lengths into result so different lengths always fail
+  let result = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    const ba = i < a.length ? a[i] : 0;
+    const bb = i < b.length ? b[i] : 0;
+    result |= ba ^ bb;
   }
   return result === 0;
 }

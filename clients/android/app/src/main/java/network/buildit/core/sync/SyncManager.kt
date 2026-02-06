@@ -115,7 +115,8 @@ data class SyncConflict(
 @Singleton
 class SyncManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val offlineQueueDao: OfflineQueueDao
+    private val offlineQueueDao: OfflineQueueDao,
+    private val transportRouter: network.buildit.core.transport.TransportRouter
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val json = Json { ignoreUnknownKeys = true }
@@ -467,8 +468,19 @@ class SyncManager @Inject constructor(
         val content = json.optString("content")
             ?: throw SyncException("Invalid payload")
 
-        // TODO: Route through TransportRouter
-        // TransportRouter.sendMessage(content, recipientPublicKey)
+        val result = transportRouter.sendMessage(
+            recipientPubkey = recipientPublicKey,
+            content = content
+        )
+
+        if (result.isFailure) {
+            throw SyncException("Failed to send message via TransportRouter: ${result.exceptionOrNull()?.message}")
+        }
+
+        val sendResult = result.getOrNull()
+        if (sendResult?.status == network.buildit.core.transport.DeliveryStatus.FAILED) {
+            throw SyncException("Message delivery failed")
+        }
     }
 
     private suspend fun processFormSubmission(operation: QueuedOperationEntity) {

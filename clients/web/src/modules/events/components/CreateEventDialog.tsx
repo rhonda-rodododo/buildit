@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,8 @@ import { useEvents } from '../hooks/useEvents'
 import { EventPrivacy, CreateEventFormData } from '../types'
 import { Plus } from 'lucide-react'
 import { CustomFieldsManager } from '@/modules/custom-fields/customFieldsManager'
-import type { CustomField, CustomFieldValues } from '@/modules/custom-fields/types'
+import type { CustomField, CustomFieldValues, LocationValue } from '@/modules/custom-fields/types'
+import { LocationInput } from '@/modules/custom-fields/components/inputs/LocationInput'
 
 interface CreateEventDialogProps {
   groupId?: string
@@ -25,6 +26,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
   const [loading, setLoading] = useState(false)
   const [customFields, setCustomFields] = useState<CustomField[]>([])
   const [customFieldValues, setCustomFieldValues] = useState<CustomFieldValues>({})
+  const [locationValue, setLocationValue] = useState<LocationValue | undefined>(undefined)
 
   const [formData, setFormData] = useState<CreateEventFormData>({
     title: '',
@@ -34,6 +36,15 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
     privacy: 'public',
     groupId,
   })
+
+  // When location changes, update both the LocationValue and the form's text location field
+  const handleLocationChange = useCallback((value: unknown) => {
+    const loc = value as LocationValue
+    setLocationValue(loc)
+    if (loc) {
+      setFormData((prev) => ({ ...prev, location: loc.label }))
+    }
+  }, [])
 
   // Load custom fields for events in this group
   useEffect(() => {
@@ -47,9 +58,15 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
     setLoading(true)
 
     try {
+      // Include location data in custom fields if set
+      const allCustomFields = { ...customFieldValues };
+      if (locationValue) {
+        allCustomFields._location = locationValue;
+      }
+
       await createEvent({
         ...formData,
-        customFields: customFieldValues,
+        customFields: allCustomFields,
       })
       setOpen(false)
       setFormData({
@@ -61,6 +78,7 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
         groupId,
       })
       setCustomFieldValues({})
+      setLocationValue(undefined)
       onEventCreated?.()
     } catch (error) {
       console.error('Failed to create event:', error)
@@ -106,12 +124,29 @@ export const CreateEventDialog: FC<CreateEventDialogProps> = ({ groupId, onEvent
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">{t('createEventDialog.fields.locationLabel')}</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder={t('createEventDialog.fields.locationPlaceholder')}
+            <LocationInput
+              field={{
+                id: 'event-location',
+                groupId: groupId || '',
+                entityType: 'event',
+                name: 'location',
+                label: t('createEventDialog.fields.locationLabel'),
+                schema: { type: 'object' },
+                widget: {
+                  widget: 'location',
+                  placeholder: t('createEventDialog.fields.locationPlaceholder'),
+                  defaultPrecision: 'neighborhood',
+                  allowExactLocation: true,
+                  showMapPreview: true,
+                },
+                order: 0,
+                created: 0,
+                createdBy: '',
+                updated: 0,
+              }}
+              register={() => ({} as any)}
+              value={locationValue}
+              onChange={handleLocationChange}
             />
           </div>
 

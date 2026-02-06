@@ -59,6 +59,9 @@ pub struct Proposal {
     /// Available voting options
     pub options: Vec<OptionElement>,
 
+    /// Configuration for quadratic voting (required when votingSystem is 'quadratic')
+    pub quadratic_config: Option<QuadraticConfigClass>,
+
     pub quorum: Option<QuorumClass>,
 
     pub status: ProposalStatus,
@@ -151,6 +154,19 @@ pub enum ProposalType {
     Policy,
 
     Resolution,
+}
+
+/// Configuration for quadratic voting (required when votingSystem is 'quadratic')
+///
+/// Configuration for quadratic voting on a proposal
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticConfigClass {
+    /// Maximum tokens a voter can allocate to a single option (defaults to tokenBudget)
+    pub max_tokens_per_option: Option<i64>,
+
+    /// Total token budget each voter receives to allocate across options
+    pub token_budget: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -308,7 +324,8 @@ pub struct Vote {
     /// Unix timestamp when vote was cast
     pub cast_at: i64,
 
-    /// Selected option(s) - single for simple, array for ranked-choice
+    /// Selected option(s) - single for simple, array for ranked-choice, QuadraticBallot for
+    /// quadratic
     pub choice: Choice,
 
     /// Optional vote comment
@@ -331,13 +348,27 @@ pub struct Vote {
     pub weight: Option<f64>,
 }
 
-/// Selected option(s) - single for simple, array for ranked-choice
+/// Selected option(s) - single for simple, array for ranked-choice, QuadraticBallot for
+/// quadratic
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Choice {
+    QuadraticBallotClass(QuadraticBallotClass),
+
     String(String),
 
     StringArray(Vec<String>),
+}
+
+/// A quadratic voting ballot with token allocations across options
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticBallotClass {
+    /// Map of option ID to number of tokens allocated. Effective votes = sqrt(tokens).
+    pub allocations: HashMap<String, i64>,
+
+    /// Total tokens used in this ballot (sum of all allocations, must not exceed budget)
+    pub total_tokens: i64,
 }
 
 /// Vote delegation from one member to another
@@ -384,6 +415,42 @@ pub enum Scope {
     Proposal,
 }
 
+/// Configuration for quadratic voting on a proposal
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticVotingConfig {
+    /// Maximum tokens a voter can allocate to a single option (defaults to tokenBudget)
+    pub max_tokens_per_option: Option<i64>,
+
+    /// Total token budget each voter receives to allocate across options
+    pub token_budget: i64,
+}
+
+/// A quadratic voting ballot with token allocations across options
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticBallot {
+    /// Map of option ID to number of tokens allocated. Effective votes = sqrt(tokens).
+    pub allocations: HashMap<String, i64>,
+
+    /// Total tokens used in this ballot (sum of all allocations, must not exceed budget)
+    pub total_tokens: i64,
+}
+
+/// Result for a single option in quadratic voting
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticOptionResult {
+    /// Sum of sqrt(tokens) across all voters for this option
+    pub effective_votes: f64,
+
+    /// Total tokens allocated to this option across all voters
+    pub total_tokens: i64,
+
+    /// Number of voters who allocated tokens to this option
+    pub voter_count: i64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProposalAttachment {
@@ -415,6 +482,9 @@ pub struct ProposalResult {
 
     pub proposal_id: String,
 
+    /// Per-option quadratic voting results (only for quadratic voting proposals)
+    pub quadratic_results: Option<HashMap<String, QuadraticResultValue>>,
+
     pub quorum_met: Option<bool>,
 
     pub threshold_met: Option<bool>,
@@ -443,5 +513,19 @@ pub enum Outcome {
     Rejected,
 
     Tie,
+}
+
+/// Result for a single option in quadratic voting
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QuadraticResultValue {
+    /// Sum of sqrt(tokens) across all voters for this option
+    pub effective_votes: f64,
+
+    /// Total tokens allocated to this option across all voters
+    pub total_tokens: i64,
+
+    /// Number of voters who allocated tokens to this option
+    pub voter_count: i64,
 }
 

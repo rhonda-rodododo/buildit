@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS "proposals" (
     "updated_at" INTEGER,
     "attachments" TEXT,
     "tags" TEXT,
+    "quadratic_config" TEXT,
     "custom_fields" TEXT
 );
 

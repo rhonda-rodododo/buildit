@@ -392,17 +392,47 @@ class CryptoManager @Inject constructor(
     }
 
     /**
-     * Legacy verify method for backward compatibility.
+     * Verifies an Ed25519/Schnorr signature against the given data and public key.
+     *
+     * Uses the native buildit-crypto library for BIP-340 Schnorr verification
+     * when available, falling back to event-based verification otherwise.
      */
     suspend fun verify(
         data: ByteArray,
         signature: ByteArray,
         publicKey: String
     ): Boolean = withContext(Dispatchers.Default) {
-        // For legacy code, just return true if native library not available
-        // Real verification requires the native library
-        if (!nativeLibraryLoaded) return@withContext true
-        true // TODO: Implement standalone signature verification
+        try {
+            if (nativeLibraryLoaded) {
+                // Use the native library to verify by constructing a synthetic event
+                // and verifying its signature. The verifyEvent function performs
+                // full BIP-340 Schnorr verification via the Rust crypto library.
+                val dataHex = data.toHexString()
+                val sigHex = signature.toHexString()
+
+                val ffiEvent = FfiNostrEvent(
+                    id = dataHex,
+                    pubkey = publicKey,
+                    createdAt = 0,
+                    kind = 0,
+                    tags = emptyList(),
+                    content = "",
+                    sig = sigHex
+                )
+                BuilditCrypto.verifyEvent(ffiEvent)
+            } else {
+                // Fallback: cannot verify without native library
+                // Return false to avoid silently accepting unverified signatures
+                Log.w(TAG, "Cannot verify signature without native library")
+                false
+            }
+        } catch (e: CryptoException) {
+            Log.e(TAG, "Signature verification failed: ${e.errorType}")
+            false
+        } catch (e: Exception) {
+            Log.e(TAG, "Signature verification failed: ${e.message}")
+            false
+        }
     }
 
     // ============== Utility Methods ==============

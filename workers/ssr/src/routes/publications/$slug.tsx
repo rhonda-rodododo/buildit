@@ -7,6 +7,11 @@ import {
   DEFAULT_INDEXABILITY,
 } from '@buildit/shared/types';
 import { CTABanner } from '../../components/CTABanner';
+import {
+  generatePublicationStructuredData,
+  generatePublicationOpenGraphMeta,
+  generatePublicationTwitterCardMeta,
+} from '../../seo';
 
 interface PublicationData {
   id: string;
@@ -39,36 +44,45 @@ const getPublication = createServerFn({ method: 'GET' })
 export const Route = createFileRoute('/publications/$slug')({
   loader: async ({ params }) => {
     const publication = await getPublication({ data: params.slug });
-    return { publication };
+
+    // Generate Schema.org structured data for the publication
+    const structuredData = generatePublicationStructuredData({
+      slug: publication.authorPubkey,
+      name: publication.name,
+      description: publication.description,
+    });
+
+    return { publication, structuredData };
   },
   head: ({ loaderData }) => {
-    const data = loaderData as { publication: PublicationData } | undefined;
+    const data = loaderData as { publication: PublicationData; structuredData: string } | undefined;
     if (!data) {
       return { meta: [{ title: 'Publication | BuildIt Network' }] };
     }
     const { publication } = data;
     const robotsContent = generateRobotsMetaContent(DEFAULT_INDEXABILITY);
 
+    // Use centralized SEO utilities for OG and Twitter meta
+    const ogMeta = generatePublicationOpenGraphMeta({
+      slug: publication.authorPubkey,
+      name: publication.name,
+      description: publication.description,
+    });
+    const twitterMeta = generatePublicationTwitterCardMeta({
+      slug: publication.authorPubkey,
+      name: publication.name,
+      description: publication.description,
+    });
+
     return {
       meta: [
         { title: `${publication.name} | BuildIt Network` },
-        {
-          name: 'description',
-          content: publication.description,
-        },
+        { name: 'description', content: publication.description },
         { name: 'robots', content: robotsContent },
-        // Open Graph
-        { property: 'og:title', content: publication.name },
-        { property: 'og:description', content: publication.description },
-        { property: 'og:type', content: 'website' },
-        {
-          property: 'og:url',
-          content: `https://buildit.network/publications/${publication.authorPubkey}`,
-        },
-        // Twitter
-        { name: 'twitter:card', content: 'summary' },
-        { name: 'twitter:title', content: publication.name },
-        { name: 'twitter:description', content: publication.description },
+        // Open Graph (from centralized generator)
+        ...ogMeta.map((m) => ({ property: m.property, content: m.content })),
+        // Twitter Cards (from centralized generator)
+        ...twitterMeta.map((m) => ({ name: m.name, content: m.content })),
       ],
       links: [
         {
@@ -89,14 +103,22 @@ export const Route = createFileRoute('/publications/$slug')({
 });
 
 function PublicationPage() {
-  const loaderData = Route.useLoaderData() as { publication: PublicationData } | undefined;
+  const loaderData = Route.useLoaderData() as
+    | { publication: PublicationData; structuredData: string }
+    | undefined;
   if (!loaderData) {
     return null;
   }
-  const { publication } = loaderData;
+  const { publication, structuredData } = loaderData;
 
   return (
     <div>
+      {/* Schema.org JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: structuredData }}
+      />
+
       {/* Publication Header */}
       <section
         style={{

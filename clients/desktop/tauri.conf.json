@@ -35,7 +35,7 @@
     "security": {
       "csp": {
         "default-src": "'self' customprotocol: asset:",
-        "connect-src": "'self' wss://*.damus.io wss://*.nos.lol wss://*.nostr.com wss://relay.* https://*.buildit.network",
+        "connect-src": "'self' wss://*.damus.io wss://*.nos.lol wss://*.nostr.com wss://relay.buildit.network wss://buildit-relay.rikki-schulte.workers.dev https://*.buildit.network https://api.buildit.network",
         "img-src": "'self' data: blob: asset: https:",
         "script-src": "'self' 'wasm-unsafe-eval'",
         "style-src": "'self' 'unsafe-inline'"

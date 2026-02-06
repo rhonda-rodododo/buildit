@@ -40,6 +40,7 @@ fun WikiListScreen(
     viewModel: WikiListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showSearch by remember { mutableStateOf(false) }
 
     LaunchedEffect(groupId) {
         viewModel.loadWiki(groupId)
@@ -55,8 +56,16 @@ fun WikiListScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Search toggle */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    IconButton(onClick = {
+                        showSearch = !showSearch
+                        if (!showSearch) {
+                            viewModel.clearSearch()
+                        }
+                    }) {
+                        Icon(
+                            if (showSearch) Icons.Default.SearchOff else Icons.Default.Search,
+                            contentDescription = if (showSearch) "Hide search" else "Search"
+                        )
                     }
                 }
             )
@@ -67,27 +76,29 @@ fun WikiListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Search bar
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.search(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                placeholder = { Text("Search pages...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (uiState.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.clearSearch() }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+            // Search bar (toggleable)
+            if (showSearch) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.search(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search pages...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (uiState.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.clearSearch() }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
                         }
-                    }
-                },
-                singleLine = true
-            )
+                    },
+                    singleLine = true
+                )
+            }
 
             // Show search results or regular content
-            if (uiState.searchQuery.isNotEmpty()) {
+            if (showSearch && uiState.searchQuery.isNotEmpty()) {
                 SearchResultsList(
                     results = uiState.searchResults,
                     isSearching = uiState.isSearching,

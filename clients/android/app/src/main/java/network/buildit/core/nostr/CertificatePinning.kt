@@ -27,8 +27,9 @@ data class CertPinConfig(
     /** Whether TOFU is enabled for unknown relays */
     val tofuEnabled: Boolean = true,
 
-    /** Whether to warn (vs block) when TOFU certificate changes */
-    val tofuWarnOnChange: Boolean = true,
+    /** Whether to warn (vs block) when TOFU certificate changes.
+     * Default is false (blocking mode) to prevent MITM attacks via cert swapping. */
+    val tofuWarnOnChange: Boolean = false,
 
     /** Whether write operations require pinned certificates */
     val requirePinnedForWrite: Boolean = true,
@@ -490,11 +491,12 @@ class TofuHostnameVerifier(
                     is CertVerifyResult.TofuChanged -> {
                         Log.w(
                             TAG,
-                            "Certificate changed for $hostname (TOFU warning): " +
+                            "Certificate changed for $hostname (TOFU BLOCKED): " +
                                     "${verifyResult.previous} -> ${verifyResult.current}"
                         )
-                        // Allow but warn - caller should handle this
-                        true
+                        // Block connection when TOFU certificate changes to prevent MITM attacks.
+                        // Users must explicitly clear the TOFU pin to accept a new certificate.
+                        false
                     }
                 }
             },

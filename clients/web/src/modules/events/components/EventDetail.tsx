@@ -11,6 +11,8 @@ import { AttendeeList } from './AttendeeList'
 import { EditEventDialog } from './EditEventDialog'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
+import { LocationDisplay } from '@/modules/custom-fields/components/inputs/LocationDisplay'
+import type { LocationValue } from '@/modules/custom-fields/types'
 
 interface EventDetailProps {
   event: EventWithRSVPs | null
@@ -145,7 +147,15 @@ export const EventDetail: FC<EventDetailProps> = ({
                 </div>
 
                 <div className="space-y-3">
-                  {event.location && (
+                  {event.customFields?._location ? (
+                    <div>
+                      <div className="font-medium mb-2">{t('eventDetail.location')}</div>
+                      <LocationDisplay
+                        value={event.customFields._location as LocationValue}
+                        showMap={true}
+                      />
+                    </div>
+                  ) : event.location ? (
                     <div className="flex items-start gap-3">
                       <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
@@ -153,7 +163,7 @@ export const EventDetail: FC<EventDetailProps> = ({
                         <div className="text-sm text-muted-foreground">{event.location}</div>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
 

@@ -119,6 +119,9 @@ pub struct FieldDefinitionOptions {
     /// Accepted MIME types for file fields
     pub accepted_types: Option<Vec<String>>,
 
+    /// Whether 'exact' precision is available. Disabled by default for safety.
+    pub allow_exact_location: Option<bool>,
+
     /// Allow multiple file uploads
     pub allow_multiple: Option<bool>,
 
@@ -127,6 +130,9 @@ pub struct FieldDefinitionOptions {
 
     /// Color format for color fields
     pub color_format: Option<ColorFormat>,
+
+    /// Default location precision for location fields. Neighborhood is recommended for privacy.
+    pub default_precision: Option<Precision>,
 
     /// Maximum value for number/slider fields
     pub max: Option<f64>,
@@ -157,6 +163,9 @@ pub struct FieldDefinitionOptions {
 
     /// Type of relationship
     pub relationship_type: Option<RelationshipType>,
+
+    /// Whether to show an inline map preview for location fields
+    pub show_map_preview: Option<bool>,
 
     /// Step value for number/slider fields
     pub step: Option<f64>,
@@ -195,6 +204,21 @@ pub enum ColorFormat {
     Rgb,
 }
 
+/// Default location precision for location fields. Neighborhood is recommended for privacy.
+///
+/// Privacy precision level. Controls how precisely the location is shared.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Precision {
+    City,
+
+    Exact,
+
+    Neighborhood,
+
+    Region,
+}
+
 /// Type of relationship
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -230,6 +254,9 @@ pub struct FieldOptions {
     /// Accepted MIME types for file fields
     pub accepted_types: Option<Vec<String>>,
 
+    /// Whether 'exact' precision is available. Disabled by default for safety.
+    pub allow_exact_location: Option<bool>,
+
     /// Allow multiple file uploads
     pub allow_multiple: Option<bool>,
 
@@ -238,6 +265,9 @@ pub struct FieldOptions {
 
     /// Color format for color fields
     pub color_format: Option<ColorFormat>,
+
+    /// Default location precision for location fields. Neighborhood is recommended for privacy.
+    pub default_precision: Option<Precision>,
 
     /// Maximum value for number/slider fields
     pub max: Option<f64>,
@@ -268,6 +298,9 @@ pub struct FieldOptions {
 
     /// Type of relationship
     pub relationship_type: Option<RelationshipType>,
+
+    /// Whether to show an inline map preview for location fields
+    pub show_map_preview: Option<bool>,
 
     /// Step value for number/slider fields
     pub step: Option<f64>,
@@ -326,6 +359,22 @@ pub struct FieldValidation {
 
     /// Custom error message for pattern validation
     pub pattern_message: Option<String>,
+}
+
+/// Structured location value stored by location fields
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LocationValue {
+    /// Human-readable location label (address, place name, etc.)
+    pub label: String,
+
+    /// Latitude in decimal degrees
+    pub lat: f64,
+
+    /// Longitude in decimal degrees
+    pub lng: f64,
+
+    /// Privacy precision level. Controls how precisely the location is shared.
+    pub precision: Precision,
 }
 
 /// A stored field value
@@ -439,6 +488,9 @@ pub struct FieldOptionsClass {
     /// Accepted MIME types for file fields
     pub accepted_types: Option<Vec<String>>,
 
+    /// Whether 'exact' precision is available. Disabled by default for safety.
+    pub allow_exact_location: Option<bool>,
+
     /// Allow multiple file uploads
     pub allow_multiple: Option<bool>,
 
@@ -447,6 +499,9 @@ pub struct FieldOptionsClass {
 
     /// Color format for color fields
     pub color_format: Option<ColorFormat>,
+
+    /// Default location precision for location fields. Neighborhood is recommended for privacy.
+    pub default_precision: Option<Precision>,
 
     /// Maximum value for number/slider fields
     pub max: Option<f64>,
@@ -477,6 +532,9 @@ pub struct FieldOptionsClass {
 
     /// Type of relationship
     pub relationship_type: Option<RelationshipType>,
+
+    /// Whether to show an inline map preview for location fields
+    pub show_map_preview: Option<bool>,
 
     /// Step value for number/slider fields
     pub step: Option<f64>,

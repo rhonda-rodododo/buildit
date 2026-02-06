@@ -10,10 +10,11 @@ import type { SchemaBundle, VerificationResult } from './types'
 
 /**
  * Known trusted signer public keys (hex)
- * In production, these would be BuildIt's official signing keys
+ * These are BuildIt's official Ed25519 signing keys for schema bundles.
+ * Keys are rotated periodically - old keys remain for verification of existing bundles.
  */
 export const TRUSTED_SIGNERS = new Set<string>([
-  // Add official BuildIt signing keys here
+  '44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c', // BuildIt Official (2026-02)
 ])
 
 /**

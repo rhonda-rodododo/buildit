@@ -47,7 +47,8 @@ public final class GovernanceService: ObservableObject {
         anonymousVoting: Bool = false,
         allowDelegation: Bool = false,
         createdBy: String,
-        tags: [String] = []
+        tags: [String] = [],
+        quadraticConfig: QuadraticVotingConfig? = nil
     ) async throws -> Proposal {
         let proposal = Proposal(
             id: UUID().uuidString,
@@ -66,7 +67,8 @@ public final class GovernanceService: ObservableObject {
             anonymousVoting: anonymousVoting,
             allowDelegation: allowDelegation,
             createdBy: createdBy,
-            tags: tags
+            tags: tags,
+            quadraticConfig: votingSystem == .quadratic ? (quadraticConfig ?? .default) : nil
         )
 
         try store.saveProposal(proposal)
@@ -171,6 +173,94 @@ public final class GovernanceService: ObservableObject {
 
         logger.info("Vote cast on proposal \(proposalId) by \(voterId)")
         return vote
+    }
+
+    /// Cast a quadratic vote on a proposal
+    public func castQuadraticVote(
+        proposalId: String,
+        voterId: String,
+        ballot: QuadraticBallot,
+        comment: String? = nil
+    ) async throws -> Vote {
+        guard let proposal = try store.getProposal(id: proposalId) else {
+            throw GovernanceError.proposalNotFound
+        }
+
+        guard proposal.canVote else {
+            throw GovernanceError.votingNotOpen
+        }
+
+        guard proposal.votingSystem == .quadratic else {
+            throw GovernanceError.invalidVote
+        }
+
+        guard let config = proposal.quadraticConfig else {
+            throw GovernanceError.invalidVote
+        }
+
+        if try store.hasVoted(proposalId: proposalId, voterId: voterId) {
+            throw GovernanceError.alreadyVoted
+        }
+
+        let validOptionIds = Set(proposal.options.map { $0.id })
+        guard ballot.validate(config: config, validOptionIds: validOptionIds) else {
+            throw GovernanceError.invalidVote
+        }
+
+        // Encode ballot allocations as the choice (option IDs with non-zero allocations)
+        // Store the full ballot as JSON in the comment field prefixed with marker
+        let encoder = JSONEncoder()
+        let ballotJson = String(data: try encoder.encode(ballot), encoding: .utf8) ?? "{}"
+
+        let vote = Vote(
+            proposalId: proposalId,
+            voterId: voterId,
+            choice: Array(ballot.allocations.filter { $0.value > 0 }.keys),
+            weight: 1.0,
+            comment: "__quadratic_ballot__:" + ballotJson + (comment.map { "\n" + $0 } ?? "")
+        )
+
+        try store.saveVote(vote)
+        await publishVote(vote)
+
+        logger.info("Quadratic vote cast on proposal \(proposalId) by \(voterId)")
+        return vote
+    }
+
+    /// Calculate quadratic voting results for a proposal
+    public func calculateQuadraticResults(proposalId: String) async throws -> [String: QuadraticOptionResult] {
+        let votes = try store.getVotesForProposal(proposalId: proposalId)
+        let decoder = JSONDecoder()
+        var optionResults: [String: (totalTokens: Int, effectiveVotes: Double, voterCount: Int)] = [:]
+
+        for vote in votes {
+            // Try to parse QuadraticBallot from comment
+            guard let comment = vote.comment,
+                  comment.hasPrefix("__quadratic_ballot__:") else { continue }
+
+            let ballotPrefix = "__quadratic_ballot__:"
+            let ballotEnd = comment[comment.index(comment.startIndex, offsetBy: ballotPrefix.count)...]
+            let ballotJsonStr = String(ballotEnd.prefix(while: { $0 != "\n" }))
+
+            guard let ballotData = ballotJsonStr.data(using: .utf8),
+                  let ballot = try? decoder.decode(QuadraticBallot.self, from: ballotData) else { continue }
+
+            for (optionId, tokens) in ballot.allocations where tokens > 0 {
+                var current = optionResults[optionId] ?? (totalTokens: 0, effectiveVotes: 0, voterCount: 0)
+                current.totalTokens += tokens
+                current.effectiveVotes += sqrt(Double(tokens))
+                current.voterCount += 1
+                optionResults[optionId] = current
+            }
+        }
+
+        return optionResults.mapValues { result in
+            QuadraticOptionResult(
+                totalTokens: result.totalTokens,
+                effectiveVotes: (result.effectiveVotes * 1000).rounded() / 1000,
+                voterCount: result.voterCount
+            )
+        }
     }
 
     /// Get user's vote on a proposal

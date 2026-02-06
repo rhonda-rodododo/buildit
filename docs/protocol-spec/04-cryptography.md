@@ -12,7 +12,7 @@ BuildIt uses a layered encryption approach:
 ```
 User Password (or Biometric)
         │
-        ▼ PBKDF2 (600,000 iterations, SHA-256)
+        ▼ Argon2id (64 MB, 3 iterations, 4 parallelism)
 Master Encryption Key (MEK) ─── 256 bits
         │
         ├──────────────────────────────────────────┐
@@ -27,46 +27,75 @@ Encrypted with AES-256-GCM             HKDF derived from MEK
 
 ### Master Key from Password
 
+**REQUIRED**: Argon2id (memory-hard, GPU/ASIC resistant)
+
 ```typescript
-interface PBKDF2Config {
-  algorithm: 'PBKDF2';
-  hash: 'SHA-256';
-  iterations: 600000;     // OWASP 2023 recommendation
-  keyLength: 256;         // bits
-  saltLength: 32;         // bytes
+interface Argon2idConfig {
+  algorithm: 'Argon2id';    // Combines Argon2i (side-channel resistant) + Argon2d (GPU resistant)
+  version: 0x13;            // Argon2 v1.3
+  memoryCostKB: 65536;      // 64 MB (OWASP 2023 recommendation)
+  timeCost: 3;              // 3 iterations
+  parallelism: 4;           // 4 lanes
+  keyLength: 256;           // bits
+  saltLength: 32;           // bytes (minimum 16)
 }
 ```
 
-#### Implementation
+**Rationale**: Argon2id was chosen over PBKDF2 because:
+- Memory-hard: resistant to GPU/ASIC/FPGA cracking (PBKDF2 is not)
+- Winner of the Password Hashing Competition (2015)
+- OWASP 2023 first-choice recommendation for password hashing
+- Critical for activist threat model where state-level adversaries have GPU farms
+
+#### Platform Implementations
+
+| Platform | Implementation | Library |
+|----------|---------------|---------|
+| Desktop (Rust) | `packages/crypto/src/keys.rs` | `argon2` crate |
+| Android | `KeystoreManager.kt` | BouncyCastle `Argon2BytesGenerator` |
+| iOS | Keychain-protected (OS handles KDF) | CommonCrypto / Keychain Services |
+| Web (Tauri) | Via Tauri command `derive_master_key` | Rust backend |
+
+> **Note**: The web client's `SecureKeyManager.ts` currently uses WebCrypto PBKDF2
+> (600,000 iterations) as a legacy fallback since WebCrypto does not natively
+> support Argon2id. When running inside Tauri, the Argon2id Tauri command
+> SHOULD be preferred. Migration from PBKDF2 to Argon2id requires re-encrypting
+> the identity private key with a new Argon2id-derived master key.
+
+#### Reference Implementation (Rust)
+
+```rust
+use argon2::{Algorithm, Argon2, Params, Version};
+
+fn derive_master_key(password: &[u8], salt: &[u8]) -> Result<Vec<u8>, Error> {
+    let params = Params::new(
+        65536,    // 64 MB memory
+        3,        // 3 iterations
+        4,        // 4 parallelism
+        Some(32), // 256-bit output
+    )?;
+
+    let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+    let mut key = vec![0u8; 32];
+    argon2.hash_password_into(password, salt, &mut key)?;
+    Ok(key)
+}
+```
+
+#### WebCrypto Fallback (PBKDF2) — Legacy Only
+
+When Argon2id is unavailable (e.g., pure browser environment without native backend),
+PBKDF2 with SHA-256 and 600,000 iterations is an acceptable fallback. Keys derived
+with PBKDF2 and Argon2id are **NOT interchangeable** — the KDF algorithm used must be
+stored alongside the encrypted key data for correct decryption.
 
 ```typescript
-async function deriveMasterKey(
-  password: string,
-  salt: Uint8Array
-): Promise<Uint8Array> {
-  const encoder = new TextEncoder();
-  const passwordBytes = encoder.encode(password);
-
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    passwordBytes,
-    'PBKDF2',
-    false,
-    ['deriveBits']
-  );
-
-  const masterKeyBits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      hash: 'SHA-256',
-      salt: salt,
-      iterations: 600000,
-    },
-    keyMaterial,
-    256
-  );
-
-  return new Uint8Array(masterKeyBits);
+interface PBKDF2FallbackConfig {
+  algorithm: 'PBKDF2';
+  hash: 'SHA-256';
+  iterations: 600000;     // OWASP 2023 minimum for PBKDF2
+  keyLength: 256;         // bits
+  saltLength: 32;         // bytes
 }
 ```
 
@@ -124,7 +153,7 @@ interface EncryptedKey {
   ciphertext: Uint8Array;  // Encrypted private key
   iv: Uint8Array;          // 12-byte nonce
   tag: Uint8Array;         // 16-byte auth tag
-  salt: Uint8Array;        // PBKDF2 salt
+  salt: Uint8Array;        // KDF salt (Argon2id or PBKDF2)
 }
 
 async function encryptPrivateKey(
@@ -495,7 +524,8 @@ async function unwrapGiftWrap(
 interface StoredKeyData {
   publicKey: string;              // Hex, unencrypted for lookup
   encryptedPrivateKey: string;    // Base64, AES-GCM encrypted
-  salt: string;                   // Base64, PBKDF2 salt
+  kdfAlgorithm: 'argon2id' | 'pbkdf2';  // KDF used to derive master key
+  salt: string;                   // Base64, KDF salt
   iv: string;                     // Base64, AES-GCM IV
   webAuthnProtected: boolean;     // Biometric enabled
   credentialId?: string;          // WebAuthn credential ID
@@ -503,6 +533,12 @@ interface StoredKeyData {
   keyVersion: number;             // Rotation version
 }
 ```
+
+> **IMPORTANT**: The `kdfAlgorithm` field is critical for cross-platform
+> interoperability. A key encrypted with an Argon2id-derived master key
+> cannot be decrypted using a PBKDF2-derived master key (and vice versa).
+> All new identities MUST use `argon2id`. The `pbkdf2` value exists only
+> for backward compatibility with legacy web client identities.
 
 ## Biometric Authentication
 

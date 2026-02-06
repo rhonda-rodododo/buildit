@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { CustomFieldValues } from '@/modules/custom-fields/types'
+import type { CustomFieldValues, LocationValue } from '@/modules/custom-fields/types'
 
 /**
  * Mutual aid request/offer types
@@ -52,6 +52,12 @@ export const AidItemSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
   location: z.string().optional(),
+  locationData: z.object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    label: z.string(),
+    precision: z.enum(['exact', 'neighborhood', 'city', 'region']),
+  }).optional(),
   groupId: z.string().optional(),
   createdBy: z.string(),
   createdAt: z.number(),
@@ -124,6 +130,7 @@ export interface CreateAidItemFormData {
   title: string
   description: string
   location?: string
+  locationData?: LocationValue
   urgency?: UrgencyLevel
   quantity?: number
   expiresAt?: Date

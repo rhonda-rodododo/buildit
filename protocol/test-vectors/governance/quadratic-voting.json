@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quadratic Voting Test Vectors",
+  "description": "Test vectors for quadratic vote tallying, token budget enforcement, and winner determination",
+
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-02-05",
+    "specification": "../spec/09-governance.md"
+  },
+
+  "testSuites": [
+    {
+      "name": "Quadratic Vote Calculation",
+      "description": "Tests for computing effective votes from token allocations using quadratic formula: effective_votes = sqrt(tokens_spent)",
+      "cases": [
+        {
+          "name": "single_voter_single_option",
+          "description": "One voter allocates all tokens to one option",
+          "input": {
+            "proposalId": "qv-prop-001",
+            "tokenBudgetPerVoter": 100,
+            "voters": [
+              {
+                "voterId": "voter-a",
+                "allocations": {"option-1": 100}
+              }
+            ]
+          },
+          "expected": {
+            "effectiveVotes": {
+              "option-1": 10.0
+            },
+            "totalEffectiveVotes": 10.0,
+            "winner": "option-1",
+            "note": "sqrt(100) = 10"
+          }
+        },
+        {
+          "name": "single_voter_split_allocation",
+          "description": "One voter splits tokens across two options",
+          "input": {
+            "proposalId": "qv-prop-002",
+            "tokenBudgetPerVoter": 100,
+            "voters": [
+              {
+                "voterId": "voter-a",
+                "allocations": {"option-1": 50, "option-2": 50}
+              }
+            ]
+          },
+          "expected": {
+            "effectiveVotes": {
+              "option-1": 7.071,
+              "option-2": 7.071
+            },
+            "totalEffectiveVotes": 14.142,
+            "note": "sqrt(50) = 7.071 each. Splitting is more efficient than concentrating: 2*sqrt(50) = 14.14 > sqrt(100) = 10"
+          }
+        },
+        {
+          "name": "multiple_voters_different_preferences",
+          "description": "Three voters with different allocations",
+          "input": {
+            "proposalId": "qv-prop-003",
+            "tokenBudgetPerVoter": 100,
+            "options": ["park", "library", "pool"],
+            "voters": [
+              {
+                "voterId": "voter-a",
+                "allocations": {"park": 81, "library": 9, "pool": 10}
+              },
+              {
+                "voterId": "voter-b",
+                "allocations": {"park": 1, "library": 49, "pool": 50}
+              },
+              {
+                "voterId": "voter-c",
+                "allocations": {"park": 25, "library": 25, "pool": 50}
+              }
+            ]
+          },
+          "expected": {
+            "effectiveVotes": {
+              "park": 15.0,
+              "library": 12.0,
+              "pool": 18.232
+            },
+            "perVoterEffective": {
+              "voter-a": {"park": 9.0, "library": 3.0, "pool": 3.162},
+              "voter-b": {"park": 1.0, "library": 7.0, "pool": 7.071},
+              "voter-c": {"park": 5.0, "library": 5.0, "pool": 7.071}
+            },
+            "winner": "pool",
+            "ranking": ["pool", "park", "library"],
+            "note": "Pool wins with 18.23 effective votes. sqrt(81)=9, sqrt(9)=3, sqrt(10)=3.16, sqrt(1)=1, sqrt(49)=7, sqrt(50)=7.07, sqrt(25)=5"
+          }
+        },
+        {
+          "name": "zero_allocation",
+          "description": "Voter allocates zero tokens to some options",
+          "input": {
+            "proposalId": "qv-prop-004",
+            "tokenBudgetPerVoter": 100,
+            "voters": [
+              {
+                "voterId": "voter-a",
+                "allocations": {"option-1": 100, "option-2": 0}
+              }
+            ]
+          },
+          "expected": {
+            "effectiveVotes": {
+              "option-1": 10.0,
+              "option-2": 0.0
+            },
+            "note": "sqrt(0) = 0"
+          }
+        },
+        {
+          "name": "single_token_many_options",
+          "description": "Voter spreads 1 token each across many options",
+          "input": {
+            "proposalId": "qv-prop-005",
+            "tokenBudgetPerVoter": 10,
+            "voters": [
+              {
+                "voterId": "voter-a",
+                "allocations": {
+                  "opt-1": 1, "opt-2": 1, "opt-3": 1, "opt-4": 1, "opt-5": 1,
+                  "opt-6": 1, "opt-7": 1, "opt-8": 1, "opt-9": 1, "opt-10": 1
+                }
+              }
+            ]
+          },
+          "expected": {
+            "effectiveVotes": {
+              "opt-1": 1.0, "opt-2": 1.0, "opt-3": 1.0, "opt-4": 1.0, "opt-5": 1.0,
+              "opt-6": 1.0, "opt-7": 1.0, "opt-8": 1.0, "opt-9": 1.0, "opt-10": 1.0
+            },
+            "totalEffectiveVotes": 10.0,
+            "note": "10 * sqrt(1) = 10 effective votes total. Perfectly even spread maximizes total influence."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Token Budget Enforcement",
+      "description": "Tests for validating that voters do not exceed their token budgets",
+      "cases": [
+        {
+          "name": "exact_budget_valid",
+          "description": "Voter uses exactly their full budget",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {"option-1": 60, "option-2": 40}
+          },
+          "expected": {
+            "valid": true,
+            "tokensUsed": 100,
+            "tokensRemaining": 0
+          }
+        },
+        {
+          "name": "under_budget_valid",
+          "description": "Voter uses less than their full budget",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {"option-1": 30, "option-2": 20}
+          },
+          "expected": {
+            "valid": true,
+            "tokensUsed": 50,
+            "tokensRemaining": 50
+          }
+        },
+        {
+          "name": "over_budget_rejected",
+          "description": "Voter attempts to exceed budget",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {"option-1": 60, "option-2": 50}
+          },
+          "expected": {
+            "valid": false,
+            "error": "BUDGET_EXCEEDED",
+            "tokensUsed": 110,
+            "tokensOver": 10
+          }
+        },
+        {
+          "name": "negative_allocation_rejected",
+          "description": "Negative token allocations are not allowed",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {"option-1": -5, "option-2": 105}
+          },
+          "expected": {
+            "valid": false,
+            "error": "NEGATIVE_ALLOCATION",
+            "invalidOption": "option-1"
+          }
+        },
+        {
+          "name": "fractional_allocation_rejected",
+          "description": "Fractional token allocations are not allowed",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {"option-1": 50.5, "option-2": 49.5}
+          },
+          "expected": {
+            "valid": false,
+            "error": "FRACTIONAL_ALLOCATION",
+            "note": "Token allocations must be non-negative integers"
+          }
+        },
+        {
+          "name": "allocation_to_nonexistent_option_rejected",
+          "description": "Cannot allocate tokens to options not in the proposal",
+          "input": {
+            "tokenBudget": 100,
+            "validOptions": ["option-1", "option-2"],
+            "allocations": {"option-1": 50, "option-3": 50}
+          },
+          "expected": {
+            "valid": false,
+            "error": "INVALID_OPTION",
+            "invalidOption": "option-3"
+          }
+        },
+        {
+          "name": "empty_allocation_valid",
+          "description": "Voter can submit empty allocation (abstain)",
+          "input": {
+            "tokenBudget": 100,
+            "allocations": {}
+          },
+          "expected": {
+            "valid": true,
+            "tokensUsed": 0,
+            "isAbstain": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Winner Determination",
+      "description": "Tests for determining proposal outcomes based on quadratic vote tallies",
+      "cases": [
+        {
+          "name": "clear_winner",
+          "description": "One option clearly leads in effective votes",
+          "input": {
+            "proposalId": "qv-winner-001",
+            "effectiveVotes": {
+              "yes": 45.5,
+              "no": 20.3,
+              "abstain": 5.0
+            },
+            "quorumRequired": 50,
+            "totalEligibleVoters": 100,
+            "totalVoters": 60
+          },
+          "expected": {
+            "winner": "yes",
+            "quorumMet": true,
+            "outcome": "passed",
+            "percentages": {
+              "yes": 64.33,
+              "no": 28.7,
+              "abstain": 7.07
+            }
+          }
+        },
+        {
+          "name": "tie_between_options",
+          "description": "Two options receive identical effective votes",
+          "input": {
+            "proposalId": "qv-winner-002",
+            "effectiveVotes": {
+              "option-a": 25.0,
+              "option-b": 25.0,
+              "option-c": 10.0
+            }
+          },
+          "expected": {
+            "winner": null,
+            "outcome": "tie",
+            "tiedOptions": ["option-a", "option-b"],
+            "note": "Ties require runoff or tiebreaker mechanism"
+          }
+        },
+        {
+          "name": "no_quorum",
+          "description": "Not enough voters participated",
+          "input": {
+            "proposalId": "qv-winner-003",
+            "effectiveVotes": {
+              "yes": 15.0,
+              "no": 5.0
+            },
+            "quorumRequired": 50,
+            "totalEligibleVoters": 100,
+            "totalVoters": 20
+          },
+          "expected": {
+            "winner": null,
+            "quorumMet": false,
+            "outcome": "no-quorum",
+            "participation": 20.0
+          }
+        },
+        {
+          "name": "large_scale_election",
+          "description": "100 voters across 5 options with varied budgets",
+          "input": {
+            "proposalId": "qv-winner-004",
+            "tokenBudgetPerVoter": 100,
+            "options": ["candidate-a", "candidate-b", "candidate-c", "candidate-d", "candidate-e"],
+            "aggregatedAllocations": {
+              "candidate-a": 3600,
+              "candidate-b": 2500,
+              "candidate-c": 1600,
+              "candidate-d": 900,
+              "candidate-e": 400
+            },
+            "totalVoters": 100
+          },
+          "expected": {
+            "effectiveVotes": {
+              "candidate-a": 60.0,
+              "candidate-b": 50.0,
+              "candidate-c": 40.0,
+              "candidate-d": 30.0,
+              "candidate-e": 20.0
+            },
+            "winner": "candidate-a",
+            "ranking": ["candidate-a", "candidate-b", "candidate-c", "candidate-d", "candidate-e"],
+            "note": "sqrt(3600)=60, sqrt(2500)=50, sqrt(1600)=40, sqrt(900)=30, sqrt(400)=20"
+          }
+        },
+        {
+          "name": "concentration_penalty_demonstration",
+          "description": "Shows quadratic voting penalizes concentration of preferences",
+          "input": {
+            "scenario": "Two voters with different strategies",
+            "tokenBudgetPerVoter": 100,
+            "voters": [
+              {
+                "voterId": "concentrator",
+                "strategy": "All tokens on one option",
+                "allocations": {"option-a": 100}
+              },
+              {
+                "voterId": "spreader",
+                "strategy": "Split tokens across options",
+                "allocations": {"option-a": 25, "option-b": 25, "option-c": 25, "option-d": 25}
+              }
+            ]
+          },
+          "expected": {
+            "concentratorInfluence": {
+              "total": 10.0,
+              "perOption": {"option-a": 10.0}
+            },
+            "spreaderInfluence": {
+              "total": 20.0,
+              "perOption": {"option-a": 5.0, "option-b": 5.0, "option-c": 5.0, "option-d": 5.0}
+            },
+            "note": "Spreader has 2x total effective votes (20 vs 10) despite same token budget. This is the core QV property: it's cheaper to express moderate preferences across many issues."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Collusion Resistance",
+      "description": "Tests verifying quadratic voting properties that resist collusion",
+      "cases": [
+        {
+          "name": "colluding_group_vs_diverse_preferences",
+          "description": "A colluding group concentrating votes vs. diverse individual preferences",
+          "input": {
+            "tokenBudgetPerVoter": 100,
+            "colludingGroup": {
+              "size": 3,
+              "voters": [
+                {"voterId": "colluder-1", "allocations": {"option-x": 100}},
+                {"voterId": "colluder-2", "allocations": {"option-x": 100}},
+                {"voterId": "colluder-3", "allocations": {"option-x": 100}}
+              ]
+            },
+            "independentGroup": {
+              "size": 5,
+              "voters": [
+                {"voterId": "indie-1", "allocations": {"option-y": 50, "option-z": 50}},
+                {"voterId": "indie-2", "allocations": {"option-y": 60, "option-z": 40}},
+                {"voterId": "indie-3", "allocations": {"option-y": 70, "option-z": 30}},
+                {"voterId": "indie-4", "allocations": {"option-y": 40, "option-z": 60}},
+                {"voterId": "indie-5", "allocations": {"option-y": 80, "option-z": 20}}
+              ]
+            }
+          },
+          "expected": {
+            "effectiveVotes": {
+              "option-x": 30.0,
+              "option-y": 38.38,
+              "option-z": 27.44
+            },
+            "winner": "option-y",
+            "note": "Despite 3 colluders spending all tokens on option-x (30 effective votes), 5 independent voters with varied preferences generate more effective votes for option-y (38.38). QV ensures broad support beats concentrated support."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Precision and Rounding",
+      "description": "Tests for floating-point handling in quadratic calculations",
+      "cases": [
+        {
+          "name": "irrational_result_precision",
+          "description": "sqrt(2) = 1.41421356... should be rounded to 3 decimal places",
+          "input": {
+            "allocation": 2
+          },
+          "expected": {
+            "effectiveVotes": 1.414,
+            "precision": 3,
+            "note": "All clients must round to 3 decimal places for cross-client consistency"
+          }
+        },
+        {
+          "name": "perfect_square_no_rounding",
+          "description": "Perfect squares should produce exact integer results",
+          "input": {
+            "allocations": [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+          },
+          "expected": {
+            "effectiveVotes": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+          }
+        },
+        {
+          "name": "sum_of_rounded_values",
+          "description": "Total effective votes is sum of individually rounded values, not rounded sum",
+          "input": {
+            "allocations": {"opt-a": 2, "opt-b": 3, "opt-c": 5}
+          },
+          "expected": {
+            "perOption": {
+              "opt-a": 1.414,
+              "opt-b": 1.732,
+              "opt-c": 2.236
+            },
+            "total": 5.382,
+            "note": "Total = 1.414 + 1.732 + 2.236 = 5.382"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -133,8 +133,8 @@ async function doInitialize(): Promise<boolean> {
         useAuthStore.setState({ currentIdentity: savedIdentity });
         log.info("  Step 5b: ✅ Identity selection restored (still locked)");
       } else {
-        log.info("  Step 5b: Saved identity not found in database, clearing localStorage");
-        localStorage.removeItem('buildit-selected-identity');
+        log.info("  Step 5b: Saved identity not found in database, clearing sessionStorage");
+        sessionStorage.removeItem('buildit-selected-identity');
       }
     }
 

@@ -219,7 +219,59 @@ export const AuditLogs: FC<AuditLogsProps> = ({
   }, [logs, mountTime]);
 
   const handleExportLogs = () => {
-    // CSV export deferred - see docs/TECH_DEBT.md
+    if (filteredLogs.length === 0) return;
+
+    const headers = [
+      'Timestamp',
+      'Action',
+      'Action Type',
+      'User Name',
+      'User ID',
+      'Target Resource',
+      'Resource Type',
+      'Details',
+      'Severity',
+      'Success',
+      'IP Address',
+      'User Agent',
+    ];
+
+    const escapeCsvField = (field: string): string => {
+      if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+
+    const csvRows = filteredLogs.map((log) => [
+      log.timestamp,
+      log.action,
+      log.actionType,
+      log.userName,
+      log.userId,
+      log.targetResource,
+      log.targetResourceType,
+      log.details,
+      log.severity,
+      log.success ? 'true' : 'false',
+      log.ipAddress,
+      log.userAgent,
+    ]);
+
+    const csv = [
+      headers.map(escapeCsvField).join(','),
+      ...csvRows.map((row) => row.map(escapeCsvField).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const getActionIcon = (actionType: AuditLog['actionType']) => {

@@ -151,7 +151,7 @@ struct ProfileRow: View {
         .contentShape(Rectangle())
         .onTapGesture {
             if let npub = viewModel.npub {
-                UIPasteboard.general.string = npub
+                SecureClipboard.copy(npub)
                 viewModel.showCopiedToast = true
             }
         }

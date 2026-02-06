@@ -286,7 +286,8 @@ extension MockBLEManager {
         id: UUID = UUID(),
         identifier: String = "Test Peer",
         rssi: Int = -65,
-        isConnected: Bool = false
+        isConnected: Bool = false,
+        verifiedPubkey: String? = nil
     ) -> DiscoveredPeer {
         DiscoveredPeer(
             id: id,
@@ -294,7 +295,9 @@ extension MockBLEManager {
             rssi: rssi,
             lastSeen: Date(),
             isConnected: isConnected,
-            peripheral: nil
+            peripheral: nil,
+            identityCommitment: nil,
+            verifiedPubkey: verifiedPubkey
         )
     }
 }

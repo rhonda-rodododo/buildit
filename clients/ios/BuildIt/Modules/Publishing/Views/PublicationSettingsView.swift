@@ -205,7 +205,7 @@ struct PublicationSettingsView: View {
             )
 
             // Copy to clipboard or share
-            UIPasteboard.general.string = rss
+            SecureClipboard.copy(rss)
         }
     }
 

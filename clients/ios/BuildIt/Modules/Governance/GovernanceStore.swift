@@ -32,6 +32,7 @@ public final class ProposalEntity {
     public var createdAt: Date
     public var updatedAt: Date?
     public var tagsJson: String // JSON encoded tags array
+    public var quadraticConfigJson: String? // JSON encoded QuadraticVotingConfig
 
     public init(
         id: String,
@@ -54,7 +55,8 @@ public final class ProposalEntity {
         createdBy: String,
         createdAt: Date,
         updatedAt: Date?,
-        tagsJson: String
+        tagsJson: String,
+        quadraticConfigJson: String? = nil
     ) {
         self.id = id
         self.groupId = groupId
@@ -77,6 +79,7 @@ public final class ProposalEntity {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.tagsJson = tagsJson
+        self.quadraticConfigJson = quadraticConfigJson
     }
 }
 
@@ -231,6 +234,12 @@ public final class GovernanceStore {
         let tagsData = try encoder.encode(proposal.tags)
         let tagsJson = String(data: tagsData, encoding: .utf8) ?? "[]"
 
+        var quadraticConfigJson: String?
+        if let qConfig = proposal.quadraticConfig {
+            let data = try encoder.encode(qConfig)
+            quadraticConfigJson = String(data: data, encoding: .utf8)
+        }
+
         let entity = ProposalEntity(
             id: proposal.id,
             groupId: proposal.groupId,
@@ -252,7 +261,8 @@ public final class GovernanceStore {
             createdBy: proposal.createdBy,
             createdAt: proposal.createdAt,
             updatedAt: proposal.updatedAt,
-            tagsJson: tagsJson
+            tagsJson: tagsJson,
+            quadraticConfigJson: quadraticConfigJson
         )
 
         modelContext.insert(entity)
@@ -349,6 +359,11 @@ public final class GovernanceStore {
 
         let tags: [String] = (try? decoder.decode([String].self, from: entity.tagsJson.data(using: .utf8) ?? Data())) ?? []
 
+        var quadraticConfig: QuadraticVotingConfig?
+        if let qJson = entity.quadraticConfigJson, let data = qJson.data(using: .utf8) {
+            quadraticConfig = try? decoder.decode(QuadraticVotingConfig.self, from: data)
+        }
+
         return Proposal(
             id: entity.id,
             groupId: entity.groupId,
@@ -368,7 +383,8 @@ public final class GovernanceStore {
             createdBy: entity.createdBy,
             createdAt: entity.createdAt,
             updatedAt: entity.updatedAt,
-            tags: tags
+            tags: tags,
+            quadraticConfig: quadraticConfig
         )
     }
 

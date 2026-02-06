@@ -105,6 +105,68 @@ enum class ProposalOutcome {
 }
 
 /**
+ * Configuration for quadratic voting on a proposal.
+ */
+@Serializable
+data class QuadraticVotingConfig(
+    /** Total token budget each voter receives to allocate across options */
+    val tokenBudget: Int,
+    /** Maximum tokens a voter can allocate to a single option (defaults to tokenBudget) */
+    val maxTokensPerOption: Int? = null
+) {
+    companion object {
+        val DEFAULT = QuadraticVotingConfig(tokenBudget = 100)
+    }
+}
+
+/**
+ * A quadratic voting ballot with token allocations across options.
+ */
+@Serializable
+data class QuadraticBallot(
+    /** Map of option ID to number of tokens allocated */
+    val allocations: Map<String, Int>,
+    /** Total tokens used in this ballot */
+    val totalTokens: Int
+) {
+    constructor(allocations: Map<String, Int>) : this(
+        allocations = allocations,
+        totalTokens = allocations.values.sum()
+    )
+
+    /** Calculate effective votes for each option: sqrt(tokens) */
+    val effectiveVotes: Map<String, Double>
+        get() = allocations.mapValues { (_, tokens) ->
+            if (tokens > 0) kotlin.math.sqrt(tokens.toDouble()) else 0.0
+        }
+
+    /** Validate that the ballot doesn't exceed the token budget */
+    fun validate(config: QuadraticVotingConfig, validOptionIds: Set<String>): Boolean {
+        if (totalTokens > config.tokenBudget) return false
+        for ((optionId, tokens) in allocations) {
+            if (tokens < 0) return false
+            if (optionId !in validOptionIds) return false
+            val maxPerOption = config.maxTokensPerOption
+            if (maxPerOption != null && tokens > maxPerOption) return false
+        }
+        return true
+    }
+}
+
+/**
+ * Result for a single option in quadratic voting.
+ */
+@Serializable
+data class QuadraticOptionResult(
+    /** Total tokens allocated to this option across all voters */
+    val totalTokens: Int,
+    /** Sum of sqrt(tokens) across all voters */
+    val effectiveVotes: Double,
+    /** Number of voters who allocated tokens to this option */
+    val voterCount: Int
+)
+
+/**
  * A voting option for a proposal.
  */
 @Serializable
@@ -163,6 +225,7 @@ data class ProposalEntity(
     val updatedAt: Long? = null,
     val attachmentsJson: String? = null, // JSON encoded ProposalAttachment list
     val tagsJson: String = "[]", // JSON encoded tags list
+    val quadraticConfigJson: String? = null, // JSON encoded QuadraticVotingConfig
     val customFieldsJson: String? = null // JSON encoded custom fields
 ) {
     val options: List<VoteOption>
@@ -187,6 +250,15 @@ data class ProposalEntity(
                 emptyList()
             }
         } ?: emptyList()
+
+    val quadraticConfig: QuadraticVotingConfig?
+        get() = quadraticConfigJson?.let {
+            try {
+                Json.decodeFromString<QuadraticVotingConfig>(it)
+            } catch (_: Exception) {
+                null
+            }
+        }
 
     val canVote: Boolean
         get() {

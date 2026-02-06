@@ -246,6 +246,20 @@ export class CustomFieldsManager {
         if (schema.maxItems) zodSchema = zodSchema.max(schema.maxItems);
         break;
 
+      case 'object':
+        // Location fields store a structured object
+        if (field.widget.widget === 'location') {
+          zodSchema = z.object({
+            lat: z.number().min(-90).max(90),
+            lng: z.number().min(-180).max(180),
+            label: z.string().max(500),
+            precision: z.enum(['exact', 'neighborhood', 'city', 'region']),
+          });
+        } else {
+          zodSchema = z.record(z.string(), z.unknown());
+        }
+        break;
+
       default:
         zodSchema = z.unknown();
     }

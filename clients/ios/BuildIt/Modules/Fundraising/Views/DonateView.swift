@@ -548,7 +548,7 @@ struct CryptoPaymentSheet: View {
                             .cornerRadius(8)
 
                         Button {
-                            UIPasteboard.general.string = cryptoType == .lightning ? lightningInvoice : paymentAddress
+                            SecureClipboard.copy(cryptoType == .lightning ? lightningInvoice : paymentAddress)
                             copied = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 copied = false

@@ -93,6 +93,7 @@ fun FeedScreen(
         onPostClick = { onNavigateToThread(it.id) },
         onReactClick = { viewModel.reactToPost(it.id) },
         onReplyClick = { onNavigateToThread(it.id) },
+        onRepostClick = { viewModel.repostPost(it.id, it.authorPubkey) },
         onComposeClick = onNavigateToCompose,
         snackbarHostState = snackbarHostState
     )
@@ -107,6 +108,7 @@ private fun FeedContent(
     onPostClick: (Post) -> Unit,
     onReactClick: (Post) -> Unit,
     onReplyClick: (Post) -> Unit,
+    onRepostClick: (Post) -> Unit,
     onComposeClick: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
@@ -149,7 +151,8 @@ private fun FeedContent(
                             post = post,
                             onClick = { onPostClick(post) },
                             onReactClick = { onReactClick(post) },
-                            onReplyClick = { onReplyClick(post) }
+                            onReplyClick = { onReplyClick(post) },
+                            onRepostClick = { onRepostClick(post) }
                         )
                     }
                 }
@@ -163,7 +166,8 @@ private fun PostCard(
     post: Post,
     onClick: () -> Unit,
     onReactClick: () -> Unit,
-    onReplyClick: () -> Unit
+    onReplyClick: () -> Unit,
+    onRepostClick: () -> Unit = {}
 ) {
     val accessibilityLabel = buildString {
         append("Post by ${post.authorName ?: post.authorPubkey.take(12)}")
@@ -171,6 +175,9 @@ private fun PostCard(
         append(". ${formatRelativeTime(post.createdAt)}")
         if (post.replyCount > 0) {
             append(". ${post.replyCount} ${if (post.replyCount == 1) "reply" else "replies"}")
+        }
+        if (post.repostCount > 0) {
+            append(". ${post.repostCount} ${if (post.repostCount == 1) "repost" else "reposts"}")
         }
         if (post.reactionCount > 0) {
             append(". ${post.reactionCount} ${if (post.reactionCount == 1) "like" else "likes"}")
@@ -280,19 +287,29 @@ private fun PostCard(
                     }
                 }
 
-                // Repost button (placeholder)
+                // Repost button
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = { /* TODO: Implement repost */ },
+                        onClick = onRepostClick,
                         modifier = Modifier
                             .size(48.dp)
-                            .semantics { contentDescription = "Repost" }
+                            .semantics {
+                                contentDescription = if (post.userReposted) "Undo repost" else "Repost"
+                                stateDescription = if (post.userReposted) "Reposted" else "Not reposted"
+                            }
                     ) {
                         Icon(
                             Icons.Default.Repeat,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (post.userReposted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    if (post.repostCount > 0) {
+                        Text(
+                            text = "${post.repostCount}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (post.userReposted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

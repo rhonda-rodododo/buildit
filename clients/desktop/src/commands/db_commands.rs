@@ -350,12 +350,14 @@ pub async fn db_query(
             sql.push_str(&format!(" ORDER BY \"{col}\" {dir}"));
         }
 
-        // LIMIT / OFFSET
+        // LIMIT / OFFSET - use parameterized queries for defense in depth
         if let Some(limit) = filter.limit {
-            sql.push_str(&format!(" LIMIT {limit}"));
+            params.push(Box::new(limit as i64));
+            sql.push_str(&format!(" LIMIT ?{}", params.len()));
         }
         if let Some(offset) = filter.offset {
-            sql.push_str(&format!(" OFFSET {offset}"));
+            params.push(Box::new(offset as i64));
+            sql.push_str(&format!(" OFFSET ?{}", params.len()));
         }
 
         let mut stmt = conn.prepare(&sql).map_err(|e| format!("Prepare failed: {e}"))?;
@@ -411,7 +413,9 @@ pub async fn db_bulk_put(
         return Ok(0);
     }
 
-    state.with_connection(|conn| {
+    // Use with_connection_mut to get &mut Connection, required for safe
+    // transaction() which checks nesting (unlike unchecked_transaction)
+    state.with_connection_mut(|conn| {
         let mut count = 0u32;
 
         // Use the first record to determine columns
@@ -443,7 +447,7 @@ pub async fn db_bulk_put(
         );
 
         let tx = conn
-            .unchecked_transaction()
+            .transaction()
             .map_err(|e| format!("Transaction start failed: {e}"))?;
 
         {

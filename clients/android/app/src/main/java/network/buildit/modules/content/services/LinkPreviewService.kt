@@ -7,8 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import network.buildit.generated.schemas.FetchedBy
-import network.buildit.generated.schemas.LinkPreview
+import network.buildit.generated.schemas.content.FetchedBy
+import network.buildit.generated.schemas.content.LinkPreview
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject

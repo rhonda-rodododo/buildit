@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Configuration for BuildIt Android App
+
+    SECURITY: This configuration:
+    1. Blocks all cleartext (HTTP) traffic by default
+    2. Only allows cleartext for localhost (dev/testing)
+    3. Restricts trusted CAs to system CAs only (no user-installed CAs)
+
+    This is critical for an activist organizing tool where users may face
+    state-level surveillance. User-installed CAs (e.g., from MDM or
+    employer profiles) could be used for MITM attacks.
+-->
+<network-security-config>
+    <!-- Block all cleartext traffic by default -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Only trust system CAs, NOT user-installed CAs.
+                 This prevents MITM via employer/school MDM certificates. -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Allow cleartext only for localhost (development/testing) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

@@ -229,6 +229,58 @@ class SocialViewModel @Inject constructor(
     }
 
     /**
+     * Reposts a post (NIP-18 kind 6 repost event).
+     */
+    fun repostPost(postId: String, authorPubkey: String) {
+        viewModelScope.launch {
+            try {
+                val pubkey = cryptoManager.getPublicKeyHex() ?: throw IllegalStateException("No public key")
+
+                // Find the original post to include its content in the repost
+                val originalPost = _posts.value.find { it.id == postId }
+
+                val unsigned = UnsignedNostrEvent(
+                    pubkey = pubkey,
+                    createdAt = System.currentTimeMillis() / 1000,
+                    kind = 6, // NIP-18 repost
+                    tags = listOf(
+                        listOf("e", postId, ""), // reference to original event
+                        listOf("p", authorPubkey) // reference to original author
+                    ),
+                    content = "" // Content is empty for reposts per NIP-18
+                )
+                val signed = cryptoManager.signEvent(unsigned)
+                    ?: throw IllegalStateException("Failed to sign event")
+
+                val event = NostrEvent(
+                    id = signed.id,
+                    pubkey = signed.pubkey,
+                    createdAt = signed.createdAt,
+                    kind = signed.kind,
+                    tags = signed.tags,
+                    content = signed.content,
+                    sig = signed.sig
+                )
+                nostrClient.publishEvent(event)
+
+                // Update local repost count
+                val currentPosts = _posts.value.toMutableList()
+                val index = currentPosts.indexOfFirst { it.id == postId }
+                if (index >= 0) {
+                    val post = currentPosts[index]
+                    currentPosts[index] = post.copy(
+                        repostCount = post.repostCount + 1,
+                        userReposted = true
+                    )
+                    _posts.value = currentPosts
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = e.message)
+            }
+        }
+    }
+
+    /**
      * Loads replies to a specific post.
      */
     fun loadReplies(postId: String) {
@@ -317,6 +369,8 @@ data class Post(
     val replyToId: String?,
     val reactionCount: Int,
     val replyCount: Int,
+    val repostCount: Int = 0,
     val userReacted: Boolean,
+    val userReposted: Boolean = false,
     val replies: List<Post>
 )

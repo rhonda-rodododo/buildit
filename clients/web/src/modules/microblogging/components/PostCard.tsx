@@ -51,6 +51,7 @@ import {
 import { CommentThread } from './CommentThread';
 import { CommentInput } from './CommentInput';
 import { UserHandle } from '@/components/user/UserHandle';
+import { LocationDisplay } from '@/modules/custom-fields/components/inputs/LocationDisplay';
 
 interface PostCardProps {
   post: Post;
@@ -336,6 +337,13 @@ const PostCardInner: FC<PostCardProps> = ({
             <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
           </div>
         )
+      )}
+
+      {/* Location tag */}
+      {post.location && (
+        <div className="mb-3">
+          <LocationDisplay value={post.location} compact />
+        </div>
       )}
 
       {/* Engagement stats */}

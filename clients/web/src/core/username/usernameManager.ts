@@ -1,5 +1,9 @@
 import { dal } from '@/core/storage/dal';
 import { validateUsername, isUsernameAvailable, normalizeUsername } from './usernameUtils';
+import { createMetadataEvent } from '@/core/nostr/nip01';
+import { getNostrClient } from '@/core/nostr/client';
+import { getCurrentPrivateKey } from '@/stores/authStore';
+import { logger } from '@/lib/logger';
 import type { DBUsernameSettings } from '@/core/storage/db';
 
 /**
@@ -68,7 +72,8 @@ export class UsernameManager {
         await dal.add('usernameSettings', defaultSettings);
       }
 
-      // Nostr relay broadcast deferred to Phase 2 (see docs/TECH_DEBT.md)
+      // Broadcast kind:0 metadata event to configured relays
+      await UsernameManager.broadcastMetadata(pubkey);
 
       return { success: true };
     } catch (error) {
@@ -213,5 +218,76 @@ export class UsernameManager {
       nip05: undefined,
       nip05Verified: false,
     });
+  }
+
+  /**
+   * Broadcast NIP-01 kind:0 metadata event to configured relays
+   *
+   * This publishes the user's profile metadata (name, display_name, about,
+   * picture, nip05) as a replaceable event to all configured write relays.
+   *
+   * @param pubkey - The public key of the identity to broadcast
+   */
+  static async broadcastMetadata(pubkey: string): Promise<void> {
+    const privateKey = getCurrentPrivateKey();
+    if (!privateKey) {
+      logger.warn('Cannot broadcast metadata: app is locked');
+      return;
+    }
+
+    try {
+      // Load identity data from database
+      const identity = await dal.get<{
+        publicKey: string;
+        username?: string;
+        displayName?: string;
+        name?: string;
+        nip05?: string;
+        about?: string;
+        picture?: string;
+      }>('identities', pubkey);
+
+      if (!identity) {
+        logger.warn('Cannot broadcast metadata: identity not found');
+        return;
+      }
+
+      // Build NIP-01 metadata object
+      const metadata: Record<string, string | undefined> = {
+        name: identity.username || identity.name,
+        display_name: identity.displayName,
+        about: identity.about,
+        picture: identity.picture,
+        nip05: identity.nip05,
+      };
+
+      // Remove undefined fields to keep the event clean
+      const cleanMetadata = Object.fromEntries(
+        Object.entries(metadata).filter(([, v]) => v !== undefined)
+      ) as Record<string, string>;
+
+      // Create and sign kind:0 metadata event
+      const metadataEvent = createMetadataEvent(cleanMetadata, privateKey);
+
+      // Publish to relays
+      const client = getNostrClient();
+      const results = await client.publishWithPrivacy(metadataEvent, {
+        priority: 'normal',
+        isCritical: false,
+      });
+
+      const successes = results.filter(r => r.success);
+      const failures = results.filter(r => !r.success);
+
+      if (successes.length > 0) {
+        logger.info(`Broadcast metadata to ${successes.length} relays for ${pubkey.slice(0, 8)}...`);
+      }
+      if (failures.length > 0) {
+        logger.warn(`Metadata broadcast failed on ${failures.length} relays`);
+      }
+    } catch (error) {
+      // Non-fatal: metadata broadcast failure should not break profile updates
+      logger.warn('Failed to broadcast metadata:', error);
+    }
   }
 }

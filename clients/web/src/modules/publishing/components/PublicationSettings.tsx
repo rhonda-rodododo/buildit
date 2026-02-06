@@ -27,9 +27,13 @@ import {
   CreditCard,
   Share2,
   Save,
+  Globe,
+  Menu,
 } from 'lucide-react';
-import type { Publication, UpdatePublicationInput, ArticleVisibility } from '../types';
+import type { Publication, UpdatePublicationInput, ArticleVisibility, NavigationItem } from '../types';
 import { toast } from 'sonner';
+import { CustomDomainSettings } from './CustomDomainSettings';
+import { NavigationEditor } from './NavigationEditor';
 
 interface PublicationSettingsProps {
   publication: Publication;
@@ -74,6 +78,9 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
     publication.settings.subscriptionPrice || 0
   );
 
+  // Custom domain state
+  const [customDomain, setCustomDomain] = useState(publication.settings.customDomain || '');
+
   // Social links state
   const [twitter, setTwitter] = useState(publication.settings.socialLinks?.twitter || '');
   const [nostr, setNostr] = useState(publication.settings.socialLinks?.nostr || '');
@@ -102,6 +109,7 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
         enableEmailNotifications,
         enablePaidSubscriptions,
         subscriptionPrice: enablePaidSubscriptions ? subscriptionPrice : undefined,
+        customDomain: customDomain || undefined,
         socialLinks: {
           twitter: twitter || undefined,
           nostr: nostr || undefined,
@@ -136,10 +144,18 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
       {/* Settings Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="general">{t('publishing.tabs.general')}</TabsTrigger>
             <TabsTrigger value="theme">{t('publishing.tabs.theme')}</TabsTrigger>
             <TabsTrigger value="content">{t('publishing.tabs.content')}</TabsTrigger>
+            <TabsTrigger value="navigation">
+              <Menu className="h-4 w-4 mr-1" />
+              Navigation
+            </TabsTrigger>
+            <TabsTrigger value="domain">
+              <Globe className="h-4 w-4 mr-1" />
+              Domain
+            </TabsTrigger>
             <TabsTrigger value="subscriptions">{t('publishing.tabs.subscriptions')}</TabsTrigger>
             <TabsTrigger value="social">{t('publishing.tabs.social')}</TabsTrigger>
           </TabsList>
@@ -347,6 +363,31 @@ export const PublicationSettings: FC<PublicationSettingsProps> = ({
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Navigation Editor */}
+          <TabsContent value="navigation">
+            <NavigationEditor
+              items={publication.navigation || []}
+              onSave={(items: NavigationItem[]) => {
+                updatePublication(publication.id, { navigation: items });
+                toast.success(t('publishing.navigationSaved'));
+              }}
+            />
+          </TabsContent>
+
+          {/* Custom Domain Settings */}
+          <TabsContent value="domain">
+            <CustomDomainSettings
+              publicationId={publication.id}
+              currentDomain={publication.settings.customDomain}
+              onDomainChange={(domain) => {
+                setCustomDomain(domain || '');
+                updatePublication(publication.id, {
+                  settings: { ...publication.settings, customDomain: domain },
+                });
+              }}
+            />
           </TabsContent>
 
           {/* Subscription Settings */}

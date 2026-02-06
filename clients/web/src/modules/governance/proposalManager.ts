@@ -1,5 +1,5 @@
 import { getPublicKey, finalizeEvent, type Event as NostrEvent } from 'nostr-tools';
-import type { DBProposal, DBVote, VoteOption } from './schema';
+import type { DBProposal, DBVote, VoteOption, QuadraticBallot } from './schema';
 import type {
   CreateProposalInput,
   CastVoteInput,
@@ -67,6 +67,16 @@ class ProposalManager {
     const votingStartMs = input.votingDuration ? now : now;
     const votingEndMs = input.votingDuration ? now + input.votingDuration * 1000 : now + 7 * 24 * 60 * 60 * 1000;
 
+    // Build quadratic config if voting system is quadratic
+    const quadraticConfig = input.votingSystem === 'quadratic'
+      ? {
+          tokenBudget: input.quadraticTokenBudget ?? 100,
+          ...(input.quadraticMaxTokensPerOption
+            ? { maxTokensPerOption: input.quadraticMaxTokensPerOption }
+            : {}),
+        }
+      : undefined;
+
     const proposal: DBProposal = {
       _v: '1.0.0',
       id,
@@ -92,6 +102,7 @@ class ProposalManager {
       },
       allowAbstain: input.allowAbstain ?? true,
       anonymousVoting: input.anonymousVoting ?? false,
+      quadraticConfig,
       createdBy,
       createdAt: now,
       tags: input.tags,
@@ -189,6 +200,45 @@ class ProposalManager {
 
     const voterId = getPublicKey(voterPrivkey);
     const voteId = crypto.randomUUID();
+
+    // Validate quadratic ballot if applicable
+    if (proposal.votingSystem === 'quadratic') {
+      const ballot = input.choice as QuadraticBallot;
+      if (!ballot || typeof ballot !== 'object' || !('allocations' in ballot)) {
+        throw new Error('Quadratic voting requires a QuadraticBallot with allocations');
+      }
+
+      const config = proposal.quadraticConfig;
+      if (!config) {
+        throw new Error('Proposal is missing quadratic voting configuration');
+      }
+
+      // Validate sum of allocations does not exceed token budget
+      const totalUsed = Object.values(ballot.allocations).reduce((sum, tokens) => sum + tokens, 0);
+      if (totalUsed > config.tokenBudget) {
+        throw new Error(`Token allocation (${totalUsed}) exceeds budget (${config.tokenBudget})`);
+      }
+
+      // Validate individual allocations are non-negative integers
+      for (const [optionId, tokens] of Object.entries(ballot.allocations)) {
+        if (!Number.isInteger(tokens) || tokens < 0) {
+          throw new Error(`Invalid token allocation for option ${optionId}: must be a non-negative integer`);
+        }
+        // Validate per-option cap if configured
+        if (config.maxTokensPerOption && tokens > config.maxTokensPerOption) {
+          throw new Error(`Tokens for option ${optionId} (${tokens}) exceeds max per option (${config.maxTokensPerOption})`);
+        }
+        // Validate option exists
+        if (!proposal.options.some(o => o.id === optionId)) {
+          throw new Error(`Invalid option ID: ${optionId}`);
+        }
+      }
+
+      // Ensure totalTokens field matches
+      if (ballot.totalTokens !== totalUsed) {
+        throw new Error(`Ballot totalTokens (${ballot.totalTokens}) does not match sum of allocations (${totalUsed})`);
+      }
+    }
 
     // Create vote object
     const vote: DBVote = {
@@ -316,7 +366,11 @@ class ProposalManager {
 
     // Count votes
     for (const vote of votes) {
-      const choiceId = typeof vote.choice === 'string' ? vote.choice : vote.choice[0];
+      const choiceId = typeof vote.choice === 'string'
+        ? vote.choice
+        : Array.isArray(vote.choice)
+          ? vote.choice[0]
+          : undefined;
       if (choiceId && voteCounts[choiceId] !== undefined) {
         voteCounts[choiceId]++;
       }
@@ -383,16 +437,35 @@ class ProposalManager {
   private calculateQuadraticResults(votes: DBVote[]): QuadraticResults {
     const options: QuadraticResults['options'] = {};
 
-    votes.forEach(vote => {
-      if (typeof vote.choice === 'object' && !Array.isArray(vote.choice)) {
-        // Quadratic voting uses Record<optionId, tokenAllocation> in choice
-        // Currently choice is string | string[], so this branch won't trigger
-        // TODO: Extend protocol to support quadratic vote format
-      }
-    });
+    for (const vote of votes) {
+      // Quadratic votes use QuadraticBallot as the choice
+      if (typeof vote.choice === 'object' && !Array.isArray(vote.choice) && 'allocations' in vote.choice) {
+        const ballot = vote.choice as QuadraticBallot;
 
+        for (const [optionId, tokens] of Object.entries(ballot.allocations)) {
+          if (tokens <= 0) continue;
+
+          if (!options[optionId]) {
+            options[optionId] = { totalTokens: 0, effectiveVotes: 0, voterCount: 0 };
+          }
+
+          options[optionId].totalTokens += tokens;
+          // Core quadratic formula: effective votes = sqrt(tokens allocated)
+          // Cost of N votes = N^2 tokens, so votes = sqrt(tokens)
+          options[optionId].effectiveVotes += Math.sqrt(tokens);
+          options[optionId].voterCount += 1;
+        }
+      }
+    }
+
+    // Round effective votes to reasonable precision
+    for (const optionId of Object.keys(options)) {
+      options[optionId].effectiveVotes = Math.round(options[optionId].effectiveVotes * 1000) / 1000;
+    }
+
+    // Winner is the option with the highest effective votes
     const winner = Object.entries(options)
-      .sort((a, b) => b[1].quadraticScore - a[1].quadraticScore)[0]?.[0] || null;
+      .sort((a, b) => b[1].effectiveVotes - a[1].effectiveVotes)[0]?.[0] || null;
 
     return { options, winner };
   }
@@ -408,7 +481,11 @@ class ProposalManager {
     const blockOption = proposal.options.find(o => o.label === 'No' || o.label === 'Block');
 
     for (const vote of votes) {
-      const choiceId = typeof vote.choice === 'string' ? vote.choice : vote.choice[0];
+      const choiceId = typeof vote.choice === 'string'
+        ? vote.choice
+        : Array.isArray(vote.choice)
+          ? vote.choice[0]
+          : undefined;
       if (choiceId === supportOption?.id) support++;
       else if (choiceId === concernOption?.id) concerns++;
       else if (choiceId === blockOption?.id) blocks++;

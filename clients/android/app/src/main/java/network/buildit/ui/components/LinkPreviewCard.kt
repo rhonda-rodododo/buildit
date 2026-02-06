@@ -40,7 +40,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import network.buildit.generated.schemas.LinkPreview
+import network.buildit.generated.schemas.content.LinkPreview
 
 /**
  * Card component for displaying a link preview.

@@ -3,22 +3,27 @@
  * Display and manage bookmarked posts with collections/folders
  */
 
-import { FC, useState } from 'react';
+import { FC, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePostsStore } from '../postsStore';
 import { PostCard } from './PostCard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Bookmark,
   Search,
   Folder,
+  FolderPlus,
+  Trash2,
+  Edit2,
 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -29,6 +34,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
+
+interface BookmarkCollection {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
+// Persist collections to localStorage
+const COLLECTIONS_STORAGE_KEY = 'buildit-bookmark-collections';
+
+function loadCollections(): BookmarkCollection[] {
+  try {
+    const stored = localStorage.getItem(COLLECTIONS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCollections(collections: BookmarkCollection[]): void {
+  localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+}
 
 interface BookmarksViewProps {
   className?: string;
@@ -43,14 +77,24 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [showNewCollectionDialog, setShowNewCollectionDialog] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
+  const [collections, setCollections] = useState<BookmarkCollection[]>(loadCollections);
+  const [editingCollection, setEditingCollection] = useState<BookmarkCollection | null>(null);
+  const [editName, setEditName] = useState('');
 
-  // Get unique collections from bookmarks
-  const collections = Array.from(
-    new Set(
-      bookmarks
-        .filter((b) => b.collectionId)
-        .map((b) => b.collectionId!)
-    )
+  // Get collection names from both stored collections and bookmark collectionIds
+  const allCollectionIds = Array.from(
+    new Set([
+      ...collections.map((c) => c.id),
+      ...bookmarks.filter((b) => b.collectionId).map((b) => b.collectionId!),
+    ])
+  );
+
+  const getCollectionName = useCallback(
+    (collectionId: string): string => {
+      const collection = collections.find((c) => c.id === collectionId);
+      return collection?.name || collectionId;
+    },
+    [collections]
   );
 
   // Filter posts by search and collection
@@ -69,7 +113,9 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
     // Collection filter
     if (selectedCollection !== 'all') {
       const bookmark = bookmarks.find((b) => b.postId === post.id);
-      if (!bookmark || bookmark.collectionId !== selectedCollection) {
+      if (selectedCollection === 'uncategorized') {
+        if (bookmark?.collectionId) return false;
+      } else if (!bookmark || bookmark.collectionId !== selectedCollection) {
         return false;
       }
     }
@@ -78,11 +124,52 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
   });
 
   const handleCreateCollection = () => {
-    if (newCollectionName.trim()) {
-      // Collection creation deferred to Phase 2
-      setNewCollectionName('');
-      setShowNewCollectionDialog(false);
+    const trimmedName = newCollectionName.trim();
+    if (!trimmedName) return;
+
+    // Check for duplicates
+    if (collections.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase())) {
+      toast.error(t('bookmarksView.collectionExists', 'A collection with this name already exists'));
+      return;
     }
+
+    const newCollection: BookmarkCollection = {
+      id: `collection-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: trimmedName,
+      createdAt: Date.now(),
+    };
+
+    const updated = [...collections, newCollection];
+    setCollections(updated);
+    saveCollections(updated);
+
+    setNewCollectionName('');
+    setShowNewCollectionDialog(false);
+    toast.success(t('bookmarksView.collectionCreated', 'Collection created'));
+  };
+
+  const handleRenameCollection = () => {
+    if (!editingCollection || !editName.trim()) return;
+
+    const updated = collections.map((c) =>
+      c.id === editingCollection.id ? { ...c, name: editName.trim() } : c
+    );
+    setCollections(updated);
+    saveCollections(updated);
+    setEditingCollection(null);
+    setEditName('');
+    toast.success(t('bookmarksView.collectionRenamed', 'Collection renamed'));
+  };
+
+  const handleDeleteCollection = (collectionId: string) => {
+    const updated = collections.filter((c) => c.id !== collectionId);
+    setCollections(updated);
+    saveCollections(updated);
+
+    if (selectedCollection === collectionId) {
+      setSelectedCollection('all');
+    }
+    toast.success(t('bookmarksView.collectionDeleted', 'Collection deleted'));
   };
 
   return (
@@ -128,9 +215,12 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
             <SelectContent>
               <SelectItem value="all">{t('bookmarksView.filter.allCollections')}</SelectItem>
               <SelectItem value="uncategorized">{t('bookmarksView.filter.uncategorized')}</SelectItem>
-              {collections.map((collection) => (
-                <SelectItem key={collection} value={collection}>
-                  {collection}
+              {allCollectionIds.map((collectionId) => (
+                <SelectItem key={collectionId} value={collectionId}>
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-3 h-3" />
+                    {getCollectionName(collectionId)}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -157,6 +247,62 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
         </Card>
       )}
 
+      {/* Collections Management */}
+      {collections.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Folder className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium">{t('bookmarksView.collections', 'Collections')}</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {collections.map((collection) => (
+              <div key={collection.id} className="flex items-center gap-1">
+                <Button
+                  variant={selectedCollection === collection.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() =>
+                    setSelectedCollection(
+                      selectedCollection === collection.id ? 'all' : collection.id
+                    )
+                  }
+                >
+                  <Folder className="w-3 h-3 mr-1" />
+                  {collection.name}
+                  <span className="ml-1 text-xs opacity-70">
+                    ({bookmarks.filter((b) => b.collectionId === collection.id).length})
+                  </span>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <Edit2 className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingCollection(collection);
+                        setEditName(collection.name);
+                      }}
+                    >
+                      <Edit2 className="w-3 h-3 mr-2" />
+                      {t('bookmarksView.renameCollection', 'Rename')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteCollection(collection.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="w-3 h-3 mr-2" />
+                      {t('bookmarksView.deleteCollection', 'Delete')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       {/* New Collection Dialog */}
       <Dialog open={showNewCollectionDialog} onOpenChange={setShowNewCollectionDialog}>
         <DialogContent>
@@ -166,37 +312,72 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
               {t('bookmarksView.dialog.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t('bookmarksView.dialog.nameLabel')}
-              </label>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>{t('bookmarksView.dialog.nameLabel')}</Label>
               <Input
                 value={newCollectionName}
                 onChange={(e) => setNewCollectionName(e.target.value)}
                 placeholder={t('bookmarksView.dialog.namePlaceholder')}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleCreateCollection();
                   }
                 }}
+                autoFocus
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowNewCollectionDialog(false)}
-              >
-                {t('bookmarksView.dialog.cancel')}
-              </Button>
-              <Button
-                onClick={handleCreateCollection}
-                disabled={!newCollectionName.trim()}
-              >
-                {t('bookmarksView.dialog.create')}
-              </Button>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowNewCollectionDialog(false)}
+            >
+              {t('bookmarksView.dialog.cancel')}
+            </Button>
+            <Button
+              onClick={handleCreateCollection}
+              disabled={!newCollectionName.trim()}
+            >
+              <FolderPlus className="w-4 h-4 mr-2" />
+              {t('bookmarksView.dialog.create')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Collection Dialog */}
+      <Dialog open={!!editingCollection} onOpenChange={() => setEditingCollection(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('bookmarksView.renameTitle', 'Rename Collection')}</DialogTitle>
+            <DialogDescription>
+              {t('bookmarksView.renameDesc', 'Enter a new name for this collection.')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>{t('bookmarksView.dialog.nameLabel')}</Label>
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleRenameCollection();
+                  }
+                }}
+                autoFocus
+              />
             </div>
           </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingCollection(null)}>
+              {t('bookmarksView.dialog.cancel')}
+            </Button>
+            <Button onClick={handleRenameCollection} disabled={!editName.trim()}>
+              {t('common.save', 'Save')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

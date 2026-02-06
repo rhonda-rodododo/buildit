@@ -35,7 +35,9 @@ import {
 } from 'lucide-react';
 import { backupService, recoveryPhraseService } from '@/core/backup';
 import { secureKeyManager } from '@/core/crypto/SecureKeyManager';
+import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from 'react-i18next';
+import * as nip19 from 'nostr-tools/nip19';
 
 interface BackupRestorePanelProps {
   identityPubkey: string;
@@ -411,14 +413,37 @@ function RestoreBackupDialog({ onClose }: { onClose: () => void }) {
       const fileContent = await backupFile.text();
       const backup = backupService.parseBackupFile(fileContent);
 
-      // Restore returns identity and contents - we would use these to add the identity to the auth store
-      await backupService.restoreBackup(
+      // Restore returns identity and contents
+      const restored = await backupService.restoreBackup(
         backup,
         recoveryPhrase,
         newPassword
       );
 
-      // TODO: Add the restored identity to the auth store
+      // Add the restored identity to the auth store
+      const authStore = useAuthStore.getState();
+      if (restored && restored.contents?.identity?.privateKey) {
+        // Convert private key hex to nsec for import
+        const privateKeyHex = restored.contents.identity.privateKey;
+        const privateKeyBytes = new Uint8Array(
+          privateKeyHex.match(/.{1,2}/g)!.map((b: string) => parseInt(b, 16))
+        );
+        const nsec = nip19.nsecEncode(privateKeyBytes);
+
+        try {
+          const identityName = restored.contents.identity.name || 'Restored Identity';
+          await authStore.importIdentity(nsec, identityName, newPassword);
+        } catch (importError) {
+          // Handle key conflicts - identity may already exist
+          if (importError instanceof Error && importError.message.includes('already exists')) {
+            // Identity already present, just unlock it
+            await authStore.loadIdentities();
+          } else {
+            throw importError;
+          }
+        }
+      }
+
       setStep('complete');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to restore backup');

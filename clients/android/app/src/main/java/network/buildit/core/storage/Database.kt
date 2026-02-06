@@ -93,9 +93,13 @@ import javax.inject.Singleton
         network.buildit.modules.training.data.local.AssignmentSubmissionEntity::class,
         network.buildit.modules.training.data.local.CertificationEntity::class,
         network.buildit.modules.training.data.local.LiveSessionRSVPEntity::class,
-        network.buildit.modules.training.data.local.LiveSessionAttendanceEntity::class
+        network.buildit.modules.training.data.local.LiveSessionAttendanceEntity::class,
+        network.buildit.modules.tasks.data.local.TaskEntity::class,
+        network.buildit.modules.files.data.local.FileEntity::class,
+        network.buildit.modules.polls.data.local.PollEntity::class,
+        network.buildit.modules.polls.data.local.PollVoteEntity::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -158,6 +162,16 @@ abstract class BuildItDatabase : RoomDatabase() {
     abstract fun trainingAssignmentDao(): network.buildit.modules.training.data.local.TrainingAssignmentDao
     abstract fun trainingCertificationDao(): network.buildit.modules.training.data.local.TrainingCertificationDao
     abstract fun trainingLiveSessionDao(): network.buildit.modules.training.data.local.TrainingLiveSessionDao
+
+    // Tasks DAOs
+    abstract fun taskDao(): network.buildit.modules.tasks.data.local.TaskDao
+
+    // Files DAOs
+    abstract fun fileDao(): network.buildit.modules.files.data.local.FileDao
+
+    // Polls DAOs
+    abstract fun pollDao(): network.buildit.modules.polls.data.local.PollDao
+    abstract fun pollVoteDao(): network.buildit.modules.polls.data.local.PollVoteDao
 }
 
 /**
@@ -681,6 +695,44 @@ class Converters {
     @TypeConverter
     fun toFormStatus(value: String): network.buildit.modules.forms.data.local.FormStatus =
         network.buildit.modules.forms.data.local.FormStatus.valueOf(value)
+
+    // Tasks converters
+    @TypeConverter
+    fun fromTaskPriority(value: network.buildit.modules.tasks.data.local.TaskPriority): String = value.name
+
+    @TypeConverter
+    fun toTaskPriority(value: String): network.buildit.modules.tasks.data.local.TaskPriority =
+        network.buildit.modules.tasks.data.local.TaskPriority.valueOf(value)
+
+    @TypeConverter
+    fun fromTaskStatus(value: network.buildit.modules.tasks.data.local.TaskStatus): String = value.name
+
+    @TypeConverter
+    fun toTaskStatus(value: String): network.buildit.modules.tasks.data.local.TaskStatus =
+        network.buildit.modules.tasks.data.local.TaskStatus.valueOf(value)
+
+    // Files converters
+    @TypeConverter
+    fun fromFileEntryType(value: network.buildit.modules.files.data.local.FileEntryType): String = value.name
+
+    @TypeConverter
+    fun toFileEntryType(value: String): network.buildit.modules.files.data.local.FileEntryType =
+        network.buildit.modules.files.data.local.FileEntryType.valueOf(value)
+
+    // Polls converters
+    @TypeConverter
+    fun fromPollType(value: network.buildit.modules.polls.data.local.PollType): String = value.name
+
+    @TypeConverter
+    fun toPollType(value: String): network.buildit.modules.polls.data.local.PollType =
+        network.buildit.modules.polls.data.local.PollType.valueOf(value)
+
+    @TypeConverter
+    fun fromPollStatus(value: network.buildit.modules.polls.data.local.PollStatus): String = value.name
+
+    @TypeConverter
+    fun toPollStatus(value: String): network.buildit.modules.polls.data.local.PollStatus =
+        network.buildit.modules.polls.data.local.PollStatus.valueOf(value)
 }
 
 // ============== DAOs ==============

@@ -3,7 +3,7 @@
  * Main page for the newsletters module
  */
 
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useNewslettersStore } from '../newslettersStore';
@@ -26,12 +26,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Mail,
   FileText,
   Users,
   Settings,
   Plus,
+  Smartphone,
+  Monitor,
 } from 'lucide-react';
 import type { Newsletter, NewsletterIssue, CreateNewsletterInput, UpdateIssueInput } from '../types';
 import { toast } from 'sonner';
@@ -44,7 +47,8 @@ type ViewState =
   | { type: 'dashboard' }
   | { type: 'editor'; issue?: NewsletterIssue }
   | { type: 'settings' }
-  | { type: 'sending'; issue: NewsletterIssue };
+  | { type: 'sending'; issue: NewsletterIssue }
+  | { type: 'preview'; issue: NewsletterIssue };
 
 export const NewslettersPage: FC<NewslettersPageProps> = ({
   className,
@@ -248,7 +252,12 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           }
         }}
         onPreview={() => {
-          toast.info(t('newslettersPage.previewComingSoon'));
+          if (viewState.type === 'editor' && viewState.issue) {
+            const latestIssue = useNewslettersStore.getState().getIssue(viewState.issue.id);
+            if (latestIssue) {
+              setViewState({ type: 'preview', issue: latestIssue });
+            }
+          }
         }}
         onClose={() => setViewState({ type: 'dashboard' })}
         className="h-full"
@@ -270,6 +279,11 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
         />
       </div>
     );
+  }
+
+  // Render preview view
+  if (viewState.type === 'preview') {
+    return <NewsletterPreview issue={viewState.issue} newsletter={currentNewsletter} onClose={() => setViewState({ type: 'editor', issue: viewState.issue })} className={className} />;
   }
 
   // Main dashboard view
@@ -373,6 +387,108 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+/**
+ * Newsletter Preview Component
+ * Renders newsletter content in a preview frame with desktop/mobile toggles
+ */
+const NewsletterPreview: FC<{
+  issue: NewsletterIssue;
+  newsletter: Newsletter;
+  onClose: () => void;
+  className?: string;
+}> = ({ issue, newsletter, onClose, className }) => {
+  const { t } = useTranslation();
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+
+  const renderedContent = useMemo(() => {
+    const content = issue.content || '';
+    if (issue.contentFormat === 'markdown') {
+      // Basic markdown to HTML conversion for preview
+      return content
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: ' + newsletter.theme.linkColor + '">$1</a>')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br/>');
+    }
+    return content;
+  }, [issue.content, issue.contentFormat, newsletter.theme.linkColor]);
+
+  const previewHtml = `
+    <div style="
+      font-family: ${newsletter.theme.fontFamily === 'serif' ? 'Georgia, serif' : newsletter.theme.fontFamily === 'mono' ? '"Courier New", monospace' : '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'};
+      background-color: ${newsletter.theme.backgroundColor};
+      color: ${newsletter.theme.textColor};
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px;
+    ">
+      ${newsletter.headerImage ? `<img src="${newsletter.headerImage}" alt="" style="width: 100%; height: auto; margin-bottom: 24px; border-radius: 8px;" />` : ''}
+      <h1 style="color: ${newsletter.theme.primaryColor}; margin-bottom: 8px;">${issue.subject}</h1>
+      ${issue.previewText ? `<p style="color: #6b7280; font-size: 14px; margin-bottom: 24px;">${issue.previewText}</p>` : ''}
+      <div style="line-height: 1.6;">
+        <p>${renderedContent}</p>
+      </div>
+      ${newsletter.footerText ? `<hr style="margin: 32px 0; border-color: #e5e7eb;" /><p style="color: #9ca3af; font-size: 12px; text-align: center;">${newsletter.footerText}</p>` : ''}
+    </div>
+  `;
+
+  return (
+    <div className={`h-full flex flex-col ${className}`}>
+      {/* Preview Header */}
+      <div className="border-b p-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onClose}>
+            ← {t('newslettersPage.backToEditor', 'Back to Editor')}
+          </Button>
+          <h2 className="text-lg font-semibold">{t('newslettersPage.preview', 'Preview')}</h2>
+        </div>
+        <div className="flex items-center gap-2 border rounded-md">
+          <Button
+            variant={previewMode === 'desktop' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="rounded-r-none"
+            onClick={() => setPreviewMode('desktop')}
+          >
+            <Monitor className="h-4 w-4 mr-1" />
+            {t('newslettersPage.desktop', 'Desktop')}
+          </Button>
+          <Button
+            variant={previewMode === 'mobile' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="rounded-l-none"
+            onClick={() => setPreviewMode('mobile')}
+          >
+            <Smartphone className="h-4 w-4 mr-1" />
+            {t('newslettersPage.mobile', 'Mobile')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Preview Content */}
+      <ScrollArea className="flex-1 bg-muted/30">
+        <div className="flex justify-center p-8">
+          <div
+            className={`bg-background border rounded-lg shadow-sm transition-all ${
+              previewMode === 'mobile' ? 'w-[375px]' : 'w-full max-w-[700px]'
+            }`}
+          >
+            <div
+              className="p-6"
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 };

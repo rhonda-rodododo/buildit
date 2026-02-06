@@ -118,6 +118,10 @@
           "items": { "type": "string" },
           "description": "Categorization tags"
         },
+        "quadraticConfig": {
+          "$ref": "#/$defs/QuadraticVotingConfig",
+          "description": "Configuration for quadratic voting (required when votingSystem is 'quadratic')"
+        },
         "customFields": {
           "type": "object",
           "description": "Custom field values"
@@ -261,9 +265,10 @@
         "choice": {
           "oneOf": [
             { "type": "string", "format": "uuid" },
-            { "type": "array", "items": { "type": "string", "format": "uuid" } }
+            { "type": "array", "items": { "type": "string", "format": "uuid" } },
+            { "$ref": "#/$defs/QuadraticBallot" }
           ],
-          "description": "Selected option(s) - single for simple, array for ranked-choice"
+          "description": "Selected option(s) - single for simple, array for ranked-choice, QuadraticBallot for quadratic"
         },
         "weight": {
           "type": "number",
@@ -347,6 +352,65 @@
       "required": ["_v", "id", "delegatorId", "delegateId", "scope", "createdAt"]
     },
 
+    "QuadraticVotingConfig": {
+      "type": "object",
+      "description": "Configuration for quadratic voting on a proposal",
+      "properties": {
+        "tokenBudget": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total token budget each voter receives to allocate across options"
+        },
+        "maxTokensPerOption": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens a voter can allocate to a single option (defaults to tokenBudget)"
+        }
+      },
+      "required": ["tokenBudget"]
+    },
+
+    "QuadraticBallot": {
+      "type": "object",
+      "description": "A quadratic voting ballot with token allocations across options",
+      "properties": {
+        "allocations": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "description": "Map of option ID to number of tokens allocated. Effective votes = sqrt(tokens)."
+        },
+        "totalTokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total tokens used in this ballot (sum of all allocations, must not exceed budget)"
+        }
+      },
+      "required": ["allocations", "totalTokens"]
+    },
+
+    "QuadraticOptionResult": {
+      "type": "object",
+      "description": "Result for a single option in quadratic voting",
+      "properties": {
+        "totalTokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total tokens allocated to this option across all voters"
+        },
+        "effectiveVotes": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Sum of sqrt(tokens) across all voters for this option"
+        },
+        "voterCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of voters who allocated tokens to this option"
+        }
+      },
+      "required": ["totalTokens", "effectiveVotes", "voterCount"]
+    },
+
     "ProposalAttachment": {
       "type": "object",
       "properties": {
@@ -403,6 +467,11 @@
         },
         "thresholdMet": {
           "type": "boolean"
+        },
+        "quadraticResults": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/QuadraticOptionResult" },
+          "description": "Per-option quadratic voting results (only for quadratic voting proposals)"
         },
         "calculatedAt": {
           "type": "integer"

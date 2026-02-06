@@ -1,5 +1,9 @@
 package network.buildit.modules.publishing.presentation
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -529,6 +534,12 @@ private fun EditorContent(
     onCoverImageChange: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val coverImagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        onCoverImageChange(uri?.toString())
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -540,7 +551,11 @@ private fun EditorContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
-                .clickable { /* TODO: Image picker */ },
+                .clickable {
+                    coverImagePickerLauncher.launch(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -857,6 +872,7 @@ fun ArticlePreviewScreen(
     onEditClick: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     var showComments by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
 
@@ -890,7 +906,24 @@ fun ArticlePreviewScreen(
                     IconButton(onClick = { onEditClick(articleId) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
-                    IconButton(onClick = { /* TODO: Share */ }) {
+                    IconButton(onClick = {
+                        val article = (uiState as? ArticlePreviewUiState.Success)?.article
+                        if (article != null) {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, article.title)
+                                val shareText = buildString {
+                                    append(article.title)
+                                    article.subtitle?.let { append("\n$it") }
+                                    article.excerpt?.let { append("\n\n$it") }
+                                }
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                            }
+                            context.startActivity(
+                                Intent.createChooser(shareIntent, "Share article")
+                            )
+                        }
+                    }) {
                         Icon(Icons.Default.Share, contentDescription = "Share")
                     }
                 }

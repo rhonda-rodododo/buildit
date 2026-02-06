@@ -225,6 +225,72 @@ public struct PassingThreshold: Codable, Sendable {
     }
 }
 
+/// Configuration for quadratic voting on a proposal
+public struct QuadraticVotingConfig: Codable, Sendable {
+    /// Total token budget each voter receives to allocate across options
+    public let tokenBudget: Int
+    /// Maximum tokens a voter can allocate to a single option (defaults to tokenBudget)
+    public let maxTokensPerOption: Int?
+
+    public init(tokenBudget: Int, maxTokensPerOption: Int? = nil) {
+        self.tokenBudget = tokenBudget
+        self.maxTokensPerOption = maxTokensPerOption
+    }
+
+    public static var `default`: QuadraticVotingConfig {
+        QuadraticVotingConfig(tokenBudget: 100)
+    }
+}
+
+/// A quadratic voting ballot with token allocations across options
+public struct QuadraticBallot: Codable, Sendable {
+    /// Map of option ID to number of tokens allocated
+    public let allocations: [String: Int]
+    /// Total tokens used in this ballot (sum of all allocations, must not exceed budget)
+    public let totalTokens: Int
+
+    public init(allocations: [String: Int]) {
+        self.allocations = allocations
+        self.totalTokens = allocations.values.reduce(0, +)
+    }
+
+    /// Calculate effective votes for each option: sqrt(tokens)
+    public var effectiveVotes: [String: Double] {
+        allocations.mapValues { tokens in
+            tokens > 0 ? sqrt(Double(tokens)) : 0
+        }
+    }
+
+    /// Validate that the ballot doesn't exceed the token budget
+    public func validate(config: QuadraticVotingConfig, validOptionIds: Set<String>) -> Bool {
+        guard totalTokens <= config.tokenBudget else { return false }
+        for (optionId, tokens) in allocations {
+            guard tokens >= 0 else { return false }
+            guard validOptionIds.contains(optionId) else { return false }
+            if let maxPerOption = config.maxTokensPerOption, tokens > maxPerOption {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+/// Result for a single option in quadratic voting
+public struct QuadraticOptionResult: Codable, Sendable {
+    /// Total tokens allocated to this option across all voters
+    public let totalTokens: Int
+    /// Sum of sqrt(tokens) across all voters
+    public let effectiveVotes: Double
+    /// Number of voters who allocated tokens to this option
+    public let voterCount: Int
+
+    public init(totalTokens: Int, effectiveVotes: Double, voterCount: Int) {
+        self.totalTokens = totalTokens
+        self.effectiveVotes = effectiveVotes
+        self.voterCount = voterCount
+    }
+}
+
 /// Time period for discussion or voting
 public struct TimePeriod: Codable, Sendable {
     public let startsAt: Date
@@ -306,6 +372,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
     public var updatedAt: Date?
     public let attachments: [ProposalAttachment]?
     public let tags: [String]
+    public let quadraticConfig: QuadraticVotingConfig?
     public let customFields: [String: AnyCodable]?
 
     enum CodingKeys: String, CodingKey {
@@ -315,7 +382,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
         case discussionPeriod, votingPeriod
         case allowAbstain, anonymousVoting, allowDelegation
         case createdBy, createdAt, updatedAt
-        case attachments, tags, customFields
+        case attachments, tags, quadraticConfig, customFields
     }
 
     public init(
@@ -340,6 +407,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
         updatedAt: Date? = nil,
         attachments: [ProposalAttachment]? = nil,
         tags: [String] = [],
+        quadraticConfig: QuadraticVotingConfig? = nil,
         customFields: [String: AnyCodable]? = nil
     ) {
         self.schemaVersion = schemaVersion
@@ -363,6 +431,7 @@ public struct Proposal: Identifiable, Codable, Sendable {
         self.updatedAt = updatedAt
         self.attachments = attachments
         self.tags = tags
+        self.quadraticConfig = quadraticConfig
         self.customFields = customFields
     }
 

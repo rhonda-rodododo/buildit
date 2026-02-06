@@ -21,7 +21,7 @@ class LocalSchemaStore extends JSONSchemaStore {
   }
 }
 
-function getRendererOptions(lang: string): Record<string, string> {
+function getRendererOptions(lang: string, moduleName?: string): Record<string, string> {
   switch (lang) {
     case 'typescript':
       return {
@@ -38,7 +38,9 @@ function getRendererOptions(lang: string): Record<string, string> {
       return {
         'just-types': 'true',
         'framework': 'kotlinx',
-        'package': 'network.buildit.generated.schemas',
+        'package': moduleName
+          ? `network.buildit.generated.schemas.${moduleName.replace(/-/g, '_')}`
+          : 'network.buildit.generated.schemas',
       };
     case 'rust':
       return {
@@ -58,7 +60,7 @@ function getRendererOptions(lang: string): Record<string, string> {
  *                     used to resolve cross-module $ref URIs.
  */
 export async function generateAllTypesWithQuicktype(
-  _moduleName: string,
+  moduleName: string,
   schema: ModuleSchema,
   lang: string,
   allSchemas?: Map<string, ModuleSchema>
@@ -116,7 +118,7 @@ export async function generateAllTypesWithQuicktype(
   const result = await quicktype({
     inputData,
     lang,
-    rendererOptions: getRendererOptions(lang),
+    rendererOptions: getRendererOptions(lang, moduleName),
     inferEnums: true,
     inferDateTimes: false,
     inferIntegerStrings: false,

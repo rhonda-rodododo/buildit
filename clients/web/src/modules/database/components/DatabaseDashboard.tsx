@@ -3,7 +3,7 @@
  * Main dashboard for database module
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDatabaseStore } from '../databaseStore';
 import { databaseManager } from '../databaseManager';
@@ -11,8 +11,13 @@ import { TableView } from './TableView';
 import { BoardView } from './BoardView';
 import { CalendarView } from './CalendarView';
 import { GalleryView } from './GalleryView';
+import { RecordDetailView } from './RecordDetailView';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 import { Plus, Table2, Kanban, Calendar, Grid } from 'lucide-react';
 import type { DatabaseRecord } from '../types';
 
@@ -66,8 +71,12 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
     await databaseManager.createRecord(currentTable.id, groupId, userPubkey, {});
   };
 
-  const handleRecordClick = (_record: DatabaseRecord) => {
-    // Record detail dialog deferred to Phase 2
+  const [selectedRecord, setSelectedRecord] = useState<DatabaseRecord | null>(null);
+  const [recordDetailOpen, setRecordDetailOpen] = useState(false);
+
+  const handleRecordClick = (record: DatabaseRecord) => {
+    setSelectedRecord(record);
+    setRecordDetailOpen(true);
   };
 
   if (groupTables.length === 0) {
@@ -171,6 +180,21 @@ export function DatabaseDashboard({ groupId, userPubkey }: DatabaseDashboardProp
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Record Detail Dialog */}
+      <Dialog open={recordDetailOpen} onOpenChange={setRecordDetailOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {selectedRecord && currentTable && (
+            <RecordDetailView
+              record={selectedRecord}
+              table={currentTable}
+              onEdit={() => {
+                setRecordDetailOpen(false);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -35,9 +35,14 @@ import {
   BarChart3,
   Plus,
   Rss,
+  Archive,
+  Tag,
 } from 'lucide-react';
 import type { Article, Publication, CreatePublicationInput, UpdateArticleInput } from '../types';
 import { toast } from 'sonner';
+import { ArchivePage } from './ArchivePage';
+import { CategoryPage } from './CategoryPage';
+import { AuthorProfilePage } from './AuthorProfilePage';
 
 interface PublishingPageProps {
   className?: string;
@@ -50,7 +55,10 @@ type ViewState =
   | { type: 'preview'; article: Article }
   | { type: 'settings' }
   | { type: 'subscribers' }
-  | { type: 'analytics' };
+  | { type: 'analytics' }
+  | { type: 'archive'; filter?: string }
+  | { type: 'category'; category: string }
+  | { type: 'author'; authorPubkey: string };
 
 export const PublishingPage: FC<PublishingPageProps> = ({
   className,
@@ -291,6 +299,47 @@ export const PublishingPage: FC<PublishingPageProps> = ({
     );
   }
 
+  if (viewState.type === 'archive') {
+    return (
+      <div className="h-full overflow-y-auto p-8">
+        <ArchivePage
+          publicationId={currentPublication.id}
+          initialFilter={viewState.filter}
+          onArticleClick={(article) => setViewState({ type: 'preview', article })}
+          onBack={() => setViewState({ type: 'dashboard' })}
+        />
+      </div>
+    );
+  }
+
+  if (viewState.type === 'category') {
+    return (
+      <div className="h-full overflow-y-auto p-8">
+        <CategoryPage
+          publicationId={currentPublication.id}
+          category={viewState.category}
+          onArticleClick={(article) => setViewState({ type: 'preview', article })}
+          onCategoryClick={(category) => setViewState({ type: 'category', category })}
+          onBack={() => setViewState({ type: 'dashboard' })}
+        />
+      </div>
+    );
+  }
+
+  if (viewState.type === 'author') {
+    return (
+      <div className="h-full overflow-y-auto p-8">
+        <AuthorProfilePage
+          publicationId={currentPublication.id}
+          publication={currentPublication}
+          authorPubkey={viewState.authorPubkey}
+          onArticleClick={(article) => setViewState({ type: 'preview', article })}
+          onBack={() => setViewState({ type: 'dashboard' })}
+        />
+      </div>
+    );
+  }
+
   // Main dashboard view
   return (
     <div className={`h-full overflow-y-auto ${className}`}>
@@ -351,6 +400,34 @@ export const PublishingPage: FC<PublishingPageProps> = ({
               <CardTitle className="text-3xl">{pubArticles.length}</CardTitle>
             </CardHeader>
           </Card>
+        </div>
+
+        {/* Quick Navigation */}
+        <div className="flex items-center gap-2 mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewState({ type: 'archive' })}
+          >
+            <Archive className="h-4 w-4 mr-2" />
+            Archive
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Navigate to first tag/category if one exists
+              const firstTag = pubArticles.flatMap((a) => a.tags)[0];
+              if (firstTag) {
+                setViewState({ type: 'category', category: firstTag });
+              } else {
+                toast.info('No categories found. Add tags to your articles first.');
+              }
+            }}
+          >
+            <Tag className="h-4 w-4 mr-2" />
+            Categories
+          </Button>
         </div>
 
         {/* Main Content Tabs */}

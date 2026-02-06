@@ -1,5 +1,6 @@
 package network.buildit.modules.calling.service
 
+import network.buildit.core.redacted
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -324,7 +325,7 @@ class HotlineQueueManager @Inject constructor(
         operators[pubkey] = operator
         syncOperatorState()
 
-        Log.i(TAG, "Operator registered: $pubkey for hotline $hotlineId")
+        Log.i(TAG, "Operator registered: ${pubkey.redacted()} for hotline $hotlineId")
 
         scope.launch {
             _events.emit(HotlineQueueEvent.OperatorStatusChanged(operator))
@@ -351,7 +352,7 @@ class HotlineQueueManager @Inject constructor(
                 _events.emit(HotlineQueueEvent.OperatorStatusChanged(offlineOperator))
             }
 
-            Log.i(TAG, "Operator unregistered: $pubkey")
+            Log.i(TAG, "Operator unregistered: ${pubkey.redacted()}")
         }
     }
 
@@ -378,7 +379,7 @@ class HotlineQueueManager @Inject constructor(
             _events.emit(HotlineQueueEvent.OperatorStatusChanged(operator))
         }
 
-        Log.d(TAG, "Operator $pubkey status changed: ${previousStatus.value} -> ${status.value}")
+        Log.d(TAG, "Operator ${pubkey.redacted()} status changed: ${previousStatus.value} -> ${status.value}")
 
         // Try to distribute if becoming available
         if (status == HotlineOperatorStatusStatus.Available) {

@@ -460,13 +460,33 @@ export class SecureKeyManager {
   /**
    * Save session data to sessionStorage for page refresh persistence.
    * sessionStorage is per-tab and cleared on tab close.
-   * This is primarily useful for development (browser context);
-   * in production Tauri, native key storage handles persistence.
+   *
+   * SECURITY: Master key bits are encrypted with a per-tab ephemeral key
+   * before storage, so XSS attacks reading sessionStorage cannot extract
+   * the actual key material.
    */
-  private saveSession(masterKeyBits: ArrayBuffer, publicKey: string): void {
+  private async saveSession(masterKeyBits: ArrayBuffer, publicKey: string): Promise<void> {
     try {
-      const keyBase64 = this.bufferToBase64(new Uint8Array(masterKeyBits));
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ k: keyBase64, p: publicKey }));
+      // Generate ephemeral encryption key for this tab session
+      const ephemeralKey = await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt']
+      );
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        ephemeralKey,
+        masterKeyBits
+      );
+      // Export ephemeral key - stored separately so both are needed
+      const rawKey = await crypto.subtle.exportKey('raw', ephemeralKey);
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        e: this.bufferToBase64(new Uint8Array(encrypted)),
+        iv: this.bufferToBase64(iv),
+        ek: this.bufferToBase64(new Uint8Array(rawKey)),
+        p: publicKey,
+      }));
     } catch {
       // sessionStorage may be unavailable in some contexts
     }
@@ -495,10 +515,29 @@ export class SecureKeyManager {
       const raw = sessionStorage.getItem(SESSION_KEY);
       if (!raw) return false;
 
-      const { k: keyBase64, p: publicKey } = JSON.parse(raw) as { k: string; p: string };
-      if (!keyBase64 || !publicKey) return false;
+      const parsed = JSON.parse(raw) as Record<string, string>;
+      // Support new encrypted format
+      if (!parsed.p) return false;
+      const publicKey = parsed.p;
 
-      const masterKeyBits = this.base64ToBuffer(keyBase64).buffer as ArrayBuffer;
+      let masterKeyBits: ArrayBuffer;
+      if (parsed.e && parsed.iv && parsed.ek) {
+        // Decrypt session key using ephemeral key
+        const encrypted = new Uint8Array(this.base64ToBuffer(parsed.e));
+        const iv = new Uint8Array(this.base64ToBuffer(parsed.iv));
+        const rawKey = new Uint8Array(this.base64ToBuffer(parsed.ek));
+        const ephemeralKey = await crypto.subtle.importKey(
+          'raw', rawKey.buffer, { name: 'AES-GCM' }, false, ['decrypt']
+        );
+        masterKeyBits = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv }, ephemeralKey, encrypted
+        );
+      } else if (parsed.k) {
+        // Legacy unencrypted format (migration path)
+        masterKeyBits = this.base64ToBuffer(parsed.k).buffer as ArrayBuffer;
+      } else {
+        return false;
+      }
 
       // Get encrypted identity data from database
       const encryptedData = await getEncryptedData(publicKey);

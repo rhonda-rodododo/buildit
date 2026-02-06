@@ -69,12 +69,17 @@ export interface FriendRequest {
 
 /**
  * QR code friend data
+ *
+ * SECURITY: The signature covers pubkey + timestamp + nonce using Schnorr/BIP-340.
+ * QR codes expire after 10 minutes to limit replay attack windows.
+ * The nonce prevents replay of captured QR codes with identical timestamps.
  */
 export interface FriendQRData {
   pubkey: string;
   username?: string;
   timestamp: number;
-  signature: string;       // Signature of pubkey+timestamp
+  nonce?: string;          // Random nonce for uniqueness (32 hex chars)
+  signature: string;       // Schnorr signature of sha256("buildit-qr:{pubkey}:{timestamp}:{nonce}")
 }
 
 /**

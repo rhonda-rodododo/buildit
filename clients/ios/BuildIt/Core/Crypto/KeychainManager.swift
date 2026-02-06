@@ -413,8 +413,13 @@ class KeychainManager {
         // Delete any existing key first
         SecItemDelete(query as CFDictionary)
 
-        // Use less restrictive access control for sharing
-        // Extensions can't use biometrics in the same way
+        // SECURITY TRADEOFF: Shared keychain for extensions uses
+        // kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly without biometric
+        // protection. This is a known limitation because iOS extensions cannot
+        // present biometric prompts. The key is still device-bound (no iCloud
+        // Keychain sync) and only accessible to apps in the same App Group.
+        // The data-protection class ensures the key is unavailable before first
+        // unlock (i.e., after a cold reboot before the user enters their passcode).
         guard let accessControl = SecAccessControlCreateWithFlags(
             kCFAllocatorDefault,
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
@@ -463,6 +468,142 @@ class KeychainManager {
         return data
     }
 
+    // MARK: - TOFU Certificate Pin Storage
+
+    /// Keychain account identifier for TOFU pins
+    private static let tofuPinsAccount = "tofu_certificate_pins"
+
+    /// Save TOFU certificate pins to Keychain.
+    ///
+    /// SECURITY: TOFU pins were previously stored in UserDefaults, which is
+    /// unencrypted and accessible to jailbroken device exploits. Moving to
+    /// Keychain protects against:
+    /// - File-system level extraction on jailbroken devices
+    /// - Backup extraction attacks
+    /// - Cross-app data access on compromised devices
+    func saveTofuPins(_ pins: [String: String]) throws {
+        let data = try JSONEncoder().encode(pins)
+
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: configuration.serviceName,
+            kSecAttrAccount as String: Self.tofuPinsAccount
+        ]
+
+        if let accessGroup = configuration.accessGroup {
+            query[kSecAttrAccessGroup as String] = accessGroup
+        }
+
+        // Delete existing
+        SecItemDelete(query as CFDictionary)
+
+        // Add new with device-only protection (no iCloud sync)
+        var attributes = query
+        attributes[kSecValueData as String] = data
+        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+
+        let status = SecItemAdd(attributes as CFDictionary, nil)
+
+        guard status == errSecSuccess else {
+            logger.error("Failed to save TOFU pins to keychain: \(status)")
+            throw KeychainError.saveFailed(status)
+        }
+
+        logger.info("TOFU pins saved to keychain")
+    }
+
+    /// Load TOFU certificate pins from Keychain.
+    func loadTofuPins() throws -> [String: String] {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: configuration.serviceName,
+            kSecAttrAccount as String: Self.tofuPinsAccount,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        if let accessGroup = configuration.accessGroup {
+            query[kSecAttrAccessGroup as String] = accessGroup
+        }
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        if status == errSecItemNotFound {
+            return [:]
+        }
+
+        guard status == errSecSuccess,
+              let data = result as? Data else {
+            logger.error("Failed to load TOFU pins from keychain: \(status)")
+            throw KeychainError.loadFailed(status)
+        }
+
+        return try JSONDecoder().decode([String: String].self, from: data)
+    }
+
+    /// Delete TOFU certificate pins from Keychain.
+    func deleteTofuPins() throws {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: configuration.serviceName,
+            kSecAttrAccount as String: Self.tofuPinsAccount
+        ]
+
+        if let accessGroup = configuration.accessGroup {
+            query[kSecAttrAccessGroup as String] = accessGroup
+        }
+
+        let status = SecItemDelete(query as CFDictionary)
+
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            logger.error("Failed to delete TOFU pins from keychain: \(status)")
+            throw KeychainError.deleteFailed(status)
+        }
+
+        logger.info("TOFU pins deleted from keychain")
+    }
+
+    /// Migrate TOFU pins from UserDefaults to Keychain.
+    ///
+    /// SECURITY: This performs a one-time migration of TOFU certificate pins
+    /// from the insecure UserDefaults storage to Keychain. After successful
+    /// migration, the UserDefaults entry is deleted.
+    ///
+    /// - Parameter userDefaultsKey: The UserDefaults key where pins were stored
+    /// - Returns: true if migration was performed, false if nothing to migrate
+    @discardableResult
+    func migrateTofuPinsFromUserDefaults(userDefaultsKey: String) throws -> Bool {
+        // Check if there are pins in UserDefaults
+        guard let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+              let pins = try? JSONDecoder().decode([String: String].self, from: data),
+              !pins.isEmpty else {
+            return false
+        }
+
+        logger.info("Migrating \(pins.count) TOFU pins from UserDefaults to Keychain")
+
+        // Check if we already have pins in Keychain
+        let existingPins = try loadTofuPins()
+        if !existingPins.isEmpty {
+            // Merge: Keychain pins take precedence
+            var mergedPins = pins
+            for (key, value) in existingPins {
+                mergedPins[key] = value
+            }
+            try saveTofuPins(mergedPins)
+        } else {
+            try saveTofuPins(pins)
+        }
+
+        // Remove from UserDefaults after successful migration
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
+        UserDefaults.standard.synchronize()
+
+        logger.info("Successfully migrated TOFU pins to Keychain and removed UserDefaults entry")
+        return true
+    }
+
     // MARK: - Private Methods
 
     private func createQuery(for type: KeychainItemType) -> [String: Any] {
@@ -482,12 +623,31 @@ class KeychainManager {
     private func createAccessControl() throws -> SecAccessControl {
         var flags: SecAccessControlCreateFlags = []
 
-        if configuration.requiresBiometrics && isBiometricsAvailable {
+        let biometricsRequested = configuration.requiresBiometrics
+        let secureEnclaveRequested = configuration.useSecureEnclave
+        let biometricsUsable = biometricsRequested && isBiometricsAvailable
+        let secureEnclaveUsable = secureEnclaveRequested && isSecureEnclaveAvailable
+
+        if biometricsUsable {
             flags.insert(.biometryCurrentSet)
         }
 
-        if configuration.useSecureEnclave && isSecureEnclaveAvailable {
+        if secureEnclaveUsable {
             flags.insert(.privateKeyUsage)
+        }
+
+        // SECURITY: Warn when the configuration requests hardware protection
+        // but the device cannot provide it. This means the keychain item will
+        // rely solely on data-protection-class access control, which is weaker.
+        if !biometricsUsable && !secureEnclaveUsable {
+            if biometricsRequested || secureEnclaveRequested {
+                logger.warning(
+                    "SECURITY DEGRADATION: Keychain access control created without biometric or Secure Enclave protection. " +
+                    "Biometrics requested=\(biometricsRequested, privacy: .public), available=\(self.isBiometricsAvailable, privacy: .public). " +
+                    "Secure Enclave requested=\(secureEnclaveRequested, privacy: .public), available=\(self.isSecureEnclaveAvailable, privacy: .public). " +
+                    "Key material is protected only by data-protection class (kSecAttrAccessibleWhenUnlockedThisDeviceOnly)."
+                )
+            }
         }
 
         guard let accessControl = SecAccessControlCreateWithFlags(

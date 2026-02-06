@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import network.buildit.core.crypto.CryptoManager
+import network.buildit.core.nostr.NostrClient
 import network.buildit.core.storage.AttachmentDao
 import network.buildit.core.storage.AttachmentEntity
 import network.buildit.core.storage.AttachmentType
@@ -59,6 +60,7 @@ class ShareViewModel @Inject constructor(
     private val attachmentDao: AttachmentDao,
     private val transportRouter: TransportRouter,
     private val cryptoManager: CryptoManager,
+    private val nostrClient: NostrClient,
     private val fileUploadService: FileUploadService,
     private val messageQueue: MessageQueue
 ) : ViewModel() {
@@ -89,6 +91,9 @@ class ShareViewModel @Inject constructor(
                         val displayName = conversation.title
                             ?: getConversationDisplayName(conversation)
 
+                        val participants = parseParticipants(conversation.participantPubkeys)
+                        val avatarUrl = resolveAvatarUrl(participants.firstOrNull())
+
                         ShareDestination(
                             id = conversation.id,
                             type = if (conversation.type == ConversationType.GROUP) {
@@ -97,8 +102,8 @@ class ShareViewModel @Inject constructor(
                                 DestinationType.DIRECT
                             },
                             displayName = displayName,
-                            avatarUrl = null, // TODO: Resolve avatar
-                            participantPubkeys = parseParticipants(conversation.participantPubkeys),
+                            avatarUrl = avatarUrl,
+                            participantPubkeys = participants,
                             groupId = conversation.groupId
                         )
                     }
@@ -596,6 +601,27 @@ class ShareViewModel @Inject constructor(
             outputFile.absolutePath
         } catch (e: Exception) {
             Log.e(TAG, "Failed to copy URI to local storage", e)
+            null
+        }
+    }
+
+    /**
+     * Resolves avatar URL for a pubkey from the local contact database,
+     * falling back to fetching from Nostr profile metadata (kind:0).
+     */
+    private suspend fun resolveAvatarUrl(pubkey: String?): String? {
+        if (pubkey == null) return null
+
+        // First try local contact database
+        val contact = contactDao.getByPubkey(pubkey)
+        if (contact?.avatarUrl != null) return contact.avatarUrl
+
+        // Fall back to fetching from Nostr profile metadata (kind:0)
+        return try {
+            val profile = nostrClient.fetchProfile(pubkey)
+            profile?.picture
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to fetch profile for avatar: ${e.message}")
             null
         }
     }

@@ -14,6 +14,7 @@
  */
 
 import type { Event as NostrEvent } from 'nostr-tools';
+import { verifyEvent } from 'nostr-tools';
 import { logger } from '@/lib/logger';
 import {
   type ITransportAdapter,
@@ -520,9 +521,32 @@ export class BLEMeshAdapter implements ITransportAdapter {
       const reassembled = this.reassembler.addChunk(chunk);
 
       if (reassembled) {
+        // SECURITY: Validate reassembled message size before decompression
+        // Prevents decompression bombs from exhausting memory
+        const MAX_COMPRESSED_SIZE = 256 * 1024; // 256 KB compressed max
+        if (reassembled.length > MAX_COMPRESSED_SIZE) {
+          logger.warn(`[BLE Mesh] Rejecting oversized message: ${reassembled.length} bytes`);
+          return;
+        }
+
         // Message complete, decompress and parse
         const decompressed = decompressMessage(reassembled);
+
+        // SECURITY: Validate decompressed size (decompression bomb protection)
+        const MAX_DECOMPRESSED_SIZE = 1024 * 1024; // 1 MB decompressed max
+        if (decompressed.length > MAX_DECOMPRESSED_SIZE) {
+          logger.warn(`[BLE Mesh] Rejecting message after decompression: ${decompressed.length} chars`);
+          return;
+        }
+
         const event = JSON.parse(decompressed) as NostrEvent;
+
+        // SECURITY: Verify Nostr event signature before accepting
+        // BLE messages are untrusted - any nearby device can send them
+        if (!verifyEvent(event)) {
+          logger.warn(`[BLE Mesh] Rejecting message with invalid signature: ${event.id?.slice(0, 8)}`);
+          return;
+        }
 
         // Create transport message
         const message: TransportMessage = {
@@ -540,6 +564,13 @@ export class BLEMeshAdapter implements ITransportAdapter {
           return;
         }
         this.seenMessageIds.add(message.id);
+
+        // SECURITY: Prevent memory leak from unbounded dedup set
+        const MAX_SEEN_IDS = 10000;
+        if (this.seenMessageIds.size > MAX_SEEN_IDS) {
+          const toRemove = Array.from(this.seenMessageIds).slice(0, MAX_SEEN_IDS / 2);
+          toRemove.forEach(id => this.seenMessageIds.delete(id));
+        }
 
         // Update stats
         this.stats.messagesReceived++;

@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.buildit.core.crypto.CryptoManager
+import network.buildit.core.crypto.UnsignedNostrEvent
 import network.buildit.core.nostr.NostrClient
+import network.buildit.core.nostr.NostrEvent
 import network.buildit.modules.forms.data.FieldStats
 import network.buildit.modules.forms.data.FormAnalytics
 import network.buildit.modules.forms.data.FormsRepository
@@ -440,25 +442,171 @@ class FormsUseCase @Inject constructor(
 
     // MARK: - Nostr Publishing
 
+    /**
+     * Publishes a form to Nostr as a kind 40031 event.
+     *
+     * The form content is JSON-encoded with title, description, fields, and settings.
+     * Tags include group ID and form metadata for discoverability.
+     */
     private suspend fun publishFormToNostr(form: FormEntity) {
-        android.util.Log.d("FormsUseCase", "Would publish form: ${form.id}")
-        // TODO: Implement actual Nostr publishing
-        // val event = createFormNostrEvent(form)
-        // nostrClient.publishEvent(event)
-        // repository.markFormSynced(form.id)
+        val pubkey = cryptoManager.getPublicKeyHex()
+            ?: throw IllegalStateException("No public key available")
+
+        val contentJson = org.json.JSONObject().apply {
+            put("title", form.title)
+            form.description?.let { put("description", it) }
+            put("fields", form.fieldsJson)
+            put("visibility", form.visibility.name)
+            put("anonymous", form.anonymous)
+            put("allowMultiple", form.allowMultiple)
+            form.opensAt?.let { put("opensAt", it) }
+            form.closesAt?.let { put("closesAt", it) }
+            form.maxResponses?.let { put("maxResponses", it) }
+            form.confirmationMessage?.let { put("confirmationMessage", it) }
+        }.toString()
+
+        val tags = mutableListOf(
+            listOf("d", form.id), // NIP-33 parameterized replaceable event identifier
+            listOf("title", form.title)
+        )
+        form.groupId?.let { tags.add(listOf("g", it)) }
+
+        val unsigned = UnsignedNostrEvent(
+            pubkey = pubkey,
+            createdAt = System.currentTimeMillis() / 1000,
+            kind = KIND_FORM,
+            tags = tags,
+            content = contentJson
+        )
+
+        val signed = cryptoManager.signEvent(unsigned)
+            ?: throw IllegalStateException("Failed to sign form event")
+
+        val event = NostrEvent(
+            id = signed.id,
+            pubkey = signed.pubkey,
+            createdAt = signed.createdAt,
+            kind = signed.kind,
+            tags = signed.tags,
+            content = signed.content,
+            sig = signed.sig
+        )
+
+        val published = nostrClient.publishEvent(event)
+        if (published) {
+            repository.markFormSynced(form.id)
+        }
     }
 
+    /**
+     * Publishes a NIP-09 deletion event for a form.
+     */
     private suspend fun publishFormDeletion(formId: String) {
-        android.util.Log.d("FormsUseCase", "Would publish form deletion: $formId")
-        // TODO: Implement deletion event
+        val pubkey = cryptoManager.getPublicKeyHex()
+            ?: throw IllegalStateException("No public key available")
+
+        // Look up the form's Nostr event ID if available
+        val form = repository.getFormById(formId)
+        val eventIdToDelete = form?.nostrEventId ?: formId
+
+        val unsigned = UnsignedNostrEvent(
+            pubkey = pubkey,
+            createdAt = System.currentTimeMillis() / 1000,
+            kind = 5, // NIP-09 deletion
+            tags = listOf(
+                listOf("e", eventIdToDelete),
+                listOf("k", KIND_FORM.toString())
+            ),
+            content = "Form deleted"
+        )
+
+        val signed = cryptoManager.signEvent(unsigned)
+            ?: throw IllegalStateException("Failed to sign deletion event")
+
+        val event = NostrEvent(
+            id = signed.id,
+            pubkey = signed.pubkey,
+            createdAt = signed.createdAt,
+            kind = signed.kind,
+            tags = signed.tags,
+            content = signed.content,
+            sig = signed.sig
+        )
+
+        nostrClient.publishEvent(event)
     }
 
+    /**
+     * Publishes a form response to Nostr as a kind 40032 event.
+     *
+     * Responses are sent using NIP-17 gift wrap to the form creator
+     * so that only the form creator can read the response contents.
+     */
     private suspend fun publishResponseToNostr(response: FormResponseEntity) {
-        android.util.Log.d("FormsUseCase", "Would publish response: ${response.id}")
-        // TODO: Implement actual Nostr publishing
-        // val event = createResponseNostrEvent(response)
-        // nostrClient.publishEvent(event)
-        // repository.markResponseSynced(response.id)
+        val form = repository.getFormById(response.formId) ?: return
+        val pubkey = cryptoManager.getPublicKeyHex()
+            ?: throw IllegalStateException("No public key available")
+
+        val contentJson = org.json.JSONObject().apply {
+            put("formId", response.formId)
+            put("answers", response.answersJson)
+        }.toString()
+
+        // If the form creator is someone else, encrypt via gift wrap (NIP-17)
+        if (form.createdBy.isNotBlank() && form.createdBy != pubkey) {
+            val giftWrap = cryptoManager.createGiftWrap(
+                recipientPubkey = form.createdBy,
+                content = contentJson
+            )
+            if (giftWrap != null) {
+                val event = NostrEvent(
+                    id = giftWrap.id,
+                    pubkey = giftWrap.pubkey,
+                    createdAt = giftWrap.createdAt,
+                    kind = giftWrap.kind,
+                    tags = giftWrap.tags,
+                    content = giftWrap.content,
+                    sig = giftWrap.sig
+                )
+                val published = nostrClient.publishEvent(event)
+                if (published) {
+                    repository.markResponseSynced(response.id)
+                }
+                return
+            }
+        }
+
+        // Fallback: publish as a regular kind 40032 event
+        val tags = mutableListOf(
+            listOf("e", response.formId),
+            listOf("p", form.createdBy)
+        )
+
+        val unsigned = UnsignedNostrEvent(
+            pubkey = pubkey,
+            createdAt = System.currentTimeMillis() / 1000,
+            kind = KIND_RESPONSE,
+            tags = tags,
+            content = contentJson
+        )
+
+        val signed = cryptoManager.signEvent(unsigned)
+            ?: throw IllegalStateException("Failed to sign response event")
+
+        val event = NostrEvent(
+            id = signed.id,
+            pubkey = signed.pubkey,
+            createdAt = signed.createdAt,
+            kind = signed.kind,
+            tags = signed.tags,
+            content = signed.content,
+            sig = signed.sig
+        )
+
+        val published = nostrClient.publishEvent(event)
+        if (published) {
+            repository.markResponseSynced(response.id)
+        }
     }
 
     // MARK: - Form Builder Helpers

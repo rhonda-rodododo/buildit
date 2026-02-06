@@ -42,6 +42,16 @@ class DeepLinkRouter @Inject constructor(
         const val ROUTE_PROPOSAL = "proposal"
         const val ROUTE_MUTUAL_AID = "mutual_aid"
         const val ROUTE_SOCIAL_POST = "social_post"
+
+        // Module routes (Epic 81)
+        const val ROUTE_TASKS = "tasks"
+        const val ROUTE_FILES = "files"
+        const val ROUTE_POLLS = "polls"
+        const val ROUTE_WIKI = "wiki"
+        const val ROUTE_WIKI_PAGE = "wiki_page"
+        const val ROUTE_WIKI_EDITOR = "wiki_editor"
+        const val ROUTE_MESSAGE_SEARCH = "messages/search"
+        const val ROUTE_MESSAGE_THREAD = "messages/thread"
     }
 
     /**

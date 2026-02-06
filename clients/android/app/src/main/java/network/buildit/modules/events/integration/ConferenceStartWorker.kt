@@ -1,5 +1,6 @@
 package network.buildit.modules.events.integration
 
+import network.buildit.core.redacted
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
@@ -74,7 +75,7 @@ class ConferenceStartWorker @AssistedInject constructor(
 
                 // In production, send notifications to all RSVPs
                 rsvpPubkeys.forEach { pubkey ->
-                    Log.d(TAG, "Sending notification to $pubkey: $message")
+                    Log.d(TAG, "Sending notification to ${pubkey.redacted()}: $message")
                     // notificationService.sendNotification(pubkey, message)
                 }
             }

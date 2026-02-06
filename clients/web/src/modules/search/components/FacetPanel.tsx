@@ -93,6 +93,7 @@ const MODULE_TYPE_LABELS: Record<ModuleType, string> = {
   friends: 'Friends',
   security: 'Security',
   training: 'Training',
+  marketplace: 'Marketplace',
 };
 
 // ============================================================================

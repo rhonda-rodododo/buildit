@@ -22,6 +22,10 @@ import type { ConversationMessage, DBConversation, ConversationMember } from './
 import { moduleParsers } from '@/core/schema/parser';
 
 import { logger } from '@/lib/logger';
+import { DummyTrafficGenerator } from './dummyTraffic';
+import { ephemeralManager, extractEphemeralContent } from './ephemeralManager';
+import { removeOuterPadding } from './trafficShaping';
+
 // Track processed event IDs to avoid duplicates
 const processedEvents = new Set<string>();
 
@@ -90,8 +94,12 @@ class MessageReceiverService {
    * before processing the message. Invalid signatures are rejected.
    */
   private async handleGiftWrap(event: NostrEvent): Promise<void> {
-    // Skip if already processed
-    if (processedEvents.has(event.id)) {
+    // Atomic dedup: add first, then check if it was already present.
+    // This eliminates the race condition between has() and add() where
+    // concurrent async handlers could both pass the check.
+    const alreadyProcessed = processedEvents.has(event.id);
+    processedEvents.add(event.id);
+    if (alreadyProcessed) {
       return;
     }
 
@@ -100,8 +108,6 @@ class MessageReceiverService {
       const toRemove = Array.from(processedEvents).slice(0, MAX_PROCESSED_EVENTS / 2);
       toRemove.forEach((id) => processedEvents.delete(id));
     }
-
-    processedEvents.add(event.id);
 
     // SECURITY: Verify the gift wrap event signature first
     // This ensures the event wasn't tampered with in transit
@@ -139,6 +145,14 @@ class MessageReceiverService {
       // The seal signature proves the sender's identity
       if (!unwrapped.sealVerified) {
         logger.warn('Seal signature verification failed, rejecting message:', event.id);
+        return;
+      }
+
+      // PRIVACY: Filter out dummy traffic messages
+      // Dummy messages are sent to self for traffic analysis resistance.
+      // The marker is inside the encrypted envelope, invisible to relays.
+      if (DummyTrafficGenerator.isDummyMessage(unwrapped.rumor.content)) {
+        logger.info('Discarded dummy traffic message');
         return;
       }
 
@@ -188,7 +202,10 @@ class MessageReceiverService {
     // Get or create conversation
     const store = useConversationsStore.getState();
 
-    if (!conversationId) {
+    // Resolve conversation ID: use the tag if present, otherwise find/create one
+    let resolvedConversationId = conversationId;
+
+    if (!resolvedConversationId) {
       // No conversation tag - older clients or simple DMs may not include one.
       // Try to find an existing DM conversation with this sender.
       const existingDm = store.conversations.find(
@@ -198,23 +215,39 @@ class MessageReceiverService {
           c.participants.includes(senderPubkey) &&
           c.participants.includes(this.userPubkey!)
       );
+
       if (existingDm) {
-        // Re-process with the found conversation ID by manually setting it
-        // and falling through to the rest of the function
+        resolvedConversationId = existingDm.id;
         logger.info(`Found existing DM for message without conversation tag: ${existingDm.id}`);
-        // We can't easily fall through here, so just return for now
-        // This is a compatibility edge case - modern clients always include conversation tags
+      } else {
+        // Check block list: if sender is blocked, reject the message
+        try {
+          const { useFriendsStore } = await import('@/modules/friends/friendsStore');
+          const friendsState = useFriendsStore.getState();
+          const friendRecord = friendsState.friends.find(
+            (f) => f.friendPubkey === senderPubkey && f.status === 'blocked'
+          );
+          if (friendRecord) {
+            logger.info(`Ignoring message from blocked user: ${senderPubkey.slice(0, 8)}...`);
+            return;
+          }
+        } catch {
+          // Friends store may not be available yet, continue
+        }
+
+        // Auto-create a new DM conversation for first-contact scenarios
+        const newId = `conv-${Date.now()}-${senderPubkey.slice(0, 8)}`;
+        resolvedConversationId = newId;
+        logger.info(`Creating new conversation for first contact from ${senderPubkey.slice(0, 8)}...`);
       }
-      logger.warn('No conversation ID in message tags, sender:', senderPubkey.slice(0, 8));
-      return;
     }
 
-    let conversation = store.getConversation(conversationId);
+    let conversation = store.getConversation(resolvedConversationId);
 
     if (!conversation) {
       // Auto-create conversation from incoming message
       // This happens when another user initiates a conversation we haven't seen yet
-      logger.info(`Auto-creating conversation from incoming message: ${conversationId}`);
+      logger.info(`Auto-creating conversation from incoming message: ${resolvedConversationId}`);
 
       try {
         const now = Date.now();
@@ -233,7 +266,7 @@ class MessageReceiverService {
         const type = participants.length > 2 ? 'group-chat' : 'dm';
 
         const newConversation: DBConversation = {
-          id: conversationId,
+          id: resolvedConversationId,
           type,
           participants,
           createdBy: senderPubkey,
@@ -246,8 +279,8 @@ class MessageReceiverService {
         };
 
         const members: ConversationMember[] = participants.map((pubkey) => ({
-          id: `member-${conversationId}-${pubkey}`,
-          conversationId,
+          id: `member-${resolvedConversationId}-${pubkey}`,
+          conversationId: resolvedConversationId,
           pubkey,
           role: pubkey === senderPubkey ? 'admin' : 'member',
           joinedAt: now,
@@ -271,15 +304,24 @@ class MessageReceiverService {
       }
     }
 
+    // PRIVACY: Strip outer padding if present
+    // Outer padding is applied before NIP-44 encryption for traffic analysis resistance.
+    // The padding envelope is: MARKER + content_length + content + random_padding
+    const unpaddedContent = removeOuterPadding(rumor.content);
+
+    // PRIVACY: Extract ephemeral config if present
+    // Ephemeral messages include a TTL in their structured envelope
+    const { content: rawContent, ephemeral: ephemeralConfig } = extractEphemeralContent(unpaddedContent);
+
     // Parse message content with versioned schema support
     // This enables graceful degradation and unknown field preservation
-    let messageContent = rumor.content;
+    let messageContent = rawContent;
     try {
       // Try to parse structured content (JSON) with version awareness
-      const parsed = JSON.parse(rumor.content);
+      const parsed = JSON.parse(rawContent);
       if (typeof parsed === 'object' && parsed !== null) {
         const parseResult = moduleParsers.directMessage(parsed);
-        messageContent = (parseResult.data as unknown as Record<string, unknown>).content as string ?? rumor.content;
+        messageContent = (parseResult.data as unknown as Record<string, unknown>).content as string ?? rawContent;
         if (parseResult.isPartial) {
           logger.info(
             `Message has ${parseResult.unknownFields.length} unknown fields from newer schema v${parseResult.version}`
@@ -288,13 +330,13 @@ class MessageReceiverService {
       }
     } catch {
       // Not structured JSON content - treat as plain text (standard NIP-17)
-      messageContent = rumor.content;
+      messageContent = rawContent;
     }
 
     // Create message record with VERIFIED sender identity
     const message: ConversationMessage = {
       id: giftWrap.id, // Use gift wrap ID as message ID (unique)
-      conversationId,
+      conversationId: resolvedConversationId,
       from: senderPubkey, // SECURITY: Now correctly using verified sender from seal
       content: messageContent,
       timestamp: rumor.created_at * 1000, // Convert to ms
@@ -322,11 +364,21 @@ class MessageReceiverService {
     }
 
     try {
+      // PRIVACY: Track ephemeral messages for automatic secure deletion
+      // The TTL countdown starts when the message is read by the user
+      if (ephemeralConfig) {
+        ephemeralManager.trackMessage(
+          message.id,
+          resolvedConversationId,
+          ephemeralConfig.ttl
+        );
+        logger.info(`Tracking ephemeral message with TTL ${ephemeralConfig.ttl}s: ${message.id.slice(0, 8)}...`);
+      }
 
       // Update conversation metadata
-      await dal.update('conversations', conversationId, {
+      await dal.update('conversations', resolvedConversationId, {
         lastMessageAt: message.timestamp,
-        lastMessagePreview: rumor.content.substring(0, 100),
+        lastMessagePreview: messageContent.substring(0, 100),
         unreadCount: (conversation.unreadCount || 0) + 1,
       });
 
@@ -334,18 +386,18 @@ class MessageReceiverService {
       useConversationsStore.setState((state) => ({
         messages: [...state.messages, message],
         conversations: state.conversations.map((c) =>
-          c.id === conversationId
+          c.id === resolvedConversationId
             ? {
                 ...c,
                 lastMessageAt: message.timestamp,
-                lastMessagePreview: rumor.content.substring(0, 100),
+                lastMessagePreview: messageContent.substring(0, 100),
                 unreadCount: (c.unreadCount || 0) + 1,
               }
             : c
         ),
       }));
 
-      logger.info(`📨 Received message in conversation ${conversationId.slice(0, 8)}...`);
+      logger.info(`📨 Received message in conversation ${resolvedConversationId.slice(0, 8)}...`);
     } catch (error) {
       console.error('Failed to store incoming message:', error);
     }

@@ -251,63 +251,21 @@ public struct IncomingCallOverlay: View {
     }
 }
 
-// MARK: - CallKit Integration Placeholder
-
-/// CallKit provider delegate placeholder
-/// Full implementation would integrate with CallKit framework
-public class CallKitManager: NSObject {
-    // TODO: Implement CallKit integration
-    // - CXProvider for system call UI
-    // - CXCallController for call management
-    // - Handle background call audio
-
-    public static let shared = CallKitManager()
-
-    /// Report incoming call to CallKit
-    public func reportIncomingCall(
-        uuid: UUID,
-        handle: String,
-        displayName: String?,
-        hasVideo: Bool
-    ) async throws {
-        // Placeholder for CallKit implementation
-        // let update = CXCallUpdate()
-        // update.remoteHandle = CXHandle(type: .generic, value: handle)
-        // update.localizedCallerName = displayName
-        // update.hasVideo = hasVideo
-        // try await provider.reportNewIncomingCall(with: uuid, update: update)
-    }
-
-    /// Report outgoing call to CallKit
-    public func reportOutgoingCall(
-        uuid: UUID,
-        handle: String
-    ) {
-        // Placeholder for CallKit implementation
-        // let handle = CXHandle(type: .generic, value: handle)
-        // let startCallAction = CXStartCallAction(call: uuid, handle: handle)
-        // let transaction = CXTransaction(action: startCallAction)
-        // callController.request(transaction) { ... }
-    }
-
-    /// Report call connected
-    public func reportCallConnected(uuid: UUID) {
-        // Placeholder for CallKit implementation
-        // provider.reportOutgoingCall(with: uuid, connectedAt: Date())
-    }
-
-    /// Report call ended
-    public func reportCallEnded(uuid: UUID, reason: Int) {
-        // Placeholder for CallKit implementation
-        // provider.reportCall(with: uuid, endedAt: Date(), reason: reason)
-    }
-}
+// NOTE: Full CallKit integration lives in Services/CallKitManager.swift
+// and is wired into CallingService automatically. The system incoming call
+// UI (lock screen banner, native answer/decline) is handled by CallKit.
+// This IncomingCallView provides the in-app UI overlay when the app is
+// already in the foreground.
 
 // MARK: - Preview
 
 #Preview("Incoming Call") {
     IncomingCallView(
-        service: try! CallingService(store: try! CallingStore()),
+        service: {
+            let service = try! CallingService(store: try! CallingStore())
+            service.configureCallKit()
+            return service
+        }(),
         callState: LocalCallState(
             callId: "test-call",
             remotePubkey: "abc123456789",

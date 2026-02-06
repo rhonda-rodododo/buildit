@@ -120,11 +120,14 @@
 
 # ============== Misc ==============
 
-# Remove logging in release builds
+# Remove logging in release builds (strip ALL log levels including w/e to prevent
+# leaking sensitive data such as certificate fingerprints, hostnames, or key info)
 -assumenosideeffects class android.util.Log {
     public static int v(...);
     public static int d(...);
     public static int i(...);
+    public static int w(...);
+    public static int e(...);
 }
 
 # Don't warn about missing classes from optional dependencies

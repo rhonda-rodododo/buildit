@@ -46,10 +46,11 @@ interface RegistryModule {
 
 /**
  * Known trusted signer public keys (hex, 64 chars)
- * In production, these would be BuildIt's official signing keys
+ * These are BuildIt's official Ed25519 signing keys for schema bundles.
+ * Keys are rotated periodically - old keys remain for verification of existing bundles.
  */
 const TRUSTED_SIGNERS = new Set<string>([
-  // Add official BuildIt signing keys here when generated
+  '44470946c302a9349de9e332ac5496a70ecc7d26bb52b149eea51897b16a771c', // BuildIt Official (2026-02)
 ])
 
 function hexToBytes(hex: string): Uint8Array {

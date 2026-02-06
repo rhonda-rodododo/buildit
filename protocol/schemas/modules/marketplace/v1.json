@@ -1,0 +1,508 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/marketplace/v1.json",
+  "title": "MarketplaceModule",
+  "description": "Schema for BuildIt Marketplace module - cooperative marketplace, skill exchange, and resource sharing",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+
+  "type": "object",
+
+  "$defs": {
+    "Listing": {
+      "type": "object",
+      "description": "A marketplace listing for products, services, co-op goods, initiatives, or shared resources",
+      "required": ["id", "type", "title", "createdBy", "createdAt", "status", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["product", "service", "co-op", "initiative", "resource"],
+          "description": "Category of listing"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Price in smallest currency unit (cents). Null or 0 for free/negotiable"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "maxItems": 10,
+          "description": "Image URLs for the listing"
+        },
+        "location": {
+          "$ref": "https://buildit.network/schemas/modules/custom-fields/v1.json#/$defs/LocationValue",
+          "description": "Location using custom-fields LocationValue type (privacy-aware precision)"
+        },
+        "availability": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Freeform availability description (e.g., 'Weekdays 9-5', 'Immediate')"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "maxItems": 20
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        },
+        "expiresAt": {
+          "type": "integer",
+          "description": "Unix timestamp when listing expires"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "sold", "expired", "removed"],
+          "default": "active"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Group this listing belongs to"
+        },
+        "coopId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Associated co-op profile ID, if applicable"
+        },
+        "contactMethod": {
+          "type": "string",
+          "enum": ["dm", "public-reply"],
+          "default": "dm",
+          "description": "How buyers should contact the seller"
+        }
+      }
+    },
+
+    "CoopProfile": {
+      "type": "object",
+      "description": "A worker cooperative or collective profile",
+      "required": ["id", "name", "nostrPubkey", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "memberCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "governanceModel": {
+          "type": "string",
+          "enum": ["consensus", "democratic", "sociocracy", "holacracy", "hybrid", "other"],
+          "description": "How the co-op makes decisions"
+        },
+        "industry": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Industry or sector"
+        },
+        "location": {
+          "$ref": "https://buildit.network/schemas/modules/custom-fields/v1.json#/$defs/LocationValue"
+        },
+        "website": {
+          "type": "string",
+          "format": "uri"
+        },
+        "nostrPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Nostr public key for the co-op identity"
+        },
+        "verifiedBy": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "description": "Pubkeys of people who have vouched for this co-op"
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Co-op logo or profile image"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        },
+        "groupId": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Review": {
+      "type": "object",
+      "description": "A review for a listing or co-op",
+      "required": ["id", "listingId", "reviewerPubkey", "rating", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "listingId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The listing or co-op being reviewed"
+        },
+        "reviewerPubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 2048
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "SkillExchange": {
+      "type": "object",
+      "description": "A time-banking or skill exchange offer",
+      "required": ["id", "offeredSkill", "requestedSkill", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "offeredSkill": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Skill the user can offer"
+        },
+        "requestedSkill": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Skill the user is looking for in exchange"
+        },
+        "availableHours": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Hours per week available for exchange"
+        },
+        "hourlyTimebank": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Accumulated timebank hours"
+        },
+        "location": {
+          "$ref": "https://buildit.network/schemas/modules/custom-fields/v1.json#/$defs/LocationValue"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "matched", "completed", "cancelled"],
+          "default": "active"
+        },
+        "groupId": {
+          "type": "string"
+        }
+      }
+    },
+
+    "ResourceShare": {
+      "type": "object",
+      "description": "A shared resource (tool, space, vehicle) available for borrowing",
+      "required": ["id", "resourceType", "name", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "resourceType": {
+          "type": "string",
+          "enum": ["tool", "space", "vehicle"],
+          "description": "Category of shared resource"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "availability": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dayOfWeek": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6,
+                "description": "0 = Sunday, 6 = Saturday"
+              },
+              "startHour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23
+              },
+              "endHour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23
+              }
+            },
+            "required": ["dayOfWeek", "startHour", "endHour"]
+          },
+          "description": "Weekly availability schedule"
+        },
+        "location": {
+          "$ref": "https://buildit.network/schemas/modules/custom-fields/v1.json#/$defs/LocationValue"
+        },
+        "depositRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a deposit is required to borrow"
+        },
+        "depositAmount": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Deposit amount in smallest currency unit"
+        },
+        "depositCurrency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "maxItems": 5
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["available", "borrowed", "unavailable"],
+          "default": "available"
+        },
+        "groupId": {
+          "type": "string"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "listing": {
+      "kind": 40131,
+      "description": "Marketplace listing",
+      "contentSchema": { "$ref": "#/$defs/Listing" },
+      "requiredTags": ["d", "module"]
+    },
+    "coopProfile": {
+      "kind": 40132,
+      "description": "Co-op profile",
+      "contentSchema": { "$ref": "#/$defs/CoopProfile" },
+      "requiredTags": ["d", "module"]
+    },
+    "review": {
+      "kind": 40133,
+      "description": "Review for listing or co-op",
+      "contentSchema": { "$ref": "#/$defs/Review" },
+      "requiredTags": ["e", "module"]
+    },
+    "skillExchange": {
+      "kind": 40134,
+      "description": "Skill exchange / timebank offer",
+      "contentSchema": { "$ref": "#/$defs/SkillExchange" },
+      "requiredTags": ["d", "module"]
+    },
+    "resourceShare": {
+      "kind": 40135,
+      "description": "Shared resource listing",
+      "contentSchema": { "$ref": "#/$defs/ResourceShare" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "simple_listing",
+      "description": "Basic marketplace listing",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "type": "product",
+        "title": "Hand-knitted union hats",
+        "description": "100% wool, union-made beanies in solidarity colors",
+        "price": 2500,
+        "currency": "USD",
+        "status": "active",
+        "tags": ["handmade", "union", "wool"],
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "coop_profile",
+      "description": "Worker co-op profile",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440101",
+        "name": "Solidarity Tech Collective",
+        "description": "Worker-owned software development co-op",
+        "memberCount": 12,
+        "governanceModel": "consensus",
+        "industry": "Technology",
+        "nostrPubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "verifiedBy": ["abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"]
+      }
+    },
+    {
+      "name": "skill_exchange",
+      "description": "Skill exchange offer",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440102",
+        "offeredSkill": "Web development",
+        "requestedSkill": "Legal consulting",
+        "availableHours": 5,
+        "hourlyTimebank": 10,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ],
+
+  "x-storage": {
+    "tables": {
+      "listings": {
+        "type": "Listing",
+        "primaryKey": "id",
+        "indexes": ["groupId", "type", "status", "createdBy", "createdAt", "expiresAt"]
+      },
+      "coopProfiles": {
+        "type": "CoopProfile",
+        "primaryKey": "id",
+        "indexes": ["groupId", "nostrPubkey", "industry", "governanceModel"]
+      },
+      "reviews": {
+        "type": "Review",
+        "primaryKey": "id",
+        "indexes": ["listingId", "reviewerPubkey", "rating", "createdAt"]
+      },
+      "skillExchanges": {
+        "type": "SkillExchange",
+        "primaryKey": "id",
+        "indexes": ["groupId", "status", "createdBy", "createdAt"]
+      },
+      "resourceShares": {
+        "type": "ResourceShare",
+        "primaryKey": "id",
+        "indexes": ["groupId", "resourceType", "status", "createdBy"]
+      }
+    },
+    "dbOnly": {
+      "listings": {
+        "groupId": {
+          "type": "string",
+          "optional": false,
+          "description": "Group this listing belongs to"
+        }
+      }
+    },
+    "protocolOnly": []
+  }
+}

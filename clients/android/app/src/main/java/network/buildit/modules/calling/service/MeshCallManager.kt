@@ -1,5 +1,6 @@
 package network.buildit.modules.calling.service
 
+import network.buildit.core.redacted
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -308,7 +309,7 @@ class MeshCallManager @Inject constructor(
         if (pubkey == localPubkey) return
         if (peerConnections.containsKey(pubkey)) return
 
-        Log.i(TAG, "Participant joined: $pubkey")
+        Log.i(TAG, "Participant joined: ${pubkey.redacted()}")
 
         // Add to participants list
         val currentParticipants = _participants.value.toMutableMap()
@@ -339,7 +340,7 @@ class MeshCallManager @Inject constructor(
     private suspend fun handleParticipantLeft(pubkey: String) {
         if (pubkey == localPubkey) return
 
-        Log.i(TAG, "Participant left: $pubkey")
+        Log.i(TAG, "Participant left: ${pubkey.redacted()}")
 
         // Clean up peer connection
         cleanupPeer(pubkey)
@@ -363,15 +364,15 @@ class MeshCallManager @Inject constructor(
      */
     private suspend fun connectToPeer(pubkey: String, displayName: String? = null) {
         if (peerConnections.containsKey(pubkey)) {
-            Log.w(TAG, "Already connected to peer: $pubkey")
+            Log.w(TAG, "Already connected to peer: ${pubkey.redacted()}")
             return
         }
 
-        Log.i(TAG, "Connecting to peer: $pubkey")
+        Log.i(TAG, "Connecting to peer: ${pubkey.redacted()}")
 
         // Create peer connection
         val pc = createPeerConnection(pubkey) ?: run {
-            Log.e(TAG, "Failed to create peer connection for: $pubkey")
+            Log.e(TAG, "Failed to create peer connection for: ${pubkey.redacted()}")
             return
         }
 

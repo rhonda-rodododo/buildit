@@ -41,7 +41,8 @@ public final class CallingModule: BuildItModule {
 
     public init() throws {
         self.store = try CallingStore()
-        self.service = CallingService(store: store)
+        self.service = try CallingService(store: store)
+        self.service.configureCallKit()
         logger.info("Calling module created")
     }
 

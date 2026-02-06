@@ -24,10 +24,20 @@ class BLECentral: NSObject {
     private var peripheralDelegates: [UUID: PeripheralDelegate] = [:]
     private var pendingMessages: [UUID: [Data]] = [:]
     private var messageCharacteristics: [UUID: CBCharacteristic] = [:]
+    private var handshakeCharacteristics: [UUID: CBCharacteristic] = [:]
     private let logger = Logger(subsystem: "com.buildit", category: "BLECentral")
+
+    /// Authenticator for BLE peer verification
+    private let authenticator = BLEAuthenticator.shared
 
     // Continuation for async message sending
     private var sendContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
+
+    // Continuation for handshake read operations
+    private var handshakeReadContinuations: [UUID: CheckedContinuation<Data, Error>] = [:]
+
+    // Continuation for handshake write operations
+    private var handshakeWriteContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
 
     // MARK: - Configuration
 
@@ -37,7 +47,7 @@ class BLECentral: NSObject {
 
     // MARK: - Scanning
 
-    func startScanning() {
+    func startScanning(forService serviceUUID: CBUUID? = nil) {
         guard let manager = centralManager, manager.state == .poweredOn else {
             logger.warning("Cannot start scanning: Central manager not ready")
             return
@@ -47,8 +57,9 @@ class BLECentral: NSObject {
             CBCentralManagerScanOptionAllowDuplicatesKey: false
         ]
 
+        let uuid = serviceUUID ?? BuildItBLEConstants.serviceUUID
         manager.scanForPeripherals(
-            withServices: [BuildItBLEConstants.serviceUUID],
+            withServices: [uuid],
             options: options
         )
 
@@ -85,7 +96,8 @@ class BLECentral: NSObject {
     func handleDiscoveredPeripheral(
         _ peripheral: CBPeripheral,
         advertisementData: [String: Any],
-        rssi: Int
+        rssi: Int,
+        commitmentData: Data? = nil
     ) {
         // Filter by signal strength
         guard rssi > -80 else { return }
@@ -218,12 +230,17 @@ class BLECentral: NSObject {
                 logger.info("Found message characteristic for: \(peripheral.identifier)")
 
             case BuildItBLEConstants.identityCharacteristicUUID:
-                // Read identity
-                peripheral.readValue(for: characteristic)
+                // Read identity (only used after authentication)
+                break
 
             case BuildItBLEConstants.handshakeCharacteristicUUID:
-                // Initiate handshake
-                performHandshake(with: peripheral, characteristic: characteristic)
+                // Store handshake characteristic and initiate authenticated handshake
+                handshakeCharacteristics[peripheral.identifier] = characteristic
+                // Subscribe to handshake notifications for receiving responses
+                if characteristic.properties.contains(.notify) {
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+                performAuthenticatedHandshake(with: peripheral, characteristic: characteristic)
 
             default:
                 break
@@ -241,10 +258,22 @@ class BLECentral: NSObject {
 
         switch characteristic.uuid {
         case BuildItBLEConstants.messageCharacteristicUUID:
+            // Only process messages from authenticated peers
+            guard authenticator.isAuthenticated(peripheral.identifier) else {
+                logger.warning("[AUTH] Dropping message from unauthenticated peer: \(peripheral.identifier)")
+                return
+            }
             handleReceivedMessage(data, from: peripheral)
 
         case BuildItBLEConstants.identityCharacteristicUUID:
-            handleIdentity(data, from: peripheral)
+            // Identity is now verified via handshake, not raw read
+            break
+
+        case BuildItBLEConstants.handshakeCharacteristicUUID:
+            // Resume any pending handshake read continuation
+            if let continuation = handshakeReadContinuations.removeValue(forKey: peripheral.identifier) {
+                continuation.resume(returning: data)
+            }
 
         default:
             break
@@ -252,11 +281,23 @@ class BLECentral: NSObject {
     }
 
     func didWriteValue(for characteristic: CBCharacteristic, peripheral: CBPeripheral, error: Error?) {
-        if let continuation = sendContinuations.removeValue(forKey: peripheral.identifier) {
-            if let error = error {
-                continuation.resume(throwing: error)
-            } else {
-                continuation.resume()
+        switch characteristic.uuid {
+        case BuildItBLEConstants.handshakeCharacteristicUUID:
+            if let continuation = handshakeWriteContinuations.removeValue(forKey: peripheral.identifier) {
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+
+        default:
+            if let continuation = sendContinuations.removeValue(forKey: peripheral.identifier) {
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
             }
         }
     }
@@ -267,8 +308,14 @@ class BLECentral: NSObject {
         connectedPeripherals.removeAll { $0.identifier == peripheral.identifier }
         peripheralDelegates.removeValue(forKey: peripheral.identifier)
         messageCharacteristics.removeValue(forKey: peripheral.identifier)
+        handshakeCharacteristics.removeValue(forKey: peripheral.identifier)
         pendingMessages.removeValue(forKey: peripheral.identifier)
         sendContinuations.removeValue(forKey: peripheral.identifier)
+        handshakeReadContinuations.removeValue(forKey: peripheral.identifier)
+        handshakeWriteContinuations.removeValue(forKey: peripheral.identifier)
+
+        // Clear authentication state for this peer
+        authenticator.peerDisconnected(peripheral.identifier)
     }
 
     private func handleReceivedMessage(_ data: Data, from peripheral: CBPeripheral) {
@@ -285,29 +332,100 @@ class BLECentral: NSObject {
         }
     }
 
-    private func handleIdentity(_ data: Data, from peripheral: CBPeripheral) {
-        // Parse peer identity (public key)
-        logger.info("Received identity from: \(peripheral.identifier)")
+    // MARK: - Authenticated Handshake (Central as Initiator)
 
-        // Store identity for message routing
-        if let publicKeyHex = String(data: data, encoding: .utf8) {
-            Task {
-                await MeshRouter.shared.registerPeer(peripheral.identifier, publicKey: publicKeyHex)
+    /// Perform a mutually authenticated handshake with a peripheral.
+    ///
+    /// Protocol:
+    ///   1. Central (us) sends signed challenge to peripheral
+    ///   2. Peripheral verifies and sends signed response
+    ///   3. Central verifies response -- mutual authentication complete
+    ///
+    /// If the handshake fails or times out, the peripheral is disconnected.
+    private func performAuthenticatedHandshake(with peripheral: CBPeripheral, characteristic: CBCharacteristic) {
+        Task {
+            do {
+                logger.info("[AUTH] Starting authenticated handshake with: \(peripheral.identifier)")
+
+                // Step 1: Create and send our challenge
+                let challengeData = try await authenticator.createChallenge(for: peripheral.identifier)
+                try await writeHandshakeData(challengeData, to: peripheral, characteristic: characteristic)
+
+                logger.info("[AUTH] Sent challenge to: \(peripheral.identifier), awaiting response...")
+
+                // Step 2: Read the peer's response
+                let responseData = try await readHandshakeData(from: peripheral, characteristic: characteristic)
+
+                // Step 3: Verify the response
+                let verifiedPubkey = try await authenticator.verifyResponse(responseData, from: peripheral.identifier)
+
+                logger.info("[AUTH] Mutual authentication SUCCEEDED with: \(peripheral.identifier), pubkey: \(verifiedPubkey.prefix(16))...")
+
+                // Register the verified peer in the mesh router
+                let commitment = MeshPeer.createCommitment(pubkey: verifiedPubkey)
+                await MeshRouter.shared.registerPeer(peripheral.identifier, commitment: commitment.commitment)
+                _ = await MeshRouter.shared.verifyPeerIdentity(
+                    peripheral.identifier,
+                    pubkey: verifiedPubkey,
+                    nonce: commitment.nonce
+                )
+
+                // Notify BLEManager of successful authentication
+                NotificationCenter.default.post(
+                    name: .bleAuthenticationCompleted,
+                    object: nil,
+                    userInfo: [
+                        "peerID": peripheral.identifier,
+                        "pubkey": verifiedPubkey
+                    ]
+                )
+
+            } catch {
+                logger.error("[AUTH] Handshake FAILED with \(peripheral.identifier): \(error.localizedDescription)")
+
+                // Reject the unauthenticated connection
+                centralManager?.cancelPeripheralConnection(peripheral)
+
+                NotificationCenter.default.post(
+                    name: .bleAuthenticationFailed,
+                    object: nil,
+                    userInfo: [
+                        "peerID": peripheral.identifier,
+                        "error": error.localizedDescription
+                    ]
+                )
             }
         }
     }
 
-    private func performHandshake(with peripheral: CBPeripheral, characteristic: CBCharacteristic) {
-        // Send our identity for handshake
-        Task {
-            guard let publicKey = await CryptoManager.shared.getPublicKeyHex() else {
-                logger.error("No public key available for handshake")
-                return
-            }
+    /// Write handshake data to the peer's handshake characteristic
+    private func writeHandshakeData(_ data: Data, to peripheral: CBPeripheral, characteristic: CBCharacteristic) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            handshakeWriteContinuations[peripheral.identifier] = continuation
 
-            if let data = publicKey.data(using: .utf8) {
-                peripheral.writeValue(data, for: characteristic, type: .withResponse)
-                logger.info("Initiated handshake with: \(peripheral.identifier)")
+            peripheral.writeValue(data, for: characteristic, type: .withResponse)
+
+            // Timeout after 15 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
+                if let cont = self?.handshakeWriteContinuations.removeValue(forKey: peripheral.identifier) {
+                    cont.resume(throwing: BLEAuthError.handshakeTimeout)
+                }
+            }
+        }
+    }
+
+    /// Read handshake data from the peer's handshake characteristic
+    private func readHandshakeData(from peripheral: CBPeripheral, characteristic: CBCharacteristic) async throws -> Data {
+        return try await withCheckedThrowingContinuation { continuation in
+            handshakeReadContinuations[peripheral.identifier] = continuation
+
+            peripheral.readValue(for: characteristic)
+
+            // Timeout after 15 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
+                if let cont = self?.handshakeReadContinuations.removeValue(forKey: peripheral.identifier) {
+                    cont.resume(throwing: BLEAuthError.handshakeTimeout)
+                }
             }
         }
     }
@@ -367,4 +485,16 @@ private class PeripheralDelegate: NSObject, CBPeripheralDelegate {
         // Re-discover services if they were modified
         peripheral.discoverServices([BuildItBLEConstants.serviceUUID])
     }
+}
+
+// MARK: - BLE Authentication Notifications
+
+extension Notification.Name {
+    /// Posted when a BLE peer completes mutual authentication.
+    /// UserInfo contains "peerID" (UUID) and "pubkey" (String).
+    static let bleAuthenticationCompleted = Notification.Name("com.buildit.ble.auth.completed")
+
+    /// Posted when a BLE peer fails authentication.
+    /// UserInfo contains "peerID" (UUID) and "error" (String).
+    static let bleAuthenticationFailed = Notification.Name("com.buildit.ble.auth.failed")
 }

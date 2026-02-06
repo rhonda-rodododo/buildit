@@ -1,5 +1,6 @@
 package network.buildit.modules.events.integration
 
+import network.buildit.core.redacted
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +62,7 @@ class VolunteerCallingIntegration @Inject constructor(
         pubkey: String,
         role: EventVolunteerRole
     ): VolunteerRequirementsResult {
-        Log.d(TAG, "Checking requirements for $pubkey, role: ${role.name}")
+        Log.d(TAG, "Checking requirements for ${pubkey.redacted()}, role: ${role.name}")
 
         val missingTrainings = mutableListOf<TrainingRequirementStatus>()
         var allMet = true
@@ -145,7 +146,7 @@ class VolunteerCallingIntegration @Inject constructor(
             )
             grants.add(grant)
 
-            Log.i(TAG, "Granted ${role.value} access to hotline $hotlineId for $pubkey")
+            Log.i(TAG, "Granted ${role.value} access to hotline $hotlineId for ${pubkey.redacted()}")
         }
     }
 
@@ -179,7 +180,7 @@ class VolunteerCallingIntegration @Inject constructor(
         operatorPools[hotlineId]?.removeAll { it.pubkey == pubkey }
         updateOperatorPoolState()
 
-        Log.i(TAG, "Revoked access to hotline $hotlineId for $pubkey: $reason")
+        Log.i(TAG, "Revoked access to hotline $hotlineId for ${pubkey.redacted()}: $reason")
     }
 
     /**
@@ -207,7 +208,7 @@ class VolunteerCallingIntegration @Inject constructor(
             )
             pool.remove(existing)
             pool.add(updated)
-            Log.i(TAG, "Updated operator $pubkey in pool for hotline $hotlineId with ${shifts.size} new shifts")
+            Log.i(TAG, "Updated operator ${pubkey.redacted()} in pool for hotline $hotlineId with ${shifts.size} new shifts")
         } else {
             // Get the role from the most recent access grant
             val grant = accessGrants[pubkey]?.find { it.hotlineId == hotlineId && it.active }
@@ -224,7 +225,7 @@ class VolunteerCallingIntegration @Inject constructor(
                 status = OperatorStatus.ACTIVE
             )
             pool.add(entry)
-            Log.i(TAG, "Added operator $pubkey to pool for hotline $hotlineId")
+            Log.i(TAG, "Added operator ${pubkey.redacted()} to pool for hotline $hotlineId")
         }
 
         updateOperatorPoolState()
@@ -248,7 +249,7 @@ class VolunteerCallingIntegration @Inject constructor(
         if (shiftIds == null) {
             // Remove entirely
             pool.remove(entry)
-            Log.i(TAG, "Removed operator $pubkey from pool for hotline $hotlineId")
+            Log.i(TAG, "Removed operator ${pubkey.redacted()} from pool for hotline $hotlineId")
         } else {
             // Remove specific shifts
             val remainingShifts = entry.shifts.filter { shift ->
@@ -259,11 +260,11 @@ class VolunteerCallingIntegration @Inject constructor(
 
             if (remainingShifts.isEmpty()) {
                 pool.remove(entry)
-                Log.i(TAG, "Removed operator $pubkey from pool for hotline $hotlineId (no remaining shifts)")
+                Log.i(TAG, "Removed operator ${pubkey.redacted()} from pool for hotline $hotlineId (no remaining shifts)")
             } else {
                 pool.remove(entry)
                 pool.add(entry.copy(shifts = remainingShifts))
-                Log.i(TAG, "Removed ${shiftIds.size} shifts for operator $pubkey from hotline $hotlineId")
+                Log.i(TAG, "Removed ${shiftIds.size} shifts for operator ${pubkey.redacted()} from hotline $hotlineId")
             }
         }
 
@@ -425,7 +426,7 @@ class VolunteerCallingIntegration @Inject constructor(
         pool.add(entry.copy(status = status))
         updateOperatorPoolState()
 
-        Log.i(TAG, "Updated operator $pubkey status to ${status.value} for hotline $hotlineId")
+        Log.i(TAG, "Updated operator ${pubkey.redacted()} status to ${status.value} for hotline $hotlineId")
     }
 
     private suspend fun checkTrainingCompletion(

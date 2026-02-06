@@ -8,6 +8,7 @@
 //! All BuildIt clients must implement equivalent logic to ensure
 //! interoperability across schema versions.
 
+use crate::error::CryptoError;
 use serde_json::Value;
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
@@ -25,18 +26,33 @@ pub struct SchemaVersion {
 }
 
 impl SchemaVersion {
-    /// Parse a version string like "1.2.3"
-    pub fn parse(version: &str) -> Self {
-        let parts: Vec<u32> = version
-            .split('.')
-            .filter_map(|p| p.parse().ok())
-            .collect();
+    /// Parse a version string like "1.2.3" with strict validation.
+    ///
+    /// Requires exactly 3 dot-separated numeric components (MAJOR.MINOR.PATCH).
+    /// Rejects empty strings, non-numeric parts, and wrong number of segments.
+    pub fn parse(version: &str) -> Result<Self, CryptoError> {
+        let parts: Vec<&str> = version.split('.').collect();
 
-        SchemaVersion {
-            major: parts.first().copied().unwrap_or(1),
-            minor: parts.get(1).copied().unwrap_or(0),
-            patch: parts.get(2).copied().unwrap_or(0),
+        if parts.len() != 3 {
+            return Err(CryptoError::InvalidVersion);
         }
+
+        let major = parts[0].parse::<u32>().map_err(|_| CryptoError::InvalidVersion)?;
+        let minor = parts[1].parse::<u32>().map_err(|_| CryptoError::InvalidVersion)?;
+        let patch = parts[2].parse::<u32>().map_err(|_| CryptoError::InvalidVersion)?;
+
+        Ok(SchemaVersion { major, minor, patch })
+    }
+
+    /// Parse a version string, defaulting to "1.0.0" if the input is empty or absent.
+    ///
+    /// Use this for the `_v` field in schema content where a missing version
+    /// should default to "1.0.0" per the versioning spec.
+    pub fn parse_or_default(version: &str) -> Result<Self, CryptoError> {
+        if version.is_empty() {
+            return Ok(SchemaVersion { major: 1, minor: 0, patch: 0 });
+        }
+        Self::parse(version)
     }
 
     /// Check if this version is compatible with a reader version.
@@ -136,7 +152,20 @@ pub fn parse_versioned_content(
     module: &str,
     reader_version_str: &str,
 ) -> VersionedParseResult {
-    let reader_version = SchemaVersion::parse(reader_version_str);
+    let reader_version = match SchemaVersion::parse(reader_version_str) {
+        Ok(v) => v,
+        Err(_) => {
+            return VersionedParseResult {
+                can_parse: false,
+                is_partial: false,
+                unknown_fields: vec![],
+                preserved_unknown_fields: HashMap::new(),
+                content_readable: false,
+                inferred_version: None,
+                update_required: false,
+            }
+        }
+    };
 
     let obj = match json.as_object() {
         Some(o) => o,
@@ -158,7 +187,20 @@ pub fn parse_versioned_content(
         .get("_v")
         .and_then(|v| v.as_str())
         .unwrap_or(DEFAULT_VERSION);
-    let content_version = SchemaVersion::parse(version_string);
+    let content_version = match SchemaVersion::parse(version_string) {
+        Ok(v) => v,
+        Err(_) => {
+            return VersionedParseResult {
+                can_parse: false,
+                is_partial: false,
+                unknown_fields: vec![],
+                preserved_unknown_fields: HashMap::new(),
+                content_readable: false,
+                inferred_version: None,
+                update_required: false,
+            }
+        }
+    };
     let inferred_version = if obj.get("_v").is_none() {
         Some(DEFAULT_VERSION.to_string())
     } else {
@@ -216,12 +258,12 @@ mod tests {
 
     #[test]
     fn test_schema_version_parsing() {
-        let v = SchemaVersion::parse("1.0.0");
+        let v = SchemaVersion::parse("1.0.0").unwrap();
         assert_eq!(v.major, 1);
         assert_eq!(v.minor, 0);
         assert_eq!(v.patch, 0);
 
-        let v = SchemaVersion::parse("2.3.5");
+        let v = SchemaVersion::parse("2.3.5").unwrap();
         assert_eq!(v.major, 2);
         assert_eq!(v.minor, 3);
         assert_eq!(v.patch, 5);
@@ -229,24 +271,52 @@ mod tests {
 
     #[test]
     fn test_schema_version_comparison() {
-        assert!(SchemaVersion::parse("1.0.0") < SchemaVersion::parse("1.1.0"));
-        assert!(SchemaVersion::parse("1.0.0") < SchemaVersion::parse("2.0.0"));
-        assert!(SchemaVersion::parse("1.0.0") < SchemaVersion::parse("1.0.1"));
-        assert!(!(SchemaVersion::parse("1.0.0") < SchemaVersion::parse("1.0.0")));
-        assert!(SchemaVersion::parse("1.9.9") < SchemaVersion::parse("2.0.0"));
+        assert!(SchemaVersion::parse("1.0.0").unwrap() < SchemaVersion::parse("1.1.0").unwrap());
+        assert!(SchemaVersion::parse("1.0.0").unwrap() < SchemaVersion::parse("2.0.0").unwrap());
+        assert!(SchemaVersion::parse("1.0.0").unwrap() < SchemaVersion::parse("1.0.1").unwrap());
+        assert!(!(SchemaVersion::parse("1.0.0").unwrap() < SchemaVersion::parse("1.0.0").unwrap()));
+        assert!(SchemaVersion::parse("1.9.9").unwrap() < SchemaVersion::parse("2.0.0").unwrap());
     }
 
     #[test]
     fn test_schema_version_compatibility() {
-        let v1 = SchemaVersion::parse("1.0.0");
-        assert!(v1.is_compatible_with(&SchemaVersion::parse("1.0.0")));
-        assert!(v1.is_compatible_with(&SchemaVersion::parse("1.5.0")));
-        assert!(!v1.is_compatible_with(&SchemaVersion::parse("2.0.0")));
+        let v1 = SchemaVersion::parse("1.0.0").unwrap();
+        assert!(v1.is_compatible_with(&SchemaVersion::parse("1.0.0").unwrap()));
+        assert!(v1.is_compatible_with(&SchemaVersion::parse("1.5.0").unwrap()));
+        assert!(!v1.is_compatible_with(&SchemaVersion::parse("2.0.0").unwrap()));
     }
 
     #[test]
     fn test_schema_version_display() {
-        assert_eq!(SchemaVersion::parse("1.2.3").to_string(), "1.2.3");
+        assert_eq!(SchemaVersion::parse("1.2.3").unwrap().to_string(), "1.2.3");
+    }
+
+    #[test]
+    fn test_schema_version_rejects_malformed() {
+        // Empty string
+        assert!(SchemaVersion::parse("").is_err());
+        // Non-numeric
+        assert!(SchemaVersion::parse("abc").is_err());
+        assert!(SchemaVersion::parse("1.2.abc").is_err());
+        // Wrong number of segments
+        assert!(SchemaVersion::parse("1").is_err());
+        assert!(SchemaVersion::parse("1.2").is_err());
+        assert!(SchemaVersion::parse("1.2.3.4").is_err());
+        assert!(SchemaVersion::parse("1.2.3.4.5").is_err());
+        // Negative numbers
+        assert!(SchemaVersion::parse("-1.0.0").is_err());
+        // Spaces
+        assert!(SchemaVersion::parse("1. 2.3").is_err());
+
+        // parse_or_default handles empty string gracefully
+        let v = SchemaVersion::parse_or_default("").unwrap();
+        assert_eq!(v.major, 1);
+        assert_eq!(v.minor, 0);
+        assert_eq!(v.patch, 0);
+
+        // parse_or_default still validates non-empty strings
+        assert!(SchemaVersion::parse_or_default("abc").is_err());
+        assert!(SchemaVersion::parse_or_default("1.2").is_err());
     }
 
     // ================================================================

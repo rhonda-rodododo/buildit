@@ -120,8 +120,10 @@ pub fn nip44_encrypt(
     let chacha_nonce = &key_material[32..44];
     let hmac_key = &key_material[44..76];
 
-    // Pad plaintext
-    let padded = pad(plaintext.as_bytes())?;
+    // Pad plaintext and zeroize the original plaintext bytes
+    let mut plaintext_bytes = plaintext.into_bytes();
+    let mut padded = pad(&plaintext_bytes)?;
+    plaintext_bytes.zeroize();
 
     // Encrypt with ChaCha20-Poly1305
     let cipher =
@@ -130,6 +132,9 @@ pub fn nip44_encrypt(
     let ciphertext = cipher
         .encrypt(nonce, padded.as_slice())
         .map_err(|_| CryptoError::EncryptionFailed)?;
+
+    // Zeroize padded plaintext
+    padded.zeroize();
 
     // Compute HMAC
     let mut mac = <Hmac<Sha256> as Mac>::new_from_slice(hmac_key)
@@ -178,8 +183,10 @@ pub fn nip44_encrypt_with_key(
     let chacha_nonce = &key_material[32..44];
     let hmac_key = &key_material[44..76];
 
-    // Pad plaintext
-    let padded = pad(plaintext.as_bytes())?;
+    // Pad plaintext and zeroize the original plaintext bytes
+    let mut plaintext_bytes = plaintext.into_bytes();
+    let mut padded = pad(&plaintext_bytes)?;
+    plaintext_bytes.zeroize();
 
     // Encrypt with ChaCha20-Poly1305
     let cipher =
@@ -188,6 +195,9 @@ pub fn nip44_encrypt_with_key(
     let ciphertext = cipher
         .encrypt(nonce, padded.as_slice())
         .map_err(|_| CryptoError::EncryptionFailed)?;
+
+    // Zeroize padded plaintext
+    padded.zeroize();
 
     // Compute HMAC
     let mut mac = <Hmac<Sha256> as Mac>::new_from_slice(hmac_key)
