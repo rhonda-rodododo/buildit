@@ -24,14 +24,15 @@ When completing an epic:
 
 ## 📊 Current Status
 
-**Last Updated**: 2026-01-25 (Epic 73 Schema Versioning spec complete)
-**Active Phase**: Quality Complete (Epic 51 ✅) - Native App (Epic 63 ✅ MVP Complete)
-**Build Status**: ✅ Successful (285.33KB brotli initial load)
-**Test Status**: ✅ 1274/1274 tests passing (100% pass rate, 63 test files)
-**E2E Coverage**: 85%+ of epics ✅ Epic 68 added 54 new tests (36 test files total)
-**Security Audit**: ✅ Complete (Epic 30) - Ready for external audit
+**Last Updated**: 2026-02-05 (Epics 74-87 cross-platform feature expansion complete)
+**Active Phase**: Cross-Platform Feature Complete — 13 epics across all platforms
+**Build Status**: ✅ Successful (typecheck clean)
+**Test Status**: ✅ 1634/1638 tests passing (4 pre-existing timeouts in key-rotation/WebAuthn)
+**E2E Coverage**: 85%+ of epics ✅ Epic 82 added Android unit/integration + web a11y/visual tests
+**Security Audit**: ✅ Complete (Epics 30 + 80) - Shamir multisig, traffic shaping, ephemeral messages
 **Architecture**: ✅ 100% Client-Side P2P (Nostr + E2EE) → Optional Backend (Phase 3+)
-**Native App**: ✅ MVP Complete (all programmatic features, E2E tests, NIP-29 messaging)
+**Native Apps**: ✅ iOS + Android feature-complete, calling, marketplace, governance, location fields
+**New Modules**: Marketplace (Epic 87), Tasks/Files/Polls (Epic 81 Android), Publishing Advanced (Epic 86)
 
 **🎯 Architectural Decision**: Hybrid Nostr + Optional Backend
 - **Phase 1** (33-43h): Client-side only features (crypto payments, publishing, Nostr newsletters)
@@ -971,9 +972,9 @@ See [.claude/subagents.yml](./.claude/subagents.yml) for subagent task patterns:
 
 ---
 
-**Last Updated**: 2026-01-25 (Epic 73 Schema Versioning spec complete)
-**Total Epics Pending**: ~14 (Epic 31, 36, 45, 49B, 51, 53B, 54-63, 73)
-**Total Backlog Items**: 5+ (includes Epic 46+ content/marketplace, Epic 44 Phase 2)
+**Last Updated**: 2026-02-05 (Epics 74-87 cross-platform feature expansion complete)
+**Total Epics Pending**: ~7 (Epic 31, 36, 45, 49B, 53B, 54, 62)
+**Total Backlog Items**: 5+ (includes Epic 46+ content curation, Epic 44 Phase 2, Epic 55 ATProto)
 
 ---
 

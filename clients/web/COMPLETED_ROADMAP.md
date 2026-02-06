@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-01-30 (Calling System, Calling-Integrations, and Training Module completed)
+**Last Updated**: 2026-02-05 (Epics 74-87 cross-platform feature expansion completed)
 
 ---
 
@@ -100,6 +100,20 @@ Archive of completed epics. This document provides high-level summaries only.
 | Training-3 | - | ✅ | `8f11b94` | Live Sessions & Scheduling - Real-time training sessions |
 | Training-4 | - | ✅ | `8f11b94` | Analytics & Progress Tracking - Learning analytics dashboard |
 | Training-5 | - | ✅ | `8f11b94` | Default Content & Templates - Built-in training content |
+| 74 | - | ✅ | `1c91b86` | Cross-Platform Calling - CallKit (iOS), Telecom (Android), WebRTC SIP bridge, SMS/RCS gateway |
+| 75 | - | ✅ | `1c91b86` | Android Feature Completeness - Repost, photo picker, signature verification, deep links, wiki search |
+| 76 | - | ✅ | `1c91b86` | iOS Feature Completeness - BLE mutual auth, Keychain TOFU pins, CallKit integration, location field |
+| 77 | - | ✅ | `1c91b86` | Nostr Protocol Integration - NIP-01/05/17/38 metadata, presence, friend requests, event invitations |
+| 78 | - | ✅ | `1c91b86` | Media Upload System - EXIF stripping, iterative compression, chunked upload with resume, cross-platform |
+| 79 | - | ✅ | `1c91b86` | Web UI/UX Completions - 16 TODO items: wiki, forms, newsletters, contacts, documents, footnotes |
+| 80 | - | ✅ | `1c91b86` | Advanced Privacy & Security - Shamir multisig, ephemeral messages, traffic shaping, dummy traffic |
+| 81 | - | ✅ | `1c91b86` | Android Module Expansion - Tasks, files, polls modules, wiki editor, messaging enhancements (41 files) |
+| 82 | - | ✅ | `1c91b86` | Test Coverage - Android unit/integration tests, protocol test vectors, web a11y/visual regression |
+| 83 | - | ✅ | `1c91b86` | Quadratic Voting Protocol - sqrt-based tallying, token budgets, cross-platform UI (web/iOS/Android) |
+| 84 | - | ✅ | `1c91b86` | CI/CD & Monitoring - GitHub Actions, Sentry PII scrubbing, Web Vitals, privacy-preserving analytics |
+| 85 | - | ✅ | `1c91b86` | Location Custom Field - OpenStreetMap/Leaflet, precision fuzzing, geocoding, cross-platform |
+| 86 | - | ✅ | `1c91b86` | Advanced Publishing - Custom domains, navigation editor, archives, categories, SEO, link tracking |
+| 87 | - | ✅ | `1c91b86` | Cooperative Marketplace - Listings, co-op profiles, reviews, skill exchange, resource sharing |
 
 ---
 
