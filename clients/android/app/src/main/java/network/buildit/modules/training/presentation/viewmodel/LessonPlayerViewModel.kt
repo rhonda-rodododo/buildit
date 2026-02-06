@@ -251,7 +251,7 @@ class LessonPlayerViewModel @Inject constructor(
                                     id = "",
                                     lessonId = lessonId,
                                     pubkey = "",
-                                    status = ProgressStatus.COMPLETED,
+                                    status = ProgressStatus.Completed,
                                     score = result.data.score,
                                     timeSpent = 0,
                                     lastPosition = null,
@@ -363,7 +363,7 @@ class LessonPlayerViewModel @Inject constructor(
 
         // Save final video position
         val state = _uiState.value
-        if (state is LessonPlayerUiState.Ready && state.lesson.type == LessonType.VIDEO) {
+        if (state is LessonPlayerUiState.Ready && state.lesson.type == LessonType.Video) {
             currentLessonId?.let { lessonId ->
                 viewModelScope.launch {
                     startLessonUseCase.updateVideoPosition(lessonId, _videoState.value.currentPosition)

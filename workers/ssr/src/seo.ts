@@ -42,12 +42,81 @@ interface SeoAuthor {
   website?: string;
 }
 
+export interface SeoEvent {
+  id: string;
+  title: string;
+  description: string;
+  startTime: number | null;
+  endTime: number | null;
+  location?: string;
+  isOnline: boolean;
+  image?: string;
+  organizer?: string;
+  tags: string[];
+}
+
+export interface SeoListing {
+  slug: string;
+  title: string;
+  description: string;
+  price?: number;
+  currency?: string;
+  category: string;
+  image?: string;
+  sellerName?: string;
+  condition?: string;
+}
+
+export interface SeoCoop {
+  slug: string;
+  name: string;
+  description: string;
+  logo?: string;
+  location?: string;
+  memberCount?: number;
+  foundedYear?: number;
+  website?: string;
+}
+
+export interface SeoWikiPage {
+  slug: string;
+  title: string;
+  content: string;
+  summary?: string;
+  category?: string;
+  updatedAt: number;
+  author?: string;
+}
+
+export interface SeoCampaign {
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+  goal: number;
+  currentAmount: number;
+  currency?: string;
+  image?: string;
+  category: string;
+}
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 // ============================================================================
 // Constants
 // ============================================================================
 
 const SITE_URL = 'https://buildit.network';
 const SITE_NAME = 'BuildIt Network';
+const API_URL = 'https://api.buildit.network';
 
 // ============================================================================
 // robots.txt Generation
@@ -320,6 +389,439 @@ export function generatePublicationStructuredData(
   };
 
   return JSON.stringify(structuredData, null, 2);
+}
+
+// ============================================================================
+// Event Structured Data + SEO Meta
+// ============================================================================
+
+/**
+ * Generate Schema.org Event structured data (JSON-LD).
+ * Auto-generates OG image URL from self-hosted API (no external services).
+ */
+export function generateEventStructuredData(
+  event: SeoEvent,
+  baseUrl?: string
+): string {
+  const url = baseUrl || SITE_URL;
+  const eventUrl = `${url}/events/${event.id}`;
+
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description,
+    url: eventUrl,
+    ...(event.startTime && {
+      startDate: new Date(event.startTime).toISOString(),
+    }),
+    ...(event.endTime && {
+      endDate: new Date(event.endTime).toISOString(),
+    }),
+    eventAttendanceMode: event.isOnline
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    ...(event.location && !event.isOnline && {
+      location: {
+        '@type': 'Place',
+        name: event.location,
+      },
+    }),
+    ...(event.isOnline && {
+      location: {
+        '@type': 'VirtualLocation',
+        url: eventUrl,
+      },
+    }),
+    ...(event.image && {
+      image: { '@type': 'ImageObject', url: event.image },
+    }),
+    ...(event.organizer && {
+      organizer: {
+        '@type': 'Organization',
+        name: event.organizer,
+      },
+    }),
+    isAccessibleForFree: true,
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+/**
+ * Generate combined SEO meta tags for an event page.
+ * OG image auto-generated from self-hosted API — no external tracking.
+ */
+export function generateEventSeoMeta(
+  event: SeoEvent,
+  baseUrl?: string
+): {
+  meta: Array<{ name?: string; property?: string; content: string }>;
+  links: Array<{ rel: string; href?: string }>;
+  structuredData: string;
+} {
+  const url = baseUrl || SITE_URL;
+  const eventUrl = `${url}/events/${event.id}`;
+  const ogImageUrl = event.image || `${API_URL}/api/og-image?type=event&title=${encodeURIComponent(event.title)}${event.location ? `&location=${encodeURIComponent(event.location)}` : ''}${event.startTime ? `&date=${encodeURIComponent(new Date(event.startTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }))}` : ''}`;
+
+  const meta: Array<{ name?: string; property?: string; content: string }> = [
+    { name: 'description', content: event.description },
+    { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large' },
+    // Open Graph
+    { property: 'og:type', content: 'event' },
+    { property: 'og:title', content: event.title },
+    { property: 'og:description', content: event.description },
+    { property: 'og:url', content: eventUrl },
+    { property: 'og:site_name', content: SITE_NAME },
+    { property: 'og:image', content: ogImageUrl },
+    { property: 'og:image:alt', content: event.title },
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: event.title },
+    { name: 'twitter:description', content: event.description },
+    { name: 'twitter:image', content: ogImageUrl },
+  ];
+
+  if (event.startTime) {
+    meta.push({
+      property: 'event:start_time',
+      content: new Date(event.startTime).toISOString(),
+    });
+  }
+  if (event.endTime) {
+    meta.push({
+      property: 'event:end_time',
+      content: new Date(event.endTime).toISOString(),
+    });
+  }
+
+  return {
+    meta,
+    links: [{ rel: 'canonical', href: eventUrl }],
+    structuredData: generateEventStructuredData(event, baseUrl),
+  };
+}
+
+// ============================================================================
+// Marketplace Listing Structured Data + SEO Meta
+// ============================================================================
+
+/**
+ * Generate Schema.org Product structured data for a marketplace listing.
+ */
+export function generateListingStructuredData(
+  listing: SeoListing,
+  baseUrl?: string
+): string {
+  const url = baseUrl || SITE_URL;
+
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: listing.title,
+    description: listing.description,
+    url: `${url}/marketplace/${listing.slug}`,
+    ...(listing.image && {
+      image: { '@type': 'ImageObject', url: listing.image },
+    }),
+    ...(listing.category && { category: listing.category }),
+    ...(listing.price !== undefined && {
+      offers: {
+        '@type': 'Offer',
+        price: (listing.price / 100).toFixed(2),
+        priceCurrency: listing.currency || 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+    }),
+    ...(listing.sellerName && {
+      seller: { '@type': 'Organization', name: listing.sellerName },
+    }),
+    ...(listing.condition && {
+      itemCondition: `https://schema.org/${listing.condition === 'new' ? 'NewCondition' : 'UsedCondition'}`,
+    }),
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+/**
+ * Generate combined SEO meta tags for a marketplace listing.
+ */
+export function generateListingSeoMeta(
+  listing: SeoListing,
+  baseUrl?: string
+): {
+  meta: Array<{ name?: string; property?: string; content: string }>;
+  links: Array<{ rel: string; href?: string }>;
+  structuredData: string;
+} {
+  const url = baseUrl || SITE_URL;
+  const listingUrl = `${url}/marketplace/${listing.slug}`;
+  const ogImageUrl = listing.image || `${API_URL}/api/og-image?type=listing&title=${encodeURIComponent(listing.title)}${listing.price !== undefined ? `&price=${encodeURIComponent(`$${(listing.price / 100).toFixed(2)}`)}` : ''}`;
+
+  return {
+    meta: [
+      { name: 'description', content: listing.description.slice(0, 160) },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:type', content: 'product' },
+      { property: 'og:title', content: listing.title },
+      { property: 'og:description', content: listing.description.slice(0, 160) },
+      { property: 'og:url', content: listingUrl },
+      { property: 'og:site_name', content: SITE_NAME },
+      { property: 'og:image', content: ogImageUrl },
+      { property: 'og:image:alt', content: listing.title },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: listing.title },
+      { name: 'twitter:description', content: listing.description.slice(0, 160) },
+    ],
+    links: [{ rel: 'canonical', href: listingUrl }],
+    structuredData: generateListingStructuredData(listing, baseUrl),
+  };
+}
+
+// ============================================================================
+// Co-op Directory Structured Data
+// ============================================================================
+
+/**
+ * Generate Schema.org Organization structured data for a co-op profile.
+ */
+export function generateCoopStructuredData(
+  coop: SeoCoop,
+  baseUrl?: string
+): string {
+  const url = baseUrl || SITE_URL;
+
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: coop.name,
+    description: coop.description,
+    url: `${url}/marketplace/coops/${coop.slug}`,
+    ...(coop.logo && { logo: { '@type': 'ImageObject', url: coop.logo } }),
+    ...(coop.location && {
+      address: { '@type': 'PostalAddress', addressLocality: coop.location },
+    }),
+    ...(coop.foundedYear && { foundingDate: String(coop.foundedYear) }),
+    ...(coop.memberCount && { numberOfEmployees: coop.memberCount }),
+    ...(coop.website && { sameAs: [coop.website] }),
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+// ============================================================================
+// Wiki Structured Data
+// ============================================================================
+
+/**
+ * Generate Schema.org Article structured data for a wiki page.
+ */
+export function generateWikiStructuredData(
+  page: SeoWikiPage,
+  baseUrl?: string
+): string {
+  const url = baseUrl || SITE_URL;
+
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: page.title,
+    description: page.summary || page.content.replace(/<[^>]+>/g, '').slice(0, 160),
+    url: `${url}/wiki/${page.slug}`,
+    dateModified: new Date(page.updatedAt).toISOString(),
+    ...(page.category && { articleSection: page.category }),
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+/**
+ * Generate combined SEO meta tags for a wiki page.
+ */
+export function generateWikiSeoMeta(
+  page: SeoWikiPage,
+  baseUrl?: string
+): {
+  meta: Array<{ name?: string; property?: string; content: string }>;
+  links: Array<{ rel: string; href?: string }>;
+  structuredData: string;
+} {
+  const url = baseUrl || SITE_URL;
+  const pageUrl = `${url}/wiki/${page.slug}`;
+  const description = page.summary || page.content.replace(/<[^>]+>/g, '').slice(0, 160);
+  const ogImageUrl = `${API_URL}/api/og-image?type=article&title=${encodeURIComponent(page.title)}${page.category ? `&description=${encodeURIComponent(page.category)}` : ''}`;
+
+  return {
+    meta: [
+      { name: 'description', content: description },
+      { name: 'robots', content: 'index, follow, max-snippet:-1' },
+      { property: 'og:type', content: 'article' },
+      { property: 'og:title', content: page.title },
+      { property: 'og:description', content: description },
+      { property: 'og:url', content: pageUrl },
+      { property: 'og:site_name', content: SITE_NAME },
+      { property: 'og:image', content: ogImageUrl },
+      { property: 'og:image:alt', content: page.title },
+      { name: 'twitter:card', content: 'summary' },
+      { name: 'twitter:title', content: page.title },
+      { name: 'twitter:description', content: description },
+    ],
+    links: [{ rel: 'canonical', href: pageUrl }],
+    structuredData: generateWikiStructuredData(page, baseUrl),
+  };
+}
+
+// ============================================================================
+// Campaign Structured Data
+// ============================================================================
+
+/**
+ * Generate Schema.org DonateAction structured data for a fundraising campaign.
+ */
+export function generateCampaignStructuredData(
+  campaign: SeoCampaign,
+  baseUrl?: string
+): string {
+  const url = baseUrl || SITE_URL;
+  const currency = campaign.currency || 'USD';
+
+  const structuredData: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'DonateAction',
+    name: `Donate to ${campaign.title}`,
+    description: campaign.description,
+    url: `${url}/campaigns/${campaign.slug}`,
+    target: `${url}/campaigns/${campaign.slug}`,
+    price: {
+      '@type': 'MonetaryAmount',
+      value: (campaign.goal / 100).toFixed(2),
+      currency,
+    },
+    ...(campaign.image && {
+      image: { '@type': 'ImageObject', url: campaign.image },
+    }),
+    recipient: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+    },
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+/**
+ * Generate combined SEO meta tags for a campaign page.
+ */
+export function generateCampaignSeoMeta(
+  campaign: SeoCampaign,
+  baseUrl?: string
+): {
+  meta: Array<{ name?: string; property?: string; content: string }>;
+  links: Array<{ rel: string; href?: string }>;
+  structuredData: string;
+} {
+  const url = baseUrl || SITE_URL;
+  const campaignUrl = `${url}/campaigns/${campaign.slug}`;
+  const progressPercent = Math.min(100, Math.round((campaign.currentAmount / campaign.goal) * 100));
+  const ogImageUrl = campaign.image || `${API_URL}/api/og-image?type=campaign&title=${encodeURIComponent(campaign.title)}&progress=${progressPercent}&goal=${encodeURIComponent(`$${(campaign.goal / 100).toFixed(0)}`)}`;
+
+  return {
+    meta: [
+      { name: 'description', content: campaign.description.slice(0, 160) },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:title', content: campaign.title },
+      { property: 'og:description', content: campaign.description.slice(0, 160) },
+      { property: 'og:url', content: campaignUrl },
+      { property: 'og:site_name', content: SITE_NAME },
+      { property: 'og:image', content: ogImageUrl },
+      { property: 'og:image:alt', content: campaign.title },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: campaign.title },
+      { name: 'twitter:description', content: campaign.description.slice(0, 160) },
+    ],
+    links: [{ rel: 'canonical', href: campaignUrl }],
+    structuredData: generateCampaignStructuredData(campaign, baseUrl),
+  };
+}
+
+// ============================================================================
+// FAQ Structured Data (AEO - Answer Engine Optimization)
+// ============================================================================
+
+/**
+ * Generate Schema.org FAQPage structured data.
+ * Helps content appear as rich results in search / AI answer engines.
+ */
+export function generateFAQStructuredData(items: FAQItem[]): string {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+// ============================================================================
+// Breadcrumb Structured Data
+// ============================================================================
+
+/**
+ * Generate Schema.org BreadcrumbList structured data for better SERP presentation.
+ */
+export function generateBreadcrumbStructuredData(
+  items: BreadcrumbItem[]
+): string {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
+  return JSON.stringify(structuredData, null, 2);
+}
+
+// ============================================================================
+// OG Image URL Helper
+// ============================================================================
+
+/**
+ * Build a self-hosted OG image URL. No external tracking services.
+ * Points to our own API worker at api.buildit.network.
+ */
+export function buildOgImageUrl(
+  type: 'article' | 'event' | 'listing' | 'campaign' | 'profile' | 'default',
+  params: Record<string, string | number | undefined>
+): string {
+  const searchParams = new URLSearchParams();
+  searchParams.set('type', type);
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+  return `${API_URL}/api/og-image?${searchParams.toString()}`;
 }
 
 // ============================================================================

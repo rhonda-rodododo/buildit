@@ -7,59 +7,60 @@ import androidx.room.TypeConverter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import network.buildit.generated.schemas.forms.FormStatus as GeneratedFormStatus
+import network.buildit.generated.schemas.forms.Operator as GeneratedOperator
+import network.buildit.generated.schemas.forms.Type as GeneratedFieldType
+import network.buildit.generated.schemas.forms.Visibility as GeneratedVisibility
 
 /**
- * Field types for form fields.
+ * Type aliases mapping generated protocol types to local names
+ * used throughout the forms module.
  */
-enum class FormFieldType(val displayName: String) {
-    TEXT("Short Text"),
-    TEXTAREA("Long Text"),
-    NUMBER("Number"),
-    EMAIL("Email"),
-    PHONE("Phone"),
-    URL("URL"),
-    DATE("Date"),
-    TIME("Time"),
-    DATETIME("Date & Time"),
-    SELECT("Dropdown"),
-    MULTISELECT("Multi-Select"),
-    RADIO("Radio Buttons"),
-    CHECKBOX("Checkboxes"),
-    FILE("File Upload"),
-    RATING("Rating"),
-    SCALE("Scale"),
-    LOCATION("Location")
+typealias FormFieldType = GeneratedFieldType
+typealias FormVisibility = GeneratedVisibility
+typealias FormStatus = GeneratedFormStatus
+typealias ConditionalOperator = GeneratedOperator
+
+/**
+ * UI display name for form field types.
+ */
+val FormFieldType.displayName: String get() = when (this) {
+    FormFieldType.Text -> "Short Text"
+    FormFieldType.Textarea -> "Long Text"
+    FormFieldType.Number -> "Number"
+    FormFieldType.Email -> "Email"
+    FormFieldType.Phone -> "Phone"
+    FormFieldType.URL -> "URL"
+    FormFieldType.Date -> "Date"
+    FormFieldType.Time -> "Time"
+    FormFieldType.Datetime -> "Date & Time"
+    FormFieldType.Select -> "Dropdown"
+    FormFieldType.Multiselect -> "Multi-Select"
+    FormFieldType.Radio -> "Radio Buttons"
+    FormFieldType.Checkbox -> "Checkboxes"
+    FormFieldType.File -> "File Upload"
+    FormFieldType.Rating -> "Rating"
+    FormFieldType.Scale -> "Scale"
+    FormFieldType.Location -> "Location"
 }
 
 /**
- * Visibility options for forms.
+ * UI display name for form visibility options.
  */
-enum class FormVisibility(val displayName: String) {
-    PRIVATE("Private"),
-    GROUP("Group Only"),
-    PUBLIC("Public")
+val FormVisibility.displayName: String get() = when (this) {
+    FormVisibility.Private -> "Private"
+    FormVisibility.Group -> "Group Only"
+    FormVisibility.Public -> "Public"
 }
 
 /**
- * Status of a form.
+ * UI display name for form status values.
  */
-enum class FormStatus(val displayName: String) {
-    DRAFT("Draft"),
-    OPEN("Open"),
-    CLOSED("Closed"),
-    ARCHIVED("Archived")
-}
-
-/**
- * Conditional operator for field logic.
- */
-enum class ConditionalOperator {
-    EQUALS,
-    NOT_EQUALS,
-    CONTAINS,
-    NOT_CONTAINS,
-    GREATER,
-    LESS
+val FormStatus.displayName: String get() = when (this) {
+    FormStatus.Draft -> "Draft"
+    FormStatus.Open -> "Open"
+    FormStatus.Closed -> "Closed"
+    FormStatus.Archived -> "Archived"
 }
 
 /**
@@ -130,14 +131,14 @@ data class FormEntity(
     val description: String? = null,
     val fieldsJson: String, // JSON encoded List<FormField>
     val groupId: String? = null,
-    val visibility: FormVisibility = FormVisibility.GROUP,
+    val visibility: FormVisibility = FormVisibility.Group,
     val anonymous: Boolean = false,
     val allowMultiple: Boolean = false,
     val opensAt: Long? = null,
     val closesAt: Long? = null,
     val maxResponses: Int? = null,
     val confirmationMessage: String? = null,
-    val status: FormStatus = FormStatus.DRAFT,
+    val status: FormStatus = FormStatus.Draft,
     val responseCount: Int = 0,
     val createdBy: String,
     val createdAt: Long = System.currentTimeMillis(),
@@ -154,7 +155,7 @@ data class FormEntity(
 
     val isOpen: Boolean
         get() {
-            if (status != FormStatus.OPEN) return false
+            if (status != FormStatus.Open) return false
             val now = System.currentTimeMillis()
             opensAt?.let { if (now < it) return false }
             closesAt?.let { if (now > it) return false }
@@ -211,30 +212,34 @@ data class FormResponseEntity(
 
 /**
  * Type converters for Forms module.
+ * Uses the generated enum's .value property for stable serialization.
  */
 class FormsConverters {
     @TypeConverter
-    fun fromFormFieldType(value: FormFieldType): String = value.name
+    fun fromFormFieldType(value: FormFieldType): String = value.value
 
     @TypeConverter
-    fun toFormFieldType(value: String): FormFieldType = FormFieldType.valueOf(value)
+    fun toFormFieldType(value: String): FormFieldType =
+        FormFieldType.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromFormVisibility(value: FormVisibility): String = value.name
+    fun fromFormVisibility(value: FormVisibility): String = value.value
 
     @TypeConverter
-    fun toFormVisibility(value: String): FormVisibility = FormVisibility.valueOf(value)
+    fun toFormVisibility(value: String): FormVisibility =
+        FormVisibility.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromFormStatus(value: FormStatus): String = value.name
+    fun fromFormStatus(value: FormStatus): String = value.value
 
     @TypeConverter
-    fun toFormStatus(value: String): FormStatus = FormStatus.valueOf(value)
+    fun toFormStatus(value: String): FormStatus =
+        FormStatus.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromConditionalOperator(value: ConditionalOperator): String = value.name
+    fun fromConditionalOperator(value: ConditionalOperator): String = value.value
 
     @TypeConverter
     fun toConditionalOperator(value: String): ConditionalOperator =
-        ConditionalOperator.valueOf(value)
+        ConditionalOperator.entries.first { it.value == value }
 }

@@ -5,10 +5,16 @@
 
 import { logger } from '@/lib/logger';
 import type {
-  EventVolunteerRole,
   EventVolunteerSignup,
   VolunteerCallingRole,
 } from '../types';
+import type { EventVolunteerRole as BaseEventVolunteerRole } from '../types';
+
+/** Extended volunteer role with calling-specific passthrough fields */
+interface EventVolunteerRole extends BaseEventVolunteerRole {
+  callingRoleRequired?: VolunteerCallingRole;
+  hotlineAccess?: string[];
+}
 
 /**
  * Training requirement status

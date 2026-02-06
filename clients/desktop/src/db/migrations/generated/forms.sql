@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS "forms" (
     "confirmation_message" TEXT,
     "created_by" TEXT NOT NULL,
     "created_at" INTEGER NOT NULL,
+    "status" TEXT CHECK("status" IN ('draft', 'open', 'closed', 'archived')),
     "updated_at" INTEGER,
     "table_id" TEXT
 );

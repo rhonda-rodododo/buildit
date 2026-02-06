@@ -78,6 +78,7 @@ import network.buildit.modules.forms.data.local.FieldOption
 import network.buildit.modules.forms.data.local.FormField
 import network.buildit.modules.forms.data.local.FormFieldType
 import network.buildit.modules.forms.data.local.FormVisibility
+import network.buildit.modules.forms.data.local.displayName
 
 /**
  * Form builder screen for creating and editing forms.
@@ -334,13 +335,13 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.AutoMirrored.Filled.ShortText,
                 label = "Short Text",
-                onClick = { onFieldTypeSelected(FormFieldType.TEXT) },
+                onClick = { onFieldTypeSelected(FormFieldType.Text) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
                 icon = Icons.Default.Subject,
                 label = "Long Text",
-                onClick = { onFieldTypeSelected(FormFieldType.TEXTAREA) },
+                onClick = { onFieldTypeSelected(FormFieldType.Textarea) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -361,13 +362,13 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.RadioButtonChecked,
                 label = "Radio",
-                onClick = { onFieldTypeSelected(FormFieldType.RADIO) },
+                onClick = { onFieldTypeSelected(FormFieldType.Radio) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
                 icon = Icons.Default.CheckBox,
                 label = "Checkbox",
-                onClick = { onFieldTypeSelected(FormFieldType.CHECKBOX) },
+                onClick = { onFieldTypeSelected(FormFieldType.Checkbox) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -379,7 +380,7 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.ExpandMore,
                 label = "Dropdown",
-                onClick = { onFieldTypeSelected(FormFieldType.SELECT) },
+                onClick = { onFieldTypeSelected(FormFieldType.Select) },
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -401,13 +402,13 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.Email,
                 label = "Email",
-                onClick = { onFieldTypeSelected(FormFieldType.EMAIL) },
+                onClick = { onFieldTypeSelected(FormFieldType.Email) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
                 icon = Icons.Default.Phone,
                 label = "Phone",
-                onClick = { onFieldTypeSelected(FormFieldType.PHONE) },
+                onClick = { onFieldTypeSelected(FormFieldType.Phone) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -419,7 +420,7 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.PinDrop,
                 label = "Number",
-                onClick = { onFieldTypeSelected(FormFieldType.NUMBER) },
+                onClick = { onFieldTypeSelected(FormFieldType.Number) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
@@ -446,13 +447,13 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.CalendarToday,
                 label = "Date",
-                onClick = { onFieldTypeSelected(FormFieldType.DATE) },
+                onClick = { onFieldTypeSelected(FormFieldType.Date) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
                 icon = Icons.Default.Schedule,
                 label = "Time",
-                onClick = { onFieldTypeSelected(FormFieldType.TIME) },
+                onClick = { onFieldTypeSelected(FormFieldType.Time) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -473,13 +474,13 @@ fun AddFieldSheet(
             FieldTypeOption(
                 icon = Icons.Default.Star,
                 label = "Rating",
-                onClick = { onFieldTypeSelected(FormFieldType.RATING) },
+                onClick = { onFieldTypeSelected(FormFieldType.Rating) },
                 modifier = Modifier.weight(1f)
             )
             FieldTypeOption(
                 icon = Icons.Default.PinDrop,
                 label = "Scale",
-                onClick = { onFieldTypeSelected(FormFieldType.SCALE) },
+                onClick = { onFieldTypeSelected(FormFieldType.Scale) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -619,10 +620,10 @@ fun FieldEditorCard(
 
                 // Options for choice fields
                 if (field.type in listOf(
-                        FormFieldType.SELECT,
-                        FormFieldType.MULTISELECT,
-                        FormFieldType.RADIO,
-                        FormFieldType.CHECKBOX
+                        FormFieldType.Select,
+                        FormFieldType.Multiselect,
+                        FormFieldType.Radio,
+                        FormFieldType.Checkbox
                     )
                 ) {
                     Text(

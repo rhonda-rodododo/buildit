@@ -3,7 +3,7 @@
  * Public view for published articles with SEO and sharing
  */
 
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   Clock,
   Calendar,
   BookOpen,
-  Twitter,
+  Share2,
   Link as LinkIcon,
   ArrowLeft,
 } from 'lucide-react';
@@ -22,7 +22,7 @@ import { format } from 'date-fns';
 import { secureRandomString } from '@/lib/utils';
 import { toast } from 'sonner';
 import { sanitizeHtml } from '@/lib/security/sanitize';
-import { useTauriShell } from '@/lib/tauri';
+import { SocialShareDialog } from '@/modules/social-publishing/components/SocialShareDialog';
 
 interface ArticleViewProps {
   article: Article;
@@ -40,7 +40,7 @@ export const ArticleView: FC<ArticleViewProps> = ({
   className,
 }) => {
   const { t } = useTranslation();
-  const { openUrl } = useTauriShell();
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   // Record view on mount
   useEffect(() => {
@@ -56,14 +56,6 @@ export const ArticleView: FC<ArticleViewProps> = ({
     const url = `${window.location.origin}/p/${publication.slug}/${article.slug}`;
     await navigator.clipboard.writeText(url);
     toast.success(t('articleView.share.linkCopied'));
-  };
-
-  const handleShareTwitter = () => {
-    const url = `${window.location.origin}/p/${publication.slug}/${article.slug}`;
-    const text = `${article.title} by ${publication.name}`;
-    openUrl(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
-    );
   };
 
   // Get author initial for avatar
@@ -181,12 +173,22 @@ export const ArticleView: FC<ArticleViewProps> = ({
               <LinkIcon className="h-4 w-4 mr-2" />
               {t('articleView.share.copyLink')}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleShareTwitter}>
-              <Twitter className="h-4 w-4 mr-2" />
-              {t('articleView.share.twitter')}
+            <Button variant="outline" size="sm" onClick={() => setShareDialogOpen(true)}>
+              <Share2 className="h-4 w-4 mr-2" />
+              {t('articleView.share.title')}
             </Button>
           </div>
         </div>
+
+        <SocialShareDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          sourceModule="publishing"
+          sourceContentId={article.id}
+          title={article.title}
+          description={article.excerpt || article.subtitle || ''}
+          contentUrl={`${window.location.origin}/p/${publication.slug}/${article.slug}`}
+        />
 
         {/* Publication Info */}
         <Separator className="my-8" />

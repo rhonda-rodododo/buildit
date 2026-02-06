@@ -27,13 +27,13 @@ fun CourseEntity.toDomain(): Course {
         title = title,
         description = description,
         imageUrl = imageUrl,
-        category = CourseCategory.fromValue(category),
-        difficulty = CourseDifficulty.fromValue(difficulty),
+        category = courseCategoryFromValue(category),
+        difficulty = courseDifficultyFromValue(difficulty),
         estimatedHours = estimatedHours,
         prerequisites = prerequisitesJson?.let {
             json.decodeFromString<List<String>>(it)
         } ?: emptyList(),
-        status = CourseStatus.fromValue(status),
+        status = courseStatusFromValue(status),
         certificationEnabled = certificationEnabled,
         certificationExpiryDays = certificationExpiryDays,
         isPublic = isPublic,
@@ -118,7 +118,7 @@ fun LessonEntity.toDomain(): Lesson {
     return Lesson(
         id = id,
         moduleId = moduleId,
-        type = LessonType.fromValue(type),
+        type = lessonTypeFromValue(type),
         title = title,
         description = description,
         content = parseLessonContent(type, contentJson),
@@ -155,13 +155,13 @@ fun Lesson.toEntity(): LessonEntity {
  * Parses lesson content from JSON based on type.
  */
 private fun parseLessonContent(type: String, contentJson: String): LessonContent {
-    return when (LessonType.fromValue(type)) {
-        LessonType.VIDEO -> json.decodeFromString<VideoContentDto>(contentJson).toDomain()
-        LessonType.DOCUMENT -> json.decodeFromString<DocumentContentDto>(contentJson).toDomain()
-        LessonType.QUIZ -> json.decodeFromString<QuizContentDto>(contentJson).toDomain()
-        LessonType.ASSIGNMENT -> json.decodeFromString<AssignmentContentDto>(contentJson).toDomain()
-        LessonType.LIVE_SESSION -> json.decodeFromString<LiveSessionContentDto>(contentJson).toDomain()
-        LessonType.INTERACTIVE -> json.decodeFromString<InteractiveContentDto>(contentJson).toDomain()
+    return when (lessonTypeFromValue(type)) {
+        LessonType.Video -> json.decodeFromString<VideoContentDto>(contentJson).toDomain()
+        LessonType.Document -> json.decodeFromString<DocumentContentDto>(contentJson).toDomain()
+        LessonType.Quiz -> json.decodeFromString<QuizContentDto>(contentJson).toDomain()
+        LessonType.Assignment -> json.decodeFromString<AssignmentContentDto>(contentJson).toDomain()
+        LessonType.LiveSession -> json.decodeFromString<LiveSessionContentDto>(contentJson).toDomain()
+        LessonType.Interactive -> json.decodeFromString<InteractiveContentDto>(contentJson).toDomain()
     }
 }
 
@@ -251,7 +251,7 @@ private data class QuizQuestionDto(
     val points: Int,
     val order: Int
 ) {
-    fun toDomain() = QuizQuestion(id, QuizQuestionType.fromValue(type), question, options, correctAnswer, explanation, points, order)
+    fun toDomain() = QuizQuestion(id, quizQuestionTypeFromValue(type), question, options, correctAnswer, explanation, points, order)
 }
 
 private fun QuizQuestion.toDto() = QuizQuestionDto(id, type.value, question, options, correctAnswer, explanation, points, order)
@@ -301,7 +301,7 @@ private data class InteractiveContentDto(
     val configJson: String,
     val externalUrl: String? = null
 ) {
-    fun toDomain() = LessonContent.Interactive(InteractiveExerciseType.fromValue(exerciseType), configJson, externalUrl)
+    fun toDomain() = LessonContent.Interactive(interactiveExerciseTypeFromValue(exerciseType), configJson, externalUrl)
 }
 
 private fun LessonContent.Interactive.toDto() = InteractiveContentDto(exerciseType.value, configJson, externalUrl)
@@ -318,7 +318,7 @@ fun LessonProgressEntity.toDomain(): LessonProgress {
         id = id,
         lessonId = lessonId,
         pubkey = pubkey,
-        status = ProgressStatus.fromValue(status),
+        status = progressStatusFromValue(status),
         score = score,
         timeSpent = timeSpent,
         lastPosition = lastPosition,
@@ -452,7 +452,7 @@ fun AssignmentSubmissionEntity.toDomain(): AssignmentSubmission {
         fileName = fileName,
         fileSize = fileSize,
         submittedAt = submittedAt,
-        reviewStatus = AssignmentReviewStatus.fromValue(reviewStatus),
+        reviewStatus = assignmentReviewStatusFromValue(reviewStatus),
         reviewedBy = reviewedBy,
         reviewedAt = reviewedAt,
         feedback = feedback,
@@ -538,7 +538,7 @@ fun LiveSessionRSVPEntity.toDomain(): LiveSessionRSVP {
         id = id,
         lessonId = lessonId,
         pubkey = pubkey,
-        status = RSVPStatus.fromValue(status),
+        status = rsvpStatusFromValue(status),
         createdAt = createdAt,
         updatedAt = updatedAt
     )

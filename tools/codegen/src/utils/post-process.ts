@@ -180,6 +180,40 @@ ${codingKeysLines.join('\n')}
 }
 
 /**
+ * Post-process Kotlin code to fix quicktype-generated issues.
+ *
+ * Fixes the Emoji enum where quicktype generates a self-referential entry
+ * named `Emoji` inside `enum class Emoji`, and uses nonsense names for
+ * emoji string values.
+ */
+export function postProcessKotlin(code: string): string {
+  let processed = code;
+
+  // Fix the broken Emoji enum in calling module.
+  // quicktype generates an entry named `Emoji` inside `enum class Emoji` (self-referential)
+  // and uses nonsense names (Empty, Fluffy, Indecent, etc.) for emoji values.
+  const emojiEnumPattern =
+    /@Serializable\s*\n\s*enum class Emoji\(val value: String\)\s*\{[\s\S]*?\}/;
+
+  if (emojiEnumPattern.test(processed)) {
+    const fixedEnum = `@Serializable
+enum class Emoji(val value: String) {
+    @SerialName("\\uD83D\\uDC4D") ThumbsUp("\\uD83D\\uDC4D"),
+    @SerialName("\\uD83D\\uDC4E") ThumbsDown("\\uD83D\\uDC4E"),
+    @SerialName("❤️") Heart("❤️"),
+    @SerialName("\\uD83D\\uDE02") Laugh("\\uD83D\\uDE02"),
+    @SerialName("\\uD83D\\uDE2E") Surprised("\\uD83D\\uDE2E"),
+    @SerialName("\\uD83C\\uDF89") Celebration("\\uD83C\\uDF89"),
+    @SerialName("\\uD83D\\uDC4F") Clap("\\uD83D\\uDC4F"),
+    @SerialName("✋") RaisedHand("✋");
+}`;
+    processed = processed.replace(emojiEnumPattern, fixedEnum);
+  }
+
+  return processed;
+}
+
+/**
  * Post-process Rust code to ensure proper serde attributes and naming.
  */
 export function postProcessRust(code: string): string {

@@ -37,7 +37,7 @@ import {
 } from 'lucide-react';
 import { useResourceShares } from '../hooks/useMarketplace';
 import { getDayLabel } from '../marketplaceManager';
-import type { ResourceShare, ResourceType } from '../types';
+import type { ResourceShare, ResourceType, LocationValue } from '../types';
 
 const resourceTypeIcons: Record<ResourceType, React.ElementType> = {
   tool: Wrench,
@@ -243,6 +243,9 @@ function ResourceCard({ resource }: { resource: ResourceShare }) {
   const { t } = useTranslation();
   const Icon = resourceTypeIcons[resource.resourceType];
   const isAvailable = resource.status === 'available';
+  const images = resource.images ?? [];
+  const availability = resource.availability ?? [];
+  const location = resource.location as LocationValue | undefined;
 
   return (
     <Card className="p-5">
@@ -274,9 +277,9 @@ function ResourceCard({ resource }: { resource: ResourceShare }) {
         )}
 
         {/* Images */}
-        {resource.images.length > 0 && (
+        {images.length > 0 && (
           <div className="flex gap-2 overflow-x-auto">
-            {resource.images.slice(0, 3).map((img, idx) => (
+            {images.slice(0, 3).map((img, idx) => (
               <img
                 key={idx}
                 src={img}
@@ -288,19 +291,19 @@ function ResourceCard({ resource }: { resource: ResourceShare }) {
         )}
 
         {/* Location */}
-        {resource.location && (
+        {location && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            <span className="truncate">{resource.location.label}</span>
+            <span className="truncate">{location.label}</span>
           </div>
         )}
 
         {/* Schedule */}
-        {resource.availability.length > 0 && (
+        {availability.length > 0 && (
           <div className="text-xs text-muted-foreground">
             <p className="font-medium mb-1">{t('marketplace.scheduleAvailability')}:</p>
             <div className="flex flex-wrap gap-1">
-              {resource.availability.map((slot, idx) => (
+              {availability.map((slot, idx) => (
                 <Badge key={idx} variant="outline" className="text-xs">
                   {getDayLabel(slot.dayOfWeek).slice(0, 3)} {slot.startHour}:00-{slot.endHour}:00
                 </Badge>

@@ -286,18 +286,164 @@ pub struct Rsvp {
 
     pub responded_at: i64,
 
-    pub status: Status,
+    pub status: RsvpStatus,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum Status {
+pub enum RsvpStatus {
     Going,
 
     Maybe,
 
     #[serde(rename = "not_going")]
     NotGoing,
+}
+
+/// Breakout room configuration for virtual events
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BreakoutRoomConfig {
+    #[serde(rename = "_v")]
+    pub v: Option<String>,
+
+    pub allow_self_select: Option<bool>,
+
+    pub auto_assign: Option<bool>,
+
+    /// Duration in minutes
+    pub duration: Option<i64>,
+
+    pub enabled: Option<bool>,
+
+    pub room_count: Option<i64>,
+
+    pub room_names: Option<Vec<String>>,
+}
+
+/// Virtual event configuration for hybrid events
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventVirtualConfig {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub auto_start_minutes: Option<i64>,
+
+    pub breakout_config: Option<BreakoutConfigClass>,
+
+    pub breakout_rooms_enabled: Option<bool>,
+
+    pub conference_room_id: Option<String>,
+
+    #[serde(rename = "e2eeRequired")]
+    pub e2_ee_required: Option<bool>,
+
+    pub enabled: bool,
+
+    pub max_virtual_attendees: Option<i64>,
+
+    pub recording_consent_required: Option<bool>,
+
+    pub recording_enabled: Option<bool>,
+
+    pub recording_url: Option<String>,
+
+    pub waiting_room_enabled: Option<bool>,
+}
+
+/// Breakout room configuration for virtual events
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BreakoutConfigClass {
+    #[serde(rename = "_v")]
+    pub v: Option<String>,
+
+    pub allow_self_select: Option<bool>,
+
+    pub auto_assign: Option<bool>,
+
+    /// Duration in minutes
+    pub duration: Option<i64>,
+
+    pub enabled: Option<bool>,
+
+    pub room_count: Option<i64>,
+
+    pub room_names: Option<Vec<String>>,
+}
+
+/// A volunteer role at an event
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventVolunteerRole {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub created: i64,
+
+    pub created_by: String,
+
+    pub description: Option<String>,
+
+    pub event_id: String,
+
+    pub id: String,
+
+    pub name: String,
+
+    pub required_trainings: Option<Vec<String>>,
+
+    pub shift_end: Option<i64>,
+
+    pub shift_start: Option<i64>,
+
+    pub spots_filled: i64,
+
+    pub spots_needed: i64,
+}
+
+/// A volunteer's signup for a specific role
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EventVolunteerSignup {
+    #[serde(rename = "_v")]
+    pub v: String,
+
+    pub confirmed_by: Option<String>,
+
+    pub contact_id: String,
+
+    pub contact_pubkey: Option<String>,
+
+    pub created: i64,
+
+    pub event_id: String,
+
+    pub id: String,
+
+    pub notes: Option<String>,
+
+    pub role_id: String,
+
+    pub signup_time: i64,
+
+    pub status: EventVolunteerSignupStatus,
+
+    pub updated: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EventVolunteerSignupStatus {
+    Confirmed,
+
+    Declined,
+
+    #[serde(rename = "no-show")]
+    NoShow,
+
+    Pending,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

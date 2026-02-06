@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/ble-transport/v1.json",
+  "title": "BleTransportCoreSchema",
+  "description": "BLE mesh transport protocol types for offline-first communication",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "IdentityCommitment": {
+      "type": "object",
+      "description": "BLE identity commitment for mutual authentication handshake",
+      "required": ["commitment", "nonce", "pubkey", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "commitment": {
+          "type": "string",
+          "description": "Base64-encoded commitment hash"
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Base64-encoded random nonce"
+        },
+        "pubkey": {
+          "type": "string",
+          "description": "Hex-encoded public key"
+        }
+      }
+    },
+
+    "DiscoveredDevice": {
+      "type": "object",
+      "description": "A BLE device discovered during scanning",
+      "required": ["address", "isBuilditDevice", "lastSeen", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "address": {
+          "type": "string",
+          "description": "BLE device address"
+        },
+        "name": {
+          "type": ["string", "null"],
+          "description": "Advertised device name"
+        },
+        "rssi": {
+          "type": ["integer", "null"],
+          "description": "Signal strength in dBm"
+        },
+        "isBuilditDevice": {
+          "type": "boolean",
+          "description": "Whether the device is a BuildIt node"
+        },
+        "lastSeen": {
+          "type": "integer",
+          "description": "Unix timestamp (milliseconds)"
+        },
+        "identityCommitment": {
+          "type": ["string", "null"],
+          "description": "Base64-encoded identity commitment if available"
+        },
+        "verifiedPubkey": {
+          "type": ["string", "null"],
+          "description": "Hex-encoded verified public key after handshake"
+        }
+      }
+    },
+
+    "ConnectionStatus": {
+      "type": "string",
+      "description": "BLE connection state",
+      "enum": ["disconnected", "connecting", "connected", "disconnecting", "handshaking", "authenticated"]
+    },
+
+    "BleEvent": {
+      "type": "object",
+      "description": "A BLE mesh event notification",
+      "required": ["type", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["device_discovered", "device_updated", "device_lost", "connection_changed", "message_received", "message_sent"],
+          "description": "Event type"
+        },
+        "address": {
+          "type": "string",
+          "description": "Device address for device events"
+        },
+        "status": {
+          "$ref": "#/$defs/ConnectionStatus"
+        }
+      }
+    },
+
+    "ChunkHeader": {
+      "type": "object",
+      "description": "Header for BLE message chunking protocol",
+      "required": ["messageId", "chunkIndex", "totalChunks", "payloadLength", "compressed", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "messageId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique message identifier"
+        },
+        "chunkIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Zero-based chunk index"
+        },
+        "totalChunks": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255,
+          "description": "Total number of chunks"
+        },
+        "payloadLength": {
+          "type": "integer",
+          "description": "Payload size in bytes"
+        },
+        "compressed": {
+          "type": "boolean",
+          "description": "Whether payload is zlib-compressed"
+        }
+      }
+    },
+
+    "Chunk": {
+      "type": "object",
+      "description": "A single BLE message chunk",
+      "required": ["header", "payload", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "header": {
+          "$ref": "#/$defs/ChunkHeader"
+        },
+        "payload": {
+          "type": "string",
+          "description": "Base64-encoded chunk payload"
+        }
+      }
+    }
+  }
+}

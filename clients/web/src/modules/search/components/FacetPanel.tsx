@@ -94,6 +94,8 @@ const MODULE_TYPE_LABELS: Record<ModuleType, string> = {
   security: 'Security',
   training: 'Training',
   marketplace: 'Marketplace',
+  federation: 'Federation',
+  'social-publishing': 'Social Publishing',
 };
 
 // ============================================================================

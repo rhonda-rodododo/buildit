@@ -26,14 +26,14 @@ import {
   Mic,
   AlertTriangle,
 } from 'lucide-react';
-import type { Event, EventVirtualConfig } from '../types';
+import type { AppEvent, EventVirtualConfig } from '../types';
 import {
   getEventCallingIntegration,
   type EventConferenceRoom,
 } from '../integrations/callingIntegration';
 
 interface EventJoinButtonProps {
-  event: Event;
+  event: AppEvent;
   virtualConfig?: EventVirtualConfig;
   userPubkey?: string;
   variant?: 'default' | 'outline' | 'secondary';
@@ -70,8 +70,8 @@ export const EventJoinButton: FC<EventJoinButtonProps> = ({
 
     const updateState = () => {
       const now = Date.now();
-      const startTime = event.startTime;
-      const endTime = event.endTime || (startTime + 2 * 60 * 60 * 1000); // Default 2 hours
+      const startTime = event.startAt * 1000;
+      const endTime = event.endAt ? event.endAt * 1000 : (startTime + 2 * 60 * 60 * 1000); // Default 2 hours
       const autoStartTime = startTime - (virtualConfig.autoStartMinutes * 60 * 1000);
 
       if (now > endTime) {

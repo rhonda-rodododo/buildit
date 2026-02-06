@@ -1,25 +1,24 @@
-export interface Identity {
-  publicKey: string // hex
-  npub: string // bech32-encoded public key
-  privateKey: Uint8Array
-  name: string
-  username?: string // Human-readable username (e.g., "alice-organizer")
-  displayName?: string // Display name (e.g., "Alice Martinez")
-  nip05?: string // Verified identifier (alice@domain.com)
-  nip05Verified?: boolean // NIP-05 verification status
-  created: number
-  lastUsed: number
-}
+/**
+ * Identity Types
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated Identity type uses string for privateKey (protocol-level).
+ * Web client code that needs Uint8Array privateKey should define its own
+ * runtime type or cast as needed.
+ */
 
-export interface KeyPair {
-  publicKey: string
-  privateKey: Uint8Array
-}
+// Re-export all generated Zod schemas and types
+export {
+  IdentitySchema,
+  type Identity,
+  EncryptedIdentitySchema,
+  type EncryptedIdentity,
+  ProfileMetadataSchema,
+  type ProfileMetadata,
+  IDENTITY_SCHEMA_VERSION,
+} from '@/generated/validation/identity.zod';
 
-export interface EncryptedIdentity {
-  publicKey: string
-  encryptedPrivateKey: string // encrypted with password
-  name: string
-  created: number
-  lastUsed: number
-}
+export {
+  KeyPairSchema,
+  type KeyPair,
+} from '@/generated/validation/crypto.zod';

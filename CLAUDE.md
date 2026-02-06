@@ -94,12 +94,15 @@ buildit/
 
 ### Core Principles
 
-1. **Protocol is source of truth**:
+1. **Protocol schema FIRST, then codegen, then implement**:
     - All protocol type definitions come from `protocol/schemas/` (which you should change/improve as needed)
+    - **NEVER define types manually in client code that should come from the protocol schema.** Always define the JSON Schema first, run `bun run codegen`, then import generated types in client modules.
+    - Client module `types.ts` files must re-export from `@/generated/validation/{module}.zod` (for web) — only UI-only types (form inputs, computed results) are defined locally
+    - Schema files require: `version`, `minReaderVersion`, `coreModule` top-level fields, and `_v` field in all `$defs` object types
     - Everything adheres to the `docs/protocol-spec` or enhances/improves on it
     - The `packages/crypto` is a shared implementation of the protocol's non-platform-specific functionality
     - You are constantly auditing and improving all of these on a regular cadence via new spec additions and iterations
-2. **Schema changes propagate** - After editing schemas, run `bun run codegen`
+2. **Schema changes propagate** - After editing schemas, run `bun run codegen`. Generated files go to `clients/web/src/generated/`, `clients/ios/Sources/Generated/`, `clients/android/.../generated/`, `packages/crypto/src/generated/`
 3. **Cross-client consistency** - Changes affecting multiple clients should be atomic
 4. **Test vectors validate** - All clients must pass `protocol/test-vectors/`
 5. **Privacy, E2EE, zero knowledge** -  All clients must be resilient to crisis scenarios and state level repression threat models based on the ever evolving [security guidelines](docs/SECURITY.md) and [threat model](docs/THREAT_MODEL.md)
@@ -132,6 +135,33 @@ cd workers/api && bun run deploy        # Deploy API worker to Cloudflare
 ```
 
 ### Agent Task Patterns
+
+#### New Module Implementation (MANDATORY WORKFLOW)
+
+**Always follow this order — schema first, codegen, then client code:**
+
+1. Create `protocol/schemas/modules/{module}/v1.json` with:
+   - `version`, `minReaderVersion`, `coreModule` top-level fields
+   - `$defs` with all protocol types (each object type must include `_v` field)
+   - `x-storage` if the module needs local DB tables
+2. Add module entry to `protocol/schemas/modules/_registry.json`
+3. Run: `bun run codegen` — generates types for ALL platforms
+4. Create client module `types.ts` that **re-exports from generated types**:
+   ```typescript
+   // Re-export protocol types from codegen
+   export {
+     MyTypeSchema, type MyType,
+     MODULE_SCHEMA_VERSION,
+   } from '@/generated/validation/{module}.zod';
+
+   // Only define UI-only types here (form inputs, computed results)
+   export interface CreateMyTypeInput { /* ... */ }
+   ```
+5. Implement client components, stores, managers using the generated types
+6. Add test vectors to `protocol/test-vectors/`
+7. Run typecheck: `bun run typecheck`
+
+**Common mistake**: Defining types manually in client `types.ts` instead of importing from `@/generated/`. This causes type drift across platforms and requires rework.
 
 #### Schema Change (Cross-Client)
 

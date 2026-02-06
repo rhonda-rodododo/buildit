@@ -51,6 +51,7 @@ export function useListings() {
     }) => {
       const now = Date.now();
       const listing: Listing = {
+        _v: '1.0.0',
         id: nanoid(),
         groupId,
         type: data.type,
@@ -106,6 +107,7 @@ export function useCoopProfiles() {
     }) => {
       const now = Date.now();
       const coop: CoopProfile = {
+        _v: '1.0.0',
         id: nanoid(),
         groupId,
         name: data.name,
@@ -155,6 +157,7 @@ export function useReviews(listingId: string) {
   const submitReview = useCallback(
     (rating: number, text: string) => {
       const review: Review = {
+        _v: '1.0.0',
         id: nanoid(),
         listingId,
         reviewerPubkey: currentIdentity?.publicKey ?? '',
@@ -193,6 +196,7 @@ export function useSkillExchanges() {
     }) => {
       const now = Date.now();
       const exchange: SkillExchange = {
+        _v: '1.0.0',
         id: nanoid(),
         groupId,
         offeredSkill: data.offeredSkill,
@@ -241,6 +245,7 @@ export function useResourceShares() {
     }) => {
       const now = Date.now();
       const resource: ResourceShare = {
+        _v: '1.0.0',
         id: nanoid(),
         groupId,
         resourceType: data.resourceType,

@@ -48,10 +48,10 @@ export interface NostrRelayAdapterConfig {
  */
 const DEFAULT_CONFIG: NostrRelayAdapterConfig = {
   relays: [
-    { url: 'wss://relay.damus.io', read: true, write: true },
-    { url: 'wss://relay.primal.net', read: true, write: true },
-    { url: 'wss://relay.snort.social', read: true, write: true },
-    { url: 'wss://nos.lol', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://relay.damus.io', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://relay.primal.net', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://relay.snort.social', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://nos.lol', read: true, write: true },
   ],
   autoReconnect: true,
   reconnectDelay: 5000,
@@ -112,6 +112,7 @@ export class NostrRelayAdapter implements ITransportAdapter {
     // If Tor enabled, use .onion relays
     if (torStore.config.enabled) {
       const onionRelays: RelayConfig[] = torStore.onionRelays.map((relay) => ({
+        _v: '1.0.0' as const,
         url: relay.url,
         read: relay.read,
         write: relay.write,

@@ -2,18 +2,22 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for fundraising campaigns, donations, and financial tracking.
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
 
 import Foundation
 
-// MARK: - Enums
+// Re-export protocol types from generated schema.
+// The following types come from Sources/Generated/Schemas/fundraising.swift:
+//   Campaign, CampaignStatus, Donation, DonationStatus, DonationTier,
+//   CampaignUpdate, Expense, PaymentMethod, TierElement, UpdateElement,
+//   Visibility, FundraisingSchema
 
-/// Status of a fundraising campaign
-public enum CampaignStatus: String, Codable, CaseIterable, Sendable {
-    case draft
-    case active
-    case paused
-    case completed
-    case cancelled
+// MARK: - UI Extensions for CampaignStatus
+
+extension CampaignStatus: CaseIterable {
+    public static var allCases: [CampaignStatus] {
+        [.draft, .active, .paused, .completed, .cancelled]
+    }
 
     var displayName: String {
         switch self {
@@ -40,37 +44,36 @@ public enum CampaignStatus: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Visibility of a campaign
-public enum CampaignVisibility: String, Codable, CaseIterable, Sendable {
-    case `private`
-    case group
-    case `public`
+// MARK: - UI Extensions for Visibility (Fundraising)
+
+extension Visibility: CaseIterable {
+    public static var allCases: [Visibility] {
+        [.visibilityPrivate, .group, .visibilityPublic]
+    }
 
     var displayName: String {
         switch self {
-        case .private: return "Private"
+        case .visibilityPrivate: return "Private"
         case .group: return "Group Only"
-        case .public: return "Public"
+        case .visibilityPublic: return "Public"
         }
     }
 
     var icon: String {
         switch self {
-        case .private: return "lock"
+        case .visibilityPrivate: return "lock"
         case .group: return "person.2"
-        case .public: return "globe"
+        case .visibilityPublic: return "globe"
         }
     }
 }
 
-/// Payment method for donations
-public enum PaymentMethod: String, Codable, CaseIterable, Sendable {
-    case card
-    case bank
-    case crypto
-    case cash
-    case check
-    case other
+// MARK: - UI Extensions for PaymentMethod
+
+extension PaymentMethod: CaseIterable {
+    public static var allCases: [PaymentMethod] {
+        [.card, .bank, .crypto, .cash, .check, .other]
+    }
 
     var displayName: String {
         switch self {
@@ -95,7 +98,35 @@ public enum PaymentMethod: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Cryptocurrency type for crypto payments
+// MARK: - UI Extensions for DonationStatus
+
+extension DonationStatus: CaseIterable {
+    public static var allCases: [DonationStatus] {
+        [.pending, .completed, .failed, .refunded]
+    }
+
+    var displayName: String {
+        switch self {
+        case .pending: return "Pending"
+        case .completed: return "Completed"
+        case .failed: return "Failed"
+        case .refunded: return "Refunded"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .pending: return "yellow"
+        case .completed: return "green"
+        case .failed: return "red"
+        case .refunded: return "gray"
+        }
+    }
+}
+
+// MARK: - UI-Only Types
+
+/// Cryptocurrency type for crypto payments (UI-only, not in protocol schema)
 public enum CryptoType: String, Codable, CaseIterable, Sendable {
     case bitcoin
     case ethereum
@@ -126,85 +157,7 @@ public enum CryptoType: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Status of a donation
-public enum DonationStatus: String, Codable, CaseIterable, Sendable {
-    case pending
-    case completed
-    case failed
-    case refunded
-
-    var displayName: String {
-        switch self {
-        case .pending: return "Pending"
-        case .completed: return "Completed"
-        case .failed: return "Failed"
-        case .refunded: return "Refunded"
-        }
-    }
-
-    var color: String {
-        switch self {
-        case .pending: return "yellow"
-        case .completed: return "green"
-        case .failed: return "red"
-        case .refunded: return "gray"
-        }
-    }
-}
-
-// MARK: - Models
-
-/// A donation tier with suggested amounts and perks
-public struct DonationTier: Identifiable, Codable, Sendable, Hashable {
-    public let id: String
-    public var amount: Double
-    public var name: String?
-    public var description: String?
-    public var perks: [String]
-
-    public init(
-        id: String = UUID().uuidString,
-        amount: Double,
-        name: String? = nil,
-        description: String? = nil,
-        perks: [String] = []
-    ) {
-        self.id = id
-        self.amount = amount
-        self.name = name
-        self.description = description
-        self.perks = perks
-    }
-
-    /// Default donation tiers
-    public static var defaults: [DonationTier] {
-        [
-            DonationTier(amount: 10, name: "Supporter", description: "Every bit helps!"),
-            DonationTier(amount: 25, name: "Friend", description: "Thank you for your support"),
-            DonationTier(amount: 50, name: "Champion", description: "You're making a real difference"),
-            DonationTier(amount: 100, name: "Hero", description: "Your generosity is incredible")
-        ]
-    }
-}
-
-/// A campaign update post
-public struct CampaignUpdate: Identifiable, Codable, Sendable {
-    public let id: String
-    public var content: String
-    public var postedAt: Date
-
-    public init(
-        id: String = UUID().uuidString,
-        content: String,
-        postedAt: Date = Date()
-    ) {
-        self.id = id
-        self.content = content
-        self.postedAt = postedAt
-    }
-}
-
-/// Crypto payment addresses for a campaign
+/// Crypto payment addresses for a campaign (UI-only, not in protocol schema)
 public struct CryptoPaymentInfo: Codable, Sendable {
     public var bitcoinAddress: String?
     public var ethereumAddress: String?
@@ -228,211 +181,50 @@ public struct CryptoPaymentInfo: Codable, Sendable {
     }
 }
 
-/// A fundraising campaign
-public struct Campaign: Identifiable, Codable, Sendable {
-    public let id: String
-    public var title: String
-    public var description: String?
-    public var goal: Double
-    public var raised: Double
-    public var currency: String
-    public var donorCount: Int
-    public var startsAt: Date?
-    public var endsAt: Date?
-    public var status: CampaignStatus
-    public var visibility: CampaignVisibility
-    public var groupId: String?
-    public var image: String?
-    public var tiers: [DonationTier]
-    public var updates: [CampaignUpdate]
-    public var cryptoPayment: CryptoPaymentInfo?
-    public var createdBy: String
-    public var createdAt: Date
-    public var updatedAt: Date?
+// MARK: - UI View Helpers for Campaign
 
-    // Local-only properties
-    public var creatorName: String?
-
-    public init(
-        id: String = UUID().uuidString,
-        title: String,
-        description: String? = nil,
-        goal: Double,
-        raised: Double = 0,
-        currency: String = "USD",
-        donorCount: Int = 0,
-        startsAt: Date? = nil,
-        endsAt: Date? = nil,
-        status: CampaignStatus = .draft,
-        visibility: CampaignVisibility = .group,
-        groupId: String? = nil,
-        image: String? = nil,
-        tiers: [DonationTier] = [],
-        updates: [CampaignUpdate] = [],
-        cryptoPayment: CryptoPaymentInfo? = nil,
-        createdBy: String,
-        createdAt: Date = Date(),
-        updatedAt: Date? = nil
-    ) {
-        self.id = id
-        self.title = title
-        self.description = description
-        self.goal = goal
-        self.raised = raised
-        self.currency = currency
-        self.donorCount = donorCount
-        self.startsAt = startsAt
-        self.endsAt = endsAt
-        self.status = status
-        self.visibility = visibility
-        self.groupId = groupId
-        self.image = image
-        self.tiers = tiers
-        self.updates = updates
-        self.cryptoPayment = cryptoPayment
-        self.createdBy = createdBy
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-    }
-
+extension Campaign {
     /// Progress towards goal (0.0 - 1.0)
     public var progressPercentage: Double {
         guard goal > 0 else { return 0 }
-        return min(raised / goal, 1.0)
+        return min((raised ?? 0) / goal, 1.0)
     }
 
     /// Amount remaining to reach goal
     public var amountRemaining: Double {
-        max(goal - raised, 0)
-    }
-
-    /// Whether campaign is currently accepting donations
-    public var isAcceptingDonations: Bool {
-        guard status == .active else { return false }
-        if let endsAt = endsAt, endsAt < Date() { return false }
-        if let startsAt = startsAt, startsAt > Date() { return false }
-        return true
-    }
-
-    /// Whether the campaign has ended
-    public var hasEnded: Bool {
-        if let endsAt = endsAt, endsAt < Date() { return true }
-        return status == .completed || status == .cancelled
-    }
-
-    /// Time remaining until deadline
-    public var timeRemaining: TimeInterval? {
-        guard let endsAt = endsAt else { return nil }
-        return max(0, endsAt.timeIntervalSinceNow)
-    }
-
-    /// Days remaining until deadline
-    public var daysRemaining: Int? {
-        guard let remaining = timeRemaining else { return nil }
-        return Int(remaining / 86400)
+        max(goal - (raised ?? 0), 0)
     }
 }
 
-/// A donation to a campaign
-public struct Donation: Identifiable, Codable, Sendable {
-    public let id: String
-    public var campaignId: String
-    public var amount: Double
-    public var currency: String
-    public var donorPubkey: String?
-    public var donorName: String?
-    public var anonymous: Bool
-    public var message: String?
-    public var tierId: String?
-    public var paymentMethod: PaymentMethod
-    public var cryptoType: CryptoType?
-    public var transactionId: String?
-    public var status: DonationStatus
-    public var donatedAt: Date
+// MARK: - UI View Helpers for Donation
 
-    public init(
-        id: String = UUID().uuidString,
-        campaignId: String,
-        amount: Double,
-        currency: String = "USD",
-        donorPubkey: String? = nil,
-        donorName: String? = nil,
-        anonymous: Bool = false,
-        message: String? = nil,
-        tierId: String? = nil,
-        paymentMethod: PaymentMethod = .crypto,
-        cryptoType: CryptoType? = nil,
-        transactionId: String? = nil,
-        status: DonationStatus = .completed,
-        donatedAt: Date = Date()
-    ) {
-        self.id = id
-        self.campaignId = campaignId
-        self.amount = amount
-        self.currency = currency
-        self.donorPubkey = donorPubkey
-        self.donorName = donorName
-        self.anonymous = anonymous
-        self.message = message
-        self.tierId = tierId
-        self.paymentMethod = paymentMethod
-        self.cryptoType = cryptoType
-        self.transactionId = transactionId
-        self.status = status
-        self.donatedAt = donatedAt
-    }
-
+extension Donation {
     /// Display name for the donor
     public var displayName: String {
-        if anonymous {
+        if anonymous == true {
             return "Anonymous"
         }
         return donorName ?? "A supporter"
     }
 }
 
-/// An expense recorded against campaign funds
-public struct Expense: Identifiable, Codable, Sendable {
-    public let id: String
-    public var campaignId: String
-    public var amount: Double
-    public var currency: String
-    public var description: String
-    public var category: String?
-    public var receipt: String?
-    public var vendor: String?
-    public var date: Date
-    public var recordedBy: String
-    public var recordedAt: Date
+// MARK: - UI View Helpers for DonationTier
 
-    public init(
-        id: String = UUID().uuidString,
-        campaignId: String,
-        amount: Double,
-        currency: String = "USD",
-        description: String,
-        category: String? = nil,
-        receipt: String? = nil,
-        vendor: String? = nil,
-        date: Date = Date(),
-        recordedBy: String,
-        recordedAt: Date = Date()
-    ) {
-        self.id = id
-        self.campaignId = campaignId
-        self.amount = amount
-        self.currency = currency
-        self.description = description
-        self.category = category
-        self.receipt = receipt
-        self.vendor = vendor
-        self.date = date
-        self.recordedBy = recordedBy
-        self.recordedAt = recordedAt
+extension DonationTier {
+    /// Default donation tiers
+    public static var defaults: [DonationTier] {
+        [
+            DonationTier(amount: 10, description: "Every bit helps!", name: "Supporter", perks: nil),
+            DonationTier(amount: 25, description: "Thank you for your support", name: "Friend", perks: nil),
+            DonationTier(amount: 50, description: "You're making a real difference", name: "Champion", perks: nil),
+            DonationTier(amount: 100, description: "Your generosity is incredible", name: "Hero", perks: nil)
+        ]
     }
 }
 
-/// Analytics data for a campaign
+// MARK: - Analytics (UI-only)
+
+/// Analytics data for a campaign (UI-only, not in protocol schema)
 public struct CampaignAnalytics: Sendable {
     public let campaignId: String
     public let totalRaised: Double

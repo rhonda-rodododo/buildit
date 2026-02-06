@@ -70,12 +70,12 @@ export function CreateListingDialog({
     if (open && listing) {
       setType(listing.type);
       setTitle(listing.title);
-      setDescription(listing.description);
+      setDescription(listing.description ?? '');
       setPriceText(listing.price ? (listing.price / 100).toString() : '');
       setCurrency(listing.currency ?? 'USD');
       setAvailability(listing.availability ?? '');
-      setTags(listing.tags);
-      setContactMethod(listing.contactMethod);
+      setTags(listing.tags ?? []);
+      setContactMethod(listing.contactMethod ?? 'dm');
     } else if (open && !listing) {
       setType('product');
       setTitle('');

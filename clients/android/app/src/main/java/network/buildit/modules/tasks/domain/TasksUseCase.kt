@@ -41,7 +41,7 @@ class TasksUseCase @Inject constructor(
         description: String? = null,
         assigneePubkey: String? = null,
         dueDate: Long? = null,
-        priority: TaskPriority = TaskPriority.MEDIUM,
+        priority: TaskPriority = TaskPriority.Medium,
         parentTaskId: String? = null
     ): ModuleResult<TaskEntity> {
         return runCatching {
@@ -53,7 +53,7 @@ class TasksUseCase @Inject constructor(
                 groupId = groupId,
                 title = title,
                 description = description,
-                status = TaskStatus.TODO,
+                status = TaskStatus.Todo,
                 priority = priority,
                 assigneePubkey = assigneePubkey,
                 createdBy = pubkey,
@@ -193,8 +193,8 @@ class TasksUseCase @Inject constructor(
                 "id" to task.id,
                 "title" to task.title,
                 "description" to (task.description ?: ""),
-                "status" to task.status.name.lowercase(),
-                "priority" to task.priority.name.lowercase(),
+                "status" to task.status.value,
+                "priority" to task.priority.value,
                 "assignee" to (task.assigneePubkey ?: ""),
                 "dueDate" to (task.dueDate?.toString() ?: ""),
                 "parentTaskId" to (task.parentTaskId ?: "")

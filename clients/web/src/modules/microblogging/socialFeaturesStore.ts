@@ -204,6 +204,7 @@ export const useSocialFeaturesStore = create<SocialFeaturesState>()((set, get) =
 
     // Create poll options
     const options: PollOption[] = input.options.map((text, index) => ({
+      _v: '1.0.0',
       id: `option-${pollId}-${index}`,
       text,
       voteCount: 0,
@@ -212,6 +213,7 @@ export const useSocialFeaturesStore = create<SocialFeaturesState>()((set, get) =
     const endsAt = Date.now() + input.durationHours * 60 * 60 * 1000;
 
     const poll: Poll = {
+      _v: '1.0.0',
       id: pollId,
       postId,
       authorId: currentIdentity.publicKey,
@@ -268,6 +270,7 @@ export const useSocialFeaturesStore = create<SocialFeaturesState>()((set, get) =
     }
 
     const vote: PollVote = {
+      _v: '1.0.0',
       id: `vote-${Date.now()}-${secureRandomString(9)}`,
       pollId,
       optionIds,
@@ -288,7 +291,7 @@ export const useSocialFeaturesStore = create<SocialFeaturesState>()((set, get) =
       await dal.update('polls', pollId, {
         options: updatedOptions,
         totalVotes: poll.totalVotes + optionIds.length,
-        voterCount: poll.voterCount + 1,
+        voterCount: (poll.voterCount ?? 0) + 1,
         updatedAt: Date.now(),
       });
     } catch (error) {
@@ -310,7 +313,7 @@ export const useSocialFeaturesStore = create<SocialFeaturesState>()((set, get) =
                   voteCount: optionIds.includes(opt.id) ? opt.voteCount + 1 : opt.voteCount,
                 })),
                 totalVotes: p.totalVotes + optionIds.length,
-                voterCount: p.voterCount + 1,
+                voterCount: (p.voterCount ?? 0) + 1,
               }
             : p
         ),

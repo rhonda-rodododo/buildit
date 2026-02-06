@@ -434,6 +434,7 @@ export class NostrClient {
   addRelay(config: RelayConfig): void {
     this.relays.set(config.url, config)
     this.relayStatus.set(config.url, {
+      _v: '1.0.0',
       url: config.url,
       connected: false,
       connecting: false,
@@ -541,12 +542,13 @@ export class NostrClient {
         // Track messages sent
         const status = this.relayStatus.get(relayUrl)
         if (status) {
-          status.messagesSent++
+          status.messagesSent = (status.messagesSent ?? 0) + 1
           status.connected = true
           status.lastConnected = Date.now()
         }
 
         results.push({
+          _v: '1.0.0',
           relay: relayUrl,
           success: true,
         })
@@ -561,6 +563,7 @@ export class NostrClient {
         }
 
         results.push({
+          _v: '1.0.0',
           relay: relayUrl,
           success: false,
           error: errorMsg,
@@ -660,7 +663,7 @@ export class NostrClient {
             // Track messages received
             const status = this.relayStatus.get(relayUrl)
             if (status) {
-              status.messagesReceived++
+              status.messagesReceived = (status.messagesReceived ?? 0) + 1
             }
           },
           oneose: () => {
@@ -722,7 +725,7 @@ export class NostrClient {
           relayUrls.forEach(url => {
             const status = this.relayStatus.get(url)
             if (status) {
-              status.messagesReceived++
+              status.messagesReceived = (status.messagesReceived ?? 0) + 1
             }
           })
         },
@@ -1235,10 +1238,10 @@ let clientInstance: NostrClient | null = null
 export function getNostrClient(relays?: RelayConfig[]): NostrClient {
   if (!clientInstance) {
     const defaultRelays: RelayConfig[] = relays || [
-      { url: 'wss://relay.damus.io', read: true, write: true },
-      { url: 'wss://relay.primal.net', read: true, write: true },
-      { url: 'wss://relay.snort.social', read: true, write: true },
-      { url: 'wss://nos.lol', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://relay.damus.io', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://relay.primal.net', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://relay.snort.social', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://nos.lol', read: true, write: true },
     ]
     clientInstance = new NostrClient(defaultRelays)
   }

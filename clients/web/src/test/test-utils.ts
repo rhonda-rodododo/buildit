@@ -112,8 +112,8 @@ export function generatePrivateKey(): string {
  */
 export function createTestNostrClient(): NostrClient {
   return new NostrClient([
-    { url: 'wss://test-relay-1.local', read: true, write: true },
-    { url: 'wss://test-relay-2.local', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://test-relay-1.local', read: true, write: true },
+    { _v: '1.0.0', url: 'wss://test-relay-2.local', read: true, write: true },
   ]);
 }
 

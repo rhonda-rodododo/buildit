@@ -1,0 +1,422 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/nostr/v1.json",
+  "title": "NostrCoreSchema",
+  "description": "Core Nostr protocol types used across all platforms and workers",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "NostrEvent": {
+      "type": "object",
+      "description": "A signed Nostr event (NIP-01)",
+      "required": ["id", "pubkey", "created_at", "kind", "tags", "content", "sig", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "description": "32-byte lowercase hex event ID",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pubkey": {
+          "type": "string",
+          "description": "32-byte lowercase hex public key",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Unix timestamp in seconds"
+        },
+        "kind": {
+          "type": "integer",
+          "description": "Event kind number"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Array of tag arrays"
+        },
+        "content": {
+          "type": "string",
+          "description": "Event content (may be encrypted)"
+        },
+        "sig": {
+          "type": "string",
+          "description": "64-byte lowercase hex Schnorr signature",
+          "pattern": "^[0-9a-f]{128}$"
+        }
+      }
+    },
+
+    "UnsignedEvent": {
+      "type": "object",
+      "description": "An unsigned Nostr event (before signing)",
+      "required": ["pubkey", "created_at", "kind", "tags", "content", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "default": "1.0.0"
+        },
+        "pubkey": {
+          "type": "string",
+          "description": "32-byte lowercase hex public key",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Unix timestamp in seconds"
+        },
+        "kind": {
+          "type": "integer",
+          "description": "Event kind number"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Array of tag arrays"
+        },
+        "content": {
+          "type": "string",
+          "description": "Event content"
+        }
+      }
+    },
+
+    "NostrFilter": {
+      "type": "object",
+      "description": "Nostr subscription filter (NIP-01)",
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version",
+          "default": "1.0.0"
+        },
+        "ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Event IDs to match"
+        },
+        "authors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Author pubkeys to match"
+        },
+        "kinds": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "description": "Event kinds to match"
+        },
+        "since": {
+          "type": "integer",
+          "description": "Events after this Unix timestamp"
+        },
+        "until": {
+          "type": "integer",
+          "description": "Events before this Unix timestamp"
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum number of events to return"
+        },
+        "search": {
+          "type": "string",
+          "description": "Full-text search query (NIP-50)"
+        }
+      }
+    },
+
+    "RelayConfig": {
+      "type": "object",
+      "description": "Configuration for a Nostr relay connection",
+      "required": ["url", "read", "write", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "WebSocket URL of the relay"
+        },
+        "read": {
+          "type": "boolean",
+          "description": "Whether to read events from this relay"
+        },
+        "write": {
+          "type": "boolean",
+          "description": "Whether to write events to this relay"
+        }
+      }
+    },
+
+    "RelayStatus": {
+      "type": "object",
+      "description": "Runtime status of a relay connection",
+      "required": ["url", "connected", "connecting", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "url": {
+          "type": "string"
+        },
+        "connected": {
+          "type": "boolean"
+        },
+        "connecting": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": ["string", "null"]
+        },
+        "lastConnected": {
+          "type": ["integer", "null"],
+          "description": "Unix timestamp of last successful connection"
+        },
+        "messagesSent": {
+          "type": "integer"
+        },
+        "messagesReceived": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "RelayInfo": {
+      "type": "object",
+      "description": "Relay information document (NIP-11)",
+      "required": ["name", "description", "supported_nips", "software", "version", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "pubkey": {
+          "type": "string"
+        },
+        "contact": {
+          "type": "string"
+        },
+        "supported_nips": {
+          "type": "array",
+          "items": { "type": "integer" }
+        },
+        "software": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "limitation": {
+          "$ref": "#/$defs/RelayLimitation"
+        },
+        "payments_url": {
+          "type": "string"
+        }
+      }
+    },
+
+    "RelayLimitation": {
+      "type": "object",
+      "description": "NIP-11 relay limitation settings",
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "max_message_length": {
+          "type": "integer"
+        },
+        "max_subscriptions": {
+          "type": "integer"
+        },
+        "max_filters": {
+          "type": "integer"
+        },
+        "max_limit": {
+          "type": "integer"
+        },
+        "max_subid_length": {
+          "type": "integer"
+        },
+        "min_prefix": {
+          "type": "integer"
+        },
+        "max_event_tags": {
+          "type": "integer"
+        },
+        "max_content_length": {
+          "type": "integer"
+        },
+        "min_pow_difficulty": {
+          "type": "integer"
+        },
+        "auth_required": {
+          "type": "boolean"
+        },
+        "payment_required": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "PublishResult": {
+      "type": "object",
+      "description": "Result of publishing an event to a relay",
+      "required": ["relay", "success", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "relay": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Rumor": {
+      "type": "object",
+      "description": "NIP-17 rumor (unencrypted inner event)",
+      "required": ["kind", "content", "created_at", "tags", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "kind": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "Seal": {
+      "type": "object",
+      "description": "NIP-17 seal (kind 13 encrypted rumor)",
+      "required": ["kind", "content", "created_at", "tags", "id", "pubkey", "sig", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "kind": {
+          "type": "integer",
+          "description": "Always 13 for Seal events"
+        },
+        "content": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "pubkey": {
+          "type": "string"
+        },
+        "sig": {
+          "type": "string"
+        }
+      }
+    },
+
+    "GiftWrap": {
+      "type": "object",
+      "description": "NIP-17 gift wrap (kind 1059 outer envelope)",
+      "required": ["kind", "content", "created_at", "tags", "id", "pubkey", "sig", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "kind": {
+          "type": "integer",
+          "description": "Always 1059 for GiftWrap events"
+        },
+        "content": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "pubkey": {
+          "type": "string",
+          "description": "Ephemeral key"
+        },
+        "sig": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

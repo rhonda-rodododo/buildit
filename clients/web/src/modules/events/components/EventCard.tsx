@@ -2,12 +2,12 @@ import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Event } from '../types'
+import { AppEvent } from '../types'
 import { Calendar, MapPin, Users, Lock, Globe } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface EventCardProps {
-  event: Event
+  event: AppEvent
   onClick?: () => void
 }
 
@@ -15,11 +15,11 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
   const { t } = useTranslation()
 
   const formatDate = (timestamp: number) => {
-    return format(new Date(timestamp), 'PPp')
+    return format(new Date(timestamp * 1000), 'PPp')
   }
 
   const getPrivacyIcon = () => {
-    switch (event.privacy) {
+    switch (event.visibility) {
       case 'public':
         return <Globe className="h-3 w-3" />
       case 'group':
@@ -29,7 +29,7 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
   }
 
   const getPrivacyLabel = () => {
-    switch (event.privacy) {
+    switch (event.visibility) {
       case 'public':
         return t('eventCard.privacyLabels.public')
       case 'group':
@@ -38,6 +38,8 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
         return t('eventCard.privacyLabels.private')
     }
   }
+
+  const locationName = event.location?.name ?? event.location?.address
 
   return (
     <Card
@@ -52,7 +54,7 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
               {event.description}
             </CardDescription>
           </div>
-          <Badge variant={event.privacy === 'public' ? 'default' : 'secondary'} className="ml-2">
+          <Badge variant={event.visibility === 'public' ? 'default' : 'secondary'} className="ml-2">
             <span className="flex items-center gap-1">
               {getPrivacyIcon()}
               {getPrivacyLabel()}
@@ -63,26 +65,26 @@ export const EventCard: FC<EventCardProps> = ({ event, onClick }) => {
       <CardContent className="space-y-2">
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="h-4 w-4 mr-2" />
-          {formatDate(event.startTime)}
+          {formatDate(event.startAt)}
         </div>
 
-        {event.location && (
+        {locationName && (
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 mr-2" />
-            {event.location}
+            {locationName}
           </div>
         )}
 
-        {event.capacity && (
+        {event.maxAttendees && (
           <div className="flex items-center text-sm text-muted-foreground">
             <Users className="h-4 w-4 mr-2" />
-            {t('eventCard.maxAttendees', { count: event.capacity })}
+            {t('eventCard.maxAttendees', { count: event.maxAttendees })}
           </div>
         )}
 
-        {event.tags.length > 0 && (
+        {(event.tags ?? []).length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {event.tags.map((tag, index) => (
+            {(event.tags ?? []).map((tag, index) => (
               <Badge key={index} variant="outline" className="text-xs">
                 {tag}
               </Badge>

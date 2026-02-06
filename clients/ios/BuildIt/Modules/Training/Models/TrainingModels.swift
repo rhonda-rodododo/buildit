@@ -2,25 +2,27 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for the Training module matching the protocol schema.
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
 
 import Foundation
 
-// MARK: - Enums
+// Re-export protocol types from generated schema.
+// The following types come from Sources/Generated/Schemas/training.swift:
+//   Course (generated), CourseCategory, CourseDifficulty, CourseStatus,
+//   LessonType, QuizQuestionType, ProgressStatus, AssignmentReviewStatus,
+//   InteractiveExerciseType, LiveSessionRSVPStatus, TrainingModule,
+//   QuizQuestion (generated), QuestionElement, AssignmentRubricItem, RubricElement,
+//   Lesson (generated), CourseProgress (generated), Certification (generated),
+//   TrainingSchema
 
-/// Course category types
-public enum CourseCategory: String, Codable, CaseIterable, Sendable {
-    case appBasics = "app-basics"
-    case opsec = "opsec"
-    case digitalSecurity = "digital-security"
-    case legal = "legal"
-    case medic = "medic"
-    case selfDefense = "self-defense"
-    case organizing = "organizing"
-    case communication = "communication"
-    case civilDefense = "civil-defense"
-    case custom = "custom"
+// MARK: - UI Extensions for CourseCategory
 
-    /// Display name for the category
+extension CourseCategory: CaseIterable {
+    public static var allCases: [CourseCategory] {
+        [.appBasics, .opsec, .digitalSecurity, .legal, .medic,
+         .selfDefense, .organizing, .communication, .civilDefense, .custom]
+    }
+
     public var displayName: String {
         switch self {
         case .appBasics: return "App Basics"
@@ -36,7 +38,6 @@ public enum CourseCategory: String, Codable, CaseIterable, Sendable {
         }
     }
 
-    /// System icon name for the category
     public var iconName: String {
         switch self {
         case .appBasics: return "app.badge"
@@ -53,35 +54,33 @@ public enum CourseCategory: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Course difficulty levels
-public enum CourseDifficulty: String, Codable, CaseIterable, Sendable {
-    case beginner
-    case intermediate
-    case advanced
+// MARK: - UI Extensions for CourseDifficulty
 
-    /// Display name for the difficulty
+extension CourseDifficulty: CaseIterable {
+    public static var allCases: [CourseDifficulty] {
+        [.beginner, .intermediate, .advanced]
+    }
+
     public var displayName: String {
         rawValue.capitalized
     }
 }
 
-/// Course status
-public enum CourseStatus: String, Codable, CaseIterable, Sendable {
-    case draft
-    case published
-    case archived
+// MARK: - UI Extensions for CourseStatus
+
+extension CourseStatus: CaseIterable {
+    public static var allCases: [CourseStatus] {
+        [.draft, .published, .archived]
+    }
 }
 
-/// Lesson types
-public enum LessonType: String, Codable, CaseIterable, Sendable {
-    case video
-    case document
-    case quiz
-    case assignment
-    case liveSession = "live-session"
-    case interactive
+// MARK: - UI Extensions for LessonType
 
-    /// Display name for the lesson type
+extension LessonType: CaseIterable {
+    public static var allCases: [LessonType] {
+        [.video, .document, .quiz, .assignment, .liveSession, .interactive]
+    }
+
     public var displayName: String {
         switch self {
         case .video: return "Video"
@@ -93,7 +92,6 @@ public enum LessonType: String, Codable, CaseIterable, Sendable {
         }
     }
 
-    /// System icon name
     public var iconName: String {
         switch self {
         case .video: return "play.rectangle"
@@ -106,98 +104,31 @@ public enum LessonType: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Quiz question types
-public enum QuizQuestionType: String, Codable, CaseIterable, Sendable {
-    case multipleChoice = "multiple-choice"
-    case multiSelect = "multi-select"
-    case trueFalse = "true-false"
-    case fillInBlank = "fill-in-blank"
-    case shortAnswer = "short-answer"
-}
+// MARK: - UI Extensions for QuizQuestionType
 
-/// Progress status
-public enum ProgressStatus: String, Codable, CaseIterable, Sendable {
-    case notStarted = "not-started"
-    case inProgress = "in-progress"
-    case completed
-}
-
-/// Assignment review status
-public enum AssignmentReviewStatus: String, Codable, CaseIterable, Sendable {
-    case pending
-    case inReview = "in-review"
-    case approved
-    case rejected
-    case revisionRequested = "revision-requested"
-}
-
-/// RSVP status for live sessions
-public enum LiveSessionRSVPStatus: String, Codable, Sendable {
-    case confirmed
-    case tentative
-    case declined
-}
-
-// MARK: - Course Types
-
-/// Training course - top-level container
-public struct Course: Identifiable, Codable, Sendable {
-    public let id: String
-    public var groupId: String?
-    public var title: String
-    public var description: String
-    public var imageUrl: String?
-    public var category: CourseCategory
-    public var difficulty: CourseDifficulty
-    public var estimatedHours: Double
-    public var prerequisites: [String]?
-    public var status: CourseStatus
-    public var certificationEnabled: Bool
-    public var certificationExpiryDays: Int?
-    public var isPublic: Bool
-    public var isDefault: Bool
-    public var created: Date
-    public var createdBy: String
-    public var updated: Date
-
-    public init(
-        id: String,
-        groupId: String? = nil,
-        title: String,
-        description: String,
-        imageUrl: String? = nil,
-        category: CourseCategory,
-        difficulty: CourseDifficulty,
-        estimatedHours: Double,
-        prerequisites: [String]? = nil,
-        status: CourseStatus = .draft,
-        certificationEnabled: Bool = false,
-        certificationExpiryDays: Int? = nil,
-        isPublic: Bool = false,
-        isDefault: Bool = false,
-        created: Date = Date(),
-        createdBy: String,
-        updated: Date = Date()
-    ) {
-        self.id = id
-        self.groupId = groupId
-        self.title = title
-        self.description = description
-        self.imageUrl = imageUrl
-        self.category = category
-        self.difficulty = difficulty
-        self.estimatedHours = estimatedHours
-        self.prerequisites = prerequisites
-        self.status = status
-        self.certificationEnabled = certificationEnabled
-        self.certificationExpiryDays = certificationExpiryDays
-        self.isPublic = isPublic
-        self.isDefault = isDefault
-        self.created = created
-        self.createdBy = createdBy
-        self.updated = updated
+extension QuizQuestionType: CaseIterable {
+    public static var allCases: [QuizQuestionType] {
+        [.multipleChoice, .multiSelect, .trueFalse, .fillInBlank, .shortAnswer]
     }
 }
+
+// MARK: - UI Extensions for ProgressStatus
+
+extension ProgressStatus: CaseIterable {
+    public static var allCases: [ProgressStatus] {
+        [.notStarted, .inProgress, .completed]
+    }
+}
+
+// MARK: - UI Extensions for AssignmentReviewStatus
+
+extension AssignmentReviewStatus: CaseIterable {
+    public static var allCases: [AssignmentReviewStatus] {
+        [.pending, .inReview, .approved, .rejected, .revisionRequested]
+    }
+}
+
+// MARK: - UI-Only Types
 
 /// Data for creating a new course
 public struct CreateCourseData: Sendable {
@@ -257,10 +188,8 @@ public struct UpdateCourseData: Sendable {
     public init() {}
 }
 
-// MARK: - Module Types
-
-/// Training module - chapter within a course
-/// Named TrainingModuleModel to avoid collision with Swift's Module type
+/// Training module (UI-layer, named to avoid collision with Swift's Module type)
+/// Uses Date fields instead of Int timestamps for UI convenience.
 public struct TrainingModuleModel: Identifiable, Codable, Sendable {
     public let id: String
     public var courseId: String
@@ -315,7 +244,7 @@ public struct CreateModuleData: Sendable {
     }
 }
 
-// MARK: - Lesson Content Types
+// MARK: - Lesson Content Types (UI-only, with Date fields and custom Codable)
 
 /// Video lesson content
 public struct VideoContent: Codable, Sendable {
@@ -324,7 +253,7 @@ public struct VideoContent: Codable, Sendable {
     public var transcriptUrl: String?
     public var captionsUrl: String?
     public var chaptersUrl: String?
-    public var duration: Int? // seconds
+    public var duration: Int?
 
     public init(
         videoUrl: String,
@@ -353,13 +282,13 @@ public struct DocumentContent: Codable, Sendable {
     }
 }
 
-/// Quiz question
-public struct QuizQuestion: Identifiable, Codable, Sendable {
+/// Quiz question (UI-layer with Identifiable)
+public struct QuizQuestionUI: Identifiable, Codable, Sendable {
     public let id: String
     public var type: QuizQuestionType
     public var question: String
     public var options: [String]?
-    public var correctAnswer: [String] // Can be single or multiple correct
+    public var correctAnswer: [String]
     public var explanation: String?
     public var points: Int
     public var order: Int
@@ -388,8 +317,8 @@ public struct QuizQuestion: Identifiable, Codable, Sendable {
 /// Quiz lesson content
 public struct QuizContent: Codable, Sendable {
     public let type: String = "quiz"
-    public var questions: [QuizQuestion]
-    public var passingScore: Int // 0-100
+    public var questions: [QuizQuestionUI]
+    public var passingScore: Int
     public var allowRetakes: Bool
     public var maxAttempts: Int?
     public var shuffleQuestions: Bool
@@ -398,7 +327,7 @@ public struct QuizContent: Codable, Sendable {
     public var timeLimitMinutes: Int?
 
     public init(
-        questions: [QuizQuestion],
+        questions: [QuizQuestionUI],
         passingScore: Int = 70,
         allowRetakes: Bool = true,
         maxAttempts: Int? = nil,
@@ -422,7 +351,7 @@ public struct QuizContent: Codable, Sendable {
 public struct LiveSessionContent: Codable, Sendable {
     public let type: String = "live-session"
     public var scheduledAt: Date
-    public var duration: Int // minutes
+    public var duration: Int
     public var instructorPubkey: String
     public var conferenceRoomId: String?
     public var recordingUrl: String?
@@ -496,10 +425,10 @@ public enum LessonContent: Codable, Sendable {
     }
 }
 
-// MARK: - Lesson Types
+// MARK: - Lesson (UI-layer with Date fields)
 
 /// Lesson - individual learning unit
-public struct Lesson: Identifiable, Codable, Sendable {
+public struct LessonUI: Identifiable, Codable, Sendable {
     public let id: String
     public var moduleId: String
     public var type: LessonType
@@ -577,7 +506,7 @@ public struct CreateLessonData: Sendable {
     }
 }
 
-// MARK: - Progress Types
+// MARK: - Progress Types (UI-only, with Date fields)
 
 /// User progress on a lesson
 public struct LessonProgress: Identifiable, Codable, Sendable {
@@ -586,8 +515,8 @@ public struct LessonProgress: Identifiable, Codable, Sendable {
     public var pubkey: String
     public var status: ProgressStatus
     public var score: Int?
-    public var timeSpent: Int // seconds
-    public var lastPosition: Int? // video position in seconds
+    public var timeSpent: Int
+    public var lastPosition: Int?
     public var completedAt: Date?
     public var attempts: Int?
     public var created: Date
@@ -620,12 +549,12 @@ public struct LessonProgress: Identifiable, Codable, Sendable {
     }
 }
 
-/// User progress on a course
-public struct CourseProgress: Identifiable, Codable, Sendable {
+/// User progress on a course (UI-layer with Date fields)
+public struct CourseProgressUI: Identifiable, Codable, Sendable {
     public let id: String
     public var courseId: String
     public var pubkey: String
-    public var percentComplete: Int // 0-100
+    public var percentComplete: Int
     public var lessonsCompleted: Int
     public var totalLessons: Int
     public var currentModuleId: String?
@@ -682,11 +611,11 @@ public struct QuizAttempt: Identifiable, Codable, Sendable {
     public var lessonId: String
     public var pubkey: String
     public var answers: [QuizAnswer]
-    public var score: Int // 0-100
+    public var score: Int
     public var passed: Bool
     public var startedAt: Date
     public var completedAt: Date
-    public var duration: Int // seconds
+    public var duration: Int
 
     public init(
         id: String,
@@ -711,10 +640,10 @@ public struct QuizAttempt: Identifiable, Codable, Sendable {
     }
 }
 
-// MARK: - Certification Types
+// MARK: - Certification (UI-layer with Date fields and validation helpers)
 
-/// Certification record
-public struct Certification: Identifiable, Codable, Sendable {
+/// Certification record (UI-layer with Date fields)
+public struct CertificationUI: Identifiable, Codable, Sendable {
     public let id: String
     public var courseId: String
     public var pubkey: String
@@ -750,14 +679,12 @@ public struct Certification: Identifiable, Codable, Sendable {
         self.revokeReason = revokeReason
     }
 
-    /// Whether this certification is currently valid
     public var isValid: Bool {
         if revokedAt != nil { return false }
         if let expiresAt = expiresAt, expiresAt < Date() { return false }
         return true
     }
 
-    /// Whether this certification is expiring soon (within 30 days)
     public var isExpiringSoon: Bool {
         guard let expiresAt = expiresAt else { return false }
         let thirtyDays = TimeInterval(30 * 24 * 60 * 60)
@@ -768,8 +695,7 @@ public struct Certification: Identifiable, Codable, Sendable {
 /// Certification verification result
 public struct CertificationVerification: Sendable {
     public var valid: Bool
-    public var certification: Certification?
-    public var course: Course?
+    public var certification: CertificationUI?
     public var holderName: String?
     public var expired: Bool?
     public var revoked: Bool?
@@ -777,8 +703,7 @@ public struct CertificationVerification: Sendable {
 
     public init(
         valid: Bool,
-        certification: Certification? = nil,
-        course: Course? = nil,
+        certification: CertificationUI? = nil,
         holderName: String? = nil,
         expired: Bool? = nil,
         revoked: Bool? = nil,
@@ -786,7 +711,6 @@ public struct CertificationVerification: Sendable {
     ) {
         self.valid = valid
         self.certification = certification
-        self.course = course
         self.holderName = holderName
         self.expired = expired
         self.revoked = revoked
@@ -794,7 +718,7 @@ public struct CertificationVerification: Sendable {
     }
 }
 
-// MARK: - Stats Types
+// MARK: - Stats Types (UI-only)
 
 /// Course statistics
 public struct CourseStats: Sendable {
@@ -802,7 +726,7 @@ public struct CourseStats: Sendable {
     public var enrolledCount: Int
     public var completedCount: Int
     public var averageProgress: Int
-    public var averageCompletionTime: Double // hours
+    public var averageCompletionTime: Double
     public var certificationCount: Int
     public var averageQuizScore: Int
 
@@ -832,7 +756,7 @@ public struct UserTrainingStatus: Sendable {
     public var coursesCompleted: Int
     public var certificationsEarned: Int
     public var certificationsExpiring: Int
-    public var totalTimeSpent: Int // hours
+    public var totalTimeSpent: Int
     public var lastActivity: Date?
 
     public init(
@@ -854,7 +778,7 @@ public struct UserTrainingStatus: Sendable {
     }
 }
 
-// MARK: - Live Session Types
+// MARK: - Live Session Types (UI-only)
 
 /// Live session RSVP
 public struct LiveSessionRSVP: Identifiable, Codable, Sendable {
@@ -889,7 +813,7 @@ public struct LiveSessionAttendance: Identifiable, Codable, Sendable {
     public var pubkey: String
     public var joinedAt: Date
     public var leftAt: Date?
-    public var duration: Int // seconds
+    public var duration: Int
     public var wasCompleteSession: Bool
 
     public init(

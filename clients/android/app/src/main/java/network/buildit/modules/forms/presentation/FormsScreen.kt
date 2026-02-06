@@ -87,6 +87,7 @@ import network.buildit.modules.forms.data.local.FormFieldType
 import network.buildit.modules.forms.data.local.FormResponseEntity
 import network.buildit.modules.forms.data.local.FormStatus
 import network.buildit.modules.forms.data.local.FormVisibility
+import network.buildit.modules.forms.data.local.displayName
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -246,9 +247,9 @@ fun FormCard(
             ) {
                 Icon(
                     imageVector = when (form.visibility) {
-                        FormVisibility.PRIVATE -> Icons.Default.Lock
-                        FormVisibility.GROUP -> Icons.Default.People
-                        FormVisibility.PUBLIC -> Icons.Default.Public
+                        FormVisibility.Private -> Icons.Default.Lock
+                        FormVisibility.Group -> Icons.Default.People
+                        FormVisibility.Public -> Icons.Default.Public
                     },
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
@@ -326,10 +327,10 @@ fun FormCard(
 @Composable
 fun FormStatusChip(status: FormStatus) {
     val (backgroundColor, textColor) = when (status) {
-        FormStatus.DRAFT -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
-        FormStatus.OPEN -> Pair(Color(0xFFE8F5E9), Color(0xFF2E7D32))
-        FormStatus.CLOSED -> Pair(Color(0xFFFFEBEE), Color(0xFFC62828))
-        FormStatus.ARCHIVED -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
+        FormStatus.Draft -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
+        FormStatus.Open -> Pair(Color(0xFFE8F5E9), Color(0xFF2E7D32))
+        FormStatus.Closed -> Pair(Color(0xFFFFEBEE), Color(0xFFC62828))
+        FormStatus.Archived -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
     }
 
     Surface(
@@ -566,7 +567,7 @@ fun FormFieldInput(
         Spacer(modifier = Modifier.height(8.dp))
 
         when (field.type) {
-            FormFieldType.TEXT, FormFieldType.EMAIL, FormFieldType.PHONE, FormFieldType.URL -> {
+            FormFieldType.Text, FormFieldType.Email, FormFieldType.Phone, FormFieldType.URL -> {
                 OutlinedTextField(
                     value = value,
                     onValueChange = onValueChange,
@@ -575,8 +576,8 @@ fun FormFieldInput(
                     supportingText = error?.let { { Text(it) } },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = when (field.type) {
-                            FormFieldType.EMAIL -> KeyboardType.Email
-                            FormFieldType.PHONE -> KeyboardType.Phone
+                            FormFieldType.Email -> KeyboardType.Email
+                            FormFieldType.Phone -> KeyboardType.Phone
                             FormFieldType.URL -> KeyboardType.Uri
                             else -> KeyboardType.Text
                         }
@@ -586,7 +587,7 @@ fun FormFieldInput(
                 )
             }
 
-            FormFieldType.TEXTAREA -> {
+            FormFieldType.Textarea -> {
                 OutlinedTextField(
                     value = value,
                     onValueChange = onValueChange,
@@ -599,7 +600,7 @@ fun FormFieldInput(
                 )
             }
 
-            FormFieldType.NUMBER -> {
+            FormFieldType.Number -> {
                 OutlinedTextField(
                     value = value,
                     onValueChange = onValueChange,
@@ -612,7 +613,7 @@ fun FormFieldInput(
                 )
             }
 
-            FormFieldType.SELECT -> {
+            FormFieldType.Select -> {
                 var expanded by remember { mutableStateOf(false) }
                 val selectedOption = field.options?.find { it.value == value }
 
@@ -650,7 +651,7 @@ fun FormFieldInput(
                 }
             }
 
-            FormFieldType.RADIO -> {
+            FormFieldType.Radio -> {
                 Column {
                     field.options?.forEach { option ->
                         Row(
@@ -678,7 +679,7 @@ fun FormFieldInput(
                 }
             }
 
-            FormFieldType.CHECKBOX, FormFieldType.MULTISELECT -> {
+            FormFieldType.Checkbox, FormFieldType.Multiselect -> {
                 val selectedValues = value.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
 
                 Column {
@@ -722,7 +723,7 @@ fun FormFieldInput(
                 }
             }
 
-            FormFieldType.RATING -> {
+            FormFieldType.Rating -> {
                 val rating = value.toIntOrNull() ?: 0
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -750,7 +751,7 @@ fun FormFieldInput(
                 }
             }
 
-            FormFieldType.SCALE -> {
+            FormFieldType.Scale -> {
                 val min = field.validation?.min?.toFloat() ?: 1f
                 val max = field.validation?.max?.toFloat() ?: 10f
                 var sliderValue by remember { mutableFloatStateOf(value.toFloatOrNull() ?: min) }
@@ -917,7 +918,7 @@ fun FormResponsesScreen(
                     }
                 },
                 actions = {
-                    if (uiState.form?.status == FormStatus.OPEN) {
+                    if (uiState.form?.status == FormStatus.Open) {
                         TextButton(onClick = { viewModel.closeForm(formId) }) {
                             Text("Close Form")
                         }
@@ -1268,11 +1269,11 @@ private fun formatDate(timestamp: Long): String {
 
 private fun formatAnswerDisplay(answer: String, field: FormField): String {
     return when (field.type) {
-        FormFieldType.SELECT, FormFieldType.RADIO -> {
+        FormFieldType.Select, FormFieldType.Radio -> {
             field.options?.find { it.value == answer }?.label ?: answer
         }
 
-        FormFieldType.CHECKBOX, FormFieldType.MULTISELECT -> {
+        FormFieldType.Checkbox, FormFieldType.Multiselect -> {
             val selectedValues = answer.split(",").map { it.trim() }
             selectedValues.mapNotNull { value ->
                 field.options?.find { it.value == value }?.label

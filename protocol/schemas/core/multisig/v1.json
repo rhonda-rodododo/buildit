@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/multisig/v1.json",
+  "title": "MultisigCoreSchema",
+  "description": "Threshold signature and key management types for group key security",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "KeyShare": {
+      "type": "object",
+      "description": "A single share of a threshold key group",
+      "required": ["index", "sharePublicKey", "groupId", "totalShares", "threshold", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "index": {
+          "type": "integer",
+          "description": "Share index (1-based)"
+        },
+        "shareSecret": {
+          "type": "string",
+          "description": "Base64-encoded share secret (sensitive)"
+        },
+        "sharePublicKey": {
+          "type": "string",
+          "description": "Hex-encoded share public key"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "ID of the threshold key group"
+        },
+        "totalShares": {
+          "type": "integer",
+          "description": "Total number of shares in the group"
+        },
+        "threshold": {
+          "type": "integer",
+          "description": "Minimum shares needed to sign"
+        }
+      }
+    },
+
+    "ThresholdConfig": {
+      "type": "object",
+      "description": "Configuration for creating a threshold key group",
+      "required": ["threshold", "totalShares", "groupName", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Minimum shares needed to sign"
+        },
+        "totalShares": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Total number of shares to create"
+        },
+        "groupName": {
+          "type": "string",
+          "description": "Human-readable group name"
+        }
+      }
+    },
+
+    "ThresholdKeyGroup": {
+      "type": "object",
+      "description": "A complete threshold key group with all shares",
+      "required": ["groupId", "groupPublicKey", "shares", "threshold", "totalShares", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "groupPublicKey": {
+          "type": "string",
+          "description": "Hex-encoded group public key"
+        },
+        "shares": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/KeyShare" }
+        },
+        "threshold": {
+          "type": "integer"
+        },
+        "totalShares": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "PartialSignature": {
+      "type": "object",
+      "description": "A partial signature from one share holder",
+      "required": ["signerIndex", "signature", "signerPublicKey", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "signerIndex": {
+          "type": "integer"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Base64-encoded partial signature"
+        },
+        "signerPublicKey": {
+          "type": "string"
+        }
+      }
+    },
+
+    "AggregatedSignature": {
+      "type": "object",
+      "description": "An aggregated threshold signature",
+      "required": ["signature", "groupPublicKey", "signerIndices", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Base64-encoded aggregated signature"
+        },
+        "groupPublicKey": {
+          "type": "string"
+        },
+        "signerIndices": {
+          "type": "array",
+          "items": { "type": "integer" }
+        }
+      }
+    },
+
+    "KeyRotationProposal": {
+      "type": "object",
+      "description": "A proposal to rotate a threshold key group",
+      "required": ["proposalId", "groupId", "newGroupPublicKey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "proposalId": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "newGroupPublicKey": {
+          "type": "string"
+        },
+        "newShares": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/KeyShare" }
+        },
+        "createdAt": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

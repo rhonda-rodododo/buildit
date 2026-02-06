@@ -52,6 +52,8 @@ pub struct Form {
     /// When form opens for submissions
     pub opens_at: Option<i64>,
 
+    pub status: Option<FormStatus>,
+
     pub title: String,
 
     pub updated_at: Option<i64>,
@@ -124,6 +126,8 @@ pub enum Type {
 
     File,
 
+    Location,
+
     Multiselect,
 
     Number,
@@ -169,6 +173,19 @@ pub struct FieldValidationClass {
     pub min_length: Option<i64>,
 
     pub pattern: Option<String>,
+}
+
+/// Status of a form
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FormStatus {
+    Archived,
+
+    Closed,
+
+    Draft,
+
+    Open,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

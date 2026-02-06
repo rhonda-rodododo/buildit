@@ -8,12 +8,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { useEvents } from '../hooks/useEvents'
-import { Event, EventPrivacy, CreateEventFormData } from '../types'
+import { AppEvent, EventPrivacy, CreateEventFormData } from '../types'
 import { CustomFieldsManager } from '@/modules/custom-fields/customFieldsManager'
 import type { CustomField, CustomFieldValues } from '@/modules/custom-fields/types'
 
 interface EditEventDialogProps {
-  event: Event
+  event: AppEvent
   open: boolean
   onOpenChange: (open: boolean) => void
   onEventUpdated?: () => void
@@ -46,11 +46,11 @@ export const EditEventDialog: FC<EditEventDialogProps> = ({
       setFormData({
         title: event.title,
         description: event.description || '',
-        location: event.location || '',
-        startTime: new Date(event.startTime),
-        endTime: event.endTime ? new Date(event.endTime) : undefined,
-        privacy: event.privacy,
-        capacity: event.capacity,
+        location: event.location?.name ?? event.location?.address ?? '',
+        startTime: new Date(event.startAt * 1000),
+        endTime: event.endAt ? new Date(event.endAt * 1000) : undefined,
+        privacy: event.visibility,
+        capacity: event.maxAttendees,
         tags: event.tags,
         imageUrl: event.imageUrl,
         groupId: event.groupId,

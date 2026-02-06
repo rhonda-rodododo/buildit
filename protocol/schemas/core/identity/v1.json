@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/identity/v1.json",
+  "title": "IdentityCoreSchema",
+  "description": "User identity and profile types",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "Identity": {
+      "type": "object",
+      "description": "A Nostr keypair identity with profile metadata",
+      "required": ["publicKey", "npub", "name", "created", "lastUsed", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "npub": {
+          "type": "string",
+          "description": "Bech32-encoded public key (npub...)"
+        },
+        "name": {
+          "type": "string",
+          "description": "User-chosen identity name"
+        },
+        "username": {
+          "type": "string",
+          "description": "Human-readable username (e.g., alice-organizer)"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name (e.g., Alice Martinez)"
+        },
+        "nip05": {
+          "type": "string",
+          "description": "NIP-05 verified identifier (alice@domain.com)"
+        },
+        "nip05Verified": {
+          "type": "boolean",
+          "description": "Whether NIP-05 has been verified"
+        },
+        "created": {
+          "type": "integer",
+          "description": "Unix timestamp when identity was created"
+        },
+        "lastUsed": {
+          "type": "integer",
+          "description": "Unix timestamp when identity was last used"
+        }
+      }
+    },
+
+    "EncryptedIdentity": {
+      "type": "object",
+      "description": "An identity with password-encrypted private key for storage",
+      "required": ["publicKey", "encryptedPrivateKey", "name", "created", "lastUsed", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key"
+        },
+        "encryptedPrivateKey": {
+          "type": "string",
+          "description": "Password-encrypted private key (Argon2id + AES-256-GCM)"
+        },
+        "name": {
+          "type": "string"
+        },
+        "created": {
+          "type": "integer"
+        },
+        "lastUsed": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "ProfileMetadata": {
+      "type": "object",
+      "description": "User profile metadata (NIP-01 kind 0 content)",
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "name": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "about": {
+          "type": "string"
+        },
+        "picture": {
+          "type": "string",
+          "format": "uri"
+        },
+        "banner": {
+          "type": "string",
+          "format": "uri"
+        },
+        "nip05": {
+          "type": "string"
+        },
+        "lud16": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

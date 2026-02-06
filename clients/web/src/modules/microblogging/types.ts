@@ -1,169 +1,86 @@
 /**
  * Microblogging Module - Types
- * Core types for posts, reactions, and social features
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * UI-only types (feed filters, form inputs, stories, moderation, user lists, trending) are defined here.
  */
 
-import type { MediaAttachment } from '@/types/media';
-import type { LinkPreview } from '@/lib/linkPreview';
-import type { LocationValue } from '@/modules/custom-fields/types';
+// Re-export all generated Zod schemas and types from microblogging
+export {
+  PostPrivacySchema,
+  type PostPrivacy,
+  PostContentTypeSchema,
+  type PostContentType,
+  ReactionTypeSchema,
+  type ReactionType,
+  PostVisibilitySchema,
+  type PostVisibility,
+  MediaAttachmentSchema,
+  type MediaAttachment,
+  PostLinkPreviewSchema,
+  type PostLinkPreview,
+  PostLocationSchema,
+  type PostLocation,
+  PostSchema,
+  type Post,
+  CommentSchema,
+  type Comment,
+  ReactionSchema,
+  type Reaction,
+  RepostSchema,
+  type Repost,
+  BookmarkSchema,
+  type Bookmark,
+  MICROBLOGGING_SCHEMA_VERSION,
+} from '@/generated/validation/microblogging.zod';
+
+// Re-export all generated Zod schemas and types from polls
+export {
+  PollTypeSchema,
+  type PollType,
+  PollStatusSchema,
+  type PollStatus,
+  PollOptionSchema,
+  type PollOption,
+  PollSchema,
+  type Poll,
+  PollVoteSchema,
+  type PollVote,
+  POLLS_SCHEMA_VERSION,
+} from '@/generated/validation/polls.zod';
+
+// ── Nostr Event Kind Constants ───────────────────────────────────
+
+import type { PostContentType, PostPrivacy, PostVisibility, MediaAttachment, PostLinkPreview } from '@/generated/validation/microblogging.zod';
+import type { PollType } from '@/generated/validation/polls.zod';
 
 /**
- * Privacy levels for posts
+ * Nostr event kind for posts
+ * Using NIP-23 (long-form content) kind: 30023
+ * For short posts, can also use kind: 1 (text note)
  */
-export type PostPrivacy = 'public' | 'followers' | 'group' | 'encrypted';
+export const POST_NOSTR_KIND = 1; // Short text note
+export const LONG_POST_NOSTR_KIND = 30023; // Long-form content
 
 /**
- * Post visibility settings
+ * Nostr event kind for reactions
+ * Using NIP-25: kind 7 (reaction)
  */
-export interface PostVisibility {
-  privacy: PostPrivacy;
-  groupIds?: string[]; // For group-only posts
-  allowedUsers?: string[]; // For encrypted posts
-}
+export const REACTION_NOSTR_KIND = 7;
 
 /**
- * Post content types
+ * Nostr event kind for comments
+ * Using NIP-10: kind 1 with 'e' and 'p' tags
  */
-export type PostContentType = 'text' | 'image' | 'video' | 'poll' | 'event-share' | 'document-share';
+export const COMMENT_NOSTR_KIND = 1;
 
 /**
- * Core post interface
+ * Nostr event kind for reposts
+ * Using NIP-18: kind 6 (repost) or kind 16 (generic repost)
  */
-export interface Post {
-  id: string;
-  authorId: string; // npub or identity ID
-  content: string; // Rich text content
-  contentType: PostContentType;
+export const REPOST_NOSTR_KIND = 6;
 
-  // Media
-  media?: MediaAttachment[];
-
-  // Privacy & Visibility
-  visibility: PostVisibility;
-
-  // Social engagement
-  reactionCount: number;
-  commentCount: number;
-  repostCount: number;
-  bookmarkCount: number;
-
-  // Metadata
-  mentions: string[]; // npubs mentioned
-  hashtags: string[];
-  links: string[];
-
-  // Encrypted link previews (Signal-style)
-  // Sender fetches Open Graph metadata and thumbnails
-  // Preview data is encrypted with the post using NIP-17
-  linkPreviews?: LinkPreview[];
-
-  // Location tag (optional, privacy-preserving)
-  location?: LocationValue;
-
-  // Timestamps
-  createdAt: number; // Unix timestamp
-  updatedAt?: number;
-
-  // Nostr
-  nostrEventId?: string;
-  relayUrls?: string[];
-
-  // Flags
-  isRepost?: boolean;
-  repostedPostId?: string;
-  isQuote?: boolean;
-  quotedPostId?: string;
-  quotedContent?: string;
-
-  // Moderation
-  contentWarning?: string;
-  isSensitive?: boolean;
-  isReported?: boolean;
-
-  // Pinning
-  isPinned?: boolean;
-  pinnedAt?: number;
-}
-
-/**
- * Reaction types
- */
-export type ReactionType = '❤️' | '✊' | '🔥' | '👀' | '😂' | '👍';
-
-/**
- * Reaction interface
- */
-export interface Reaction {
-  id: string;
-  postId: string;
-  userId: string; // npub
-  type: ReactionType;
-  createdAt: number;
-
-  // Nostr
-  nostrEventId?: string;
-}
-
-/**
- * Comment interface (threads in Epic 21.3)
- */
-export interface Comment {
-  id: string;
-  postId: string;
-  authorId: string; // npub
-  content: string;
-
-  // Threading
-  parentCommentId?: string;
-  depth: number; // Max 3 levels
-
-  // Social
-  reactionCount: number;
-
-  // Timestamps
-  createdAt: number;
-  updatedAt?: number;
-
-  // Nostr
-  nostrEventId?: string;
-
-  // Moderation
-  isReported?: boolean;
-}
-
-/**
- * Repost interface
- */
-export interface Repost {
-  id: string;
-  postId: string;
-  userId: string; // npub who reposted
-
-  // Quote repost
-  isQuote: boolean;
-  quoteContent?: string;
-
-  // Timestamps
-  createdAt: number;
-
-  // Nostr
-  nostrEventId?: string;
-}
-
-/**
- * Bookmark interface
- */
-export interface Bookmark {
-  id: string;
-  postId: string;
-  userId: string; // npub
-  createdAt: number;
-
-  // Optional organization
-  collectionId?: string;
-  tags?: string[];
-  notes?: string;
-}
+// ── UI-Only Types ────────────────────────────────────────────────
 
 /**
  * Post feed filters
@@ -217,7 +134,7 @@ export interface CreatePostInput {
 
   // Encrypted link previews (Signal-style)
   // These are fetched by the sender and encrypted with the post
-  linkPreviews?: LinkPreview[];
+  linkPreviews?: PostLinkPreview[];
 
   // For reposts/quotes
   repostedPostId?: string;
@@ -286,95 +203,6 @@ export interface PostStats {
   avgReactionsPerPost: number;
   avgCommentsPerPost: number;
   avgRepostsPerPost: number;
-}
-
-/**
- * Nostr event kind for posts
- * Using NIP-23 (long-form content) kind: 30023
- * For short posts, can also use kind: 1 (text note)
- */
-export const POST_NOSTR_KIND = 1; // Short text note
-export const LONG_POST_NOSTR_KIND = 30023; // Long-form content
-
-/**
- * Nostr event kind for reactions
- * Using NIP-25: kind 7 (reaction)
- */
-export const REACTION_NOSTR_KIND = 7;
-
-/**
- * Nostr event kind for comments
- * Using NIP-10: kind 1 with 'e' and 'p' tags
- */
-export const COMMENT_NOSTR_KIND = 1;
-
-/**
- * Nostr event kind for reposts
- * Using NIP-18: kind 6 (repost) or kind 16 (generic repost)
- */
-export const REPOST_NOSTR_KIND = 6;
-
-// ========================================
-// POLLS
-// ========================================
-
-/**
- * Poll option interface
- */
-export interface PollOption {
-  id: string;
-  text: string;
-  voteCount: number;
-}
-
-/**
- * Poll type - single or multiple choice
- */
-export type PollType = 'single' | 'multiple';
-
-/**
- * Poll interface
- */
-export interface Poll {
-  id: string;
-  postId: string; // Associated post ID
-  authorId: string;
-  question: string;
-  options: PollOption[];
-  pollType: PollType;
-
-  // Duration
-  endsAt: number; // Unix timestamp when poll closes
-  isEnded: boolean;
-
-  // Stats
-  totalVotes: number;
-  voterCount: number;
-
-  // Settings
-  hideResultsUntilEnded?: boolean;
-  allowAnonymousVotes?: boolean;
-
-  // Timestamps
-  createdAt: number;
-  updatedAt?: number;
-
-  // Nostr
-  nostrEventId?: string;
-}
-
-/**
- * Poll vote interface
- */
-export interface PollVote {
-  id: string;
-  pollId: string;
-  optionIds: string[]; // Array for multiple choice
-  voterId: string;
-  createdAt: number;
-
-  // Nostr
-  nostrEventId?: string;
 }
 
 /**

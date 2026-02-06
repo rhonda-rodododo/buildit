@@ -2,8 +2,14 @@ package network.buildit.modules.search.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
+
+// Import generated protocol enums as source of truth
+import network.buildit.generated.schemas.search.FacetDefinitionType
+import network.buildit.generated.schemas.search.Operator
+
+// Typealiases for backward compatibility with existing code
+typealias FacetType = FacetDefinitionType
+typealias FilterOperator = Operator
 
 /**
  * Schema version for search module models.
@@ -77,22 +83,16 @@ data class FacetDefinition(
     val multiSelect: Boolean
 )
 
-/**
- * Type of facet.
- */
-@Serializable
-enum class FacetType {
-    @SerialName("keyword")
-    KEYWORD,
-    @SerialName("range")
-    RANGE,
-    @SerialName("date")
-    DATE,
-    @SerialName("boolean")
-    BOOLEAN,
-    @SerialName("hierarchy")
-    HIERARCHY
-}
+// FacetType is now a typealias for generated FacetDefinitionType (see imports above)
+// Extension property for display names
+val FacetDefinitionType.displayName: String
+    get() = when (this) {
+        FacetDefinitionType.Keyword -> "Keyword"
+        FacetDefinitionType.Range -> "Range"
+        FacetDefinitionType.Date -> "Date"
+        FacetDefinitionType.TypeBoolean -> "Boolean"
+        FacetDefinitionType.Hierarchy -> "Hierarchy"
+    }
 
 /**
  * Defines the scope of a search query.
@@ -116,30 +116,7 @@ sealed class SearchScope {
     data class ModuleInGroup(val moduleType: String, val groupId: String) : SearchScope()
 }
 
-/**
- * Filter operator for queries.
- */
-@Serializable
-enum class FilterOperator {
-    @SerialName("eq")
-    EQ,
-    @SerialName("ne")
-    NE,
-    @SerialName("gt")
-    GT,
-    @SerialName("lt")
-    LT,
-    @SerialName("gte")
-    GTE,
-    @SerialName("lte")
-    LTE,
-    @SerialName("contains")
-    CONTAINS,
-    @SerialName("in")
-    IN,
-    @SerialName("range")
-    RANGE
-}
+// FilterOperator is now a typealias for generated Operator (see imports above)
 
 /**
  * Filter extracted from query or applied via UI.

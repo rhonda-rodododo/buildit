@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import network.buildit.modules.forms.data.local.FieldOption
 import network.buildit.modules.forms.data.local.FormEntity
 import network.buildit.modules.forms.data.local.FormField
+import network.buildit.modules.forms.data.local.FormFieldType
 import network.buildit.modules.forms.data.local.FormResponseEntity
 import network.buildit.modules.forms.data.local.FormResponsesDao
 import network.buildit.modules.forms.data.local.FormStatus
@@ -59,7 +60,7 @@ class FormsRepository @Inject constructor(
         description: String?,
         fields: List<FormField>,
         groupId: String?,
-        visibility: FormVisibility = FormVisibility.GROUP,
+        visibility: FormVisibility = FormVisibility.Group,
         anonymous: Boolean = false,
         allowMultiple: Boolean = false,
         opensAt: Long? = null,
@@ -67,7 +68,7 @@ class FormsRepository @Inject constructor(
         maxResponses: Int? = null,
         confirmationMessage: String?,
         createdBy: String,
-        status: FormStatus = FormStatus.DRAFT
+        status: FormStatus = FormStatus.Draft
     ): FormEntity {
         val form = FormEntity(
             id = UUID.randomUUID().toString(),
@@ -108,15 +109,15 @@ class FormsRepository @Inject constructor(
     }
 
     suspend fun publishForm(formId: String) {
-        formsDao.updateFormStatus(formId, FormStatus.OPEN)
+        formsDao.updateFormStatus(formId, FormStatus.Open)
     }
 
     suspend fun closeForm(formId: String) {
-        formsDao.updateFormStatus(formId, FormStatus.CLOSED)
+        formsDao.updateFormStatus(formId, FormStatus.Closed)
     }
 
     suspend fun archiveForm(formId: String) {
-        formsDao.updateFormStatus(formId, FormStatus.ARCHIVED)
+        formsDao.updateFormStatus(formId, FormStatus.Archived)
     }
 
     suspend fun deleteForm(id: String) {
@@ -231,7 +232,7 @@ class FormsRepository @Inject constructor(
                     }
                     FieldStats.ChoiceStats(optionCounts, answers.size)
                 }
-                field.type.name in listOf("NUMBER", "RATING", "SCALE") -> {
+                field.type in listOf(FormFieldType.Number, FormFieldType.Rating, FormFieldType.Scale) -> {
                     // For numeric fields, calculate min/max/avg
                     val numbers = answers.mapNotNull { it.toDoubleOrNull() }
                     if (numbers.isNotEmpty()) {

@@ -15,10 +15,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Star, MessageSquare, Flag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Star, MessageSquare, Flag, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { formatListingPrice } from '../marketplaceManager';
 import { useReviews } from '../hooks/useMarketplace';
-import type { Listing } from '../types';
+import type { Listing, LocationValue } from '../types';
+import { SocialShareDialog } from '@/modules/social-publishing/components/SocialShareDialog';
 
 interface ListingDetailDialogProps {
   listing: Listing | null;
@@ -30,6 +31,7 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
   const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
 
@@ -51,15 +53,19 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
     // For now, we indicate this is future functionality
   };
 
+  const images = listing.images ?? [];
+  const tags = listing.tags ?? [];
+  const location = listing.location as LocationValue | undefined;
+
   const nextImage = () => {
-    if (listing.images.length > 0) {
-      setCurrentImageIndex((i) => (i + 1) % listing.images.length);
+    if (images.length > 0) {
+      setCurrentImageIndex((i) => (i + 1) % images.length);
     }
   };
 
   const prevImage = () => {
-    if (listing.images.length > 0) {
-      setCurrentImageIndex((i) => (i - 1 + listing.images.length) % listing.images.length);
+    if (images.length > 0) {
+      setCurrentImageIndex((i) => (i - 1 + images.length) % images.length);
     }
   };
 
@@ -72,14 +78,14 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
 
         <div className="space-y-6">
           {/* Image Gallery */}
-          {listing.images.length > 0 && (
+          {images.length > 0 && (
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
               <img
-                src={listing.images[currentImageIndex]}
+                src={images[currentImageIndex]}
                 alt={`${listing.title} - image ${currentImageIndex + 1}`}
                 className="w-full h-full object-cover"
               />
-              {listing.images.length > 1 && (
+              {images.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
@@ -98,7 +104,7 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
                     <ChevronRight className="h-5 w-5" />
                   </Button>
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                    {listing.images.map((_, idx) => (
+                    {images.map((_, idx) => (
                       <button
                         key={idx}
                         className={`w-2 h-2 rounded-full ${
@@ -130,12 +136,12 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
           </div>
 
           {/* Location */}
-          {listing.location && (
+          {location && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>{listing.location.label}</span>
+              <span>{location.label}</span>
               <Badge variant="outline" className="text-xs">
-                {listing.location.precision}
+                {location.precision}
               </Badge>
             </div>
           )}
@@ -149,9 +155,9 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
           )}
 
           {/* Tags */}
-          {listing.tags.length > 0 && (
+          {tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {listing.tags.map((tag) => (
+              {tags.map((tag) => (
                 <Badge key={tag} variant="outline" className="text-xs">
                   {tag}
                 </Badge>
@@ -167,10 +173,23 @@ export function ListingDetailDialog({ listing, open, onOpenChange }: ListingDeta
               <MessageSquare className="h-4 w-4 mr-2" />
               {t('marketplace.contactSeller')}
             </Button>
+            <Button variant="outline" size="icon" onClick={() => setShareDialogOpen(true)}>
+              <Share2 className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="icon">
               <Flag className="h-4 w-4" />
             </Button>
           </div>
+
+          <SocialShareDialog
+            open={shareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            sourceModule="marketplace"
+            sourceContentId={listing.id}
+            title={listing.title}
+            description={listing.description || ''}
+            contentUrl={`${window.location.origin}/marketplace/${listing.id}`}
+          />
 
           <Separator />
 

@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/groups/v1.json",
+  "title": "GroupsModule",
+  "description": "Group management, membership, and messaging",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "GroupPrivacyLevel": {
+      "type": "string",
+      "description": "Group privacy/discovery level",
+      "enum": ["public", "private", "secret"]
+    },
+
+    "GroupRole": {
+      "type": "string",
+      "description": "Member role within a group",
+      "enum": ["owner", "admin", "moderator", "member"]
+    },
+
+    "GroupPermission": {
+      "type": "string",
+      "description": "Granular group permission",
+      "enum": ["invite_members", "remove_members", "edit_group", "post_messages", "create_events", "manage_events", "vote", "create_proposals"]
+    },
+
+    "GroupModule": {
+      "type": "string",
+      "description": "Module identifier that can be enabled per-group",
+      "enum": ["custom-fields", "public", "messaging", "events", "mutual-aid", "governance", "wiki", "database", "crm", "documents", "files", "microblogging", "forms", "fundraising", "publishing", "newsletters", "hotlines"]
+    },
+
+    "GroupMember": {
+      "type": "object",
+      "description": "A member of a group with role and permissions",
+      "required": ["pubkey", "role", "joinedAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "role": {
+          "$ref": "#/$defs/GroupRole"
+        },
+        "joinedAt": {
+          "type": "integer"
+        },
+        "invitedBy": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GroupPermission" }
+        }
+      }
+    },
+
+    "Group": {
+      "type": "object",
+      "description": "A BuildIt group (organization, chapter, team)",
+      "required": ["id", "name", "description", "privacyLevel", "members", "createdBy", "createdAt", "enabledModules", "creationEventId", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string",
+          "description": "Deterministic ID based on creation event"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "picture": {
+          "type": "string",
+          "format": "uri"
+        },
+        "privacyLevel": {
+          "$ref": "#/$defs/GroupPrivacyLevel"
+        },
+        "members": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GroupMember" }
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "website": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "enabledModules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GroupModule" }
+        },
+        "creationEventId": {
+          "type": "string"
+        },
+        "metadataEventId": {
+          "type": "string"
+        }
+      }
+    },
+
+    "GroupInvitation": {
+      "type": "object",
+      "description": "An invitation to join a group",
+      "required": ["id", "groupId", "invitedPubkey", "invitedBy", "createdAt", "status", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "invitedPubkey": {
+          "type": "string"
+        },
+        "invitedBy": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "expiresAt": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "accepted", "declined", "expired"]
+        }
+      }
+    },
+
+    "GroupSettings": {
+      "type": "object",
+      "description": "Group configuration settings",
+      "required": ["groupId", "discoverable", "requireApproval", "defaultRole", "defaultPermissions", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "discoverable": {
+          "type": "boolean"
+        },
+        "requireApproval": {
+          "type": "boolean"
+        },
+        "defaultRole": {
+          "$ref": "#/$defs/GroupRole"
+        },
+        "defaultPermissions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GroupPermission" }
+        },
+        "allowDirectMessages": {
+          "type": "boolean"
+        },
+        "allowThreads": {
+          "type": "boolean"
+        },
+        "moduleSettings": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "GroupThread": {
+      "type": "object",
+      "description": "A discussion thread within a group",
+      "required": ["id", "groupId", "title", "createdBy", "createdAt", "lastMessageAt", "messageCount", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "lastMessageAt": {
+          "type": "integer"
+        },
+        "messageCount": {
+          "type": "integer"
+        },
+        "category": {
+          "type": "string"
+        },
+        "pinned": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "GroupMessage": {
+      "type": "object",
+      "description": "A message within a group thread",
+      "required": ["id", "threadId", "groupId", "from", "content", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer"
+        },
+        "replyTo": {
+          "type": "string"
+        },
+        "reactions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "edited": {
+          "type": "boolean"
+        },
+        "editedAt": {
+          "type": "integer"
+        },
+        "deleted": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+
+  "x-storage": {
+    "tables": {
+      "groups": {
+        "type": "Group",
+        "primaryKey": "id",
+        "indexes": ["createdBy", "privacyLevel", "createdAt"]
+      },
+      "groupMembers": {
+        "type": "GroupMember",
+        "primaryKey": "++id",
+        "indexes": ["pubkey", "role"]
+      },
+      "groupInvitations": {
+        "type": "GroupInvitation",
+        "primaryKey": "id",
+        "indexes": ["groupId", "invitedPubkey", "status"]
+      },
+      "groupThreads": {
+        "type": "GroupThread",
+        "primaryKey": "id",
+        "indexes": ["groupId", "createdBy", "lastMessageAt"]
+      },
+      "groupMessages": {
+        "type": "GroupMessage",
+        "primaryKey": "id",
+        "indexes": ["threadId", "groupId", "from", "timestamp"]
+      }
+    }
+  }
+}

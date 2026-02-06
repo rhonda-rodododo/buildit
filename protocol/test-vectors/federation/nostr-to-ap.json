@@ -1,0 +1,83 @@
+{
+  "description": "Nostr → ActivityPub content mapping test vectors",
+  "vectors": [
+    {
+      "name": "kind:1 short note to AP Note",
+      "input": {
+        "id": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 1,
+        "tags": [
+          ["t", "solidarity"],
+          ["t", "union"]
+        ],
+        "content": "Standing together for workers' rights! #solidarity #union",
+        "sig": "deadbeef"
+      },
+      "username": "alice",
+      "domain": "buildit.network",
+      "expected": {
+        "type": "Note",
+        "id": "https://buildit.network/ap/users/alice/posts/aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+        "attributedTo": "https://buildit.network/ap/users/alice",
+        "to": ["https://www.w3.org/ns/activitystreams#Public"],
+        "cc": ["https://buildit.network/ap/users/alice/followers"],
+        "tag_count": 2,
+        "tag_types": ["Hashtag", "Hashtag"],
+        "has_html_content": true,
+        "content_contains": ["solidarity", "union", "workers' rights"],
+        "source_mediaType": "text/plain"
+      }
+    },
+    {
+      "name": "kind:30023 long-form article to AP Article",
+      "input": {
+        "id": "eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 30023,
+        "tags": [
+          ["d", "building-power"],
+          ["title", "Building Power Through Collective Action"],
+          ["summary", "A guide to grassroots organizing strategies"],
+          ["t", "organizing"],
+          ["t", "strategy"]
+        ],
+        "content": "# Building Power\n\nCollective action is the foundation of social change...",
+        "sig": "deadbeef"
+      },
+      "username": "alice",
+      "domain": "buildit.network",
+      "expected": {
+        "type": "Article",
+        "id": "https://buildit.network/ap/users/alice/articles/building-power",
+        "attributedTo": "https://buildit.network/ap/users/alice",
+        "name": "Building Power Through Collective Action",
+        "summary": "A guide to grassroots organizing strategies",
+        "has_html_content": true,
+        "source_mediaType": "text/markdown",
+        "tag_count": 2
+      }
+    },
+    {
+      "name": "kind:1 note with URL gets link converted",
+      "input": {
+        "id": "11112222333344445555666677778888aaaabbbbccccddddeeeeffff00001111",
+        "pubkey": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        "created_at": 1706745600,
+        "kind": 1,
+        "tags": [],
+        "content": "Check out this resource: https://example.org/solidarity-guide",
+        "sig": "deadbeef"
+      },
+      "username": "bob",
+      "domain": "buildit.network",
+      "expected": {
+        "type": "Note",
+        "content_contains": ["<a href=\"https://example.org/solidarity-guide\""],
+        "source_mediaType": "text/plain"
+      }
+    }
+  ]
+}

@@ -225,7 +225,7 @@ private fun TaskBoardView(
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(listOf(TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE)) { status ->
+        items(listOf(TaskStatus.Todo, TaskStatus.InProgress, TaskStatus.Done)) { status ->
             BoardColumn(
                 status = status,
                 tasks = groupedTasks[status] ?: emptyList(),
@@ -298,10 +298,10 @@ private fun TaskCard(
         ) {
             // Status checkbox
             Checkbox(
-                checked = task.status == TaskStatus.DONE,
+                checked = task.status == TaskStatus.Done,
                 onCheckedChange = { checked ->
                     onStatusChange(
-                        if (checked) TaskStatus.DONE else TaskStatus.TODO
+                        if (checked) TaskStatus.Done else TaskStatus.Todo
                     )
                 }
             )
@@ -313,7 +313,7 @@ private fun TaskCard(
                     text = task.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    textDecoration = if (task.status == TaskStatus.DONE) TextDecoration.LineThrough else null,
+                    textDecoration = if (task.status == TaskStatus.Done) TextDecoration.LineThrough else null,
                     maxLines = if (compact) 2 else Int.MAX_VALUE,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -340,7 +340,7 @@ private fun TaskCard(
 
                     // Due date
                     task.dueDate?.let { dueDate ->
-                        DueDateBadge(dueDate = dueDate, isDone = task.status == TaskStatus.DONE)
+                        DueDateBadge(dueDate = dueDate, isDone = task.status == TaskStatus.Done)
                     }
 
                     // Assignee indicator
@@ -361,10 +361,10 @@ private fun TaskCard(
 @Composable
 private fun PriorityBadge(priority: TaskPriority) {
     val color = when (priority) {
-        TaskPriority.LOW -> MaterialTheme.colorScheme.surfaceVariant
-        TaskPriority.MEDIUM -> Color(0xFF4CAF50)
-        TaskPriority.HIGH -> Color(0xFFFF9800)
-        TaskPriority.URGENT -> Color(0xFFF44336)
+        TaskPriority.Low -> MaterialTheme.colorScheme.surfaceVariant
+        TaskPriority.Medium -> Color(0xFF4CAF50)
+        TaskPriority.High -> Color(0xFFFF9800)
+        TaskPriority.Urgent -> Color(0xFFF44336)
     }
 
     Surface(
@@ -408,15 +408,15 @@ private fun DueDateBadge(dueDate: Long, isDone: Boolean) {
 // Extension functions for display
 
 private fun TaskStatus.displayLabel(): String = when (this) {
-    TaskStatus.TODO -> "To Do"
-    TaskStatus.IN_PROGRESS -> "In Progress"
-    TaskStatus.DONE -> "Done"
-    TaskStatus.CANCELLED -> "Cancelled"
+    TaskStatus.Todo -> "To Do"
+    TaskStatus.InProgress -> "In Progress"
+    TaskStatus.Done -> "Done"
+    TaskStatus.Cancelled -> "Cancelled"
 }
 
 private fun TaskStatus.icon() = when (this) {
-    TaskStatus.TODO -> Icons.Default.RadioButtonUnchecked
-    TaskStatus.IN_PROGRESS -> Icons.Default.Pending
-    TaskStatus.DONE -> Icons.Default.CheckCircle
-    TaskStatus.CANCELLED -> Icons.Default.Cancel
+    TaskStatus.Todo -> Icons.Default.RadioButtonUnchecked
+    TaskStatus.InProgress -> Icons.Default.Pending
+    TaskStatus.Done -> Icons.Default.CheckCircle
+    TaskStatus.Cancelled -> Icons.Default.Cancel
 }

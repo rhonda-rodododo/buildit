@@ -14,15 +14,19 @@ import { logger } from '@/lib/logger'
  */
 
 // Schema for validating Rumor (decrypted inner message)
-const RumorSchema = z.object({
+// Uses passthrough() to allow _v and other protocol fields through validation
+const LocalRumorSchema = z.object({
+  _v: z.string().default('1.0.0'),
   kind: z.number().int().nonnegative(),
   content: z.string(),
   created_at: z.number().int().nonnegative(),
   tags: z.array(z.array(z.string())),
-}).strict() // Disallow extra fields
+}).passthrough()
 
 // Schema for validating Seal (signed wrapper)
-const SealSchema = z.object({
+// Uses passthrough() to allow _v and other protocol fields through validation
+const LocalSealSchema = z.object({
+  _v: z.string().default('1.0.0'),
   kind: z.literal(13), // Seal kind
   content: z.string(),
   created_at: z.number().int().nonnegative(),
@@ -30,7 +34,7 @@ const SealSchema = z.object({
   id: z.string().regex(/^[0-9a-f]{64}$/, 'Invalid event ID format'),
   pubkey: z.string().regex(/^[0-9a-f]{64}$/, 'Invalid pubkey format'),
   sig: z.string().regex(/^[0-9a-f]{128}$/, 'Invalid signature format'),
-}).strict()
+}).passthrough()
 
 /**
  * SECURITY: Check for prototype pollution attempts in parsed JSON
@@ -148,6 +152,7 @@ export function createRumor(
   tags: string[][] = []
 ): Rumor {
   return {
+    _v: '1.0.0',
     kind,
     content,
     created_at: randomizeTimestamp(),
@@ -175,7 +180,7 @@ export function createSeal(
     tags: [],
   }
 
-  return finalizeEvent(sealTemplate, senderPrivateKey) as Seal
+  return finalizeEvent(sealTemplate, senderPrivateKey) as unknown as Seal
 }
 
 /**
@@ -201,7 +206,7 @@ export function createGiftWrap(
     tags: [['p', recipientPubkey]],
   }
 
-  return finalizeEvent(giftWrapTemplate, ephemeralPrivateKey) as GiftWrap
+  return finalizeEvent(giftWrapTemplate, ephemeralPrivateKey) as unknown as GiftWrap
 }
 
 /**
@@ -248,7 +253,7 @@ export function unwrapGiftWrap(
   const conversationKey = deriveConversationKey(recipientPrivateKey, giftWrap.pubkey)
   const sealJson = decryptNIP44(giftWrap.content, conversationKey)
   // SECURITY: Validate decrypted seal against schema
-  const seal = safeJsonParse<Seal>(sealJson, SealSchema, 'Seal')
+  const seal = safeJsonParse<Seal>(sealJson, LocalSealSchema, 'Seal')
 
   // SECURITY: Verify the seal's signature to ensure sender authenticity
   // The seal.pubkey is the ACTUAL sender, and we must verify they signed it
@@ -264,7 +269,7 @@ export function unwrapGiftWrap(
   const rumorConversationKey = deriveConversationKey(recipientPrivateKey, seal.pubkey)
   const rumorJson = decryptNIP44(seal.content, rumorConversationKey)
   // SECURITY: Validate decrypted rumor against schema
-  const rumor = safeJsonParse<Rumor>(rumorJson, RumorSchema, 'Rumor')
+  const rumor = safeJsonParse<Rumor>(rumorJson, LocalRumorSchema, 'Rumor')
 
   return {
     rumor,

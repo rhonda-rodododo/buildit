@@ -1,15 +1,26 @@
 /**
  * Marketplace Module Types
- * Cooperative marketplace, skill exchange, resource sharing, and co-op directory
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * UI-only types (filters, store state) are defined here.
  */
 
-// ============================================================================
-// Listing Types
-// ============================================================================
+// Re-export all generated Zod schemas and types
+export {
+  ListingSchema,
+  type Listing,
+  CoopProfileSchema,
+  type CoopProfile,
+  ReviewSchema,
+  type Review,
+  SkillExchangeSchema,
+  type SkillExchange,
+  ResourceShareSchema,
+  type ResourceShare,
+  MARKETPLACE_SCHEMA_VERSION,
+} from '@/generated/validation/marketplace.zod';
 
-export type ListingType = 'product' | 'service' | 'co-op' | 'initiative' | 'resource';
-export type ListingStatus = 'active' | 'sold' | 'expired' | 'removed';
-export type ContactMethod = 'dm' | 'public-reply';
+// ── UI-Only Types ────────────────────────────────────────────────
 
 /** Location value from custom-fields module */
 export interface LocationValue {
@@ -19,99 +30,11 @@ export interface LocationValue {
   precision: 'exact' | 'neighborhood' | 'city' | 'region';
 }
 
-/**
- * Marketplace Listing
- */
-export interface Listing {
-  id: string;
-  groupId: string;
-  type: ListingType;
-  title: string;
-  description: string;
-  price?: number; // in cents, null for free/negotiable
-  currency?: string; // ISO 4217
-  images: string[];
-  location?: LocationValue;
-  availability?: string;
-  tags: string[];
-  createdBy: string; // pubkey
-  createdAt: number;
-  updatedAt: number;
-  expiresAt?: number;
-  status: ListingStatus;
-  coopId?: string; // linked co-op profile
-  contactMethod: ContactMethod;
-}
-
-// ============================================================================
-// Co-op Profile Types
-// ============================================================================
-
+export type ListingType = 'product' | 'service' | 'co-op' | 'initiative' | 'resource';
+export type ListingStatus = 'active' | 'sold' | 'expired' | 'removed';
+export type ContactMethod = 'dm' | 'public-reply';
 export type GovernanceModel = 'consensus' | 'democratic' | 'sociocracy' | 'holacracy' | 'hybrid' | 'other';
-
-/**
- * Worker Co-op / Collective Profile
- */
-export interface CoopProfile {
-  id: string;
-  groupId: string;
-  name: string;
-  description: string;
-  memberCount: number;
-  governanceModel: GovernanceModel;
-  industry: string;
-  location?: LocationValue;
-  website?: string;
-  nostrPubkey: string;
-  verifiedBy: string[]; // pubkeys who vouched
-  image?: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-// ============================================================================
-// Review Types
-// ============================================================================
-
-/**
- * Review for a listing or co-op
- */
-export interface Review {
-  id: string;
-  listingId: string; // or coopId - the entity being reviewed
-  reviewerPubkey: string;
-  rating: number; // 1-5
-  text: string;
-  createdAt: number;
-}
-
-// ============================================================================
-// Skill Exchange Types
-// ============================================================================
-
 export type SkillExchangeStatus = 'active' | 'matched' | 'completed' | 'cancelled';
-
-/**
- * Skill Exchange / Timebank Offer
- */
-export interface SkillExchange {
-  id: string;
-  groupId: string;
-  offeredSkill: string;
-  requestedSkill: string;
-  availableHours: number;
-  hourlyTimebank: number; // accumulated hours
-  location?: LocationValue;
-  createdBy: string;
-  createdAt: number;
-  updatedAt: number;
-  status: SkillExchangeStatus;
-}
-
-// ============================================================================
-// Resource Share Types
-// ============================================================================
-
 export type ResourceType = 'tool' | 'space' | 'vehicle';
 export type ResourceStatus = 'available' | 'borrowed' | 'unavailable';
 
@@ -119,27 +42,6 @@ export interface AvailabilitySlot {
   dayOfWeek: number; // 0 = Sunday, 6 = Saturday
   startHour: number;
   endHour: number;
-}
-
-/**
- * Shared Resource (tool, space, vehicle)
- */
-export interface ResourceShare {
-  id: string;
-  groupId: string;
-  resourceType: ResourceType;
-  name: string;
-  description: string;
-  availability: AvailabilitySlot[];
-  location?: LocationValue;
-  depositRequired: boolean;
-  depositAmount?: number;
-  depositCurrency?: string;
-  images: string[];
-  createdBy: string;
-  createdAt: number;
-  updatedAt: number;
-  status: ResourceStatus;
 }
 
 // ============================================================================
@@ -161,11 +63,11 @@ export interface MarketplaceFilters {
 
 export interface MarketplaceState {
   // Data
-  listings: Map<string, Listing>;
-  coopProfiles: Map<string, CoopProfile>;
-  reviews: Map<string, Review>;
-  skillExchanges: Map<string, SkillExchange>;
-  resourceShares: Map<string, ResourceShare>;
+  listings: Map<string, import('@/generated/validation/marketplace.zod').Listing>;
+  coopProfiles: Map<string, import('@/generated/validation/marketplace.zod').CoopProfile>;
+  reviews: Map<string, import('@/generated/validation/marketplace.zod').Review>;
+  skillExchanges: Map<string, import('@/generated/validation/marketplace.zod').SkillExchange>;
+  resourceShares: Map<string, import('@/generated/validation/marketplace.zod').ResourceShare>;
 
   // UI state
   activeTab: MarketplaceTab;

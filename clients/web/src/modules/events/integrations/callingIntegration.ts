@@ -6,7 +6,7 @@
 import { logger } from '@/lib/logger';
 import { nanoid } from 'nanoid';
 import type {
-  Event,
+  AppEvent,
   EventVirtualConfig,
   VirtualAttendance,
   VirtualAttendanceStats,
@@ -55,7 +55,7 @@ export class EventCallingIntegration {
    * Called automatically before event start time based on autoStartMinutes
    */
   async startEventConference(
-    event: Event,
+    event: AppEvent,
     virtualConfig: EventVirtualConfig
   ): Promise<EventConferenceRoom> {
     if (!virtualConfig.enabled) {
@@ -134,7 +134,7 @@ export class EventCallingIntegration {
    * Called based on autoStartMinutes before event
    */
   async sendJoinReminders(
-    event: Event,
+    event: AppEvent,
     rsvpPubkeys: string[],
     config: JoinReminderConfig = { minutesBefore: 15 }
   ): Promise<void> {
@@ -308,11 +308,11 @@ export class EventCallingIntegration {
    * Sets up a timer to start the conference before the event
    */
   scheduleConferenceStart(
-    event: Event,
+    event: AppEvent,
     virtualConfig: EventVirtualConfig,
     rsvpPubkeys: string[]
   ): void {
-    const startTime = event.startTime - (virtualConfig.autoStartMinutes * 60 * 1000);
+    const startTime = (event.startAt * 1000) - (virtualConfig.autoStartMinutes * 60 * 1000);
     const delay = startTime - Date.now();
 
     if (delay <= 0) {

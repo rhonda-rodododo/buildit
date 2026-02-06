@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/security/v1.json",
+  "title": "SecurityCoreSchema",
+  "description": "Duress detection, decoy identities, and coercion-resistance types",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "DecoyIdentity": {
+      "type": "object",
+      "description": "A decoy identity shown under duress",
+      "required": ["displayName", "about", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name for the decoy identity"
+        },
+        "about": {
+          "type": "string",
+          "description": "Bio/about text for the decoy"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp when created"
+        }
+      }
+    },
+
+    "DuressCheckResult": {
+      "type": "object",
+      "description": "Result of checking whether a password is a duress password",
+      "required": ["isDuress", "passwordValid", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "isDuress": {
+          "type": "boolean",
+          "description": "Whether the duress password was used"
+        },
+        "passwordValid": {
+          "type": "boolean",
+          "description": "Whether any valid password was entered"
+        }
+      }
+    },
+
+    "DuressAlertConfig": {
+      "type": "object",
+      "description": "Configuration for alerts sent when duress is detected",
+      "required": ["trustedContactPubkeys", "includeLocation", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "trustedContactPubkeys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Public keys of trusted contacts to alert"
+        },
+        "includeLocation": {
+          "type": "boolean",
+          "description": "Whether to include GPS location in alert"
+        },
+        "customMessage": {
+          "type": ["string", "null"],
+          "description": "Optional custom alert message"
+        }
+      }
+    },
+
+    "DecoyContact": {
+      "type": "object",
+      "description": "A fake contact shown in the decoy identity's contact list",
+      "required": ["pubkey", "displayName", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "pubkey": {
+          "type": "string",
+          "description": "Public key of the decoy contact"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the decoy contact"
+        }
+      }
+    }
+  }
+}

@@ -108,6 +108,8 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+        freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
     }
 
     buildFeatures {
@@ -182,6 +184,10 @@ dependencies {
 
     // Permissions
     implementation(libs.accompanist.permissions)
+
+    // Play Services Location
+    implementation(libs.play.services.location)
+    implementation(libs.coroutines.play.services)
 
     // Image Loading
     implementation(libs.coil.compose)

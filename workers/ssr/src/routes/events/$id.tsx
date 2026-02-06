@@ -7,6 +7,11 @@ import {
 } from '@buildit/shared/types';
 import { fetchEventById } from '../../lib/nostr';
 import { CTABanner } from '../../components/CTABanner';
+import {
+  generateEventSeoMeta,
+  generateBreadcrumbStructuredData,
+  type SeoEvent,
+} from '../../seo';
 
 interface ParsedEvent {
   id: string;
@@ -68,52 +73,34 @@ export const Route = createFileRoute('/events/$id')({
       return { meta: [{ title: 'Event | BuildIt Network' }] };
     }
     const { event } = data;
-    const robotsContent = generateRobotsMetaContent(DEFAULT_INDEXABILITY);
+    const seoEvent: SeoEvent = {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      location: event.location,
+      isOnline: event.isOnline,
+      image: event.image,
+      organizer: event.organizer,
+      tags: event.tags,
+    };
+    const seo = generateEventSeoMeta(seoEvent);
+    const breadcrumbs = generateBreadcrumbStructuredData([
+      { name: 'Home', url: 'https://buildit.network' },
+      { name: 'Events', url: 'https://buildit.network/events' },
+      { name: event.title, url: `https://buildit.network/events/${event.id}` },
+    ]);
 
     return {
       meta: [
         { title: `${event.title} | BuildIt Network` },
-        {
-          name: 'description',
-          content: event.description,
-        },
-        { name: 'robots', content: robotsContent },
-        // Open Graph
-        { property: 'og:title', content: event.title },
-        { property: 'og:description', content: event.description },
-        { property: 'og:type', content: 'event' },
-        {
-          property: 'og:url',
-          content: `https://buildit.network/events/${event.id}`,
-        },
-        ...(event.image ? [{ property: 'og:image', content: event.image }] : []),
-        // Twitter
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: event.title },
-        { name: 'twitter:description', content: event.description },
-        // Event-specific
-        ...(event.startTime
-          ? [
-              {
-                property: 'event:start_time',
-                content: new Date(event.startTime).toISOString(),
-              },
-            ]
-          : []),
-        ...(event.endTime
-          ? [
-              {
-                property: 'event:end_time',
-                content: new Date(event.endTime).toISOString(),
-              },
-            ]
-          : []),
+        ...seo.meta,
       ],
-      links: [
-        {
-          rel: 'canonical',
-          href: `https://buildit.network/events/${event.id}`,
-        },
+      links: seo.links,
+      scripts: [
+        { type: 'application/ld+json', children: seo.structuredData },
+        { type: 'application/ld+json', children: breadcrumbs },
       ],
     };
   },

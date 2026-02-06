@@ -35,6 +35,8 @@ coil = "2.5.0"
 glance = "1.1.0"
 workmanager = "2.9.0"
 webrtc = "1.1.3"
+play-services-location = "21.1.0"
+coroutines-play-services = "1.7.3"
 
 [libraries]
 # Core Android
@@ -103,6 +105,12 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 
 # WebRTC for voice/video calling
 webrtc = { module = "io.getstream:stream-webrtc-android", version.ref = "webrtc" }
+
+# Play Services Location
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
+
+# Coroutines Play Services adapter
+coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines-play-services" }
 
 # Coil Image Loading
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }

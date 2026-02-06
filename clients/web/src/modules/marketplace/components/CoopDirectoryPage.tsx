@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Plus, MapPin, Users, Shield, Globe, Search } from 'lucide-react';
 import { useCoopProfiles } from '../hooks/useMarketplace';
-import type { CoopProfile, GovernanceModel } from '../types';
+import type { CoopProfile, GovernanceModel, LocationValue } from '../types';
 
 interface CoopDirectoryPageProps {
   onViewCoop: (coop: CoopProfile) => void;
@@ -43,7 +43,7 @@ export function CoopDirectoryPage({ onViewCoop, onCreateCoop }: CoopDirectoryPag
   const [filterIndustry, setFilterIndustry] = useState<string>('all');
 
   // Collect unique industries from co-ops
-  const industries = [...new Set(coops.map((c) => c.industry).filter(Boolean))];
+  const industries = [...new Set(coops.map((c) => c.industry).filter((i): i is string => !!i))];
 
   // Filter co-ops
   const filteredCoops = coops.filter((coop) => {
@@ -51,8 +51,8 @@ export function CoopDirectoryPage({ onViewCoop, onCreateCoop }: CoopDirectoryPag
       const q = searchQuery.toLowerCase();
       if (
         !coop.name.toLowerCase().includes(q) &&
-        !coop.description.toLowerCase().includes(q) &&
-        !coop.industry.toLowerCase().includes(q)
+        !(coop.description?.toLowerCase().includes(q) ?? false) &&
+        !(coop.industry?.toLowerCase().includes(q) ?? false)
       ) {
         return false;
       }
@@ -157,28 +157,38 @@ export function CoopDirectoryPage({ onViewCoop, onCreateCoop }: CoopDirectoryPag
 
               <div className="mt-4 space-y-2">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    <span>{coop.memberCount} {t('marketplace.members')}</span>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {governanceLabels[coop.governanceModel] ?? coop.governanceModel}
-                  </Badge>
+                  {coop.memberCount != null && (
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{coop.memberCount} {t('marketplace.members')}</span>
+                    </div>
+                  )}
+                  {coop.governanceModel && (
+                    <Badge variant="outline" className="text-xs">
+                      {governanceLabels[coop.governanceModel] ?? coop.governanceModel}
+                    </Badge>
+                  )}
                 </div>
 
-                {coop.location && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span className="truncate">{coop.location.label}</span>
-                  </div>
-                )}
+                {(() => {
+                  const loc = coop.location as LocationValue | undefined;
+                  if (!loc) return null;
+                  return (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span className="truncate">{loc.label}</span>
+                    </div>
+                  );
+                })()}
 
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">{coop.industry}</Badge>
-                  {coop.verifiedBy.length > 0 && (
+                  {coop.industry && (
+                    <Badge variant="secondary" className="text-xs">{coop.industry}</Badge>
+                  )}
+                  {(coop.verifiedBy ?? []).length > 0 && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Shield className="h-3 w-3 text-green-600" />
-                      <span>{coop.verifiedBy.length} {t('marketplace.vouchers')}</span>
+                      <span>{(coop.verifiedBy ?? []).length} {t('marketplace.vouchers')}</span>
                     </div>
                   )}
                   {coop.website && (

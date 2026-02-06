@@ -1,0 +1,88 @@
+{
+  "description": "Nostr → AT Protocol (Bluesky) content mapping test vectors",
+  "vectors": [
+    {
+      "name": "kind:1 short note to Bluesky post",
+      "input": {
+        "id": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 1,
+        "tags": [
+          ["t", "solidarity"]
+        ],
+        "content": "Standing together! #solidarity https://example.org",
+        "sig": "deadbeef"
+      },
+      "expected": {
+        "$type": "app.bsky.feed.post",
+        "text": "Standing together! #solidarity https://example.org",
+        "has_facets": true,
+        "facet_count": 2,
+        "facet_types": ["app.bsky.richtext.facet#tag", "app.bsky.richtext.facet#link"]
+      }
+    },
+    {
+      "name": "kind:1 with emoji and UTF-8 — correct byte offsets",
+      "input": {
+        "id": "utf8test1234567890utf8test1234567890utf8test1234567890utf8test12",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 1,
+        "tags": [],
+        "content": "Héllo wörld! 🌍 Visit https://example.org",
+        "sig": "deadbeef"
+      },
+      "expected": {
+        "$type": "app.bsky.feed.post",
+        "text": "Héllo wörld! 🌍 Visit https://example.org",
+        "has_facets": true,
+        "facet_count": 1,
+        "facet_types": ["app.bsky.richtext.facet#link"],
+        "note": "Byte offsets must account for multi-byte UTF-8 chars (é=2 bytes, ö=2 bytes, 🌍=4 bytes)"
+      }
+    },
+    {
+      "name": "kind:30023 article to Bluesky post with link card",
+      "input": {
+        "id": "eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011eeff0011",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 30023,
+        "tags": [
+          ["d", "building-power"],
+          ["title", "Building Power Through Collective Action"],
+          ["summary", "A guide to grassroots organizing"]
+        ],
+        "content": "# Building Power\n\nLong content here...",
+        "sig": "deadbeef"
+      },
+      "username": "alice",
+      "domain": "buildit.network",
+      "expected": {
+        "$type": "app.bsky.feed.post",
+        "text_contains": ["Building Power Through Collective Action"],
+        "has_embed": true,
+        "embed_type": "app.bsky.embed.external",
+        "embed_uri_contains": "buildit.network/@alice/articles/building-power"
+      }
+    },
+    {
+      "name": "Long post truncated to 300 graphemes",
+      "input": {
+        "id": "longpost1234567890longpost1234567890longpost1234567890longpost12",
+        "pubkey": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "created_at": 1706745600,
+        "kind": 1,
+        "tags": [],
+        "content": "This is a very long post that should be truncated because Bluesky has a 300 grapheme limit and this post exceeds that limit by quite a lot because it goes on and on about various topics that are important but too long for the AT Protocol character limit so it needs to be cut short with an ellipsis character at the end",
+        "sig": "deadbeef"
+      },
+      "expected": {
+        "$type": "app.bsky.feed.post",
+        "text_ends_with": "\u2026",
+        "grapheme_count_max": 300
+      }
+    }
+  ]
+}

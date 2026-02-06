@@ -3,10 +3,63 @@
 //
 // Core CRM models for contact management and call history.
 // Used by the CRM-Calling integration.
+//
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
+// The generated crm.swift defines: Contact, ContactStatus, Address, AddressClass,
+//   Interaction, TypeEnum, Task, TaskStatus, Priority, CrmSchema
+// Most types below are UI-only (call history, caller lookup, engagement) and do not
+// have protocol schema counterparts. CRMContact is the UI-layer contact type with
+// Date fields, Identifiable, and Equatable conformance.
 
 import Foundation
 
-// MARK: - CRM Contact
+// MARK: - UI Extensions for Generated Types
+
+extension ContactStatus: CaseIterable {
+    public static var allCases: [ContactStatus] {
+        [.active, .inactive, .archived]
+    }
+
+    var displayName: String {
+        switch self {
+        case .active: return "Active"
+        case .inactive: return "Inactive"
+        case .archived: return "Archived"
+        }
+    }
+}
+
+extension Priority: CaseIterable {
+    public static var allCases: [Priority] {
+        [.low, .medium, .high, .urgent]
+    }
+
+    var displayName: String {
+        switch self {
+        case .low: return "Low"
+        case .medium: return "Medium"
+        case .high: return "High"
+        case .urgent: return "Urgent"
+        }
+    }
+}
+
+extension TaskStatus: CaseIterable {
+    public static var allCases: [TaskStatus] {
+        [.pending, .inProgress, .completed, .cancelled]
+    }
+
+    var displayName: String {
+        switch self {
+        case .pending: return "Pending"
+        case .inProgress: return "In Progress"
+        case .completed: return "Completed"
+        case .cancelled: return "Cancelled"
+        }
+    }
+}
+
+// MARK: - CRM Contact (UI-layer with Date fields, Identifiable, Equatable)
 
 /// CRM Contact record structure
 public struct CRMContact: Identifiable, Codable, Sendable, Equatable {
@@ -21,7 +74,7 @@ public struct CRMContact: Identifiable, Codable, Sendable, Equatable {
     public var phone: String?
     public var mobile: String?
     public var workPhone: String?
-    public var pubkey: String? // Nostr identity link
+    public var pubkey: String?
 
     // Custom fields (dynamic)
     public var customFields: [String: AnyCodableValue]
@@ -66,12 +119,10 @@ public struct CRMContact: Identifiable, Codable, Sendable, Equatable {
         self.updatedBy = updatedBy
     }
 
-    /// Display name for the contact
     public var displayName: String {
         fullName ?? name ?? email ?? phone ?? "Unknown"
     }
 
-    /// All phone numbers for this contact
     public var allPhoneNumbers: [String] {
         [phone, mobile, workPhone].compactMap { $0 }
     }
@@ -146,7 +197,7 @@ public struct CallHistoryRecord: Identifiable, Codable, Sendable, Equatable {
     public let phoneNumber: String
     public let startedAt: Date
     public var endedAt: Date?
-    public var duration: Int // seconds
+    public var duration: Int
     public var status: CallStatus
     public var recordingUrl: String?
     public var transcriptUrl: String?
@@ -187,7 +238,6 @@ public struct CallHistoryRecord: Identifiable, Codable, Sendable, Equatable {
         self.created = created
     }
 
-    /// Formatted duration string
     public var formattedDuration: String {
         let hours = duration / 3600
         let minutes = (duration % 3600) / 60
@@ -200,12 +250,10 @@ public struct CallHistoryRecord: Identifiable, Codable, Sendable, Equatable {
         }
     }
 
-    /// Whether the call has a recording
     public var hasRecording: Bool {
         recordingUrl != nil
     }
 
-    /// Whether the call has a transcript
     public var hasTranscript: Bool {
         transcriptUrl != nil
     }
@@ -326,8 +374,8 @@ public struct ContactCallStats: Sendable {
     public let totalCalls: Int
     public let inboundCalls: Int
     public let outboundCalls: Int
-    public let totalDuration: Int // seconds
-    public let averageDuration: Int // seconds
+    public let totalDuration: Int
+    public let averageDuration: Int
     public let lastCallDate: Date?
     public let missedCalls: Int
 
@@ -349,7 +397,6 @@ public struct ContactCallStats: Sendable {
         self.missedCalls = missedCalls
     }
 
-    /// Formatted total duration string
     public var formattedTotalDuration: String {
         let hours = totalDuration / 3600
         let minutes = (totalDuration % 3600) / 60

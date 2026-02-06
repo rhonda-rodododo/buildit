@@ -6,6 +6,10 @@ import {
   DEFAULT_INDEXABILITY,
 } from '@buildit/shared/types';
 import { CTABanner } from '../../components/CTABanner';
+import {
+  generateWikiSeoMeta,
+  generateBreadcrumbStructuredData,
+} from '../../seo';
 
 interface WikiPage {
   id: string;
@@ -56,36 +60,25 @@ export const Route = createFileRoute('/wiki/$slug')({
       return { meta: [{ title: 'Wiki | BuildIt Network' }] };
     }
     const { page } = data;
-    const robotsContent = generateRobotsMetaContent(DEFAULT_INDEXABILITY);
+    const seo = generateWikiSeoMeta(page);
+    const breadcrumbs = generateBreadcrumbStructuredData([
+      { name: 'Home', url: 'https://buildit.network' },
+      { name: 'Wiki', url: 'https://buildit.network/wiki' },
+      ...(page.category
+        ? [{ name: page.category, url: `https://buildit.network/wiki?category=${encodeURIComponent(page.category)}` }]
+        : []),
+      { name: page.title, url: `https://buildit.network/wiki/${page.slug}` },
+    ]);
 
     return {
       meta: [
         { title: `${page.title} | Wiki | BuildIt Network` },
-        {
-          name: 'description',
-          content: page.summary || page.content.slice(0, 160),
-        },
-        { name: 'robots', content: robotsContent },
-        // Open Graph
-        { property: 'og:title', content: page.title },
-        {
-          property: 'og:description',
-          content: page.summary || page.content.slice(0, 160),
-        },
-        { property: 'og:type', content: 'article' },
-        {
-          property: 'og:url',
-          content: `https://buildit.network/wiki/${page.slug}`,
-        },
-        // Twitter
-        { name: 'twitter:card', content: 'summary' },
-        { name: 'twitter:title', content: page.title },
+        ...seo.meta,
       ],
-      links: [
-        {
-          rel: 'canonical',
-          href: `https://buildit.network/wiki/${page.slug}`,
-        },
+      links: seo.links,
+      scripts: [
+        { type: 'application/ld+json', children: seo.structuredData },
+        { type: 'application/ld+json', children: breadcrumbs },
       ],
     };
   },

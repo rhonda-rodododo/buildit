@@ -1,0 +1,27 @@
+{
+  "name": "buildit-federation",
+  "version": "1.0.0",
+  "description": "BuildIt Federation Worker — ActivityPub (Fedify) + AT Protocol (Bluesky) bridge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "tail": "wrangler tail",
+    "db:init": "curl -X POST http://localhost:8787/admin/init-db",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@fedify/fedify": "^1.6.0",
+    "@noble/hashes": "^1.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260118.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0",
+    "wrangler": "^4.59.0"
+  }
+}

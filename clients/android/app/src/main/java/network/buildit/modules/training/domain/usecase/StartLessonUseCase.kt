@@ -55,7 +55,7 @@ class StartLessonUseCase @Inject constructor(
                     id = UUID.randomUUID().toString(),
                     lessonId = lessonId,
                     pubkey = pubkey,
-                    status = ProgressStatus.IN_PROGRESS,
+                    status = ProgressStatus.InProgress,
                     score = null,
                     timeSpent = 0,
                     lastPosition = null,

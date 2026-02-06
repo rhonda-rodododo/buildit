@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEventsStore } from '../eventsStore';
-import type { Event, RSVP, RSVPStatus } from '../types';
+import type { AppEvent, RSVP, RSVPStatus, EVENTS_SCHEMA_VERSION } from '../types';
 
 describe('eventsStore', () => {
   beforeEach(() => {
@@ -16,26 +16,32 @@ describe('eventsStore', () => {
     });
   });
 
-  const createMockEvent = (overrides: Partial<Event> = {}): Event => ({
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
+  const createMockEvent = (overrides: Partial<AppEvent> = {}): AppEvent => ({
+    _v: '1.0.0',
     id: `event-${Date.now()}-${Math.random()}`,
     groupId: 'group-1',
     title: 'Test Event',
     description: 'A test event',
-    startTime: Date.now() + 86400000, // Tomorrow
-    privacy: 'public',
-    createdBy: 'user-1',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    startAt: nowSeconds + 86400, // Tomorrow (seconds)
+    allDay: false,
+    visibility: 'public',
+    createdBy: 'a'.repeat(64),
+    createdAt: nowSeconds,
+    updatedAt: nowSeconds,
     tags: [],
     coHosts: [],
     ...overrides,
   });
 
   const createMockRSVP = (overrides: Partial<RSVP> = {}): RSVP => ({
+    _v: '1.0.0',
     eventId: 'event-1',
-    userPubkey: 'user-1',
+    pubkey: 'a'.repeat(64),
     status: 'going',
-    timestamp: Date.now(),
+    guestCount: 0,
+    respondedAt: nowSeconds,
     ...overrides,
   });
 
@@ -134,9 +140,9 @@ describe('eventsStore', () => {
       const { setEvents, setRSVPs, deleteEvent } = useEventsStore.getState();
       setEvents([createMockEvent({ id: 'event-1' })]);
       setRSVPs([
-        createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1' }),
-        createMockRSVP({ eventId: 'event-1', userPubkey: 'user-2' }),
-        createMockRSVP({ eventId: 'event-2', userPubkey: 'user-1' }),
+        createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64) }),
+        createMockRSVP({ eventId: 'event-1', pubkey: 'b'.repeat(64) }),
+        createMockRSVP({ eventId: 'event-2', pubkey: 'a'.repeat(64) }),
       ]);
 
       deleteEvent('event-1');
@@ -171,7 +177,7 @@ describe('eventsStore', () => {
     describe('setRSVPs', () => {
       it('should set RSVPs array', () => {
         const { setRSVPs } = useEventsStore.getState();
-        const rsvps = [createMockRSVP({ userPubkey: 'user-1' }), createMockRSVP({ userPubkey: 'user-2' })];
+        const rsvps = [createMockRSVP({ pubkey: 'a'.repeat(64) }), createMockRSVP({ pubkey: 'b'.repeat(64) })];
 
         setRSVPs(rsvps);
 
@@ -183,7 +189,7 @@ describe('eventsStore', () => {
       it('should add a new RSVP', () => {
         const { addRSVP } = useEventsStore.getState();
 
-        addRSVP(createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1' }));
+        addRSVP(createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64) }));
 
         const { rsvps } = useEventsStore.getState();
         expect(rsvps).toHaveLength(1);
@@ -192,8 +198,8 @@ describe('eventsStore', () => {
       it('should replace existing RSVP for same user/event combo', () => {
         const { addRSVP } = useEventsStore.getState();
 
-        addRSVP(createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'going' }));
-        addRSVP(createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'maybe' }));
+        addRSVP(createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'going' }));
+        addRSVP(createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'maybe' }));
 
         const { rsvps } = useEventsStore.getState();
         expect(rsvps).toHaveLength(1);
@@ -204,9 +210,9 @@ describe('eventsStore', () => {
     describe('updateRSVP', () => {
       it('should update existing RSVP', () => {
         const { setRSVPs, updateRSVP } = useEventsStore.getState();
-        setRSVPs([createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'going' })]);
+        setRSVPs([createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'going' })]);
 
-        updateRSVP('event-1', 'user-1', 'not_going');
+        updateRSVP('event-1', 'a'.repeat(64), 'not_going');
 
         const { rsvps } = useEventsStore.getState();
         expect(rsvps[0].status).toBe('not_going');
@@ -215,7 +221,7 @@ describe('eventsStore', () => {
       it('should create new RSVP if not exists', () => {
         const { updateRSVP } = useEventsStore.getState();
 
-        updateRSVP('event-1', 'user-1', 'going');
+        updateRSVP('event-1', 'a'.repeat(64), 'going');
 
         const { rsvps } = useEventsStore.getState();
         expect(rsvps).toHaveLength(1);
@@ -262,26 +268,26 @@ describe('eventsStore', () => {
       it('should return only public events', () => {
         const { setEvents, getPublicEvents } = useEventsStore.getState();
         setEvents([
-          createMockEvent({ id: 'event-1', privacy: 'public' }),
-          createMockEvent({ id: 'event-2', privacy: 'private' }),
-          createMockEvent({ id: 'event-3', privacy: 'public' }),
+          createMockEvent({ id: 'event-1', visibility: 'public' }),
+          createMockEvent({ id: 'event-2', visibility: 'private' }),
+          createMockEvent({ id: 'event-3', visibility: 'public' }),
         ]);
 
         const events = getPublicEvents();
 
         expect(events).toHaveLength(2);
-        expect(events.every((e) => e.privacy === 'public')).toBe(true);
+        expect(events.every((e) => e.visibility === 'public')).toBe(true);
       });
     });
 
     describe('getUpcomingEvents', () => {
       it('should return only future events sorted by start time', () => {
         const { setEvents, getUpcomingEvents } = useEventsStore.getState();
-        const now = Date.now();
+        const now = Math.floor(Date.now() / 1000);
         setEvents([
-          createMockEvent({ id: 'past', startTime: now - 10000 }),
-          createMockEvent({ id: 'later', startTime: now + 20000 }),
-          createMockEvent({ id: 'soon', startTime: now + 10000 }),
+          createMockEvent({ id: 'past', startAt: now - 10 }),
+          createMockEvent({ id: 'later', startAt: now + 20 }),
+          createMockEvent({ id: 'soon', startAt: now + 10 }),
         ]);
 
         const events = getUpcomingEvents();
@@ -296,9 +302,9 @@ describe('eventsStore', () => {
       it('should return RSVPs for specific event', () => {
         const { setRSVPs, getRSVPsForEvent } = useEventsStore.getState();
         setRSVPs([
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1' }),
-          createMockRSVP({ eventId: 'event-2', userPubkey: 'user-2' }),
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-3' }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64) }),
+          createMockRSVP({ eventId: 'event-2', pubkey: 'b'.repeat(64) }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'c'.repeat(64) }),
         ]);
 
         const rsvps = getRSVPsForEvent('event-1');
@@ -310,9 +316,9 @@ describe('eventsStore', () => {
     describe('getUserRSVP', () => {
       it('should return user RSVP for event', () => {
         const { setRSVPs, getUserRSVP } = useEventsStore.getState();
-        setRSVPs([createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'going' })]);
+        setRSVPs([createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'going' })]);
 
-        const rsvp = getUserRSVP('event-1', 'user-1');
+        const rsvp = getUserRSVP('event-1', 'a'.repeat(64));
 
         expect(rsvp?.status).toBe('going');
       });
@@ -320,7 +326,7 @@ describe('eventsStore', () => {
       it('should return undefined if no RSVP', () => {
         const { getUserRSVP } = useEventsStore.getState();
 
-        expect(getUserRSVP('event-1', 'user-1')).toBeUndefined();
+        expect(getUserRSVP('event-1', 'a'.repeat(64))).toBeUndefined();
       });
     });
 
@@ -329,10 +335,10 @@ describe('eventsStore', () => {
         const { setEvents, setRSVPs, getEventWithRSVPs } = useEventsStore.getState();
         setEvents([createMockEvent({ id: 'event-1' })]);
         setRSVPs([
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'going' }),
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-2', status: 'going' }),
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-3', status: 'maybe' }),
-          createMockRSVP({ eventId: 'event-1', userPubkey: 'user-4', status: 'not_going' }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'going' }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'b'.repeat(64), status: 'going' }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'c'.repeat(64), status: 'maybe' }),
+          createMockRSVP({ eventId: 'event-1', pubkey: 'd'.repeat(64), status: 'not_going' }),
         ]);
 
         const eventWithRSVPs = getEventWithRSVPs('event-1');
@@ -345,9 +351,9 @@ describe('eventsStore', () => {
       it('should include userRSVP when pubkey provided', () => {
         const { setEvents, setRSVPs, getEventWithRSVPs } = useEventsStore.getState();
         setEvents([createMockEvent({ id: 'event-1' })]);
-        setRSVPs([createMockRSVP({ eventId: 'event-1', userPubkey: 'user-1', status: 'going' })]);
+        setRSVPs([createMockRSVP({ eventId: 'event-1', pubkey: 'a'.repeat(64), status: 'going' })]);
 
-        const eventWithRSVPs = getEventWithRSVPs('event-1', 'user-1');
+        const eventWithRSVPs = getEventWithRSVPs('event-1', 'a'.repeat(64));
 
         expect(eventWithRSVPs?.userRSVP).toBe('going');
       });

@@ -189,8 +189,8 @@ export const useMarketplaceStore = create<MarketplaceStoreState>()(
         results = results.filter(
           (l) =>
             l.title.toLowerCase().includes(query) ||
-            l.description.toLowerCase().includes(query) ||
-            l.tags.some((t) => t.toLowerCase().includes(query))
+            (l.description?.toLowerCase().includes(query) ?? false) ||
+            (l.tags?.some((t) => t.toLowerCase().includes(query)) ?? false)
         );
       }
 
@@ -205,7 +205,7 @@ export const useMarketplaceStore = create<MarketplaceStoreState>()(
       // Filter by tags
       if (filters.tags.length > 0) {
         results = results.filter((l) =>
-          filters.tags.some((tag) => l.tags.includes(tag))
+          filters.tags.some((tag) => (l.tags ?? []).includes(tag))
         );
       }
 
@@ -259,16 +259,17 @@ export const useMarketplaceStore = create<MarketplaceStoreState>()(
     getCoopsByGroup: (groupId) => {
       return Array.from(get().coopProfiles.values())
         .filter((c) => c.groupId === groupId)
-        .sort((a, b) => b.createdAt - a.createdAt);
+        .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
     },
 
     vouchForCoop: (coopId, voucherPubkey) => set((state) => {
       const newCoops = new Map(state.coopProfiles);
       const coop = newCoops.get(coopId);
-      if (coop && !coop.verifiedBy.includes(voucherPubkey)) {
+      const verifiedBy = coop?.verifiedBy ?? [];
+      if (coop && !verifiedBy.includes(voucherPubkey)) {
         newCoops.set(coopId, {
           ...coop,
-          verifiedBy: [...coop.verifiedBy, voucherPubkey],
+          verifiedBy: [...verifiedBy, voucherPubkey],
           updatedAt: Date.now(),
         });
       }

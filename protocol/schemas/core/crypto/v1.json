@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/core/crypto/v1.json",
+  "title": "CryptoCoreSchema",
+  "description": "Core cryptographic types for key management and encrypted data",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "KeyPair": {
+      "type": "object",
+      "description": "Asymmetric keypair for signing and encryption",
+      "required": ["publicKey", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Hex-encoded public key"
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "Hex-encoded private key (sensitive, only present client-side)",
+          "format": "password"
+        }
+      }
+    },
+
+    "EncryptedData": {
+      "type": "object",
+      "description": "AES-256-GCM encrypted data with nonce",
+      "required": ["ciphertext", "nonce", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "ciphertext": {
+          "type": "string",
+          "description": "Base64-encoded ciphertext"
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Base64-encoded nonce/IV"
+        }
+      }
+    },
+
+    "MessageHeader": {
+      "type": "object",
+      "description": "Double Ratchet message header for forward-secure messaging",
+      "required": ["dhPublicKey", "previousChainLength", "messageNumber", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "dhPublicKey": {
+          "type": "string",
+          "description": "Base64-encoded DH ratchet public key"
+        },
+        "previousChainLength": {
+          "type": "integer",
+          "description": "Number of messages in previous sending chain"
+        },
+        "messageNumber": {
+          "type": "integer",
+          "description": "Message number in current sending chain"
+        }
+      }
+    },
+
+    "UnwrapResult": {
+      "type": "object",
+      "description": "Result of unwrapping a NIP-17 gift-wrapped message",
+      "required": ["senderPubkey", "sealVerified", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "senderPubkey": {
+          "type": "string",
+          "description": "Hex-encoded sender public key"
+        },
+        "sealVerified": {
+          "type": "boolean",
+          "description": "Whether the seal signature was verified"
+        }
+      }
+    },
+
+    "SecretType": {
+      "type": "string",
+      "description": "Type of stored secret",
+      "enum": ["nostr_private_key", "master_key", "database_key", "api_token", "custom"]
+    },
+
+    "StoredSecret": {
+      "type": "object",
+      "description": "A secret stored in the platform keyring",
+      "required": ["value", "secretType", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "value": {
+          "type": "string",
+          "description": "The secret value",
+          "format": "password"
+        },
+        "secretType": {
+          "$ref": "#/$defs/SecretType"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Unix timestamp when stored"
+        },
+        "lastAccessed": {
+          "type": ["integer", "null"],
+          "description": "Unix timestamp when last accessed"
+        },
+        "label": {
+          "type": ["string", "null"],
+          "description": "Human-readable label"
+        }
+      }
+    }
+  }
+}

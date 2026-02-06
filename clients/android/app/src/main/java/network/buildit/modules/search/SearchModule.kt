@@ -216,13 +216,13 @@ abstract class SearchHiltModule {
  *             FacetDefinition(
  *                 key = "visibility",
  *                 label = "Visibility",
- *                 type = FacetType.KEYWORD,
+ *                 type = FacetType.Keyword,
  *                 multiSelect = false
  *             ),
  *             FacetDefinition(
  *                 key = "dateRange",
  *                 label = "Date",
- *                 type = FacetType.DATE,
+ *                 type = FacetType.Date,
  *                 multiSelect = false
  *             )
  *         )

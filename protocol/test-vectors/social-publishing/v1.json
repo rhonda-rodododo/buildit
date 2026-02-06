@@ -1,0 +1,167 @@
+{
+  "description": "Test vectors for social-publishing module v1",
+  "schemaVersion": "1.0.0",
+  "vectors": [
+    {
+      "name": "valid-scheduled-content",
+      "type": "ScheduledContent",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "sched-001",
+        "sourceModule": "publishing",
+        "sourceContentId": "article-123",
+        "scheduledAt": 1738800000,
+        "status": "pending",
+        "crossPostConfig": {
+          "_v": "1.0.0",
+          "platforms": [
+            {
+              "_v": "1.0.0",
+              "platform": "nostr",
+              "enabled": true,
+              "status": "pending"
+            },
+            {
+              "_v": "1.0.0",
+              "platform": "activitypub",
+              "enabled": true,
+              "customContent": "Check out our latest article!",
+              "status": "pending"
+            }
+          ]
+        },
+        "retryCount": 0,
+        "createdBy": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        "createdAt": 1738790000
+      }
+    },
+    {
+      "name": "valid-share-link",
+      "type": "ShareLink",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "link-001",
+        "slug": "my-event",
+        "sourceModule": "events",
+        "sourceContentId": "event-456",
+        "targetUrl": "https://buildit.network/events/event-456",
+        "trackClicks": true,
+        "clickCount": 42,
+        "isActive": true,
+        "createdBy": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        "createdAt": 1738790000,
+        "seoOverrides": {
+          "_v": "1.0.0",
+          "title": "Community Event",
+          "description": "Join us for our monthly community meeting"
+        }
+      }
+    },
+    {
+      "name": "valid-share-link-with-expiration",
+      "type": "ShareLink",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "link-002",
+        "slug": "temp-link",
+        "sourceModule": "marketplace",
+        "sourceContentId": "listing-789",
+        "targetUrl": "https://buildit.network/marketplace/listing-789",
+        "trackClicks": false,
+        "clickCount": 0,
+        "isActive": true,
+        "expiresAt": 1739400000,
+        "createdBy": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        "createdAt": 1738790000
+      }
+    },
+    {
+      "name": "valid-social-account",
+      "type": "SocialAccount",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "acct-001",
+        "platform": "activitypub",
+        "handle": "@organizer@mastodon.social",
+        "isActive": true,
+        "createdAt": 1738790000,
+        "lastSyncAt": 1738800000
+      }
+    },
+    {
+      "name": "valid-calendar-entry",
+      "type": "ContentCalendarEntry",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "cal-001",
+        "sourceModule": "publishing",
+        "sourceContentId": "article-123",
+        "title": "Weekly Newsletter",
+        "scheduledAt": 1738800000,
+        "status": "pending",
+        "platforms": ["nostr", "activitypub"]
+      }
+    },
+    {
+      "name": "invalid-scheduled-content-missing-source-module",
+      "type": "ScheduledContent",
+      "valid": false,
+      "data": {
+        "_v": "1.0.0",
+        "id": "sched-bad",
+        "sourceContentId": "article-123",
+        "scheduledAt": 1738800000,
+        "status": "pending",
+        "retryCount": 0,
+        "createdBy": "pubkey",
+        "createdAt": 1738790000
+      },
+      "expectedError": "sourceModule is required"
+    },
+    {
+      "name": "invalid-share-link-missing-slug",
+      "type": "ShareLink",
+      "valid": false,
+      "data": {
+        "_v": "1.0.0",
+        "id": "link-bad",
+        "sourceModule": "events",
+        "sourceContentId": "event-456",
+        "targetUrl": "https://buildit.network/events/event-456",
+        "trackClicks": true,
+        "clickCount": 0,
+        "isActive": true,
+        "createdBy": "pubkey",
+        "createdAt": 1738790000
+      },
+      "expectedError": "slug is required"
+    },
+    {
+      "name": "valid-recurrence-rule",
+      "type": "ScheduledContent",
+      "valid": true,
+      "data": {
+        "_v": "1.0.0",
+        "id": "sched-recur",
+        "sourceModule": "microblogging",
+        "sourceContentId": "post-999",
+        "scheduledAt": 1738800000,
+        "status": "pending",
+        "recurrence": {
+          "frequency": "weekly",
+          "interval": 1,
+          "count": 4,
+          "byDay": ["MO", "WE", "FR"]
+        },
+        "retryCount": 0,
+        "createdBy": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        "createdAt": 1738790000
+      }
+    }
+  ]
+}

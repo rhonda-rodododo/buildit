@@ -64,11 +64,11 @@ export const EditEventPage: FC = () => {
           setFormData({
             title: event.title,
             description: event.description || '',
-            location: event.location || '',
-            startTime: new Date(event.startTime),
-            endTime: event.endTime ? new Date(event.endTime) : undefined,
-            privacy: event.privacy,
-            capacity: event.capacity,
+            location: event.location?.name ?? event.location?.address ?? '',
+            startTime: new Date(event.startAt * 1000),
+            endTime: event.endAt ? new Date(event.endAt * 1000) : undefined,
+            privacy: event.visibility,
+            capacity: event.maxAttendees,
             groupId: event.groupId,
           });
           setCustomFieldValues(event.customFields || {});

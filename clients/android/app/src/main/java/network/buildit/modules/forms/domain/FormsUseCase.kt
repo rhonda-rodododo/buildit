@@ -19,6 +19,7 @@ import network.buildit.modules.forms.data.local.FormEntity
 import network.buildit.modules.forms.data.local.FormField
 import network.buildit.modules.forms.data.local.FormFieldType
 import network.buildit.modules.forms.data.local.FormResponseEntity
+import network.buildit.modules.forms.data.local.displayName
 import network.buildit.modules.forms.data.local.FormStatus
 import network.buildit.modules.forms.data.local.FormVisibility
 import javax.inject.Inject
@@ -70,7 +71,7 @@ class FormsUseCase @Inject constructor(
         description: String? = null,
         fields: List<FormField>,
         groupId: String? = null,
-        visibility: FormVisibility = FormVisibility.GROUP,
+        visibility: FormVisibility = FormVisibility.Group,
         anonymous: Boolean = false,
         allowMultiple: Boolean = false,
         opensAt: Long? = null,
@@ -82,7 +83,7 @@ class FormsUseCase @Inject constructor(
         // Validate fields
         validateFields(fields)
 
-        val status = if (publishImmediately) FormStatus.OPEN else FormStatus.DRAFT
+        val status = if (publishImmediately) FormStatus.Open else FormStatus.Draft
 
         val form = repository.createForm(
             title = title,
@@ -127,7 +128,7 @@ class FormsUseCase @Inject constructor(
             throw SecurityException("Not authorized to edit this form")
         }
 
-        if (form.status != FormStatus.DRAFT) {
+        if (form.status != FormStatus.Draft) {
             throw IllegalStateException("Cannot edit a published form")
         }
 
@@ -159,7 +160,7 @@ class FormsUseCase @Inject constructor(
             throw SecurityException("Not authorized to publish this form")
         }
 
-        if (form.status != FormStatus.DRAFT) {
+        if (form.status != FormStatus.Draft) {
             throw IllegalStateException("Form is already published")
         }
 
@@ -286,10 +287,10 @@ class FormsUseCase @Inject constructor(
 
             // Validate options for choice fields
             when (field.type) {
-                FormFieldType.SELECT,
-                FormFieldType.MULTISELECT,
-                FormFieldType.RADIO,
-                FormFieldType.CHECKBOX -> {
+                FormFieldType.Select,
+                FormFieldType.Multiselect,
+                FormFieldType.Radio,
+                FormFieldType.Checkbox -> {
                     if (field.options.isNullOrEmpty()) {
                         throw IllegalArgumentException("${field.type.displayName} field '${field.label}' must have options")
                     }
@@ -319,7 +320,7 @@ class FormsUseCase @Inject constructor(
         val validation = field.validation
 
         when (field.type) {
-            FormFieldType.TEXT, FormFieldType.TEXTAREA -> {
+            FormFieldType.Text, FormFieldType.Textarea -> {
                 validation?.minLength?.let {
                     if (answer.length < it) {
                         throw IllegalArgumentException(
@@ -343,7 +344,7 @@ class FormsUseCase @Inject constructor(
                 }
             }
 
-            FormFieldType.NUMBER, FormFieldType.RATING, FormFieldType.SCALE -> {
+            FormFieldType.Number, FormFieldType.Rating, FormFieldType.Scale -> {
                 val number = answer.toDoubleOrNull()
                     ?: throw IllegalArgumentException("Field '${field.label}' must be a number")
 
@@ -363,14 +364,14 @@ class FormsUseCase @Inject constructor(
                 }
             }
 
-            FormFieldType.EMAIL -> {
+            FormFieldType.Email -> {
                 val emailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
                 if (!emailPattern.matches(answer)) {
                     throw IllegalArgumentException("Field '${field.label}' must be a valid email address")
                 }
             }
 
-            FormFieldType.PHONE -> {
+            FormFieldType.Phone -> {
                 val phonePattern = Regex("^[+]?[0-9\\s\\-()]+$")
                 if (!phonePattern.matches(answer)) {
                     throw IllegalArgumentException("Field '${field.label}' must be a valid phone number")
@@ -384,14 +385,14 @@ class FormsUseCase @Inject constructor(
                 }
             }
 
-            FormFieldType.SELECT, FormFieldType.RADIO -> {
+            FormFieldType.Select, FormFieldType.Radio -> {
                 val validOptions = field.options?.map { it.value }?.toSet() ?: emptySet()
                 if (answer !in validOptions) {
                     throw IllegalArgumentException("Invalid option for field '${field.label}'")
                 }
             }
 
-            FormFieldType.MULTISELECT, FormFieldType.CHECKBOX -> {
+            FormFieldType.Multiselect, FormFieldType.Checkbox -> {
                 val validOptions = field.options?.map { it.value }?.toSet() ?: emptySet()
                 val selectedOptions = answer.split(",").map { it.trim() }
                 for (option in selectedOptions) {
@@ -416,16 +417,16 @@ class FormsUseCase @Inject constructor(
         val dependentAnswer = answers[conditional.field] ?: ""
 
         return when (conditional.operator) {
-            ConditionalOperator.EQUALS -> dependentAnswer == conditional.value
-            ConditionalOperator.NOT_EQUALS -> dependentAnswer != conditional.value
-            ConditionalOperator.CONTAINS -> dependentAnswer.contains(conditional.value, ignoreCase = true)
-            ConditionalOperator.NOT_CONTAINS -> !dependentAnswer.contains(conditional.value, ignoreCase = true)
-            ConditionalOperator.GREATER -> {
+            ConditionalOperator.Equals -> dependentAnswer == conditional.value
+            ConditionalOperator.NotEquals -> dependentAnswer != conditional.value
+            ConditionalOperator.Contains -> dependentAnswer.contains(conditional.value, ignoreCase = true)
+            ConditionalOperator.NotContains -> !dependentAnswer.contains(conditional.value, ignoreCase = true)
+            ConditionalOperator.Greater -> {
                 val answerNum = dependentAnswer.toDoubleOrNull() ?: return false
                 val valueNum = conditional.value.toDoubleOrNull() ?: return false
                 answerNum > valueNum
             }
-            ConditionalOperator.LESS -> {
+            ConditionalOperator.Less -> {
                 val answerNum = dependentAnswer.toDoubleOrNull() ?: return false
                 val valueNum = conditional.value.toDoubleOrNull() ?: return false
                 answerNum < valueNum
@@ -456,7 +457,7 @@ class FormsUseCase @Inject constructor(
             put("title", form.title)
             form.description?.let { put("description", it) }
             put("fields", form.fieldsJson)
-            put("visibility", form.visibility.name)
+            put("visibility", form.visibility.value)
             put("anonymous", form.anonymous)
             put("allowMultiple", form.allowMultiple)
             form.opensAt?.let { put("opensAt", it) }
@@ -624,7 +625,7 @@ class FormsUseCase @Inject constructor(
         val fields = listOf(
             FormField(
                 id = "poll",
-                type = FormFieldType.RADIO,
+                type = FormFieldType.Radio,
                 label = question,
                 required = true,
                 options = options.mapIndexed { index, label ->
@@ -655,7 +656,7 @@ class FormsUseCase @Inject constructor(
         val fields = listOf(
             FormField(
                 id = "attending",
-                type = FormFieldType.RADIO,
+                type = FormFieldType.Radio,
                 label = "Will you attend?",
                 required = true,
                 options = listOf(
@@ -667,16 +668,16 @@ class FormsUseCase @Inject constructor(
             ),
             FormField(
                 id = "guests",
-                type = FormFieldType.NUMBER,
+                type = FormFieldType.Number,
                 label = "Number of additional guests",
                 placeholder = "0",
                 validation = FieldValidation(min = 0.0, max = 10.0),
-                conditional = ConditionalLogic("attending", ConditionalOperator.EQUALS, "yes"),
+                conditional = ConditionalLogic("attending", ConditionalOperator.Equals, "yes"),
                 order = 1
             ),
             FormField(
                 id = "notes",
-                type = FormFieldType.TEXTAREA,
+                type = FormFieldType.Textarea,
                 label = "Any notes or dietary requirements?",
                 placeholder = "Optional",
                 order = 2

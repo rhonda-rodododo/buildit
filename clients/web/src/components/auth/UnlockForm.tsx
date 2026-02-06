@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { APP_CONFIG } from '@/config/app';
-import type { Identity } from '@/types/identity';
+import type { PublicIdentity } from '@/stores/authStore';
 
 interface UnlockFormProps {
   /** Called when user wants to recover with recovery phrase */
@@ -61,12 +61,12 @@ export function UnlockForm({ onRecoveryClick, onCreateNewClick, onImportClick }:
   const displayError = localError || error;
 
   // Get initials for avatar
-  const getInitials = (identity: Omit<Identity, 'privateKey'> | null): string => {
+  const getInitials = (identity: PublicIdentity | null): string => {
     if (!identity) return '?';
     const name = identity.displayName || identity.name || '';
     return name
       .split(' ')
-      .map((n) => n[0])
+      .map((n: string) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2) || '?';

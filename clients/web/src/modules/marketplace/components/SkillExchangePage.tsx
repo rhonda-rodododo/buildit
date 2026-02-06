@@ -174,13 +174,13 @@ function SkillExchangeCard({
 
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          {exchange.availableHours > 0 && (
+          {(exchange.availableHours ?? 0) > 0 && (
             <div className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               <span>{exchange.availableHours}h/week</span>
             </div>
           )}
-          {exchange.hourlyTimebank > 0 && (
+          {(exchange.hourlyTimebank ?? 0) > 0 && (
             <Badge variant="outline" className="text-xs">
               {exchange.hourlyTimebank}h {t('marketplace.timebankHours')}
             </Badge>

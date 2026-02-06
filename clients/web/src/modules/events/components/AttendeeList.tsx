@@ -47,9 +47,9 @@ export const AttendeeList: FC<AttendeeListProps> = ({
       attendees: rsvps
         .filter((r) => r.status === 'going')
         .map((r) => ({
-          pubkey: r.userPubkey,
+          pubkey: r.pubkey,
           note: r.note,
-          timestamp: r.timestamp,
+          timestamp: r.respondedAt,
         })),
     },
     {
@@ -60,9 +60,9 @@ export const AttendeeList: FC<AttendeeListProps> = ({
       attendees: rsvps
         .filter((r) => r.status === 'maybe')
         .map((r) => ({
-          pubkey: r.userPubkey,
+          pubkey: r.pubkey,
           note: r.note,
-          timestamp: r.timestamp,
+          timestamp: r.respondedAt,
         })),
     },
     {
@@ -73,9 +73,9 @@ export const AttendeeList: FC<AttendeeListProps> = ({
       attendees: rsvps
         .filter((r) => r.status === 'not_going')
         .map((r) => ({
-          pubkey: r.userPubkey,
+          pubkey: r.pubkey,
           note: r.note,
-          timestamp: r.timestamp,
+          timestamp: r.respondedAt,
         })),
     },
   ]

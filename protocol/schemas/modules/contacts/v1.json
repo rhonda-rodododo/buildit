@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/contacts/v1.json",
+  "title": "ContactsModule",
+  "description": "Contact management, relationships, and metadata",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": true,
+
+  "$defs": {
+    "RelationshipType": {
+      "type": "string",
+      "description": "Type of relationship with a contact",
+      "enum": ["following", "follower", "friend", "blocked"]
+    },
+
+    "PredefinedTag": {
+      "type": "string",
+      "description": "Predefined contact tags for organizing",
+      "enum": ["volunteer", "member", "leader", "media_contact", "ally", "potential", "inactive", "union_rep", "steward", "donor"]
+    },
+
+    "NoteCategory": {
+      "type": "string",
+      "description": "Category for contact notes",
+      "enum": ["general", "meeting", "follow_up", "concern", "positive", "task"]
+    },
+
+    "ContactMetadata": {
+      "type": "object",
+      "description": "Metadata for a contact (NIP-02 derived)",
+      "required": ["pubkey", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "relay": {
+          "type": "string"
+        },
+        "petname": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "nip05": {
+          "type": "string"
+        },
+        "lud16": {
+          "type": "string",
+          "description": "Lightning address"
+        }
+      }
+    },
+
+    "Contact": {
+      "type": "object",
+      "description": "A contact with relationship information",
+      "required": ["pubkey", "relationship", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "relay": {
+          "type": "string"
+        },
+        "petname": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "nip05": {
+          "type": "string"
+        },
+        "lud16": {
+          "type": "string"
+        },
+        "relationship": {
+          "$ref": "#/$defs/RelationshipType"
+        },
+        "followedAt": {
+          "type": "integer"
+        },
+        "mutedAt": {
+          "type": "integer"
+        },
+        "blockedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "ContactNote": {
+      "type": "object",
+      "description": "A note attached to a contact",
+      "required": ["id", "contactPubkey", "content", "category", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "id": {
+          "type": "string"
+        },
+        "contactPubkey": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "category": {
+          "$ref": "#/$defs/NoteCategory"
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "ContactTag": {
+      "type": "object",
+      "description": "A tag applied to a contact",
+      "required": ["contactPubkey", "tag", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "contactPubkey": {
+          "type": "string"
+        },
+        "tag": {
+          "$ref": "#/$defs/PredefinedTag"
+        }
+      }
+    }
+  },
+
+  "x-storage": {
+    "tables": {
+      "contacts": {
+        "type": "Contact",
+        "primaryKey": "pubkey",
+        "indexes": ["relationship", "displayName"]
+      },
+      "contactNotes": {
+        "type": "ContactNote",
+        "primaryKey": "id",
+        "indexes": ["contactPubkey", "category", "createdAt"]
+      },
+      "contactTags": {
+        "type": "ContactTag",
+        "primaryKey": "++id",
+        "indexes": ["contactPubkey", "tag"]
+      }
+    }
+  }
+}

@@ -46,12 +46,12 @@ class GovernanceUseCase @Inject constructor(
         groupId: String,
         title: String,
         description: String?,
-        type: ProposalType = ProposalType.GENERAL,
-        votingSystem: VotingSystem = VotingSystem.SIMPLE_MAJORITY,
+        type: ProposalType = ProposalType.General,
+        votingSystem: VotingSystem = VotingSystem.SimpleMajority,
         options: List<VoteOption> = VoteOption.YES_NO,
         quorumType: QuorumType? = null,
         quorumValue: Double? = null,
-        thresholdType: ThresholdType? = ThresholdType.SIMPLE_MAJORITY,
+        thresholdType: ThresholdType? = ThresholdType.SimpleMajority,
         thresholdPercentage: Double? = 50.01,
         discussionDurationMs: Long? = null,
         votingDurationMs: Long,
@@ -102,7 +102,7 @@ class GovernanceUseCase @Inject constructor(
             allowDelegation = allowDelegation,
             createdBy = currentUserId,
             tags = tags,
-            quadraticConfig = if (votingSystem == VotingSystem.QUADRATIC) {
+            quadraticConfig = if (votingSystem == VotingSystem.Quadratic) {
                 quadraticConfig ?: QuadraticVotingConfig.DEFAULT
             } else null
         )
@@ -119,7 +119,7 @@ class GovernanceUseCase @Inject constructor(
             throw SecurityException("Not authorized to start voting on this proposal")
         }
 
-        repository.updateProposalStatus(proposalId, ProposalStatus.VOTING)
+        repository.updateProposalStatus(proposalId, ProposalStatus.Voting)
         repository.getProposalById(proposalId)?.let { publishProposal(it) }
     }
 
@@ -131,7 +131,7 @@ class GovernanceUseCase @Inject constructor(
             throw SecurityException("Not authorized to withdraw this proposal")
         }
 
-        repository.updateProposalStatus(proposalId, ProposalStatus.WITHDRAWN)
+        repository.updateProposalStatus(proposalId, ProposalStatus.Withdrawn)
         publishProposalDeletion(proposalId)
     }
 
@@ -200,7 +200,7 @@ class GovernanceUseCase @Inject constructor(
             throw IllegalStateException("Voting is not open for this proposal")
         }
 
-        if (proposal.votingSystem != VotingSystem.QUADRATIC) {
+        if (proposal.votingSystem != VotingSystem.Quadratic) {
             throw IllegalStateException("Proposal does not use quadratic voting")
         }
 
@@ -299,12 +299,12 @@ class GovernanceUseCase @Inject constructor(
 
         // Check quorum
         val quorumMet: Boolean = when (proposal.quorumType) {
-            QuorumType.PERCENTAGE -> {
+            QuorumType.Percentage -> {
                 val required = (totalEligible * (proposal.quorumValue ?: 0.0) / 100).toInt()
                 totalVotes >= required
             }
-            QuorumType.ABSOLUTE -> totalVotes >= (proposal.quorumValue ?: 0.0).toInt()
-            QuorumType.NONE, null -> true
+            QuorumType.Absolute -> totalVotes >= (proposal.quorumValue ?: 0.0).toInt()
+            QuorumType.None, null -> true
         }
 
         // Determine outcome
@@ -313,7 +313,7 @@ class GovernanceUseCase @Inject constructor(
         var thresholdMet = false
 
         if (!quorumMet) {
-            outcome = ProposalOutcome.NO_QUORUM
+            outcome = ProposalOutcome.NoQuorum
             winningOptions = emptyList()
         } else {
             val sortedOptions = voteCounts.entries.sortedByDescending { it.value }
@@ -333,28 +333,28 @@ class GovernanceUseCase @Inject constructor(
 
                 when {
                     ties.size > 1 -> {
-                        outcome = ProposalOutcome.TIE
+                        outcome = ProposalOutcome.Tie
                         winningOptions = ties.map { it.key }
                     }
                     thresholdMet && winner.key == "yes" -> {
-                        outcome = ProposalOutcome.PASSED
+                        outcome = ProposalOutcome.Passed
                         winningOptions = listOf(winner.key)
                     }
                     thresholdMet && winner.key == "no" -> {
-                        outcome = ProposalOutcome.REJECTED
+                        outcome = ProposalOutcome.Rejected
                         winningOptions = listOf(winner.key)
                     }
                     thresholdMet -> {
-                        outcome = ProposalOutcome.PASSED
+                        outcome = ProposalOutcome.Passed
                         winningOptions = listOf(winner.key)
                     }
                     else -> {
-                        outcome = ProposalOutcome.REJECTED
+                        outcome = ProposalOutcome.Rejected
                         winningOptions = emptyList()
                     }
                 }
             } else {
-                outcome = ProposalOutcome.NO_QUORUM
+                outcome = ProposalOutcome.NoQuorum
                 winningOptions = emptyList()
             }
         }
@@ -376,7 +376,7 @@ class GovernanceUseCase @Inject constructor(
         )
 
         // Update proposal status
-        val newStatus = if (outcome == ProposalOutcome.PASSED) ProposalStatus.PASSED else ProposalStatus.REJECTED
+        val newStatus = if (outcome == ProposalOutcome.Passed) ProposalStatus.Passed else ProposalStatus.Rejected
         repository.updateProposalStatus(proposalId, newStatus)
 
         publishResult(result)
@@ -396,7 +396,7 @@ class GovernanceUseCase @Inject constructor(
 
     suspend fun createDelegation(
         delegateId: String,
-        scope: DelegationScope = DelegationScope.ALL,
+        scope: DelegationScope = DelegationScope.All,
         categoryTags: List<String>? = null,
         proposalId: String? = null,
         validUntil: Long? = null

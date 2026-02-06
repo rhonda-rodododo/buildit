@@ -4,13 +4,18 @@
 // Model definitions for the Search module, aligned with protocol/schemas/modules/search/v1.json
 // All search operations are client-side only - no server-side indexing.
 // Content is encrypted at rest, only decrypted for local indexing.
+//
+// NOTE: The generated search.swift has poor type naming from quicktype (StickyFacetValue,
+// IndigoFacetValue, HilariousFacetValue, etc.) and duplicated structures. The manually
+// defined types here provide proper custom Codable implementations for complex types like
+// FacetValue, SearchScope, and LessonContent. SearchSchema is used for version reference.
 
 import Foundation
 
 // MARK: - Schema Version
 
-/// Current schema version for search models
-public let searchSchemaVersion = "1.0.0"
+/// Current schema version for search models (references generated SearchSchema)
+public let searchSchemaVersion = SearchSchema.version
 
 // MARK: - FacetValue
 

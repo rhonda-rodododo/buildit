@@ -99,8 +99,20 @@ export const ActivityFeed: FC<ActivityFeedProps> = ({ className, groupId }) => {
           authorId: event.createdBy,
           groupId: event.groupId,
           data: {
-            ...event,
-            tags: event.tags.join(','), // Convert string[] to comma-separated string
+            id: event.id,
+            groupId: event.groupId,
+            title: event.title,
+            description: event.description ?? '',
+            startTime: event.startAt,
+            endTime: event.endAt,
+            location: event.location?.name ?? event.location?.address,
+            privacy: event.visibility,
+            capacity: event.maxAttendees,
+            createdBy: event.createdBy,
+            createdAt: event.createdAt,
+            updatedAt: event.updatedAt ?? event.createdAt,
+            tags: (event.tags ?? []).join(','),
+            imageUrl: event.imageUrl,
           },
         });
       });

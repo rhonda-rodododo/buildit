@@ -65,7 +65,7 @@ class GovernanceRepository @Inject constructor(
             title = title,
             description = description,
             type = type,
-            status = if (discussionStartsAt != null) ProposalStatus.DISCUSSION else ProposalStatus.VOTING,
+            status = if (discussionStartsAt != null) ProposalStatus.Discussion else ProposalStatus.Voting,
             votingSystem = votingSystem,
             optionsJson = json.encodeToString(options),
             quorumType = quorumType,

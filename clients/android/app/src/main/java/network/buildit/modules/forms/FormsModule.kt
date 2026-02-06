@@ -214,9 +214,9 @@ class FormsModuleImpl @Inject constructor(
 
             FormField(
                 id = fieldObj["id"]?.jsonPrimitive?.content ?: "",
-                type = FormFieldType.valueOf(
-                    fieldObj["type"]?.jsonPrimitive?.content?.uppercase() ?: "TEXT"
-                ),
+                type = FormFieldType.entries.firstOrNull {
+                    it.value == (fieldObj["type"]?.jsonPrimitive?.content ?: "text")
+                } ?: FormFieldType.Text,
                 label = fieldObj["label"]?.jsonPrimitive?.content ?: "",
                 description = fieldObj["description"]?.jsonPrimitive?.content,
                 placeholder = fieldObj["placeholder"]?.jsonPrimitive?.content,
@@ -232,20 +232,16 @@ class FormsModuleImpl @Inject constructor(
             description = content["description"]?.jsonPrimitive?.content,
             fieldsJson = FormEntity.encodeFields(fields),
             groupId = content["groupId"]?.jsonPrimitive?.content,
-            visibility = try {
-                FormVisibility.valueOf(
-                    content["visibility"]?.jsonPrimitive?.content?.uppercase() ?: "GROUP"
-                )
-            } catch (_: Exception) {
-                FormVisibility.GROUP
-            },
+            visibility = FormVisibility.entries.firstOrNull {
+                it.value == (content["visibility"]?.jsonPrimitive?.content ?: "group")
+            } ?: FormVisibility.Group,
             anonymous = content["anonymous"]?.jsonPrimitive?.content?.toBoolean() ?: false,
             allowMultiple = content["allowMultiple"]?.jsonPrimitive?.content?.toBoolean() ?: false,
             opensAt = content["opensAt"]?.jsonPrimitive?.content?.toLongOrNull()?.times(1000),
             closesAt = content["closesAt"]?.jsonPrimitive?.content?.toLongOrNull()?.times(1000),
             maxResponses = content["maxResponses"]?.jsonPrimitive?.content?.toIntOrNull(),
             confirmationMessage = content["confirmationMessage"]?.jsonPrimitive?.content,
-            status = FormStatus.OPEN, // Assume forms from Nostr are published
+            status = FormStatus.Open, // Assume forms from Nostr are published
             createdBy = event.pubkey,
             createdAt = event.createdAt * 1000,
             nostrEventId = event.id,

@@ -15,7 +15,7 @@ import { clearLocalEncryptionKey } from './EncryptedDB';
 import type { DBGroup, DBGroupMember } from './db';
 import type { DBFriend, FriendRequest, FriendInviteLink } from '@/modules/friends/types';
 import type { DBConversation, ConversationMember } from '@/core/messaging/conversationSchema';
-import type { Event, RSVP } from '@/modules/events/types';
+import type { AppEvent, RSVP } from '@/modules/events/types';
 import type { AidItem } from '@/modules/mutual-aid/types';
 import type { DBProposal, DBVote } from '@/modules/governance/schema';
 import type { WikiPage, WikiCategory } from '@/modules/wiki/types';
@@ -288,7 +288,7 @@ class StoreInitializerService {
    */
   private async loadEventsStore(): Promise<void> {
     try {
-      const events = await dal.getAll<Event>('events').catch(() => [] as Event[]);
+      const events = await dal.getAll<AppEvent>('events').catch(() => [] as AppEvent[]);
       const rsvps = await dal.getAll<RSVP>('rsvps').catch(() => [] as RSVP[]);
 
       useEventsStore.setState({

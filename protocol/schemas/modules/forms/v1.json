@@ -83,10 +83,19 @@
         "createdAt": {
           "type": "integer"
         },
+        "status": {
+          "$ref": "#/$defs/FormStatus"
+        },
         "updatedAt": {
           "type": "integer"
         }
       }
+    },
+
+    "FormStatus": {
+      "type": "string",
+      "description": "Status of a form",
+      "enum": ["draft", "open", "closed", "archived"]
     },
 
     "FormField": {
@@ -100,7 +109,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["text", "textarea", "number", "email", "phone", "url", "date", "time", "datetime", "select", "multiselect", "radio", "checkbox", "file", "rating", "scale"]
+          "enum": ["text", "textarea", "number", "email", "phone", "url", "date", "time", "datetime", "select", "multiselect", "radio", "checkbox", "file", "rating", "scale", "location"]
         },
         "label": {
           "type": "string",

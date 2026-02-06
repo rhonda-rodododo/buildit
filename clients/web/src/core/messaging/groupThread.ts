@@ -104,6 +104,7 @@ export function decryptGroupMessage(
     const decryptedContent = decryptNIP44(event.content, groupKey)
 
     return {
+      _v: '1.0.0',
       id: event.id,
       threadId: threadTag[1],
       groupId: groupTag[1],
@@ -218,12 +219,13 @@ export async function getGroupThreads(
     return groupTag?.[1] === groupId
   })
 
-  return groupEvents.map((event) => {
+  return groupEvents.map((event): GroupThread => {
     const data = JSON.parse(event.content)
     const titleTag = event.tags.find((t) => t[0] === 'title')
     const categoryTag = event.tags.find((t) => t[0] === 'category')
 
     return {
+      _v: '1.0.0',
       id: event.id,
       groupId: data.groupId,
       title: titleTag?.[1] || data.title,

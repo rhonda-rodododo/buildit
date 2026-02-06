@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/tasks/v1.json",
+  "title": "TasksModule",
+  "description": "Schema for BuildIt Tasks module - task management and tracking",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "type": "object",
+
+  "$defs": {
+    "Task": {
+      "type": "object",
+      "description": "A task with assignment, priority, and status tracking",
+      "required": ["id", "groupId", "title", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Group this task belongs to"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "status": {
+          "$ref": "#/$defs/TaskStatus"
+        },
+        "priority": {
+          "$ref": "#/$defs/TaskPriority"
+        },
+        "assigneePubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Public key of assigned person"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dueDate": {
+          "type": "integer",
+          "description": "Unix timestamp of due date"
+        },
+        "completedAt": {
+          "type": "integer",
+          "description": "Unix timestamp of completion"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "checklist": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ChecklistItem" }
+        },
+        "parentTaskId": {
+          "type": "string",
+          "description": "Parent task for subtask relationships"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "default": 0
+        },
+        "createdAt": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "TaskStatus": {
+      "type": "string",
+      "description": "Status of a task",
+      "enum": ["todo", "in_progress", "done", "cancelled"]
+    },
+
+    "TaskPriority": {
+      "type": "string",
+      "description": "Priority level for tasks",
+      "enum": ["low", "medium", "high", "urgent"]
+    },
+
+    "ChecklistItem": {
+      "type": "object",
+      "description": "A checklist item within a task",
+      "required": ["id", "label"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "completed": {
+          "type": "boolean",
+          "default": false
+        },
+        "order": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "task": {
+      "kind": 40181,
+      "description": "BuildIt task creation/update",
+      "contentSchema": { "$ref": "#/$defs/Task" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "simple_task",
+      "description": "Basic task assignment",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "550e8400-e29b-41d4-a716-446655440010",
+        "groupId": "group-1",
+        "title": "Set up outreach table at farmers market",
+        "status": "todo",
+        "priority": "medium",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    }
+  ],
+
+  "x-storage": {
+    "tables": {
+      "tasks": {
+        "type": "Task",
+        "primaryKey": "id",
+        "indexes": ["groupId", "assigneePubkey", "status", "dueDate", "createdBy"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
+  }
+}

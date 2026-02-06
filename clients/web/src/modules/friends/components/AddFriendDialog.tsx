@@ -341,8 +341,9 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
     try {
       // Email invites require backend service (Phase 3)
       toast.info(t('addFriendDialog.toasts.emailComingSoon'));
-    } catch (error: any) {
-      toast.error(error.message || t('addFriendDialog.toasts.emailComingSoon'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.emailComingSoon');
+      toast.error(message);
     }
   };
 
@@ -357,8 +358,9 @@ export function AddFriendDialog({ open, onOpenChange }: AddFriendDialogProps) {
       const fullLink = `${window.location.origin}/invite/${link.code}`;
       setInviteLink(fullLink);
       toast.success(t('addFriendDialog.toasts.inviteLinkCreated'));
-    } catch (error: any) {
-      toast.error(error.message || t('addFriendDialog.toasts.inviteLinkCreated'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t('addFriendDialog.toasts.inviteLinkFailed');
+      toast.error(message);
     }
   };
 

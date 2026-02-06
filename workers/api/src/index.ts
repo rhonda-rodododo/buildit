@@ -10,6 +10,7 @@
 import { handleLinkPreview } from './link-preview';
 import { handleImageProxy } from './image-proxy';
 import { handleOEmbed } from './oembed';
+import { handleOgImage } from './og-image';
 
 export interface Env {
   CACHE?: KVNamespace;
@@ -119,6 +120,9 @@ export default {
       case '/api/oembed':
         return handleOEmbed(request, env, cors);
 
+      case '/api/og-image':
+        return handleOgImage(request, env, cors);
+
       case '/health':
         return new Response(
           JSON.stringify({ status: 'healthy', timestamp: Date.now() }),
@@ -129,7 +133,7 @@ export default {
         return new Response(
           JSON.stringify({
             name: 'BuildIt Network API',
-            endpoints: ['/api/link-preview', '/api/image-proxy', '/api/oembed', '/health'],
+            endpoints: ['/api/link-preview', '/api/image-proxy', '/api/oembed', '/api/og-image', '/health'],
           }),
           { headers: { ...cors, 'Content-Type': 'application/json' } },
         );

@@ -153,6 +153,7 @@ async function processPostItem(item: PostQueueItem): Promise<boolean> {
       contentType,
       media,
       visibility: {
+        _v: '1.0.0',
         privacy,
         groupIds: payload.visibility.groupIds,
       },

@@ -178,28 +178,28 @@ class SearchCoordinator @Inject constructor(
                 "type", "module" -> {
                     filters.add(QueryFilter(
                         field = "moduleType",
-                        operator = FilterOperator.EQ,
+                        operator = FilterOperator.Eq,
                         value = network.buildit.modules.search.models.FacetValue.StringValue(value)
                     ))
                 }
                 "author" -> {
                     filters.add(QueryFilter(
                         field = "authorPubkey",
-                        operator = FilterOperator.EQ,
+                        operator = FilterOperator.Eq,
                         value = network.buildit.modules.search.models.FacetValue.StringValue(value)
                     ))
                 }
                 "tag" -> {
                     filters.add(QueryFilter(
                         field = "tags",
-                        operator = FilterOperator.CONTAINS,
+                        operator = FilterOperator.Contains,
                         value = network.buildit.modules.search.models.FacetValue.StringValue(value)
                     ))
                 }
                 "group" -> {
                     filters.add(QueryFilter(
                         field = "groupId",
-                        operator = FilterOperator.EQ,
+                        operator = FilterOperator.Eq,
                         value = network.buildit.modules.search.models.FacetValue.StringValue(value)
                     ))
                 }

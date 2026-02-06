@@ -64,7 +64,7 @@ class SubmitQuizUseCase @Inject constructor(
                 ?: throw IllegalArgumentException("Lesson not found")
 
             // Verify it's a quiz lesson
-            if (lesson.type != LessonType.QUIZ) {
+            if (lesson.type != LessonType.Quiz) {
                 throw IllegalArgumentException("Lesson is not a quiz")
             }
 
@@ -93,15 +93,15 @@ class SubmitQuizUseCase @Inject constructor(
                 val correctAnswer = question.correctAnswer
 
                 val isCorrect = when (question.type) {
-                    QuizQuestionType.MULTIPLE_CHOICE,
-                    QuizQuestionType.TRUE_FALSE,
-                    QuizQuestionType.FILL_IN_BLANK -> {
+                    QuizQuestionType.MultipleChoice,
+                    QuizQuestionType.TrueFalse,
+                    QuizQuestionType.FillInBlank -> {
                         userAnswer.firstOrNull()?.equals(correctAnswer.firstOrNull(), ignoreCase = true) == true
                     }
-                    QuizQuestionType.MULTI_SELECT -> {
+                    QuizQuestionType.MultiSelect -> {
                         userAnswer.sorted() == correctAnswer.sorted()
                     }
-                    QuizQuestionType.SHORT_ANSWER -> {
+                    QuizQuestionType.ShortAnswer -> {
                         // For short answer, check if any correct answer matches
                         correctAnswer.any { correct ->
                             userAnswer.firstOrNull()?.contains(correct, ignoreCase = true) == true

@@ -1,13 +1,31 @@
 /**
  * Forms Module Types
- * Forms are public-facing data collection interfaces for Database tables
- * Similar to Airtable forms - they submit directly to database records
  *
- * Uses JSON Schema for form definitions with conditional logic support
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines a simpler Form model (protocol-level).
+ * The local types below represent the richer UI-side forms that extend
+ * Database tables with conditional logic, multi-page support, etc.
  */
 
 import type { CustomField } from '../custom-fields/types';
 import type { JSONSchema7 } from 'json-schema';
+
+// Re-export generated Zod schemas and types
+export {
+  FieldValidationSchema,
+  type FieldValidation,
+  ConditionalLogicSchema,
+  type ConditionalLogic,
+  FormFieldSchema,
+  type FormField,
+  FormSchema as ProtocolFormSchema,
+  type Form as ProtocolForm,
+  FormResponseSchema,
+  type FormResponse,
+  FORMS_SCHEMA_VERSION,
+} from '@/generated/validation/forms.zod';
+
+// ── UI-Only Types (richer client-side form model) ────────────────
 
 // ============================================================================
 // Form Configuration Types (extends Database tables)

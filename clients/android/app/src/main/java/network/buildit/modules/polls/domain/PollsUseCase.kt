@@ -42,7 +42,7 @@ class PollsUseCase @Inject constructor(
         title: String,
         description: String? = null,
         options: List<String>,
-        pollType: PollType = PollType.SINGLE_CHOICE,
+        pollType: PollType = PollType.Single,
         isAnonymous: Boolean = false,
         closesAt: Long? = null,
         maxChoices: Int? = null
@@ -59,7 +59,7 @@ class PollsUseCase @Inject constructor(
                 title = title,
                 description = description,
                 pollType = pollType,
-                status = PollStatus.ACTIVE,
+                status = PollStatus.Active,
                 optionsJson = Json.encodeToString(options),
                 isAnonymous = isAnonymous,
                 maxChoices = maxChoices,
@@ -89,7 +89,7 @@ class PollsUseCase @Inject constructor(
                 ?: throw IllegalStateException("Poll not found")
 
             // Validate poll is active
-            require(poll.status == PollStatus.ACTIVE) { "Poll is not active" }
+            require(poll.status == PollStatus.Active) { "Poll is not active" }
 
             // Check if already voted
             val existingVote = repository.getVote(pollId, pubkey)
@@ -102,14 +102,14 @@ class PollsUseCase @Inject constructor(
             require(selections.all { it in options.indices }) { "Invalid option selected" }
 
             when (poll.pollType) {
-                PollType.SINGLE_CHOICE -> {
+                PollType.Single -> {
                     require(selections.size == 1) { "Select exactly one option" }
                 }
-                PollType.MULTIPLE_CHOICE -> {
+                PollType.Multiple -> {
                     val max = poll.maxChoices ?: options.size
                     require(selections.size in 1..max) { "Select between 1 and $max options" }
                 }
-                PollType.RANKED_CHOICE -> {
+                PollType.RankedChoice -> {
                     require(rankings != null && rankings.size == options.size) {
                         "Rank all options for ranked choice"
                     }
@@ -135,10 +135,10 @@ class PollsUseCase @Inject constructor(
      */
     suspend fun closePoll(pollId: String): ModuleResult<Unit> {
         return runCatching {
-            repository.updatePollStatus(pollId, PollStatus.CLOSED)
+            repository.updatePollStatus(pollId, PollStatus.Closed)
             val poll = repository.getPoll(pollId)
             if (poll != null) {
-                publishPollToNostr(poll.copy(status = PollStatus.CLOSED))
+                publishPollToNostr(poll.copy(status = PollStatus.Closed))
             }
         }.toModuleResult()
     }

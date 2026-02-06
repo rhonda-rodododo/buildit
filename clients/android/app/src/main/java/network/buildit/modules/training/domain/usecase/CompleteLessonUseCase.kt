@@ -53,7 +53,7 @@ class CompleteLessonUseCase @Inject constructor(
             val existingProgress = repository.getLessonProgress(lessonId, pubkey).first()
             val lessonProgress = if (existingProgress != null) {
                 existingProgress.copy(
-                    status = ProgressStatus.COMPLETED,
+                    status = ProgressStatus.Completed,
                     score = score ?: existingProgress.score,
                     completedAt = now,
                     updated = now
@@ -63,7 +63,7 @@ class CompleteLessonUseCase @Inject constructor(
                     id = UUID.randomUUID().toString(),
                     lessonId = lessonId,
                     pubkey = pubkey,
-                    status = ProgressStatus.COMPLETED,
+                    status = ProgressStatus.Completed,
                     score = score,
                     timeSpent = 0,
                     lastPosition = null,
@@ -79,7 +79,7 @@ class CompleteLessonUseCase @Inject constructor(
             val allLessons = repository.getLessonsForCourse(courseId).first()
             val allProgress = repository.getLessonProgressForCourse(courseId, pubkey).first()
 
-            val completedLessons = allProgress.count { it.status == ProgressStatus.COMPLETED }
+            val completedLessons = allProgress.count { it.status == ProgressStatus.Completed }
             val totalLessons = allLessons.size
             val percentComplete = if (totalLessons > 0) {
                 (completedLessons.toFloat() / totalLessons.toFloat()) * 100f
@@ -121,7 +121,7 @@ class CompleteLessonUseCase @Inject constructor(
                     val requiredLessons = allLessons.filter { it.requiredForCertification }
                     val allRequiredPassed = requiredLessons.all { reqLesson ->
                         val progress = allProgress.find { it.lessonId == reqLesson.id }
-                        progress?.status == ProgressStatus.COMPLETED &&
+                        progress?.status == ProgressStatus.Completed &&
                                 (reqLesson.passingScore == null || (progress.score ?: 0) >= reqLesson.passingScore)
                     }
 
@@ -162,7 +162,7 @@ class CompleteLessonUseCase @Inject constructor(
 
             repository.updateProgress(
                 progress.copy(
-                    status = ProgressStatus.IN_PROGRESS,
+                    status = ProgressStatus.InProgress,
                     completedAt = null,
                     updated = System.currentTimeMillis() / 1000
                 )
@@ -178,7 +178,7 @@ class CompleteLessonUseCase @Inject constructor(
             val allProgress = repository.getLessonProgressForCourse(courseId, pubkey).first()
             val allLessons = repository.getLessonsForCourse(courseId).first()
 
-            val completedLessons = allProgress.count { it.status == ProgressStatus.COMPLETED }
+            val completedLessons = allProgress.count { it.status == ProgressStatus.Completed }
             val totalLessons = allLessons.size
             val percentComplete = if (totalLessons > 0) {
                 (completedLessons.toFloat() / totalLessons.toFloat()) * 100f

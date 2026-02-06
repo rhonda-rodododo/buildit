@@ -2,12 +2,22 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for forms, fields, and responses.
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
+//
+// NOTE: The generated forms.swift defines types that conflict with other modules:
+//   - Visibility (conflicts with fundraising, newsletters, publishing)
+//   - TypeEnum (conflicts with crm, marketplace)
+//   - FieldOption, FieldValidation, ConditionalLogic, FormField, FormResponse
+//     (all have different structures in the generated vs UI-layer versions)
+// The generated types use a flat validation model (FieldValidationClass with min/max/pattern)
+// while the UI layer uses a richer model with typed validators and convenience constructors.
+// UI-layer types are kept locally for the richer API they provide.
 
 import Foundation
 
 // MARK: - Enums
 
-/// Types of form fields
+/// Types of form fields (UI-layer, richer than generated TypeEnum)
 public enum FormFieldType: String, Codable, CaseIterable, Sendable {
     case text
     case textarea
@@ -92,7 +102,7 @@ public enum FormFieldType: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Form visibility settings
+/// Form visibility settings (UI-layer, avoids conflict with generated Visibility)
 public enum FormVisibility: String, Codable, CaseIterable, Sendable {
     case `public`
     case group
@@ -196,8 +206,8 @@ public enum ConditionalAction: String, Codable, Sendable {
 
 // MARK: - Models
 
-/// Option for select/radio/checkbox fields
-public struct FieldOption: Identifiable, Codable, Sendable, Hashable {
+/// Option for select/radio/checkbox fields (UI-layer with Identifiable + Hashable)
+public struct FormFieldOption: Identifiable, Codable, Sendable, Hashable {
     public let id: String
     public let label: String
     public let value: String
@@ -216,8 +226,8 @@ public struct FieldOption: Identifiable, Codable, Sendable, Hashable {
     }
 }
 
-/// Validation rule for a field
-public struct FieldValidation: Codable, Sendable {
+/// Validation rule for a field (UI-layer with typed constructors)
+public struct FormFieldValidation: Codable, Sendable {
     public let type: ValidationType
     public let value: String?
     public let message: String?
@@ -228,34 +238,29 @@ public struct FieldValidation: Codable, Sendable {
         self.message = message
     }
 
-    /// Create a minimum length validation
-    public static func minLength(_ length: Int, message: String? = nil) -> FieldValidation {
-        FieldValidation(type: .minLength, value: String(length), message: message)
+    public static func minLength(_ length: Int, message: String? = nil) -> FormFieldValidation {
+        FormFieldValidation(type: .minLength, value: String(length), message: message)
     }
 
-    /// Create a maximum length validation
-    public static func maxLength(_ length: Int, message: String? = nil) -> FieldValidation {
-        FieldValidation(type: .maxLength, value: String(length), message: message)
+    public static func maxLength(_ length: Int, message: String? = nil) -> FormFieldValidation {
+        FormFieldValidation(type: .maxLength, value: String(length), message: message)
     }
 
-    /// Create a minimum value validation
-    public static func minValue(_ value: Double, message: String? = nil) -> FieldValidation {
-        FieldValidation(type: .minValue, value: String(value), message: message)
+    public static func minValue(_ value: Double, message: String? = nil) -> FormFieldValidation {
+        FormFieldValidation(type: .minValue, value: String(value), message: message)
     }
 
-    /// Create a maximum value validation
-    public static func maxValue(_ value: Double, message: String? = nil) -> FieldValidation {
-        FieldValidation(type: .maxValue, value: String(value), message: message)
+    public static func maxValue(_ value: Double, message: String? = nil) -> FormFieldValidation {
+        FormFieldValidation(type: .maxValue, value: String(value), message: message)
     }
 
-    /// Create a pattern validation
-    public static func pattern(_ regex: String, message: String? = nil) -> FieldValidation {
-        FieldValidation(type: .pattern, value: regex, message: message)
+    public static func pattern(_ regex: String, message: String? = nil) -> FormFieldValidation {
+        FormFieldValidation(type: .pattern, value: regex, message: message)
     }
 }
 
-/// Conditional logic for showing/hiding fields
-public struct ConditionalLogic: Codable, Sendable {
+/// Conditional logic for showing/hiding fields (UI-layer with richer actions)
+public struct FormConditionalLogic: Codable, Sendable {
     public let fieldId: String
     public let `operator`: ConditionalOperator
     public let value: String?
@@ -277,7 +282,7 @@ public struct ConditionalLogic: Codable, Sendable {
     }
 }
 
-/// Scale configuration for scale fields
+/// Scale configuration for scale fields (UI-only)
 public struct ScaleConfig: Codable, Sendable {
     public let min: Int
     public let max: Int
@@ -308,17 +313,17 @@ public struct ScaleConfig: Codable, Sendable {
     }
 }
 
-/// A form field definition
-public struct FormField: Identifiable, Codable, Sendable {
+/// A form field definition (UI-layer with richer type system)
+public struct FormFieldDefinition: Identifiable, Codable, Sendable {
     public let id: String
     public let type: FormFieldType
     public var label: String
     public var description: String?
     public var placeholder: String?
     public var required: Bool
-    public var options: [FieldOption]?
-    public var validation: [FieldValidation]?
-    public var conditionalLogic: [ConditionalLogic]?
+    public var options: [FormFieldOption]?
+    public var validation: [FormFieldValidation]?
+    public var conditionalLogic: [FormConditionalLogic]?
     public var scaleConfig: ScaleConfig?
     public var defaultValue: String?
     public var order: Int
@@ -330,9 +335,9 @@ public struct FormField: Identifiable, Codable, Sendable {
         description: String? = nil,
         placeholder: String? = nil,
         required: Bool = false,
-        options: [FieldOption]? = nil,
-        validation: [FieldValidation]? = nil,
-        conditionalLogic: [ConditionalLogic]? = nil,
+        options: [FormFieldOption]? = nil,
+        validation: [FormFieldValidation]? = nil,
+        conditionalLogic: [FormConditionalLogic]? = nil,
         scaleConfig: ScaleConfig? = nil,
         defaultValue: String? = nil,
         order: Int = 0
@@ -351,45 +356,41 @@ public struct FormField: Identifiable, Codable, Sendable {
         self.order = order
     }
 
-    /// Create a text field
     public static func text(
         label: String,
         placeholder: String? = nil,
         required: Bool = false
-    ) -> FormField {
-        FormField(type: .text, label: label, placeholder: placeholder, required: required)
+    ) -> FormFieldDefinition {
+        FormFieldDefinition(type: .text, label: label, placeholder: placeholder, required: required)
     }
 
-    /// Create an email field
     public static func email(
         label: String = "Email",
         placeholder: String? = "email@example.com",
         required: Bool = false
-    ) -> FormField {
-        FormField(
+    ) -> FormFieldDefinition {
+        FormFieldDefinition(
             type: .email,
             label: label,
             placeholder: placeholder,
             required: required,
-            validation: [FieldValidation(type: .email)]
+            validation: [FormFieldValidation(type: .email)]
         )
     }
 
-    /// Create a select field with options
     public static func select(
         label: String,
         options: [String],
         required: Bool = false
-    ) -> FormField {
+    ) -> FormFieldDefinition {
         let fieldOptions = options.enumerated().map { index, opt in
-            FieldOption(label: opt, order: index)
+            FormFieldOption(label: opt, order: index)
         }
-        return FormField(type: .select, label: label, required: required, options: fieldOptions)
+        return FormFieldDefinition(type: .select, label: label, required: required, options: fieldOptions)
     }
 
-    /// Create a rating field
-    public static func rating(label: String, maxStars: Int = 5, required: Bool = false) -> FormField {
-        FormField(
+    public static func rating(label: String, maxStars: Int = 5, required: Bool = false) -> FormFieldDefinition {
+        FormFieldDefinition(
             type: .rating,
             label: label,
             required: required,
@@ -398,13 +399,12 @@ public struct FormField: Identifiable, Codable, Sendable {
     }
 }
 
-/// A form definition
-/// Note: Named FormDefinition to avoid conflict with SwiftUI's Form
+/// A form definition (UI-layer, named to avoid conflict with SwiftUI's Form)
 public struct FormDefinition: Identifiable, Codable, Sendable {
     public let id: String
     public var title: String
     public var description: String?
-    public var fields: [FormField]
+    public var fields: [FormFieldDefinition]
     public var groupId: String?
     public var visibility: FormVisibility
     public var status: FormStatus
@@ -423,7 +423,7 @@ public struct FormDefinition: Identifiable, Codable, Sendable {
         id: String = UUID().uuidString,
         title: String,
         description: String? = nil,
-        fields: [FormField] = [],
+        fields: [FormFieldDefinition] = [],
         groupId: String? = nil,
         visibility: FormVisibility = .group,
         status: FormStatus = .draft,
@@ -480,7 +480,7 @@ public struct FormDefinition: Identifiable, Codable, Sendable {
     }
 }
 
-/// An answer to a single field
+/// An answer to a single field (UI-only)
 public struct FieldAnswer: Codable, Sendable {
     public let fieldId: String
     public let value: String
@@ -492,18 +492,16 @@ public struct FieldAnswer: Codable, Sendable {
         self.values = values
     }
 
-    /// Create a single-value answer
     public static func single(fieldId: String, value: String) -> FieldAnswer {
         FieldAnswer(fieldId: fieldId, value: value)
     }
 
-    /// Create a multi-value answer
     public static func multiple(fieldId: String, values: [String]) -> FieldAnswer {
         FieldAnswer(fieldId: fieldId, value: values.joined(separator: ", "), values: values)
     }
 }
 
-/// Respondent information
+/// Respondent information (UI-only)
 public struct Respondent: Codable, Sendable {
     public let pubkey: String?
     public let displayName: String?
@@ -520,8 +518,8 @@ public struct Respondent: Codable, Sendable {
     }
 }
 
-/// A response to a form
-public struct FormResponse: Identifiable, Codable, Sendable {
+/// A response to a form (UI-layer with richer answer model)
+public struct FormResponseUI: Identifiable, Codable, Sendable {
     public let id: String
     public let formId: String
     public let answers: [FieldAnswer]
@@ -551,7 +549,7 @@ public struct FormResponse: Identifiable, Codable, Sendable {
     }
 }
 
-/// Validation result
+/// Validation result (UI-only)
 public struct ValidationResult: Sendable {
     public let isValid: Bool
     public let errors: [String: String]
@@ -570,7 +568,7 @@ public struct ValidationResult: Sendable {
     }
 }
 
-/// Form statistics
+/// Form statistics (UI-only)
 public struct FormStatistics: Sendable {
     public let formId: String
     public let totalResponses: Int
@@ -593,7 +591,7 @@ public struct FormStatistics: Sendable {
     }
 }
 
-/// Statistics for a single field
+/// Statistics for a single field (UI-only)
 public struct FieldStatistics: Sendable {
     public let fieldId: String
     public let responseCount: Int

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useEvents } from '../hooks/useEvents'
-import { Event } from '../types'
+import { AppEvent } from '../types'
 import { Download } from 'lucide-react'
 import { downloadCalendarAsICS, downloadEventAsICS } from '../utils/ical'
 import { format, isSameDay } from 'date-fns'
@@ -21,11 +21,11 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
 
   // Get events for selected date
   const eventsOnSelectedDate = events.filter((event) =>
-    isSameDay(new Date(event.startTime), selectedDate)
+    isSameDay(new Date(event.startAt * 1000), selectedDate)
   )
 
   // Get dates that have events
-  const datesWithEvents = events.map((event) => new Date(event.startTime))
+  const datesWithEvents = events.map((event) => new Date(event.startAt * 1000))
 
   const handleDownloadAll = () => {
     downloadCalendarAsICS(
@@ -34,7 +34,7 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
     )
   }
 
-  const handleDownloadEvent = (event: Event) => {
+  const handleDownloadEvent = (event: AppEvent) => {
     downloadEventAsICS(event)
   }
 
@@ -87,18 +87,18 @@ export const CalendarView: FC<CalendarViewProps> = ({ groupId }) => {
                       <div className="flex-1">
                         <h4 className="font-semibold">{event.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {format(new Date(event.startTime), 'p')}
-                          {event.endTime &&
-                            ` - ${format(new Date(event.endTime), 'p')}`}
+                          {format(new Date(event.startAt * 1000), 'p')}
+                          {event.endAt &&
+                            ` - ${format(new Date(event.endAt * 1000), 'p')}`}
                         </p>
                         {event.location && (
                           <p className="text-sm text-muted-foreground mt-1">
-                            📍 {event.location}
+                            📍 {event.location.name ?? event.location.address ?? ''}
                           </p>
                         )}
-                        {event.tags.length > 0 && (
+                        {(event.tags ?? []).length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {event.tags.map((tag: string, idx: number) => (
+                            {(event.tags ?? []).map((tag: string, idx: number) => (
                               <Badge key={idx} variant="outline" className="text-xs">
                                 {tag}
                               </Badge>

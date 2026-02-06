@@ -2,12 +2,112 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for the cooperative marketplace module.
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
+//
+// NOTE: The generated marketplace.swift defines TypeEnum which conflicts with
+// CRM and forms modules. Therefore, ListingType is defined locally with a
+// module-specific name. Other generated enum types (ListingStatus, GovernanceModel,
+// SkillExchangeStatus, ResourceShareStatus, Precision, ContactMethod, ResourceType)
+// are used directly with UI extensions.
 
 import Foundation
 
-// MARK: - Enums
+// Re-export protocol types from generated schema.
+// The following types come from Sources/Generated/Schemas/marketplace.swift:
+//   Listing (generated), CoopProfile (generated), Review, SkillExchange (generated),
+//   ResourceShare (generated), ListingStatus, GovernanceModel, SkillExchangeStatus,
+//   ResourceShareStatus, ResourceType, Precision, ContactMethod, TypeEnum,
+//   ListingLocation, CoopProfileLocation, SkillExchangeLocation, ResourceShareLocation,
+//   Availability, MarketplaceSchema
 
-/// Type of marketplace listing
+// MARK: - UI Extensions for ListingStatus
+
+extension ListingStatus: CaseIterable {
+    public static var allCases: [ListingStatus] {
+        [.active, .sold, .expired, .removed]
+    }
+
+    var displayName: String {
+        switch self {
+        case .active: return "Active"
+        case .sold: return "Sold"
+        case .expired: return "Expired"
+        case .removed: return "Removed"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .active: return "green"
+        case .sold: return "blue"
+        case .expired: return "gray"
+        case .removed: return "red"
+        }
+    }
+}
+
+// MARK: - UI Extensions for GovernanceModel
+
+extension GovernanceModel: CaseIterable {
+    public static var allCases: [GovernanceModel] {
+        [.consensus, .democratic, .sociocracy, .holacracy, .hybrid, .other]
+    }
+
+    var displayName: String {
+        switch self {
+        case .consensus: return "Consensus"
+        case .democratic: return "Democratic"
+        case .sociocracy: return "Sociocracy"
+        case .holacracy: return "Holacracy"
+        case .hybrid: return "Hybrid"
+        case .other: return "Other"
+        }
+    }
+}
+
+// MARK: - UI Extensions for SkillExchangeStatus
+
+extension SkillExchangeStatus: CaseIterable {
+    public static var allCases: [SkillExchangeStatus] {
+        [.active, .matched, .completed, .cancelled]
+    }
+}
+
+// MARK: - UI Extensions for ResourceShareStatus
+
+extension ResourceShareStatus: CaseIterable {
+    public static var allCases: [ResourceShareStatus] {
+        [.available, .borrowed, .unavailable]
+    }
+}
+
+// MARK: - UI Extensions for ResourceType
+
+extension ResourceType: CaseIterable {
+    public static var allCases: [ResourceType] {
+        [.tool, .space, .vehicle]
+    }
+
+    var displayName: String {
+        switch self {
+        case .tool: return "Tool"
+        case .space: return "Space"
+        case .vehicle: return "Vehicle"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .tool: return "wrench"
+        case .space: return "building.2"
+        case .vehicle: return "car"
+        }
+    }
+}
+
+// MARK: - UI-Only Enums
+
+/// Type of marketplace listing (UI-only, avoids conflict with generated TypeEnum)
 public enum ListingType: String, Codable, CaseIterable, Sendable {
     case product
     case service
@@ -36,99 +136,14 @@ public enum ListingType: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Status of a marketplace listing
-public enum ListingStatus: String, Codable, CaseIterable, Sendable {
-    case active
-    case sold
-    case expired
-    case removed
+// MARK: - UI-Only Types
 
-    var displayName: String {
-        switch self {
-        case .active: return "Active"
-        case .sold: return "Sold"
-        case .expired: return "Expired"
-        case .removed: return "Removed"
-        }
-    }
-
-    var color: String {
-        switch self {
-        case .active: return "green"
-        case .sold: return "blue"
-        case .expired: return "gray"
-        case .removed: return "red"
-        }
-    }
-}
-
-/// Governance model for co-ops
-public enum GovernanceModel: String, Codable, CaseIterable, Sendable {
-    case consensus
-    case democratic
-    case sociocracy
-    case holacracy
-    case hybrid
-    case other
-
-    var displayName: String {
-        switch self {
-        case .consensus: return "Consensus"
-        case .democratic: return "Democratic"
-        case .sociocracy: return "Sociocracy"
-        case .holacracy: return "Holacracy"
-        case .hybrid: return "Hybrid"
-        case .other: return "Other"
-        }
-    }
-}
-
-/// Status of a skill exchange
-public enum SkillExchangeStatus: String, Codable, CaseIterable, Sendable {
-    case active
-    case matched
-    case completed
-    case cancelled
-}
-
-/// Type of shared resource
-public enum ResourceShareType: String, Codable, CaseIterable, Sendable {
-    case tool
-    case space
-    case vehicle
-
-    var displayName: String {
-        switch self {
-        case .tool: return "Tool"
-        case .space: return "Space"
-        case .vehicle: return "Vehicle"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .tool: return "wrench"
-        case .space: return "building.2"
-        case .vehicle: return "car"
-        }
-    }
-}
-
-/// Status of a shared resource
-public enum ResourceShareStatus: String, Codable, CaseIterable, Sendable {
-    case available
-    case borrowed
-    case unavailable
-}
-
-// MARK: - Location
-
-/// Privacy-aware location value (matches custom-fields LocationValue)
+/// Privacy-aware location value (UI-layer with Hashable, uses String precision)
 public struct LocationValue: Codable, Sendable, Hashable {
     public var lat: Double
     public var lng: Double
     public var label: String
-    public var precision: String // exact, neighborhood, city, region
+    public var precision: String
 
     public init(lat: Double, lng: Double, label: String, precision: String = "neighborhood") {
         self.lat = lat
@@ -138,15 +153,13 @@ public struct LocationValue: Codable, Sendable, Hashable {
     }
 }
 
-// MARK: - Models
-
-/// A marketplace listing
-public struct Listing: Identifiable, Codable, Sendable {
+/// A marketplace listing (UI-layer with Date fields, Identifiable, mutable properties)
+public struct MarketplaceListing: Identifiable, Codable, Sendable {
     public let id: String
     public var type: ListingType
     public var title: String
     public var description: String?
-    public var price: Double? // in cents
+    public var price: Double?
     public var currency: String
     public var images: [String]
     public var location: LocationValue?
@@ -201,7 +214,6 @@ public struct Listing: Identifiable, Codable, Sendable {
         self.contactMethod = contactMethod
     }
 
-    /// Formatted price for display
     public var formattedPrice: String {
         guard let price = price, price > 0 else {
             return "Free / Negotiable"
@@ -212,15 +224,14 @@ public struct Listing: Identifiable, Codable, Sendable {
         return formatter.string(from: NSNumber(value: price / 100)) ?? "\(price / 100) \(currency)"
     }
 
-    /// Whether the listing has expired
     public var isExpired: Bool {
         if let expiresAt = expiresAt, expiresAt < Date() { return true }
         return status == .expired
     }
 }
 
-/// A worker co-op profile
-public struct CoopProfile: Identifiable, Codable, Sendable {
+/// A worker co-op profile (UI-layer with Date fields, Identifiable, mutable properties)
+public struct CoopProfileUI: Identifiable, Codable, Sendable {
     public let id: String
     public var name: String
     public var description: String?
@@ -268,18 +279,17 @@ public struct CoopProfile: Identifiable, Codable, Sendable {
         self.groupId = groupId
     }
 
-    /// Number of vouchers
     public var vouchCount: Int {
         verifiedBy.count
     }
 }
 
-/// A review for a listing or co-op
+/// A review for a listing or co-op (UI-layer with Date fields)
 public struct MarketplaceReview: Identifiable, Codable, Sendable {
     public let id: String
     public var listingId: String
     public var reviewerPubkey: String
-    public var rating: Int // 1-5
+    public var rating: Int
     public var text: String
     public var createdAt: Date
 
@@ -300,8 +310,8 @@ public struct MarketplaceReview: Identifiable, Codable, Sendable {
     }
 }
 
-/// A skill exchange offer
-public struct SkillExchange: Identifiable, Codable, Sendable {
+/// A skill exchange offer (UI-layer with Date fields)
+public struct SkillExchangeUI: Identifiable, Codable, Sendable {
     public let id: String
     public var offeredSkill: String
     public var requestedSkill: String
@@ -341,10 +351,10 @@ public struct SkillExchange: Identifiable, Codable, Sendable {
     }
 }
 
-/// A shared resource (tool, space, vehicle)
-public struct ResourceShare: Identifiable, Codable, Sendable {
+/// A shared resource (UI-layer with Date fields)
+public struct ResourceShareUI: Identifiable, Codable, Sendable {
     public let id: String
-    public var resourceType: ResourceShareType
+    public var resourceType: ResourceType
     public var name: String
     public var description: String?
     public var images: [String]
@@ -360,7 +370,7 @@ public struct ResourceShare: Identifiable, Codable, Sendable {
 
     public init(
         id: String = UUID().uuidString,
-        resourceType: ResourceShareType,
+        resourceType: ResourceType,
         name: String,
         description: String? = nil,
         images: [String] = [],

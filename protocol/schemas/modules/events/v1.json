@@ -214,6 +214,83 @@
       }
     },
 
+    "BreakoutRoomConfig": {
+      "type": "object",
+      "description": "Breakout room configuration for virtual events",
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "enabled": { "type": "boolean" },
+        "autoAssign": { "type": "boolean" },
+        "roomCount": { "type": "integer", "minimum": 2 },
+        "roomNames": { "type": "array", "items": { "type": "string" } },
+        "allowSelfSelect": { "type": "boolean" },
+        "duration": { "type": "integer", "description": "Duration in minutes" }
+      }
+    },
+
+    "EventVirtualConfig": {
+      "type": "object",
+      "description": "Virtual event configuration for hybrid events",
+      "required": ["enabled", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "enabled": { "type": "boolean" },
+        "conferenceRoomId": { "type": "string" },
+        "autoStartMinutes": { "type": "integer", "minimum": 0, "maximum": 60, "default": 15 },
+        "waitingRoomEnabled": { "type": "boolean", "default": true },
+        "recordingEnabled": { "type": "boolean", "default": false },
+        "recordingConsentRequired": { "type": "boolean", "default": true },
+        "maxVirtualAttendees": { "type": "integer", "minimum": 1 },
+        "breakoutRoomsEnabled": { "type": "boolean", "default": false },
+        "breakoutConfig": { "$ref": "#/$defs/BreakoutRoomConfig" },
+        "recordingUrl": { "type": "string", "format": "uri" },
+        "e2eeRequired": { "type": "boolean", "default": true }
+      }
+    },
+
+    "EventVolunteerRole": {
+      "type": "object",
+      "description": "A volunteer role at an event",
+      "required": ["id", "eventId", "name", "spotsNeeded", "spotsFilled", "created", "createdBy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "eventId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string" },
+        "spotsNeeded": { "type": "integer", "minimum": 1 },
+        "spotsFilled": { "type": "integer", "minimum": 0 },
+        "requiredTrainings": { "type": "array", "items": { "type": "string" } },
+        "shiftStart": { "type": "integer" },
+        "shiftEnd": { "type": "integer" },
+        "created": { "type": "integer" },
+        "createdBy": { "type": "string" }
+      }
+    },
+
+    "EventVolunteerSignup": {
+      "type": "object",
+      "description": "A volunteer's signup for a specific role",
+      "required": ["id", "eventId", "roleId", "contactId", "status", "signupTime", "created", "updated", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "eventId": { "type": "string" },
+        "roleId": { "type": "string" },
+        "contactId": { "type": "string" },
+        "contactPubkey": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "declined", "no-show"] },
+        "signupTime": { "type": "integer" },
+        "confirmedBy": { "type": "string" },
+        "notes": { "type": "string" },
+        "created": { "type": "integer" },
+        "updated": { "type": "integer" }
+      }
+    },
+
     "Attachment": {
       "type": "object",
       "required": ["type", "url"],

@@ -2,16 +2,21 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for publishing module - blogs, articles, and long-form content.
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
+//
+// NOTE: The generated publishing.swift defines types that conflict with other modules:
+//   - Status (conflicts with wiki)
+//   - Visibility (conflicts with fundraising, forms, newsletters)
+//   - FetchedBy (conflicts with newsletters)
+// Therefore, UI-layer types with module-specific names are defined locally below.
+// The generated types from Sources/Generated/Schemas/publishing.swift are used for
+// wire-format decoding only. PublishingSchema is used for version reference.
 
 import Foundation
 
-// MARK: - Schema Version
+// MARK: - Enums (UI-layer, avoid generated Status/Visibility conflicts)
 
-let PublishingSchemaVersion = "1.0.0"
-
-// MARK: - Enums
-
-/// Status of an article
+/// Status of an article (UI-only, avoids conflict with generated Status)
 public enum ArticleStatus: String, Codable, CaseIterable, Sendable {
     case draft
     case published
@@ -46,7 +51,7 @@ public enum ArticleStatus: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Visibility of an article or publication
+/// Visibility of an article or publication (UI-only, avoids conflict with generated Visibility)
 public enum ArticleVisibility: String, Codable, Sendable {
     case `private`
     case group
@@ -69,10 +74,10 @@ public enum ArticleVisibility: String, Codable, Sendable {
     }
 }
 
-// MARK: - SEO Metadata
+// MARK: - SEO Metadata (UI-layer with Equatable and mutable properties)
 
 /// SEO metadata for an article
-public struct SEOMetadata: Codable, Sendable, Equatable {
+public struct SEOMetadataUI: Codable, Sendable, Equatable {
     public var metaTitle: String?
     public var metaDescription: String?
     public var ogImage: String?
@@ -90,26 +95,23 @@ public struct SEOMetadata: Codable, Sendable, Equatable {
         self.keywords = keywords
     }
 
-    /// Check if SEO metadata is configured
     public var isConfigured: Bool {
         metaTitle != nil || metaDescription != nil || ogImage != nil || !keywords.isEmpty
     }
 
-    /// Meta title with character count (max 60)
     public var metaTitleCharCount: Int {
         metaTitle?.count ?? 0
     }
 
-    /// Meta description with character count (max 160)
     public var metaDescriptionCharCount: Int {
         metaDescription?.count ?? 0
     }
 }
 
-// MARK: - Article
+// MARK: - Article (UI-layer with Date fields, Identifiable, mutable properties)
 
 /// An article or blog post
-public struct Article: Identifiable, Codable, Sendable {
+public struct ArticleUI: Identifiable, Codable, Sendable {
     public let id: String
     public let schemaVersion: String
     public var title: String
@@ -130,13 +132,13 @@ public struct Article: Identifiable, Codable, Sendable {
     public var coauthors: [String]
     public var viewCount: Int
     public var canonicalUrl: String?
-    public var seo: SEOMetadata
+    public var seo: SEOMetadataUI
     public let createdAt: Date
     public var updatedAt: Date?
 
     public init(
         id: String = UUID().uuidString,
-        schemaVersion: String = PublishingSchemaVersion,
+        schemaVersion: String = PublishingSchema.version,
         title: String,
         slug: String = "",
         subtitle: String? = nil,
@@ -155,14 +157,14 @@ public struct Article: Identifiable, Codable, Sendable {
         coauthors: [String] = [],
         viewCount: Int = 0,
         canonicalUrl: String? = nil,
-        seo: SEOMetadata = SEOMetadata(),
+        seo: SEOMetadataUI = SEOMetadataUI(),
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
         self.id = id
         self.schemaVersion = schemaVersion
         self.title = title
-        self.slug = slug.isEmpty ? Article.generateSlug(from: title) : slug
+        self.slug = slug.isEmpty ? ArticleUI.generateSlug(from: title) : slug
         self.subtitle = subtitle
         self.content = content
         self.excerpt = excerpt
@@ -186,38 +188,31 @@ public struct Article: Identifiable, Codable, Sendable {
 
     // MARK: - Computed Properties
 
-    /// Word count of content
     public var wordCount: Int {
         content.split(whereSeparator: { $0.isWhitespace }).count
     }
 
-    /// Estimated reading time in minutes
     public var readingTime: Int {
         max(1, wordCount / 200)
     }
 
-    /// Check if article is published
     public var isPublished: Bool {
         status == .published
     }
 
-    /// Check if article is scheduled for future
     public var isScheduled: Bool {
         status == .scheduled && scheduledAt != nil
     }
 
-    /// Check if scheduled article should be published
     public var shouldPublish: Bool {
         guard isScheduled, let scheduledAt = scheduledAt else { return false }
         return scheduledAt <= Date()
     }
 
-    /// Auto-generate excerpt from content if not set
     public var displayExcerpt: String {
         if let excerpt = excerpt, !excerpt.isEmpty {
             return excerpt
         }
-        // Strip markdown and take first 150 chars
         let stripped = content
             .replacingOccurrences(of: "#", with: "")
             .replacingOccurrences(of: "*", with: "")
@@ -226,13 +221,11 @@ public struct Article: Identifiable, Codable, Sendable {
         if stripped.count <= 150 {
             return stripped
         }
-        let index = stripped.index(stripped.startIndex, offsetBy: 150)
-        return String(stripped[..<index]) + "..."
+        return String(stripped.prefix(150)) + "..."
     }
 
     // MARK: - Static Methods
 
-    /// Generate URL-friendly slug from title
     public static func generateSlug(from title: String) -> String {
         title
             .lowercased()
@@ -255,10 +248,10 @@ public struct Article: Identifiable, Codable, Sendable {
     }
 }
 
-// MARK: - Publication
+// MARK: - Publication (UI-layer with Date fields and extended properties)
 
 /// A publication or blog collection
-public struct Publication: Identifiable, Codable, Sendable {
+public struct PublicationUI: Identifiable, Codable, Sendable {
     public let id: String
     public let schemaVersion: String
     public var name: String
@@ -279,7 +272,7 @@ public struct Publication: Identifiable, Codable, Sendable {
 
     public init(
         id: String = UUID().uuidString,
-        schemaVersion: String = PublishingSchemaVersion,
+        schemaVersion: String = PublishingSchema.version,
         name: String,
         description: String? = nil,
         logo: String? = nil,
@@ -315,7 +308,6 @@ public struct Publication: Identifiable, Codable, Sendable {
         self.updatedAt = updatedAt
     }
 
-    /// Check if user can edit this publication
     public func canEdit(pubkey: String) -> Bool {
         ownerPubkey == pubkey || editors.contains(pubkey)
     }
@@ -400,7 +392,7 @@ public struct ArticleComment: Identifiable, Codable, Sendable {
 
     public init(
         id: String = UUID().uuidString,
-        schemaVersion: String = PublishingSchemaVersion,
+        schemaVersion: String = PublishingSchema.version,
         articleId: String,
         parentId: String? = nil,
         content: String,
@@ -420,7 +412,6 @@ public struct ArticleComment: Identifiable, Codable, Sendable {
         self.updatedAt = updatedAt
     }
 
-    /// Check if this is a reply to another comment
     public var isReply: Bool {
         parentId != nil
     }
@@ -440,8 +431,8 @@ public struct SubscriptionTier: Identifiable, Codable, Sendable {
     public let publicationId: String
     public var name: String
     public var description: String?
-    public var priceMonthly: Int // In sats
-    public var priceYearly: Int? // In sats
+    public var priceMonthly: Int
+    public var priceYearly: Int?
     public var benefits: [String]
     public var isActive: Bool
     public let createdAt: Date
@@ -468,12 +459,10 @@ public struct SubscriptionTier: Identifiable, Codable, Sendable {
         self.createdAt = createdAt
     }
 
-    /// Price formatted in sats
     public var formattedMonthlyPrice: String {
         "\(priceMonthly) sats/mo"
     }
 
-    /// Price formatted in sats (yearly)
     public var formattedYearlyPrice: String? {
         guard let yearly = priceYearly else { return nil }
         return "\(yearly) sats/yr"
@@ -483,7 +472,7 @@ public struct SubscriptionTier: Identifiable, Codable, Sendable {
 // MARK: - Subscriber
 
 /// A subscriber to a publication
-public struct Subscriber: Identifiable, Codable, Sendable {
+public struct PublicationSubscriber: Identifiable, Codable, Sendable {
     public let id: String
     public let publicationId: String
     public let pubkey: String
@@ -516,7 +505,6 @@ public struct Subscriber: Identifiable, Codable, Sendable {
         self.expiresAt = expiresAt
     }
 
-    /// Check if subscription is active
     public var isActive: Bool {
         switch subscriptionStatus {
         case .free, .active:
@@ -555,7 +543,7 @@ public struct RSSFeedItem: Sendable {
     public let guid: String
     public let categories: [String]
 
-    public init(from article: Article, baseUrl: String) {
+    public init(from article: ArticleUI, baseUrl: String) {
         self.title = article.title
         self.link = "\(baseUrl)/\(article.slug)"
         self.description = article.displayExcerpt
@@ -590,7 +578,6 @@ public struct ArticleDraft: Identifiable, Codable, Sendable {
         self.articleId = articleId
     }
 
-    /// Check if draft has unsaved changes
     public var hasContent: Bool {
         !title.isEmpty || !content.isEmpty
     }

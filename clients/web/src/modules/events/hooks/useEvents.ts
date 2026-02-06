@@ -3,7 +3,7 @@ import { useEventsStore } from '../eventsStore'
 import { EventManager } from '../eventManager'
 import { NostrClient, getNostrClient as getGlobalNostrClient } from '@/core/nostr/client'
 import { createPrivateDM } from '@/core/crypto/nip17'
-import { CreateEventFormData, RSVPStatus, Event } from '../types'
+import { CreateEventFormData, RSVPStatus, AppEvent } from '../types'
 import { useAuthStore, getCurrentPrivateKey } from '@/stores/authStore'
 import { useGroupsStore } from '@/stores/groupsStore'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -14,10 +14,10 @@ let nostrClientInstance: NostrClient | null = null
 function getNostrClient(): NostrClient {
   if (!nostrClientInstance) {
     nostrClientInstance = new NostrClient([
-      { url: 'wss://relay.damus.io', read: true, write: true },
-      { url: 'wss://relay.primal.net', read: true, write: true },
-      { url: 'wss://nostr.band', read: true, write: true },
-      { url: 'wss://nos.lol', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://relay.damus.io', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://relay.primal.net', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://nostr.band', read: true, write: true },
+      { _v: '1.0.0', url: 'wss://nos.lol', read: true, write: true },
     ])
   }
   return nostrClientInstance
@@ -65,32 +65,24 @@ export function useEvents(groupId?: string) {
   }, [currentIdentity, groups, groupMembers])
 
   /**
-   * Check if the current user can view an event based on privacy settings
+   * Check if the current user can view an event based on visibility settings
    */
-  const canViewEvent = useCallback((event: Event): boolean => {
+  const canViewEvent = useCallback((event: AppEvent): boolean => {
     if (!currentIdentity) {
-      // Only public events visible to non-authenticated users
-      return event.privacy === 'public'
+      return event.visibility === 'public'
     }
 
     const userPubkey = currentIdentity.publicKey
 
-    switch (event.privacy) {
+    switch (event.visibility) {
       case 'public':
-        // Public events are visible to everyone
         return true
 
       case 'group':
-        // Group events visible only to group members
-        if (!event.groupId) return true // No group = treat as public
+        if (!event.groupId) return true
         return userGroupIds.has(event.groupId)
 
       case 'private':
-        // Private events visible to:
-        // - Creator
-        // - Co-hosts
-        // - Group members (if event has groupId)
-        // - Explicitly invited users (invitation list deferred to Phase 2)
         if (event.createdBy === userPubkey) return true
         if (event.coHosts?.includes(userPubkey)) return true
         if (event.groupId && userGroupIds.has(event.groupId)) return true
@@ -150,13 +142,26 @@ export function useEvents(groupId?: string) {
 
       const privateKeyHex = bytesToHex(privateKey)
 
-      // Convert CreateEventFormData updates to Event updates
-      const eventUpdates: any = { ...updates }
+      // Convert CreateEventFormData updates to AppEvent updates
+      const eventUpdates: Record<string, unknown> = { ...updates }
       if (updates.startTime) {
-        eventUpdates.startTime = updates.startTime.getTime()
+        eventUpdates.startAt = Math.floor(updates.startTime.getTime() / 1000)
+        delete eventUpdates.startTime
       }
       if (updates.endTime) {
-        eventUpdates.endTime = updates.endTime.getTime()
+        eventUpdates.endAt = Math.floor(updates.endTime.getTime() / 1000)
+        delete eventUpdates.endTime
+      }
+      if (updates.privacy) {
+        eventUpdates.visibility = updates.privacy
+        delete eventUpdates.privacy
+      }
+      if (updates.capacity !== undefined) {
+        eventUpdates.maxAttendees = updates.capacity
+        delete eventUpdates.capacity
+      }
+      if (updates.location !== undefined) {
+        eventUpdates.location = updates.location ? { name: updates.location } : undefined
       }
 
       const event = await eventManager.updateEvent(
@@ -316,8 +321,8 @@ export function useEvents(groupId?: string) {
         eventId: event.id,
         title: event.title,
         description: event.description,
-        startTime: event.startTime,
-        endTime: event.endTime,
+        startAt: event.startAt,
+        endAt: event.endAt,
         location: event.location,
         groupId: event.groupId,
         inviterPubkey: currentIdentity.publicKey,

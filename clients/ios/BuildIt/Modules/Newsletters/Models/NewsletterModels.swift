@@ -2,16 +2,56 @@
 // BuildIt - Decentralized Mesh Communication
 //
 // Data models for newsletters, issues, subscribers, and delivery tracking.
-// Based on protocol/schemas/modules/newsletters/v1.json
+// Protocol types imported from generated schemas; UI-only extensions defined locally.
+//
+// NOTE: The generated newsletters.swift defines types that conflict with other modules:
+//   - Visibility (conflicts with fundraising, forms, publishing)
+//   - CampaignStatus (conflicts with fundraising)
+//   - Campaign (conflicts with fundraising)
+// Therefore, UI-layer types with module-specific names are defined locally below.
+// The generated types (Newsletter, Campaign, Subscriber, Template, etc.) from
+// Sources/Generated/Schemas/newsletters.swift are used for wire-format decoding only.
 
 import Foundation
 
-/// Schema version for newsletters module
-public enum NewsletterSchema {
-    static let version = "1.0.0"
+// MARK: - UI Extensions for Generated Types
+
+// Generated ContentType from newsletters.swift has unique name
+// (no extension needed -- it's already usable as-is)
+
+extension SubscriberStatus: CaseIterable {
+    public static var allCases: [SubscriberStatus] {
+        [.pending, .active, .unsubscribed, .bounced, .complained]
+    }
+
+    var displayName: String {
+        switch self {
+        case .pending: return "Pending"
+        case .active: return "Active"
+        case .unsubscribed: return "Unsubscribed"
+        case .bounced: return "Bounced"
+        case .complained: return "Complained"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .pending: return "clock"
+        case .active: return "checkmark.circle"
+        case .unsubscribed: return "xmark.circle"
+        case .bounced: return "exclamationmark.triangle"
+        case .complained: return "flag"
+        }
+    }
+
+    var canReceiveEmails: Bool {
+        self == .active
+    }
 }
 
-/// Nostr event kinds for newsletters
+// MARK: - UI-Only Types
+
+/// Nostr event kinds for newsletters (UI-only)
 public enum NewsletterEventKind: Int {
     case newsletter = 40081
     case campaign = 40082
@@ -19,9 +59,7 @@ public enum NewsletterEventKind: Int {
     case template = 40084
 }
 
-// MARK: - Newsletter
-
-/// Visibility options for newsletters
+/// Visibility options for newsletters (UI-only, avoids conflict with generated Visibility)
 public enum NewsletterVisibility: String, Codable, CaseIterable, Sendable {
     case `private`
     case group
@@ -44,70 +82,8 @@ public enum NewsletterVisibility: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// A newsletter/mailing list configuration
-public struct Newsletter: Codable, Identifiable, Sendable {
-    public let id: String
-    public var name: String
-    public var description: String?
-    public var groupId: String?
-    public var fromName: String?
-    public var replyTo: String?
-    public var logo: String?
-    public var subscriberCount: Int
-    public var visibility: NewsletterVisibility
-    public var doubleOptIn: Bool
-    public var ownerPubkey: String
-    public var editors: [String]
-    public var createdAt: Date
-    public var updatedAt: Date?
-
-    private let _v: String
-
-    public init(
-        id: String = UUID().uuidString,
-        name: String,
-        description: String? = nil,
-        groupId: String? = nil,
-        fromName: String? = nil,
-        replyTo: String? = nil,
-        logo: String? = nil,
-        subscriberCount: Int = 0,
-        visibility: NewsletterVisibility = .group,
-        doubleOptIn: Bool = true,
-        ownerPubkey: String,
-        editors: [String] = [],
-        createdAt: Date = Date(),
-        updatedAt: Date? = nil
-    ) {
-        self._v = NewsletterSchema.version
-        self.id = id
-        self.name = name
-        self.description = description
-        self.groupId = groupId
-        self.fromName = fromName
-        self.replyTo = replyTo
-        self.logo = logo
-        self.subscriberCount = subscriberCount
-        self.visibility = visibility
-        self.doubleOptIn = doubleOptIn
-        self.ownerPubkey = ownerPubkey
-        self.editors = editors
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case _v
-        case id, name, description, groupId, fromName, replyTo, logo
-        case subscriberCount, visibility, doubleOptIn, ownerPubkey, editors
-        case createdAt, updatedAt
-    }
-}
-
-// MARK: - Campaign/Issue
-
-/// Status of a newsletter campaign/issue
-public enum CampaignStatus: String, Codable, CaseIterable, Sendable {
+/// Status of a newsletter campaign/issue (UI-only, avoids conflict with generated CampaignStatus)
+public enum NewsletterCampaignStatus: String, Codable, CaseIterable, Sendable {
     case draft
     case scheduled
     case sending
@@ -135,13 +111,7 @@ public enum CampaignStatus: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Content type for campaign content
-public enum ContentType: String, Codable, Sendable {
-    case html
-    case markdown
-}
-
-/// Campaign statistics
+/// Campaign statistics (UI-only, not in protocol schema)
 public struct CampaignStats: Codable, Sendable {
     public var recipientCount: Int
     public var deliveredCount: Int
@@ -179,7 +149,7 @@ public struct CampaignStats: Codable, Sendable {
     }
 }
 
-/// A newsletter campaign/issue
+/// A newsletter campaign/issue (UI-layer type with Date fields and Identifiable)
 public struct NewsletterIssue: Codable, Identifiable, Sendable {
     public let id: String
     public var newsletterId: String
@@ -187,7 +157,7 @@ public struct NewsletterIssue: Codable, Identifiable, Sendable {
     public var preheader: String?
     public var content: String
     public var contentType: ContentType
-    public var status: CampaignStatus
+    public var status: NewsletterCampaignStatus
     public var scheduledAt: Date?
     public var sentAt: Date?
     public var segments: [String]
@@ -205,7 +175,7 @@ public struct NewsletterIssue: Codable, Identifiable, Sendable {
         preheader: String? = nil,
         content: String = "",
         contentType: ContentType = .markdown,
-        status: CampaignStatus = .draft,
+        status: NewsletterCampaignStatus = .draft,
         scheduledAt: Date? = nil,
         sentAt: Date? = nil,
         segments: [String] = [],
@@ -214,7 +184,7 @@ public struct NewsletterIssue: Codable, Identifiable, Sendable {
         createdAt: Date = Date(),
         updatedAt: Date? = nil
     ) {
-        self._v = NewsletterSchema.version
+        self._v = NewslettersSchema.version
         self.id = id
         self.newsletterId = newsletterId
         self.subject = subject
@@ -251,59 +221,7 @@ public struct NewsletterIssue: Codable, Identifiable, Sendable {
     }
 }
 
-// MARK: - Subscriber
-
-/// Status of a newsletter subscriber
-public enum SubscriberStatus: String, Codable, CaseIterable, Sendable {
-    case pending
-    case active
-    case unsubscribed
-    case bounced
-    case complained
-
-    var displayName: String {
-        switch self {
-        case .pending: return "Pending"
-        case .active: return "Active"
-        case .unsubscribed: return "Unsubscribed"
-        case .bounced: return "Bounced"
-        case .complained: return "Complained"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .pending: return "clock"
-        case .active: return "checkmark.circle"
-        case .unsubscribed: return "xmark.circle"
-        case .bounced: return "exclamationmark.triangle"
-        case .complained: return "flag"
-        }
-    }
-
-    var canReceiveEmails: Bool {
-        self == .active
-    }
-}
-
-/// Subscriber preferences
-public struct SubscriberPreferences: Codable, Sendable {
-    public var frequency: String?
-    public var format: ContentType?
-    public var categories: [String]?
-
-    public init(
-        frequency: String? = nil,
-        format: ContentType? = nil,
-        categories: [String]? = nil
-    ) {
-        self.frequency = frequency
-        self.format = format
-        self.categories = categories
-    }
-}
-
-/// A newsletter subscriber
+/// A newsletter subscriber (UI-layer type with Date fields and Identifiable)
 public struct NewsletterSubscriber: Codable, Identifiable, Sendable {
     public let id: String
     public var newsletterId: String
@@ -336,7 +254,7 @@ public struct NewsletterSubscriber: Codable, Identifiable, Sendable {
         confirmedAt: Date? = nil,
         unsubscribedAt: Date? = nil
     ) {
-        self._v = NewsletterSchema.version
+        self._v = NewslettersSchema.version
         self.id = id
         self.newsletterId = newsletterId
         self.pubkey = pubkey
@@ -368,7 +286,24 @@ public struct NewsletterSubscriber: Codable, Identifiable, Sendable {
     }
 }
 
-// MARK: - Delivery Status
+/// Subscriber preferences (UI-only)
+public struct SubscriberPreferences: Codable, Sendable {
+    public var frequency: String?
+    public var format: ContentType?
+    public var categories: [String]?
+
+    public init(
+        frequency: String? = nil,
+        format: ContentType? = nil,
+        categories: [String]? = nil
+    ) {
+        self.frequency = frequency
+        self.format = format
+        self.categories = categories
+    }
+}
+
+// MARK: - Delivery Status (UI-only)
 
 /// Status of a message delivery to a specific subscriber
 public enum DeliveryStatus: String, Codable, CaseIterable, Sendable {
@@ -405,7 +340,7 @@ public enum DeliveryStatus: String, Codable, CaseIterable, Sendable {
     }
 }
 
-/// Tracks delivery status for a specific subscriber
+/// Tracks delivery status for a specific subscriber (UI-only)
 public struct DeliveryRecord: Codable, Identifiable, Sendable {
     public let id: String
     public var issueId: String
@@ -452,9 +387,7 @@ public struct DeliveryRecord: Codable, Identifiable, Sendable {
     }
 }
 
-// MARK: - Email Template
-
-/// An email template for newsletters
+/// An email template (UI-layer type with Date fields and Identifiable)
 public struct EmailTemplate: Codable, Identifiable, Sendable {
     public let id: String
     public var newsletterId: String?
@@ -477,7 +410,7 @@ public struct EmailTemplate: Codable, Identifiable, Sendable {
         createdBy: String,
         createdAt: Date = Date()
     ) {
-        self._v = NewsletterSchema.version
+        self._v = NewslettersSchema.version
         self.id = id
         self.newsletterId = newsletterId
         self.name = name
@@ -495,7 +428,7 @@ public struct EmailTemplate: Codable, Identifiable, Sendable {
     }
 }
 
-// MARK: - CSV Import/Export
+// MARK: - CSV Import/Export (UI-only)
 
 /// Represents a row from CSV import
 public struct CSVSubscriberRow: Sendable {
@@ -520,12 +453,11 @@ public struct CSVSubscriberRow: Sendable {
     }
 
     public var isValid: Bool {
-        // Must have either email or pubkey
-        (email != nil && !email!.isEmpty) || (pubkey != nil && !pubkey!.isEmpty)
+        email?.isEmpty == false || pubkey?.isEmpty == false
     }
 }
 
-/// Result of CSV import operation
+/// Result of CSV import operation (UI-only)
 public struct CSVImportResult: Sendable {
     public var imported: Int
     public var skipped: Int
@@ -549,7 +481,7 @@ public struct CSVImportResult: Sendable {
     }
 }
 
-// MARK: - Batch Sending
+// MARK: - Batch Sending (UI-only)
 
 /// Progress tracking for batch send operations
 public struct BatchSendProgress: Sendable {

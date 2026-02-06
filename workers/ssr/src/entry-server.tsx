@@ -1,5 +1,5 @@
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry';
-import { fetchArticles } from './lib/nostr';
+import { fetchArticles, fetchPublicEvents, fetchWikiPages } from './lib/nostr';
 import type { ArticleContent } from '@buildit/shared/nostr';
 
 /**
@@ -50,6 +50,9 @@ function generateRobotsTxtContent(): string {
     'Allow: /contact',
     'Allow: /privacy',
     'Allow: /docs',
+    'Allow: /campaigns/',
+    'Allow: /marketplace/',
+    'Allow: /s/',
     '',
     '# Disallow internal/API paths',
     'Disallow: /api/',
@@ -75,11 +78,29 @@ function escapeXml(text: string): string {
     .replace(/'/g, '&apos;');
 }
 
-function generateSitemapXml(articles: ArticleContent[]): string {
+interface SitemapEvent {
+  id: string;
+  title: string;
+  createdAt: number;
+}
+
+interface SitemapWikiPage {
+  slug: string;
+  title: string;
+  updatedAt: number;
+}
+
+function generateSitemapXml(
+  articles: ArticleContent[],
+  events: SitemapEvent[] = [],
+  wikiPages: SitemapWikiPage[] = [],
+): string {
   const staticPages = [
     { path: '/', priority: '1.0', changefreq: 'daily' },
     { path: '/articles', priority: '0.9', changefreq: 'daily' },
     { path: '/publications', priority: '0.8', changefreq: 'weekly' },
+    { path: '/events', priority: '0.8', changefreq: 'daily' },
+    { path: '/wiki', priority: '0.7', changefreq: 'weekly' },
     { path: '/about', priority: '0.6', changefreq: 'monthly' },
     { path: '/contact', priority: '0.5', changefreq: 'monthly' },
     { path: '/privacy', priority: '0.4', changefreq: 'monthly' },
@@ -176,6 +197,34 @@ function generateSitemapXml(articles: ArticleContent[]): string {
     )
     .join('');
 
+  // Event entries
+  const eventEntries = events
+    .map((event) => {
+      const lastmod = new Date(event.createdAt * 1000).toISOString();
+      return `
+  <url>
+    <loc>${escapeXml(`${SITE_URL}/events/${event.id}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+    })
+    .join('');
+
+  // Wiki page entries
+  const wikiEntries = wikiPages
+    .map((page) => {
+      const lastmod = new Date(page.updatedAt).toISOString();
+      return `
+  <url>
+    <loc>${escapeXml(`${SITE_URL}/wiki/${page.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+    })
+    .join('');
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -187,6 +236,10 @@ function generateSitemapXml(articles: ArticleContent[]): string {
 
   <!-- Publications -->${publicationEntries}
 
+  <!-- Events -->${eventEntries}
+
+  <!-- Wiki Pages -->${wikiEntries}
+
   <!-- Categories -->${categoryEntries}
 
   <!-- Archives -->${archiveEntries}
@@ -196,6 +249,28 @@ function generateSitemapXml(articles: ArticleContent[]): string {
 export default createServerEntry({
   async fetch(request: Request) {
     const url = new URL(request.url);
+
+    // Proxy WebFinger and NodeInfo to federation worker
+    if (url.pathname === '/.well-known/webfinger' || url.pathname.startsWith('/.well-known/nodeinfo')) {
+      try {
+        const federationUrl = new URL(request.url);
+        federationUrl.hostname = 'buildit-federation.rikki-schulte.workers.dev';
+        const res = await fetch(federationUrl.toString(), {
+          method: request.method,
+          headers: request.headers,
+        });
+        return new Response(res.body, {
+          status: res.status,
+          headers: res.headers,
+        });
+      } catch (error) {
+        console.error('Federation proxy error:', error);
+        return new Response(JSON.stringify({ error: 'Federation service unavailable' }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     // Intercept /robots.txt and serve with text/plain content type
     if (url.pathname === '/robots.txt') {
@@ -213,8 +288,34 @@ export default createServerEntry({
     // Intercept /sitemap.xml and serve with application/xml content type
     if (url.pathname === '/sitemap.xml') {
       try {
-        const articles = await fetchArticles({ limit: 200 });
-        const xml = generateSitemapXml(articles);
+        const [articles, rawEvents, rawWikiPages] = await Promise.all([
+          fetchArticles({ limit: 200 }),
+          fetchPublicEvents({ limit: 200 }),
+          fetchWikiPages({ limit: 200 }),
+        ]);
+        const sitemapEvents: SitemapEvent[] = rawEvents.map((e) => {
+          const getTag = (name: string): string | undefined => {
+            const tag = e.tags.find((t: string[]) => t[0] === name);
+            return tag ? tag[1] : undefined;
+          };
+          return {
+            id: e.id,
+            title: getTag('title') || 'Event',
+            createdAt: e.created_at,
+          };
+        });
+        const sitemapWikiPages: SitemapWikiPage[] = rawWikiPages.map((e) => {
+          const getTag = (name: string): string | undefined => {
+            const tag = e.tags.find((t: string[]) => t[0] === name);
+            return tag ? tag[1] : undefined;
+          };
+          return {
+            slug: getTag('d') || e.id,
+            title: getTag('title') || 'Untitled',
+            updatedAt: e.created_at * 1000,
+          };
+        });
+        const xml = generateSitemapXml(articles, sitemapEvents, sitemapWikiPages);
         return new Response(xml, {
           status: 200,
           headers: {

@@ -220,7 +220,7 @@ data class FormBuilderUiState(
     val title: String = "",
     val description: String = "",
     val fields: List<FormField> = emptyList(),
-    val visibility: FormVisibility = FormVisibility.GROUP,
+    val visibility: FormVisibility = FormVisibility.Group,
     val anonymous: Boolean = false,
     val allowMultiple: Boolean = false,
     val hasClosingDate: Boolean = false,
@@ -446,22 +446,23 @@ class FormBuilderViewModel @Inject constructor(
 
     private fun getDefaultLabel(type: FormFieldType): String {
         return when (type) {
-            FormFieldType.TEXT -> "Short answer"
-            FormFieldType.TEXTAREA -> "Long answer"
-            FormFieldType.NUMBER -> "Number"
-            FormFieldType.EMAIL -> "Email address"
-            FormFieldType.PHONE -> "Phone number"
+            FormFieldType.Text -> "Short answer"
+            FormFieldType.Textarea -> "Long answer"
+            FormFieldType.Number -> "Number"
+            FormFieldType.Email -> "Email address"
+            FormFieldType.Phone -> "Phone number"
             FormFieldType.URL -> "Website URL"
-            FormFieldType.DATE -> "Date"
-            FormFieldType.TIME -> "Time"
-            FormFieldType.DATETIME -> "Date and time"
-            FormFieldType.SELECT -> "Dropdown"
-            FormFieldType.MULTISELECT -> "Multi-select"
-            FormFieldType.RADIO -> "Multiple choice"
-            FormFieldType.CHECKBOX -> "Checkboxes"
-            FormFieldType.FILE -> "File upload"
-            FormFieldType.RATING -> "Rating"
-            FormFieldType.SCALE -> "Scale"
+            FormFieldType.Date -> "Date"
+            FormFieldType.Time -> "Time"
+            FormFieldType.Datetime -> "Date and time"
+            FormFieldType.Select -> "Dropdown"
+            FormFieldType.Multiselect -> "Multi-select"
+            FormFieldType.Radio -> "Multiple choice"
+            FormFieldType.Checkbox -> "Checkboxes"
+            FormFieldType.File -> "File upload"
+            FormFieldType.Rating -> "Rating"
+            FormFieldType.Scale -> "Scale"
+            FormFieldType.Location -> "Location"
         }
     }
 
@@ -475,10 +476,10 @@ class FormBuilderViewModel @Inject constructor(
 
     private fun FormFieldType.needsOptions(): Boolean {
         return this in listOf(
-            FormFieldType.SELECT,
-            FormFieldType.MULTISELECT,
-            FormFieldType.RADIO,
-            FormFieldType.CHECKBOX
+            FormFieldType.Select,
+            FormFieldType.Multiselect,
+            FormFieldType.Radio,
+            FormFieldType.Checkbox
         )
     }
 }

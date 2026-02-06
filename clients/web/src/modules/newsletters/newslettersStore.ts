@@ -915,7 +915,7 @@ async function sendNewsletterNIP17(
   // Get relay confirmations from the client's relay statuses
   const relayStatuses = client.getRelayStatuses();
   const confirmedRelays = relayStatuses
-    .filter((status) => status.connected && status.messagesSent > 0)
+    .filter((status) => status.connected && (status.messagesSent ?? 0) > 0)
     .map((status) => status.url);
 
   return {

@@ -133,6 +133,7 @@ export const usePostsStore = create<PostsState>()(
         const links = extractedUrls.map((u) => u.url);
 
         const newPost: Post = {
+          _v: '1.0.0',
           id: `post-${Date.now()}-${secureRandomString(9)}`,
           authorId: currentIdentity?.publicKey || '',
           content: input.content,
@@ -287,7 +288,7 @@ export const usePostsStore = create<PostsState>()(
           const currentIdentity = useAuthStore.getState().currentIdentity;
           if (currentIdentity) {
             filteredPosts = filteredPosts.filter((p) =>
-              p.mentions.includes(currentIdentity.publicKey)
+              p.mentions?.includes(currentIdentity.publicKey)
             );
           }
         } else if (activeFilter.type === 'bookmarks') {
@@ -324,7 +325,7 @@ export const usePostsStore = create<PostsState>()(
         // Filter by hashtags
         if (activeFilter.hashtags?.length) {
           filteredPosts = filteredPosts.filter((p) =>
-            p.hashtags.some((tag) => activeFilter.hashtags?.includes(tag))
+            p.hashtags?.some((tag) => activeFilter.hashtags?.includes(tag))
           );
         }
 
@@ -334,7 +335,7 @@ export const usePostsStore = create<PostsState>()(
           filteredPosts = filteredPosts.filter(
             (p) =>
               p.content.toLowerCase().includes(query) ||
-              p.hashtags.some((tag) => tag.toLowerCase().includes(query)) ||
+              (p.hashtags?.some((tag) => tag.toLowerCase().includes(query)) ?? false) ||
               p.authorId.toLowerCase().includes(query)
           );
         }
@@ -394,6 +395,7 @@ export const usePostsStore = create<PostsState>()(
         const hasExistingReaction = existingReaction !== undefined;
 
         const newReaction: Reaction = {
+          _v: '1.0.0',
           id: `reaction-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
@@ -504,6 +506,7 @@ export const usePostsStore = create<PostsState>()(
           : undefined;
 
         const newComment: Comment = {
+          _v: '1.0.0',
           id: `comment-${Date.now()}-${secureRandomString(9)}`,
           postId,
           authorId,
@@ -563,6 +566,7 @@ export const usePostsStore = create<PostsState>()(
       repost: async (postId: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
+          _v: '1.0.0',
           id: `repost-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
@@ -603,6 +607,7 @@ export const usePostsStore = create<PostsState>()(
       quotePost: async (postId: string, content: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newRepost: Repost = {
+          _v: '1.0.0',
           id: `repost-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,
@@ -658,6 +663,7 @@ export const usePostsStore = create<PostsState>()(
       bookmarkPost: async (postId: string): Promise<void> => {
         const userId = useAuthStore.getState().currentIdentity?.publicKey || '';
         const newBookmark: Bookmark = {
+          _v: '1.0.0',
           id: `bookmark-${Date.now()}-${secureRandomString(9)}`,
           postId,
           userId,

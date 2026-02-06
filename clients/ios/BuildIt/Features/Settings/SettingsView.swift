@@ -56,6 +56,11 @@ struct SettingsView: View {
                             Text(transport.rawValue).tag(transport)
                         }
                     }
+                    NavigationLink {
+                        FederationSettingsView()
+                    } label: {
+                        Label("Federation", systemImage: "globe")
+                    }
                 } header: {
                     Text("Network")
                 }

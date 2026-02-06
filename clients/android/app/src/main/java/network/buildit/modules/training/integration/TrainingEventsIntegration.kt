@@ -52,7 +52,7 @@ class TrainingEventsIntegration @Inject constructor(
         course: Course,
         groupId: String? = null
     ): String {
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -92,7 +92,7 @@ class TrainingEventsIntegration @Inject constructor(
         lesson: Lesson,
         course: Course
     ) {
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -137,7 +137,7 @@ class TrainingEventsIntegration @Inject constructor(
             if (groupId != null && course.groupId != groupId) continue
 
             val lessons = trainingRepository.getLessonsForCourse(course.id).first()
-            val liveSessions = lessons.filter { it.type == LessonType.LIVE_SESSION }
+            val liveSessions = lessons.filter { it.type == LessonType.LiveSession }
 
             for (lesson in liveSessions) {
                 val content = lesson.content as LessonContent.LiveSession
@@ -183,7 +183,7 @@ class TrainingEventsIntegration @Inject constructor(
         val lesson = trainingRepository.getLesson(lessonId).first()
             ?: return
 
-        if (lesson.type != LessonType.LIVE_SESSION) return
+        if (lesson.type != LessonType.LiveSession) return
 
         val rsvp = LiveSessionRSVP(
             id = UUID.randomUUID().toString(),

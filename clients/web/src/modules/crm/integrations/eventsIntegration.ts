@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import type { Event, RSVP, RSVPStatus } from '@/modules/events/types';
+import type { AppEvent, RSVP, RSVPStatus } from '@/modules/events/types';
 import type { DatabaseRecord } from '@/modules/database/types';
 
 /**
@@ -37,10 +37,10 @@ export interface ContactEventEngagement {
 export async function getContactEvents(
   contactPubkey: string,
   rsvps: RSVP[],
-  events: Map<string, Event>
+  events: Map<string, AppEvent>
 ): Promise<ContactEventAttendance[]> {
   try {
-    const contactRsvps = rsvps.filter((r) => r.userPubkey === contactPubkey);
+    const contactRsvps = rsvps.filter((r) => r.pubkey === contactPubkey);
 
     return contactRsvps
       .map((rsvp) => {
@@ -50,7 +50,7 @@ export async function getContactEvents(
         return {
           eventId: rsvp.eventId,
           eventTitle: event.title,
-          eventDate: event.startTime,
+          eventDate: event.startAt,
           rsvpStatus: rsvp.status,
         };
       })
@@ -95,7 +95,7 @@ export function findContactsAtEvent(
 ): DatabaseRecord[] {
   // Get all going RSVPs for this event
   const eventRsvps = rsvps.filter((r) => r.eventId === eventId && r.status === 'going');
-  const attendeePubkeys = new Set(eventRsvps.map((r) => r.userPubkey));
+  const attendeePubkeys = new Set(eventRsvps.map((r) => r.pubkey));
 
   // Find matching contacts
   return contacts.filter((contact) => {
@@ -110,15 +110,15 @@ export function findContactsAtEvent(
  */
 export function createContactFromRSVP(
   rsvp: RSVP,
-  event: Event,
+  event: AppEvent,
   defaultFields?: Record<string, unknown>
 ): Partial<DatabaseRecord['customFields']> {
   return {
-    pubkey: rsvp.userPubkey,
+    pubkey: rsvp.pubkey,
     source: 'event-rsvp',
     sourceEventId: rsvp.eventId,
     sourceEventTitle: event.title,
-    firstContactDate: rsvp.timestamp,
+    firstContactDate: rsvp.respondedAt,
     ...defaultFields,
   };
 }
@@ -129,27 +129,27 @@ export function createContactFromRSVP(
 export function getUpcomingContactEvents(
   contactPubkey: string,
   rsvps: RSVP[],
-  events: Map<string, Event>,
+  events: Map<string, AppEvent>,
   daysAhead: number = 7
 ): ContactEventAttendance[] {
-  const now = Date.now();
-  const futureLimit = now + daysAhead * 24 * 60 * 60 * 1000;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const futureLimitSeconds = nowSeconds + daysAhead * 24 * 60 * 60;
 
   const contactRsvps = rsvps.filter(
-    (r) => r.userPubkey === contactPubkey && r.status === 'going'
+    (r) => r.pubkey === contactPubkey && r.status === 'going'
   );
 
   return contactRsvps
     .map((rsvp) => {
       const event = events.get(rsvp.eventId);
-      if (!event || event.startTime < now || event.startTime > futureLimit) {
+      if (!event || event.startAt < nowSeconds || event.startAt > futureLimitSeconds) {
         return null;
       }
 
       return {
         eventId: rsvp.eventId,
         eventTitle: event.title,
-        eventDate: event.startTime,
+        eventDate: event.startAt,
         rsvpStatus: rsvp.status,
       };
     })
@@ -167,14 +167,14 @@ export function getInactiveContacts(
   pubkeyFieldName: string = 'pubkey',
   inactiveDays: number = 30
 ): DatabaseRecord[] {
-  const cutoffDate = Date.now() - inactiveDays * 24 * 60 * 60 * 1000;
+  const cutoffDate = Math.floor(Date.now() / 1000) - inactiveDays * 24 * 60 * 60;
 
-  // Build a map of pubkey -> last RSVP timestamp
+  // Build a map of pubkey -> last RSVP respondedAt timestamp
   const lastRsvpByPubkey = new Map<string, number>();
   for (const rsvp of rsvps) {
-    const existing = lastRsvpByPubkey.get(rsvp.userPubkey);
-    if (!existing || rsvp.timestamp > existing) {
-      lastRsvpByPubkey.set(rsvp.userPubkey, rsvp.timestamp);
+    const existing = lastRsvpByPubkey.get(rsvp.pubkey);
+    if (!existing || rsvp.respondedAt > existing) {
+      lastRsvpByPubkey.set(rsvp.pubkey, rsvp.respondedAt);
     }
   }
 
@@ -205,8 +205,8 @@ export function groupContactsByEngagement(
   const rsvpCountByPubkey = new Map<string, number>();
   for (const rsvp of rsvps) {
     if (rsvp.status === 'going') {
-      const count = rsvpCountByPubkey.get(rsvp.userPubkey) || 0;
-      rsvpCountByPubkey.set(rsvp.userPubkey, count + 1);
+      const count = rsvpCountByPubkey.get(rsvp.pubkey) || 0;
+      rsvpCountByPubkey.set(rsvp.pubkey, count + 1);
     }
   }
 

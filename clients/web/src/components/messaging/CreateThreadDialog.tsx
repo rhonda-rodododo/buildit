@@ -54,6 +54,7 @@ export function CreateThreadDialog({ open, onOpenChange, groupId }: CreateThread
 
       // Add to store
       const thread: GroupThread = {
+        _v: '1.0.0',
         id: event.id,
         groupId,
         title,

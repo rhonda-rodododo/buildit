@@ -15,6 +15,6 @@
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../shared/generated/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -58,7 +58,7 @@ class FormsRepositoryTest {
     private fun createTestFormEntity(
         id: String = testFormId,
         title: String = "Test Form",
-        status: FormStatus = FormStatus.OPEN,
+        status: FormStatus = FormStatus.Open,
         groupId: String? = testGroupId
     ): FormEntity = FormEntity(
         id = id,
@@ -66,7 +66,7 @@ class FormsRepositoryTest {
         description = "A test form",
         fieldsJson = "[]",
         groupId = groupId,
-        visibility = FormVisibility.GROUP,
+        visibility = FormVisibility.Group,
         anonymous = false,
         allowMultiple = false,
         opensAt = null,
@@ -90,7 +90,7 @@ class FormsRepositoryTest {
 
     private fun createTestField(
         id: String = "field-1",
-        type: FormFieldType = FormFieldType.TEXT,
+        type: FormFieldType = FormFieldType.Text,
         label: String = "Question 1",
         required: Boolean = false
     ): FormField = FormField(
@@ -169,7 +169,7 @@ class FormsRepositoryTest {
         @Test
         @DisplayName("getOpenForms returns only open forms")
         fun getOpenFormsReturnsOpen() = runTest {
-            val forms = listOf(createTestFormEntity(status = FormStatus.OPEN))
+            val forms = listOf(createTestFormEntity(status = FormStatus.Open))
             every { formsDao.getOpenForms() } returns flowOf(forms)
 
             repository.getOpenForms().test {
@@ -249,20 +249,20 @@ class FormsRepositoryTest {
                 description = "With all options",
                 fields = fields,
                 groupId = testGroupId,
-                visibility = FormVisibility.PUBLIC,
+                visibility = FormVisibility.Public,
                 anonymous = true,
                 allowMultiple = true,
                 closesAt = closesAt,
                 maxResponses = 100,
                 confirmationMessage = "Thank you!",
                 createdBy = testPubkey,
-                status = FormStatus.DRAFT
+                status = FormStatus.Draft
             )
 
             assertThat(result.anonymous).isTrue()
             assertThat(result.allowMultiple).isTrue()
             assertThat(result.maxResponses).isEqualTo(100)
-            assertThat(result.status).isEqualTo(FormStatus.DRAFT)
+            assertThat(result.status).isEqualTo(FormStatus.Draft)
         }
 
         @Test
@@ -310,7 +310,7 @@ class FormsRepositoryTest {
         fun publishFormSetsOpen() = runTest {
             repository.publishForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.OPEN) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Open) }
         }
 
         @Test
@@ -318,7 +318,7 @@ class FormsRepositoryTest {
         fun closeFormSetsClosed() = runTest {
             repository.closeForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.CLOSED) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Closed) }
         }
 
         @Test
@@ -326,7 +326,7 @@ class FormsRepositoryTest {
         fun archiveFormSetsArchived() = runTest {
             repository.archiveForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.ARCHIVED) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Archived) }
         }
     }
 

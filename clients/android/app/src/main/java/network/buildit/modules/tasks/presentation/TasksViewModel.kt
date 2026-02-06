@@ -104,7 +104,7 @@ class TasksViewModel @Inject constructor(
         description: String? = null,
         assigneePubkey: String? = null,
         dueDate: Long? = null,
-        priority: TaskPriority = TaskPriority.MEDIUM,
+        priority: TaskPriority = TaskPriority.Medium,
         parentTaskId: String? = null
     ) {
         val groupId = _uiState.value.groupId ?: return

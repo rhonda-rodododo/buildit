@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -159,6 +160,15 @@ private fun SettingsContent(
                         title = stringResource(R.string.settings_nostr_relays),
                         subtitle = "${uiState.connectedRelays} of ${uiState.totalRelays} connected",
                         onClick = onRelayClick
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+
+                    SettingsItem(
+                        icon = Icons.Filled.Public,
+                        title = "Federation",
+                        subtitle = "Bridge posts to Mastodon & Bluesky",
+                        onClick = { /* Navigate to FederationSettingsScreen */ }
                     )
                 }
             }

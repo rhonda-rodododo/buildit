@@ -177,6 +177,78 @@
       "dependencies": ["custom-fields"],
       "schemaPath": "marketplace/v1.json",
       "coreDependency": false
+    },
+    "federation": {
+      "name": "Federation",
+      "description": "ActivityPub and AT Protocol federation bridge for cross-posting to Mastodon and Bluesky",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "federation/v1.json",
+      "coreDependency": false
+    },
+    "groups": {
+      "name": "Groups",
+      "description": "Group management, membership, permissions, and messaging",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "groups/v1.json",
+      "coreDependency": true
+    },
+    "contacts": {
+      "name": "Contacts",
+      "description": "Contact management, relationships, and metadata",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "contacts/v1.json",
+      "coreDependency": true
+    },
+    "training": {
+      "name": "Training",
+      "description": "Training courses, lessons, quizzes, certifications, and progress tracking",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "training/v1.json",
+      "coreDependency": false
+    },
+    "polls": {
+      "name": "Polls",
+      "description": "Polls, voting, and opinion gathering",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "polls/v1.json",
+      "coreDependency": false
+    },
+    "microblogging": {
+      "name": "Microblogging",
+      "description": "Posts, comments, reactions, reposts, and social feed features",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "microblogging/v1.json",
+      "coreDependency": false
+    },
+    "tasks": {
+      "name": "Tasks",
+      "description": "Task management, assignment, and tracking",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "tasks/v1.json",
+      "coreDependency": false
+    },
+    "social-publishing": {
+      "name": "Social Publishing",
+      "description": "Centralized scheduling, cross-posting, share links, OG/SEO, and outreach analytics",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": ["federation"],
+      "schemaPath": "social-publishing/v1.json",
+      "coreDependency": false
     }
   },
 
@@ -203,6 +275,14 @@
     "wiki": "40111-40119",
     "calling": "24300-24399",
     "search": "40121-40129",
-    "marketplace": "40131-40139"
+    "marketplace": "40131-40139",
+    "federation": "40141-40149",
+    "groups": "39000-39009",
+    "contacts": "3",
+    "training": "40151-40159",
+    "polls": "40161-40169",
+    "microblogging": "1",
+    "tasks": "40181-40189",
+    "social-publishing": "40171-40179"
   }
 }

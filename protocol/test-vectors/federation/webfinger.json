@@ -1,0 +1,56 @@
+{
+  "description": "WebFinger response test vectors for BuildIt federation",
+  "vectors": [
+    {
+      "name": "Standard WebFinger lookup",
+      "input": {
+        "resource": "acct:alice@buildit.network"
+      },
+      "expected": {
+        "subject": "acct:alice@buildit.network",
+        "aliases": [
+          "https://buildit.network/ap/users/alice",
+          "https://buildit.network/@alice"
+        ],
+        "links": [
+          {
+            "rel": "self",
+            "type": "application/activity+json",
+            "href": "https://buildit.network/ap/users/alice"
+          },
+          {
+            "rel": "http://webfinger.net/rel/profile-page",
+            "type": "text/html",
+            "href": "https://buildit.network/@alice"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Unknown user returns 404",
+      "input": {
+        "resource": "acct:nonexistent@buildit.network"
+      },
+      "expected_status": 404
+    },
+    {
+      "name": "Wrong domain returns 404",
+      "input": {
+        "resource": "acct:alice@evil.example.com"
+      },
+      "expected_status": 404
+    },
+    {
+      "name": "Missing resource returns 400",
+      "input": {},
+      "expected_status": 400
+    },
+    {
+      "name": "Invalid resource format returns 400",
+      "input": {
+        "resource": "https://not-an-acct-uri"
+      },
+      "expected_status": 400
+    }
+  ]
+}

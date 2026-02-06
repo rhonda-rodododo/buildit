@@ -71,7 +71,7 @@ class TaskRepository @Inject constructor(
     }
 
     suspend fun updateTaskStatus(taskId: String, status: TaskStatus) {
-        val completedAt = if (status == TaskStatus.DONE) System.currentTimeMillis() / 1000 else null
+        val completedAt = if (status == TaskStatus.Done) System.currentTimeMillis() / 1000 else null
         taskDao.updateTaskStatus(taskId, status, completedAt = completedAt)
     }
 

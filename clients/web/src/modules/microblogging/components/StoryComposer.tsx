@@ -99,6 +99,7 @@ export function StoryComposer({ open, onOpenChange, onSuccess }: StoryComposerPr
     setIsSubmitting(true);
     try {
       const visibility: PostVisibility = {
+        _v: '1.0.0',
         privacy: 'followers',
       };
 

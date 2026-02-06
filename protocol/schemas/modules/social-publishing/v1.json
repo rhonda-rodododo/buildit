@@ -1,0 +1,616 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/social-publishing/v1.json",
+  "title": "SocialPublishingModule",
+  "description": "Schema for BuildIt Social Publishing module — centralized scheduling, cross-posting, share links, OG/SEO, and outreach analytics",
+
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "deprecatedAt": null,
+  "sunsetAt": null,
+  "coreModule": false,
+
+  "type": "object",
+
+  "$defs": {
+    "ScheduledContent": {
+      "type": "object",
+      "description": "Wraps content from any module with scheduling metadata. The centralized scheduling type — avoids adding scheduledAt to every module's schema.",
+      "required": ["id", "sourceModule", "sourceContentId", "scheduledAt", "status", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "description": "Schema version that created this content",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique scheduled content identifier"
+        },
+        "sourceModule": {
+          "type": "string",
+          "description": "Module that owns the content (e.g., 'publishing', 'microblogging', 'events')"
+        },
+        "sourceContentId": {
+          "type": "string",
+          "description": "ID of the content item in the source module"
+        },
+        "scheduledAt": {
+          "type": "integer",
+          "description": "When to publish (Unix timestamp seconds)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "publishing", "published", "failed", "cancelled"],
+          "default": "pending",
+          "description": "Current scheduling status"
+        },
+        "recurrence": {
+          "$ref": "#/$defs/RecurrenceRule"
+        },
+        "crossPostConfig": {
+          "$ref": "#/$defs/CrossPostConfig"
+        },
+        "signedEvent": {
+          "type": "string",
+          "maxLength": 65536,
+          "description": "Pre-signed Nostr event JSON. Client signs, server relays at publish time (zero-knowledge)."
+        },
+        "publishedAt": {
+          "type": "integer",
+          "description": "When the content was actually published (Unix timestamp seconds)"
+        },
+        "errorMessage": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Error details if status is 'failed'"
+        },
+        "retryCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of publish attempts"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator's public key (hex)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix seconds)"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Last update timestamp (Unix seconds)"
+        }
+      }
+    },
+
+    "CrossPostConfig": {
+      "type": "object",
+      "description": "Per-scheduled-item cross-posting configuration — which platforms to post to",
+      "required": ["platforms", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "platforms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PlatformPost" },
+          "maxItems": 10,
+          "description": "Platform-specific post configurations"
+        }
+      }
+    },
+
+    "PlatformPost": {
+      "type": "object",
+      "description": "Individual platform entry for cross-posting",
+      "required": ["platform", "enabled", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["nostr", "activitypub", "atproto", "rss"],
+          "description": "Target platform"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to post to this platform"
+        },
+        "customContent": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Platform-specific content override (e.g., shorter text for Bluesky's 300 char limit)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "published", "failed"],
+          "default": "pending",
+          "description": "Per-platform publish status"
+        },
+        "publishedUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "URL of the published post on the target platform"
+        },
+        "errorMessage": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Error details if this platform failed"
+        }
+      }
+    },
+
+    "RecurrenceRule": {
+      "type": "object",
+      "description": "Recurrence rule for scheduled content (iCal-style)",
+      "required": ["frequency"],
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["daily", "weekly", "monthly"]
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of occurrences"
+        },
+        "until": {
+          "type": "integer",
+          "description": "End date as Unix timestamp"
+        },
+        "byDay": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+          }
+        }
+      }
+    },
+
+    "SocialAccount": {
+      "type": "object",
+      "description": "Connected external social account for cross-posting. Extends federation's FederationIdentity with scheduling metadata.",
+      "required": ["id", "platform", "handle", "pubkey", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique account identifier"
+        },
+        "platform": {
+          "type": "string",
+          "enum": ["activitypub", "atproto"],
+          "description": "External platform type"
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Account handle on the platform (e.g., '@user@mastodon.social' or 'user.bsky.social')"
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Display name on the external platform"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "Avatar URL on the external platform"
+        },
+        "pubkey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Associated Nostr pubkey"
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the account is currently connected and usable"
+        },
+        "lastSyncAt": {
+          "type": "integer",
+          "description": "Last time the account status was verified"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "When the account was connected (Unix seconds)"
+        }
+      }
+    },
+
+    "ShareLink": {
+      "type": "object",
+      "description": "Generated public share URL with optional password, expiration, and click tracking",
+      "required": ["id", "slug", "sourceModule", "sourceContentId", "createdBy", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique share link identifier"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{4,32}$",
+          "description": "Short URL slug (nanoid-based, 8 chars default)"
+        },
+        "sourceModule": {
+          "type": "string",
+          "description": "Module that owns the shared content"
+        },
+        "sourceContentId": {
+          "type": "string",
+          "description": "ID of the content item in the source module"
+        },
+        "targetUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "description": "Full URL the share link resolves to"
+        },
+        "expiresAt": {
+          "type": "integer",
+          "description": "Optional expiration (Unix timestamp seconds)"
+        },
+        "passwordHash": {
+          "type": "string",
+          "description": "Optional Argon2id hash of access password"
+        },
+        "trackClicks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to record privacy-preserving click analytics"
+        },
+        "clickCount": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Total click count"
+        },
+        "seoOverrides": {
+          "$ref": "#/$defs/SEOOverrides"
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the share link is active"
+        },
+        "createdBy": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Creator's public key (hex)"
+        },
+        "createdAt": {
+          "type": "integer",
+          "description": "Creation timestamp (Unix seconds)"
+        }
+      }
+    },
+
+    "SEOOverrides": {
+      "type": "object",
+      "description": "Custom SEO metadata overrides for share links and content",
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 70,
+          "description": "Custom meta title"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 160,
+          "description": "Custom meta description"
+        },
+        "ogImageUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "Custom OG image URL (overrides auto-generated)"
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 50 },
+          "maxItems": 20,
+          "description": "SEO keywords"
+        },
+        "canonicalUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "description": "Custom canonical URL"
+        }
+      }
+    },
+
+    "ContentCalendarEntry": {
+      "type": "object",
+      "description": "Denormalized view entry for the content calendar aggregation",
+      "required": ["id", "sourceModule", "sourceContentId", "title", "scheduledAt", "status", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Calendar entry identifier"
+        },
+        "sourceModule": {
+          "type": "string",
+          "description": "Originating module"
+        },
+        "sourceContentId": {
+          "type": "string",
+          "description": "Content item ID in the source module"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Content title for calendar display"
+        },
+        "scheduledAt": {
+          "type": "integer",
+          "description": "Scheduled time (Unix timestamp seconds)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "publishing", "published", "failed", "cancelled"],
+          "description": "Publishing status"
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["nostr", "activitypub", "atproto", "rss"]
+          },
+          "description": "Target platforms for this content"
+        },
+        "contentType": {
+          "type": "string",
+          "enum": ["article", "post", "event", "newsletter", "listing"],
+          "description": "Type of content for color-coding"
+        }
+      }
+    },
+
+    "OutreachAnalytics": {
+      "type": "object",
+      "description": "Privacy-preserving per-share analytics. Session-based, no user identification, no cookies.",
+      "required": ["id", "shareLinkId", "sessionId", "timestamp", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique analytics entry identifier"
+        },
+        "shareLinkId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Share link that was clicked"
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Random session identifier (not tied to user identity)"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Click timestamp (Unix seconds)"
+        },
+        "referrer": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Referring domain (stripped to domain only for privacy)"
+        },
+        "platform": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Detected platform (e.g., 'mastodon', 'bluesky', 'twitter', 'email', 'direct')"
+        }
+      }
+    }
+  },
+
+  "nostrEventKinds": {
+    "scheduledContent": {
+      "kind": 40171,
+      "description": "Scheduled content for future publishing",
+      "contentSchema": { "$ref": "#/$defs/ScheduledContent" },
+      "requiredTags": ["d", "module"]
+    },
+    "shareLink": {
+      "kind": 40172,
+      "description": "Public share link creation",
+      "contentSchema": { "$ref": "#/$defs/ShareLink" },
+      "requiredTags": ["d", "module"]
+    },
+    "socialAccount": {
+      "kind": 40173,
+      "description": "Connected social account for cross-posting",
+      "contentSchema": { "$ref": "#/$defs/SocialAccount" },
+      "requiredTags": ["d", "module"]
+    }
+  },
+
+  "testVectors": [
+    {
+      "name": "minimal_scheduled_content",
+      "description": "Scheduled content with only required fields",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "a50e8400-e29b-41d4-a716-446655440010",
+        "sourceModule": "publishing",
+        "sourceContentId": "article-123",
+        "scheduledAt": 1706198400,
+        "status": "pending",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "full_scheduled_content_with_crosspost",
+      "description": "Scheduled content with cross-post configuration",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "a50e8400-e29b-41d4-a716-446655440011",
+        "sourceModule": "microblogging",
+        "sourceContentId": "post-456",
+        "scheduledAt": 1706198400,
+        "status": "pending",
+        "crossPostConfig": {
+          "_v": "1.0.0",
+          "platforms": [
+            {
+              "_v": "1.0.0",
+              "platform": "nostr",
+              "enabled": true,
+              "status": "pending"
+            },
+            {
+              "_v": "1.0.0",
+              "platform": "activitypub",
+              "enabled": true,
+              "customContent": "Check out our latest post! #organizing",
+              "status": "pending"
+            },
+            {
+              "_v": "1.0.0",
+              "platform": "atproto",
+              "enabled": true,
+              "customContent": "Check out our latest post!",
+              "status": "pending"
+            }
+          ]
+        },
+        "signedEvent": "{\"id\":\"abc\",\"pubkey\":\"0123...\",\"kind\":1,\"content\":\"Hello world\",\"tags\":[],\"sig\":\"def\",\"created_at\":1706112000}",
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "share_link_with_seo",
+      "description": "Share link with SEO overrides and password",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "b60e8400-e29b-41d4-a716-446655440020",
+        "slug": "spring-rally",
+        "sourceModule": "events",
+        "sourceContentId": "event-789",
+        "targetUrl": "https://buildit.network/events/event-789",
+        "trackClicks": true,
+        "clickCount": 0,
+        "seoOverrides": {
+          "_v": "1.0.0",
+          "title": "Spring Community Rally 2026",
+          "description": "Join us for the biggest community organizing event of the year!",
+          "keywords": ["rally", "community", "organizing"]
+        },
+        "isActive": true,
+        "createdBy": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "social_account",
+      "description": "Connected ActivityPub account",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "c70e8400-e29b-41d4-a716-446655440030",
+        "platform": "activitypub",
+        "handle": "@organizer@mastodon.social",
+        "displayName": "Community Organizer",
+        "pubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "isActive": true,
+        "createdAt": 1706112000
+      }
+    },
+    {
+      "name": "outreach_analytics_entry",
+      "description": "Privacy-preserving click analytics entry",
+      "valid": true,
+      "input": {
+        "_v": "1.0.0",
+        "id": "d80e8400-e29b-41d4-a716-446655440040",
+        "shareLinkId": "b60e8400-e29b-41d4-a716-446655440020",
+        "sessionId": "random-session-abc123",
+        "timestamp": 1706200000,
+        "referrer": "mastodon.social",
+        "platform": "mastodon"
+      }
+    }
+  ],
+
+  "x-storage": {
+    "tables": {
+      "scheduledContent": {
+        "type": "ScheduledContent",
+        "primaryKey": "id",
+        "indexes": ["sourceModule", "scheduledAt", "status", "createdBy", "createdAt"]
+      },
+      "shareLinks": {
+        "type": "ShareLink",
+        "primaryKey": "id",
+        "indexes": ["slug", "sourceModule", "sourceContentId", "createdBy", "isActive"]
+      },
+      "socialAccounts": {
+        "type": "SocialAccount",
+        "primaryKey": "id",
+        "indexes": ["platform", "pubkey", "isActive"]
+      },
+      "contentCalendarEntries": {
+        "type": "ContentCalendarEntry",
+        "primaryKey": "id",
+        "indexes": ["sourceModule", "scheduledAt", "status"]
+      },
+      "outreachAnalytics": {
+        "type": "OutreachAnalytics",
+        "primaryKey": "id",
+        "indexes": ["shareLinkId", "timestamp"]
+      }
+    },
+    "dbOnly": {},
+    "protocolOnly": []
+  }
+}

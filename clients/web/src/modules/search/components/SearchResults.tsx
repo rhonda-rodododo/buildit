@@ -17,6 +17,7 @@ import {
   Vote,
   FolderOpen,
   Store,
+  Globe,
   Clock,
   ChevronRight,
 } from 'lucide-react';
@@ -84,6 +85,8 @@ const MODULE_ICONS: Record<ModuleType, typeof FileText> = {
   security: FileText,
   training: BookOpen,
   marketplace: Store,
+  federation: Globe,
+  'social-publishing': Calendar,
 };
 
 // ============================================================================

@@ -1,12 +1,12 @@
-import { Event } from '../types'
+import { AppEvent } from '../types'
 import { format } from 'date-fns'
 
 /**
  * Generate iCal (ICS) format string from an event
  */
-export function generateICalEvent(event: Event): string {
-  const formatICalDate = (timestamp: number): string => {
-    const date = new Date(timestamp)
+export function generateICalEvent(event: AppEvent): string {
+  const formatICalDate = (unixSeconds: number): string => {
+    const date = new Date(unixSeconds * 1000)
     return format(date, "yyyyMMdd'T'HHmmss")
   }
 
@@ -26,27 +26,29 @@ export function generateICalEvent(event: Event): string {
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
     `UID:${event.id}@buildit.network`,
-    `DTSTAMP:${formatICalDate(Date.now())}`,
-    `DTSTART:${formatICalDate(event.startTime)}`,
+    `DTSTAMP:${formatICalDate(Math.floor(Date.now() / 1000))}`,
+    `DTSTART:${formatICalDate(event.startAt)}`,
   ]
 
-  if (event.endTime) {
-    lines.push(`DTEND:${formatICalDate(event.endTime)}`)
+  if (event.endAt) {
+    lines.push(`DTEND:${formatICalDate(event.endAt)}`)
   }
 
   lines.push(
     `SUMMARY:${escapeText(event.title)}`,
-    `DESCRIPTION:${escapeText(event.description)}`
+    `DESCRIPTION:${escapeText(event.description ?? '')}`
   )
 
   // Include location if available
-  if (event.location) {
-    lines.push(`LOCATION:${escapeText(event.location)}`)
+  const locationStr = event.location?.name ?? event.location?.address
+  if (locationStr) {
+    lines.push(`LOCATION:${escapeText(locationStr)}`)
   }
 
   // Add categories from tags
-  if (event.tags.length > 0) {
-    lines.push(`CATEGORIES:${event.tags.map(escapeText).join(',')}`)
+  const tags = event.tags ?? []
+  if (tags.length > 0) {
+    lines.push(`CATEGORIES:${tags.map(escapeText).join(',')}`)
   }
 
   // Add organizer
@@ -64,7 +66,7 @@ export function generateICalEvent(event: Event): string {
 /**
  * Download an event as an ICS file
  */
-export function downloadEventAsICS(event: Event): void {
+export function downloadEventAsICS(event: AppEvent): void {
   const icalString = generateICalEvent(event)
   const blob = new Blob([icalString], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)
@@ -80,9 +82,9 @@ export function downloadEventAsICS(event: Event): void {
 /**
  * Generate ICS file for multiple events
  */
-export function generateICalCalendar(events: Event[]): string {
-  const formatICalDate = (timestamp: number): string => {
-    const date = new Date(timestamp)
+export function generateICalCalendar(events: AppEvent[]): string {
+  const formatICalDate = (unixSeconds: number): string => {
+    const date = new Date(unixSeconds * 1000)
     return format(date, "yyyyMMdd'T'HHmmss")
   }
 
@@ -108,25 +110,27 @@ export function generateICalCalendar(events: Event[]): string {
     lines.push(
       'BEGIN:VEVENT',
       `UID:${event.id}@buildit.network`,
-      `DTSTAMP:${formatICalDate(Date.now())}`,
-      `DTSTART:${formatICalDate(event.startTime)}`
+      `DTSTAMP:${formatICalDate(Math.floor(Date.now() / 1000))}`,
+      `DTSTART:${formatICalDate(event.startAt)}`
     )
 
-    if (event.endTime) {
-      lines.push(`DTEND:${formatICalDate(event.endTime)}`)
+    if (event.endAt) {
+      lines.push(`DTEND:${formatICalDate(event.endAt)}`)
     }
 
     lines.push(
       `SUMMARY:${escapeText(event.title)}`,
-      `DESCRIPTION:${escapeText(event.description)}`
+      `DESCRIPTION:${escapeText(event.description ?? '')}`
     )
 
-    if (event.location) {
-      lines.push(`LOCATION:${escapeText(event.location)}`)
+    const locationStr = event.location?.name ?? event.location?.address
+    if (locationStr) {
+      lines.push(`LOCATION:${escapeText(locationStr)}`)
     }
 
-    if (event.tags.length > 0) {
-      lines.push(`CATEGORIES:${event.tags.map(escapeText).join(',')}`)
+    const tags = event.tags ?? []
+    if (tags.length > 0) {
+      lines.push(`CATEGORIES:${tags.map(escapeText).join(',')}`)
     }
 
     lines.push(
@@ -145,7 +149,7 @@ export function generateICalCalendar(events: Event[]): string {
 /**
  * Download multiple events as an ICS file
  */
-export function downloadCalendarAsICS(events: Event[], filename = 'calendar.ics'): void {
+export function downloadCalendarAsICS(events: AppEvent[], filename = 'calendar.ics'): void {
   const icalString = generateICalCalendar(events)
   const blob = new Blob([icalString], { type: 'text/calendar;charset=utf-8' })
   const url = URL.createObjectURL(blob)

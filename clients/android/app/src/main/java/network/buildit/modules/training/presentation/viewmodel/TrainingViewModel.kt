@@ -145,7 +145,7 @@ class TrainingViewModel @Inject constructor(
                 category = state.selectedCategory,
                 difficulty = state.selectedDifficulty,
                 search = state.searchQuery.takeIf { it.isNotBlank() },
-                status = CourseStatus.PUBLISHED
+                status = CourseStatus.Published
             )
 
             getCoursesUseCase.withOptions(options).collect { courses ->

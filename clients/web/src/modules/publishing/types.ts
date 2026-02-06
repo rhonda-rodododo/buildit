@@ -1,6 +1,10 @@
 /**
  * Publishing Module Types
- * Long-form publishing with articles, publications, and subscriber management
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines simpler Article/Publication models (protocol-level).
+ * The local types below represent the richer UI-side publishing features
+ * (drafts, subscriptions, analytics, RSS, etc.).
  */
 
 import type { SEOMetadata } from '../public/types';
@@ -9,6 +13,21 @@ import type {
   IndexabilityDefaults,
   DEFAULT_INDEXABILITY,
 } from '@/types/indexability';
+
+// Re-export generated Zod schemas and types
+export {
+  SEOMetadataSchema as ProtocolSEOMetadataSchema,
+  type SEOMetadata as ProtocolSEOMetadata,
+  ArticleSchema as ProtocolArticleSchema,
+  type Article as ProtocolArticle,
+  CommentSchema as ProtocolCommentSchema,
+  type Comment as ProtocolComment,
+  PublicationSchema as ProtocolPublicationSchema,
+  type Publication as ProtocolPublication,
+  PUBLISHING_SCHEMA_VERSION,
+} from '@/generated/validation/publishing.zod';
+
+// ── UI-Only Types (richer client-side publishing model) ──────────
 
 // ============================================================================
 // Article Types

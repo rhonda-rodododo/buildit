@@ -5,39 +5,56 @@ import { generateMnemonic, wordlists } from 'bip39'
 import type { Identity, KeyPair } from '@/types/identity'
 
 /**
+ * Identity with the raw private key attached.
+ * The generated Identity type does NOT include privateKey (it is not part of the
+ * protocol schema). This extended type is used only within the web client for
+ * functions that need to return both identity metadata and the raw key material.
+ */
+export interface IdentityWithKey extends Identity {
+  privateKey: Uint8Array
+}
+
+/**
  * Generate a new Nostr key pair
+ * Returns the protocol KeyPair shape (privateKey as hex string).
  */
 export function generateKeyPair(): KeyPair {
-  const privateKey = generateSecretKey()
-  const publicKey = getPublicKey(privateKey)
+  const rawKey = generateSecretKey()
+  const publicKey = getPublicKey(rawKey)
 
   return {
-    privateKey,
+    _v: '1.0.0',
+    privateKey: bytesToHex(rawKey),
     publicKey,
   }
 }
 
 /**
  * Create a new identity
+ * Returns an IdentityWithKey which includes the raw Uint8Array private key
+ * for immediate use by SecureKeyManager before it is encrypted and discarded.
  */
-export function createIdentity(name: string = 'Anonymous'): Identity {
-  const { privateKey, publicKey } = generateKeyPair()
+export function createIdentity(name: string = 'Anonymous'): IdentityWithKey {
+  const rawKey = generateSecretKey()
+  const publicKey = getPublicKey(rawKey)
   const npub = nip19.npubEncode(publicKey)
 
   return {
+    _v: '1.0.0',
     publicKey,
     npub,
-    privateKey,
     name,
     created: Date.now(),
     lastUsed: Date.now(),
+    privateKey: rawKey,
   }
 }
 
 /**
  * Import identity from nsec (NIP-19 encoded private key)
+ * Returns an IdentityWithKey which includes the raw Uint8Array private key.
  */
-export function importFromNsec(nsec: string, name: string = 'Imported'): Identity {
+export function importFromNsec(nsec: string, name: string = 'Imported'): IdentityWithKey {
   try {
     const decoded = nip19.decode(nsec)
 
@@ -45,17 +62,18 @@ export function importFromNsec(nsec: string, name: string = 'Imported'): Identit
       throw new Error('Invalid nsec format')
     }
 
-    const privateKey = decoded.data as Uint8Array
-    const publicKey = getPublicKey(privateKey)
+    const rawKey = decoded.data as Uint8Array
+    const publicKey = getPublicKey(rawKey)
     const npub = nip19.npubEncode(publicKey)
 
     return {
+      _v: '1.0.0',
       publicKey,
       npub,
-      privateKey,
       name,
       created: Date.now(),
       lastUsed: Date.now(),
+      privateKey: rawKey,
     }
   } catch (error) {
     throw new Error(`Failed to import nsec: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -179,7 +197,7 @@ export function secureRandomInt(max: number): number {
  * Key manager class for managing multiple identities
  */
 export class KeyManager {
-  private identities: Map<string, Identity>
+  private identities: Map<string, IdentityWithKey>
 
   constructor() {
     this.identities = new Map()
@@ -188,7 +206,7 @@ export class KeyManager {
   /**
    * Add an identity to the manager
    */
-  addIdentity(identity: Identity): void {
+  addIdentity(identity: IdentityWithKey): void {
     this.identities.set(identity.publicKey, identity)
   }
 
@@ -202,7 +220,7 @@ export class KeyManager {
   /**
    * Get an identity by public key
    */
-  getIdentity(publicKey: string): Identity | undefined {
+  getIdentity(publicKey: string): IdentityWithKey | undefined {
     const identity = this.identities.get(publicKey)
 
     if (identity) {
@@ -216,7 +234,7 @@ export class KeyManager {
   /**
    * Get all identities
    */
-  getAllIdentities(): Identity[] {
+  getAllIdentities(): IdentityWithKey[] {
     return Array.from(this.identities.values())
   }
 
@@ -253,10 +271,15 @@ export class KeyManager {
     try {
       const identities = JSON.parse(json)
 
-      identities.forEach((id: Identity & { privateKey: string }) => {
+      identities.forEach((id: Record<string, unknown>) => {
         this.addIdentity({
-          ...id,
-          privateKey: hexToBytes(id.privateKey),
+          _v: (id._v as string) || '1.0.0',
+          publicKey: id.publicKey as string,
+          npub: id.npub as string,
+          name: id.name as string,
+          created: id.created as number,
+          lastUsed: id.lastUsed as number,
+          privateKey: hexToBytes(id.privateKey as string),
         })
       })
     } catch (error) {

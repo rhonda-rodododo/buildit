@@ -1,6 +1,11 @@
 /**
  * CRM Module Types
  * Multi-table CRM template system for social CRM and case management
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines simpler Contact/Interaction/Task models (protocol-level).
+ * The local types below represent the richer UI-side CRM template features
+ * (multi-table templates, form layouts, detail configs, field presets, etc.).
  */
 
 import { z } from 'zod';
@@ -14,6 +19,19 @@ import type {
   RelationshipType,
   OnDeleteAction,
 } from '@/modules/database/types';
+
+// Re-export generated Zod schemas and types
+export {
+  AddressSchema as ProtocolAddressSchema,
+  type Address as ProtocolAddress,
+  ContactSchema as ProtocolContactSchema,
+  type Contact as ProtocolContact,
+  InteractionSchema as ProtocolInteractionSchema,
+  type Interaction as ProtocolInteraction,
+  TaskSchema as ProtocolTaskSchema,
+  type Task as ProtocolTask,
+  CRM_SCHEMA_VERSION,
+} from '@/generated/validation/crm.zod';
 
 /**
  * CRM Template Categories

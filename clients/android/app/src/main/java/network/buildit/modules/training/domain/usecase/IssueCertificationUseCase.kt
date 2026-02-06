@@ -62,7 +62,7 @@ class IssueCertificationUseCase @Inject constructor(
                 val lessonProgress = progressMap[lesson.id]
                     ?: throw IllegalStateException("Required lesson '${lesson.title}' has not been started")
 
-                if (lessonProgress.status != ProgressStatus.COMPLETED) {
+                if (lessonProgress.status != ProgressStatus.Completed) {
                     throw IllegalStateException("Required lesson '${lesson.title}' has not been completed")
                 }
 

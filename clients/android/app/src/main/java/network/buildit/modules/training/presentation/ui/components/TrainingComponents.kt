@@ -129,15 +129,15 @@ fun DifficultyBadge(
     modifier: Modifier = Modifier
 ) {
     val (color, backgroundColor) = when (difficulty) {
-        CourseDifficulty.BEGINNER -> Pair(
+        CourseDifficulty.Beginner -> Pair(
             Color(0xFF2E7D32),
             Color(0xFFE8F5E9)
         )
-        CourseDifficulty.INTERMEDIATE -> Pair(
+        CourseDifficulty.Intermediate -> Pair(
             Color(0xFFF57C00),
             Color(0xFFFFF3E0)
         )
-        CourseDifficulty.ADVANCED -> Pair(
+        CourseDifficulty.Advanced -> Pair(
             Color(0xFFC62828),
             Color(0xFFFFEBEE)
         )
@@ -359,8 +359,8 @@ fun LessonItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isCompleted = progress?.status == ProgressStatus.COMPLETED
-    val isInProgress = progress?.status == ProgressStatus.IN_PROGRESS
+    val isCompleted = progress?.status == ProgressStatus.Completed
+    val isInProgress = progress?.status == ProgressStatus.InProgress
 
     ListItem(
         headlineContent = {
@@ -442,7 +442,7 @@ fun QuizComponent(
                         .padding(vertical = 4.dp)
                         .clickable(enabled = !showFeedback) {
                             val newAnswers = when (question.type) {
-                                QuizQuestionType.MULTI_SELECT -> {
+                                QuizQuestionType.MultiSelect -> {
                                     if (isSelected) selectedAnswers - option
                                     else selectedAnswers + option
                                 }
@@ -465,7 +465,7 @@ fun QuizComponent(
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (question.type == QuizQuestionType.MULTI_SELECT) {
+                        if (question.type == QuizQuestionType.MultiSelect) {
                             Checkbox(
                                 checked = isSelected,
                                 onCheckedChange = null,

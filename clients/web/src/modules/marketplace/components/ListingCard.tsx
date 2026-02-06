@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Star, Clock } from 'lucide-react';
 import { formatListingPrice } from '../marketplaceManager';
 import { useMarketplaceStore } from '../marketplaceStore';
-import type { Listing } from '../types';
+import type { Listing, LocationValue } from '../types';
 
 interface ListingCardProps {
   listing: Listing;
@@ -39,6 +39,8 @@ export function ListingCard({ listing, onClick }: ListingCardProps) {
 
   const avgRating = getAverageRating(listing.id);
   const reviewCount = getReviewsForListing(listing.id).length;
+  const images = listing.images ?? [];
+  const location = listing.location as LocationValue | undefined;
 
   return (
     <Card
@@ -46,10 +48,10 @@ export function ListingCard({ listing, onClick }: ListingCardProps) {
       onClick={() => onClick(listing)}
     >
       {/* Image thumbnail */}
-      {listing.images.length > 0 ? (
+      {images.length > 0 ? (
         <div className="aspect-video bg-muted overflow-hidden">
           <img
-            src={listing.images[0]}
+            src={images[0]}
             alt={listing.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
@@ -82,10 +84,10 @@ export function ListingCard({ listing, onClick }: ListingCardProps) {
         </p>
 
         {/* Location (fuzzy) */}
-        {listing.location && (
+        {location && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            <span className="truncate">{listing.location.label}</span>
+            <span className="truncate">{location.label}</span>
           </div>
         )}
 

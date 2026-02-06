@@ -318,6 +318,7 @@ export const PostComposer: FC<PostComposerProps> = ({
       contentType,
       media,
       visibility: {
+        _v: '1.0.0',
         privacy,
       },
       hashtags,

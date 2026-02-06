@@ -129,7 +129,7 @@ fun TypeFilterRow(
             label = { Text("All") }
         )
 
-        ProposalType.values().forEach { type ->
+        ProposalType.entries.forEach { type ->
             FilterChip(
                 selected = selectedType == type,
                 onClick = { onTypeSelected(type) },
@@ -160,13 +160,13 @@ fun ProposalCard(
             ) {
                 Icon(
                     imageVector = when (proposal.type) {
-                        ProposalType.GENERAL -> Icons.Default.Description
-                        ProposalType.POLICY -> Icons.Default.VerifiedUser
-                        ProposalType.BUDGET -> Icons.Default.AttachMoney
-                        ProposalType.ELECTION -> Icons.Default.People
-                        ProposalType.AMENDMENT -> Icons.Default.Edit
-                        ProposalType.ACTION -> Icons.Default.FlashOn
-                        ProposalType.RESOLUTION -> Icons.Default.Flag
+                        ProposalType.General -> Icons.Default.Description
+                        ProposalType.Policy -> Icons.Default.VerifiedUser
+                        ProposalType.Budget -> Icons.Default.AttachMoney
+                        ProposalType.Election -> Icons.Default.People
+                        ProposalType.Amendment -> Icons.Default.Edit
+                        ProposalType.Action -> Icons.Default.FlashOn
+                        ProposalType.Resolution -> Icons.Default.Flag
                     },
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
@@ -246,13 +246,13 @@ fun ProposalCard(
 @Composable
 fun StatusChip(status: ProposalStatus) {
     val (backgroundColor, textColor) = when (status) {
-        ProposalStatus.DRAFT -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
-        ProposalStatus.DISCUSSION -> Pair(Color(0xFFE3F2FD), Color(0xFF1976D2))
-        ProposalStatus.VOTING -> Pair(Color(0xFFFFF3E0), Color(0xFFE65100))
-        ProposalStatus.PASSED -> Pair(Color(0xFFE8F5E9), Color(0xFF2E7D32))
-        ProposalStatus.REJECTED -> Pair(Color(0xFFFFEBEE), Color(0xFFC62828))
-        ProposalStatus.EXPIRED, ProposalStatus.WITHDRAWN -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
-        ProposalStatus.IMPLEMENTED -> Pair(Color(0xFFF3E5F5), Color(0xFF7B1FA2))
+        ProposalStatus.Draft -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
+        ProposalStatus.Discussion -> Pair(Color(0xFFE3F2FD), Color(0xFF1976D2))
+        ProposalStatus.Voting -> Pair(Color(0xFFFFF3E0), Color(0xFFE65100))
+        ProposalStatus.Passed -> Pair(Color(0xFFE8F5E9), Color(0xFF2E7D32))
+        ProposalStatus.Rejected -> Pair(Color(0xFFFFEBEE), Color(0xFFC62828))
+        ProposalStatus.Expired, ProposalStatus.Withdrawn -> Pair(Color(0xFFE0E0E0), Color(0xFF616161))
+        ProposalStatus.Implemented -> Pair(Color(0xFFF3E5F5), Color(0xFF7B1FA2))
     }
 
     Surface(

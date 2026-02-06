@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/training/v1.json",
+  "title": "TrainingModule",
+  "description": "Training courses, lessons, quizzes, certifications, and progress tracking",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "CourseCategory": {
+      "type": "string",
+      "description": "Course category for organizing training content",
+      "enum": ["app-basics", "opsec", "digital-security", "legal", "medic", "self-defense", "organizing", "communication", "civil-defense", "custom"]
+    },
+
+    "CourseDifficulty": {
+      "type": "string",
+      "description": "Course difficulty level",
+      "enum": ["beginner", "intermediate", "advanced"]
+    },
+
+    "CourseStatus": {
+      "type": "string",
+      "description": "Course publication status",
+      "enum": ["draft", "published", "archived"]
+    },
+
+    "LessonType": {
+      "type": "string",
+      "description": "Lesson content type",
+      "enum": ["video", "document", "quiz", "assignment", "live-session", "interactive"]
+    },
+
+    "QuizQuestionType": {
+      "type": "string",
+      "description": "Quiz question format",
+      "enum": ["multiple-choice", "multi-select", "true-false", "fill-in-blank", "short-answer"]
+    },
+
+    "ProgressStatus": {
+      "type": "string",
+      "description": "Learning progress status",
+      "enum": ["not-started", "in-progress", "completed"]
+    },
+
+    "AssignmentReviewStatus": {
+      "type": "string",
+      "description": "Assignment review status",
+      "enum": ["pending", "in-review", "approved", "rejected", "revision-requested"]
+    },
+
+    "InteractiveExerciseType": {
+      "type": "string",
+      "description": "Interactive exercise type",
+      "enum": ["threat-model", "security-audit", "scenario", "simulation", "custom"]
+    },
+
+    "LiveSessionRSVPStatus": {
+      "type": "string",
+      "description": "Live session RSVP status",
+      "enum": ["confirmed", "tentative", "declined"]
+    },
+
+    "Course": {
+      "type": "object",
+      "description": "A training course",
+      "required": ["id", "title", "description", "category", "difficulty", "estimatedHours", "status", "created", "createdBy", "updated", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "groupId": { "type": "string" },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 8192 },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "category": { "$ref": "#/$defs/CourseCategory" },
+        "difficulty": { "$ref": "#/$defs/CourseDifficulty" },
+        "estimatedHours": { "type": "number" },
+        "prerequisites": { "type": "array", "items": { "type": "string" } },
+        "status": { "$ref": "#/$defs/CourseStatus" },
+        "certificationEnabled": { "type": "boolean", "default": false },
+        "certificationExpiryDays": { "type": "integer" },
+        "isPublic": { "type": "boolean", "default": false },
+        "isDefault": { "type": "boolean", "default": false },
+        "created": { "type": "integer" },
+        "createdBy": { "type": "string" },
+        "updated": { "type": "integer" }
+      }
+    },
+
+    "TrainingModule": {
+      "type": "object",
+      "description": "A chapter within a course",
+      "required": ["id", "courseId", "title", "order", "estimatedMinutes", "created", "updated", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string" },
+        "order": { "type": "integer" },
+        "estimatedMinutes": { "type": "integer" },
+        "created": { "type": "integer" },
+        "updated": { "type": "integer" }
+      }
+    },
+
+    "QuizQuestion": {
+      "type": "object",
+      "description": "A question within a quiz",
+      "required": ["id", "type", "question", "correctAnswer", "points", "order", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "type": { "$ref": "#/$defs/QuizQuestionType" },
+        "question": { "type": "string" },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "correctAnswer": { "type": "array", "items": { "type": "string" } },
+        "explanation": { "type": "string" },
+        "points": { "type": "integer" },
+        "order": { "type": "integer" }
+      }
+    },
+
+    "AssignmentRubricItem": {
+      "type": "object",
+      "description": "Rubric item for grading assignments",
+      "required": ["id", "criterion", "description", "maxPoints", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "criterion": { "type": "string" },
+        "description": { "type": "string" },
+        "maxPoints": { "type": "integer" }
+      }
+    },
+
+    "Lesson": {
+      "type": "object",
+      "description": "An individual learning unit within a module",
+      "required": ["id", "moduleId", "type", "title", "order", "estimatedMinutes", "created", "updated", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "moduleId": { "type": "string" },
+        "type": { "$ref": "#/$defs/LessonType" },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string" },
+        "order": { "type": "integer" },
+        "estimatedMinutes": { "type": "integer" },
+        "requiredForCertification": { "type": "boolean", "default": false },
+        "passingScore": { "type": "integer" },
+        "created": { "type": "integer" },
+        "updated": { "type": "integer" },
+        "videoUrl": { "type": "string", "format": "uri" },
+        "transcriptUrl": { "type": "string", "format": "uri" },
+        "captionsUrl": { "type": "string", "format": "uri" },
+        "duration": { "type": "integer" },
+        "markdown": { "type": "string" },
+        "pdfUrl": { "type": "string", "format": "uri" },
+        "questions": { "type": "array", "items": { "$ref": "#/$defs/QuizQuestion" } },
+        "allowRetakes": { "type": "boolean" },
+        "maxAttempts": { "type": "integer" },
+        "shuffleQuestions": { "type": "boolean" },
+        "shuffleOptions": { "type": "boolean" },
+        "showCorrectAfter": { "type": "boolean" },
+        "timeLimitMinutes": { "type": "integer" },
+        "instructions": { "type": "string" },
+        "allowedFileTypes": { "type": "array", "items": { "type": "string" } },
+        "maxFileSizeMB": { "type": "integer" },
+        "rubric": { "type": "array", "items": { "$ref": "#/$defs/AssignmentRubricItem" } },
+        "scheduledAt": { "type": "integer" },
+        "instructorPubkey": { "type": "string" },
+        "conferenceRoomId": { "type": "string" },
+        "recordingUrl": { "type": "string", "format": "uri" },
+        "maxParticipants": { "type": "integer" },
+        "requiresRSVP": { "type": "boolean" },
+        "exerciseType": { "$ref": "#/$defs/InteractiveExerciseType" },
+        "configJson": { "type": "string" },
+        "externalUrl": { "type": "string", "format": "uri" }
+      }
+    },
+
+    "CourseProgress": {
+      "type": "object",
+      "description": "User progress on a course",
+      "required": ["id", "courseId", "pubkey", "percentComplete", "lessonsCompleted", "totalLessons", "startedAt", "lastActivityAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "pubkey": { "type": "string" },
+        "percentComplete": { "type": "number" },
+        "lessonsCompleted": { "type": "integer" },
+        "totalLessons": { "type": "integer" },
+        "currentModuleId": { "type": "string" },
+        "currentLessonId": { "type": "string" },
+        "startedAt": { "type": "integer" },
+        "lastActivityAt": { "type": "integer" },
+        "completedAt": { "type": "integer" }
+      }
+    },
+
+    "Certification": {
+      "type": "object",
+      "description": "Certification record issued upon course completion",
+      "required": ["id", "courseId", "pubkey", "earnedAt", "verificationCode", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "courseId": { "type": "string" },
+        "pubkey": { "type": "string" },
+        "earnedAt": { "type": "integer" },
+        "expiresAt": { "type": "integer" },
+        "verificationCode": { "type": "string" },
+        "metadata": { "type": "object", "additionalProperties": { "type": "string" } },
+        "revokedAt": { "type": "integer" },
+        "revokedBy": { "type": "string" },
+        "revokeReason": { "type": "string" }
+      }
+    }
+  },
+
+  "x-storage": {
+    "tables": {
+      "courses": {
+        "type": "Course",
+        "primaryKey": "id",
+        "indexes": ["groupId", "category", "difficulty", "status", "createdBy", "created"]
+      },
+      "trainingModules": {
+        "type": "TrainingModule",
+        "primaryKey": "id",
+        "indexes": ["courseId", "order"]
+      },
+      "lessons": {
+        "type": "Lesson",
+        "primaryKey": "id",
+        "indexes": ["moduleId", "type", "order"]
+      },
+      "courseProgress": {
+        "type": "CourseProgress",
+        "primaryKey": "id",
+        "indexes": ["courseId", "pubkey"],
+        "compoundIndexes": ["[courseId+pubkey]"]
+      },
+      "certifications": {
+        "type": "Certification",
+        "primaryKey": "id",
+        "indexes": ["courseId", "pubkey", "verificationCode"]
+      }
+    }
+  }
+}

@@ -54,7 +54,7 @@ class TrainingCallingIntegration @Inject constructor(
         lesson: Lesson,
         config: TrainingConferenceConfig
     ): ConferenceRoom {
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -99,7 +99,7 @@ class TrainingCallingIntegration @Inject constructor(
         val lesson = trainingRepository.getLesson(lessonId).first()
             ?: throw IllegalArgumentException("Lesson not found")
 
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -118,7 +118,7 @@ class TrainingCallingIntegration @Inject constructor(
         // 4. Enable recording if configured
 
         val rsvps = trainingRepository.getLiveSessionRSVPs(lessonId).first()
-        val confirmedRsvps = rsvps.filter { it.status == RSVPStatus.CONFIRMED }
+        val confirmedRsvps = rsvps.filter { it.status == RSVPStatus.Confirmed }
 
         Log.i(TAG, "Notifying ${confirmedRsvps.size} confirmed participants")
 
@@ -135,7 +135,7 @@ class TrainingCallingIntegration @Inject constructor(
         val lesson = trainingRepository.getLesson(lessonId).first()
             ?: throw IllegalArgumentException("Lesson not found")
 
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -178,7 +178,7 @@ class TrainingCallingIntegration @Inject constructor(
         val lesson = trainingRepository.getLesson(lessonId).first()
             ?: throw IllegalArgumentException("Lesson not found")
 
-        require(lesson.type == LessonType.LIVE_SESSION) {
+        require(lesson.type == LessonType.LiveSession) {
             "Lesson must be a live session"
         }
 
@@ -206,12 +206,12 @@ class TrainingCallingIntegration @Inject constructor(
         // If attended for significant duration, mark lesson progress
         if (duration > 30 * 60) { // 30 minutes minimum
             val existingProgress = trainingRepository.getLessonProgress(lessonId, pubkey).first()
-            if (existingProgress == null || existingProgress.status != ProgressStatus.COMPLETED) {
+            if (existingProgress == null || existingProgress.status != ProgressStatus.Completed) {
                 val progress = LessonProgress(
                     id = existingProgress?.id ?: UUID.randomUUID().toString(),
                     lessonId = lessonId,
                     pubkey = pubkey,
-                    status = if (wasCompleteSession) ProgressStatus.COMPLETED else ProgressStatus.IN_PROGRESS,
+                    status = if (wasCompleteSession) ProgressStatus.Completed else ProgressStatus.InProgress,
                     score = null,
                     timeSpent = duration,
                     lastPosition = null,
@@ -235,7 +235,7 @@ class TrainingCallingIntegration @Inject constructor(
         val lesson = trainingRepository.getLesson(lessonId).first()
             ?: return ConferenceStatus(null, false, 0)
 
-        if (lesson.type != LessonType.LIVE_SESSION) {
+        if (lesson.type != LessonType.LiveSession) {
             return ConferenceStatus(null, false, 0)
         }
 

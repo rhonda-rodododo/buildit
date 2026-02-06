@@ -1,32 +1,32 @@
 import { create } from 'zustand'
-import { Event, RSVP, RSVPStatus, EventWithRSVPs } from './types'
+import { AppEvent, RSVP, RSVPStatus, EventWithRSVPs } from './types'
 
 interface EventsState {
   // Events data
-  events: Event[]
+  events: AppEvent[]
   rsvps: RSVP[]
 
   // Active event
   activeEventId: string | null
 
   // Actions
-  setEvents: (events: Event[]) => void
-  addEvent: (event: Event) => void
-  updateEvent: (eventId: string, updates: Partial<Event>) => void
+  setEvents: (events: AppEvent[]) => void
+  addEvent: (event: AppEvent) => void
+  updateEvent: (eventId: string, updates: Partial<AppEvent>) => void
   deleteEvent: (eventId: string) => void
 
   // RSVP actions
   setRSVPs: (rsvps: RSVP[]) => void
   addRSVP: (rsvp: RSVP) => void
-  updateRSVP: (eventId: string, userPubkey: string, status: RSVPStatus) => void
+  updateRSVP: (eventId: string, pubkey: string, status: RSVPStatus) => void
 
   // Selectors
-  getEventById: (eventId: string) => Event | undefined
-  getEventsByGroup: (groupId: string) => Event[]
-  getPublicEvents: () => Event[]
-  getUpcomingEvents: () => Event[]
+  getEventById: (eventId: string) => AppEvent | undefined
+  getEventsByGroup: (groupId: string) => AppEvent[]
+  getPublicEvents: () => AppEvent[]
+  getUpcomingEvents: () => AppEvent[]
   getRSVPsForEvent: (eventId: string) => RSVP[]
-  getUserRSVP: (eventId: string, userPubkey: string) => RSVP | undefined
+  getUserRSVP: (eventId: string, pubkey: string) => RSVP | undefined
   getEventWithRSVPs: (eventId: string, userPubkey?: string) => EventWithRSVPs | undefined
 
   // UI state
@@ -69,21 +69,21 @@ export const useEventsStore = create<EventsState>()(
       addRSVP: (rsvp) => set((state) => {
         // Remove any existing RSVP for this user/event combo
         const filteredRSVPs = state.rsvps.filter(
-          (r) => !(r.eventId === rsvp.eventId && r.userPubkey === rsvp.userPubkey)
+          (r) => !(r.eventId === rsvp.eventId && r.pubkey === rsvp.pubkey)
         )
         return { rsvps: [...filteredRSVPs, rsvp] }
       }),
 
-      updateRSVP: (eventId, userPubkey, status) => set((state) => {
+      updateRSVP: (eventId, pubkey, status) => set((state) => {
         const existingRSVP = state.rsvps.find(
-          (r) => r.eventId === eventId && r.userPubkey === userPubkey
+          (r) => r.eventId === eventId && r.pubkey === pubkey
         )
 
         if (existingRSVP) {
           return {
             rsvps: state.rsvps.map((r) =>
-              r.eventId === eventId && r.userPubkey === userPubkey
-                ? { ...r, status, timestamp: Date.now() }
+              r.eventId === eventId && r.pubkey === pubkey
+                ? { ...r, status, respondedAt: Math.floor(Date.now() / 1000) }
                 : r
             ),
           }
@@ -92,10 +92,12 @@ export const useEventsStore = create<EventsState>()(
             rsvps: [
               ...state.rsvps,
               {
+                _v: '1.0.0',
                 eventId,
-                userPubkey,
+                pubkey,
                 status,
-                timestamp: Date.now(),
+                guestCount: 0,
+                respondedAt: Math.floor(Date.now() / 1000),
               },
             ],
           }
@@ -111,23 +113,23 @@ export const useEventsStore = create<EventsState>()(
       },
 
       getPublicEvents: () => {
-        return get().events.filter((e) => e.privacy === 'public')
+        return get().events.filter((e) => e.visibility === 'public')
       },
 
       getUpcomingEvents: () => {
-        const now = Date.now()
+        const now = Math.floor(Date.now() / 1000)
         return get().events
-          .filter((e) => e.startTime > now)
-          .sort((a, b) => a.startTime - b.startTime)
+          .filter((e) => e.startAt > now)
+          .sort((a, b) => a.startAt - b.startAt)
       },
 
       getRSVPsForEvent: (eventId) => {
         return get().rsvps.filter((r) => r.eventId === eventId)
       },
 
-      getUserRSVP: (eventId, userPubkey) => {
+      getUserRSVP: (eventId, pubkey) => {
         return get().rsvps.find(
-          (r) => r.eventId === eventId && r.userPubkey === userPubkey
+          (r) => r.eventId === eventId && r.pubkey === pubkey
         )
       },
 

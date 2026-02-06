@@ -4,24 +4,9 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Type of poll.
- */
-enum class PollType {
-    SINGLE_CHOICE,
-    MULTIPLE_CHOICE,
-    RANKED_CHOICE
-}
-
-/**
- * Status of a poll.
- */
-enum class PollStatus {
-    DRAFT,
-    ACTIVE,
-    CLOSED,
-    CANCELLED
-}
+// Import generated protocol enums as source of truth
+import network.buildit.generated.schemas.polls.PollType
+import network.buildit.generated.schemas.polls.PollStatus
 
 /**
  * Room entity for polls.
@@ -42,8 +27,8 @@ data class PollEntity(
     val groupId: String,
     val title: String,
     val description: String?,
-    val pollType: PollType = PollType.SINGLE_CHOICE,
-    val status: PollStatus = PollStatus.ACTIVE,
+    val pollType: PollType = PollType.Single,
+    val status: PollStatus = PollStatus.Active,
     val optionsJson: String, // JSON array of option strings
     val isAnonymous: Boolean = false,
     val allowAddOptions: Boolean = false,

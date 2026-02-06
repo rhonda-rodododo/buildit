@@ -413,11 +413,11 @@ private fun EventSearchResultCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = formatEventDate(event.startTime),
+                    text = formatEventDate(event.startAt),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
-                event.endTime?.let { endTime ->
+                event.endAt?.let { endTime ->
                     Text(
                         text = "- ${formatEventTime(endTime)}",
                         style = MaterialTheme.typography.bodySmall,
@@ -428,6 +428,7 @@ private fun EventSearchResultCard(
 
             // Location
             event.location?.let { location ->
+                val locationText = location.name ?: location.address ?: return@let
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -440,7 +441,7 @@ private fun EventSearchResultCard(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = location,
+                        text = locationText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -488,35 +489,35 @@ private fun filterAndSortEvents(
         val matchesQuery = filters.query.isBlank() ||
             event.title.contains(filters.query, ignoreCase = true) ||
             (event.description?.contains(filters.query, ignoreCase = true) == true) ||
-            (event.location?.contains(filters.query, ignoreCase = true) == true)
+            (event.location?.name?.contains(filters.query, ignoreCase = true) == true)
 
         // Upcoming/past filter
         val matchesTiming = when (filters.isUpcoming) {
-            true -> event.startTime > now
-            false -> event.startTime <= now
+            true -> event.startAt > now
+            false -> event.startAt <= now
             null -> true
         }
 
         // Date range filter
-        val matchesDateRange = (filters.dateRangeStart == null || event.startTime >= filters.dateRangeStart) &&
-            (filters.dateRangeEnd == null || event.startTime <= filters.dateRangeEnd)
+        val matchesDateRange = (filters.dateRangeStart == null || event.startAt >= filters.dateRangeStart) &&
+            (filters.dateRangeEnd == null || event.startAt <= filters.dateRangeEnd)
 
         matchesQuery && matchesTiming && matchesDateRange
     }.let { filtered ->
         when (filters.sortBy) {
-            EventSortOption.DATE_ASC -> filtered.sortedBy { it.startTime }
-            EventSortOption.DATE_DESC -> filtered.sortedByDescending { it.startTime }
+            EventSortOption.DATE_ASC -> filtered.sortedBy { it.startAt }
+            EventSortOption.DATE_DESC -> filtered.sortedByDescending { it.startAt }
             EventSortOption.TITLE_ASC -> filtered.sortedBy { it.title.lowercase() }
             EventSortOption.RELEVANCE -> {
                 if (filters.query.isBlank()) {
-                    filtered.sortedByDescending { it.startTime }
+                    filtered.sortedByDescending { it.startAt }
                 } else {
                     val query = filters.query.lowercase()
                     filtered.sortedByDescending { event ->
                         var score = 0
                         if (event.title.lowercase().contains(query)) score += 10
                         if (event.description?.lowercase()?.contains(query) == true) score += 5
-                        if (event.location?.lowercase()?.contains(query) == true) score += 3
+                        if (event.location?.name?.lowercase()?.contains(query) == true) score += 3
                         score
                     }
                 }

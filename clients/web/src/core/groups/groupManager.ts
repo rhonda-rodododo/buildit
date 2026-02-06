@@ -55,6 +55,7 @@ export async function createGroup(
   // Create initial members list (creator + invited members)
   const members: GroupMember[] = [
     {
+      _v: '1.0.0',
       pubkey: creatorPubkey,
       role: 'owner',
       joinedAt: now,
@@ -63,6 +64,7 @@ export async function createGroup(
 
   // Create the group object
   const group: Group = {
+    _v: '1.0.0',
     id: creationEvent.id,
     name: params.name,
     description: params.description,
@@ -259,6 +261,7 @@ export async function getUserGroups(
       const metadata = JSON.parse(event.content)
 
       const group: Group = {
+        _v: '1.0.0',
         id: event.id,
         name: metadata.name,
         description: metadata.description,
@@ -310,6 +313,7 @@ export async function getGroupMembers(
   for (const event of joinEvents) {
     if (!membersMap.has(event.pubkey)) {
       membersMap.set(event.pubkey, {
+        _v: '1.0.0',
         pubkey: event.pubkey,
         role: 'member',
         joinedAt: event.created_at,

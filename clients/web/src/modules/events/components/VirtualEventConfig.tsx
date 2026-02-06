@@ -25,6 +25,7 @@ interface VirtualEventConfigProps {
 }
 
 const DEFAULT_CONFIG: EventVirtualConfig = {
+  _v: '1.0.0',
   enabled: false,
   autoStartMinutes: 15,
   waitingRoomEnabled: true,
@@ -59,12 +60,15 @@ export const VirtualEventConfig: FC<VirtualEventConfigProps> = ({
   };
 
   const updateBreakoutConfig = (updates: Partial<BreakoutRoomConfig>) => {
-    const newBreakoutConfig = {
-      ...(config.breakoutConfig || {
-        enabled: false,
-        autoAssign: true,
-        allowSelfSelect: false,
-      }),
+    const defaultBreakoutConfig: BreakoutRoomConfig = {
+      _v: '1.0.0',
+      enabled: false,
+      autoAssign: true,
+      allowSelfSelect: false,
+    };
+    const newBreakoutConfig: BreakoutRoomConfig = {
+      ...defaultBreakoutConfig,
+      ...config.breakoutConfig,
       ...updates,
     };
     updateConfig({ breakoutConfig: newBreakoutConfig });

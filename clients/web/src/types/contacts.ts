@@ -1,29 +1,39 @@
+/**
+ * Contacts Types
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * NIP-specific event schemas (ContactListEvent, MuteListEvent) are defined locally
+ * as they are Nostr wire format, not protocol types.
+ */
+
 import { z } from 'zod';
 
-// Contact relationship types
-export type RelationshipType = 'following' | 'follower' | 'friend' | 'blocked';
+// Re-export all generated Zod schemas and types
+export {
+  RelationshipTypeSchema,
+  type RelationshipType,
+  PredefinedTagSchema,
+  type PredefinedTag,
+  NoteCategorySchema,
+  type NoteCategory,
+  ContactMetadataSchema,
+  type ContactMetadata,
+  ContactSchema,
+  type Contact,
+  ContactNoteSchema,
+  type ContactNote,
+  ContactTagSchema,
+  type ContactTag,
+  CONTACTS_SCHEMA_VERSION,
+} from '@/generated/validation/contacts.zod';
 
-// Contact metadata schema
-export const ContactMetadataSchema = z.object({
-  pubkey: z.string(),
-  relay: z.string().optional(),
-  petname: z.string().optional(),
-  displayName: z.string().optional(),
-  avatar: z.string().url().optional(),
-  bio: z.string().optional(),
-  nip05: z.string().optional(),
-  lud16: z.string().optional(), // Lightning address
-});
+// Re-export ProfileMetadata from identity (used by contact display)
+export {
+  ProfileMetadataSchema,
+  type ProfileMetadata,
+} from '@/generated/validation/identity.zod';
 
-export type ContactMetadata = z.infer<typeof ContactMetadataSchema>;
-
-// Contact with relationship info
-export interface Contact extends ContactMetadata {
-  relationship: RelationshipType;
-  followedAt?: number; // Timestamp when followed
-  mutedAt?: number; // Timestamp when muted
-  blockedAt?: number; // Timestamp when blocked
-}
+// ── NIP-Specific Event Schemas (wire format, not protocol types) ──
 
 // Contact list event (NIP-02, kind 3)
 export const ContactListEventSchema = z.object({
@@ -50,17 +60,3 @@ export const MuteListEventSchema = z.object({
 });
 
 export type MuteListEvent = z.infer<typeof MuteListEventSchema>;
-
-// User profile metadata (NIP-01, kind 0)
-export const ProfileMetadataSchema = z.object({
-  name: z.string().optional(),
-  display_name: z.string().optional(),
-  about: z.string().optional(),
-  picture: z.string().url().optional(),
-  banner: z.string().url().optional(),
-  nip05: z.string().optional(),
-  lud16: z.string().optional(),
-  website: z.string().url().optional(),
-});
-
-export type ProfileMetadata = z.infer<typeof ProfileMetadataSchema>;

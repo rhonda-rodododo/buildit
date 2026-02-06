@@ -1,8 +1,28 @@
 /**
  * Fundraising Module Types
- * Fundraising campaigns, donation processing, and donor management
- * Can optionally integrate with Forms module for donor data collection
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines a simpler Campaign/Donation model (protocol-level).
+ * The local types below represent the richer UI-side fundraising features
+ * (crypto wallets, payment processing, templates, etc.).
  */
+
+// Re-export generated Zod schemas and types
+export {
+  DonationTierSchema as ProtocolDonationTierSchema,
+  type DonationTier as ProtocolDonationTier,
+  CampaignUpdateSchema as ProtocolCampaignUpdateSchema,
+  type CampaignUpdate as ProtocolCampaignUpdate,
+  CampaignSchema,
+  type Campaign as ProtocolCampaign,
+  DonationSchema,
+  type Donation as ProtocolDonation,
+  ExpenseSchema,
+  type Expense,
+  FUNDRAISING_SCHEMA_VERSION,
+} from '@/generated/validation/fundraising.zod';
+
+// ── UI-Only Types (richer client-side fundraising model) ─────────
 
 // ============================================================================
 // Campaign Types

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EventWithRSVPs } from '../types'
-import { Calendar, MapPin, Users, Clock, Globe, Lock, Info, Pencil } from 'lucide-react'
+import { Calendar, MapPin, Users, Clock, Globe, Lock, Info, Pencil, Share2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { RSVPButton } from './RSVPButton'
 import { AttendeeList } from './AttendeeList'
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/authStore'
 import { LocationDisplay } from '@/modules/custom-fields/components/inputs/LocationDisplay'
 import type { LocationValue } from '@/modules/custom-fields/types'
+import { SocialShareDialog } from '@/modules/social-publishing/components/SocialShareDialog'
 
 interface EventDetailProps {
   event: EventWithRSVPs | null
@@ -29,13 +30,14 @@ export const EventDetail: FC<EventDetailProps> = ({
 }) => {
   const { t } = useTranslation()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const { currentIdentity } = useAuthStore()
   const isCreator = currentIdentity?.publicKey === event?.createdBy
 
   if (!event) return null
 
   const formatDate = (timestamp: number) => {
-    return format(new Date(timestamp), 'PPPp')
+    return format(new Date(timestamp * 1000), 'PPPp')
   }
 
 
@@ -53,10 +55,10 @@ export const EventDetail: FC<EventDetailProps> = ({
     }
 
     return (
-      <Badge variant={event.privacy === 'public' ? 'default' : 'secondary'}>
+      <Badge variant={event.visibility === 'public' ? 'default' : 'secondary'}>
         <span className="flex items-center gap-1">
-          {icons[event.privacy]}
-          {labels[event.privacy]}
+          {icons[event.visibility]}
+          {labels[event.visibility]}
         </span>
       </Badge>
     )
@@ -84,10 +86,10 @@ export const EventDetail: FC<EventDetailProps> = ({
                   <span>{t('eventDetail.rsvpCounts.notGoing', { count: event.rsvpCounts.notGoing })}</span>
                 </div>
               </div>
-              {event.capacity && (
+              {event.maxAttendees && (
                 <div className="text-sm text-muted-foreground">
                   <Users className="h-4 w-4 inline mr-1" />
-                  {t('eventDetail.capacity', { current: event.rsvpCounts.going, max: event.capacity })}
+                  {t('eventDetail.capacity', { current: event.rsvpCounts.going, max: event.maxAttendees })}
                 </div>
               )}
             </div>
@@ -128,18 +130,18 @@ export const EventDetail: FC<EventDetailProps> = ({
                     <div>
                       <div className="font-medium">{t('eventDetail.startTime')}</div>
                       <div className="text-sm text-muted-foreground">
-                        {formatDate(event.startTime)}
+                        {formatDate(event.startAt)}
                       </div>
                     </div>
                   </div>
 
-                  {event.endTime && (
+                  {event.endAt && (
                     <div className="flex items-start gap-3">
                       <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
                         <div className="font-medium">{t('eventDetail.endTime')}</div>
                         <div className="text-sm text-muted-foreground">
-                          {formatDate(event.endTime)}
+                          {formatDate(event.endAt)}
                         </div>
                       </div>
                     </div>
@@ -160,7 +162,9 @@ export const EventDetail: FC<EventDetailProps> = ({
                       <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                       <div>
                         <div className="font-medium">{t('eventDetail.location')}</div>
-                        <div className="text-sm text-muted-foreground">{event.location}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {event.location.name ?? event.location.address ?? ''}
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -168,11 +172,11 @@ export const EventDetail: FC<EventDetailProps> = ({
               </div>
 
               {/* Tags */}
-              {event.tags.length > 0 && (
+              {(event.tags ?? []).length > 0 && (
                 <div>
                   <h3 className="font-medium mb-2">{t('eventDetail.tags')}</h3>
                   <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag, index) => (
+                    {(event.tags ?? []).map((tag, index) => (
                       <Badge key={index} variant="outline">
                         {tag}
                       </Badge>
@@ -207,6 +211,12 @@ export const EventDetail: FC<EventDetailProps> = ({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {t('eventDetail.actions.close')}
             </Button>
+            {event.visibility === 'public' && (
+              <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+            )}
             {isCreator && (
               <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
                 <Pencil className="h-4 w-4 mr-2" />
@@ -216,6 +226,19 @@ export const EventDetail: FC<EventDetailProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      {/* Share Dialog */}
+      {event && (
+        <SocialShareDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          sourceModule="events"
+          sourceContentId={event.id}
+          title={event.title}
+          description={event.description || ''}
+          contentUrl={`${window.location.origin}/events/${event.id}`}
+        />
+      )}
 
       {/* Edit Event Dialog */}
       {event && (

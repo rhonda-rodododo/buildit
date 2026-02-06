@@ -363,8 +363,8 @@ private fun QuizLessonContent(
             val selectedAnswers = quizState.answers[currentQuestion.id] ?: emptyList()
 
             when (currentQuestion.type) {
-                QuizQuestionType.MULTIPLE_CHOICE,
-                QuizQuestionType.TRUE_FALSE -> {
+                QuizQuestionType.MultipleChoice,
+                QuizQuestionType.TrueFalse -> {
                     Column(modifier = Modifier.selectableGroup()) {
                         currentQuestion.options?.forEach { option ->
                             RadioOption(
@@ -377,7 +377,7 @@ private fun QuizLessonContent(
                         }
                     }
                 }
-                QuizQuestionType.MULTI_SELECT -> {
+                QuizQuestionType.MultiSelect -> {
                     Column {
                         currentQuestion.options?.forEach { option ->
                             CheckboxOption(
@@ -395,8 +395,8 @@ private fun QuizLessonContent(
                         }
                     }
                 }
-                QuizQuestionType.FILL_IN_BLANK,
-                QuizQuestionType.SHORT_ANSWER -> {
+                QuizQuestionType.FillInBlank,
+                QuizQuestionType.ShortAnswer -> {
                     OutlinedTextField(
                         value = selectedAnswers.firstOrNull() ?: "",
                         onValueChange = {

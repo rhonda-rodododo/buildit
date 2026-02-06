@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import network.buildit.features.devicesync.DeviceSyncScreen
 import network.buildit.features.groups.GroupsScreen
 import network.buildit.features.settings.SettingsScreen
 import network.buildit.ui.theme.BuildItTheme
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -246,6 +248,7 @@ fun BuildItContent(
     deepLinkHandler: DeepLinkHandler? = null
 ) {
     val navController = rememberNavController()
+    val coroutineScope = rememberCoroutineScope()
 
     // Handle pending deep links
     HandleDeepLinks(
@@ -358,7 +361,7 @@ fun BuildItContent(
                         navController.popBackStack()
                         // Create or find an existing conversation with the selected pubkey
                         // and navigate to it by opening the conversation in ChatViewModel
-                        kotlinx.coroutines.MainScope().launch {
+                        coroutineScope.launch {
                             val conversationId = chatViewModel.createConversation(pubkey)
                             chatViewModel.openConversation(conversationId)
                         }

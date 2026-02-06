@@ -3,26 +3,18 @@
  * Based on https://github.com/Spl0itable/nosflare
  */
 
-// Core Nostr Protocol Types
-export interface NostrEvent {
-  id: string;
-  pubkey: string;
-  created_at: number;
-  kind: number;
-  tags: string[][];
-  content: string;
-  sig: string;
-}
+import type {
+  NostrEvent as GeneratedNostrEvent,
+  NostrFilter as GeneratedNostrFilter,
+  RelayInfo as GeneratedRelayInfo,
+} from '../../shared/generated/schemas/nostr';
 
-export interface NostrFilter {
-  ids?: string[];
-  authors?: string[];
-  kinds?: number[];
-  since?: number;
-  until?: number;
-  limit?: number;
-  search?: string;
-  // Tag filters
+// Re-export protocol types with _v made optional for runtime use.
+// Raw Nostr events arriving over WebSocket do not carry the _v field,
+// so the relay needs a permissive variant of the generated types.
+export type NostrEvent = Omit<GeneratedNostrEvent, '_v'> & { _v?: string };
+export type NostrFilter = Omit<GeneratedNostrFilter, '_v'> & {
+  _v?: string;
   '#e'?: string[];
   '#p'?: string[];
   '#a'?: string[];
@@ -33,9 +25,16 @@ export interface NostrFilter {
   '#s'?: string[];
   '#u'?: string[];
   [key: `#${string}`]: string[] | undefined;
-}
+};
+export type RelayInfo = Omit<GeneratedRelayInfo, '_v'> & {
+  _v?: string;
+  fees?: {
+    admission?: { amount: number; unit: string }[];
+    publication?: { kinds: number[]; amount: number; unit: string }[];
+  };
+};
 
-// Nostr Protocol Messages
+// Nostr Protocol Messages (complex union that codegen cannot represent)
 export type NostrMessage =
   | ['EVENT', NostrEvent]
   | ['EVENT', string, NostrEvent]
@@ -47,36 +46,6 @@ export type NostrMessage =
   | ['CLOSED', string, string]
   | ['AUTH', string]
   | ['AUTH', NostrEvent];
-
-// Relay Information (NIP-11)
-export interface RelayInfo {
-  name: string;
-  description: string;
-  pubkey?: string;
-  contact?: string;
-  supported_nips: number[];
-  software: string;
-  version: string;
-  icon?: string;
-  limitation?: {
-    max_message_length?: number;
-    max_subscriptions?: number;
-    max_filters?: number;
-    max_limit?: number;
-    max_subid_length?: number;
-    min_prefix?: number;
-    max_event_tags?: number;
-    max_content_length?: number;
-    min_pow_difficulty?: number;
-    auth_required?: boolean;
-    payment_required?: boolean;
-  };
-  payments_url?: string;
-  fees?: {
-    admission?: { amount: number; unit: string }[];
-    publication?: { kinds: number[]; amount: number; unit: string }[];
-  };
-}
 
 // Rate Limiting
 export interface RateLimitConfig {

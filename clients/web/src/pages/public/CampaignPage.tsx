@@ -60,9 +60,9 @@ export const CampaignPage: FC = () => {
         // Attempt to load campaign data from Nostr public events
         const { NostrClient } = await import('@/core/nostr/client');
         const client = new NostrClient([
-          { url: 'wss://relay.damus.io', read: true, write: false },
-          { url: 'wss://relay.primal.net', read: true, write: false },
-          { url: 'wss://nos.lol', read: true, write: false },
+          { _v: '1.0.0', url: 'wss://relay.damus.io', read: true, write: false },
+          { _v: '1.0.0', url: 'wss://relay.primal.net', read: true, write: false },
+          { _v: '1.0.0', url: 'wss://nos.lol', read: true, write: false },
         ]);
 
         // Query for kind 30023 (long-form content) tagged with the campaign slug

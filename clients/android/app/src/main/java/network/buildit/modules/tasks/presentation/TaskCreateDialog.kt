@@ -27,7 +27,7 @@ fun TaskCreateDialog(
     ) -> Unit,
     initialTitle: String = "",
     initialDescription: String? = null,
-    initialPriority: TaskPriority = TaskPriority.MEDIUM
+    initialPriority: TaskPriority = TaskPriority.Medium
 ) {
     var title by remember { mutableStateOf(initialTitle) }
     var description by remember { mutableStateOf(initialDescription ?: "") }

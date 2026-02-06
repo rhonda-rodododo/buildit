@@ -342,13 +342,28 @@ src/modules/[module-name]/
 ├── schema.ts             # DB tables, types
 ├── migrations.ts         # Version upgrades
 ├── seeds.ts              # Example/template data
-├── types.ts              # TypeScript interfaces
+├── types.ts              # Re-exports from @/generated/ + UI-only types
 ├── [module]Store.ts      # Zustand store
 ├── [module]Manager.ts    # Business logic
 ├── components/           # ALL UI components
 ├── hooks/                # Module hooks
 └── i18n/                 # Module translations (scoped)
     └── index.ts          # Uses defineModuleTranslations()
+```
+
+**CRITICAL: types.ts must use codegen'd types.** Protocol types come from `@/generated/validation/{module}.zod` — NEVER define them manually. Only UI-only types (form inputs, computed results) go in `types.ts` directly:
+```typescript
+// ✅ CORRECT — re-export from codegen
+export {
+  MyTypeSchema, type MyType,
+  MODULE_SCHEMA_VERSION,
+} from '@/generated/validation/my-module.zod';
+
+// ✅ CORRECT — UI-only types defined locally
+export interface CreateMyTypeInput { /* form data */ }
+
+// ❌ WRONG — never manually define protocol types
+// export interface MyType { id: string; ... }
 ```
 
 **Required in index.ts**: Every module must register both schema and translations:

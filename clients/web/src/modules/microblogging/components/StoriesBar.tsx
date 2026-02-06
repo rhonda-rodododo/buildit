@@ -72,7 +72,7 @@ export function StoriesBar({ onCreateStory, onViewStory, className }: StoriesBar
                 >
                   <Avatar className="h-14 w-14 border-2 border-background">
                     <AvatarFallback>
-                      {currentIdentity.displayName?.[0]?.toUpperCase() || currentIdentity.name?.[0]?.toUpperCase() || 'Y'}
+                      {currentIdentity.displayName ? currentIdentity.displayName[0]?.toUpperCase() : currentIdentity.publicKey.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </div>

@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/microblogging/v1.json",
+  "title": "MicrobloggingModule",
+  "description": "Posts, comments, reactions, reposts, and social feed features",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "PostPrivacy": {
+      "type": "string",
+      "description": "Privacy level for posts",
+      "enum": ["public", "followers", "group", "encrypted"]
+    },
+
+    "PostContentType": {
+      "type": "string",
+      "description": "Primary content type of a post",
+      "enum": ["text", "image", "video", "poll", "event-share", "document-share"]
+    },
+
+    "ReactionType": {
+      "type": "string",
+      "description": "Emoji reaction type",
+      "enum": ["heart", "fist", "fire", "eyes", "laugh", "thumbs_up"]
+    },
+
+    "PostVisibility": {
+      "type": "object",
+      "description": "Post visibility settings",
+      "required": ["privacy", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "privacy": { "$ref": "#/$defs/PostPrivacy" },
+        "groupIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allowedUsers": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "MediaAttachment": {
+      "type": "object",
+      "description": "A media file attached to a post",
+      "required": ["id", "type", "url", "filename", "mimeType", "size", "encrypted"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["image", "video", "audio", "document"] },
+        "url": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "filename": { "type": "string" },
+        "mimeType": { "type": "string" },
+        "size": { "type": "integer", "description": "File size in bytes" },
+        "encrypted": { "type": "boolean" },
+        "encryptionKey": { "type": "string", "description": "Base64 encoded encryption key" },
+        "contentWarning": { "type": "boolean" },
+        "blurOnLoad": { "type": "boolean" },
+        "alt": { "type": "string", "description": "Alt text for accessibility" },
+        "caption": { "type": "string" }
+      }
+    },
+
+    "PostLinkPreview": {
+      "type": "object",
+      "description": "Signal-style encrypted link preview (fetched by sender, zero third-party requests for recipients)",
+      "required": ["url"],
+      "additionalProperties": true,
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "siteName": { "type": "string" },
+        "imageData": { "type": "string", "description": "Base64-encoded thumbnail" },
+        "imageType": { "type": "string" },
+        "faviconData": { "type": "string", "description": "Base64-encoded favicon" }
+      }
+    },
+
+    "PostLocation": {
+      "type": "object",
+      "description": "Privacy-preserving location data attached to a post",
+      "required": ["lat", "lng", "label", "precision"],
+      "additionalProperties": true,
+      "properties": {
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "label": { "type": "string", "description": "Display label for the location" },
+        "precision": { "type": "string", "enum": ["exact", "area", "city", "region", "country"], "description": "How precisely the location is shared" }
+      }
+    },
+
+    "Post": {
+      "type": "object",
+      "description": "A microblog post",
+      "required": ["id", "authorId", "content", "contentType", "visibility", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "content": { "type": "string", "maxLength": 65536 },
+        "contentType": { "$ref": "#/$defs/PostContentType" },
+        "visibility": { "$ref": "#/$defs/PostVisibility" },
+        "media": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MediaAttachment" },
+          "description": "Media files attached to the post"
+        },
+        "linkPreviews": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PostLinkPreview" },
+          "description": "Privacy-preserving link previews (encrypted with post content)"
+        },
+        "location": { "$ref": "#/$defs/PostLocation" },
+        "reactionCount": { "type": "integer", "default": 0 },
+        "commentCount": { "type": "integer", "default": 0 },
+        "repostCount": { "type": "integer", "default": 0 },
+        "bookmarkCount": { "type": "integer", "default": 0 },
+        "mentions": { "type": "array", "items": { "type": "string" } },
+        "hashtags": { "type": "array", "items": { "type": "string" } },
+        "links": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "integer" },
+        "updatedAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" },
+        "relayUrls": { "type": "array", "items": { "type": "string" } },
+        "isRepost": { "type": "boolean" },
+        "repostedPostId": { "type": "string" },
+        "isQuote": { "type": "boolean" },
+        "quotedPostId": { "type": "string" },
+        "quotedContent": { "type": "string" },
+        "contentWarning": { "type": "string" },
+        "isSensitive": { "type": "boolean" },
+        "isPinned": { "type": "boolean" },
+        "pinnedAt": { "type": "integer" }
+      }
+    },
+
+    "Comment": {
+      "type": "object",
+      "description": "A comment on a post (threaded)",
+      "required": ["id", "postId", "authorId", "content", "depth", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "content": { "type": "string" },
+        "parentCommentId": { "type": "string" },
+        "depth": { "type": "integer", "maximum": 3 },
+        "reactionCount": { "type": "integer", "default": 0 },
+        "createdAt": { "type": "integer" },
+        "updatedAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" },
+        "isReported": { "type": "boolean" }
+      }
+    },
+
+    "Reaction": {
+      "type": "object",
+      "description": "A reaction on a post",
+      "required": ["id", "postId", "userId", "type", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "$ref": "#/$defs/ReactionType" },
+        "createdAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" }
+      }
+    },
+
+    "Repost": {
+      "type": "object",
+      "description": "A repost or quote repost",
+      "required": ["id", "postId", "userId", "isQuote", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "userId": { "type": "string" },
+        "isQuote": { "type": "boolean" },
+        "quoteContent": { "type": "string" },
+        "createdAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" }
+      }
+    },
+
+    "Bookmark": {
+      "type": "object",
+      "description": "A bookmarked post",
+      "required": ["id", "postId", "userId", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "integer" },
+        "collectionId": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+
+  "x-storage": {
+    "tables": {
+      "posts": {
+        "type": "Post",
+        "primaryKey": "id",
+        "indexes": ["authorId", "contentType", "createdAt", "nostrEventId"]
+      },
+      "comments": {
+        "type": "Comment",
+        "primaryKey": "id",
+        "indexes": ["postId", "authorId", "parentCommentId", "createdAt"]
+      },
+      "reactions": {
+        "type": "Reaction",
+        "primaryKey": "id",
+        "indexes": ["postId", "userId"],
+        "compoundIndexes": ["[postId+userId]"]
+      },
+      "reposts": {
+        "type": "Repost",
+        "primaryKey": "id",
+        "indexes": ["postId", "userId"]
+      },
+      "bookmarks": {
+        "type": "Bookmark",
+        "primaryKey": "id",
+        "indexes": ["postId", "userId", "collectionId"]
+      }
+    }
+  }
+}

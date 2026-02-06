@@ -24,7 +24,7 @@ import { dirname, basename, join } from 'path';
 
 import type { ModuleSchema, XStorageAnnotation } from './utils/json-schema';
 import { pascalCase, constCase, snakeCase } from './utils/json-schema';
-import { postProcessTypeScript, postProcessSwift, postProcessRust } from './utils/post-process';
+import { postProcessTypeScript, postProcessSwift, postProcessKotlin, postProcessRust } from './utils/post-process';
 import { generateAllTypesWithQuicktype } from './generators/quicktype';
 import { generateDexieSchema } from './generators/dexie';
 import { generateSqliteMigration } from './generators/sqlite';
@@ -32,7 +32,8 @@ import { generateZodSchemas } from './generators/zod';
 import { generateVersionFile, generateMigrations } from './generators/migration';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
-const SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/modules');
+const MODULE_SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/modules');
+const CORE_SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/core');
 const TEST_VECTORS_DIR = join(REPO_ROOT, 'protocol/test-vectors');
 
 // ============================================================================
@@ -81,6 +82,10 @@ const MIGRATION_OUTPUT_DIR = join(REPO_ROOT, 'clients/web/src/generated/migratio
 // SQLite migration output for desktop client
 const SQLITE_OUTPUT_DIR = join(REPO_ROOT, 'clients/desktop/src/db/migrations/generated');
 
+// Workers generated output dirs
+const WORKERS_SCHEMAS_DIR = join(REPO_ROOT, 'workers/shared/generated/schemas');
+const WORKERS_ZOD_DIR = join(REPO_ROOT, 'workers/shared/generated/validation');
+
 // ============================================================================
 // Formatting
 // ============================================================================
@@ -90,13 +95,15 @@ function formatOutput(
   version: string,
   minReaderVersion: string,
   generatedCode: string,
-  lang: string
+  lang: string,
+  isCore: boolean = false
 ): string {
   const moduleConst = constCase(moduleName);
   const pascalModule = pascalCase(moduleName);
+  const schemaDir = isCore ? 'core' : 'modules';
 
   const header = `/**
- * @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
+ * @generated from protocol/schemas/${schemaDir}/${moduleName}/v${version.split('.')[0]}.json
  * @version ${version}
  * @minReaderVersion ${minReaderVersion}
  *
@@ -135,15 +142,17 @@ public enum ${pascalModule}Schema {
       );
     }
 
-    case 'kotlin':
-      return header + generatedCode;
+    case 'kotlin': {
+      const processedKotlin = postProcessKotlin(generatedCode);
+      return header + processedKotlin;
+    }
 
     case 'rust': {
       const processedRust = postProcessRust(generatedCode);
       const snakeModule = snakeCase(moduleName);
       return `//! ${pascalModule} module schema types
 //!
-//! @generated from protocol/schemas/modules/${moduleName}/v${version.split('.')[0]}.json
+//! @generated from protocol/schemas/${schemaDir}/${moduleName}/v${version.split('.')[0]}.json
 //! Version: ${version}
 //! Min Reader Version: ${minReaderVersion}
 //!
@@ -389,6 +398,91 @@ async function generateConflictSafeIndex(
   await writeFile(join(outputDir, 'index.ts'), code);
 }
 
+/**
+ * Generate a conflict-safe index for workers schema files (no suffix — files are `{module}.ts`).
+ */
+async function generateWorkersSchemaIndex(outputDir: string, modules: string[]): Promise<void> {
+  const moduleExports: Map<string, { types: string[]; values: string[] }> = new Map();
+
+  for (const moduleName of modules) {
+    const filePath = join(outputDir, `${moduleName}.ts`);
+    try {
+      const content = await readFile(filePath, 'utf-8');
+      const types: string[] = [];
+      const values: string[] = [];
+
+      for (const match of content.matchAll(/export\s+interface\s+(\w+)/g)) {
+        types.push(match[1]);
+      }
+      for (const match of content.matchAll(/export\s+type\s+(\w+)/g)) {
+        types.push(match[1]);
+      }
+      for (const match of content.matchAll(/export\s+const\s+(\w+)/g)) {
+        values.push(match[1]);
+      }
+
+      moduleExports.set(moduleName, { types, values });
+    } catch {
+      moduleExports.set(moduleName, { types: [], values: [] });
+    }
+  }
+
+  const allNames: Map<string, string[]> = new Map();
+  for (const [moduleName, exports] of moduleExports) {
+    for (const name of [...exports.types, ...exports.values]) {
+      if (!allNames.has(name)) allNames.set(name, []);
+      allNames.get(name)!.push(moduleName);
+    }
+  }
+  const conflicts = new Set(
+    [...allNames.entries()].filter(([, mods]) => mods.length > 1).map(([name]) => name)
+  );
+
+  let code = '// Auto-generated index - DO NOT EDIT\n';
+  code += '// Workers TypeScript schemas from protocol schemas\n';
+  if (conflicts.size > 0) {
+    code += '// Conflicting names are prefixed with module name to avoid ambiguity\n';
+  }
+  code += '\n';
+
+  for (const moduleName of modules) {
+    const pascal = pascalCase(moduleName);
+    const exports = moduleExports.get(moduleName);
+    if (!exports) continue;
+
+    code += `// ${pascal}\n`;
+
+    const typeExports: string[] = [];
+    const valueExports: string[] = [];
+
+    for (const name of exports.types) {
+      if (conflicts.has(name)) {
+        typeExports.push(`${name} as ${pascal}${name}`);
+      } else {
+        typeExports.push(name);
+      }
+    }
+
+    for (const name of exports.values) {
+      if (conflicts.has(name)) {
+        valueExports.push(`${name} as ${pascal}${name}`);
+      } else {
+        valueExports.push(name);
+      }
+    }
+
+    if (typeExports.length > 0) {
+      code += `export type { ${typeExports.join(', ')} } from './${moduleName}';\n`;
+    }
+    if (valueExports.length > 0) {
+      code += `export { ${valueExports.join(', ')} } from './${moduleName}';\n`;
+    }
+    code += '\n';
+  }
+
+  await writeFile(join(outputDir, 'index.ts'), code);
+}
+
 async function generateDexieIndex(modules: string[]) {
   await generateConflictSafeIndex(
     DEXIE_OUTPUT_DIR,
@@ -556,9 +650,11 @@ async function main() {
 
   console.log('📦 BuildIt Schema Code Generator\n');
 
-  // Find all schema files
-  const schemaFiles = await glob(`${SCHEMAS_DIR}/**/v*.json`);
-  console.log(`Found ${schemaFiles.length} schema files\n`);
+  // Find all schema files (module + core schemas)
+  const moduleSchemaFiles = await glob(`${MODULE_SCHEMAS_DIR}/**/v*.json`);
+  const coreSchemaFiles = await glob(`${CORE_SCHEMAS_DIR}/**/v*.json`);
+  const schemaFiles = [...moduleSchemaFiles, ...coreSchemaFiles];
+  console.log(`Found ${schemaFiles.length} schema files (${moduleSchemaFiles.length} module, ${coreSchemaFiles.length} core)\n`);
 
   if (validateVectorsFlag) {
     await validateTestVectors();
@@ -597,8 +693,9 @@ async function main() {
     for (const file of schemaFiles) {
       const moduleName = basename(dirname(file));
       const schema = allSchemas.get(moduleName)!;
+      const isCore = file.includes('/core/');
 
-      console.log(`\n📄 Processing ${moduleName}...`);
+      console.log(`\n📄 Processing ${moduleName}${isCore ? ' (core)' : ''}...`);
 
       moduleVersions[moduleName] = schema.version;
 
@@ -622,7 +719,8 @@ async function main() {
             schema.version || '1.0.0',
             schema.minReaderVersion || schema.version || '1.0.0',
             generatedCode,
-            target.lang
+            target.lang,
+            isCore
           );
           const outputName = target.lang === 'rust' ? snakeCase(moduleName)
             : target.lang === 'kotlin' ? kotlinModuleName
@@ -737,12 +835,73 @@ async function main() {
     await generateZodIndex(zodModules);
   }
 
+  // ── Phase 3b: Workers TypeScript + Zod generation ────────────────────
+  if (!targetFilter || targetFilter === 'workers') {
+    console.log('\n🌐 Generating Workers TypeScript schemas...');
+    await mkdir(WORKERS_SCHEMAS_DIR, { recursive: true });
+    await mkdir(WORKERS_ZOD_DIR, { recursive: true });
+
+    const workersModules: string[] = [];
+    const workersZodModules: string[] = [];
+
+    for (const file of schemaFiles) {
+      const content = await readFile(file, 'utf-8');
+      const schema: ModuleSchema = JSON.parse(content);
+      const moduleName = basename(dirname(file));
+
+      if (!schema.$defs || Object.keys(schema.$defs).length === 0) continue;
+
+      try {
+        const generatedCode = await generateAllTypesWithQuicktype(moduleName, schema, 'typescript', allSchemas);
+        const isCore = file.includes('/core/');
+        const code = formatOutput(
+          moduleName,
+          schema.version || '1.0.0',
+          schema.minReaderVersion || schema.version || '1.0.0',
+          generatedCode,
+          'typescript',
+          isCore
+        );
+        await writeFile(join(WORKERS_SCHEMAS_DIR, `${moduleName}.ts`), code);
+        workersModules.push(moduleName);
+        console.log(`  ✅ Workers Schema: ${moduleName}.ts`);
+      } catch (error) {
+        console.error(`  ❌ Workers Schema ${moduleName}: ${error}`);
+      }
+
+      const zodCode = generateZodSchemas(moduleName, schema);
+      if (zodCode) {
+        await writeFile(join(WORKERS_ZOD_DIR, `${moduleName}.zod.ts`), zodCode);
+        workersZodModules.push(moduleName);
+        console.log(`  ✅ Workers Zod: ${moduleName}.zod.ts`);
+      }
+    }
+
+    // Generate index files for workers
+    if (workersModules.length > 0) {
+      // Workers schemas don't have a suffix (files are just `moduleName.ts`),
+      // so we generate a conflict-safe index by scanning the generated files directly.
+      await generateWorkersSchemaIndex(WORKERS_SCHEMAS_DIR, workersModules);
+      console.log(`  ✅ Workers: schemas/index.ts`);
+    }
+
+    if (workersZodModules.length > 0) {
+      await generateConflictSafeIndex(
+        WORKERS_ZOD_DIR,
+        workersZodModules,
+        'zod',
+        'Workers Zod validation schemas from protocol schemas'
+      );
+      console.log(`  ✅ Workers: validation/index.ts`);
+    }
+  }
+
   // ── Phase 4: Migration generation (new) ──────────────────────────────
   if (!targetFilter || targetFilter === 'typescript') {
     console.log('\n🔄 Generating migrations...');
     await mkdir(MIGRATION_OUTPUT_DIR, { recursive: true });
 
-    const { code: migrationCode, migrations } = await generateMigrations(SCHEMAS_DIR);
+    const { code: migrationCode, migrations } = await generateMigrations(MODULE_SCHEMAS_DIR);
     await writeFile(join(MIGRATION_OUTPUT_DIR, 'index.ts'), migrationCode);
 
     if (migrations.length > 0) {
@@ -756,6 +915,27 @@ async function main() {
     await writeFile(join(DEXIE_OUTPUT_DIR, 'version.ts'), versionCode);
     console.log(`  ✅ Version: version.ts (DB_SCHEMA_VERSION=${totalTableCount + 1})`);
   }
+
+  // ── Phase 5: Format generated TypeScript files with prettier ────────
+  console.log('\n💅 Formatting generated files with prettier...');
+  const formatDirs = [
+    join(REPO_ROOT, 'clients/web/src/generated'),
+    WORKERS_SCHEMAS_DIR,
+    WORKERS_ZOD_DIR,
+  ];
+  for (const dir of formatDirs) {
+    try {
+      const proc = Bun.spawn(['bunx', 'prettier', '--write', '--log-level', 'warn', `${dir}/**/*.ts`], {
+        cwd: REPO_ROOT,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      });
+      await proc.exited;
+    } catch {
+      // prettier not available or failed - non-fatal
+    }
+  }
+  console.log('  ✅ Formatting complete');
 
   console.log('\n✅ Code generation complete!');
 }

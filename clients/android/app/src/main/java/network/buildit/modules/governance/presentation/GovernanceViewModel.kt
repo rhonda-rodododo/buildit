@@ -88,8 +88,8 @@ class GovernanceListViewModel @Inject constructor(
 data class CreateProposalUiState(
     val title: String = "",
     val description: String = "",
-    val type: ProposalType = ProposalType.GENERAL,
-    val votingSystem: VotingSystem = VotingSystem.SIMPLE_MAJORITY,
+    val type: ProposalType = ProposalType.General,
+    val votingSystem: VotingSystem = VotingSystem.SimpleMajority,
     val votingDurationDays: Int = 7,
     val includeDiscussion: Boolean = false,
     val discussionDurationDays: Int = 3,
@@ -229,7 +229,7 @@ class CreateProposalViewModel @Inject constructor(
                     .map { it.trim() }
                     .filter { it.isNotEmpty() }
 
-                val quadraticCfg = if (state.votingSystem == VotingSystem.QUADRATIC) {
+                val quadraticCfg = if (state.votingSystem == VotingSystem.Quadratic) {
                     QuadraticVotingConfig(
                         tokenBudget = state.tokenBudget,
                         maxTokensPerOption = state.maxTokensPerOption

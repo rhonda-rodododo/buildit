@@ -13,7 +13,7 @@ import { useCoopProfiles } from '../hooks/useMarketplace';
 import { useMarketplaceStore } from '../marketplaceStore';
 import { useAuthStore } from '@/stores/authStore';
 import { ListingCard } from './ListingCard';
-import type { CoopProfile, Listing } from '../types';
+import type { CoopProfile, Listing, LocationValue } from '../types';
 
 interface CoopProfilePageProps {
   coop: CoopProfile;
@@ -37,8 +37,10 @@ export function CoopProfilePage({ coop, onBack, onSelectListing }: CoopProfilePa
   const getListingsByCoop = useMarketplaceStore((s) => s.getListingsByCoop);
 
   const coopListings = getListingsByCoop(coop.id);
+  const verifiedBy = coop.verifiedBy ?? [];
+  const location = coop.location as LocationValue | undefined;
   const hasVouched = currentIdentity?.publicKey
-    ? coop.verifiedBy.includes(currentIdentity.publicKey)
+    ? verifiedBy.includes(currentIdentity.publicKey)
     : false;
 
   return (
@@ -67,29 +69,35 @@ export function CoopProfilePage({ coop, onBack, onSelectListing }: CoopProfilePa
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{coop.name}</h1>
-              {coop.verifiedBy.length >= 3 && (
+              {verifiedBy.length >= 3 && (
                 <CheckCircle className="h-5 w-5 text-green-600" />
               )}
             </div>
             <p className="text-muted-foreground mt-1">{coop.description}</p>
 
             <div className="flex flex-wrap gap-4 mt-4 text-sm">
-              <div className="flex items-center gap-1.5">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span>{coop.memberCount} {t('marketplace.members')}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="outline">
-                  {governanceLabels[coop.governanceModel] ?? coop.governanceModel}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Badge variant="secondary">{coop.industry}</Badge>
-              </div>
-              {coop.location && (
+              {coop.memberCount != null && (
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span>{coop.memberCount} {t('marketplace.members')}</span>
+                </div>
+              )}
+              {coop.governanceModel && (
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline">
+                    {governanceLabels[coop.governanceModel] ?? coop.governanceModel}
+                  </Badge>
+                </div>
+              )}
+              {coop.industry && (
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="secondary">{coop.industry}</Badge>
+                </div>
+              )}
+              {location && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>{coop.location.label}</span>
+                  <span>{location.label}</span>
                 </div>
               )}
               {coop.website && (
@@ -119,13 +127,13 @@ export function CoopProfilePage({ coop, onBack, onSelectListing }: CoopProfilePa
         </div>
 
         {/* Vouchers */}
-        {coop.verifiedBy.length > 0 && (
+        {verifiedBy.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4 text-green-600" />
               <span>
                 {t('marketplace.vouchedBy', 'Vouched for by {{count}} people', {
-                  count: coop.verifiedBy.length,
+                  count: verifiedBy.length,
                 })}
               </span>
             </div>

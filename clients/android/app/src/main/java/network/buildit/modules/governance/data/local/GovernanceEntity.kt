@@ -6,60 +6,86 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import network.buildit.generated.schemas.governance.AttachmentType as GeneratedAttachmentType
+import network.buildit.generated.schemas.governance.Outcome as GeneratedOutcome
+import network.buildit.generated.schemas.governance.ProposalStatus as GeneratedProposalStatus
+import network.buildit.generated.schemas.governance.ProposalType as GeneratedProposalType
+import network.buildit.generated.schemas.governance.QuorumType as GeneratedQuorumType
+import network.buildit.generated.schemas.governance.Scope as GeneratedScope
+import network.buildit.generated.schemas.governance.ThresholdType as GeneratedThresholdType
+import network.buildit.generated.schemas.governance.VotingSystem as GeneratedVotingSystem
 
-/**
- * Type of proposal.
- */
-enum class ProposalType(val displayName: String, val icon: String) {
-    GENERAL("General", "doc_text"),
-    POLICY("Policy", "checkmark_shield"),
-    BUDGET("Budget", "dollar_sign"),
-    ELECTION("Election", "person_3"),
-    AMENDMENT("Amendment", "pencil_line"),
-    ACTION("Action", "bolt"),
-    RESOLUTION("Resolution", "flag")
+// Protocol types from generated code
+typealias ProposalType = GeneratedProposalType
+typealias ProposalStatus = GeneratedProposalStatus
+typealias VotingSystem = GeneratedVotingSystem
+typealias AttachmentType = GeneratedAttachmentType
+typealias QuorumType = GeneratedQuorumType
+typealias ThresholdType = GeneratedThresholdType
+typealias ProposalOutcome = GeneratedOutcome
+typealias DelegationScope = GeneratedScope
+
+// UI extension properties for ProposalType
+
+val ProposalType.displayName: String get() = when (this) {
+    ProposalType.General -> "General"
+    ProposalType.Policy -> "Policy"
+    ProposalType.Budget -> "Budget"
+    ProposalType.Election -> "Election"
+    ProposalType.Amendment -> "Amendment"
+    ProposalType.Action -> "Action"
+    ProposalType.Resolution -> "Resolution"
 }
 
-/**
- * Current status of a proposal.
- */
-enum class ProposalStatus(val displayName: String) {
-    DRAFT("Draft"),
-    DISCUSSION("Discussion"),
-    VOTING("Voting"),
-    PASSED("Passed"),
-    REJECTED("Rejected"),
-    EXPIRED("Expired"),
-    WITHDRAWN("Withdrawn"),
-    IMPLEMENTED("Implemented");
-
-    val isActive: Boolean
-        get() = this in listOf(DRAFT, DISCUSSION, VOTING)
+val ProposalType.icon: String get() = when (this) {
+    ProposalType.General -> "doc_text"
+    ProposalType.Policy -> "checkmark_shield"
+    ProposalType.Budget -> "dollar_sign"
+    ProposalType.Election -> "person_3"
+    ProposalType.Amendment -> "pencil_line"
+    ProposalType.Action -> "bolt"
+    ProposalType.Resolution -> "flag"
 }
 
-/**
- * Voting system types.
- */
-enum class VotingSystem(val displayName: String, val description: String) {
-    SIMPLE_MAJORITY("Simple Majority", "More than 50% required to pass"),
-    SUPERMAJORITY("Supermajority (2/3)", "Two-thirds majority required"),
-    RANKED_CHOICE("Ranked Choice", "Rank options in order of preference"),
-    APPROVAL("Approval Voting", "Vote for all acceptable options"),
-    QUADRATIC("Quadratic Voting", "Vote power scales with stake"),
-    D_HONDT("D'Hondt Method", "Proportional representation method"),
-    CONSENSUS("Consensus", "Unanimous agreement required"),
-    MODIFIED_CONSENSUS("Modified Consensus", "Consensus with blocking threshold")
+// UI extension properties for ProposalStatus
+
+val ProposalStatus.displayName: String get() = when (this) {
+    ProposalStatus.Draft -> "Draft"
+    ProposalStatus.Discussion -> "Discussion"
+    ProposalStatus.Voting -> "Voting"
+    ProposalStatus.Passed -> "Passed"
+    ProposalStatus.Rejected -> "Rejected"
+    ProposalStatus.Expired -> "Expired"
+    ProposalStatus.Withdrawn -> "Withdrawn"
+    ProposalStatus.Implemented -> "Implemented"
 }
 
-/**
- * Attachment type for proposals.
- */
-enum class AttachmentType {
-    FILE,
-    URL,
-    DOCUMENT
+val ProposalStatus.isActive: Boolean get() =
+    this in listOf(ProposalStatus.Draft, ProposalStatus.Discussion, ProposalStatus.Voting)
+
+// UI extension properties for VotingSystem
+
+val VotingSystem.displayName: String get() = when (this) {
+    VotingSystem.SimpleMajority -> "Simple Majority"
+    VotingSystem.Supermajority -> "Supermajority (2/3)"
+    VotingSystem.RankedChoice -> "Ranked Choice"
+    VotingSystem.Approval -> "Approval Voting"
+    VotingSystem.Quadratic -> "Quadratic Voting"
+    VotingSystem.DHondt -> "D'Hondt Method"
+    VotingSystem.Consensus -> "Consensus"
+    VotingSystem.ModifiedConsensus -> "Modified Consensus"
+}
+
+val VotingSystem.description: String get() = when (this) {
+    VotingSystem.SimpleMajority -> "More than 50% required to pass"
+    VotingSystem.Supermajority -> "Two-thirds majority required"
+    VotingSystem.RankedChoice -> "Rank options in order of preference"
+    VotingSystem.Approval -> "Vote for all acceptable options"
+    VotingSystem.Quadratic -> "Vote power scales with stake"
+    VotingSystem.DHondt -> "Proportional representation method"
+    VotingSystem.Consensus -> "Unanimous agreement required"
+    VotingSystem.ModifiedConsensus -> "Consensus with blocking threshold"
 }
 
 /**
@@ -73,36 +99,6 @@ data class ProposalAttachment(
     val mimeType: String? = null,
     val size: Int? = null
 )
-
-/**
- * Quorum requirement type.
- */
-enum class QuorumType {
-    PERCENTAGE,
-    ABSOLUTE,
-    NONE
-}
-
-/**
- * Threshold type for passing.
- */
-enum class ThresholdType {
-    SIMPLE_MAJORITY,
-    SUPERMAJORITY,
-    UNANIMOUS,
-    CUSTOM
-}
-
-/**
- * Proposal outcome.
- */
-enum class ProposalOutcome {
-    PASSED,
-    REJECTED,
-    NO_QUORUM,
-    TIE,
-    EXPIRED
-}
 
 /**
  * Configuration for quadratic voting on a proposal.
@@ -263,7 +259,7 @@ data class ProposalEntity(
     val canVote: Boolean
         get() {
             val nowSeconds = System.currentTimeMillis() / 1000
-            return status == ProposalStatus.VOTING &&
+            return status == ProposalStatus.Voting &&
                     nowSeconds >= votingStartsAt &&
                     nowSeconds <= votingEndsAt
         }
@@ -271,7 +267,7 @@ data class ProposalEntity(
     val isInDiscussion: Boolean
         get() {
             val nowSeconds = System.currentTimeMillis() / 1000
-            return status == ProposalStatus.DISCUSSION &&
+            return status == ProposalStatus.Discussion &&
                     discussionStartsAt != null &&
                     discussionEndsAt != null &&
                     nowSeconds >= discussionStartsAt &&
@@ -366,12 +362,6 @@ data class DelegationEntity(
         }
 }
 
-enum class DelegationScope {
-    ALL,
-    CATEGORY,
-    PROPOSAL
-}
-
 /**
  * Room entity for proposal results.
  */
@@ -406,48 +396,55 @@ data class ProposalResultEntity(
 }
 
 /**
- * Type converters for Room.
+ * Type converters for Room using the generated enum's .value property.
  */
 class GovernanceConverters {
     @TypeConverter
-    fun fromProposalType(value: ProposalType): String = value.name
+    fun fromProposalType(value: ProposalType): String = value.value
 
     @TypeConverter
-    fun toProposalType(value: String): ProposalType = ProposalType.valueOf(value)
+    fun toProposalType(value: String): ProposalType =
+        ProposalType.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromProposalStatus(value: ProposalStatus): String = value.name
+    fun fromProposalStatus(value: ProposalStatus): String = value.value
 
     @TypeConverter
-    fun toProposalStatus(value: String): ProposalStatus = ProposalStatus.valueOf(value)
+    fun toProposalStatus(value: String): ProposalStatus =
+        ProposalStatus.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromVotingSystem(value: VotingSystem): String = value.name
+    fun fromVotingSystem(value: VotingSystem): String = value.value
 
     @TypeConverter
-    fun toVotingSystem(value: String): VotingSystem = VotingSystem.valueOf(value)
+    fun toVotingSystem(value: String): VotingSystem =
+        VotingSystem.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromQuorumType(value: QuorumType?): String? = value?.name
+    fun fromQuorumType(value: QuorumType?): String? = value?.value
 
     @TypeConverter
-    fun toQuorumType(value: String?): QuorumType? = value?.let { QuorumType.valueOf(it) }
+    fun toQuorumType(value: String?): QuorumType? =
+        value?.let { v -> QuorumType.entries.first { it.value == v } }
 
     @TypeConverter
-    fun fromThresholdType(value: ThresholdType?): String? = value?.name
+    fun fromThresholdType(value: ThresholdType?): String? = value?.value
 
     @TypeConverter
-    fun toThresholdType(value: String?): ThresholdType? = value?.let { ThresholdType.valueOf(it) }
+    fun toThresholdType(value: String?): ThresholdType? =
+        value?.let { v -> ThresholdType.entries.first { it.value == v } }
 
     @TypeConverter
-    fun fromDelegationScope(value: DelegationScope): String = value.name
+    fun fromDelegationScope(value: DelegationScope): String = value.value
 
     @TypeConverter
-    fun toDelegationScope(value: String): DelegationScope = DelegationScope.valueOf(value)
+    fun toDelegationScope(value: String): DelegationScope =
+        DelegationScope.entries.first { it.value == value }
 
     @TypeConverter
-    fun fromProposalOutcome(value: ProposalOutcome): String = value.name
+    fun fromProposalOutcome(value: ProposalOutcome): String = value.value
 
     @TypeConverter
-    fun toProposalOutcome(value: String): ProposalOutcome = ProposalOutcome.valueOf(value)
+    fun toProposalOutcome(value: String): ProposalOutcome =
+        ProposalOutcome.entries.first { it.value == value }
 }

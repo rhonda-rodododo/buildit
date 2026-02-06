@@ -223,10 +223,10 @@ private fun PollCard(
 @Composable
 private fun StatusBadge(status: PollStatus) {
     val color = when (status) {
-        PollStatus.DRAFT -> MaterialTheme.colorScheme.surfaceVariant
-        PollStatus.ACTIVE -> MaterialTheme.colorScheme.primaryContainer
-        PollStatus.CLOSED -> MaterialTheme.colorScheme.errorContainer
-        PollStatus.CANCELLED -> MaterialTheme.colorScheme.surfaceVariant
+        PollStatus.Draft -> MaterialTheme.colorScheme.surfaceVariant
+        PollStatus.Active -> MaterialTheme.colorScheme.primaryContainer
+        PollStatus.Closed -> MaterialTheme.colorScheme.errorContainer
+        PollStatus.Cancelled -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Surface(
@@ -315,7 +315,7 @@ private fun CreatePollDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var options by remember { mutableStateOf(listOf("", "")) }
-    var pollType by remember { mutableStateOf(PollType.SINGLE_CHOICE) }
+    var pollType by remember { mutableStateOf(PollType.Single) }
     var isAnonymous by remember { mutableStateOf(false) }
     var titleError by remember { mutableStateOf(false) }
 
@@ -416,7 +416,7 @@ private fun CreatePollDialog(
 }
 
 private fun PollType.displayName(): String = when (this) {
-    PollType.SINGLE_CHOICE -> "Single Choice"
-    PollType.MULTIPLE_CHOICE -> "Multiple Choice"
-    PollType.RANKED_CHOICE -> "Ranked Choice"
+    PollType.Single -> "Single Choice"
+    PollType.Multiple -> "Multiple Choice"
+    PollType.RankedChoice -> "Ranked Choice"
 }

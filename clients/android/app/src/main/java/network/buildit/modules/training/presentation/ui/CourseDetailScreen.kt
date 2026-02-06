@@ -304,7 +304,7 @@ private fun ModuleSection(
 ) {
     val module = moduleWithLessons.module
     val completedLessons = moduleWithLessons.lessons.count {
-        it.progress?.status == ProgressStatus.COMPLETED
+        it.progress?.status == ProgressStatus.Completed
     }
 
     Card(
@@ -371,7 +371,7 @@ private fun LessonListItem(
 ) {
     val lesson = lessonWithProgress.lesson
     val progress = lessonWithProgress.progress
-    val isCompleted = progress?.status == ProgressStatus.COMPLETED
+    val isCompleted = progress?.status == ProgressStatus.Completed
 
     ListItem(
         headlineContent = {
@@ -417,7 +417,7 @@ private fun LessonListItem(
                     contentDescription = "Completed",
                     tint = MaterialTheme.colorScheme.primary
                 )
-                progress?.status == ProgressStatus.IN_PROGRESS -> Icon(
+                progress?.status == ProgressStatus.InProgress -> Icon(
                     Icons.Default.PlayCircle,
                     contentDescription = "In Progress",
                     tint = MaterialTheme.colorScheme.tertiary
@@ -491,10 +491,10 @@ private fun CertificationInfoSection(course: Course) {
  * Returns an icon for a lesson type.
  */
 fun getLessonTypeIcon(type: LessonType) = when (type) {
-    LessonType.VIDEO -> Icons.Default.PlayCircle
-    LessonType.DOCUMENT -> Icons.Default.Article
-    LessonType.QUIZ -> Icons.Default.Quiz
-    LessonType.ASSIGNMENT -> Icons.Default.Assignment
-    LessonType.LIVE_SESSION -> Icons.Default.Videocam
-    LessonType.INTERACTIVE -> Icons.Default.TouchApp
+    LessonType.Video -> Icons.Default.PlayCircle
+    LessonType.Document -> Icons.Default.Article
+    LessonType.Quiz -> Icons.Default.Quiz
+    LessonType.Assignment -> Icons.Default.Assignment
+    LessonType.LiveSession -> Icons.Default.Videocam
+    LessonType.Interactive -> Icons.Default.TouchApp
 }

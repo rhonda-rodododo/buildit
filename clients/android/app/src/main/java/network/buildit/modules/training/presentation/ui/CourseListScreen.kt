@@ -407,14 +407,14 @@ fun CourseListItem(
  * Returns an icon for a course category.
  */
 fun getCategoryIcon(category: CourseCategory) = when (category) {
-    CourseCategory.APP_BASICS -> Icons.Default.PhoneAndroid
-    CourseCategory.OPSEC -> Icons.Default.Security
-    CourseCategory.DIGITAL_SECURITY -> Icons.Default.Lock
-    CourseCategory.LEGAL -> Icons.Default.Gavel
-    CourseCategory.MEDIC -> Icons.Default.LocalHospital
-    CourseCategory.SELF_DEFENSE -> Icons.Default.Shield
-    CourseCategory.ORGANIZING -> Icons.Default.Groups
-    CourseCategory.COMMUNICATION -> Icons.Default.Forum
-    CourseCategory.CIVIL_DEFENSE -> Icons.Default.HealthAndSafety
-    CourseCategory.CUSTOM -> Icons.Default.School
+    CourseCategory.AppBasics -> Icons.Default.PhoneAndroid
+    CourseCategory.Opsec -> Icons.Default.Security
+    CourseCategory.DigitalSecurity -> Icons.Default.Lock
+    CourseCategory.Legal -> Icons.Default.Gavel
+    CourseCategory.Medic -> Icons.Default.LocalHospital
+    CourseCategory.SelfDefense -> Icons.Default.Shield
+    CourseCategory.Organizing -> Icons.Default.Groups
+    CourseCategory.Communication -> Icons.Default.Forum
+    CourseCategory.CivilDefense -> Icons.Default.HealthAndSafety
+    CourseCategory.Custom -> Icons.Default.School
 }

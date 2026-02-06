@@ -10,14 +10,21 @@
 //! use buildit_crypto::generated::schemas::events::Event;
 //! ```
 
+pub mod polls;
 pub mod forms;
+pub mod microblogging;
 pub mod documents;
 pub mod events;
 pub mod mutual_aid;
 pub mod marketplace;
 pub mod crm;
+pub mod tasks;
 pub mod publishing;
+pub mod groups;
 pub mod fundraising;
+pub mod training;
+pub mod social_publishing;
+pub mod federation;
 pub mod templates;
 pub mod newsletters;
 pub mod wiki;
@@ -25,7 +32,14 @@ pub mod search;
 pub mod database;
 pub mod calling;
 pub mod files;
+pub mod contacts;
 pub mod custom_fields;
 pub mod content;
 pub mod governance;
 pub mod messaging;
+pub mod crypto;
+pub mod multisig;
+pub mod nostr;
+pub mod identity;
+pub mod security;
+pub mod ble_transport;

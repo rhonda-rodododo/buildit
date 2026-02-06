@@ -28,7 +28,9 @@
     "workers:deploy:api": "cd workers/api && bun run deploy",
     "workers:deploy:relay": "cd workers/relay && bun run deploy",
     "workers:deploy:ssr": "cd workers/ssr && bun run deploy",
-    "workers:typecheck": "cd workers/api && bun run typecheck && cd ../relay && bun run typecheck && cd ../ssr && bun run typecheck"
+    "workers:dev:federation": "cd workers/federation && bun run dev",
+    "workers:deploy:federation": "cd workers/federation && bun run deploy",
+    "workers:typecheck": "cd workers/api && bun run typecheck && cd ../relay && bun run typecheck && cd ../ssr && bun run typecheck && cd ../federation && bun run typecheck"
   },
   "keywords": [
     "nostr",

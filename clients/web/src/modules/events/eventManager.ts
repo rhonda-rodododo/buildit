@@ -1,7 +1,7 @@
 import { NostrClient } from '@/core/nostr/client'
 import { createEvent, generateEventId } from '@/core/nostr/nip01'
 import { dal } from '@/core/storage/dal'
-import { Event, RSVP, EVENT_KINDS, EventSchema, RSVPSchema, CreateEventFormData, RSVPStatus } from './types'
+import { AppEvent, RSVP, EVENT_KINDS, EventSchema, RSVPSchema, CreateEventFormData, RSVPStatus, EVENTS_SCHEMA_VERSION } from './types'
 import type { Event as NostrEvent } from 'nostr-tools'
 
 import { logger } from '@/lib/logger';
@@ -22,20 +22,22 @@ export class EventManager {
     formData: CreateEventFormData,
     creatorPubkey: string,
     privateKey: string
-  ): Promise<Event> {
-    const now = Date.now()
+  ): Promise<AppEvent> {
+    const now = Math.floor(Date.now() / 1000)
     const eventId = generateEventId()
 
-    const event: Event = {
+    const event: AppEvent = {
+      _v: EVENTS_SCHEMA_VERSION,
       id: eventId,
       groupId: formData.groupId,
       title: formData.title,
       description: formData.description,
-      location: formData.location,
-      startTime: formData.startTime.getTime(),
-      endTime: formData.endTime?.getTime(),
-      privacy: formData.privacy,
-      capacity: formData.capacity,
+      location: formData.location ? { name: formData.location } : undefined,
+      startAt: Math.floor(formData.startTime.getTime() / 1000),
+      endAt: formData.endTime ? Math.floor(formData.endTime.getTime() / 1000) : undefined,
+      allDay: false,
+      visibility: formData.privacy,
+      maxAttendees: formData.capacity,
       createdBy: creatorPubkey,
       createdAt: now,
       updatedAt: now,
@@ -60,15 +62,15 @@ export class EventManager {
         groupId: event.groupId,
         title: event.title,
         description: event.description,
-        location: event.location,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        privacy: event.privacy,
-        capacity: event.capacity,
+        location: event.location?.name ?? '',
+        startAt: event.startAt,
+        endAt: event.endAt,
+        visibility: event.visibility,
+        maxAttendees: event.maxAttendees,
         createdBy: event.createdBy,
         createdAt: event.createdAt,
         updatedAt: event.updatedAt,
-        tags: event.tags?.join(',') || '',
+        tags: (event.tags ?? []).join(','),
         imageUrl: event.imageUrl,
       })
     } catch {
@@ -83,10 +85,10 @@ export class EventManager {
    */
   async updateEvent(
     eventId: string,
-    updates: Partial<Event>,
+    updates: Partial<AppEvent>,
     updaterPubkey: string,
     privateKey: string
-  ): Promise<Event> {
+  ): Promise<AppEvent> {
     // Get existing event
     const existingEvent = await dal.get<Record<string, unknown>>('events', eventId)
     if (!existingEvent) {
@@ -98,20 +100,26 @@ export class EventManager {
       throw new Error('Not authorized to update this event')
     }
 
-    const updatedEvent: Event = {
+    const existingTags = existingEvent.tags
+      ? (existingEvent.tags as string).split(',').filter(Boolean)
+      : []
+
+    const updatedEvent: AppEvent = {
+      _v: EVENTS_SCHEMA_VERSION,
       id: existingEvent.id as string,
-      groupId: existingEvent.groupId as string,
+      groupId: (updates.groupId ?? existingEvent.groupId) as string | undefined,
       title: updates.title || existingEvent.title as string,
       description: updates.description || existingEvent.description as string,
-      location: updates.location !== undefined ? updates.location : existingEvent.location as string | undefined,
-      startTime: updates.startTime || existingEvent.startTime as number,
-      endTime: updates.endTime !== undefined ? updates.endTime : existingEvent.endTime as number | undefined,
-      privacy: updates.privacy || existingEvent.privacy as Event['privacy'],
-      capacity: updates.capacity !== undefined ? updates.capacity : existingEvent.capacity as number | undefined,
+      location: updates.location !== undefined ? updates.location : (existingEvent.location as string | undefined) ? { name: existingEvent.location as string } : undefined,
+      startAt: updates.startAt || existingEvent.startAt as number,
+      endAt: updates.endAt !== undefined ? updates.endAt : existingEvent.endAt as number | undefined,
+      allDay: updates.allDay ?? (existingEvent.allDay as boolean | undefined) ?? false,
+      visibility: updates.visibility || existingEvent.visibility as AppEvent['visibility'],
+      maxAttendees: updates.maxAttendees !== undefined ? updates.maxAttendees : existingEvent.maxAttendees as number | undefined,
       createdBy: existingEvent.createdBy as string,
       createdAt: existingEvent.createdAt as number,
-      updatedAt: Date.now(),
-      tags: updates.tags || (existingEvent.tags ? (existingEvent.tags as string).split(',') : []),
+      updatedAt: Math.floor(Date.now() / 1000),
+      tags: updates.tags || existingTags,
       imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : existingEvent.imageUrl as string | undefined,
       coHosts: updates.coHosts || [],
     }
@@ -124,13 +132,13 @@ export class EventManager {
     await dal.update('events', eventId, {
       title: updatedEvent.title,
       description: updatedEvent.description,
-      location: updatedEvent.location,
-      startTime: updatedEvent.startTime,
-      endTime: updatedEvent.endTime,
-      privacy: updatedEvent.privacy,
-      capacity: updatedEvent.capacity,
+      location: updatedEvent.location?.name ?? '',
+      startAt: updatedEvent.startAt,
+      endAt: updatedEvent.endAt,
+      visibility: updatedEvent.visibility,
+      maxAttendees: updatedEvent.maxAttendees,
       updatedAt: updatedEvent.updatedAt,
-      tags: updatedEvent.tags.join(','),
+      tags: (updatedEvent.tags ?? []).join(','),
       imageUrl: updatedEvent.imageUrl,
     })
 
@@ -182,10 +190,12 @@ export class EventManager {
     }
 
     const rsvp: RSVP = {
+      _v: EVENTS_SCHEMA_VERSION,
       eventId,
-      userPubkey,
+      pubkey: userPubkey,
       status,
-      timestamp: Date.now(),
+      guestCount: 0,
+      respondedAt: Math.floor(Date.now() / 1000),
       note,
     }
 
@@ -194,11 +204,11 @@ export class EventManager {
 
     // Check if user already has an RSVP
     const existingResults = await dal.queryCustom<Record<string, unknown>>({
-      sql: 'SELECT * FROM rsvps WHERE event_id = ?1 AND user_pubkey = ?2 LIMIT 1',
+      sql: 'SELECT * FROM rsvps WHERE event_id = ?1 AND pubkey = ?2 LIMIT 1',
       params: [eventId, userPubkey],
       dexieFallback: async (db) => {
         const result = await db.rsvps!
-          .where({ eventId, userPubkey })
+          .where({ eventId, pubkey: userPubkey })
           .first();
         return result ? [result] : [];
       },
@@ -209,7 +219,8 @@ export class EventManager {
     const isNewlyGoing = status === 'going' && !wasAlreadyGoing
 
     // Check capacity only if user is newly RSVPing "going"
-    if (isNewlyGoing && event.capacity) {
+    const maxAttendees = event.maxAttendees as number | undefined
+    if (isNewlyGoing && maxAttendees) {
       const countResults = await dal.queryCustom<{ cnt: number }>({
         sql: 'SELECT COUNT(*) as cnt FROM rsvps WHERE event_id = ?1 AND status = ?2',
         params: [eventId, 'going'],
@@ -223,7 +234,7 @@ export class EventManager {
       })
       const goingCount = countResults[0]?.cnt ?? 0
 
-      if (goingCount >= (event.capacity as number)) {
+      if (goingCount >= maxAttendees) {
         throw new Error('Event is at capacity')
       }
     }
@@ -232,15 +243,16 @@ export class EventManager {
     if (existing && existing.id) {
       await dal.update('rsvps', existing.id as string, {
         status,
-        timestamp: rsvp.timestamp,
+        respondedAt: rsvp.respondedAt,
         note,
       })
     } else {
       await dal.add('rsvps', {
         eventId,
-        userPubkey,
+        pubkey: userPubkey,
         status,
-        timestamp: rsvp.timestamp,
+        guestCount: 0,
+        respondedAt: rsvp.respondedAt,
         note,
       })
     }
@@ -255,41 +267,42 @@ export class EventManager {
   /**
    * Create Nostr event for an event
    */
-  private async createNostrEvent(event: Event, privateKey: string): Promise<NostrEvent> {
-    // Serialize to protocol format (using protocol field names)
+  private async createNostrEvent(event: AppEvent, privateKey: string): Promise<NostrEvent> {
+    // Serialize to protocol format
     const content = JSON.stringify({
-      _v: '1.0.0', // Schema version
+      _v: EVENTS_SCHEMA_VERSION,
       title: event.title,
       description: event.description,
       location: event.location,
-      startAt: event.startTime, // Protocol uses startAt
-      endAt: event.endTime, // Protocol uses endAt
-      visibility: event.privacy, // Protocol uses visibility
-      maxAttendees: event.capacity, // Protocol uses maxAttendees
+      startAt: event.startAt,
+      endAt: event.endAt,
+      visibility: event.visibility,
+      maxAttendees: event.maxAttendees,
       tags: event.tags,
       imageUrl: event.imageUrl,
       coHosts: event.coHosts,
     })
 
     const tags: string[][] = [
-      ['d', event.id], // Unique identifier for parameterized replaceable event
+      ['d', event.id],
       ['title', event.title],
-      ['start', event.startTime.toString()],
+      ['start', event.startAt.toString()],
     ]
 
     if (event.groupId) {
       tags.push(['group', event.groupId])
     }
 
-    if (event.endTime) {
-      tags.push(['end', event.endTime.toString()])
+    if (event.endAt) {
+      tags.push(['end', event.endAt.toString()])
     }
 
-    if (event.location) {
-      tags.push(['location', event.location])
+    if (event.location?.name) {
+      tags.push(['location', event.location.name])
     }
 
-    event.tags.forEach((tag) => {
+    const eventTags = event.tags ?? []
+    eventTags.forEach((tag) => {
       tags.push(['t', tag])
     })
 
@@ -308,8 +321,8 @@ export class EventManager {
     const content = rsvp.note || ''
 
     const tags: string[][] = [
-      ['d', `${rsvp.eventId}:${rsvp.userPubkey}`], // Unique identifier
-      ['e', rsvp.eventId], // Event reference
+      ['d', `${rsvp.eventId}:${rsvp.pubkey}`],
+      ['e', rsvp.eventId],
       ['status', rsvp.status],
     ]
 
@@ -406,22 +419,32 @@ export class EventManager {
       }
 
       // Support both protocol (maxAttendees) and legacy (capacity) field names
-      const capacity = typeof content.maxAttendees === 'number' ? content.maxAttendees :
-                       typeof content.capacity === 'number' ? content.capacity : undefined
+      const maxAttendees = typeof content.maxAttendees === 'number' ? content.maxAttendees :
+                           typeof content.capacity === 'number' ? content.capacity : undefined
 
-      const event: Event = {
+      // Parse location: support both object and legacy string format
+      let location: AppEvent['location']
+      if (typeof content.location === 'object' && content.location !== null) {
+        location = content.location as AppEvent['location']
+      } else if (typeof content.location === 'string') {
+        location = { name: content.location }
+      }
+
+      const event: AppEvent = {
+        _v: typeof content._v === 'string' ? content._v : EVENTS_SCHEMA_VERSION,
         id: dTag,
         groupId: nostrEvent.tags.find((t) => t[0] === 'group')?.[1],
         title: content.title as string,
         description: typeof content.description === 'string' ? content.description : '',
-        location: typeof content.location === 'string' ? content.location : undefined,
-        startTime,
-        endTime,
-        privacy,
-        capacity,
+        location,
+        startAt: startTime,
+        endAt: endTime,
+        allDay: typeof content.allDay === 'boolean' ? content.allDay : false,
+        visibility: privacy,
+        maxAttendees,
         createdBy: nostrEvent.pubkey,
-        createdAt: nostrEvent.created_at * 1000,
-        updatedAt: nostrEvent.created_at * 1000,
+        createdAt: nostrEvent.created_at,
+        updatedAt: nostrEvent.created_at,
         tags: Array.isArray(content.tags) ? (content.tags as string[]) : [],
         imageUrl: typeof content.imageUrl === 'string' ? content.imageUrl : undefined,
         coHosts: Array.isArray(content.coHosts) ? (content.coHosts as string[]) : [],
@@ -430,17 +453,17 @@ export class EventManager {
       // Upsert to database
       const existing = await dal.get<Record<string, unknown>>('events', event.id)
       if (existing) {
-        if (nostrEvent.created_at * 1000 > (existing.updatedAt as number)) {
+        if (nostrEvent.created_at > (existing.updatedAt as number)) {
           await dal.update('events', event.id, {
             title: event.title,
             description: event.description,
-            location: event.location,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            privacy: event.privacy,
-            capacity: event.capacity,
+            location: event.location?.name ?? '',
+            startAt: event.startAt,
+            endAt: event.endAt,
+            visibility: event.visibility,
+            maxAttendees: event.maxAttendees,
             updatedAt: event.updatedAt,
-            tags: event.tags.join(','),
+            tags: (event.tags ?? []).join(','),
             imageUrl: event.imageUrl,
           })
         }
@@ -451,15 +474,15 @@ export class EventManager {
             groupId: event.groupId,
             title: event.title,
             description: event.description,
-            location: event.location,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            privacy: event.privacy,
-            capacity: event.capacity,
+            location: event.location?.name ?? '',
+            startAt: event.startAt,
+            endAt: event.endAt,
+            visibility: event.visibility,
+            maxAttendees: event.maxAttendees,
             createdBy: event.createdBy,
             createdAt: event.createdAt,
             updatedAt: event.updatedAt,
-            tags: event.tags.join(','),
+            tags: (event.tags ?? []).join(','),
             imageUrl: event.imageUrl,
           })
         } catch {

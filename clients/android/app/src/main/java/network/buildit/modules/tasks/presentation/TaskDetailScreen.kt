@@ -1,5 +1,6 @@
 package network.buildit.modules.tasks.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -94,7 +95,7 @@ fun TaskDetailScreen(
                             text = task.title,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            textDecoration = if (task.status == TaskStatus.DONE) TextDecoration.LineThrough else null
+                            textDecoration = if (task.status == TaskStatus.Done) TextDecoration.LineThrough else null
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -113,14 +114,14 @@ fun TaskDetailScreen(
                             Box {
                                 AssistChip(
                                     onClick = { showStatusMenu = true },
-                                    label = { Text(task.status.name.replace("_", " ")) },
+                                    label = { Text(task.status.displayName()) },
                                     leadingIcon = {
                                         Icon(
                                             when (task.status) {
-                                                TaskStatus.TODO -> Icons.Default.RadioButtonUnchecked
-                                                TaskStatus.IN_PROGRESS -> Icons.Default.Pending
-                                                TaskStatus.DONE -> Icons.Default.CheckCircle
-                                                TaskStatus.CANCELLED -> Icons.Default.Cancel
+                                                TaskStatus.Todo -> Icons.Default.RadioButtonUnchecked
+                                                TaskStatus.InProgress -> Icons.Default.Pending
+                                                TaskStatus.Done -> Icons.Default.CheckCircle
+                                                TaskStatus.Cancelled -> Icons.Default.Cancel
                                             },
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp)
@@ -134,7 +135,7 @@ fun TaskDetailScreen(
                                 ) {
                                     TaskStatus.entries.forEach { status ->
                                         DropdownMenuItem(
-                                            text = { Text(status.name.replace("_", " ")) },
+                                            text = { Text(status.displayName()) },
                                             onClick = {
                                                 viewModel.updateTaskStatus(task.id, status)
                                                 showStatusMenu = false
@@ -180,10 +181,10 @@ fun TaskDetailScreen(
                             label = "Priority",
                             value = task.priority.name.lowercase().replaceFirstChar { it.uppercase() },
                             valueColor = when (task.priority) {
-                                TaskPriority.LOW -> MaterialTheme.colorScheme.onSurfaceVariant
-                                TaskPriority.MEDIUM -> Color(0xFF4CAF50)
-                                TaskPriority.HIGH -> Color(0xFFFF9800)
-                                TaskPriority.URGENT -> Color(0xFFF44336)
+                                TaskPriority.Low -> MaterialTheme.colorScheme.onSurfaceVariant
+                                TaskPriority.Medium -> Color(0xFF4CAF50)
+                                TaskPriority.High -> Color(0xFFFF9800)
+                                TaskPriority.Urgent -> Color(0xFFF44336)
                             }
                         )
 
@@ -191,7 +192,7 @@ fun TaskDetailScreen(
                         task.dueDate?.let { dueDate ->
                             val formatter = SimpleDateFormat("EEEE, MMM d, yyyy", Locale.getDefault())
                             val now = System.currentTimeMillis() / 1000
-                            val isOverdue = dueDate < now && task.status != TaskStatus.DONE
+                            val isOverdue = dueDate < now && task.status != TaskStatus.Done
 
                             DetailRow(
                                 icon = Icons.Default.CalendarToday,
@@ -313,6 +314,13 @@ private fun DetailRow(
     }
 }
 
+private fun TaskStatus.displayName(): String = when (this) {
+    TaskStatus.Todo -> "To Do"
+    TaskStatus.InProgress -> "In Progress"
+    TaskStatus.Done -> "Done"
+    TaskStatus.Cancelled -> "Cancelled"
+}
+
 @Composable
 private fun SubtaskRow(
     subtask: TaskEntity,
@@ -326,15 +334,15 @@ private fun SubtaskRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = subtask.status == TaskStatus.DONE,
+            checked = subtask.status == TaskStatus.Done,
             onCheckedChange = { checked ->
-                onStatusChange(if (checked) TaskStatus.DONE else TaskStatus.TODO)
+                onStatusChange(if (checked) TaskStatus.Done else TaskStatus.Todo)
             }
         )
         Text(
             text = subtask.title,
             style = MaterialTheme.typography.bodyMedium,
-            textDecoration = if (subtask.status == TaskStatus.DONE) TextDecoration.LineThrough else null,
+            textDecoration = if (subtask.status == TaskStatus.Done) TextDecoration.LineThrough else null,
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onClick)

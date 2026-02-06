@@ -13,8 +13,7 @@
  */
 
 import { create } from 'zustand';
-import type { Identity } from '@/types/identity';
-import { createIdentity, importFromNsec } from '@/core/crypto/keyManager';
+import { createIdentity, importFromNsec, type IdentityWithKey } from '@/core/crypto/keyManager';
 import type { DBIdentity } from '@/core/storage/db';
 import { dal } from '@/core/storage/dal';
 import * as nip19 from 'nostr-tools/nip19';
@@ -115,15 +114,32 @@ async function clearAllSessionData(): Promise<void> {
 }
 
 /**
+ * Public identity type — explicit properties extracted from the generated Identity
+ * type, without the `[x: string]: unknown` index signature from `.passthrough()`.
+ * This prevents downstream code from seeing properties as `unknown` or `{}`.
+ */
+export interface PublicIdentity {
+  publicKey: string;
+  npub: string;
+  name: string;
+  username?: string;
+  displayName?: string;
+  nip05?: string;
+  nip05Verified?: boolean;
+  created: number;
+  lastUsed: number;
+}
+
+/**
  * Auth state interface
  * Note: privateKey is NOT stored in state - it's managed by SecureKeyManager
  */
 interface AuthState {
   // Current identity (without private key until unlocked)
-  currentIdentity: Omit<Identity, 'privateKey'> | null;
+  currentIdentity: PublicIdentity | null;
 
   // All identities (public info only)
-  identities: Omit<Identity, 'privateKey'>[];
+  identities: PublicIdentity[];
 
   // Lock state
   lockState: LockState;
@@ -141,8 +157,8 @@ interface AuthState {
 
 interface AuthActions {
   // Identity management
-  createNewIdentity: (name: string, password: string) => Promise<Identity>;
-  importIdentity: (nsec: string, name: string, password: string) => Promise<Identity>;
+  createNewIdentity: (name: string, password: string) => Promise<IdentityWithKey>;
+  importIdentity: (nsec: string, name: string, password: string) => Promise<IdentityWithKey>;
   loadIdentities: () => Promise<void>;
   removeIdentity: (publicKey: string) => Promise<void>;
   setCurrentIdentity: (publicKey: string | null) => Promise<void>;
@@ -192,7 +208,7 @@ interface AuthActions {
 /**
  * Convert DBIdentity to public Identity (no private key)
  */
-function dbIdentityToPublic(dbId: DBIdentity): Omit<Identity, 'privateKey'> {
+function dbIdentityToPublic(dbId: DBIdentity): PublicIdentity {
   return {
     publicKey: dbId.publicKey,
     npub: dbId.npub || nip19.npubEncode(dbId.publicKey),
@@ -259,7 +275,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
     /**
      * Create a new identity with password protection
      */
-    createNewIdentity: async (name: string, password: string): Promise<Identity> => {
+    createNewIdentity: async (name: string, password: string): Promise<IdentityWithKey> => {
       set({ isLoading: true, error: null });
 
       try {
@@ -316,7 +332,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
     /**
      * Import an identity from nsec with password protection
      */
-    importIdentity: async (nsec: string, name: string, password: string): Promise<Identity> => {
+    importIdentity: async (nsec: string, name: string, password: string): Promise<IdentityWithKey> => {
       set({ isLoading: true, error: null });
 
       try {
@@ -860,7 +876,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => {
  * Hook to get the current identity with private key
  * Returns null if locked
  */
-export function useCurrentIdentityWithKey(): Identity | null {
+export function useCurrentIdentityWithKey(): IdentityWithKey | null {
   const { currentIdentity, lockState } = useAuthStore();
 
   if (!currentIdentity || lockState !== 'unlocked') {
@@ -873,6 +889,7 @@ export function useCurrentIdentityWithKey(): Identity | null {
   }
 
   return {
+    _v: '1.0.0',
     ...currentIdentity,
     privateKey,
   };

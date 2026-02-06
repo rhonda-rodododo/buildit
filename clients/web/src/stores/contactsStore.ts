@@ -73,6 +73,7 @@ export const useContactsStore = create<ContactsState>()(
 
       followUser: async (pubkey: string, relay?: string, petname?: string) => {
         const contact: Contact = {
+          _v: '1.0.0',
           pubkey,
           relay,
           petname,
@@ -98,6 +99,7 @@ export const useContactsStore = create<ContactsState>()(
           });
         } else {
           get().addContact({
+            _v: '1.0.0',
             pubkey,
             relationship: 'blocked',
             blockedAt: Math.floor(Date.now() / 1000),
@@ -224,6 +226,7 @@ export const useContactsStore = create<ContactsState>()(
           const newContacts = new Map<string, Contact>();
           for (const entry of contactEntries) {
             newContacts.set(entry.pubkey, {
+              _v: '1.0.0',
               pubkey: entry.pubkey,
               relay: entry.relay,
               petname: entry.petname,
@@ -407,6 +410,7 @@ export const useContactsStore = create<ContactsState>()(
           const newContacts = new Map<string, Contact>();
           for (const entry of contacts) {
             newContacts.set(entry.pubkey, {
+              _v: '1.0.0',
               pubkey: entry.pubkey,
               relay: entry.relay,
               petname: entry.petname,

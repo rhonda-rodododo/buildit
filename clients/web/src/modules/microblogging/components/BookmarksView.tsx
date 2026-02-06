@@ -104,7 +104,7 @@ export const BookmarksView: FC<BookmarksViewProps> = ({ className }) => {
       const query = searchQuery.toLowerCase();
       if (
         !post.content.toLowerCase().includes(query) &&
-        !post.hashtags.some((tag) => tag.toLowerCase().includes(query))
+        !(post.hashtags?.some((tag) => tag.toLowerCase().includes(query)) ?? false)
       ) {
         return false;
       }

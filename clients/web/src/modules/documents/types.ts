@@ -1,7 +1,24 @@
 /**
  * Documents Module Types
- * WYSIWYG document editing with version control
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines simpler Document/DocumentRevision models (protocol-level).
+ * The local types below represent the richer UI-side document features
+ * (CRDT collaboration, comments, suggestions, permissions, etc.).
  */
+
+// Re-export generated Zod schemas and types
+export {
+  AttachmentSchema as ProtocolAttachmentSchema,
+  type Attachment as ProtocolAttachment,
+  DocumentSchema as ProtocolDocumentSchema,
+  type Document as ProtocolDocument,
+  DocumentRevisionSchema,
+  type DocumentRevision as ProtocolDocumentRevision,
+  DOCUMENTS_SCHEMA_VERSION,
+} from '@/generated/validation/documents.zod';
+
+// ── UI-Only Types (richer client-side document model) ────────────
 
 export interface Document {
   id: string
@@ -270,7 +287,7 @@ export interface CreateShareLinkInput {
 }
 
 /**
- * Epic 58: Folder Permission (for permission inheritance)
+ * Folder Permission (for permission inheritance)
  * Permissions set at folder level that cascade to all child items
  */
 export interface FolderPermission {
@@ -284,7 +301,7 @@ export interface FolderPermission {
 }
 
 /**
- * Epic 58: Access Request
+ * Access Request
  * Request access to a document or folder
  */
 export interface AccessRequest {
@@ -303,7 +320,7 @@ export interface AccessRequest {
 }
 
 /**
- * Epic 58: Sharing Report Item
+ * Sharing Report Item
  * Individual item in a sharing report export
  */
 export interface SharingReportItem {

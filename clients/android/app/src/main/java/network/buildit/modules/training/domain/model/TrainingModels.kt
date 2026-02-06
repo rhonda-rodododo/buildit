@@ -1,152 +1,99 @@
 package network.buildit.modules.training.domain.model
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
+// Re-export generated protocol types as the source of truth for enums.
+// Only UI-specific extension properties (displayName) and lookup functions are defined locally.
+import network.buildit.generated.schemas.training.CourseCategory
+import network.buildit.generated.schemas.training.CourseDifficulty
+import network.buildit.generated.schemas.training.CourseStatus
+import network.buildit.generated.schemas.training.LessonType
+import network.buildit.generated.schemas.training.QuizQuestionType
+import network.buildit.generated.schemas.training.ProgressStatus
+import network.buildit.generated.schemas.training.AssignmentReviewStatus
+import network.buildit.generated.schemas.training.InteractiveExerciseType
+import network.buildit.generated.schemas.training.LiveSessionRSVPStatus
 
-/**
- * Course category types for organizing training content.
- */
-@Serializable
-enum class CourseCategory(val value: String, val displayName: String) {
-    @SerialName("app-basics") APP_BASICS("app-basics", "App Basics"),
-    @SerialName("opsec") OPSEC("opsec", "OPSEC"),
-    @SerialName("digital-security") DIGITAL_SECURITY("digital-security", "Digital Security"),
-    @SerialName("legal") LEGAL("legal", "Legal"),
-    @SerialName("medic") MEDIC("medic", "Medic"),
-    @SerialName("self-defense") SELF_DEFENSE("self-defense", "Self Defense"),
-    @SerialName("organizing") ORGANIZING("organizing", "Organizing"),
-    @SerialName("communication") COMMUNICATION("communication", "Communication"),
-    @SerialName("civil-defense") CIVIL_DEFENSE("civil-defense", "Civil Defense"),
-    @SerialName("custom") CUSTOM("custom", "Custom");
+// ============================================================================
+// Extension properties for generated enums (UI display names)
+// ============================================================================
 
-    companion object {
-        fun fromValue(value: String): CourseCategory {
-            return entries.find { it.value == value } ?: CUSTOM
-        }
+val CourseCategory.displayName: String
+    get() = when (this) {
+        CourseCategory.AppBasics -> "App Basics"
+        CourseCategory.Opsec -> "OPSEC"
+        CourseCategory.DigitalSecurity -> "Digital Security"
+        CourseCategory.Legal -> "Legal"
+        CourseCategory.Medic -> "Medic"
+        CourseCategory.SelfDefense -> "Self Defense"
+        CourseCategory.Organizing -> "Organizing"
+        CourseCategory.Communication -> "Communication"
+        CourseCategory.CivilDefense -> "Civil Defense"
+        CourseCategory.Custom -> "Custom"
     }
-}
 
-/**
- * Course difficulty levels.
- */
-@Serializable
-enum class CourseDifficulty(val value: String, val displayName: String) {
-    @SerialName("beginner") BEGINNER("beginner", "Beginner"),
-    @SerialName("intermediate") INTERMEDIATE("intermediate", "Intermediate"),
-    @SerialName("advanced") ADVANCED("advanced", "Advanced");
-
-    companion object {
-        fun fromValue(value: String): CourseDifficulty {
-            return entries.find { it.value == value } ?: BEGINNER
-        }
+val CourseDifficulty.displayName: String
+    get() = when (this) {
+        CourseDifficulty.Beginner -> "Beginner"
+        CourseDifficulty.Intermediate -> "Intermediate"
+        CourseDifficulty.Advanced -> "Advanced"
     }
-}
 
-/**
- * Course publication status.
- */
-@Serializable
-enum class CourseStatus(val value: String, val displayName: String) {
-    @SerialName("draft") DRAFT("draft", "Draft"),
-    @SerialName("published") PUBLISHED("published", "Published"),
-    @SerialName("archived") ARCHIVED("archived", "Archived");
-
-    companion object {
-        fun fromValue(value: String): CourseStatus {
-            return entries.find { it.value == value } ?: DRAFT
-        }
+val CourseStatus.displayName: String
+    get() = when (this) {
+        CourseStatus.Draft -> "Draft"
+        CourseStatus.Published -> "Published"
+        CourseStatus.Archived -> "Archived"
     }
-}
 
-/**
- * Lesson content types.
- */
-@Serializable
-enum class LessonType(val value: String, val displayName: String) {
-    @SerialName("video") VIDEO("video", "Video"),
-    @SerialName("document") DOCUMENT("document", "Document"),
-    @SerialName("quiz") QUIZ("quiz", "Quiz"),
-    @SerialName("assignment") ASSIGNMENT("assignment", "Assignment"),
-    @SerialName("live-session") LIVE_SESSION("live-session", "Live Session"),
-    @SerialName("interactive") INTERACTIVE("interactive", "Interactive");
-
-    companion object {
-        fun fromValue(value: String): LessonType {
-            return entries.find { it.value == value } ?: DOCUMENT
-        }
+val LessonType.displayName: String
+    get() = when (this) {
+        LessonType.Video -> "Video"
+        LessonType.Document -> "Document"
+        LessonType.Quiz -> "Quiz"
+        LessonType.Assignment -> "Assignment"
+        LessonType.LiveSession -> "Live Session"
+        LessonType.Interactive -> "Interactive"
     }
-}
 
-/**
- * Quiz question types.
- */
-@Serializable
-enum class QuizQuestionType(val value: String) {
-    @SerialName("multiple-choice") MULTIPLE_CHOICE("multiple-choice"),
-    @SerialName("multi-select") MULTI_SELECT("multi-select"),
-    @SerialName("true-false") TRUE_FALSE("true-false"),
-    @SerialName("fill-in-blank") FILL_IN_BLANK("fill-in-blank"),
-    @SerialName("short-answer") SHORT_ANSWER("short-answer");
-
-    companion object {
-        fun fromValue(value: String): QuizQuestionType {
-            return entries.find { it.value == value } ?: MULTIPLE_CHOICE
-        }
+val ProgressStatus.displayName: String
+    get() = when (this) {
+        ProgressStatus.NotStarted -> "Not Started"
+        ProgressStatus.InProgress -> "In Progress"
+        ProgressStatus.Completed -> "Completed"
     }
-}
 
-/**
- * Progress tracking status.
- */
-@Serializable
-enum class ProgressStatus(val value: String, val displayName: String) {
-    @SerialName("not-started") NOT_STARTED("not-started", "Not Started"),
-    @SerialName("in-progress") IN_PROGRESS("in-progress", "In Progress"),
-    @SerialName("completed") COMPLETED("completed", "Completed");
+// ============================================================================
+// Lookup functions for parsing string values into generated enums
+// ============================================================================
 
-    companion object {
-        fun fromValue(value: String): ProgressStatus {
-            return entries.find { it.value == value } ?: NOT_STARTED
-        }
-    }
-}
+fun courseCategoryFromValue(value: String): CourseCategory =
+    CourseCategory.entries.find { it.value == value } ?: CourseCategory.Custom
 
-/**
- * Assignment review status.
- */
-@Serializable
-enum class AssignmentReviewStatus(val value: String) {
-    @SerialName("pending") PENDING("pending"),
-    @SerialName("in-review") IN_REVIEW("in-review"),
-    @SerialName("approved") APPROVED("approved"),
-    @SerialName("rejected") REJECTED("rejected"),
-    @SerialName("revision-requested") REVISION_REQUESTED("revision-requested");
+fun courseDifficultyFromValue(value: String): CourseDifficulty =
+    CourseDifficulty.entries.find { it.value == value } ?: CourseDifficulty.Beginner
 
-    companion object {
-        fun fromValue(value: String): AssignmentReviewStatus {
-            return entries.find { it.value == value } ?: PENDING
-        }
-    }
-}
+fun courseStatusFromValue(value: String): CourseStatus =
+    CourseStatus.entries.find { it.value == value } ?: CourseStatus.Draft
 
-/**
- * Interactive exercise types.
- */
-@Serializable
-enum class InteractiveExerciseType(val value: String) {
-    @SerialName("threat-model") THREAT_MODEL("threat-model"),
-    @SerialName("security-audit") SECURITY_AUDIT("security-audit"),
-    @SerialName("scenario") SCENARIO("scenario"),
-    @SerialName("simulation") SIMULATION("simulation"),
-    @SerialName("custom") CUSTOM("custom");
+fun lessonTypeFromValue(value: String): LessonType =
+    LessonType.entries.find { it.value == value } ?: LessonType.Document
 
-    companion object {
-        fun fromValue(value: String): InteractiveExerciseType {
-            return entries.find { it.value == value } ?: CUSTOM
-        }
-    }
-}
+fun quizQuestionTypeFromValue(value: String): QuizQuestionType =
+    QuizQuestionType.entries.find { it.value == value } ?: QuizQuestionType.MultipleChoice
+
+fun progressStatusFromValue(value: String): ProgressStatus =
+    ProgressStatus.entries.find { it.value == value } ?: ProgressStatus.NotStarted
+
+fun assignmentReviewStatusFromValue(value: String): AssignmentReviewStatus =
+    AssignmentReviewStatus.entries.find { it.value == value } ?: AssignmentReviewStatus.Pending
+
+fun interactiveExerciseTypeFromValue(value: String): InteractiveExerciseType =
+    InteractiveExerciseType.entries.find { it.value == value } ?: InteractiveExerciseType.Custom
+
+/** Typealias for LiveSessionRSVPStatus to maintain backward compatibility as RSVPStatus. */
+typealias RSVPStatus = LiveSessionRSVPStatus
+
+fun rsvpStatusFromValue(value: String): LiveSessionRSVPStatus =
+    LiveSessionRSVPStatus.entries.find { it.value == value } ?: LiveSessionRSVPStatus.Tentative
 
 // ============================================================================
 // Core Domain Models
@@ -217,9 +164,6 @@ data class Lesson(
 sealed class LessonContent {
     abstract val type: LessonType
 
-    /**
-     * Video lesson content.
-     */
     data class Video(
         val videoUrl: String,
         val transcriptUrl: String?,
@@ -227,22 +171,16 @@ sealed class LessonContent {
         val chaptersUrl: String?,
         val duration: Int?
     ) : LessonContent() {
-        override val type: LessonType = LessonType.VIDEO
+        override val type: LessonType = LessonType.Video
     }
 
-    /**
-     * Document lesson content (Markdown or PDF).
-     */
     data class Document(
         val markdown: String?,
         val pdfUrl: String?
     ) : LessonContent() {
-        override val type: LessonType = LessonType.DOCUMENT
+        override val type: LessonType = LessonType.Document
     }
 
-    /**
-     * Quiz lesson content.
-     */
     data class Quiz(
         val questions: List<QuizQuestion>,
         val passingScore: Int,
@@ -253,24 +191,18 @@ sealed class LessonContent {
         val showCorrectAfter: Boolean,
         val timeLimitMinutes: Int?
     ) : LessonContent() {
-        override val type: LessonType = LessonType.QUIZ
+        override val type: LessonType = LessonType.Quiz
     }
 
-    /**
-     * Assignment lesson content.
-     */
     data class Assignment(
         val instructions: String,
         val allowedFileTypes: List<String>?,
         val maxFileSizeMB: Int?,
         val rubric: List<AssignmentRubricItem>?
     ) : LessonContent() {
-        override val type: LessonType = LessonType.ASSIGNMENT
+        override val type: LessonType = LessonType.Assignment
     }
 
-    /**
-     * Live session lesson content.
-     */
     data class LiveSession(
         val scheduledAt: Long,
         val duration: Int,
@@ -280,18 +212,15 @@ sealed class LessonContent {
         val maxParticipants: Int?,
         val requiresRSVP: Boolean
     ) : LessonContent() {
-        override val type: LessonType = LessonType.LIVE_SESSION
+        override val type: LessonType = LessonType.LiveSession
     }
 
-    /**
-     * Interactive exercise lesson content.
-     */
     data class Interactive(
         val exerciseType: InteractiveExerciseType,
         val configJson: String,
         val externalUrl: String?
     ) : LessonContent() {
-        override val type: LessonType = LessonType.INTERACTIVE
+        override val type: LessonType = LessonType.Interactive
     }
 }
 
@@ -446,22 +375,6 @@ data class CertificationVerification(
 // ============================================================================
 // Live Session Models
 // ============================================================================
-
-/**
- * Live session RSVP status.
- */
-@Serializable
-enum class RSVPStatus(val value: String) {
-    @SerialName("confirmed") CONFIRMED("confirmed"),
-    @SerialName("tentative") TENTATIVE("tentative"),
-    @SerialName("declined") DECLINED("declined");
-
-    companion object {
-        fun fromValue(value: String): RSVPStatus {
-            return entries.find { it.value == value } ?: TENTATIVE
-        }
-    }
-}
 
 /**
  * Live session RSVP record.

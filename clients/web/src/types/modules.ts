@@ -26,7 +26,9 @@ export type ModuleType =
   | 'friends' // Friend relationships and contacts
   | 'security' // Privacy and security enhancements (Tor, etc.)
   | 'training' // Training and certification module
-  | 'marketplace'; // Cooperative marketplace, skill exchange, resource sharing
+  | 'marketplace' // Cooperative marketplace, skill exchange, resource sharing
+  | 'federation' // ActivityPub + AT Protocol federation bridge
+  | 'social-publishing'; // Scheduling, cross-posting, share links
 
 /**
  * Module Capability - defines what a module can do

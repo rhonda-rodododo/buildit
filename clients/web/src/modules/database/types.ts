@@ -1,10 +1,32 @@
 /**
  * Database Module Types
  * Airtable-like database system
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines simpler Column/Table/Row/View/Filter/Sort models (protocol-level).
+ * The local types below represent the richer UI-side database features
+ * (custom fields, relationships, templates, activity timeline, comments, attachments, etc.).
  */
 
 import { z } from 'zod';
 import type { CustomField, CustomFieldValues } from '../custom-fields/types';
+
+// Re-export generated Zod schemas and types
+export {
+  ColumnSchema as ProtocolColumnSchema,
+  type Column as ProtocolColumn,
+  TableSchema as ProtocolTableSchema,
+  type Table as ProtocolTable,
+  RowSchema as ProtocolRowSchema,
+  type Row as ProtocolRow,
+  FilterSchema as ProtocolFilterSchema,
+  type Filter as ProtocolFilter,
+  SortSchema as ProtocolSortSchema,
+  type Sort as ProtocolSort,
+  ViewSchema as ProtocolViewSchema,
+  type View as ProtocolView,
+  DATABASE_SCHEMA_VERSION,
+} from '@/generated/validation/database.zod';
 
 // Re-export for convenience
 export type { CustomFieldValues };

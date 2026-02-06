@@ -3,6 +3,7 @@ package network.buildit.modules.publishing.presentation
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -553,7 +554,7 @@ private fun EditorContent(
                 .height(160.dp)
                 .clickable {
                     coverImagePickerLauncher.launch(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 },
             colors = CardDefaults.cardColors(

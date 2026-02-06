@@ -97,9 +97,14 @@ import javax.inject.Singleton
         network.buildit.modules.tasks.data.local.TaskEntity::class,
         network.buildit.modules.files.data.local.FileEntity::class,
         network.buildit.modules.polls.data.local.PollEntity::class,
-        network.buildit.modules.polls.data.local.PollVoteEntity::class
+        network.buildit.modules.polls.data.local.PollVoteEntity::class,
+        network.buildit.modules.marketplace.data.local.ListingEntity::class,
+        network.buildit.modules.marketplace.data.local.CoopProfileEntity::class,
+        network.buildit.modules.marketplace.data.local.ReviewEntity::class,
+        network.buildit.modules.marketplace.data.local.SkillExchangeEntity::class,
+        network.buildit.modules.marketplace.data.local.ResourceShareEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -172,6 +177,13 @@ abstract class BuildItDatabase : RoomDatabase() {
     // Polls DAOs
     abstract fun pollDao(): network.buildit.modules.polls.data.local.PollDao
     abstract fun pollVoteDao(): network.buildit.modules.polls.data.local.PollVoteDao
+
+    // Marketplace DAOs
+    abstract fun listingsDao(): network.buildit.modules.marketplace.data.local.ListingsDao
+    abstract fun coopProfilesDao(): network.buildit.modules.marketplace.data.local.CoopProfilesDao
+    abstract fun reviewsDao(): network.buildit.modules.marketplace.data.local.ReviewsDao
+    abstract fun skillExchangesDao(): network.buildit.modules.marketplace.data.local.SkillExchangesDao
+    abstract fun resourceSharesDao(): network.buildit.modules.marketplace.data.local.ResourceSharesDao
 }
 
 /**
@@ -1081,6 +1093,7 @@ object DatabaseModule {
     @Singleton
     fun provideSyncManager(
         @ApplicationContext context: Context,
-        offlineQueueDao: network.buildit.core.sync.OfflineQueueDao
-    ): network.buildit.core.sync.SyncManager = network.buildit.core.sync.SyncManager(context, offlineQueueDao)
+        offlineQueueDao: network.buildit.core.sync.OfflineQueueDao,
+        transportRouter: network.buildit.core.transport.TransportRouter
+    ): network.buildit.core.sync.SyncManager = network.buildit.core.sync.SyncManager(context, offlineQueueDao, transportRouter)
 }

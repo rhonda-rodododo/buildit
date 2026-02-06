@@ -3,26 +3,14 @@ package network.buildit.modules.tasks.data.local
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import network.buildit.generated.schemas.tasks.TaskPriority as GeneratedTaskPriority
+import network.buildit.generated.schemas.tasks.TaskStatus as GeneratedTaskStatus
 
 /**
- * Priority levels for tasks.
+ * Re-export generated protocol types so consumers can import from data.local.
  */
-enum class TaskPriority {
-    LOW,
-    MEDIUM,
-    HIGH,
-    URGENT
-}
-
-/**
- * Status of a task.
- */
-enum class TaskStatus {
-    TODO,
-    IN_PROGRESS,
-    DONE,
-    CANCELLED
-}
+typealias TaskPriority = GeneratedTaskPriority
+typealias TaskStatus = GeneratedTaskStatus
 
 /**
  * Room entity for tasks.
@@ -44,8 +32,8 @@ data class TaskEntity(
     val groupId: String,
     val title: String,
     val description: String?,
-    val status: TaskStatus = TaskStatus.TODO,
-    val priority: TaskPriority = TaskPriority.MEDIUM,
+    val status: TaskStatus = TaskStatus.Todo,
+    val priority: TaskPriority = TaskPriority.Medium,
     val assigneePubkey: String?,
     val createdBy: String,
     val dueDate: Long?,

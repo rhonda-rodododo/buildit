@@ -6,6 +6,10 @@ import {
 } from '@buildit/shared/types';
 import { fetchCampaignBySlug, type CampaignContent } from '../../lib/nostr';
 import { CTABanner } from '../../components/CTABanner';
+import {
+  generateCampaignSeoMeta,
+  generateBreadcrumbStructuredData,
+} from '../../seo';
 
 const getCampaign = createServerFn({ method: 'GET' })
   .inputValidator((slug: string) => slug)
@@ -28,41 +32,32 @@ export const Route = createFileRoute('/campaigns/$slug')({
       return { meta: [{ title: 'Campaign | BuildIt Network' }] };
     }
     const { campaign } = data;
-    const robotsContent = generateRobotsMetaContent(DEFAULT_INDEXABILITY);
+    const seo = generateCampaignSeoMeta({
+      slug: campaign.slug,
+      title: campaign.title,
+      description: campaign.description,
+      content: campaign.content,
+      goal: campaign.goal,
+      currentAmount: campaign.currentAmount,
+      currency: campaign.currency,
+      image: campaign.image,
+      category: campaign.category,
+    });
+    const breadcrumbs = generateBreadcrumbStructuredData([
+      { name: 'Home', url: 'https://buildit.network' },
+      { name: 'Campaigns', url: 'https://buildit.network/campaigns' },
+      { name: campaign.title, url: `https://buildit.network/campaigns/${campaign.slug}` },
+    ]);
 
     return {
       meta: [
         { title: `${campaign.title} | BuildIt Network` },
-        {
-          name: 'description',
-          content: campaign.description.slice(0, 160),
-        },
-        { name: 'robots', content: robotsContent },
-        // Open Graph
-        { property: 'og:title', content: campaign.title },
-        {
-          property: 'og:description',
-          content: campaign.description.slice(0, 160),
-        },
-        { property: 'og:type', content: 'website' },
-        {
-          property: 'og:url',
-          content: `https://buildit.network/campaigns/${campaign.slug}`,
-        },
-        ...(campaign.image ? [{ property: 'og:image', content: campaign.image }] : []),
-        // Twitter
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: campaign.title },
-        {
-          name: 'twitter:description',
-          content: campaign.description.slice(0, 160),
-        },
+        ...seo.meta,
       ],
-      links: [
-        {
-          rel: 'canonical',
-          href: `https://buildit.network/campaigns/${campaign.slug}`,
-        },
+      links: seo.links,
+      scripts: [
+        { type: 'application/ld+json', children: seo.structuredData },
+        { type: 'application/ld+json', children: breadcrumbs },
       ],
     };
   },

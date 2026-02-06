@@ -1,5 +1,46 @@
+/**
+ * Mutual Aid Module Types
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * UI-only types (form data, match results, Nostr kind constants) are defined here.
+ *
+ * Note: The generated schema has a significantly richer model than the original
+ * local types (AidRequest/AidOffer vs AidItem, Location with privacy levels, etc.).
+ * Local AidItem/RideShare schemas are kept for backward compatibility with existing
+ * UI code but should migrate to the generated types over time.
+ */
+
 import { z } from 'zod'
 import type { CustomFieldValues, LocationValue } from '@/modules/custom-fields/types'
+
+// Re-export generated Zod schemas and types
+export {
+  AidCategorySchema,
+  type AidCategory as ProtocolAidCategory,
+  RequestStatusSchema,
+  type RequestStatus,
+  UrgencyLevelSchema,
+  type UrgencyLevel as ProtocolUrgencyLevel,
+  LocationSchema as ProtocolLocationSchema,
+  type Location as ProtocolLocation,
+  RecurringNeedSchema,
+  type RecurringNeed,
+  FulfillmentSchema,
+  type Fulfillment,
+  AidRequestSchema,
+  type AidRequest,
+  OfferClaimSchema,
+  type OfferClaim,
+  AidOfferSchema,
+  type AidOffer,
+  RideShareSchema as ProtocolRideShareSchema,
+  type RideShare as ProtocolRideShare,
+  ResourceDirectorySchema,
+  type ResourceDirectory,
+  MUTUAL_AID_SCHEMA_VERSION,
+} from '@/generated/validation/mutual-aid.zod';
+
+// ── Legacy Local Types (kept for backward compatibility) ─────────
 
 /**
  * Mutual aid request/offer types
@@ -32,7 +73,7 @@ export type AidStatus = 'open' | 'matched' | 'in-progress' | 'fulfilled' | 'clos
 export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical'
 
 /**
- * Aid item schema
+ * Aid item schema (legacy local schema, prefer AidRequest/AidOffer from generated types)
  */
 export const AidItemSchema = z.object({
   id: z.string(),
@@ -80,7 +121,7 @@ export const AidItemSchema = z.object({
 export type AidItem = z.infer<typeof AidItemSchema>
 
 /**
- * Ride share specific schema
+ * Ride share specific schema (legacy local schema, prefer ProtocolRideShare from generated types)
  */
 export const RideShareSchema = z.object({
   id: z.string(),
@@ -101,6 +142,8 @@ export const RideShareSchema = z.object({
 })
 
 export type RideShare = z.infer<typeof RideShareSchema>
+
+// ── UI-Only Types ────────────────────────────────────────────────
 
 /**
  * Match result

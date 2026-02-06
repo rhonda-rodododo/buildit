@@ -1,7 +1,24 @@
 /**
  * Files Module Types
- * Encrypted file storage and management
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines simpler File/Folder/FileShare models (protocol-level).
+ * The local types below represent the richer UI-side file management features
+ * (encrypted blobs, upload progress, previews, analytics, permissions, etc.).
  */
+
+// Re-export generated Zod schemas and types
+export {
+  FileSchema as ProtocolFileSchema,
+  type File as ProtocolFile,
+  FolderSchema as ProtocolFolderSchema,
+  type Folder as ProtocolFolder,
+  FileShareSchema as ProtocolFileShareSchema,
+  type FileShare as ProtocolFileShare,
+  FILES_SCHEMA_VERSION,
+} from '@/generated/validation/files.zod';
+
+// ── UI-Only Types (richer client-side file model) ────────────────
 
 export type FileType = 'image' | 'document' | 'video' | 'audio' | 'archive' | 'other'
 
@@ -146,13 +163,10 @@ export interface FilePreview {
   url?: string // Object URL for preview
   content?: string // Text content
   language?: string // For code syntax highlighting
-  // Epic 57: Archive preview
   archiveContents?: ArchiveEntry[]
-  // Epic 57: 3D model preview
   modelData?: Uint8Array
 }
 
-// Epic 57: Archive entry for preview
 export interface ArchiveEntry {
   name: string
   path: string
@@ -161,7 +175,6 @@ export interface ArchiveEntry {
   modifiedAt?: Date
 }
 
-// Epic 57: Saved search filter
 export interface SavedSearchFilter {
   id: string
   name: string
@@ -173,7 +186,6 @@ export interface SavedSearchFilter {
   createdAt: number
 }
 
-// Epic 57: Recent search
 export interface RecentSearch {
   id: string
   groupId: string
@@ -181,7 +193,6 @@ export interface RecentSearch {
   timestamp: number
 }
 
-// Epic 57: File analytics
 export interface FileAnalytics {
   groupId: string
   totalFiles: number
@@ -193,7 +204,6 @@ export interface FileAnalytics {
   duplicates: DuplicateFileGroup[]
 }
 
-// Epic 57: File activity log entry
 export interface FileActivityLog {
   id: string
   groupId: string
@@ -205,7 +215,6 @@ export interface FileActivityLog {
   metadata?: Record<string, unknown>
 }
 
-// Epic 57: Duplicate file group
 export interface DuplicateFileGroup {
   hash: string
   files: {
@@ -218,7 +227,7 @@ export interface DuplicateFileGroup {
 }
 
 /**
- * Epic 58: Folder Permission (for permission inheritance)
+ * Folder Permission (for permission inheritance)
  * Permissions set at folder level that cascade to all child items
  */
 export interface FileFolderPermission {
@@ -232,7 +241,7 @@ export interface FileFolderPermission {
 }
 
 /**
- * Epic 58: File Access Request
+ * File Access Request
  * Request access to a file or folder
  */
 export interface FileAccessRequest {
@@ -251,7 +260,7 @@ export interface FileAccessRequest {
 }
 
 /**
- * Epic 58: File Sharing Report Item
+ * File Sharing Report Item
  * Individual item in a sharing report export
  */
 export interface FileSharingReportItem {

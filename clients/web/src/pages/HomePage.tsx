@@ -27,50 +27,57 @@ export const HomePage: FC = () => {
     // Load seed data if collections are empty (demo data)
     // Note: Posts seeds are loaded in App.tsx with localStorage deduplication
     const loadSeedData = async () => {
-      const userPubkey = currentIdentity?.publicKey || 'demo-user';
+      const userPubkey = currentIdentity?.publicKey || '0'.repeat(64);
       const now = Date.now();
+      const nowSeconds = Math.floor(now / 1000);
 
       // Load seed events
       if (events.length === 0) {
-        const seedEvents = [
+        const seedEvents: import('@/modules/events/types').AppEvent[] = [
           {
+            _v: '1.0.0',
             id: 'event-1',
             title: 'Community Organizing Workshop',
             description: 'Learn the fundamentals of grassroots organizing, power mapping, and building coalitions. Perfect for new organizers!',
-            location: 'Community Center, 123 Main St',
-            startTime: now + 7 * 24 * 60 * 60 * 1000, // 1 week from now
-            endTime: now + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000, // 2 hours later
-            privacy: 'public' as const,
-            capacity: 50,
+            location: { name: 'Community Center, 123 Main St' },
+            startAt: nowSeconds + 7 * 24 * 60 * 60,
+            endAt: nowSeconds + 7 * 24 * 60 * 60 + 2 * 60 * 60,
+            allDay: false,
+            visibility: 'public' as const,
+            maxAttendees: 50,
             createdBy: userPubkey,
-            createdAt: now - 2 * 24 * 60 * 60 * 1000, // 2 days ago
-            updatedAt: now - 2 * 24 * 60 * 60 * 1000,
+            createdAt: nowSeconds - 2 * 24 * 60 * 60,
+            updatedAt: nowSeconds - 2 * 24 * 60 * 60,
             tags: ['workshop', 'organizing', 'training'],
             coHosts: [],
           },
           {
+            _v: '1.0.0',
             id: 'event-2',
             title: 'Climate Justice Rally',
             description: 'Join us for a peaceful rally demanding climate action now! Bring signs, friends, and your voice.',
-            location: 'City Hall Plaza',
-            startTime: now + 3 * 24 * 60 * 60 * 1000, // 3 days from now
-            privacy: 'public' as const,
+            location: { name: 'City Hall Plaza' },
+            startAt: nowSeconds + 3 * 24 * 60 * 60,
+            allDay: false,
+            visibility: 'public' as const,
             createdBy: userPubkey,
-            createdAt: now - 5 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 5 * 24 * 60 * 60 * 1000,
+            createdAt: nowSeconds - 5 * 24 * 60 * 60,
+            updatedAt: nowSeconds - 5 * 24 * 60 * 60,
             tags: ['climate', 'rally', 'direct-action'],
             coHosts: [],
           },
           {
+            _v: '1.0.0',
             id: 'event-3',
             title: 'Solidarity Network Meeting',
             description: 'Monthly meeting for mutual aid coordinators. Discuss ongoing projects, share resources, and plan for next month.',
-            startTime: now + 10 * 24 * 60 * 60 * 1000, // 10 days from now
-            privacy: 'group' as const,
+            startAt: nowSeconds + 10 * 24 * 60 * 60,
+            allDay: false,
+            visibility: 'group' as const,
             groupId: 'solidarity-network',
             createdBy: userPubkey,
-            createdAt: now - 1 * 24 * 60 * 60 * 1000,
-            updatedAt: now - 1 * 24 * 60 * 60 * 1000,
+            createdAt: nowSeconds - 1 * 24 * 60 * 60,
+            updatedAt: nowSeconds - 1 * 24 * 60 * 60,
             tags: ['mutual-aid', 'meeting'],
             coHosts: [],
           },

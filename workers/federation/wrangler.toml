@@ -1,0 +1,61 @@
+name = "buildit-federation"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "FEDERATION_DB"
+database_name = "buildit-federation"
+database_id = "placeholder-federation-db-id"
+
+[[kv_namespaces]]
+binding = "FEDERATION_KV"
+id = "placeholder-federation-kv-id"
+
+[[queues.producers]]
+queue = "federation-outbound"
+binding = "FEDERATION_QUEUE"
+
+[[queues.consumers]]
+queue = "federation-outbound"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+
+[[durable_objects.bindings]]
+name = "FEDERATION_BRIDGE"
+class_name = "FederationBridge"
+
+[[durable_objects.bindings]]
+name = "SCHEDULER_BRIDGE"
+class_name = "SchedulerBridge"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["FederationBridge"]
+
+[[migrations]]
+tag = "v2"
+new_classes = ["SchedulerBridge"]
+
+[triggers]
+crons = ["0 */6 * * *"]
+
+[vars]
+ENVIRONMENT = "production"
+FEDERATION_DOMAIN = "buildit.network"
+RELAY_URL = "wss://relay.buildit.network"
+
+[env.dev]
+name = "buildit-federation-dev"
+[env.dev.vars]
+ENVIRONMENT = "development"
+FEDERATION_DOMAIN = "localhost"
+RELAY_URL = "ws://localhost:8787"
+
+[env.preview]
+name = "buildit-federation-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+FEDERATION_DOMAIN = "preview.buildit.network"
+RELAY_URL = "wss://relay.buildit.network"

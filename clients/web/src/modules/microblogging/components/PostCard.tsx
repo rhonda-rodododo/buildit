@@ -9,6 +9,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { LazyMarkdown } from '@/components/markdown/LazyMarkdown';
 import { usePostsStore } from '../postsStore';
 import type { Post, ReactionType } from '../types';
+import type { MediaAttachment } from '@/types/media';
+import type { LinkPreview } from '@/lib/linkPreview';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -52,6 +54,8 @@ import { CommentThread } from './CommentThread';
 import { CommentInput } from './CommentInput';
 import { UserHandle } from '@/components/user/UserHandle';
 import { LocationDisplay } from '@/modules/custom-fields/components/inputs/LocationDisplay';
+import type { LocationValue } from '@/modules/custom-fields/types';
+import { FederationStatusBadge } from '@/modules/federation/components/FederationStatusBadge';
 
 interface PostCardProps {
   post: Post;
@@ -61,12 +65,12 @@ interface PostCardProps {
 }
 
 const REACTION_EMOJIS: { type: ReactionType; emoji: string }[] = [
-  { type: '❤️', emoji: '❤️' },
-  { type: '✊', emoji: '✊' },
-  { type: '🔥', emoji: '🔥' },
-  { type: '👀', emoji: '👀' },
-  { type: '😂', emoji: '😂' },
-  { type: '👍', emoji: '👍' },
+  { type: 'heart', emoji: '❤️' },
+  { type: 'fist', emoji: '✊' },
+  { type: 'fire', emoji: '🔥' },
+  { type: 'eyes', emoji: '👀' },
+  { type: 'laugh', emoji: '😂' },
+  { type: 'thumbs_up', emoji: '👍' },
 ];
 
 const PostCardInner: FC<PostCardProps> = ({
@@ -222,7 +226,7 @@ const PostCardInner: FC<PostCardProps> = ({
         <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-md flex items-start gap-2">
           <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
           <div className="flex-1 text-sm">
-            <span className="font-medium">{t('postCard.contentWarning')}</span> {post.contentWarning}
+            <span className="font-medium">{t('postCard.contentWarning')}</span> {post.contentWarning as string}
           </div>
         </div>
       )}
@@ -248,6 +252,12 @@ const PostCardInner: FC<PostCardProps> = ({
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 {getPrivacyIcon()}
                 {formatTimestamp(post.createdAt)}
+                {post.visibility.privacy === 'public' && (
+                  <FederationStatusBadge
+                    apFederated={!!(post as Record<string, unknown>).federationStatus && !!((post as Record<string, unknown>).federationStatus as Record<string, unknown>)?.apFederated}
+                    atFederated={!!(post as Record<string, unknown>).federationStatus && !!((post as Record<string, unknown>).federationStatus as Record<string, unknown>)?.atFederated}
+                  />
+                )}
               </span>
             </div>
           </div>
@@ -290,7 +300,7 @@ const PostCardInner: FC<PostCardProps> = ({
         />
 
         {/* Hashtags */}
-        {post.hashtags.length > 0 && (
+        {post.hashtags && post.hashtags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {post.hashtags.map((tag) => (
               <Button
@@ -306,43 +316,53 @@ const PostCardInner: FC<PostCardProps> = ({
         )}
       </div>
 
-      {/* Media (if any) */}
-      {post.media && post.media.length > 0 && (
-        <div className="mb-3 rounded-lg overflow-hidden border">
-          <img
-            src={post.media[0].url}
-            alt={post.media[0].alt || 'Post image'}
-            className="w-full max-h-96 object-cover"
-          />
-        </div>
-      )}
+      {/* Media (if any) - passthrough field from Post schema */}
+      {(() => {
+        const media = (post as Record<string, unknown>).media as MediaAttachment[] | undefined;
+        if (!media || media.length === 0) return null;
+        return (
+          <div className="mb-3 rounded-lg overflow-hidden border">
+            <img
+              src={media[0].url}
+              alt={media[0].alt || 'Post image'}
+              className="w-full max-h-96 object-cover"
+            />
+          </div>
+        );
+      })()}
 
       {/* Link Previews (Signal-style encrypted) or Embedded Content */}
       {/* For private posts: Use encrypted link previews (no third-party requests) */}
       {/* For public posts: Can use EmbedCard iframes as fallback */}
-      {post.linkPreviews && post.linkPreviews.length > 0 ? (
-        <div className="mb-3 space-y-2">
-          {post.linkPreviews.map((preview) => (
-            <LinkPreviewCard
-              key={preview.url}
-              preview={preview}
-              compact={post.linkPreviews!.length > 1}
-            />
-          ))}
-        </div>
-      ) : (
-        /* Fallback to EmbedCard for public posts or old posts without linkPreviews */
-        firstEmbeddableUrl && post.visibility.privacy === 'public' && (
-          <div className="mb-3">
-            <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
-          </div>
-        )
-      )}
+      {(() => {
+        const linkPreviews = (post as Record<string, unknown>).linkPreviews as LinkPreview[] | undefined;
+        if (linkPreviews && linkPreviews.length > 0) {
+          return (
+            <div className="mb-3 space-y-2">
+              {linkPreviews.map((preview) => (
+                <LinkPreviewCard
+                  key={preview.url}
+                  preview={preview}
+                  compact={linkPreviews.length > 1}
+                />
+              ))}
+            </div>
+          );
+        }
+        if (firstEmbeddableUrl && post.visibility.privacy === 'public') {
+          return (
+            <div className="mb-3">
+              <EmbedCard url={firstEmbeddableUrl} className="max-w-full" />
+            </div>
+          );
+        }
+        return null;
+      })()}
 
-      {/* Location tag */}
-      {post.location && (
+      {/* Location tag - passthrough field from Post schema */}
+      {(post as Record<string, unknown>).location != null && (
         <div className="mb-3">
-          <LocationDisplay value={post.location} compact />
+          <LocationDisplay value={(post as Record<string, unknown>).location as unknown as LocationValue} compact />
         </div>
       )}
 
@@ -361,7 +381,7 @@ const PostCardInner: FC<PostCardProps> = ({
                 {Object.entries(reactionsByType).map(([type, userIds]) => (
                   <div key={type} className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{type}</span>
+                      <span className="text-lg">{REACTION_EMOJIS.find((r) => r.type === type)?.emoji ?? type}</span>
                       <span className="text-sm text-muted-foreground">{userIds.length}</span>
                     </div>
                     <div className="pl-6 space-y-1">
@@ -400,7 +420,7 @@ const PostCardInner: FC<PostCardProps> = ({
               className="flex-1 justify-center min-h-[44px] px-2 sm:px-3"
               aria-label={myReaction ? `Current reaction: ${myReaction}. Click to change` : 'Add reaction'}
             >
-              {myReaction ? myReaction : <Heart className="w-4 h-4 sm:mr-2 shrink-0" />}
+              {myReaction ? (REACTION_EMOJIS.find((r) => r.type === myReaction)?.emoji ?? myReaction) : <Heart className="w-4 h-4 sm:mr-2 shrink-0" />}
               <span className="hidden sm:inline">{t('postCard.react')}</span>
             </Button>
           </PopoverTrigger>

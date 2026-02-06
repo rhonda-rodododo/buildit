@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buildit.network/schemas/modules/polls/v1.json",
+  "title": "PollsModule",
+  "description": "Polls, voting, and opinion gathering",
+  "version": "1.0.0",
+  "minReaderVersion": "1.0.0",
+  "coreModule": false,
+
+  "$defs": {
+    "PollType": {
+      "type": "string",
+      "description": "Poll voting style",
+      "enum": ["single", "multiple", "ranked_choice"]
+    },
+
+    "PollStatus": {
+      "type": "string",
+      "description": "Poll lifecycle status",
+      "enum": ["draft", "active", "closed", "cancelled"]
+    },
+
+    "PollOption": {
+      "type": "object",
+      "description": "A single poll option",
+      "required": ["id", "text", "voteCount", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "text": { "type": "string", "maxLength": 256 },
+        "voteCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "Poll": {
+      "type": "object",
+      "description": "A poll attached to a post or standalone",
+      "required": ["id", "authorId", "question", "options", "pollType", "endsAt", "totalVotes", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "postId": { "type": "string", "description": "Associated post ID if embedded" },
+        "authorId": { "type": "string" },
+        "question": { "type": "string", "maxLength": 512 },
+        "options": { "type": "array", "items": { "$ref": "#/$defs/PollOption" } },
+        "pollType": { "$ref": "#/$defs/PollType" },
+        "status": { "$ref": "#/$defs/PollStatus" },
+        "endsAt": { "type": "integer", "description": "Unix timestamp when poll closes" },
+        "isEnded": { "type": "boolean" },
+        "totalVotes": { "type": "integer" },
+        "voterCount": { "type": "integer" },
+        "hideResultsUntilEnded": { "type": "boolean" },
+        "allowAnonymousVotes": { "type": "boolean" },
+        "createdAt": { "type": "integer" },
+        "updatedAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" }
+      }
+    },
+
+    "PollVote": {
+      "type": "object",
+      "description": "A vote cast on a poll",
+      "required": ["id", "pollId", "optionIds", "voterId", "createdAt", "_v"],
+      "additionalProperties": true,
+      "properties": {
+        "_v": { "type": "string", "default": "1.0.0" },
+        "id": { "type": "string" },
+        "pollId": { "type": "string" },
+        "optionIds": { "type": "array", "items": { "type": "string" } },
+        "voterId": { "type": "string" },
+        "createdAt": { "type": "integer" },
+        "nostrEventId": { "type": "string" }
+      }
+    }
+  },
+
+  "x-storage": {
+    "tables": {
+      "polls": {
+        "type": "Poll",
+        "primaryKey": "id",
+        "indexes": ["postId", "authorId", "status", "endsAt", "createdAt"]
+      },
+      "pollVotes": {
+        "type": "PollVote",
+        "primaryKey": "id",
+        "indexes": ["pollId", "voterId"],
+        "compoundIndexes": ["[pollId+voterId]"]
+      }
+    }
+  }
+}

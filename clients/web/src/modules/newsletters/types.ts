@@ -1,7 +1,26 @@
 /**
  * Newsletter Module Types
- * Types for newsletter management with Nostr DM delivery
+ *
+ * Re-exports generated Zod schemas and types from protocol schemas.
+ * The generated schema defines a simpler Newsletter/Campaign/Subscriber model (protocol-level).
+ * The local types below represent the richer UI-side newsletter features
+ * (Nostr DM delivery, themes, queue management, etc.).
  */
+
+// Re-export generated Zod schemas and types
+export {
+  NewsletterSchema as ProtocolNewsletterSchema,
+  type Newsletter as ProtocolNewsletter,
+  CampaignSchema as ProtocolCampaignSchema,
+  type Campaign as ProtocolCampaign,
+  SubscriberSchema as ProtocolSubscriberSchema,
+  type Subscriber as ProtocolSubscriber,
+  TemplateSchema as ProtocolTemplateSchema,
+  type Template as ProtocolTemplate,
+  NEWSLETTERS_SCHEMA_VERSION,
+} from '@/generated/validation/newsletters.zod';
+
+// ── UI-Only Types (richer client-side newsletter model) ──────────
 
 /**
  * Newsletter - a publication's newsletter configuration
@@ -113,7 +132,6 @@ export interface IssueDeliveryStats {
   pending: number;
   failed: number;
   retrying: number;
-  // Note: No open/click tracking since Nostr DMs don't support it
 }
 
 /**
