@@ -47,7 +47,10 @@ clients/ios/Pods/
 clients/android/.gradle/
 clients/android/build/
 clients/android/app/build/
+clients/android/app/schemas/
 clients/android/local.properties
+*.apk
+*.aab
 
 # Tauri
 clients/desktop/target/
@@ -60,6 +63,9 @@ packages/crypto/target/
 clients/web/src/generated/
 clients/ios/Sources/Generated/
 clients/android/app/src/main/java/network/buildit/generated/
+clients/desktop/src/db/migrations/generated/
+packages/crypto/src/generated/
+workers/shared/generated/
 
 # Temporary
 *.tmp

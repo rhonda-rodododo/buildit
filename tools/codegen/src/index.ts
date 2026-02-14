@@ -12,7 +12,8 @@
  *   - migration: Version migration stubs when v2+ detected
  *
  * Usage:
- *   bun run src/index.ts                    # Generate all targets
+ *   bun run src/index.ts                    # Generate all targets (quiet)
+ *   bun run src/index.ts -v                 # Verbose per-file output
  *   bun run src/index.ts --target=typescript
  *   bun run src/index.ts --validate         # Validate only
  *   bun run src/index.ts --validate-vectors # Validate test vectors
@@ -35,6 +36,17 @@ const REPO_ROOT = join(import.meta.dir, '../../..');
 const MODULE_SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/modules');
 const CORE_SCHEMAS_DIR = join(REPO_ROOT, 'protocol/schemas/core');
 const TEST_VECTORS_DIR = join(REPO_ROOT, 'protocol/test-vectors');
+
+// ============================================================================
+// Logging — quiet by default, verbose with -v/--verbose
+// ============================================================================
+
+let VERBOSE = false;
+
+/** Log only when verbose mode is enabled */
+function logv(...args: unknown[]) {
+  if (VERBOSE) console.log(...args);
+}
 
 // ============================================================================
 // Target Configuration
@@ -271,7 +283,7 @@ async function generateTypeScriptIndex(schemaFiles: string[]) {
   }
 
   await writeFile(join(outputDir, 'index.ts'), code);
-  console.log(`  ✅ TypeScript: index.ts`);
+  logv(`  ✅ TypeScript: index.ts`);
 }
 
 async function generateRustMod(schemaFiles: string[]) {
@@ -298,7 +310,7 @@ async function generateRustMod(schemaFiles: string[]) {
   }
 
   await writeFile(join(outputDir, 'mod.rs'), code);
-  console.log(`  ✅ Rust: mod.rs`);
+  logv(`  ✅ Rust: mod.rs`);
 }
 
 /**
@@ -490,7 +502,7 @@ async function generateDexieIndex(modules: string[]) {
     'db',
     'Dexie DB schema definitions generated from protocol x-storage annotations'
   );
-  console.log(`  ✅ Dexie: index.ts`);
+  logv(`  ✅ Dexie: index.ts`);
 }
 
 async function generateZodIndex(modules: string[]) {
@@ -500,7 +512,7 @@ async function generateZodIndex(modules: string[]) {
     'zod',
     'Zod validation schemas generated from protocol schema definitions'
   );
-  console.log(`  ✅ Zod: index.ts`);
+  logv(`  ✅ Zod: index.ts`);
 }
 
 // ============================================================================
@@ -543,7 +555,7 @@ async function validateSchemas(schemaFiles: string[]): Promise<boolean> {
         }
       }
 
-      console.log(`  ✅ ${basename(dirname(file))}/${basename(file)} (v${schema.version})`);
+      logv(`  ✅ ${basename(dirname(file))}/${basename(file)} (v${schema.version})`);
     } catch (e) {
       console.error(`  ❌ ${file}: ${e}`);
       hasErrors = true;
@@ -647,6 +659,7 @@ async function main() {
   const validateVectorsFlag = args.includes('--validate-vectors');
   const targetFilter = args.find((a) => a.startsWith('--target='))?.split('=')[1];
   const skipQuicktype = args.includes('--skip-quicktype');
+  VERBOSE = args.includes('--verbose') || args.includes('-v');
 
   console.log('📦 BuildIt Schema Code Generator\n');
 
@@ -695,12 +708,12 @@ async function main() {
       const schema = allSchemas.get(moduleName)!;
       const isCore = file.includes('/core/');
 
-      console.log(`\n📄 Processing ${moduleName}${isCore ? ' (core)' : ''}...`);
+      logv(`\n📄 Processing ${moduleName}${isCore ? ' (core)' : ''}...`);
 
       moduleVersions[moduleName] = schema.version;
 
       if (!schema.$defs || Object.keys(schema.$defs).length === 0) {
-        console.log(`  ⏭️  No $defs found, skipping`);
+        logv(`  ⏭️  No $defs found, skipping`);
         continue;
       }
 
@@ -727,7 +740,7 @@ async function main() {
             : moduleName;
           const outputFile = join(outputDir, `${outputName}${target.ext}`);
           await writeFile(outputFile, code);
-          console.log(`  ✅ ${target.name}: ${outputName}${target.ext}`);
+          logv(`  ✅ ${target.name}: ${outputName}${target.ext}`);
         } catch (error) {
           console.error(`  ❌ ${target.name}: ${error}`);
         }
@@ -745,7 +758,7 @@ async function main() {
 
   // ── Phase 2: Dexie DB schema generation (new) ────────────────────────
   if (!targetFilter || targetFilter === 'typescript') {
-    console.log('\n🗄️  Generating Dexie DB schemas...');
+    logv('\n🗄️  Generating Dexie DB schemas...');
     await mkdir(DEXIE_OUTPUT_DIR, { recursive: true });
 
     const dexieModules: string[] = [];
@@ -767,7 +780,7 @@ async function main() {
         const outputFile = join(DEXIE_OUTPUT_DIR, `${moduleName}.db.ts`);
         await writeFile(outputFile, dexieCode);
         dexieModules.push(moduleName);
-        console.log(`  ✅ Dexie: ${moduleName}.db.ts`);
+        logv(`  ✅ Dexie: ${moduleName}.db.ts`);
       }
     }
 
@@ -776,7 +789,7 @@ async function main() {
 
   // ── Phase 2b: SQLite migration generation ──────────────────────────────
   if (!targetFilter || targetFilter === 'sqlite' || targetFilter === 'rust') {
-    console.log('\n🗃️  Generating SQLite migrations...');
+    logv('\n🗃️  Generating SQLite migrations...');
     await mkdir(SQLITE_OUTPUT_DIR, { recursive: true });
 
     const sqliteModules: string[] = [];
@@ -791,7 +804,7 @@ async function main() {
         const outputFile = join(SQLITE_OUTPUT_DIR, `${moduleName}.sql`);
         await writeFile(outputFile, sqlCode);
         sqliteModules.push(moduleName);
-        console.log(`  ✅ SQLite: ${moduleName}.sql`);
+        logv(`  ✅ SQLite: ${moduleName}.sql`);
       }
     }
 
@@ -807,13 +820,13 @@ async function main() {
       }
 
       await writeFile(join(SQLITE_OUTPUT_DIR, '_all_modules.sql'), combined);
-      console.log(`  ✅ SQLite: _all_modules.sql (${sqliteModules.length} modules)`);
+      logv(`  ✅ SQLite: _all_modules.sql (${sqliteModules.length} modules)`);
     }
   }
 
   // ── Phase 3: Zod validation schema generation (new) ──────────────────
   if (!targetFilter || targetFilter === 'typescript') {
-    console.log('\n✅ Generating Zod validation schemas...');
+    logv('\n✅ Generating Zod validation schemas...');
     await mkdir(ZOD_OUTPUT_DIR, { recursive: true });
 
     const zodModules: string[] = [];
@@ -828,7 +841,7 @@ async function main() {
         const outputFile = join(ZOD_OUTPUT_DIR, `${moduleName}.zod.ts`);
         await writeFile(outputFile, zodCode);
         zodModules.push(moduleName);
-        console.log(`  ✅ Zod: ${moduleName}.zod.ts`);
+        logv(`  ✅ Zod: ${moduleName}.zod.ts`);
       }
     }
 
@@ -837,7 +850,7 @@ async function main() {
 
   // ── Phase 3b: Workers TypeScript + Zod generation ────────────────────
   if (!targetFilter || targetFilter === 'workers') {
-    console.log('\n🌐 Generating Workers TypeScript schemas...');
+    logv('\n🌐 Generating Workers TypeScript schemas...');
     await mkdir(WORKERS_SCHEMAS_DIR, { recursive: true });
     await mkdir(WORKERS_ZOD_DIR, { recursive: true });
 
@@ -864,7 +877,7 @@ async function main() {
         );
         await writeFile(join(WORKERS_SCHEMAS_DIR, `${moduleName}.ts`), code);
         workersModules.push(moduleName);
-        console.log(`  ✅ Workers Schema: ${moduleName}.ts`);
+        logv(`  ✅ Workers Schema: ${moduleName}.ts`);
       } catch (error) {
         console.error(`  ❌ Workers Schema ${moduleName}: ${error}`);
       }
@@ -873,7 +886,7 @@ async function main() {
       if (zodCode) {
         await writeFile(join(WORKERS_ZOD_DIR, `${moduleName}.zod.ts`), zodCode);
         workersZodModules.push(moduleName);
-        console.log(`  ✅ Workers Zod: ${moduleName}.zod.ts`);
+        logv(`  ✅ Workers Zod: ${moduleName}.zod.ts`);
       }
     }
 
@@ -882,7 +895,7 @@ async function main() {
       // Workers schemas don't have a suffix (files are just `moduleName.ts`),
       // so we generate a conflict-safe index by scanning the generated files directly.
       await generateWorkersSchemaIndex(WORKERS_SCHEMAS_DIR, workersModules);
-      console.log(`  ✅ Workers: schemas/index.ts`);
+      logv(`  ✅ Workers: schemas/index.ts`);
     }
 
     if (workersZodModules.length > 0) {
@@ -892,32 +905,32 @@ async function main() {
         'zod',
         'Workers Zod validation schemas from protocol schemas'
       );
-      console.log(`  ✅ Workers: validation/index.ts`);
+      logv(`  ✅ Workers: validation/index.ts`);
     }
   }
 
   // ── Phase 4: Migration generation (new) ──────────────────────────────
   if (!targetFilter || targetFilter === 'typescript') {
-    console.log('\n🔄 Generating migrations...');
+    logv('\n🔄 Generating migrations...');
     await mkdir(MIGRATION_OUTPUT_DIR, { recursive: true });
 
     const { code: migrationCode, migrations } = await generateMigrations(MODULE_SCHEMAS_DIR);
     await writeFile(join(MIGRATION_OUTPUT_DIR, 'index.ts'), migrationCode);
 
     if (migrations.length > 0) {
-      console.log(`  ✅ Generated ${migrations.length} migration(s)`);
+      logv(`  ✅ Generated ${migrations.length} migration(s)`);
     } else {
-      console.log(`  ℹ️  No version migrations needed (all modules at v1)`);
+      logv(`  ℹ️  No version migrations needed (all modules at v1)`);
     }
 
     // Generate version file
     const versionCode = generateVersionFile(moduleVersions, totalTableCount);
     await writeFile(join(DEXIE_OUTPUT_DIR, 'version.ts'), versionCode);
-    console.log(`  ✅ Version: version.ts (DB_SCHEMA_VERSION=${totalTableCount + 1})`);
+    logv(`  ✅ Version: version.ts (DB_SCHEMA_VERSION=${totalTableCount + 1})`);
   }
 
   // ── Phase 5: Format generated TypeScript files with prettier ────────
-  console.log('\n💅 Formatting generated files with prettier...');
+  logv('\n💅 Formatting generated files with prettier...');
   const formatDirs = [
     join(REPO_ROOT, 'clients/web/src/generated'),
     WORKERS_SCHEMAS_DIR,
@@ -935,9 +948,9 @@ async function main() {
       // prettier not available or failed - non-fatal
     }
   }
-  console.log('  ✅ Formatting complete');
+  logv('  ✅ Formatting complete');
 
-  console.log('\n✅ Code generation complete!');
+  console.log(`\n✅ Code generation complete — ${schemaFiles.length} schemas, ${Object.keys(moduleVersions).length} modules`);
 }
 
 main().catch(console.error);
