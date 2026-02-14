@@ -9,10 +9,10 @@ import network.buildit.core.modules.ModuleResult
 import network.buildit.core.modules.toModuleResult
 import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
+import network.buildit.generated.schemas.polls.PollStatus
+import network.buildit.generated.schemas.polls.PollType
 import network.buildit.modules.polls.data.PollRepository
 import network.buildit.modules.polls.data.local.PollEntity
-import network.buildit.modules.polls.data.local.PollStatus
-import network.buildit.modules.polls.data.local.PollType
 import network.buildit.modules.polls.data.local.PollVoteEntity
 import java.util.UUID
 import javax.inject.Inject

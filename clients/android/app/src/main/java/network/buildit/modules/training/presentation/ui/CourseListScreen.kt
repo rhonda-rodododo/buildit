@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import network.buildit.generated.schemas.training.CourseCategory
+import network.buildit.generated.schemas.training.CourseDifficulty
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.presentation.ui.components.*
 import network.buildit.modules.training.presentation.viewmodel.TrainingUiState

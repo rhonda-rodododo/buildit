@@ -1,9 +1,9 @@
 package network.buildit.modules.polls.data
 
 import kotlinx.coroutines.flow.Flow
+import network.buildit.generated.schemas.polls.PollStatus
 import network.buildit.modules.polls.data.local.PollDao
 import network.buildit.modules.polls.data.local.PollEntity
-import network.buildit.modules.polls.data.local.PollStatus
 import network.buildit.modules.polls.data.local.PollVoteDao
 import network.buildit.modules.polls.data.local.PollVoteEntity
 import javax.inject.Inject

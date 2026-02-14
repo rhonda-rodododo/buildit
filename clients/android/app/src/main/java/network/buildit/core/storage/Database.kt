@@ -585,11 +585,11 @@ class Converters {
 
     // Contact Notes converters
     @TypeConverter
-    fun fromNoteCategory(value: network.buildit.modules.contacts.data.local.NoteCategory): String = value.name
+    fun fromNoteCategory(value: network.buildit.generated.schemas.contacts.NoteCategory): String = value.name
 
     @TypeConverter
-    fun toNoteCategory(value: String): network.buildit.modules.contacts.data.local.NoteCategory =
-        network.buildit.modules.contacts.data.local.NoteCategory.valueOf(value)
+    fun toNoteCategory(value: String): network.buildit.generated.schemas.contacts.NoteCategory =
+        network.buildit.generated.schemas.contacts.NoteCategory.valueOf(value)
 
     // Fundraising converters
     @TypeConverter
@@ -733,18 +733,18 @@ class Converters {
 
     // Polls converters
     @TypeConverter
-    fun fromPollType(value: network.buildit.modules.polls.data.local.PollType): String = value.name
+    fun fromPollType(value: network.buildit.generated.schemas.polls.PollType): String = value.name
 
     @TypeConverter
-    fun toPollType(value: String): network.buildit.modules.polls.data.local.PollType =
-        network.buildit.modules.polls.data.local.PollType.valueOf(value)
+    fun toPollType(value: String): network.buildit.generated.schemas.polls.PollType =
+        network.buildit.generated.schemas.polls.PollType.valueOf(value)
 
     @TypeConverter
-    fun fromPollStatus(value: network.buildit.modules.polls.data.local.PollStatus): String = value.name
+    fun fromPollStatus(value: network.buildit.generated.schemas.polls.PollStatus): String = value.name
 
     @TypeConverter
-    fun toPollStatus(value: String): network.buildit.modules.polls.data.local.PollStatus =
-        network.buildit.modules.polls.data.local.PollStatus.valueOf(value)
+    fun toPollStatus(value: String): network.buildit.generated.schemas.polls.PollStatus =
+        network.buildit.generated.schemas.polls.PollStatus.valueOf(value)
 }
 
 // ============== DAOs ==============

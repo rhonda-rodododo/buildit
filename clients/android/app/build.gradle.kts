@@ -230,6 +230,10 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

@@ -3,6 +3,8 @@ package network.buildit.modules.contacts.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import network.buildit.generated.schemas.contacts.NoteCategory
+import network.buildit.generated.schemas.contacts.PredefinedTag
 import network.buildit.modules.contacts.data.local.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +35,7 @@ class ContactNotesRepository @Inject constructor(
     suspend fun createNote(
         contactPubkey: String,
         content: String,
-        category: NoteCategory = NoteCategory.GENERAL
+        category: NoteCategory = NoteCategory.General
     ): ContactNoteEntity {
         val note = ContactNoteEntity(
             id = java.util.UUID.randomUUID().toString(),

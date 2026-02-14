@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import network.buildit.core.modules.ModuleResult
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.modules.events.domain.EventsUseCase
 import javax.inject.Inject
 
@@ -144,7 +144,7 @@ class EventsViewModel @Inject constructor(
     /**
      * Submits an RSVP.
      */
-    fun rsvp(eventId: String, status: Status, guestCount: Long? = null, note: String? = null) {
+    fun rsvp(eventId: String, status: RSVPStatus, guestCount: Long? = null, note: String? = null) {
         viewModelScope.launch {
             when (val result = eventsUseCase.rsvp(eventId, status, guestCount, note)) {
                 is ModuleResult.Success -> {

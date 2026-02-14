@@ -2,6 +2,7 @@ package network.buildit.modules.training.data.mapper
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import network.buildit.generated.schemas.training.LessonType
 import network.buildit.modules.training.data.local.*
 import network.buildit.modules.training.domain.model.*
 

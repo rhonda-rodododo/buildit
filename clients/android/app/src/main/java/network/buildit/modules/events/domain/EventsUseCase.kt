@@ -10,7 +10,7 @@ import network.buildit.core.modules.toModuleResult
 import network.buildit.core.nostr.NostrClient
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.modules.events.data.EventsRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -127,7 +127,7 @@ class EventsUseCase @Inject constructor(
      */
     suspend fun rsvp(
         eventId: String,
-        status: Status,
+        status: RSVPStatus,
         guestCount: Long? = null,
         note: String? = null
     ): ModuleResult<Rsvp> {
@@ -183,7 +183,7 @@ class EventsUseCase @Inject constructor(
      * @param status The RSVP status to filter by
      * @return Flow of RSVPs with the given status
      */
-    fun getRsvpsByStatus(eventId: String, status: Status): Flow<List<Rsvp>> {
+    fun getRsvpsByStatus(eventId: String, status: RSVPStatus): Flow<List<Rsvp>> {
         return repository.getRsvpsByStatus(eventId, status)
     }
 

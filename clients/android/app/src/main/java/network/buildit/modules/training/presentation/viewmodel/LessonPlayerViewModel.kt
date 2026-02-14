@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import network.buildit.core.modules.ModuleResult
+import network.buildit.generated.schemas.training.LessonType
+import network.buildit.generated.schemas.training.ProgressStatus
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.usecase.*
 import javax.inject.Inject

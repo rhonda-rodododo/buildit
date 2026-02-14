@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.LocationClass
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.generated.schemas.events.Visibility
 
 /**
@@ -138,7 +138,7 @@ data class RsvpEntity(
             v = schemaVersion,
             eventID = eventId,
             pubkey = pubkey,
-            status = Status.valueOf(status.replaceFirstChar { it.uppercase() }.replace("_", "")),
+            status = RSVPStatus.valueOf(status.replaceFirstChar { it.uppercase() }.replace("_", "")),
             guestCount = guestCount,
             note = note,
             respondedAt = respondedAt

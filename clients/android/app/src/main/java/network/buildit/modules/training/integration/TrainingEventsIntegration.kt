@@ -3,6 +3,7 @@ package network.buildit.modules.training.integration
 import network.buildit.core.redacted
 import android.util.Log
 import kotlinx.coroutines.flow.first
+import network.buildit.generated.schemas.training.LessonType
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.repository.TrainingRepository
 import java.util.UUID

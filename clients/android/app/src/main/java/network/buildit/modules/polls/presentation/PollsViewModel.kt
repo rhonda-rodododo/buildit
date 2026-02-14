@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import network.buildit.core.modules.ModuleResult
+import network.buildit.generated.schemas.polls.PollType
 import network.buildit.modules.polls.data.local.PollEntity
-import network.buildit.modules.polls.data.local.PollType
 import network.buildit.modules.polls.data.local.PollVoteEntity
 import network.buildit.modules.polls.domain.PollResults
 import network.buildit.modules.polls.domain.PollsUseCase

@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 
 /**
  * Attendee list view showing attendees grouped by RSVP status.
@@ -80,9 +80,9 @@ fun AttendeeListView(
             }
             is EventDetailState.Success -> {
                 val grouped = state.rsvps.groupBy { it.status }
-                val goingList = grouped[Status.Going] ?: emptyList()
-                val maybeList = grouped[Status.Maybe] ?: emptyList()
-                val notGoingList = grouped[Status.NotGoing] ?: emptyList()
+                val goingList = grouped[RSVPStatus.Going] ?: emptyList()
+                val maybeList = grouped[RSVPStatus.Maybe] ?: emptyList()
+                val notGoingList = grouped[RSVPStatus.NotGoing] ?: emptyList()
 
                 Column(
                     modifier = Modifier

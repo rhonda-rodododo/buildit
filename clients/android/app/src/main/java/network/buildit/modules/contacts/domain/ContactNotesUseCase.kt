@@ -3,6 +3,7 @@ package network.buildit.modules.contacts.domain
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import network.buildit.generated.schemas.contacts.NoteCategory
 import network.buildit.modules.contacts.data.ContactNotesRepository
 import network.buildit.modules.contacts.data.local.*
 import javax.inject.Inject
@@ -23,7 +24,7 @@ class ContactNotesUseCase @Inject constructor(
         repository.getNotesByContact(contactPubkey)
 
     fun getFollowUpNotes(): Flow<List<ContactNoteEntity>> =
-        repository.getNotesByCategory(NoteCategory.FOLLOW_UP)
+        repository.getNotesByCategory(NoteCategory.FollowUp)
 
     suspend fun getMostRecentNote(contactPubkey: String): ContactNoteEntity? =
         repository.getNotesByContact(contactPubkey).first().firstOrNull()
@@ -31,7 +32,7 @@ class ContactNotesUseCase @Inject constructor(
     suspend fun createNote(
         contactPubkey: String,
         content: String,
-        category: NoteCategory = NoteCategory.GENERAL
+        category: NoteCategory = NoteCategory.General
     ): ContactNoteEntity = repository.createNote(contactPubkey, content, category)
 
     suspend fun updateNote(

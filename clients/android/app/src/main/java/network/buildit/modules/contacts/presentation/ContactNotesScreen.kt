@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import network.buildit.generated.schemas.contacts.NoteCategory
 import network.buildit.modules.contacts.data.local.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -246,7 +247,7 @@ private fun NoteEditorDialog(
     onSave: (String, NoteCategory) -> Unit
 ) {
     var content by remember { mutableStateOf(existingNote?.content ?: "") }
-    var category by remember { mutableStateOf(existingNote?.category ?: NoteCategory.GENERAL) }
+    var category by remember { mutableStateOf(existingNote?.category ?: NoteCategory.General) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -567,12 +568,12 @@ fun TagChipsRow(
 // Helper functions
 
 private fun getCategoryIcon(category: NoteCategory) = when (category) {
-    NoteCategory.GENERAL -> Icons.Default.Notes
-    NoteCategory.MEETING -> Icons.Default.People
-    NoteCategory.FOLLOW_UP -> Icons.Default.ArrowForward
-    NoteCategory.CONCERN -> Icons.Default.Warning
-    NoteCategory.POSITIVE -> Icons.Default.Star
-    NoteCategory.TASK -> Icons.Default.Checklist
+    NoteCategory.General -> Icons.Default.Notes
+    NoteCategory.Meeting -> Icons.Default.People
+    NoteCategory.FollowUp -> Icons.Default.ArrowForward
+    NoteCategory.Concern -> Icons.Default.Warning
+    NoteCategory.Positive -> Icons.Default.Star
+    NoteCategory.Task -> Icons.Default.Checklist
 }
 
 private fun parseColor(hex: String): Color {

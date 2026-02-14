@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import network.buildit.generated.schemas.polls.PollStatus
 
 /**
  * Data Access Object for polls.

@@ -17,9 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import network.buildit.generated.schemas.polls.PollStatus
+import network.buildit.generated.schemas.polls.PollType
 import network.buildit.modules.polls.data.local.PollEntity
-import network.buildit.modules.polls.data.local.PollStatus
-import network.buildit.modules.polls.data.local.PollType
 import network.buildit.modules.polls.domain.PollResults
 import java.text.SimpleDateFormat
 import java.util.*

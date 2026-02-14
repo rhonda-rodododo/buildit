@@ -192,6 +192,20 @@ export type {
 } from "./training";
 export { TRAINING_VERSION, TRAINING_MIN_READER_VERSION } from "./training";
 
+// Federation
+export type {
+  FederationConfig,
+  FederationStatus,
+  FederationInteraction,
+  FederationIdentity,
+  APFollower,
+  FederatedPost,
+} from "./federation";
+export {
+  FEDERATION_VERSION,
+  FEDERATION_MIN_READER_VERSION,
+} from "./federation";
+
 // SocialPublishing
 export type {
   ScheduledContent,
@@ -212,20 +226,6 @@ export {
   SOCIAL_PUBLISHING_VERSION,
   SOCIAL_PUBLISHING_MIN_READER_VERSION,
 } from "./social-publishing";
-
-// Federation
-export type {
-  FederationConfig,
-  FederationStatus,
-  FederationInteraction,
-  FederationIdentity,
-  APFollower,
-  FederatedPost,
-} from "./federation";
-export {
-  FEDERATION_VERSION,
-  FEDERATION_MIN_READER_VERSION,
-} from "./federation";
 
 // Templates
 export type {

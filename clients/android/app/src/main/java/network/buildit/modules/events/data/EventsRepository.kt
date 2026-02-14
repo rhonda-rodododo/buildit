@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.modules.events.data.local.EventEntity
 import network.buildit.modules.events.data.local.EventsDao
 import network.buildit.modules.events.data.local.RsvpEntity
@@ -132,7 +132,7 @@ class EventsRepository @Inject constructor(
     /**
      * Gets RSVPs by status.
      */
-    fun getRsvpsByStatus(eventId: String, status: Status): Flow<List<Rsvp>> {
+    fun getRsvpsByStatus(eventId: String, status: RSVPStatus): Flow<List<Rsvp>> {
         return rsvpsDao.getRsvpsByStatus(eventId, status.value).map { entities ->
             entities.map { it.toRsvp() }
         }

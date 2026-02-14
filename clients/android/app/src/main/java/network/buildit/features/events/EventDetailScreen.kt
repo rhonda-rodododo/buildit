@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.modules.events.presentation.EventDetailState
 import network.buildit.modules.events.presentation.EventsViewModel
 import network.buildit.ui.theme.BuildItTheme
@@ -133,7 +133,7 @@ private fun EventDetailContent(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onRsvp: (Status) -> Unit
+    onRsvp: (RSVPStatus) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -212,7 +212,7 @@ private fun EventDetailBody(
     rsvps: List<Rsvp>,
     userRsvp: Rsvp?,
     attendeeCount: Int,
-    onRsvp: (Status) -> Unit,
+    onRsvp: (RSVPStatus) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -353,9 +353,9 @@ private fun EventDetailBody(
 
                 // RSVP counts by status
                 Spacer(modifier = Modifier.height(8.dp))
-                val goingCount = rsvps.count { it.status == Status.Going }
-                val maybeCount = rsvps.count { it.status == Status.Maybe }
-                val notGoingCount = rsvps.count { it.status == Status.NotGoing }
+                val goingCount = rsvps.count { it.status == RSVPStatus.Going }
+                val maybeCount = rsvps.count { it.status == RSVPStatus.Maybe }
+                val notGoingCount = rsvps.count { it.status == RSVPStatus.NotGoing }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     RsvpCountChip(count = goingCount, label = "Going", color = MaterialTheme.colorScheme.primary)
@@ -380,22 +380,22 @@ private fun EventDetailBody(
             RsvpButton(
                 icon = Icons.Default.Check,
                 text = "Going",
-                isSelected = userRsvp?.status == Status.Going,
-                onClick = { onRsvp(Status.Going) },
+                isSelected = userRsvp?.status == RSVPStatus.Going,
+                onClick = { onRsvp(RSVPStatus.Going) },
                 modifier = Modifier.weight(1f)
             )
             RsvpButton(
                 icon = Icons.Default.HelpOutline,
                 text = "Maybe",
-                isSelected = userRsvp?.status == Status.Maybe,
-                onClick = { onRsvp(Status.Maybe) },
+                isSelected = userRsvp?.status == RSVPStatus.Maybe,
+                onClick = { onRsvp(RSVPStatus.Maybe) },
                 modifier = Modifier.weight(1f)
             )
             RsvpButton(
                 icon = Icons.Default.Close,
                 text = "Can't go",
-                isSelected = userRsvp?.status == Status.NotGoing,
-                onClick = { onRsvp(Status.NotGoing) },
+                isSelected = userRsvp?.status == RSVPStatus.NotGoing,
+                onClick = { onRsvp(RSVPStatus.NotGoing) },
                 modifier = Modifier.weight(1f)
             )
         }

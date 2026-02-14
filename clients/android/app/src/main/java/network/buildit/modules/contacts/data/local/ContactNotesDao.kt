@@ -2,6 +2,7 @@ package network.buildit.modules.contacts.data.local
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import network.buildit.generated.schemas.contacts.NoteCategory
 
 /**
  * DAO for contact notes operations.

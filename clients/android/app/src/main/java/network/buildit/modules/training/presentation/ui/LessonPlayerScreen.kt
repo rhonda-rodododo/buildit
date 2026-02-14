@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import network.buildit.generated.schemas.training.QuizQuestionType
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.usecase.LessonCompletionResult
 import network.buildit.modules.training.domain.usecase.QuizSubmissionResult

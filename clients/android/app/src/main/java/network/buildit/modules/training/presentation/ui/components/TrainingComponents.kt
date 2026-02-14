@@ -16,6 +16,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import network.buildit.generated.schemas.training.CourseCategory
+import network.buildit.generated.schemas.training.CourseDifficulty
+import network.buildit.generated.schemas.training.ProgressStatus
+import network.buildit.generated.schemas.training.QuizQuestionType
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.usecase.CertificationWithCourse
 import network.buildit.modules.training.presentation.ui.getCategoryIcon

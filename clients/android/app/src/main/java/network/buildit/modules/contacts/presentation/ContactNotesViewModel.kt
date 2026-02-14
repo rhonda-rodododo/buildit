@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import network.buildit.generated.schemas.contacts.NoteCategory
 import network.buildit.modules.contacts.data.local.*
 import network.buildit.modules.contacts.domain.ContactNotesUseCase
 import javax.inject.Inject

@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.first
 import network.buildit.core.crypto.CryptoManager
 import network.buildit.core.modules.ModuleResult
 import network.buildit.core.modules.toModuleResult
+import network.buildit.generated.schemas.training.ProgressStatus
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.repository.TrainingRepository
 import java.util.UUID

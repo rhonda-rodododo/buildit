@@ -281,6 +281,25 @@ export {
   TRAINING_SCHEMA_VERSION,
 } from "./training.zod";
 
+// Federation
+export type {
+  FederationConfig,
+  FederationStatus,
+  FederationInteraction,
+  FederationIdentity,
+  APFollower,
+  FederatedPost,
+} from "./federation.zod";
+export {
+  FederationConfigSchema,
+  FederationStatusSchema,
+  FederationInteractionSchema,
+  FederationIdentitySchema,
+  APFollowerSchema,
+  FederatedPostSchema,
+  FEDERATION_SCHEMA_VERSION,
+} from "./federation.zod";
+
 // SocialPublishing
 export type {
   RecurrenceRule as SocialPublishingRecurrenceRule,
@@ -305,25 +324,6 @@ export {
   OutreachAnalyticsSchema,
   SOCIAL_PUBLISHING_SCHEMA_VERSION,
 } from "./social-publishing.zod";
-
-// Federation
-export type {
-  FederationConfig,
-  FederationStatus,
-  FederationInteraction,
-  FederationIdentity,
-  APFollower,
-  FederatedPost,
-} from "./federation.zod";
-export {
-  FederationConfigSchema,
-  FederationStatusSchema,
-  FederationInteractionSchema,
-  FederationIdentitySchema,
-  APFollowerSchema,
-  FederatedPostSchema,
-  FEDERATION_SCHEMA_VERSION,
-} from "./federation.zod";
 
 // Templates
 export type {

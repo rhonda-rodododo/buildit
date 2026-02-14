@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import network.buildit.generated.schemas.training.CourseCategory
+import network.buildit.generated.schemas.training.CourseDifficulty
+import network.buildit.generated.schemas.training.CourseStatus
 import network.buildit.modules.training.domain.model.*
 import network.buildit.modules.training.domain.usecase.*
 import javax.inject.Inject
