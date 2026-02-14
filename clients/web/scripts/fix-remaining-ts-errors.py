@@ -50,7 +50,7 @@ fixes = {
 
 # Apply text replacements
 for filepath, replacements in fixes.items():
-    path = Path('/home/rikki/claude-workspace/buildit-network') / filepath
+    path = Path('/workspace/buildit') / filepath
     if not path.exists():
         print(f"Skip {filepath} (not found)")
         continue

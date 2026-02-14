@@ -6,7 +6,7 @@
 
 import type { FederationIdentityStatus } from './types';
 
-const FEDERATION_API_BASE = import.meta.env.VITE_FEDERATION_API_URL ?? 'https://buildit-federation.rikki-schulte.workers.dev';
+const FEDERATION_API_BASE = import.meta.env.VITE_FEDERATION_API_URL ?? 'https://federation.buildit.network';
 
 /**
  * Check if a post has been federated to either protocol

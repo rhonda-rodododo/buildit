@@ -597,12 +597,12 @@ Step 4: Evidence Extraction
 ### CRITICAL (Block before production deployment)
 
 1. **Replace Math.random() with crypto.getRandomValues()**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:11`
-   - Also: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts:140-153`
+   - Location: `/workspace/buildit/src/core/crypto/nip17.ts:11`
+   - Also: `/workspace/buildit/src/core/crypto/keyManager.ts:140-153`
    - Blocks: Timestamp correlation attacks
 
 2. **Implement Content Security Policy**
-   - Create: `/home/rikki/claude-workspace/buildit-network/public/_headers`
+   - Create: `/workspace/buildit/public/_headers`
    - Blocks: Supply chain exfiltration
 
 3. **Implement DOMPurify sanitization**
@@ -612,25 +612,25 @@ Step 4: Evidence Extraction
 ### HIGH (Before high-risk user deployment)
 
 4. **Encrypt contact lists (NIP-51)**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/stores/contactsStore.ts`
+   - Location: `/workspace/buildit/src/stores/contactsStore.ts`
    - Blocks: Social graph reconstruction
 
 5. **Gift-wrap group management events**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/core/groups/groupManager.ts`
+   - Location: `/workspace/buildit/src/core/groups/groupManager.ts`
    - Blocks: Organizational structure leak
 
 6. **Implement message padding**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+   - Location: `/workspace/buildit/src/core/crypto/nip17.ts`
    - Blocks: Size-based traffic analysis
 
 7. **Clarify Tor limitations in UI**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/modules/security/tor/`
+   - Location: `/workspace/buildit/src/modules/security/tor/`
    - Blocks: False sense of security
 
 ### MEDIUM (Before any activist deployment)
 
 8. **Reduce default auto-lock to 5 minutes**
-   - Location: `/home/rikki/claude-workspace/buildit-network/src/lib/sessionTimeout.ts`
+   - Location: `/workspace/buildit/src/lib/sessionTimeout.ts`
    - Reduces: Device seizure exposure window
 
 9. **Implement duress password**

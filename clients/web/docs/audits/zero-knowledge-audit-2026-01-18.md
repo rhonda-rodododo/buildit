@@ -31,7 +31,7 @@ BuildIt Network claims "zero-knowledge relay architecture" in its documentation.
 
 ### 1. What Relays Learn - Direct Messages (NIP-17)
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**File**: `/workspace/buildit/src/core/crypto/nip17.ts`
 
 **Visible to Relays (Gift Wrap Event - Kind 1059)**:
 ```json
@@ -60,7 +60,7 @@ Signal's sealed sender completely hides the recipient from the server. In Nostr 
 
 ### 2. What Relays Learn - Group Messaging
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/groupThread.ts`
+**File**: `/workspace/buildit/src/core/messaging/groupThread.ts`
 
 **Visible to Relays (Group Message - Kind 39101)**:
 ```json
@@ -91,7 +91,7 @@ Signal's sealed sender completely hides the recipient from the server. In Nostr 
 
 ### 3. What Relays Learn - Group Operations
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/core/groups/groupManager.ts`
+**File**: `/workspace/buildit/src/core/groups/groupManager.ts`
 
 **Group Creation (Kind 39000)**:
 ```json
@@ -140,7 +140,7 @@ Signal's sealed sender completely hides the recipient from the server. In Nostr 
 
 ### 4. What Relays Learn - Events Module
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/events/eventManager.ts`
+**File**: `/workspace/buildit/src/modules/events/eventManager.ts`
 
 **Event Creation (Kind 31922)**:
 ```json
@@ -382,12 +382,12 @@ The current Nostr protocol makes this extremely difficult because relays are des
 
 | File | Purpose | Privacy Impact |
 |------|---------|----------------|
-| `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts` | DM encryption | Good - uses ephemeral keys |
-| `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts` | NIP-44 encryption | Good - proper ChaCha20 usage |
-| `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts` | Relay communication | Neutral - publishes as designed |
-| `/home/rikki/claude-workspace/buildit-network/src/core/messaging/dm.ts` | Direct messages | Good - uses NIP-17 |
-| `/home/rikki/claude-workspace/buildit-network/src/core/messaging/groupThread.ts` | Group messages | CRITICAL - exposes sender pubkey |
-| `/home/rikki/claude-workspace/buildit-network/src/core/groups/groupManager.ts` | Group operations | CRITICAL - all metadata plaintext |
-| `/home/rikki/claude-workspace/buildit-network/src/modules/events/eventManager.ts` | Events module | CRITICAL - locations/attendees exposed |
-| `/home/rikki/claude-workspace/buildit-network/PRIVACY.md` | Threat model | Claims not fully accurate |
-| `/home/rikki/claude-workspace/buildit-network/ENCRYPTION_STRATEGY.md` | Encryption design | Accurate, Phase 2 needed |
+| `/workspace/buildit/src/core/crypto/nip17.ts` | DM encryption | Good - uses ephemeral keys |
+| `/workspace/buildit/src/core/crypto/nip44.ts` | NIP-44 encryption | Good - proper ChaCha20 usage |
+| `/workspace/buildit/src/core/nostr/client.ts` | Relay communication | Neutral - publishes as designed |
+| `/workspace/buildit/src/core/messaging/dm.ts` | Direct messages | Good - uses NIP-17 |
+| `/workspace/buildit/src/core/messaging/groupThread.ts` | Group messages | CRITICAL - exposes sender pubkey |
+| `/workspace/buildit/src/core/groups/groupManager.ts` | Group operations | CRITICAL - all metadata plaintext |
+| `/workspace/buildit/src/modules/events/eventManager.ts` | Events module | CRITICAL - locations/attendees exposed |
+| `/workspace/buildit/PRIVACY.md` | Threat model | Claims not fully accurate |
+| `/workspace/buildit/ENCRYPTION_STRATEGY.md` | Encryption design | Accurate, Phase 2 needed |

@@ -155,7 +155,7 @@ Voice, video, and group calling with E2EE.
 ### Rust (Desktop)
 
 ```bash
-cd /home/rikki/claude-workspace/buildit/packages/crypto
+cd /workspace/buildit/packages/crypto
 cargo test --features test-vectors
 ```
 
@@ -171,7 +171,7 @@ use buildit_crypto::generated::schemas::governance::Proposal;
 ### Swift (iOS)
 
 ```bash
-cd /home/rikki/claude-workspace/buildit/clients/ios
+cd /workspace/buildit/clients/ios
 swift test --filter TestVectors
 ```
 
@@ -180,7 +180,7 @@ Use `JSONDecoder` to load test vectors and validate against Swift implementation
 ### Kotlin (Android)
 
 ```bash
-cd /home/rikki/claude-workspace/buildit/clients/android
+cd /workspace/buildit/clients/android
 ./gradlew testDebugUnitTest --tests "*TestVectors*"
 ```
 

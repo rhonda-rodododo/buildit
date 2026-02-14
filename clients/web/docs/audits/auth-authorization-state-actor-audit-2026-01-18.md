@@ -44,8 +44,8 @@ This audit examines the authentication and authorization system of BuildIt Netwo
 ### CRITICAL-001: No Rate Limiting on Password Verification
 
 **Severity**: CRITICAL
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/authStore.ts:449-465`
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:612-627`
+**Component**: `/workspace/buildit/src/stores/authStore.ts:449-465`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:612-627`
 
 **Description**: The `verifyPassword()` and `unlock()` functions do not enforce rate limiting. While `src/lib/rateLimit.ts` defines a 'login' rate limit configuration, it is **never actually applied** to the authentication functions.
 
@@ -117,7 +117,7 @@ unlock: async (password: string) => {
 ### CRITICAL-002: Test Mode Bypass in Production
 
 **Severity**: CRITICAL
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:86-113`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:86-113`
 
 **Description**: The `enableTestMode()` function can bypass all encryption if `process.env.NODE_ENV` is manipulated or if code injection occurs.
 
@@ -177,7 +177,7 @@ export function encryptObject<T>(obj: T, tableName: string): T {
 ### HIGH-001: Missing Authorization Checks on Group Operations
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts:169-193, 272-297, 416-463`
+**Component**: `/workspace/buildit/src/stores/groupsStore.ts:169-193, 272-297, 416-463`
 
 **Description**: Several critical group operations lack authorization verification. The store trusts that the caller has appropriate permissions without checking.
 
@@ -251,7 +251,7 @@ updateMemberRole: async (groupId, memberPubkey, newRole, requestingUserPubkey) =
 ### HIGH-002: Session Fixation via Identity Switching
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/authStore.ts:320-338`
+**Component**: `/workspace/buildit/src/stores/authStore.ts:320-338`
 
 **Description**: When switching identities via `setCurrentIdentity()`, the session state may not be fully cleared, potentially allowing session fixation attacks.
 
@@ -312,7 +312,7 @@ setCurrentIdentity: async (publicKey: string | null) => {
 ### HIGH-003: Weak Password Policy Enforcement
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/auth/LoginForm.tsx:22-27`
+**Component**: `/workspace/buildit/src/components/auth/LoginForm.tsx:22-27`
 
 **Description**: Password validation only requires 8 characters minimum with no complexity requirements.
 
@@ -370,7 +370,7 @@ const validatePassword = (pass: string): string | null => {
 ### HIGH-004: No Memory Protection for Decrypted Keys
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:383-405`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:383-405`
 
 **Description**: While the code attempts to zero-fill keys on lock, JavaScript's garbage collector and potential heap snapshots expose keys.
 
@@ -431,7 +431,7 @@ const masterKey = await crypto.subtle.deriveKey(
 ### MEDIUM-001: WebAuthn Challenge Not Verified Server-Side
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/WebAuthnService.ts:197-228`
+**Component**: `/workspace/buildit/src/lib/webauthn/WebAuthnService.ts:197-228`
 
 **Description**: WebAuthn challenges are generated client-side only. Without server-side verification, a sophisticated attacker could potentially replay or forge authentication.
 
@@ -522,7 +522,7 @@ class AuthAuditLogger {
 ### MEDIUM-003: Identity Confusion in Multi-Identity Scenarios
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/authStore.ts`
+**Component**: `/workspace/buildit/src/stores/authStore.ts`
 
 **Description**: With multiple identities, there's potential for "confused deputy" attacks where operations are performed with the wrong identity context.
 
@@ -583,7 +583,7 @@ async function signEventWithIdentity(
 ### MEDIUM-004: Invitation Code Entropy May Be Insufficient
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts:300-306`
+**Component**: `/workspace/buildit/src/stores/groupsStore.ts:300-306`
 
 **Description**: Invitation codes use only 16 hex characters from a secret key slice.
 
@@ -616,7 +616,7 @@ const code = !inviteePubkey
 ### MEDIUM-005: Session Timeout Can Be Disabled
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:553-562`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:553-562`
 
 **Description**: Users can set `inactivityTimeout: 0` to disable auto-lock entirely.
 
@@ -645,7 +645,7 @@ if (timeoutMinutes === 0) {
 ### MEDIUM-006: No Secure Key Export Audit Trail
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/authStore.ts:599-617`
+**Component**: `/workspace/buildit/src/stores/authStore.ts:599-617`
 
 **Description**: Key exports are not logged or audited, making it difficult to detect compromise.
 
@@ -688,7 +688,7 @@ exportPrivateKey: async (password: string): Promise<string> => {
 ### LOW-001: Password Visible in Memory During Input
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/auth/LoginForm.tsx`
+**Component**: `/workspace/buildit/src/components/auth/LoginForm.tsx`
 
 **Description**: Password is stored in React state as a plain string, visible in React DevTools and memory.
 
@@ -750,7 +750,7 @@ throw new Error('Authentication failed');  // Don't specify why
 ### LOW-004: Timing Side-Channel in Password Comparison
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:612-627`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:612-627`
 
 **Description**: While `timingSafeEqual` is used for checksum comparison, password verification timing could leak information about password correctness.
 
@@ -798,7 +798,7 @@ Add artificial delay on failure to normalize timing:
 
 ### INFORMATIONAL-001: Rate Limiter Uses In-Memory Storage
 
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/rateLimit.ts`
+**Component**: `/workspace/buildit/src/lib/rateLimit.ts`
 
 **Description**: Rate limiting is stored in-memory only, reset on page refresh.
 
@@ -810,7 +810,7 @@ Add artificial delay on failure to normalize timing:
 
 ### INFORMATIONAL-002: WebAuthn Implementation Incomplete
 
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:358-378`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:358-378`
 
 **Description**: `unlockWithWebAuthn()` throws "requires password storage implementation".
 

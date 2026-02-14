@@ -7,7 +7,7 @@
 
   // Environment variables
   "vars": {
-    "NOSTR_RELAYS": "wss://buildit-relay.rikki-schulte.workers.dev,wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol",
+    "NOSTR_RELAYS": "wss://relay.buildit.network,wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol",
     "SITE_URL": "https://buildit.network",
     "SITE_NAME": "BuildIt Network"
   }

@@ -45,7 +45,7 @@ A state actor (NSA/GCHQ/MSS) monitors all WebSocket traffic to/from known Nostr 
 ### HIGH-001: Math.random() Used for Timestamp Randomization
 
 **Severity**: HIGH
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:11`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:11`
 
 **Description**:
 The `randomizeTimestamp()` function uses `Math.random()` for generating timestamp offsets:
@@ -93,7 +93,7 @@ function randomizeTimestamp(baseTime: number = Date.now()): number {
 ### HIGH-002: No Message Padding Implementation
 
 **Severity**: HIGH
-**Location**: Multiple files - `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**Location**: Multiple files - `/workspace/buildit/src/core/crypto/nip17.ts`
 
 **Description**:
 Messages are encrypted without padding to fixed sizes. The NIP-44 encryption used internally may add minimal padding, but there is no application-level message padding to hide content length.
@@ -141,7 +141,7 @@ function padMessage(content: string): string {
 ### HIGH-003: Contact List Publication Leaks Social Graph
 
 **Severity**: HIGH
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/stores/contactsStore.ts:222-258`
+**Location**: `/workspace/buildit/src/stores/contactsStore.ts:222-258`
 
 **Description**:
 The `publishContactList()` function publishes a kind 3 event containing all followed users with their pubkeys in plaintext:
@@ -193,7 +193,7 @@ Consider implementing NIP-51 encrypted lists:
 ### HIGH-004: Group Events Leak Membership Patterns
 
 **Severity**: HIGH
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/groups/groupManager.ts`
+**Location**: `/workspace/buildit/src/core/groups/groupManager.ts`
 
 **Description**:
 Group management events (kinds 39000, 39001, 39002, 39004, 39005, 39006) are published without NIP-17 gift wrapping:
@@ -241,7 +241,7 @@ Gift-wrap all group management events using NIP-17:
 ### MEDIUM-001: Subscription Filters Leak User Interest
 
 **Severity**: MEDIUM
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts:74-119`
+**Location**: `/workspace/buildit/src/core/nostr/client.ts:74-119`
 
 **Description**:
 When subscribing to events, the client sends filter criteria to relays:
@@ -280,7 +280,7 @@ State-compromised relay logs all REQ messages. When user subscribes to `{ author
 ### MEDIUM-002: No Message Batching Implementation
 
 **Severity**: MEDIUM
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/conversationsStore.ts:526-584`
+**Location**: `/workspace/buildit/src/core/messaging/conversationsStore.ts:526-584`
 
 **Description**:
 Messages are published immediately when sent:
@@ -334,7 +334,7 @@ class MessageQueue {
 ### MEDIUM-003: Tor Support Not Actually Functional
 
 **Severity**: MEDIUM
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/modules/security/tor/`
+**Location**: `/workspace/buildit/src/modules/security/tor/`
 
 **Description**:
 While a Tor module exists (`torStore.ts`, `detection.ts`), it only:
@@ -376,7 +376,7 @@ User enables "Tor mode" thinking they're protected. Actually:
 ### MEDIUM-004: Profile Metadata Published with Real Timestamps
 
 **Severity**: MEDIUM
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/nostr/nip01.ts:88-107`
+**Location**: `/workspace/buildit/src/core/nostr/nip01.ts:88-107`
 
 **Description**:
 Profile metadata events use real timestamps:
@@ -407,7 +407,7 @@ Randomize timestamps for profile updates within reasonable window.
 ### MEDIUM-005: Passphrase Generation Uses Math.random()
 
 **Severity**: MEDIUM
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts:139-153`
+**Location**: `/workspace/buildit/src/core/crypto/keyManager.ts:139-153`
 
 **Description**:
 The `generatePassphrase()` function uses `Math.random()`:
@@ -548,7 +548,7 @@ Use `crypto.randomUUID()` for opaque, unpredictable IDs.
 ### INFO-001: Timestamp Randomization Window Documented as +/-2 Days
 
 **Severity**: Informational
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:7-13`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:7-13`
 
 **Description**:
 Timestamp randomization uses a +/-2 day window, which matches NIP-17 specification:
@@ -570,7 +570,7 @@ const twoDaysInSeconds = 2 * 24 * 60 * 60
 ### INFO-002: Ephemeral Keys Properly Implemented
 
 **Severity**: Informational
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:59-79`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:59-79`
 
 **Description**:
 Gift wrapping uses ephemeral keys correctly:
@@ -596,7 +596,7 @@ export function createGiftWrap(seal: Seal, recipientPubkey: string): GiftWrap {
 ### INFO-003: NIP-44 Encryption Delegated to nostr-tools
 
 **Severity**: Informational
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts`
+**Location**: `/workspace/buildit/src/core/crypto/nip44.ts`
 
 **Description**:
 Encryption uses `nostr-tools/nip44` which implements:

@@ -40,7 +40,7 @@ However, several findings require attention for state-actor threat model complia
 
 ### HIGH-01: Open Redirect via Form Settings
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/forms/components/PublicFormView/PublicFormView.tsx`
+**File**: `/workspace/buildit/src/modules/forms/components/PublicFormView/PublicFormView.tsx`
 **Line**: 70
 
 **Description**:
@@ -82,7 +82,7 @@ if (form.settings.redirectUrl && isSafeRedirectUrl(form.settings.redirectUrl)) {
 
 ### HIGH-02: RegExp Injection in Custom Fields
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/custom-fields/customFieldsManager.ts`
+**File**: `/workspace/buildit/src/modules/custom-fields/customFieldsManager.ts`
 **Line**: 152
 
 **Description**:
@@ -129,7 +129,7 @@ function createSafeRegExp(pattern: string, maxLength: number = 100): RegExp | nu
 
 ### HIGH-03: Theme CSS Path Injection
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/components/theme-provider.tsx`
+**File**: `/workspace/buildit/src/components/theme-provider.tsx`
 **Line**: 63
 
 **Description**:
@@ -209,10 +209,10 @@ Priority updates:
 **Files**: Multiple locations (69 instances found)
 
 **Key Locations**:
-- `/home/rikki/claude-workspace/buildit-network/src/modules/friends/components/AddFriendDialog.tsx:136`
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:130,135`
-- `/home/rikki/claude-workspace/buildit-network/src/core/storage/sync.ts:126,209,250,289,332`
-- `/home/rikki/claude-workspace/buildit-network/src/core/groupEntity/groupEntityStore.ts` (many)
+- `/workspace/buildit/src/modules/friends/components/AddFriendDialog.tsx:136`
+- `/workspace/buildit/src/core/crypto/nip17.ts:130,135`
+- `/workspace/buildit/src/core/storage/sync.ts:126,209,250,289,332`
+- `/workspace/buildit/src/core/groupEntity/groupEntityStore.ts` (many)
 
 **Description**:
 Multiple instances of `JSON.parse()` are used without schema validation. While some come from encrypted/trusted sources, others process external data:
@@ -253,7 +253,7 @@ const qrData = parsed.data;
 
 ### MEDIUM-02: Math.random() Usage in Non-Test Code
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/newsletters/newslettersStore.ts`
+**File**: `/workspace/buildit/src/modules/newsletters/newslettersStore.ts`
 **Lines**: 854, 857
 
 **Description**:
@@ -281,7 +281,7 @@ const delay = 100 + secureRandomInt(200);
 
 ### MEDIUM-03: Math.random() in Collaborative Editor
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/documents/components/TipTapEditor.tsx`
+**File**: `/workspace/buildit/src/modules/documents/components/TipTapEditor.tsx`
 **Line**: 78
 
 **Description**:
@@ -309,7 +309,7 @@ const getRandomColor = (): string => {
 
 ### MEDIUM-04: QR Code Data Without Signature Verification
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/modules/friends/components/AddFriendDialog.tsx`
+**File**: `/workspace/buildit/src/modules/friends/components/AddFriendDialog.tsx`
 **Lines**: 134-148
 
 **Description**:
@@ -355,7 +355,7 @@ const handleQRScan = async (data: string) => {
 
 ### MEDIUM-05: Link Preview URL Opens Without Validation
 
-**File**: `/home/rikki/claude-workspace/buildit-network/src/lib/linkPreview/LinkPreviewCard.tsx`
+**File**: `/workspace/buildit/src/lib/linkPreview/LinkPreviewCard.tsx`
 **Line**: 88
 
 **Description**:
@@ -396,8 +396,8 @@ const handleClick = () => {
 **Files**: Multiple (80+ instances)
 
 **Key Locations**:
-- `/home/rikki/claude-workspace/buildit-network/src/main.tsx` (startup logs)
-- `/home/rikki/claude-workspace/buildit-network/src/lib/modules/registry.ts` (module loading)
+- `/workspace/buildit/src/main.tsx` (startup logs)
+- `/workspace/buildit/src/lib/modules/registry.ts` (module loading)
 - Various error handlers
 
 **Description**:
@@ -416,8 +416,8 @@ Information disclosure that could aid attackers in understanding application int
 ### LOW-02: localStorage for Non-Sensitive Data
 
 **Files**:
-- `/home/rikki/claude-workspace/buildit-network/src/i18n/config.ts:35,52`
-- `/home/rikki/claude-workspace/buildit-network/src/components/theme-provider.tsx:39,43,92,100`
+- `/workspace/buildit/src/i18n/config.ts:35,52`
+- `/workspace/buildit/src/components/theme-provider.tsx:39,43,92,100`
 
 **Description**:
 localStorage is used for language and theme preferences, which is appropriate. However, these values are read without validation.
@@ -468,7 +468,7 @@ All 6 instances of `dangerouslySetInnerHTML` are properly protected with DOMPuri
 | `PublicPageRenderer.tsx` | 111 | `sanitizeHtml()` |
 | `PublicCampaignView.tsx` | 53 | `sanitizeHtml()` |
 
-The sanitization library at `/home/rikki/claude-workspace/buildit-network/src/lib/security/sanitize.ts` properly:
+The sanitization library at `/workspace/buildit/src/lib/security/sanitize.ts` properly:
 - Uses DOMPurify with strict allowlists
 - Blocks dangerous tags (script, style, iframe, form, etc.)
 - Blocks event handlers (onerror, onload, onclick, etc.)
@@ -492,7 +492,7 @@ The codebase contains:
 
 **Positive Finding**
 
-A strong CSP is configured in `/home/rikki/claude-workspace/buildit-network/public/_headers`:
+A strong CSP is configured in `/workspace/buildit/public/_headers`:
 
 ```
 Content-Security-Policy:

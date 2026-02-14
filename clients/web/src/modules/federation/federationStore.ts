@@ -7,7 +7,7 @@
 import { create } from 'zustand';
 import type { FederationConfig, FederationIdentityStatus, FederationInteraction } from './types';
 
-const FEDERATION_API_BASE = import.meta.env.VITE_FEDERATION_API_URL ?? 'https://buildit-federation.rikki-schulte.workers.dev';
+const FEDERATION_API_BASE = import.meta.env.VITE_FEDERATION_API_URL ?? 'https://federation.buildit.network';
 
 interface FederationState {
   // State

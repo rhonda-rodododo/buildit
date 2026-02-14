@@ -53,7 +53,7 @@ def main():
 
     # Fix each file
     for filepath, errors_list in file_errors.items():
-        path = Path('/home/rikki/claude-workspace/buildit-network') / filepath
+        path = Path('/workspace/buildit') / filepath
         if not path.exists():
             continue
 

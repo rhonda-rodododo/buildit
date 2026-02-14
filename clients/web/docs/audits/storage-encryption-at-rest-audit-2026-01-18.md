@@ -32,7 +32,7 @@ This audit focuses specifically on data storage security and encryption at rest 
 ### HIGH - Unencrypted Social Graph Indexes in IndexedDB
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/db.ts:187-192` and `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:65`
+**Component**: `/workspace/buildit/src/core/storage/db.ts:187-192` and `/workspace/buildit/src/core/storage/EncryptedDB.ts:65`
 **CWE**: CWE-312 (Cleartext Storage of Sensitive Information)
 
 **Description**:
@@ -85,7 +85,7 @@ The code explicitly acknowledges this limitation:
 ### HIGH - Master Key Extractable During Unlocked State
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:199`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:199`
 **CWE**: CWE-321 (Use of Hard-coded Cryptographic Key)
 
 **Description**:
@@ -133,7 +133,7 @@ The comment indicates this is needed for deriving the database key.
 ### HIGH - Incomplete Encryption Field Coverage
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:32-80`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:32-80`
 **CWE**: CWE-311 (Missing Encryption of Sensitive Data)
 
 **Description**:
@@ -186,7 +186,7 @@ export const ENCRYPTED_FIELDS: Record<string, string[]> = {
 ### MEDIUM - Test Mode Encryption Bypass
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:86-98`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:86-98`
 **CWE**: CWE-489 (Active Debug Code)
 
 **Description**:
@@ -230,7 +230,7 @@ While the check for `NODE_ENV === 'test'` provides some protection, the `testMod
 ### MEDIUM - Backup Export May Expose Sensitive Metadata
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts:98-135`
+**Component**: `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts:98-135`
 **CWE**: CWE-532 (Insertion of Sensitive Information into Log File)
 
 **Description**:
@@ -281,7 +281,7 @@ const backup: KeyBackup = {
 ### MEDIUM - Legacy Encryption Format Migration Exposes Keys Temporarily
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/migrations/secureKeys.ts:57-102`
+**Component**: `/workspace/buildit/src/core/storage/migrations/secureKeys.ts:57-102`
 **CWE**: CWE-311 (Missing Encryption of Sensitive Data)
 
 **Description**:
@@ -324,7 +324,7 @@ While the code does zero-fill after use (line 100), the key exists in plaintext 
 ### MEDIUM - No Integrity Verification for Encrypted Data
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts`
 **CWE**: CWE-354 (Improper Validation of Integrity Check Value)
 
 **Description**:
@@ -400,7 +400,7 @@ export function decryptObject<T extends Record<string, unknown>>(
 ### LOW - Console Logging in Production Code
 
 **Severity**: Low
-**Component**: Various files in `/home/rikki/claude-workspace/buildit-network/src/core/`
+**Component**: Various files in `/workspace/buildit/src/core/`
 **CWE**: CWE-532 (Insertion of Sensitive Information into Log File)
 
 **Description**:
@@ -459,7 +459,7 @@ grep -r "sessionStorage" src/
 ### INFORMATIONAL - LocalStorage Usage Limited to Non-Sensitive Data
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/theme-provider.tsx` and `/home/rikki/claude-workspace/buildit-network/src/i18n/config.ts`
+**Component**: `/workspace/buildit/src/components/theme-provider.tsx` and `/workspace/buildit/src/i18n/config.ts`
 
 **Description**:
 LocalStorage is used only for UI preferences:
@@ -520,7 +520,7 @@ privateKey.fill(0);
 ### INFORMATIONAL - PBKDF2 Parameters Compliant
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:21` and `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts:217-220`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:21` and `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts:217-220`
 
 **Description**:
 PBKDF2 parameters meet OWASP 2023 recommendations:
@@ -560,7 +560,7 @@ crypto.getRandomValues(salt);  // 128-bit salt
 ### INFORMATIONAL - Timing-Safe Comparison Implemented
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/utils.ts:86-105`
+**Component**: `/workspace/buildit/src/lib/utils.ts:86-105`
 
 **Description**:
 Timing-safe string comparison is properly implemented:
@@ -699,6 +699,6 @@ The implementation aligns with documented limitations:
 **Document Status**: Complete
 **Next Review**: After remediation of High findings
 **Related Documents**:
-- `/home/rikki/claude-workspace/buildit-network/PRIVACY.md`
-- `/home/rikki/claude-workspace/buildit-network/ENCRYPTION_STRATEGY.md`
-- `/home/rikki/claude-workspace/buildit-network/docs/audits/key-storage-security-audit-2026-01-18.md`
+- `/workspace/buildit/PRIVACY.md`
+- `/workspace/buildit/ENCRYPTION_STRATEGY.md`
+- `/workspace/buildit/docs/audits/key-storage-security-audit-2026-01-18.md`

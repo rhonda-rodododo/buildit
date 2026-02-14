@@ -28,7 +28,7 @@ actor LinkPreviewService {
     /// Get base URL for API calls (shared BuildIt API Worker)
     private var apiBaseURL: String {
         ProcessInfo.processInfo.environment["API_URL"]
-            ?? "https://buildit-api.rikki-schulte.workers.dev"
+            ?? "https://api.buildit.network"
     }
 
     // MARK: - Public API

@@ -75,14 +75,14 @@ Git worktrees allow multiple working directories from a single repository. Perfe
 
 ```bash
 # From main repo
-cd /home/rikki/claude-workspace/buildit-network
+cd /workspace/buildit
 
 # Create worktree in parallel directory
 git worktree add ../buildit-epic-28 -b epic-28
 
 # Now you have two working directories:
-# - /home/rikki/claude-workspace/buildit-network (main)
-# - /home/rikki/claude-workspace/buildit-epic-28 (epic-28 branch)
+# - /workspace/buildit (main)
+# - /workspace/buildit-epic-28 (epic-28 branch)
 ```
 
 ### Create Worktree for Epic 32
@@ -92,9 +92,9 @@ git worktree add ../buildit-epic-28 -b epic-28
 git worktree add ../buildit-epic-32 -b epic-32
 
 # Now you have three working directories:
-# - /home/rikki/claude-workspace/buildit-network (main)
-# - /home/rikki/claude-workspace/buildit-epic-28 (epic-28 branch)
-# - /home/rikki/claude-workspace/buildit-epic-32 (epic-32 branch)
+# - /workspace/buildit (main)
+# - /workspace/buildit-epic-28 (epic-28 branch)
+# - /workspace/buildit-epic-32 (epic-32 branch)
 ```
 
 ### Working in Worktrees
@@ -311,7 +311,7 @@ bun run build               # Verify build
 
 ```bash
 # Only deploy from main branch
-cd /home/rikki/claude-workspace/buildit-network
+cd /workspace/buildit
 git checkout main
 
 # Verify latest
@@ -329,7 +329,7 @@ bun run build
 ### Setup (5 minutes)
 
 ```bash
-cd /home/rikki/claude-workspace/buildit-network
+cd /workspace/buildit
 
 # Create two worktrees
 git worktree add ../buildit-epic-28 -b epic-28
@@ -338,9 +338,9 @@ git worktree add ../buildit-epic-32 -b epic-32
 # Verify
 git worktree list
 # Should show:
-# /home/rikki/claude-workspace/buildit-network  (main)
-# /home/rikki/claude-workspace/buildit-epic-28  (epic-28)
-# /home/rikki/claude-workspace/buildit-epic-32  (epic-32)
+# /workspace/buildit  (main)
+# /workspace/buildit-epic-28  (epic-28)
+# /workspace/buildit-epic-32  (epic-32)
 ```
 
 ### Execute (1-3 hours)
@@ -361,7 +361,7 @@ cd ../buildit-epic-32
 
 ```bash
 # Epic 28 finishes first (bug fixes are faster)
-cd /home/rikki/claude-workspace/buildit-network
+cd /workspace/buildit
 git checkout main
 git merge epic-28
 git tag v0.28.0-bugfixes

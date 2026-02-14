@@ -26,7 +26,7 @@ However, several areas require attention for state-actor resilience.
 ### MEDIUM - M001: Password Verification Timing Oracle via PBKDF2
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 **Lines**: 612-628
 
 **Description**:
@@ -103,7 +103,7 @@ public async verifyPassword(
 ### MEDIUM - M002: Device Fingerprint Hash Comparison Not Timing-Safe
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/device/DeviceFingerprintService.ts`
+**Component**: `/workspace/buildit/src/lib/device/DeviceFingerprintService.ts`
 **Lines**: 205-227
 
 **Description**:
@@ -144,7 +144,7 @@ public compareFingerprints(fp1: DeviceFingerprint, fp2: DeviceFingerprint): numb
 ### MEDIUM - M003: WebAuthn Credential ID Comparison Not Timing-Safe
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/WebAuthnService.ts`
+**Component**: `/workspace/buildit/src/lib/webauthn/WebAuthnService.ts`
 **Lines**: 301-308
 
 **Description**:
@@ -175,7 +175,7 @@ Use timing-safe comparison for credential ID verification.
 ### LOW - L001: Error Messages Reveal Operation Type
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 **Lines**: 350, 364, 371, 377, 491, 520, 647
 
 **Description**:
@@ -207,7 +207,7 @@ throw new Error('Authentication failed');
 ### LOW - L002: Early Returns in Validation Functions
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/keyManager.ts`
 **Lines**: 109-123, 127-135
 
 **Description**:
@@ -239,7 +239,7 @@ For high-security contexts, add constant-time padding. For current use case, ris
 ### LOW - L003: Rate Limiter Reveals Attempt Counts
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/rateLimit.ts`
+**Component**: `/workspace/buildit/src/lib/rateLimit.ts`
 **Lines**: 163-167
 
 **Description**:
@@ -267,7 +267,7 @@ Consider restricting this function to development/testing environments only.
 ### INFORMATIONAL - I001: Timing-Safe Equal Implementation Quality
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/utils.ts`
+**Component**: `/workspace/buildit/src/lib/utils.ts`
 **Lines**: 86-105
 
 **Description**:
@@ -316,7 +316,7 @@ return result === 0;
 ### INFORMATIONAL - I002: Checksum Verification Uses Timing-Safe Comparison
 
 **Severity**: Informational (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts`
+**Component**: `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts`
 **Lines**: 156-161
 
 **Description**:

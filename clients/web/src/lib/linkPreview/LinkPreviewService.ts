@@ -41,7 +41,7 @@ const CACHE_TTL = 15 * 60 * 1000 // 15 minutes
  * Points to the BuildIt API Worker (shared across all platforms)
  */
 function getApiBaseUrl(): string {
-  return import.meta.env.VITE_API_URL || 'https://buildit-api.rikki-schulte.workers.dev'
+  return import.meta.env.VITE_API_URL || 'https://api.buildit.network'
 }
 
 /**

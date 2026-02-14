@@ -25,13 +25,13 @@ This audit evaluates the supply chain security posture of BuildIt Network, focus
 ## Scope
 
 ### In-Scope
-- `/home/rikki/claude-workspace/buildit-network/package.json` - Dependency declarations
-- `/home/rikki/claude-workspace/buildit-network/bun.lock` - Locked dependencies
-- `/home/rikki/claude-workspace/buildit-network/vite.config.ts` - Build configuration
-- `/home/rikki/claude-workspace/buildit-network/index.html` - Entry HTML
-- `/home/rikki/claude-workspace/buildit-network/wrangler.toml` - Cloudflare Pages config
-- `/home/rikki/claude-workspace/buildit-network/functions/` - Edge functions
-- `/home/rikki/claude-workspace/buildit-network/src/` - Application source
+- `/workspace/buildit/package.json` - Dependency declarations
+- `/workspace/buildit/bun.lock` - Locked dependencies
+- `/workspace/buildit/vite.config.ts` - Build configuration
+- `/workspace/buildit/index.html` - Entry HTML
+- `/workspace/buildit/wrangler.toml` - Cloudflare Pages config
+- `/workspace/buildit/functions/` - Edge functions
+- `/workspace/buildit/src/` - Application source
 
 ### Out-of-Scope
 - Runtime relay security
@@ -45,7 +45,7 @@ This audit evaluates the supply chain security posture of BuildIt Network, focus
 ### CRITICAL-01: No Content Security Policy (CSP) Configured
 
 **Severity**: Critical
-**Component**: `/home/rikki/claude-workspace/buildit-network/index.html`, Cloudflare Pages configuration
+**Component**: `/workspace/buildit/index.html`, Cloudflare Pages configuration
 **CVSS Score**: 8.0
 
 **Description**:
@@ -72,7 +72,7 @@ The application has no Content Security Policy headers configured. The PRIVACY.m
 - Total platform compromise
 
 **Remediation**:
-Create `/home/rikki/claude-workspace/buildit-network/public/_headers` with strict CSP:
+Create `/workspace/buildit/public/_headers` with strict CSP:
 ```
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss://*.damus.io wss://*.nos.lol https://api.coingecko.com; frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self'
@@ -89,7 +89,7 @@ Create `/home/rikki/claude-workspace/buildit-network/public/_headers` with stric
 ### CRITICAL-02: Dependency Vulnerabilities - Critical Severity
 
 **Severity**: Critical
-**Component**: `/home/rikki/claude-workspace/buildit-network/package.json`
+**Component**: `/workspace/buildit/package.json`
 
 **Description**:
 `bun audit` reveals 3 critical vulnerabilities:
@@ -125,12 +125,12 @@ bun update jspdf --latest
 **CVSS Score**: 7.5
 
 **Affected Files**:
-1. `/home/rikki/claude-workspace/buildit-network/src/modules/publishing/components/ArticleView.tsx:160`
-2. `/home/rikki/claude-workspace/buildit-network/src/modules/documents/extensions/MathBlock.tsx:106`
-3. `/home/rikki/claude-workspace/buildit-network/src/modules/documents/extensions/MathBlock.tsx:136`
-4. `/home/rikki/claude-workspace/buildit-network/src/modules/public/components/PublicPages/PublicPageRenderer.tsx:110`
-5. `/home/rikki/claude-workspace/buildit-network/src/modules/public/components/PublicPages/PublicPageEditor.tsx:324`
-6. `/home/rikki/claude-workspace/buildit-network/src/modules/fundraising/components/PublicCampaignView/PublicCampaignView.tsx:52`
+1. `/workspace/buildit/src/modules/publishing/components/ArticleView.tsx:160`
+2. `/workspace/buildit/src/modules/documents/extensions/MathBlock.tsx:106`
+3. `/workspace/buildit/src/modules/documents/extensions/MathBlock.tsx:136`
+4. `/workspace/buildit/src/modules/public/components/PublicPages/PublicPageRenderer.tsx:110`
+5. `/workspace/buildit/src/modules/public/components/PublicPages/PublicPageEditor.tsx:324`
+6. `/workspace/buildit/src/modules/fundraising/components/PublicCampaignView/PublicCampaignView.tsx:52`
 
 **Description**:
 User-generated or third-party content is rendered using `dangerouslySetInnerHTML` without DOMPurify sanitization. The project documentation acknowledges this risk but DOMPurify is not installed or used.
@@ -172,7 +172,7 @@ export function sanitizeHtml(html: string): string {
 ### HIGH-02: Math.random() Used for Security-Relevant Timestamp Randomization
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:11`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts:11`
 **CVSS Score**: 6.5
 
 **Description**:
@@ -216,7 +216,7 @@ function randomizeTimestamp(baseTime: number = Date.now()): number {
 ### HIGH-03: Multiple High-Severity Dependency Vulnerabilities
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/package.json`
+**Component**: `/workspace/buildit/package.json`
 
 **Vulnerable Dependencies**:
 
@@ -248,7 +248,7 @@ Or add resolutions to package.json for specific packages.
 ### HIGH-04: Custom Sanitization is Insufficient
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/embed/utils.ts:167-191`
+**Component**: `/workspace/buildit/src/lib/embed/utils.ts:167-191`
 
 **Description**:
 A custom `sanitizeEmbedHtml()` function attempts to sanitize oEmbed HTML responses using regex-based filtering:
@@ -301,7 +301,7 @@ export function sanitizeEmbedHtml(html: string): string {
 **Description**:
 The PRIVACY.md claims SRI is implemented, but there is no evidence of SRI in the build configuration. The service worker caches CDN assets without integrity verification:
 
-From `/home/rikki/claude-workspace/buildit-network/vite.config.ts:100-109`:
+From `/workspace/buildit/vite.config.ts:100-109`:
 ```typescript
 {
   urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
@@ -336,7 +336,7 @@ From `/home/rikki/claude-workspace/buildit-network/vite.config.ts:100-109`:
 **Description**:
 Extensive console logging throughout the codebase. While most are informational, some could leak sensitive debugging information:
 
-Sample from `/home/rikki/claude-workspace/buildit-network/src/main.tsx`:
+Sample from `/workspace/buildit/src/main.tsx`:
 ```typescript
 console.info("Step 5: Loading identities...");
 console.error("Failed to initialize app:", error);
@@ -362,7 +362,7 @@ console.error("  Error stack:", error.stack);
 ### MEDIUM-03: SSRF Risk in Link Preview Function
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/functions/api/link-preview.ts`
+**Component**: `/workspace/buildit/functions/api/link-preview.ts`
 
 **Description**:
 The link preview edge function fetches arbitrary HTTPS URLs provided by users:
@@ -390,7 +390,7 @@ While only HTTPS is allowed, the function could be used for:
 ### MEDIUM-04: Wide CORS Policy on API Functions
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/functions/api/link-preview.ts:282-286`
+**Component**: `/workspace/buildit/functions/api/link-preview.ts:282-286`
 
 **Description**:
 ```typescript
@@ -423,7 +423,7 @@ const corsOrigin = allowedOrigins.includes(origin) ? origin : 'null'
 ### LOW-01: Weak Passphrase Generation
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts:139-153`
+**Component**: `/workspace/buildit/src/core/crypto/keyManager.ts:139-153`
 
 **Description**:
 ```typescript
@@ -463,7 +463,7 @@ export function generatePassphrase(): string {
 ### LOW-02: preconnect Without Integrity
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/index.html:11-14`
+**Component**: `/workspace/buildit/index.html:11-14`
 
 **Description**:
 ```html

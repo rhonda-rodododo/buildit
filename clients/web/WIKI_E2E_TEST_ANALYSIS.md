@@ -1,7 +1,7 @@
 # Wiki Module E2E Test Coverage Analysis
 
 ## Test File Created
-**Location**: `/home/rikki/claude-workspace/buildit-network/tests/e2e/wiki.spec.ts`
+**Location**: `/workspace/buildit/tests/e2e/wiki.spec.ts`
 
 ## Test Coverage Summary
 

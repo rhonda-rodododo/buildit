@@ -35,7 +35,7 @@ crons = ["0 3 * * *"]
 [vars]
 ENVIRONMENT = "production"
 RELAY_PUBKEY = "dfd7fc964c1e368bd90660bedf7104bcb181963282752ee99105941ce07750d0"
-RELAY_CONTACT = "rikki.schulte@gmail.com"
+RELAY_CONTACT = "rerooting@riseup.net"
 
 # Development environment
 [env.dev]

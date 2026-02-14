@@ -28,7 +28,7 @@ BuildIt Network implements a reasonable encryption-at-rest architecture with PBK
 ### CRITICAL - Math.random() Used in NIP-17 Timestamp Randomization
 
 **Severity**: Critical
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:11`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts:11`
 **CWE**: CWE-330 (Use of Insufficiently Random Values)
 
 **Description**:
@@ -71,7 +71,7 @@ function randomizeTimestamp(baseTime: number = Date.now()): number {
 ### HIGH - Passphrase Generator Uses Math.random()
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts:140-153`
+**Component**: `/workspace/buildit/src/core/crypto/keyManager.ts:140-153`
 **CWE**: CWE-330 (Use of Insufficiently Random Values)
 
 **Description**:
@@ -115,7 +115,7 @@ An adversary who knows the seed state of `Math.random()` (which can be extracted
 ### HIGH - Decrypted Private Keys Persist in Memory Until Lock
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:87-92`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:87-92`
 **CWE**: CWE-316 (Cleartext Storage of Sensitive Information in Memory)
 
 **Description**:
@@ -155,7 +155,7 @@ Device seized while unlocked at border checkpoint. Adversary:
 ### HIGH - No Forward Secrecy for Historical Messages
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/ENCRYPTION_STRATEGY.md`
+**Component**: `/workspace/buildit/ENCRYPTION_STRATEGY.md`
 **CWE**: CWE-326 (Inadequate Encryption Strength)
 
 **Description**:
@@ -196,7 +196,7 @@ Adversary seizes device, extracts private key, then decrypts:
 ### HIGH - Encrypted Data in IndexedDB Vulnerable to Offline Brute Force
 
 **Severity**: High
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:21`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:21`
 **CWE**: CWE-916 (Use of Password Hash With Insufficient Computational Effort)
 
 **Description**:
@@ -265,7 +265,7 @@ User installs a browser extension (e.g., "free VPN", "ad blocker") that contains
 ### MEDIUM - WebAuthn Implementation Incomplete for Password Protection
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:376-377`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:376-377`
 **CWE**: CWE-306 (Missing Authentication for Critical Function)
 
 **Description**:
@@ -300,7 +300,7 @@ public async unlockWithWebAuthn(
 ### MEDIUM - Test Mode Can Bypass Encryption
 
 **Severity**: Medium
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:83-89`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:83-89`
 **CWE**: CWE-489 (Active Debug Code)
 
 **Description**:
@@ -334,7 +334,7 @@ export function enableTestMode(): void {
 ### MEDIUM - Math.random() Used Throughout Application for IDs
 
 **Severity**: Medium
-**Component**: Multiple files in `/home/rikki/claude-workspace/buildit-network/src/`
+**Component**: Multiple files in `/workspace/buildit/src/`
 **CWE**: CWE-330 (Use of Insufficiently Random Values)
 
 **Description**:
@@ -393,7 +393,7 @@ const id = crypto.randomUUID(); // Returns UUID v4
 ### LOW - Session Timeout Default May Be Too Long
 
 **Severity**: Low
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/sessionTimeout.ts:19-22`
+**Component**: `/workspace/buildit/src/lib/sessionTimeout.ts:19-22`
 **CWE**: CWE-613 (Insufficient Session Expiration)
 
 **Description**:
@@ -475,7 +475,7 @@ Consider implementing:
 ### INFORMATIONAL - Key Export Always Requires Password
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/security/LockSettings.tsx:351-358`
+**Component**: `/workspace/buildit/src/components/security/LockSettings.tsx:351-358`
 
 **Description**:
 The key export feature always requires password verification and this setting is hardcoded:
@@ -497,7 +497,7 @@ The key export feature always requires password verification and this setting is
 ### INFORMATIONAL - Memory Clearing Implemented
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:383-404`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:383-404`
 
 **Description**:
 The `lock()` method properly zero-fills sensitive data:
@@ -528,7 +528,7 @@ public lock(): void {
 ### INFORMATIONAL - Encrypted Key Storage Format
 
 **Severity**: Informational
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:48-59`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:48-59`
 
 **Description**:
 The encrypted key storage format is well-designed:
@@ -625,5 +625,5 @@ However, the use of `Math.random()` for cryptographic operations violates securi
 **Document Status**: Complete
 **Next Review**: After remediation of Critical and High findings
 **Related Documents**:
-- `/home/rikki/claude-workspace/buildit-network/PRIVACY.md`
-- `/home/rikki/claude-workspace/buildit-network/ENCRYPTION_STRATEGY.md`
+- `/workspace/buildit/PRIVACY.md`
+- `/workspace/buildit/ENCRYPTION_STRATEGY.md`

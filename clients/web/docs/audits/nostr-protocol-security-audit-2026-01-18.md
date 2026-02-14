@@ -30,31 +30,31 @@ This security audit examined the Nostr protocol implementation in BuildIt Networ
 ### Files Reviewed
 
 **Core Nostr Implementation**:
-- `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/nostr/nip01.ts`
+- `/workspace/buildit/src/core/nostr/client.ts`
+- `/workspace/buildit/src/core/nostr/nip01.ts`
 
 **Encryption Layer**:
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip51.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+- `/workspace/buildit/src/core/crypto/nip17.ts`
+- `/workspace/buildit/src/core/crypto/nip44.ts`
+- `/workspace/buildit/src/core/crypto/nip51.ts`
+- `/workspace/buildit/src/core/crypto/keyManager.ts`
+- `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 
 **Transport Layer**:
-- `/home/rikki/claude-workspace/buildit-network/src/core/transport/NostrRelayAdapter.ts`
+- `/workspace/buildit/src/core/transport/NostrRelayAdapter.ts`
 
 **Message Handling**:
-- `/home/rikki/claude-workspace/buildit-network/src/core/messaging/dm.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+- `/workspace/buildit/src/core/messaging/dm.ts`
+- `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 
 **Storage and Auth**:
-- `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/core/storage/encryption.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/stores/authStore.ts`
+- `/workspace/buildit/src/core/storage/EncryptedDB.ts`
+- `/workspace/buildit/src/core/storage/encryption.ts`
+- `/workspace/buildit/src/stores/authStore.ts`
 
 **Supporting Files**:
-- `/home/rikki/claude-workspace/buildit-network/src/lib/utils.ts`
-- `/home/rikki/claude-workspace/buildit-network/src/types/nostr.ts`
+- `/workspace/buildit/src/lib/utils.ts`
+- `/workspace/buildit/src/types/nostr.ts`
 
 ---
 
@@ -63,7 +63,7 @@ This security audit examined the Nostr protocol implementation in BuildIt Networ
 ### HIGH-001: Missing Event Signature Verification on Received Messages
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+**Component**: `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 **Lines**: 86-134
 
 **Description**:
@@ -114,7 +114,7 @@ private async handleGiftWrap(event: NostrEvent): Promise<void> {
 ### HIGH-002: Sender Identity Not Properly Extracted from Seal
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/dm.ts`
+**Component**: `/workspace/buildit/src/core/messaging/dm.ts`
 **Lines**: 44-78
 
 **Description**:
@@ -164,7 +164,7 @@ export function unwrapGiftWrap(
 ### MEDIUM-001: Subscription Filters May Leak User Interest Patterns
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts`
+**Component**: `/workspace/buildit/src/core/nostr/client.ts`
 **Lines**: 75-120
 
 **Description**:
@@ -204,7 +204,7 @@ Consider implementing:
 ### MEDIUM-002: JSON.parse Without Schema Validation on Decrypted Content
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts`
 **Lines**: 130-135
 
 **Description**:
@@ -250,8 +250,8 @@ const seal = SealSchema.parse(JSON.parse(sealJson));
 **Severity**: MEDIUM
 **Component**: Multiple test files and one production file
 **Files**:
-- `/home/rikki/claude-workspace/buildit-network/src/modules/newsletters/newslettersStore.ts:854-857`
-- `/home/rikki/claude-workspace/buildit-network/src/modules/documents/components/TipTapEditor.tsx:78`
+- `/workspace/buildit/src/modules/newsletters/newslettersStore.ts:854-857`
+- `/workspace/buildit/src/modules/documents/components/TipTapEditor.tsx:78`
 
 **Description**:
 While security-critical code correctly uses `crypto.getRandomValues()`, some production code still uses `Math.random()`. Although these specific uses may not be security-critical, using weak randomness anywhere creates precedent and potential for copy-paste errors.
@@ -291,7 +291,7 @@ if (secureRandomInt(100) < 5) {
 
 **Severity**: MEDIUM
 **Component**: Multiple files throughout `src/core/`
-**Example**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts:49`
+**Example**: `/workspace/buildit/src/core/messaging/messageReceiver.ts:49`
 
 **Description**:
 Console logs include truncated pubkeys which, while seemingly innocuous, can be captured by malicious browser extensions or diagnostic tools and used for correlation attacks.
@@ -354,7 +354,7 @@ bun update --latest
 ### LOW-001: Relay URLs Hardcoded Without Certificate Pinning
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts`
+**Component**: `/workspace/buildit/src/core/nostr/client.ts`
 **Lines**: 244-247
 
 **Description**:
@@ -387,7 +387,7 @@ const defaultRelays: RelayConfig[] = relays || [
 ### LOW-002: No Event ID Verification Against Content Hash
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+**Component**: `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 
 **Description**:
 Incoming events are processed without verifying that the event ID matches the SHA-256 hash of the serialized event content (as per NIP-01). While nostr-tools handles this internally, explicit verification provides defense in depth.
@@ -416,7 +416,7 @@ function verifyEventId(event: NostrEvent): boolean {
 ### LOW-003: testModeEnabled Bypass in EncryptedDB
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts`
+**Component**: `/workspace/buildit/src/core/storage/EncryptedDB.ts`
 **Lines**: 92-98
 
 **Description**:
@@ -461,7 +461,7 @@ export function enableTestMode(): void {
 ### LOW-004: Timing Information in Error Messages
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 
 **Description**:
 Error messages and timing of operations may leak information about key existence or validation status.
@@ -484,7 +484,7 @@ Use constant-time operations and uniform error messages:
 ### INFO-001: Strong Cryptographic Randomness Implementation
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts`
 
 **Description**:
 The `secureRandomInt` function correctly implements rejection sampling to avoid modulo bias when generating random numbers, using `crypto.getRandomValues()` as the entropy source.
@@ -510,7 +510,7 @@ export function secureRandomInt(max: number): number {
 ### INFO-002: Proper Timestamp Randomization for Metadata Protection
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts`
 
 **Description**:
 Timestamp randomization uses a 2-day window as specified by NIP-17, with cryptographically secure randomness. This provides strong protection against timing correlation attacks.
@@ -531,7 +531,7 @@ export function randomizeTimestamp(baseTime: number = Date.now()): number {
 ### INFO-003: Application-Layer Message Padding
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip44.ts`
 
 **Description**:
 The application adds an additional random padding layer (16-64 bytes) on top of NIP-44's standard padding. This provides defense-in-depth against traffic analysis.
@@ -543,7 +543,7 @@ The application adds an additional random padding layer (16-64 bytes) on top of 
 ### INFO-004: Timing-Safe Comparison Function Available
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/lib/utils.ts`
+**Component**: `/workspace/buildit/src/lib/utils.ts`
 
 **Description**:
 A properly implemented timing-safe string comparison function is available for use throughout the codebase.
@@ -570,7 +570,7 @@ export function timingSafeEqual(a: string, b: string): boolean {
 ### INFO-005: PBKDF2 with Strong Parameters
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 
 **Description**:
 Key derivation uses PBKDF2 with 600,000 iterations (OWASP 2023 recommendation) and SHA-256.
@@ -587,7 +587,7 @@ const PBKDF2_ITERATIONS = 600_000;
 ### INFO-006: Key Zeroing on Lock
 
 **Severity**: INFORMATIONAL (Positive Finding)
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts`
+**Component**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts`
 
 **Description**:
 When the app locks, decrypted keys are zero-filled before being cleared from memory.

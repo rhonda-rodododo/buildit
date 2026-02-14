@@ -40,7 +40,7 @@ class LinkPreviewService @Inject constructor() {
 
     private val apiBaseUrl: String
         get() = System.getenv("API_URL")
-            ?: "https://buildit-api.rikki-schulte.workers.dev"
+            ?: "https://api.buildit.network"
 
     private val cache = mutableMapOf<String, CachedPreview>()
     private val cacheTtlMs = 15 * 60 * 1000L // 15 minutes

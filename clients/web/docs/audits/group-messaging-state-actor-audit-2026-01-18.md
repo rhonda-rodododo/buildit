@@ -27,7 +27,7 @@ This audit examines the group management and messaging subsystems of BuildIt Net
 ### CRITICAL-001: Missing Signature Verification on Incoming Messages
 
 **Severity**: CRITICAL
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+**Component**: `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 **Lines**: 86-135
 
 **Description**:
@@ -69,7 +69,7 @@ if (!verifyEventSignature(event)) {
 ### CRITICAL-002: Group Key Distribution Without Cryptographic Binding
 
 **Severity**: CRITICAL
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts`
+**Component**: `/workspace/buildit/src/stores/groupsStore.ts`
 **Lines**: 81-92
 
 **Description**:
@@ -106,7 +106,7 @@ Without proper key distribution:
 ### HIGH-001: Client-Side Authorization Only for Member Management
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/groups/GroupMembersTab.tsx`
+**Component**: `/workspace/buildit/src/components/groups/GroupMembersTab.tsx`
 **Lines**: 65, 91-103, 105-116
 
 **Description**:
@@ -143,7 +143,7 @@ const handleRoleChange = async (member: DBGroupMember, newRole: MemberRole) => {
 ### HIGH-002: Sender Identity Not Properly Extracted from NIP-17
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+**Component**: `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 **Lines**: 140-156
 
 **Description**:
@@ -177,7 +177,7 @@ const { rumor, senderPubkey } = unwrapGiftWrap(giftWrap, privateKey);
 ### HIGH-003: Invite Token Predictability
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/components/groups/MemberInviteDialog.tsx`
+**Component**: `/workspace/buildit/src/components/groups/MemberInviteDialog.tsx`
 **Lines**: 78-83
 
 **Description**:
@@ -188,7 +188,7 @@ Invite codes are generated using `nanoid(12).toUpperCase()` which has only ~62 b
 const code = nanoid(12).toUpperCase()
 ```
 
-Additionally, in `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts` (lines 304-306), the alternative method uses truncated hex:
+Additionally, in `/workspace/buildit/src/stores/groupsStore.ts` (lines 304-306), the alternative method uses truncated hex:
 ```typescript
 const code = !inviteePubkey
   ? bytesToHex(generateSecretKey()).slice(0, 16)
@@ -214,7 +214,7 @@ const code = !inviteePubkey
 ### HIGH-004: No Replay Protection Beyond In-Memory Deduplication
 
 **Severity**: HIGH
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/messageReceiver.ts`
+**Component**: `/workspace/buildit/src/core/messaging/messageReceiver.ts`
 **Lines**: 22-26, 88-99
 
 **Description**:
@@ -253,7 +253,7 @@ if (processedEvents.size > MAX_PROCESSED_EVENTS) {
 ### MEDIUM-001: Group Thread Messages Not NIP-17 Wrapped
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/messaging/groupThread.ts`
+**Component**: `/workspace/buildit/src/core/messaging/groupThread.ts`
 **Lines**: 52-85
 
 **Description**:
@@ -290,7 +290,7 @@ Apply full NIP-17 gift wrapping to group messages, sending individual wrapped co
 ### MEDIUM-002: Admin Pubkeys Array Can Be Manipulated Locally
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts`
+**Component**: `/workspace/buildit/src/stores/groupsStore.ts`
 **Lines**: 417-440
 
 **Description**:
@@ -325,7 +325,7 @@ Publish signed kind 39002 events for all role changes and verify them on receipt
 ### MEDIUM-003: Message Ordering Relies on Randomized Timestamps
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip17.ts`
 **Lines**: 26-29
 
 **Description**:
@@ -359,7 +359,7 @@ This is a documented trade-off. Consider:
 ### MEDIUM-004: Last Admin Removal Check Byppassable
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts`
+**Component**: `/workspace/buildit/src/stores/groupsStore.ts`
 **Lines**: 448-450
 
 **Description**:
@@ -388,7 +388,7 @@ Implement cryptographic consensus for admin removal with multi-signature verific
 ### MEDIUM-005: Group Metadata Visible in Event Tags
 
 **Severity**: MEDIUM
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/groups/groupManager.ts`
+**Component**: `/workspace/buildit/src/core/groups/groupManager.ts`
 **Lines**: 33-45
 
 **Description**:
@@ -422,8 +422,8 @@ Encrypt group metadata or use NIP-17 for group admin events.
 **Severity**: LOW
 **Component**: Multiple test files and one UI component
 **Files**:
-- `/home/rikki/claude-workspace/buildit-network/src/modules/newsletters/newslettersStore.ts:854,857`
-- `/home/rikki/claude-workspace/buildit-network/src/modules/documents/components/TipTapEditor.tsx:78`
+- `/workspace/buildit/src/modules/newsletters/newslettersStore.ts:854,857`
+- `/workspace/buildit/src/modules/documents/components/TipTapEditor.tsx:78`
 
 **Description**:
 `Math.random()` is used in non-cryptographic contexts (UI randomization, test timeouts). The security tests correctly verify that crypto code does NOT use Math.random.
@@ -478,7 +478,7 @@ Pin secure versions of critical dependencies. Most vulnerabilities are in develo
 ### LOW-003: Console Logging in Crypto Code
 
 **Severity**: LOW
-**Component**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts`
+**Component**: `/workspace/buildit/src/core/crypto/nip44.ts`
 **Line**: 57
 
 **Description**:

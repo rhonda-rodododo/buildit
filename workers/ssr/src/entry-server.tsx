@@ -254,7 +254,7 @@ export default createServerEntry({
     if (url.pathname === '/.well-known/webfinger' || url.pathname.startsWith('/.well-known/nodeinfo')) {
       try {
         const federationUrl = new URL(request.url);
-        federationUrl.hostname = 'buildit-federation.rikki-schulte.workers.dev';
+        federationUrl.hostname = 'federation.buildit.network';
         const res = await fetch(federationUrl.toString(), {
           method: request.method,
           headers: request.headers,

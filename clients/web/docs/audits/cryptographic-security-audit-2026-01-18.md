@@ -18,15 +18,15 @@ This audit examines the cryptographic implementation of BuildIt Network, a priva
 ## Scope
 
 ### Components Audited
-1. `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts` - NIP-17 gift wrap implementation
-2. `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts` - NIP-44 encryption wrapper
-3. `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts` - Key generation and management
-4. `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts` - Secure key storage
-5. `/home/rikki/claude-workspace/buildit-network/src/core/storage/encryption.ts` - Database encryption layer
-6. `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts` - Local encryption
-7. `/home/rikki/claude-workspace/buildit-network/src/lib/media/mediaEncryption.ts` - Media file encryption
-8. `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts` - WebAuthn key protection
-9. `/home/rikki/claude-workspace/buildit-network/src/lib/rateLimit.ts` - Rate limiting
+1. `/workspace/buildit/src/core/crypto/nip17.ts` - NIP-17 gift wrap implementation
+2. `/workspace/buildit/src/core/crypto/nip44.ts` - NIP-44 encryption wrapper
+3. `/workspace/buildit/src/core/crypto/keyManager.ts` - Key generation and management
+4. `/workspace/buildit/src/core/crypto/SecureKeyManager.ts` - Secure key storage
+5. `/workspace/buildit/src/core/storage/encryption.ts` - Database encryption layer
+6. `/workspace/buildit/src/core/storage/EncryptedDB.ts` - Local encryption
+7. `/workspace/buildit/src/lib/media/mediaEncryption.ts` - Media file encryption
+8. `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts` - WebAuthn key protection
+9. `/workspace/buildit/src/lib/rateLimit.ts` - Rate limiting
 
 ### Methodology
 - Static code analysis
@@ -42,7 +42,7 @@ This audit examines the cryptographic implementation of BuildIt Network, a priva
 ### CRITICAL-001: Weak Randomness in Timestamp Obfuscation
 
 **Severity**: Critical
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:11`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:11`
 
 ```typescript
 const randomOffset = Math.floor(Math.random() * twoDaysInSeconds) - twoDaysInSeconds / 2
@@ -74,7 +74,7 @@ function randomizeTimestamp(baseTime: number = Date.now()): number {
 ### CRITICAL-002: Weak Passphrase Generation Uses Math.random()
 
 **Severity**: Critical
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/keyManager.ts:139-153`
+**Location**: `/workspace/buildit/src/core/crypto/keyManager.ts:139-153`
 
 ```typescript
 export function generatePassphrase(wordCount: number = 12): string {
@@ -130,7 +130,7 @@ export function generatePassphrase(wordCount: number = 12): string {
 ### HIGH-001: Static Salt in ProtectedKeyStorage PBKDF2
 
 **Severity**: High
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts:193`
+**Location**: `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts:193`
 
 ```typescript
 salt: encoder.encode('BuildItNetwork'), // In production, use unique salt per user
@@ -161,7 +161,7 @@ private async deriveEncryptionKey(password: string, salt?: Uint8Array): Promise<
 ### HIGH-002: Insufficient PBKDF2 Iterations in ProtectedKeyStorage
 
 **Severity**: High
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts:195`
+**Location**: `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts:195`
 
 ```typescript
 iterations: 100000,
@@ -184,7 +184,7 @@ iterations: 100000,
 ### HIGH-003: Weak Hash Function for Local Encryption Key Derivation
 
 **Severity**: High
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:137-156`
+**Location**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:137-156`
 
 ```typescript
 function hashToFakePublicKey(input: string): string {
@@ -254,7 +254,7 @@ async function hashToFakePublicKey(input: string): Promise<string> {
 ### MEDIUM-001: No Nonce Reuse Prevention Verification
 
 **Severity**: Medium
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip44.ts`
+**Location**: `/workspace/buildit/src/core/crypto/nip44.ts`
 
 **Description**: The NIP-44 implementation relies on nostr-tools for nonce generation. While nostr-tools likely generates random nonces correctly, there's no explicit verification or documentation that nonce reuse is prevented.
 
@@ -276,7 +276,7 @@ async function hashToFakePublicKey(input: string): Promise<string> {
 ### MEDIUM-002: Test Mode Bypasses Encryption
 
 **Severity**: Medium
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:83-89`
+**Location**: `/workspace/buildit/src/core/storage/EncryptedDB.ts:83-89`
 
 ```typescript
 export function enableTestMode(): void {
@@ -309,10 +309,10 @@ export function enableTestMode(): void {
 **Location**: Multiple files using `Math.random()` for IDs
 
 Examples:
-- `/home/rikki/claude-workspace/buildit-network/src/lib/utils.ts:15`
-- `/home/rikki/claude-workspace/buildit-network/src/modules/friends/friendsStore.ts:88`
-- `/home/rikki/claude-workspace/buildit-network/src/core/nostr/client.ts:79`
-- `/home/rikki/claude-workspace/buildit-network/src/stores/groupsStore.ts:308`
+- `/workspace/buildit/src/lib/utils.ts:15`
+- `/workspace/buildit/src/modules/friends/friendsStore.ts:88`
+- `/workspace/buildit/src/core/nostr/client.ts:79`
+- `/workspace/buildit/src/stores/groupsStore.ts:308`
 
 **Description**: Many IDs are generated using `Math.random().toString(36).substring()` patterns. While these are not cryptographic keys, predictable IDs can enable enumeration attacks.
 
@@ -335,9 +335,9 @@ Examples:
 **Location**: Multiple files
 
 Examples:
-- `/home/rikki/claude-workspace/buildit-network/src/lib/webauthn/ProtectedKeyStorage.ts:332` - logs key rotation failures
-- `/home/rikki/claude-workspace/buildit-network/src/core/storage/EncryptedDB.ts:86` - logs test mode status
-- `/home/rikki/claude-workspace/buildit-network/src/core/storage/encryption.ts:299` - logs encryption hook setup
+- `/workspace/buildit/src/lib/webauthn/ProtectedKeyStorage.ts:332` - logs key rotation failures
+- `/workspace/buildit/src/core/storage/EncryptedDB.ts:86` - logs test mode status
+- `/workspace/buildit/src/core/storage/encryption.ts:299` - logs encryption hook setup
 
 **Description**: While no private keys are logged, various console.log/console.info statements exist for encryption operations that could leak metadata about security operations.
 
@@ -360,8 +360,8 @@ Examples:
 
 **Severity**: Medium
 **Location**:
-- `/home/rikki/claude-workspace/buildit-network/src/i18n/config.ts:52`
-- `/home/rikki/claude-workspace/buildit-network/src/components/theme-provider.tsx:92,100`
+- `/workspace/buildit/src/i18n/config.ts:52`
+- `/workspace/buildit/src/components/theme-provider.tsx:92,100`
 
 **Description**: localStorage is used for language and theme preferences. While not sensitive, this usage pattern could normalize localStorage usage and lead to future mistakes.
 
@@ -404,7 +404,7 @@ Examples:
 ### LOW-002: No Signature Verification on Decryption
 
 **Severity**: Low
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:106-121`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:106-121`
 
 **Description**: The `unwrapGiftWrap` function decrypts messages but doesn't explicitly verify the signature chain. While nostr-tools may handle this, explicit verification should be documented.
 
@@ -445,7 +445,7 @@ Examples:
 ### INFO-001: Strong PBKDF2 Implementation in SecureKeyManager
 
 **Severity**: Informational (Positive Finding)
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:21`
+**Location**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:21`
 
 ```typescript
 const PBKDF2_ITERATIONS = 600_000;
@@ -460,7 +460,7 @@ const PBKDF2_ITERATIONS = 600_000;
 ### INFO-002: Proper Key Zeroing on Lock
 
 **Severity**: Informational (Positive Finding)
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:386-390`
+**Location**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:386-390`
 
 ```typescript
 // Zero-fill all decrypted keys in memory
@@ -478,7 +478,7 @@ for (const [_key, privateKey] of this.decryptedKeys) {
 ### INFO-003: Proper Ephemeral Key Usage in NIP-17
 
 **Severity**: Informational (Positive Finding)
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/nip17.ts:64`
+**Location**: `/workspace/buildit/src/core/crypto/nip17.ts:64`
 
 **Description**: Gift wraps correctly use ephemeral keys (via `generateSecretKey()`) for sender anonymity.
 
@@ -489,7 +489,7 @@ for (const [_key, privateKey] of this.decryptedKeys) {
 ### INFO-004: HKDF Key Separation for Database Encryption
 
 **Severity**: Informational (Positive Finding)
-**Location**: `/home/rikki/claude-workspace/buildit-network/src/core/crypto/SecureKeyManager.ts:207-238`
+**Location**: `/workspace/buildit/src/core/crypto/SecureKeyManager.ts:207-238`
 
 **Description**: Database encryption key is properly derived from master key using HKDF with distinct salt and info parameters.
 
