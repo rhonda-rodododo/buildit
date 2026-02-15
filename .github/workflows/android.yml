@@ -63,23 +63,19 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Ensure gradlew is executable
-        working-directory: clients/android
-        run: chmod +x ./gradlew
+        run: chmod +x clients/android/gradlew
 
       - name: Run Android Lint
-        working-directory: clients/android
         continue-on-error: true  # TODO: create lint baseline to track regressions
-        run: ./gradlew lint --continue
+        run: clients/android/gradlew -p clients/android lint --continue
 
       - name: Run Detekt
-        working-directory: clients/android
         continue-on-error: true  # TODO: fix existing detekt issues
-        run: ./gradlew detekt
+        run: clients/android/gradlew -p clients/android detekt
 
       - name: Run Ktlint
-        working-directory: clients/android
         continue-on-error: true  # TODO: fix existing ktlint issues
-        run: ./gradlew ktlintCheck
+        run: clients/android/gradlew -p clients/android ktlintCheck
 
       - name: Upload lint reports
         uses: actions/upload-artifact@v4
@@ -117,13 +113,11 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Ensure gradlew is executable
-        working-directory: clients/android
-        run: chmod +x ./gradlew
+        run: chmod +x clients/android/gradlew
 
       - name: Run unit tests
-        working-directory: clients/android
         continue-on-error: true  # TODO: fix pre-existing test failures
-        run: ./gradlew testDevDebugUnitTest
+        run: clients/android/gradlew -p clients/android testDevDebugUnitTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
@@ -158,12 +152,10 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Ensure gradlew is executable
-        working-directory: clients/android
-        run: chmod +x ./gradlew
+        run: chmod +x clients/android/gradlew
 
       - name: Build debug APK
-        working-directory: clients/android
-        run: ./gradlew assembleDevDebug
+        run: clients/android/gradlew -p clients/android assembleDevDebug
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -198,12 +190,10 @@ jobs:
           cache-read-only: false
 
       - name: Ensure gradlew is executable
-        working-directory: clients/android
-        run: chmod +x ./gradlew
+        run: chmod +x clients/android/gradlew
 
       - name: Build release APK
-        working-directory: clients/android
-        run: ./gradlew assembleProdRelease
+        run: clients/android/gradlew -p clients/android assembleProdRelease
 
       - name: Upload release APK
         uses: actions/upload-artifact@v4

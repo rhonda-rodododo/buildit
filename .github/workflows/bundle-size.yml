@@ -28,8 +28,7 @@ jobs:
         run: bun run codegen
 
       - name: Build project
-        working-directory: clients/web
-        run: bun run build:no-check
+        run: bun run --cwd clients/web build:no-check
 
       - name: Analyze bundle size
         id: analyze

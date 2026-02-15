@@ -50,7 +50,6 @@ jobs:
         run: bun run codegen
 
       - name: Run tests
-        working-directory: clients/web
         run: bun run test
 
       - name: Upload coverage
@@ -92,7 +91,6 @@ jobs:
         run: bun run codegen
 
       - name: Typecheck
-        working-directory: clients/web
         run: bun run typecheck
 
   web-build:
@@ -127,7 +125,6 @@ jobs:
         run: bun run codegen
 
       - name: Build
-        working-directory: clients/web
         run: bun run build
 
       - name: Upload build artifacts
@@ -182,8 +179,7 @@ jobs:
           fi
 
       - name: Validate test vectors
-        working-directory: tools/codegen
-        run: bun run src/index.ts --validate-vectors
+        run: bun run --cwd tools/codegen src/index.ts --validate-vectors
 
   # ─────────────────────────────────────────────────────────────
   # Crypto: Rust Library Tests
@@ -223,20 +219,16 @@ jobs:
             cargo-crypto-${{ runner.os }}-
 
       - name: Format generated code
-        working-directory: packages/crypto
-        run: cargo fmt
+        run: bun run crypto:fmt
 
       - name: Run tests
-        working-directory: packages/crypto
-        run: cargo test --all-features
+        run: bun run crypto:test
 
       - name: Check formatting
-        working-directory: packages/crypto
-        run: cargo fmt --check
+        run: cargo fmt --manifest-path packages/crypto/Cargo.toml --check
 
       - name: Run clippy
-        working-directory: packages/crypto
-        run: cargo clippy -- -D warnings
+        run: bun run crypto:clippy
 
   # ─────────────────────────────────────────────────────────────
   # Desktop: Tauri Rust Backend Build Check
@@ -298,8 +290,7 @@ jobs:
         run: bun run codegen
 
       - name: Check Rust compilation
-        working-directory: clients/desktop
-        run: cargo check
+        run: cargo check --manifest-path clients/desktop/Cargo.toml
 
   # ─────────────────────────────────────────────────────────────
   # Android: Build Check
@@ -336,10 +327,9 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Build debug
-        working-directory: clients/android
         run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDevDebug --no-daemon
+          chmod +x clients/android/gradlew
+          clients/android/gradlew -p clients/android assembleDevDebug --no-daemon
 
   # ─────────────────────────────────────────────────────────────
   # Workers: Typecheck All
@@ -374,21 +364,8 @@ jobs:
       - name: Run codegen
         run: bun run codegen
 
-      - name: Typecheck API worker
-        working-directory: workers/api
-        run: bun run typecheck
-
-      - name: Typecheck Relay worker
-        working-directory: workers/relay
-        run: bun run typecheck
-
-      - name: Typecheck SSR worker
-        working-directory: workers/ssr
-        run: bun run typecheck
-
-      - name: Typecheck Backend worker
-        working-directory: workers/backend
-        run: bun run typecheck
+      - name: Typecheck all workers
+        run: bun run workers:typecheck
 
   # ─────────────────────────────────────────────────────────────
   # CI Status Gate (for branch protection)
