@@ -229,6 +229,7 @@ fn serialize_event(event: &NostrEvent) -> Result<String, CryptoError> {
 /// 1. It's unnecessary in Rust (serde is type-safe)
 /// 2. It could be bypassed via Unicode escapes (\u005f\u005fproto\u005f\u005f)
 /// 3. It caused false positives on legitimate content containing those words
+///
 /// JavaScript clients MUST implement their own prototype pollution defense
 /// using proper JSON schema validation, NOT string matching.
 fn deserialize_event(json: &str) -> Result<NostrEvent, CryptoError> {

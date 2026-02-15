@@ -41,7 +41,7 @@ use chacha20poly1305::{
 use hkdf::Hkdf;
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
-use secp256k1::{PublicKey, SecretKey, Secp256k1};
+use secp256k1::{PublicKey, Secp256k1, SecretKey};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use std::collections::HashMap;
@@ -140,8 +140,7 @@ impl DhKeyPair {
         }
 
         let secp = Secp256k1::new();
-        let secret_key = SecretKey::from_slice(private_key)
-            .map_err(|_| CryptoError::InvalidKey)?;
+        let secret_key = SecretKey::from_slice(private_key).map_err(|_| CryptoError::InvalidKey)?;
         let public_key = secret_key.public_key(&secp);
 
         let mut pk = [0u8; 32];
@@ -155,10 +154,10 @@ impl DhKeyPair {
 
     /// Perform DH with another public key
     fn dh(&self, their_public_key: &[u8]) -> Result<[u8; 32], CryptoError> {
-        let secret_key = SecretKey::from_slice(&self.private_key)
-            .map_err(|_| CryptoError::InvalidKey)?;
-        let their_key = PublicKey::from_slice(their_public_key)
-            .map_err(|_| CryptoError::InvalidPublicKey)?;
+        let secret_key =
+            SecretKey::from_slice(&self.private_key).map_err(|_| CryptoError::InvalidKey)?;
+        let their_key =
+            PublicKey::from_slice(their_public_key).map_err(|_| CryptoError::InvalidPublicKey)?;
 
         // Perform ECDH
         let shared_point = secp256k1::ecdh::shared_secret_point(&their_key, &secret_key);
@@ -230,7 +229,10 @@ mod dh_keypair_serde {
         let (private_key, public_key): (Vec<u8>, Vec<u8>) = Deserialize::deserialize(deserializer)?;
         let mut pk = [0u8; 32];
         pk.copy_from_slice(&private_key);
-        Ok(DhKeyPair { private_key: pk, public_key })
+        Ok(DhKeyPair {
+            private_key: pk,
+            public_key,
+        })
     }
 }
 
@@ -334,8 +336,7 @@ impl RatchetSessionState {
     /// The header must be sent alongside the ciphertext.
     pub fn encrypt(&mut self, plaintext: &[u8]) -> Result<RatchetMessage, CryptoError> {
         // Ensure we have a sending chain key
-        let chain_key = self.chain_key_send
-            .ok_or(CryptoError::EncryptionFailed)?;
+        let chain_key = self.chain_key_send.ok_or(CryptoError::EncryptionFailed)?;
 
         // Derive message key from chain key
         let (message_key, new_chain_key) = kdf_ck(&chain_key)?;
@@ -365,9 +366,17 @@ impl RatchetSessionState {
     /// Handles DH ratchet steps and out-of-order messages automatically.
     pub fn decrypt(&mut self, message: &RatchetMessage) -> Result<Vec<u8>, CryptoError> {
         // Check if we have a stored key for this message
-        let key_id = (message.header.dh_public_key.clone(), message.header.message_number);
+        let key_id = (
+            message.header.dh_public_key.clone(),
+            message.header.message_number,
+        );
         if let Some(message_key) = self.skipped_message_keys.remove(&key_id) {
-            return decrypt_message(&message_key, &message.ciphertext, &message.nonce, &message.header);
+            return decrypt_message(
+                &message_key,
+                &message.ciphertext,
+                &message.nonce,
+                &message.header,
+            );
         }
 
         // Check if this is a new DH ratchet step
@@ -389,14 +398,18 @@ impl RatchetSessionState {
         self.skip_message_keys(message.header.message_number)?;
 
         // Derive message key
-        let chain_key = self.chain_key_recv
-            .ok_or(CryptoError::DecryptionFailed)?;
+        let chain_key = self.chain_key_recv.ok_or(CryptoError::DecryptionFailed)?;
         let (message_key, new_chain_key) = kdf_ck(&chain_key)?;
         self.chain_key_recv = Some(new_chain_key);
         self.message_number_recv += 1;
 
         // Decrypt
-        decrypt_message(&message_key, &message.ciphertext, &message.nonce, &message.header)
+        decrypt_message(
+            &message_key,
+            &message.ciphertext,
+            &message.nonce,
+            &message.header,
+        )
     }
 
     /// Perform a DH ratchet step (receiving side)
@@ -570,8 +583,8 @@ fn encrypt_message(
     plaintext: &[u8],
     header: &MessageHeader,
 ) -> Result<(Vec<u8>, Vec<u8>), CryptoError> {
-    let cipher = ChaCha20Poly1305::new_from_slice(key)
-        .map_err(|_| CryptoError::EncryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(key).map_err(|_| CryptoError::EncryptionFailed)?;
 
     // Generate random nonce
     let mut nonce_bytes = [0u8; 12];
@@ -582,10 +595,13 @@ fn encrypt_message(
     let aad = header.to_bytes();
 
     let ciphertext = cipher
-        .encrypt(nonce, chacha20poly1305::aead::Payload {
-            msg: plaintext,
-            aad: &aad,
-        })
+        .encrypt(
+            nonce,
+            chacha20poly1305::aead::Payload {
+                msg: plaintext,
+                aad: &aad,
+            },
+        )
         .map_err(|_| CryptoError::EncryptionFailed)?;
 
     Ok((ciphertext, nonce_bytes.to_vec()))
@@ -602,17 +618,20 @@ fn decrypt_message(
         return Err(CryptoError::DecryptionFailed);
     }
 
-    let cipher = ChaCha20Poly1305::new_from_slice(key)
-        .map_err(|_| CryptoError::DecryptionFailed)?;
+    let cipher =
+        ChaCha20Poly1305::new_from_slice(key).map_err(|_| CryptoError::DecryptionFailed)?;
 
     let nonce = Nonce::from_slice(nonce);
     let aad = header.to_bytes();
 
     let plaintext = cipher
-        .decrypt(nonce, chacha20poly1305::aead::Payload {
-            msg: ciphertext,
-            aad: &aad,
-        })
+        .decrypt(
+            nonce,
+            chacha20poly1305::aead::Payload {
+                msg: ciphertext,
+                aad: &aad,
+            },
+        )
         .map_err(|_| CryptoError::DecryptionFailed)?;
 
     Ok(plaintext)
@@ -678,7 +697,10 @@ impl RatchetSession {
     /// Each message uses a unique key derived from the ratchet state.
     /// After encryption, the message key is deleted, providing forward secrecy.
     pub fn encrypt(&self, plaintext: Vec<u8>) -> Result<RatchetMessage, CryptoError> {
-        let mut state = self.state.lock().map_err(|_| CryptoError::EncryptionFailed)?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| CryptoError::EncryptionFailed)?;
         state.encrypt(&plaintext)
     }
 
@@ -686,7 +708,10 @@ impl RatchetSession {
     ///
     /// Handles DH ratchet steps and out-of-order messages automatically.
     pub fn decrypt(&self, message: RatchetMessage) -> Result<Vec<u8>, CryptoError> {
-        let mut state = self.state.lock().map_err(|_| CryptoError::DecryptionFailed)?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| CryptoError::DecryptionFailed)?;
         state.decrypt(&message)
     }
 
@@ -760,16 +785,13 @@ mod tests {
         let bob_prekey = DhKeyPair::generate().unwrap();
 
         // Alice initializes her session
-        let alice = RatchetSession::initialize_alice(
-            shared_secret.clone(),
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret.clone(), bob_prekey.public_key.clone())
+                .unwrap();
 
         // Bob initializes his session
-        let bob = RatchetSession::initialize_bob(
-            shared_secret,
-            bob_prekey.private_key.to_vec(),
-        ).unwrap();
+        let bob =
+            RatchetSession::initialize_bob(shared_secret, bob_prekey.private_key.to_vec()).unwrap();
 
         // Alice sends first message
         let plaintext = b"Hello Bob!";
@@ -793,15 +815,12 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret.clone(),
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret.clone(), bob_prekey.public_key.clone())
+                .unwrap();
 
-        let bob = RatchetSession::initialize_bob(
-            shared_secret,
-            bob_prekey.private_key.to_vec(),
-        ).unwrap();
+        let bob =
+            RatchetSession::initialize_bob(shared_secret, bob_prekey.private_key.to_vec()).unwrap();
 
         // Send multiple messages
         for i in 0..10 {
@@ -825,15 +844,12 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret.clone(),
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret.clone(), bob_prekey.public_key.clone())
+                .unwrap();
 
-        let bob = RatchetSession::initialize_bob(
-            shared_secret,
-            bob_prekey.private_key.to_vec(),
-        ).unwrap();
+        let bob =
+            RatchetSession::initialize_bob(shared_secret, bob_prekey.private_key.to_vec()).unwrap();
 
         // Alice sends 3 messages
         let msg1 = alice.encrypt(b"Message 1".to_vec()).unwrap();
@@ -856,10 +872,8 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret,
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret, bob_prekey.public_key.clone()).unwrap();
 
         // Serialize (unencrypted, for internal use)
         let serialized = alice.serialize_unencrypted().unwrap();
@@ -876,15 +890,12 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret.clone(),
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret.clone(), bob_prekey.public_key.clone())
+                .unwrap();
 
-        let bob = RatchetSession::initialize_bob(
-            shared_secret,
-            bob_prekey.private_key.to_vec(),
-        ).unwrap();
+        let bob =
+            RatchetSession::initialize_bob(shared_secret, bob_prekey.private_key.to_vec()).unwrap();
 
         // Alice sends a message to advance the ratchet state
         let msg = alice.encrypt(b"Hello Bob!".to_vec()).unwrap();
@@ -912,10 +923,8 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret,
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret, bob_prekey.public_key.clone()).unwrap();
 
         // Serialize with one key
         let storage_key = vec![0x42u8; 32];
@@ -933,10 +942,8 @@ mod tests {
         let shared_secret = generate_shared_secret();
         let bob_prekey = DhKeyPair::generate().unwrap();
 
-        let alice = RatchetSession::initialize_alice(
-            shared_secret,
-            bob_prekey.public_key.clone(),
-        ).unwrap();
+        let alice =
+            RatchetSession::initialize_alice(shared_secret, bob_prekey.public_key.clone()).unwrap();
 
         // Encrypt same message twice
         let msg1 = alice.encrypt(b"Hello".to_vec()).unwrap();

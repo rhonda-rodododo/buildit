@@ -186,14 +186,7 @@ pub fn generate_decoy_identity(created_at: i64) -> DecoyIdentity {
     // Generate innocuous display name and about
     // These are generic enough to not draw attention
     let display_names = [
-        "Alex",
-        "Jordan",
-        "Sam",
-        "Casey",
-        "Riley",
-        "Morgan",
-        "Taylor",
-        "Quinn",
+        "Alex", "Jordan", "Sam", "Casey", "Riley", "Morgan", "Taylor", "Quinn",
     ];
     let about_texts = [
         "Just here to chat",
@@ -309,12 +302,7 @@ pub fn create_duress_alert(
 
     // Create NIP-17 gift-wrapped message
     // Step 1: Create rumor (unsigned inner message)
-    let rumor = create_rumor(
-        sender_pubkey,
-        recipient_pubkey.clone(),
-        message,
-        created_at,
-    )?;
+    let rumor = create_rumor(sender_pubkey, recipient_pubkey.clone(), message, created_at)?;
 
     // Step 2: Create seal (encrypted rumor, signed by sender)
     let seal = create_seal(
@@ -402,22 +390,8 @@ pub fn validate_duress_password(
 /// These are purely cosmetic - no real interaction happens with them.
 pub fn generate_decoy_contacts(count: u32) -> Vec<DecoyContact> {
     let names = [
-        "Mom",
-        "Dad",
-        "Alex",
-        "Jamie",
-        "Chris",
-        "Pat",
-        "Sam",
-        "Jordan",
-        "Taylor",
-        "Morgan",
-        "Casey",
-        "Riley",
-        "Avery",
-        "Quinn",
-        "Drew",
-        "Skyler",
+        "Mom", "Dad", "Alex", "Jamie", "Chris", "Pat", "Sam", "Jordan", "Taylor", "Morgan",
+        "Casey", "Riley", "Avery", "Quinn", "Drew", "Skyler",
     ];
 
     let count = count as usize;
@@ -490,8 +464,10 @@ mod tests {
         let salt = vec![0u8; 32];
 
         // Pre-compute hashes as would be stored
-        let stored_normal_hash = hash_duress_password(normal_password.clone(), salt.clone()).unwrap();
-        let stored_duress_hash = hash_duress_password(duress_password.clone(), salt.clone()).unwrap();
+        let stored_normal_hash =
+            hash_duress_password(normal_password.clone(), salt.clone()).unwrap();
+        let stored_duress_hash =
+            hash_duress_password(duress_password.clone(), salt.clone()).unwrap();
 
         // Check that duress password is detected
         let result = check_duress_password(
@@ -512,7 +488,8 @@ mod tests {
         let duress_password = b"help".to_vec();
         let salt = vec![0u8; 32];
 
-        let stored_normal_hash = hash_duress_password(normal_password.clone(), salt.clone()).unwrap();
+        let stored_normal_hash =
+            hash_duress_password(normal_password.clone(), salt.clone()).unwrap();
         let stored_duress_hash = hash_duress_password(duress_password, salt.clone()).unwrap();
 
         // Check that normal password works but isn't flagged as duress
@@ -538,13 +515,9 @@ mod tests {
         let stored_normal_hash = hash_duress_password(normal_password, salt.clone()).unwrap();
         let stored_duress_hash = hash_duress_password(duress_password, salt.clone()).unwrap();
 
-        let result = check_duress_password(
-            wrong_password,
-            salt,
-            stored_duress_hash,
-            stored_normal_hash,
-        )
-        .unwrap();
+        let result =
+            check_duress_password(wrong_password, salt, stored_duress_hash, stored_normal_hash)
+                .unwrap();
 
         assert!(!result.is_duress);
         assert!(!result.password_valid);
@@ -615,7 +588,10 @@ mod tests {
         assert!(!alert.sig.is_empty());
 
         // Should have p tag pointing to recipient
-        assert!(alert.tags.iter().any(|t| t.len() >= 2 && t[0] == "p" && t[1] == recipient.public_key));
+        assert!(alert
+            .tags
+            .iter()
+            .any(|t| t.len() >= 2 && t[0] == "p" && t[1] == recipient.public_key));
     }
 
     #[test]
@@ -643,7 +619,10 @@ mod tests {
         let now = 1700000000i64;
 
         let config = DuressAlertConfig {
-            trusted_contact_pubkeys: vec![recipient1.public_key.clone(), recipient2.public_key.clone()],
+            trusted_contact_pubkeys: vec![
+                recipient1.public_key.clone(),
+                recipient2.public_key.clone(),
+            ],
             include_location: false,
             custom_message: None,
         };

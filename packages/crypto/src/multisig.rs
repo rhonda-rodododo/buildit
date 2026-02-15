@@ -283,8 +283,8 @@ pub fn reconstruct_secret(shares: Vec<KeyShare>) -> Result<Vec<u8>, CryptoError>
         let mut lagrange_coeff = compute_lagrange_coefficient(i, active_shares)?;
 
         // Multiply share by Lagrange coefficient
-        let share_key = SecretKey::from_slice(&share_i.share_secret)
-            .map_err(|_| CryptoError::InvalidKey)?;
+        let share_key =
+            SecretKey::from_slice(&share_i.share_secret).map_err(|_| CryptoError::InvalidKey)?;
         let lagrange_scalar = Scalar::from(
             SecretKey::from_slice(&lagrange_coeff).map_err(|_| CryptoError::InvalidKey)?,
         );
@@ -322,19 +322,17 @@ pub fn reconstruct_secret(shares: Vec<KeyShare>) -> Result<Vec<u8>, CryptoError>
 
 /// Compute the Lagrange coefficient for share at position `i`
 /// L_i(0) = product_{j!=i}( (0 - x_j) / (x_i - x_j) )
-fn compute_lagrange_coefficient(
-    i: usize,
-    shares: &[KeyShare],
-) -> Result<Vec<u8>, CryptoError> {
+fn compute_lagrange_coefficient(i: usize, shares: &[KeyShare]) -> Result<Vec<u8>, CryptoError> {
     let x_i = shares[i].index;
 
     // We work in the secp256k1 scalar field using modular arithmetic
     // Start with numerator = 1, denominator = 1
-    let one = [0u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
-    let mut numerator =
-        SecretKey::from_slice(&one).map_err(|_| CryptoError::InvalidKey)?;
-    let mut denominator =
-        SecretKey::from_slice(&one).map_err(|_| CryptoError::InvalidKey)?;
+    let one = [
+        0u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 1,
+    ];
+    let mut numerator = SecretKey::from_slice(&one).map_err(|_| CryptoError::InvalidKey)?;
+    let mut denominator = SecretKey::from_slice(&one).map_err(|_| CryptoError::InvalidKey)?;
 
     for (j, share_j) in shares.iter().enumerate() {
         if i == j {
@@ -345,8 +343,7 @@ fn compute_lagrange_coefficient(
         // numerator *= (0 - x_j) = -x_j
         let mut x_j_bytes = [0u8; 32];
         x_j_bytes[28..32].copy_from_slice(&x_j.to_be_bytes());
-        let x_j_key =
-            SecretKey::from_slice(&x_j_bytes).map_err(|_| CryptoError::InvalidKey)?;
+        let x_j_key = SecretKey::from_slice(&x_j_bytes).map_err(|_| CryptoError::InvalidKey)?;
         let neg_x_j = x_j_key.negate();
         let neg_x_j_scalar = Scalar::from(neg_x_j);
         numerator = numerator
@@ -356,8 +353,7 @@ fn compute_lagrange_coefficient(
         // denominator *= (x_i - x_j)
         let mut x_i_bytes = [0u8; 32];
         x_i_bytes[28..32].copy_from_slice(&x_i.to_be_bytes());
-        let x_i_key =
-            SecretKey::from_slice(&x_i_bytes).map_err(|_| CryptoError::InvalidKey)?;
+        let x_i_key = SecretKey::from_slice(&x_i_bytes).map_err(|_| CryptoError::InvalidKey)?;
 
         // x_i - x_j (subtract via negate and add)
         let neg_x_j_scalar2 = Scalar::from(x_j_key.negate());
@@ -412,29 +408,29 @@ fn compute_lagrange_coefficient(
 
 /// Compute modular inverse of a secp256k1 scalar using Fermat's little theorem
 /// For prime p, a^(-1) = a^(p-2) mod p
-fn modular_inverse_scalar(
-    scalar: SecretKey,
-) -> Result<SecretKey, CryptoError> {
+fn modular_inverse_scalar(scalar: SecretKey) -> Result<SecretKey, CryptoError> {
     // secp256k1 group order n:
     // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
     // n - 2:
     // FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD036413F
     let n_minus_2: [u8; 32] = [
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE,
-        0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B,
-        0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36, 0x41, 0x3F,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFE, 0xBA, 0xAE, 0xDC, 0xE6, 0xAF, 0x48, 0xA0, 0x3B, 0xBF, 0xD2, 0x5E, 0x8C, 0xD0, 0x36,
+        0x41, 0x3F,
     ];
 
     // Square-and-multiply for scalar exponentiation
     // Start with result = 1
-    let one = [0u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+    let one = [
+        0u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 1,
+    ];
     let mut result = SecretKey::from_slice(&one).map_err(|_| CryptoError::InvalidKey)?;
 
     let base = scalar;
 
     // Process each bit of the exponent from MSB to LSB
-    for byte_idx in 0..32 {
+    for byte in &n_minus_2 {
         for bit_idx in (0..8).rev() {
             // Square: result = result * result
             let result_scalar = Scalar::from(result);
@@ -443,7 +439,7 @@ fn modular_inverse_scalar(
                 .map_err(|_| CryptoError::InvalidKey)?;
 
             // If bit is set: multiply by base
-            if (n_minus_2[byte_idx] >> bit_idx) & 1 == 1 {
+            if (byte >> bit_idx) & 1 == 1 {
                 let base_scalar = Scalar::from(base);
                 result = result
                     .mul_tweak(&base_scalar)
@@ -459,10 +455,7 @@ fn modular_inverse_scalar(
 ///
 /// Each share holder produces a partial Schnorr signature.
 /// These are combined using `aggregate_signatures`.
-pub fn sign_with_share(
-    share: KeyShare,
-    message: Vec<u8>,
-) -> Result<PartialSignature, CryptoError> {
+pub fn sign_with_share(share: KeyShare, message: Vec<u8>) -> Result<PartialSignature, CryptoError> {
     let signature = crate::keys::schnorr_sign(&message, share.share_secret.clone())?;
 
     Ok(PartialSignature {
@@ -721,13 +714,11 @@ mod tests {
         assert_eq!(proposal.new_shares.len(), 3);
 
         // Verify proposal signature
-        let valid =
-            verify_rotation_proposal(proposal.clone(), proposer_pubkey).unwrap();
+        let valid = verify_rotation_proposal(proposal.clone(), proposer_pubkey).unwrap();
         assert!(valid);
 
         // Wrong public key should fail verification
-        let invalid =
-            verify_rotation_proposal(proposal, wrong_pubkey).unwrap();
+        let invalid = verify_rotation_proposal(proposal, wrong_pubkey).unwrap();
         assert!(!invalid);
     }
 

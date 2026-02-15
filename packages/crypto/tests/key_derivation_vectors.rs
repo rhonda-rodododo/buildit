@@ -66,10 +66,10 @@ fn test_argon2id_various_password_lengths() {
 
     let long_password = "a".repeat(100);
     let passwords: Vec<&[u8]> = vec![
-        b"a",                                   // Very short
-        b"password",                            // Normal
-        b"correct horse battery staple",        // Passphrase
-        long_password.as_bytes(),               // Long
+        b"a",                            // Very short
+        b"password",                     // Normal
+        b"correct horse battery staple", // Passphrase
+        long_password.as_bytes(),        // Long
     ];
 
     for password in passwords {
