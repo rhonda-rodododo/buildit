@@ -267,106 +267,66 @@ class NostrClient @Inject constructor(
         relayUrls: List<String>,
         obfuscatedSub: ObfuscatedSubscription
     ): List<List<NostrFilter>> {
-        val result: MutableList<MutableList<NostrFilter>> = relayUrls.map { mutableListOf<NostrFilter>() }.toMutableList()
+        val result: MutableList<MutableList<NostrFilter>> =
+            relayUrls.map { mutableListOf<NostrFilter>() }.toMutableList()
 
         for (filter in originalFilters) {
-            // Handle author-based filters (protect social graph)
-            if (!filter.authors.isNullOrEmpty()) {
-                val authorsWithDummies = filter.authors.toMutableList().apply {
-                    if (obfuscationConfig.dummySubscriptionsEnabled) {
-                        addAll(obfuscatedSub.dummyPubkeys)
+            when {
+                !filter.authors.isNullOrEmpty() -> diffuseFilterField(
+                    filter, result, relayUrls,
+                    elements = filter.authors,
+                    dummies = obfuscatedSub.dummyPubkeys,
+                    copyWith = { filter.copy(authors = it) }
+                )
+                !filter.ids.isNullOrEmpty() -> diffuseFilterField(
+                    filter, result, relayUrls,
+                    elements = filter.ids,
+                    dummies = obfuscatedSub.dummyEventIds,
+                    copyWith = { filter.copy(ids = it) }
+                )
+                !filter.tags?.get("p").isNullOrEmpty() -> diffuseFilterField(
+                    filter, result, relayUrls,
+                    elements = filter.tags!!["p"]!!,
+                    dummies = obfuscatedSub.dummyPubkeys,
+                    copyWith = { diffused ->
+                        val newTags = filter.tags.toMutableMap().apply { put("p", diffused) }
+                        filter.copy(tags = newTags)
                     }
-                }
-
-                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
-                    val distributed = distributeWithOverlap(
-                        elements = authorsWithDummies,
-                        bucketCount = relayUrls.size,
-                        ratio = obfuscationConfig.filterDiffusionRatio,
-                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
-                    )
-
-                    distributed.forEachIndexed { relayIndex, relayAuthors ->
-                        if (relayAuthors.isNotEmpty()) {
-                            result[relayIndex].add(filter.copy(authors = relayAuthors))
-                        }
-                    }
-                } else {
-                    relayUrls.indices.forEach { index ->
-                        result[index].add(filter.copy(authors = authorsWithDummies))
-                    }
-                }
-            }
-            // Handle ID-based filters
-            else if (!filter.ids.isNullOrEmpty()) {
-                val idsWithDummies = filter.ids.toMutableList().apply {
-                    if (obfuscationConfig.dummySubscriptionsEnabled) {
-                        addAll(obfuscatedSub.dummyEventIds)
-                    }
-                }
-
-                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
-                    val distributed = distributeWithOverlap(
-                        elements = idsWithDummies,
-                        bucketCount = relayUrls.size,
-                        ratio = obfuscationConfig.filterDiffusionRatio,
-                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
-                    )
-
-                    distributed.forEachIndexed { relayIndex, relayIds ->
-                        if (relayIds.isNotEmpty()) {
-                            result[relayIndex].add(filter.copy(ids = relayIds))
-                        }
-                    }
-                } else {
-                    relayUrls.indices.forEach { index ->
-                        result[index].add(filter.copy(ids = idsWithDummies))
-                    }
-                }
-            }
-            // Handle #p tag filters
-            else if (!filter.tags?.get("p").isNullOrEmpty()) {
-                val pTags = filter.tags!!["p"]!!
-                val pTagsWithDummies = pTags.toMutableList().apply {
-                    if (obfuscationConfig.dummySubscriptionsEnabled) {
-                        addAll(obfuscatedSub.dummyPubkeys)
-                    }
-                }
-
-                if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
-                    val distributed = distributeWithOverlap(
-                        elements = pTagsWithDummies,
-                        bucketCount = relayUrls.size,
-                        ratio = obfuscationConfig.filterDiffusionRatio,
-                        minBucketsPerElement = obfuscationConfig.minRelaysPerElement
-                    )
-
-                    distributed.forEachIndexed { relayIndex, relayPTags ->
-                        if (relayPTags.isNotEmpty()) {
-                            val newTags = filter.tags.toMutableMap().apply {
-                                put("p", relayPTags)
-                            }
-                            result[relayIndex].add(filter.copy(tags = newTags))
-                        }
-                    }
-                } else {
-                    relayUrls.indices.forEach { index ->
-                        val newTags = filter.tags.toMutableMap().apply {
-                            put("p", pTagsWithDummies)
-                        }
-                        result[index].add(filter.copy(tags = newTags))
-                    }
-                }
-            }
-            // Other filters - send to all relays as-is
-            else {
-                relayUrls.indices.forEach { index ->
-                    result[index].add(filter)
-                }
+                )
+                else -> relayUrls.indices.forEach { result[it].add(filter) }
             }
         }
 
         return result
+    }
+
+    /**
+     * Add dummy elements and diffuse across relays, or broadcast to all.
+     */
+    private fun diffuseFilterField(
+        filter: NostrFilter,
+        result: MutableList<MutableList<NostrFilter>>,
+        relayUrls: List<String>,
+        elements: List<String>,
+        dummies: List<String>,
+        copyWith: (List<String>) -> NostrFilter
+    ) {
+        val withDummies = elements.toMutableList().apply {
+            if (obfuscationConfig.dummySubscriptionsEnabled) addAll(dummies)
+        }
+
+        if (obfuscationConfig.filterDiffusionEnabled && relayUrls.size > 1) {
+            distributeWithOverlap(
+                elements = withDummies,
+                bucketCount = relayUrls.size,
+                ratio = obfuscationConfig.filterDiffusionRatio,
+                minBucketsPerElement = obfuscationConfig.minRelaysPerElement
+            ).forEachIndexed { i, bucket ->
+                if (bucket.isNotEmpty()) result[i].add(copyWith(bucket))
+            }
+        } else {
+            relayUrls.indices.forEach { result[it].add(copyWith(withDummies)) }
+        }
     }
 
     /**
@@ -455,37 +415,27 @@ class NostrClient @Inject constructor(
      * Check if event matches a filter.
      */
     private fun eventMatchesFilter(event: NostrEvent, filter: NostrFilter): Boolean {
-        if (!filter.ids.isNullOrEmpty() && !filter.ids.contains(event.id)) {
-            return false
-        }
-        if (!filter.authors.isNullOrEmpty() && !filter.authors.contains(event.pubkey)) {
-            return false
-        }
-        if (!filter.kinds.isNullOrEmpty() && !filter.kinds.contains(event.kind)) {
-            return false
-        }
+        if (!filter.ids.isNullOrEmpty() && !filter.ids.contains(event.id)) return false
+        if (!filter.authors.isNullOrEmpty() && !filter.authors.contains(event.pubkey)) return false
+        if (!filter.kinds.isNullOrEmpty() && !filter.kinds.contains(event.kind)) return false
         filter.since?.let { if (event.createdAt < it) return false }
         filter.until?.let { if (event.createdAt > it) return false }
-
-        filter.tags?.get("p")?.let { pTags ->
-            if (pTags.isNotEmpty()) {
-                val eventPTags = event.tags.filter { it.firstOrNull() == "p" }.mapNotNull { it.getOrNull(1) }
-                if (!pTags.any { eventPTags.contains(it) }) {
-                    return false
-                }
-            }
-        }
-
-        filter.tags?.get("e")?.let { eTags ->
-            if (eTags.isNotEmpty()) {
-                val eventETags = event.tags.filter { it.firstOrNull() == "e" }.mapNotNull { it.getOrNull(1) }
-                if (!eTags.any { eventETags.contains(it) }) {
-                    return false
-                }
-            }
-        }
-
+        if (!eventMatchesTagFilter(event, filter, "p")) return false
+        if (!eventMatchesTagFilter(event, filter, "e")) return false
         return true
+    }
+
+    private fun eventMatchesTagFilter(
+        event: NostrEvent,
+        filter: NostrFilter,
+        tagKey: String
+    ): Boolean {
+        val filterTags = filter.tags?.get(tagKey)
+        if (filterTags.isNullOrEmpty()) return true
+        val eventTags = event.tags
+            .filter { it.firstOrNull() == tagKey }
+            .mapNotNull { it.getOrNull(1) }
+        return filterTags.any { eventTags.contains(it) }
     }
 
     /**
@@ -768,79 +718,51 @@ class NostrClient @Inject constructor(
      */
     private suspend fun handleRelayMessage(message: RelayMessage) {
         when (message) {
-            is RelayMessage.Event -> {
-                val event = message.event
-                // Verify event signature
-                if (verifyEvent(event)) {
-                    // Check if this is part of an obfuscated subscription
-                    val subscriptionId = message.subscriptionId
-                    val publicSubId = if (subscriptionId.contains("_")) {
-                        subscriptionId.split("_").firstOrNull() ?: subscriptionId
-                    } else {
-                        subscriptionId
-                    }
+            is RelayMessage.Event -> handleIncomingEvent(message)
+            is RelayMessage.Ok -> pendingEvents[message.eventId]?.invoke(message.accepted)
+            is RelayMessage.Notice -> _notices.emit(NostrNotice(message.relayUrl, message.message))
+            is RelayMessage.Eose -> { /* End of stored events */ }
+            is RelayMessage.Closed -> subscriptions.remove(message.subscriptionId)
+        }
+    }
 
-                    val obfuscatedSub = obfuscatedSubscriptions[publicSubId]
-                    if (obfuscatedSub != null) {
-                        // Filter out dummy data
-                        if (!eventMatchesOriginalFilters(event, obfuscatedSub)) {
-                            return
-                        }
-                    }
+    private suspend fun handleIncomingEvent(message: RelayMessage.Event) {
+        val event = message.event
+        if (!verifyEvent(event)) return
 
-                    _events.emit(event)
+        val publicSubId = message.subscriptionId.substringBefore("_")
+        val obfuscatedSub = obfuscatedSubscriptions[publicSubId]
+        if (obfuscatedSub != null && !eventMatchesOriginalFilters(event, obfuscatedSub)) return
 
-                    // Handle typing indicators specially
-                    if (event.kind == KIND_TYPING_INDICATOR) {
-                        val indicator = TypingIndicator(
-                            pubkey = event.pubkey,
-                            conversationId = event.tags.find { it.firstOrNull() == "e" }?.getOrNull(1),
-                            timestamp = event.createdAt
-                        )
-                        _typingIndicators.emit(indicator)
-                    }
+        _events.emit(event)
+        emitEventKindSignals(event)
+    }
 
-                    // Handle read receipts
-                    if (event.kind == KIND_READ_RECEIPT) {
-                        val messageId = event.tags.find { it.firstOrNull() == "e" }?.getOrNull(1)
-                        if (messageId != null) {
-                            val receipt = ReadReceipt(
-                                messageId = messageId,
-                                readerPubkey = event.pubkey,
-                                timestamp = event.createdAt
-                            )
-                            _readReceipts.emit(receipt)
-                        }
-                    }
+    private suspend fun emitEventKindSignals(event: NostrEvent) {
+        val referencedEventId = event.tags
+            .find { it.firstOrNull() == "e" }?.getOrNull(1)
 
-                    // Handle reactions
-                    if (event.kind == KIND_REACTION) {
-                        val messageId = event.tags.find { it.firstOrNull() == "e" }?.getOrNull(1)
-                        if (messageId != null) {
-                            val reaction = Reaction(
-                                id = event.id,
-                                messageId = messageId,
-                                emoji = event.content.ifEmpty { "+" },
-                                reactorPubkey = event.pubkey,
-                                timestamp = event.createdAt
-                            )
-                            _reactions.emit(reaction)
-                        }
-                    }
-                }
+        when (event.kind) {
+            KIND_TYPING_INDICATOR -> _typingIndicators.emit(
+                TypingIndicator(
+                    pubkey = event.pubkey,
+                    conversationId = referencedEventId,
+                    timestamp = event.createdAt
+                )
+            )
+            KIND_READ_RECEIPT -> referencedEventId?.let {
+                _readReceipts.emit(
+                    ReadReceipt(messageId = it, readerPubkey = event.pubkey, timestamp = event.createdAt)
+                )
             }
-            is RelayMessage.Ok -> {
-                pendingEvents[message.eventId]?.invoke(message.accepted)
-            }
-            is RelayMessage.Notice -> {
-                _notices.emit(NostrNotice(message.relayUrl, message.message))
-            }
-            is RelayMessage.Eose -> {
-                // End of stored events for subscription
-                // Could emit an event or update subscription state
-            }
-            is RelayMessage.Closed -> {
-                subscriptions.remove(message.subscriptionId)
+            KIND_REACTION -> referencedEventId?.let {
+                _reactions.emit(
+                    Reaction(
+                        id = event.id, messageId = it,
+                        emoji = event.content.ifEmpty { "+" },
+                        reactorPubkey = event.pubkey, timestamp = event.createdAt
+                    )
+                )
             }
         }
     }

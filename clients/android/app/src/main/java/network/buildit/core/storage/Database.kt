@@ -425,6 +425,7 @@ enum class UploadStatus {
 
 // ============== Type Converters ==============
 
+@Suppress("TooManyFunctions", "MaxLineLength")
 class Converters {
     @TypeConverter
     fun fromConversationType(value: ConversationType): String = value.name
@@ -973,6 +974,7 @@ interface AttachmentDao {
 
 // ============== Hilt Module ==============
 
+@Suppress("TooManyFunctions")
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
