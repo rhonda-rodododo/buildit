@@ -222,6 +222,10 @@ jobs:
           restore-keys: |
             cargo-crypto-${{ runner.os }}-
 
+      - name: Format generated code
+        working-directory: packages/crypto
+        run: cargo fmt
+
       - name: Run tests
         working-directory: packages/crypto
         run: cargo test --all-features
@@ -335,7 +339,7 @@ jobs:
         working-directory: clients/android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDevDebug --no-daemon
 
   # ─────────────────────────────────────────────────────────────
   # Workers: Typecheck All
