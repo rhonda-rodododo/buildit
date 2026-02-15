@@ -495,13 +495,12 @@ test.describe('Tor Integration', () => {
 
     // Navigate back to Tor settings
     // Navigate to security settings via sidebar
-    const settingsNav = page.getByRole('link', { name: 'Settings' });
-    await settingsNav.click();
+    await page.getByRole('link', { name: 'Settings' }).click();
     await page.waitForLoadState('networkidle');
 
-    const securityNav = page.getByRole('link', { name: /security/i });
-    if (await securityNav.isVisible({ timeout: 2000 })) {
-      await securityNav.click();
+    const securityNav2 = page.getByRole('link', { name: /security/i });
+    if (await securityNav2.isVisible({ timeout: 2000 })) {
+      await securityNav2.click();
       await page.waitForLoadState('networkidle');
     }
 
