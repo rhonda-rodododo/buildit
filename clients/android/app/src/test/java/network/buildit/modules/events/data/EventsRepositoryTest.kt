@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.generated.schemas.events.Visibility
 import network.buildit.modules.events.data.local.EventEntity
 import network.buildit.modules.events.data.local.EventsDao
@@ -92,7 +92,7 @@ class EventsRepositoryTest {
     private fun createTestRsvp(
         eventId: String = testEventId,
         pubkey: String = testPubkey,
-        status: Status = Status.Going
+        status: RSVPStatus = RSVPStatus.Going
     ): Rsvp = Rsvp(
         v = "1.0.0",
         eventID = eventId,
@@ -106,7 +106,7 @@ class EventsRepositoryTest {
     private fun createTestRsvpEntity(
         eventId: String = testEventId,
         pubkey: String = testPubkey,
-        status: Status = Status.Going
+        status: RSVPStatus = RSVPStatus.Going
     ): RsvpEntity = mockk {
         every { toRsvp() } returns createTestRsvp(eventId = eventId, pubkey = pubkey, status = status)
     }
@@ -331,16 +331,16 @@ class EventsRepositoryTest {
         @DisplayName("getRsvpsForEvent returns all RSVPs for an event")
         fun getRsvpsForEventReturnsAll() = runTest {
             val entities = listOf(
-                createTestRsvpEntity(status = Status.Going),
-                createTestRsvpEntity(pubkey = "other-user", status = Status.Maybe)
+                createTestRsvpEntity(status = RSVPStatus.Going),
+                createTestRsvpEntity(pubkey = "other-user", status = RSVPStatus.Maybe)
             )
             every { rsvpsDao.getRsvpsForEvent(testEventId) } returns flowOf(entities)
 
             repository.getRsvpsForEvent(testEventId).test {
                 val rsvps = awaitItem()
                 assertThat(rsvps).hasSize(2)
-                assertThat(rsvps[0].status).isEqualTo(Status.Going)
-                assertThat(rsvps[1].status).isEqualTo(Status.Maybe)
+                assertThat(rsvps[0].status).isEqualTo(RSVPStatus.Going)
+                assertThat(rsvps[1].status).isEqualTo(RSVPStatus.Maybe)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -354,7 +354,7 @@ class EventsRepositoryTest {
             val rsvp = repository.getRsvp(testEventId, testPubkey)
 
             assertThat(rsvp).isNotNull()
-            assertThat(rsvp?.status).isEqualTo(Status.Going)
+            assertThat(rsvp?.status).isEqualTo(RSVPStatus.Going)
         }
 
         @Test
@@ -370,13 +370,13 @@ class EventsRepositoryTest {
         @Test
         @DisplayName("getRsvpsByStatus filters RSVPs by status")
         fun getRsvpsByStatusFilters() = runTest {
-            val goingEntity = createTestRsvpEntity(status = Status.Going)
-            every { rsvpsDao.getRsvpsByStatus(testEventId, Status.Going.value) } returns flowOf(listOf(goingEntity))
+            val goingEntity = createTestRsvpEntity(status = RSVPStatus.Going)
+            every { rsvpsDao.getRsvpsByStatus(testEventId, RSVPStatus.Going.value) } returns flowOf(listOf(goingEntity))
 
-            repository.getRsvpsByStatus(testEventId, Status.Going).test {
+            repository.getRsvpsByStatus(testEventId, RSVPStatus.Going).test {
                 val rsvps = awaitItem()
                 assertThat(rsvps).hasSize(1)
-                assertThat(rsvps[0].status).isEqualTo(Status.Going)
+                assertThat(rsvps[0].status).isEqualTo(RSVPStatus.Going)
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -473,13 +473,13 @@ class EventsRepositoryTest {
         @Test
         @DisplayName("Rsvp entity maps status enum correctly")
         fun rsvpEntityMapsStatus() {
-            val goingRsvp = createTestRsvp(status = Status.Going)
-            val maybeRsvp = createTestRsvp(status = Status.Maybe)
-            val notGoingRsvp = createTestRsvp(status = Status.NotGoing)
+            val goingRsvp = createTestRsvp(status = RSVPStatus.Going)
+            val maybeRsvp = createTestRsvp(status = RSVPStatus.Maybe)
+            val notGoingRsvp = createTestRsvp(status = RSVPStatus.NotGoing)
 
-            assertThat(goingRsvp.status).isEqualTo(Status.Going)
-            assertThat(maybeRsvp.status).isEqualTo(Status.Maybe)
-            assertThat(notGoingRsvp.status).isEqualTo(Status.NotGoing)
+            assertThat(goingRsvp.status).isEqualTo(RSVPStatus.Going)
+            assertThat(maybeRsvp.status).isEqualTo(RSVPStatus.Maybe)
+            assertThat(notGoingRsvp.status).isEqualTo(RSVPStatus.NotGoing)
         }
 
         @Test

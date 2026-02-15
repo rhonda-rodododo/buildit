@@ -15,6 +15,7 @@ import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.telecom.VideoProfile
+import android.annotation.SuppressLint
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -339,6 +340,7 @@ class CallConnectionService : ConnectionService() {
         /**
          * Request a new outgoing call.
          */
+        @SuppressLint("MissingPermission")
         fun placeOutgoingCall(
             context: Context,
             callId: String,

@@ -383,17 +383,13 @@ class TransportRouterTest {
         @Test
         @DisplayName("BLE message received creates incoming message")
         fun bleMessageReceived() {
-            val meshMessage = MeshMessage(
+            val meshMessage = TestFixtures.createMeshMessage(
                 id = "mesh-msg-1",
-                senderPublicKey = TestFixtures.TEST_PUBLIC_KEY_HEX,
-                recipientPublicKey = TestFixtures.TEST_PUBLIC_KEY_HEX_2,
-                payload = "Hello".toByteArray(),
-                hopCount = 0,
-                timestamp = System.currentTimeMillis()
+                ttl = 5
             )
 
             assertNotNull(meshMessage.id)
-            assertEquals(0, meshMessage.hopCount)
+            assertEquals(5, meshMessage.ttl)
         }
     }
 
