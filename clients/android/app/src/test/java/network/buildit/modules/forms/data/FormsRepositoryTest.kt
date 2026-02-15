@@ -230,6 +230,7 @@ class FormsRepositoryTest {
                 description = "Description",
                 fields = fields,
                 groupId = testGroupId,
+                confirmationMessage = null,
                 createdBy = testPubkey
             )
 
@@ -272,7 +273,7 @@ class FormsRepositoryTest {
 
             repository.updateForm(form)
 
-            coVerify { formsDao.updateForm(match { it.updatedAt > 0 }) }
+            coVerify { formsDao.updateForm(match { (it.updatedAt ?: 0) > 0 }) }
         }
 
         @Test
@@ -287,7 +288,7 @@ class FormsRepositoryTest {
 
             repository.updateFormFields(testFormId, newFields)
 
-            coVerify { formsDao.updateForm(match { it.updatedAt > 0 }) }
+            coVerify { formsDao.updateForm(match { (it.updatedAt ?: 0) > 0 }) }
         }
 
         @Test

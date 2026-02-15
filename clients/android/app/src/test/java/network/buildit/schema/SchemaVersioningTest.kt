@@ -452,22 +452,22 @@ class SchemaVersioningTest {
             }
         """.trimIndent()
 
-        val parsed = json.decodeFromString<network.buildit.generated.schemas.DirectMessage>(jsonWithExtras)
+        val parsed = json.decodeFromString<network.buildit.generated.schemas.messaging.DirectMessage>(jsonWithExtras)
         assertThat(parsed.v).isEqualTo("1.1.0")
         assertThat(parsed.content).isEqualTo("Hello with extras")
     }
 
     @Test
     fun `kotlinx serialization round-trip for DirectMessage`() {
-        val original = network.buildit.generated.schemas.DirectMessage(
+        val original = network.buildit.generated.schemas.messaging.DirectMessage(
             v = "1.0.0",
             content = "Test message",
             replyTo = null,
             attachments = emptyList()
         )
 
-        val encoded = json.encodeToString(network.buildit.generated.schemas.DirectMessage.serializer(), original)
-        val decoded = json.decodeFromString<network.buildit.generated.schemas.DirectMessage>(encoded)
+        val encoded = json.encodeToString(network.buildit.generated.schemas.messaging.DirectMessage.serializer(), original)
+        val decoded = json.decodeFromString<network.buildit.generated.schemas.messaging.DirectMessage>(encoded)
 
         assertThat(decoded.v).isEqualTo(original.v)
         assertThat(decoded.content).isEqualTo(original.content)

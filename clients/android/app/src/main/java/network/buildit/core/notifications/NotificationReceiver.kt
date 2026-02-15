@@ -1,5 +1,6 @@
 package network.buildit.core.notifications
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -150,6 +151,7 @@ class NotificationReceiver : BroadcastReceiver() {
     /**
      * Shows a notification indicating the message is being sent.
      */
+    @SuppressLint("MissingPermission")
     private fun showSendingNotification(context: Context, notificationId: Int) {
         val notification = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_MESSAGES)
             .setSmallIcon(R.drawable.ic_notification_message)
@@ -166,6 +168,7 @@ class NotificationReceiver : BroadcastReceiver() {
     /**
      * Shows a notification indicating the message was sent.
      */
+    @SuppressLint("MissingPermission")
     private fun showSentNotification(context: Context, notificationId: Int) {
         val notification = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_MESSAGES)
             .setSmallIcon(R.drawable.ic_notification_message)
@@ -182,6 +185,7 @@ class NotificationReceiver : BroadcastReceiver() {
     /**
      * Shows a notification indicating send failed with retry option.
      */
+    @SuppressLint("MissingPermission")
     private fun showSendFailedNotification(
         context: Context,
         notificationId: Int,
