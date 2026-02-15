@@ -28,8 +28,8 @@ android {
         applicationId = "network.buildit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 101
-        versionName = "0.1.1"
+        versionCode = 102
+        versionName = "0.1.2"
 
         testInstrumentationRunner = "network.buildit.HiltTestRunner"
         vectorDrawables {

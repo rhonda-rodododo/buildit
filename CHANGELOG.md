@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-02-15
+
+### Bug Fixes
+
+- **ci**: Fix release workflow draft creation and Tauri CLI
+
 ## [0.1.1] - 2026-02-15
 
 ### Bug Fixes
