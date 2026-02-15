@@ -34,39 +34,42 @@ jobs:
       - name: Analyze bundle size
         id: analyze
         run: |
-          DIST="clients/web/dist"
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const dist = 'clients/web/dist/assets';
+            const LIMIT_KB = 2048;
 
-          # Sum sizes of all JS files in the dist assets directory
-          TOTAL_JS=0
-          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### JS Bundles" >> $GITHUB_STEP_SUMMARY
-          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+            let total = 0;
+            const rows = [];
 
-          for f in "$DIST"/assets/*.js; do
-            if [ -f "$f" ]; then
-              SIZE=$(stat --format=%s "$f")
-              KB=$(( SIZE / 1024 ))
-              BASENAME=$(basename "$f")
-              echo "| $BASENAME | ${KB}KB |" >> $GITHUB_STEP_SUMMARY
-              TOTAL_JS=$(( TOTAL_JS + SIZE ))
-            fi
-          done
+            if (fs.existsSync(dist)) {
+              for (const f of fs.readdirSync(dist).filter(f => f.endsWith('.js')).sort()) {
+                const size = fs.statSync(path.join(dist, f)).size;
+                total += size;
+                rows.push('| ' + f + ' | ' + Math.round(size / 1024) + 'KB |');
+              }
+            }
 
-          TOTAL_KB=$(( TOTAL_JS / 1024 ))
-          LIMIT_KB=2048  # 2MB limit for total JS
-          LIMIT=$(( LIMIT_KB * 1024 ))
+            const totalKB = Math.round(total / 1024);
+            const summary = process.env.GITHUB_STEP_SUMMARY;
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Total JS: ${TOTAL_KB}KB**" >> $GITHUB_STEP_SUMMARY
+            const report = [
+              '## Bundle Size Report', '',
+              '### JS Bundles',
+              '| File | Size |', '|------|------|',
+              ...rows, '',
+              '**Total JS: ' + totalKB + 'KB**', '',
+              totalKB < LIMIT_KB
+                ? 'Bundle size check passed! Total JS: ' + totalKB + 'KB (limit: ' + LIMIT_KB + 'KB)'
+                : 'Bundle size check FAILED! Total JS: ' + totalKB + 'KB exceeds limit of ' + LIMIT_KB + 'KB'
+            ].join('\n');
 
-          if [ "$TOTAL_JS" -lt "$LIMIT" ]; then
-            echo "Bundle size check passed! Total JS: ${TOTAL_KB}KB (limit: ${LIMIT_KB}KB)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "Bundle size check failed! Total JS: ${TOTAL_KB}KB exceeds limit of ${LIMIT_KB}KB" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
+            if (summary) fs.appendFileSync(summary, report + '\n');
+            console.log(report);
+
+            if (totalKB >= LIMIT_KB) process.exit(1);
+          "
 
       - name: Upload bundle stats
         uses: actions/upload-artifact@v4
