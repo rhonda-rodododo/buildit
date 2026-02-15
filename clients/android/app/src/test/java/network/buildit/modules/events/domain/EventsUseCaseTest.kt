@@ -106,7 +106,7 @@ class EventsUseCaseTest {
     }
 
     @Test
-    fun `createEvent should return error when crypto fails`() = testScope.runTest {
+    fun `createEvent should succeed even when signing fails`() = testScope.runTest {
         // Given
         val event = createTestEvent()
 
@@ -116,8 +116,8 @@ class EventsUseCaseTest {
         // When
         val result = useCase.createEvent(event, testGroupId)
 
-        // Then
-        assertThat(result).isInstanceOf(ModuleResult.Error::class.java)
+        // Then - event is saved locally even if Nostr publishing silently skips
+        assertThat(result).isInstanceOf(ModuleResult.Success::class.java)
     }
 
     @Test

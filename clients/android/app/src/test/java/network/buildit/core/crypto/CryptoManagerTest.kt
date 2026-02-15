@@ -9,6 +9,7 @@ import network.buildit.testutil.FakeKeystore
 import network.buildit.testutil.TestFixtures
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -256,16 +257,16 @@ class CryptoManagerTest {
     inner class Verify {
 
         @Test
-        @DisplayName("returns true for valid signature (placeholder implementation)")
-        fun returnsTrueForValidSignature() = runTest {
+        @DisplayName("returns false without native library loaded")
+        fun returnsFalseWithoutNativeLibrary() = runTest {
             val data = "Signed data".toByteArray()
             val signature = "signature".toByteArray()
             val publicKey = TestFixtures.TEST_PUBLIC_KEY_HEX
 
-            // Placeholder implementation always returns true
+            // Without native library, verify returns false (cannot verify)
             val isValid = cryptoManager.verify(data, signature, publicKey)
 
-            assertTrue(isValid)
+            assertFalse(isValid)
         }
     }
 

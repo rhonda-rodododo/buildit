@@ -311,7 +311,7 @@ class FormsRepositoryTest {
         fun publishFormSetsOpen() = runTest {
             repository.publishForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Open) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Open, any()) }
         }
 
         @Test
@@ -319,7 +319,7 @@ class FormsRepositoryTest {
         fun closeFormSetsClosed() = runTest {
             repository.closeForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Closed) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Closed, any()) }
         }
 
         @Test
@@ -327,7 +327,7 @@ class FormsRepositoryTest {
         fun archiveFormSetsArchived() = runTest {
             repository.archiveForm(testFormId)
 
-            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Archived) }
+            coVerify { formsDao.updateFormStatus(testFormId, FormStatus.Archived, any()) }
         }
     }
 
@@ -380,7 +380,7 @@ class FormsRepositoryTest {
             assertThat(result.formId).isEqualTo(testFormId)
             coVerify {
                 responsesDao.insertResponse(any())
-                formsDao.incrementResponseCount(testFormId)
+                formsDao.incrementResponseCount(testFormId, any())
             }
         }
 
@@ -442,7 +442,7 @@ class FormsRepositoryTest {
         fun markFormSyncedUpdates() = runTest {
             repository.markFormSynced(testFormId)
 
-            coVerify { formsDao.markSynced(testFormId) }
+            coVerify { formsDao.markSynced(testFormId, any()) }
         }
 
         @Test

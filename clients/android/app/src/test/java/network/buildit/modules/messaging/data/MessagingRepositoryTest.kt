@@ -182,12 +182,13 @@ class MessagingRepositoryTest {
         @Test
         @DisplayName("saveDirectMessage inserts metadata from DirectMessage")
         fun saveDirectMessageInserts() = runTest {
-            val directMessage = mockk<DirectMessage> {
-                every { v } returns "1.0.0"
-                every { mentions } returns null
-                every { attachments } returns null
-                every { replyTo } returns null
-            }
+            val directMessage = DirectMessage(
+                v = "1.0.0",
+                content = "Hello",
+                mentions = null,
+                attachments = null,
+                replyTo = null
+            )
 
             repository.saveDirectMessage(testMessageId, testConversationId, directMessage)
 
@@ -197,14 +198,15 @@ class MessagingRepositoryTest {
         @Test
         @DisplayName("saveGroupMessage inserts metadata from GroupMessage")
         fun saveGroupMessageInserts() = runTest {
-            val groupMessage = mockk<GroupMessage> {
-                every { v } returns "1.0.0"
-                every { mentions } returns null
-                every { attachments } returns null
-                every { replyTo } returns null
-                every { threadID } returns null
-                every { groupID } returns "group-123"
-            }
+            val groupMessage = GroupMessage(
+                v = "1.0.0",
+                content = "Hello",
+                groupID = "group-123",
+                mentions = null,
+                attachments = null,
+                replyTo = null,
+                threadID = null
+            )
 
             repository.saveGroupMessage(testMessageId, testConversationId, groupMessage)
 

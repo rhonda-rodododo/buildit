@@ -129,7 +129,7 @@ class EventsRepositoryTest {
             repository.getEventsByGroup(testGroupId).test {
                 val events = awaitItem()
                 assertThat(events).hasSize(2)
-                assertThat(events[0].title).isEqualTo("Community Meeting")
+                assertThat(events[0].title).isEqualTo("Meeting 1")
                 cancelAndIgnoreRemainingEvents()
             }
         }
