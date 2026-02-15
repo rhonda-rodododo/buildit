@@ -55,7 +55,7 @@ class MeshRouterTest {
         fun propertiesAccessible() {
             val entry = TestFixtures.createRoutingEntry()
 
-            assertNotNull(entry.publicKey)
+            assertNotNull(entry.commitment)
             assertNotNull(entry.deviceAddress)
             assertTrue(entry.hopCount >= 0)
             assertTrue(entry.lastSeen > 0)
@@ -69,20 +69,20 @@ class MeshRouterTest {
             val copy = original.copy(hopCount = 2)
 
             assertEquals(2, copy.hopCount)
-            assertEquals(original.publicKey, copy.publicKey)
+            assertEquals(original.commitment, copy.commitment)
         }
 
         @Test
         @DisplayName("equals compares all fields")
         fun equalsComparesAllFields() {
             val entry1 = TestFixtures.createRoutingEntry(
-                publicKey = "key1",
+                commitment = "commit1",
                 deviceAddress = "addr1",
                 hopCount = 1,
                 lastSeen = 1000L
             )
             val entry2 = TestFixtures.createRoutingEntry(
-                publicKey = "key1",
+                commitment = "commit1",
                 deviceAddress = "addr1",
                 hopCount = 1,
                 lastSeen = 1000L
@@ -232,28 +232,32 @@ class MeshRouterTest {
         fun createWithAllFields() {
             val message = MeshMessage(
                 id = "test-id",
-                senderPublicKey = "sender",
-                recipientPublicKey = "recipient",
-                payload = "payload".toByteArray(),
-                hopCount = 0,
-                timestamp = System.currentTimeMillis()
+                routing = EncryptedRoutingInfo(
+                    ciphertext = "encrypted_routing",
+                    ephemeralPubkey = "sender_pubkey"
+                ),
+                payload = "encrypted_payload",
+                timestamp = System.currentTimeMillis() / 1000,
+                ttl = 7,
+                signature = "test_signature",
+                signerPubkey = "signer_pubkey"
             )
 
             assertNotNull(message)
         }
 
         @Test
-        @DisplayName("equals compares by ID only")
-        fun equalsById() {
-            val message1 = TestFixtures.createMeshMessage(id = "same-id", hopCount = 0)
-            val message2 = TestFixtures.createMeshMessage(id = "same-id", hopCount = 5)
+        @DisplayName("equals compares all fields (data class)")
+        fun equalsComparesAllFields() {
+            val message1 = TestFixtures.createMeshMessage(id = "same-id")
+            val message2 = TestFixtures.createMeshMessage(id = "same-id")
 
             assertEquals(message1, message2)
         }
 
         @Test
-        @DisplayName("hashCode based on ID")
-        fun hashCodeById() {
+        @DisplayName("hashCode consistent for equal messages")
+        fun hashCodeConsistent() {
             val message1 = TestFixtures.createMeshMessage(id = "same-id")
             val message2 = TestFixtures.createMeshMessage(id = "same-id")
 
@@ -265,21 +269,21 @@ class MeshRouterTest {
         fun copyPreservesFields() {
             val original = TestFixtures.createMeshMessage()
 
-            val copy = original.copy(hopCount = original.hopCount + 1)
+            val copy = original.copy(ttl = original.ttl - 1)
 
             assertEquals(original.id, copy.id)
-            assertEquals(original.senderPublicKey, copy.senderPublicKey)
-            assertEquals(original.recipientPublicKey, copy.recipientPublicKey)
-            assertEquals(original.hopCount + 1, copy.hopCount)
+            assertEquals(original.routing, copy.routing)
+            assertEquals(original.payload, copy.payload)
+            assertEquals(original.ttl - 1, copy.ttl)
         }
 
         @ParameterizedTest
-        @ValueSource(ints = [0, 1, 3, 7])
-        @DisplayName("hopCount can be various values")
-        fun hopCountVariousValues(hopCount: Int) {
-            val message = TestFixtures.createMeshMessage(hopCount = hopCount)
+        @ValueSource(ints = [1, 3, 5, 7])
+        @DisplayName("ttl can be various values")
+        fun ttlVariousValues(ttl: Int) {
+            val message = TestFixtures.createMeshMessage(ttl = ttl)
 
-            assertEquals(hopCount, message.hopCount)
+            assertEquals(ttl, message.ttl)
         }
     }
 
@@ -373,7 +377,7 @@ class MeshRouterTest {
             val pendingMessages = java.util.concurrent.ConcurrentHashMap<String, MutableList<MeshMessage>>()
 
             val recipientKey = "recipient1"
-            val message = TestFixtures.createMeshMessage(recipientPublicKey = recipientKey)
+            val message = TestFixtures.createMeshMessage()
 
             val queue = pendingMessages.getOrPut(recipientKey) { mutableListOf() }
             queue.add(message)
@@ -406,10 +410,10 @@ class MeshRouterTest {
         fun routingEntriesCanBeManaged() {
             val routingTable = java.util.concurrent.ConcurrentHashMap<String, RoutingEntry>()
 
-            val entry = TestFixtures.createRoutingEntry(publicKey = "pubkey1")
-            routingTable["pubkey1"] = entry
+            val entry = TestFixtures.createRoutingEntry(commitment = "commit1")
+            routingTable["commit1"] = entry
 
-            assertEquals(entry, routingTable["pubkey1"])
+            assertEquals(entry, routingTable["commit1"])
         }
 
         @Test
@@ -421,11 +425,11 @@ class MeshRouterTest {
 
             // Add fresh and stale entries
             routingTable["fresh"] = TestFixtures.createRoutingEntry(
-                publicKey = "fresh",
+                commitment = "fresh",
                 lastSeen = now
             )
             routingTable["stale"] = TestFixtures.createRoutingEntry(
-                publicKey = "stale",
+                commitment = "stale",
                 lastSeen = now - ttl - 1000
             )
 
@@ -443,61 +447,68 @@ class MeshRouterTest {
             val routingTable = java.util.concurrent.ConcurrentHashMap<String, RoutingEntry>()
 
             val oldEntry = TestFixtures.createRoutingEntry(
-                publicKey = "key1",
+                commitment = "commit1",
                 hopCount = 3,
                 lastSeen = System.currentTimeMillis() - 10000
             )
-            routingTable["key1"] = oldEntry
+            routingTable["commit1"] = oldEntry
 
             val newEntry = TestFixtures.createRoutingEntry(
-                publicKey = "key1",
+                commitment = "commit1",
                 hopCount = 1,
                 lastSeen = System.currentTimeMillis()
             )
-            routingTable["key1"] = newEntry
+            routingTable["commit1"] = newEntry
 
-            assertEquals(1, routingTable["key1"]?.hopCount)
+            assertEquals(1, routingTable["commit1"]?.hopCount)
         }
     }
 
     @Nested
-    @DisplayName("Hop Count Validation")
-    inner class HopCountValidation {
+    @DisplayName("TTL Validation")
+    inner class TtlValidation {
 
         @Test
-        @DisplayName("hop count starts at 0 for new messages")
-        fun hopCountStartsAtZero() {
+        @DisplayName("default TTL is 7 for new messages")
+        fun defaultTtlIs7() {
             val message = TestFixtures.createMeshMessage()
 
-            assertEquals(0, message.hopCount)
+            assertEquals(7, message.ttl)
         }
 
         @Test
-        @DisplayName("hop count increments on forward")
-        fun hopCountIncrementsOnForward() {
-            val original = TestFixtures.createMeshMessage(hopCount = 3)
+        @DisplayName("TTL decrements on forward")
+        fun ttlDecrementsOnForward() {
+            val original = TestFixtures.createMeshMessage(ttl = 5)
 
-            val forwarded = original.copy(hopCount = original.hopCount + 1)
+            val forwarded = original.forwarded()
 
-            assertEquals(4, forwarded.hopCount)
+            assertEquals(4, forwarded.ttl)
+        }
+
+        @Test
+        @DisplayName("forwarded message gets new ID")
+        fun forwardedMessageGetsNewId() {
+            val original = TestFixtures.createMeshMessage()
+
+            val forwarded = original.forwarded()
+
+            assertTrue(original.id != forwarded.id)
         }
 
         @ParameterizedTest
-        @ValueSource(ints = [0, 1, 2, 3, 4, 5, 6])
-        @DisplayName("messages with hop count < 7 can be forwarded")
-        fun messagesUnderMaxCanBeForwarded(hopCount: Int) {
-            val maxHopCount = 7
-
-            assertTrue(hopCount < maxHopCount)
+        @ValueSource(ints = [1, 2, 3, 4, 5, 6, 7])
+        @DisplayName("messages with TTL > 0 can be forwarded")
+        fun messagesWithPositiveTtlCanBeForwarded(ttl: Int) {
+            assertTrue(ttl > 0)
         }
 
         @Test
-        @DisplayName("messages at max hop count should not be forwarded")
-        fun messagesAtMaxShouldNotForward() {
-            val maxHopCount = 7
-            val message = TestFixtures.createMeshMessage(hopCount = maxHopCount)
+        @DisplayName("messages at TTL 0 should not be forwarded")
+        fun messagesAtZeroTtlShouldNotForward() {
+            val message = TestFixtures.createMeshMessage(ttl = 0)
 
-            assertFalse(message.hopCount < maxHopCount)
+            assertFalse(message.ttl > 0)
         }
     }
 }

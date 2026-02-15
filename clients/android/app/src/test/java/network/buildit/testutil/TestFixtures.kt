@@ -3,7 +3,9 @@ package network.buildit.testutil
 import android.bluetooth.BluetoothDevice
 import io.mockk.every
 import io.mockk.mockk
+import network.buildit.core.ble.DecryptedMessage
 import network.buildit.core.ble.DiscoveredDevice
+import network.buildit.core.ble.EncryptedRoutingInfo
 import network.buildit.core.ble.MeshMessage
 import network.buildit.core.ble.ReceivedMessage
 import network.buildit.core.ble.RoutingEntry
@@ -54,18 +56,35 @@ object TestFixtures {
 
     fun createMeshMessage(
         id: String = UUID.randomUUID().toString(),
-        senderPublicKey: String = TEST_PUBLIC_KEY_HEX,
-        recipientPublicKey: String = TEST_PUBLIC_KEY_HEX_2,
-        payload: ByteArray = "test message".toByteArray(),
-        hopCount: Int = 0,
-        timestamp: Long = System.currentTimeMillis()
+        routing: EncryptedRoutingInfo = EncryptedRoutingInfo(
+            ciphertext = "encrypted_routing",
+            ephemeralPubkey = TEST_PUBLIC_KEY_HEX
+        ),
+        payload: String = "encrypted_payload",
+        timestamp: Long = System.currentTimeMillis() / 1000,
+        ttl: Int = 7,
+        signature: String = "test_signature",
+        signerPubkey: String = TEST_PUBLIC_KEY_HEX_2,
+        type: MeshMessage.MessageType = MeshMessage.MessageType.DIRECT
     ): MeshMessage = MeshMessage(
         id = id,
-        senderPublicKey = senderPublicKey,
-        recipientPublicKey = recipientPublicKey,
+        routing = routing,
         payload = payload,
-        hopCount = hopCount,
-        timestamp = timestamp
+        timestamp = timestamp,
+        ttl = ttl,
+        signature = signature,
+        signerPubkey = signerPubkey,
+        type = type
+    )
+
+    fun createDecryptedMessage(
+        senderPubkey: String = TEST_PUBLIC_KEY_HEX,
+        payload: ByteArray = "test message".toByteArray(),
+        correlationToken: String = UUID.randomUUID().toString()
+    ): DecryptedMessage = DecryptedMessage(
+        senderPubkey = senderPubkey,
+        payload = payload,
+        correlationToken = correlationToken
     )
 
     fun createReceivedMessage(
@@ -77,15 +96,17 @@ object TestFixtures {
     )
 
     fun createRoutingEntry(
-        publicKey: String = TEST_PUBLIC_KEY_HEX,
+        commitment: String = "test_commitment_hash",
         deviceAddress: String = TEST_DEVICE_ADDRESS,
         hopCount: Int = 1,
-        lastSeen: Long = System.currentTimeMillis()
+        lastSeen: Long = System.currentTimeMillis(),
+        verifiedPubkey: String? = null
     ): RoutingEntry = RoutingEntry(
-        publicKey = publicKey,
+        commitment = commitment,
         deviceAddress = deviceAddress,
         hopCount = hopCount,
-        lastSeen = lastSeen
+        lastSeen = lastSeen,
+        verifiedPubkey = verifiedPubkey
     )
 
     // ============== Nostr Test Data ==============

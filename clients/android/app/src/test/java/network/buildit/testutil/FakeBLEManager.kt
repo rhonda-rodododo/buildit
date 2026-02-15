@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import network.buildit.core.ble.BLEEvent
 import network.buildit.core.ble.BLEException
 import network.buildit.core.ble.BLEState
+import network.buildit.core.ble.DecryptedMessage
 import network.buildit.core.ble.DiscoveredDevice
-import network.buildit.core.ble.MeshMessage
 import java.util.UUID
 
 /**
@@ -49,7 +49,7 @@ class FakeBLEManager {
     var sendDelay: Long = 0L
 
     private val sentMessages = mutableListOf<SentMessage>()
-    private val receivedMessages = mutableListOf<MeshMessage>()
+    private val receivedMessages = mutableListOf<DecryptedMessage>()
 
     // ============== Public Methods ==============
 
@@ -142,9 +142,9 @@ class FakeBLEManager {
     }
 
     /**
-     * Simulates receiving a mesh message.
+     * Simulates receiving a decrypted message.
      */
-    suspend fun simulateMessageReceived(message: MeshMessage) {
+    suspend fun simulateMessageReceived(message: DecryptedMessage) {
         receivedMessages.add(message)
         _events.emit(BLEEvent.MessageReceived(message))
     }
@@ -180,7 +180,7 @@ class FakeBLEManager {
     /**
      * Gets all messages that have been received.
      */
-    fun getReceivedMessages(): List<MeshMessage> = receivedMessages.toList()
+    fun getReceivedMessages(): List<DecryptedMessage> = receivedMessages.toList()
 
     /**
      * Clears recorded messages.

@@ -323,7 +323,7 @@ class BLEManagerTest {
         @Test
         @DisplayName("simulateMessageReceived emits event")
         fun messageReceivedEmitsEvent() = runTest {
-            val message = TestFixtures.createMeshMessage()
+            val message = TestFixtures.createDecryptedMessage()
 
             fakeBleManager.events.test {
                 fakeBleManager.start()
@@ -341,13 +341,13 @@ class BLEManagerTest {
         @Test
         @DisplayName("received messages are recorded")
         fun receivedMessagesRecorded() = runTest {
-            val message = TestFixtures.createMeshMessage()
+            val message = TestFixtures.createDecryptedMessage()
 
             fakeBleManager.simulateMessageReceived(message)
 
             val received = fakeBleManager.getReceivedMessages()
             assertEquals(1, received.size)
-            assertEquals(message.id, received[0].id)
+            assertEquals(message.correlationToken, received[0].correlationToken)
         }
     }
 
@@ -458,7 +458,7 @@ class BLEManagerTest {
         @Test
         @DisplayName("MessageReceived contains message")
         fun messageReceivedContainsMessage() {
-            val message = TestFixtures.createMeshMessage()
+            val message = TestFixtures.createDecryptedMessage()
 
             val event = BLEEvent.MessageReceived(message)
 
@@ -566,10 +566,10 @@ class BLEManagerTest {
     inner class MeshMessageTests {
 
         @Test
-        @DisplayName("equals compares by ID")
-        fun equalsById() {
+        @DisplayName("equals compares all fields (data class)")
+        fun equalsComparesAllFields() {
             val message1 = TestFixtures.createMeshMessage(id = "same-id")
-            val message2 = TestFixtures.createMeshMessage(id = "same-id", payload = "different".toByteArray())
+            val message2 = TestFixtures.createMeshMessage(id = "same-id")
 
             assertEquals(message1, message2)
         }
@@ -584,8 +584,8 @@ class BLEManagerTest {
         }
 
         @Test
-        @DisplayName("hashCode is based on ID")
-        fun hashCodeBasedOnId() {
+        @DisplayName("hashCode is consistent for equal messages")
+        fun hashCodeConsistent() {
             val message1 = TestFixtures.createMeshMessage(id = "test-id")
             val message2 = TestFixtures.createMeshMessage(id = "test-id")
 
