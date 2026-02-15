@@ -4,9 +4,9 @@
   "version": "0.1.2",
   "identifier": "network.buildit.desktop",
   "build": {
-    "beforeDevCommand": "bun run dev",
+    "beforeDevCommand": "cd ../web && bun run dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "bun run build",
+    "beforeBuildCommand": "cd ../web && bun run build",
     "frontendDist": "../web/dist"
   },
   "app": {
