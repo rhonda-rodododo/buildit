@@ -2,6 +2,9 @@
 node_modules/
 .bun/
 
+# Bun text-format lockfile (we use bun.lockb binary format with bun 1.1.x)
+bun.lock
+
 # Build outputs
 dist/
 build/

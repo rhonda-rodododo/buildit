@@ -4,16 +4,16 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'src-tauri/**'
-      - 'e2e/tauri/**'
-      - 'playwright-tauri.config.ts'
+      - 'clients/desktop/src-tauri/**'
+      - 'clients/web/tests/e2e/tauri/**'
+      - 'clients/web/playwright-tauri.config.ts'
       - '.github/workflows/tauri-e2e-tests.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'src-tauri/**'
-      - 'e2e/tauri/**'
-      - 'playwright-tauri.config.ts'
+      - 'clients/desktop/src-tauri/**'
+      - 'clients/web/tests/e2e/tauri/**'
+      - 'clients/web/playwright-tauri.config.ts'
       - '.github/workflows/tauri-e2e-tests.yml'
   workflow_dispatch:
 
@@ -41,7 +41,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.1.37"
 
       - name: Setup Node.js (for Playwright)
         uses: actions/setup-node@v4
@@ -49,7 +49,7 @@ jobs:
           node-version: '20'
 
       - name: Install Rust (stable)
-        uses: dtolnay/rust-action@stable
+        uses: dtolnay/rust-toolchain@stable
 
       # Linux-specific dependencies
       - name: Install Linux dependencies
@@ -84,6 +84,7 @@ jobs:
         run: bun install
 
       - name: Install Playwright Browsers
+        working-directory: clients/web
         run: bunx playwright install --with-deps chromium
 
       - name: Cache Rust dependencies
@@ -92,13 +93,14 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
+            clients/desktop/target
           key: ${{ matrix.platform.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ matrix.platform.os }}-cargo-
 
       # Run Tauri E2E tests in mock mode (no actual Tauri build needed)
       - name: Run Tauri E2E Tests (Mock Mode)
+        working-directory: clients/web
         run: bun run test:e2e:tauri
         env:
           CI: true
@@ -109,7 +111,7 @@ jobs:
         if: always()
         with:
           name: playwright-report-tauri-${{ matrix.platform.name }}
-          path: playwright-report-tauri/
+          path: clients/web/playwright-report-tauri/
           retention-days: 30
 
       - name: Upload Test Results
@@ -117,7 +119,7 @@ jobs:
         if: always()
         with:
           name: test-results-tauri-${{ matrix.platform.name }}
-          path: test-results/tauri/
+          path: clients/web/test-results/tauri/
           retention-days: 30
 
   # Optional: Full Tauri integration tests (builds actual Tauri app)
@@ -135,7 +137,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.1.37"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -143,7 +145,7 @@ jobs:
           node-version: '20'
 
       - name: Install Rust (stable)
-        uses: dtolnay/rust-action@stable
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install Linux dependencies
         run: |
@@ -163,6 +165,7 @@ jobs:
         run: bun install
 
       - name: Install Playwright Browsers
+        working-directory: clients/web
         run: bunx playwright install --with-deps chromium
 
       - name: Install tauri-driver
@@ -174,19 +177,20 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
+            clients/desktop/target
           key: ubuntu-latest-cargo-tauri-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ubuntu-latest-cargo-tauri-
 
       - name: Build Tauri Application (Debug)
-        run: bun run tauri build -- --debug --no-bundle
+        working-directory: clients/desktop
+        run: cargo tauri build --debug --no-bundle
 
       # Run with virtual display for headless testing
       - name: Run Tauri Integration Tests
         uses: coactions/setup-xvfb@v1
         with:
-          run: bun run test:e2e:tauri
+          run: cd clients/web && bun run test:e2e:tauri
         env:
           CI: true
           TAURI_MODE: true
@@ -197,7 +201,7 @@ jobs:
         if: always()
         with:
           name: playwright-report-tauri-integration
-          path: playwright-report-tauri/
+          path: clients/web/playwright-report-tauri/
           retention-days: 30
 
       - name: Upload Integration Test Results
@@ -205,5 +209,5 @@ jobs:
         if: always()
         with:
           name: test-results-tauri-integration
-          path: test-results/tauri/
+          path: clients/web/test-results/tauri/
           retention-days: 30

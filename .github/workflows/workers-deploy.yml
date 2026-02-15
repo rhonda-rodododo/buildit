@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BUN_VERSION: "latest"
+  BUN_VERSION: "1.1.37"
 
 jobs:
   # ─────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb') }}
+          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
             bun-workers-${{ runner.os }}-
 
@@ -90,7 +90,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb') }}
+          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
             bun-workers-${{ runner.os }}-
 
@@ -122,7 +122,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb') }}
+          key: bun-workers-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
             bun-workers-${{ runner.os }}-
 

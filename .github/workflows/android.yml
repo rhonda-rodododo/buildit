@@ -28,6 +28,10 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
+      - name: Ensure gradlew is executable
+        working-directory: clients/android
+        run: chmod +x ./gradlew
+
       - name: Run Android Lint
         working-directory: clients/android
         run: ./gradlew lint --continue
@@ -68,6 +72,10 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
+      - name: Ensure gradlew is executable
+        working-directory: clients/android
+        run: chmod +x ./gradlew
+
       - name: Run unit tests
         working-directory: clients/android
         run: ./gradlew testDebugUnitTest
@@ -98,6 +106,10 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
+      - name: Ensure gradlew is executable
+        working-directory: clients/android
+        run: chmod +x ./gradlew
+
       - name: Build debug APK
         working-directory: clients/android
         run: ./gradlew assembleDebug
@@ -127,6 +139,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
+
+      - name: Ensure gradlew is executable
+        working-directory: clients/android
+        run: chmod +x ./gradlew
 
       - name: Build release APK
         working-directory: clients/android

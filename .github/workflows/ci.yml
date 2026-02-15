@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BUN_VERSION: "latest"
+  BUN_VERSION: "1.1.37"
   RUST_TOOLCHAIN: "stable"
   JAVA_VERSION: "17"
 
@@ -39,7 +39,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             clients/web/node_modules
-          key: bun-web-${{ runner.os }}-${{ hashFiles('clients/web/bun.lockb', 'clients/web/package.json') }}
+          key: bun-web-${{ runner.os }}-${{ hashFiles('bun.lockb', 'clients/web/package.json') }}
           restore-keys: |
             bun-web-${{ runner.os }}-
 
@@ -78,7 +78,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             clients/web/node_modules
-          key: bun-web-${{ runner.os }}-${{ hashFiles('clients/web/bun.lockb', 'clients/web/package.json') }}
+          key: bun-web-${{ runner.os }}-${{ hashFiles('bun.lockb', 'clients/web/package.json') }}
           restore-keys: |
             bun-web-${{ runner.os }}-
 
@@ -110,7 +110,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             clients/web/node_modules
-          key: bun-web-${{ runner.os }}-${{ hashFiles('clients/web/bun.lockb', 'clients/web/package.json') }}
+          key: bun-web-${{ runner.os }}-${{ hashFiles('bun.lockb', 'clients/web/package.json') }}
           restore-keys: |
             bun-web-${{ runner.os }}-
 
@@ -263,7 +263,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             clients/web/node_modules
-          key: bun-web-${{ runner.os }}-${{ hashFiles('clients/web/bun.lockb', 'clients/web/package.json') }}
+          key: bun-web-${{ runner.os }}-${{ hashFiles('bun.lockb', 'clients/web/package.json') }}
           restore-keys: |
             bun-web-${{ runner.os }}-
 
@@ -299,7 +299,9 @@ jobs:
 
       - name: Build debug
         working-directory: clients/android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
 
   # ─────────────────────────────────────────────────────────────
   # Workers: Typecheck All

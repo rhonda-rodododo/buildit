@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BUN_VERSION: "latest"
+  BUN_VERSION: "1.1.37"
 
 jobs:
   validate-schemas:
@@ -42,7 +42,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             tools/codegen/node_modules
-          key: bun-codegen-${{ runner.os }}-${{ hashFiles('tools/codegen/bun.lockb', 'tools/codegen/package.json') }}
+          key: bun-codegen-${{ runner.os }}-${{ hashFiles('bun.lockb', 'tools/codegen/package.json') }}
           restore-keys: |
             bun-codegen-${{ runner.os }}-
 
@@ -80,7 +80,7 @@ jobs:
             ~/.bun/install/cache
             tools/codegen/node_modules
             clients/web/node_modules
-          key: bun-codegen-full-${{ runner.os }}-${{ hashFiles('tools/codegen/bun.lockb', 'clients/web/bun.lockb') }}
+          key: bun-codegen-full-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
             bun-codegen-full-${{ runner.os }}-
 
@@ -127,7 +127,7 @@ jobs:
           path: |
             ~/.bun/install/cache
             tools/schema-bundle/node_modules
-          key: bun-schema-bundle-${{ runner.os }}-${{ hashFiles('tools/schema-bundle/bun.lockb', 'tools/schema-bundle/package.json') }}
+          key: bun-schema-bundle-${{ runner.os }}-${{ hashFiles('bun.lockb', 'tools/schema-bundle/package.json') }}
           restore-keys: |
             bun-schema-bundle-${{ runner.os }}-
 

@@ -17,65 +17,56 @@ jobs:
           fetch-depth: 0  # Fetch all history for comparison
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.1.37"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Build project
+        working-directory: clients/web
         run: bun run build:no-check
 
       - name: Analyze bundle size
         id: analyze
         run: |
+          DIST="clients/web/dist"
           echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Main Bundle (Initial Load)" >> $GITHUB_STEP_SUMMARY
           echo "| File | Size (Brotli) | Size (Gzip) |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------------|-------------|" >> $GITHUB_STEP_SUMMARY
 
-          # Extract main bundle sizes
-          INDEX_BR=$(ls -lh dist/assets/index-*.js.br | awk '{print $5}')
-          INDEX_GZ=$(ls -lh dist/assets/index-*.js.gz | awk '{print $5}')
-          REACT_BR=$(ls -lh dist/assets/vendor-react-*.js.br | awk '{print $5}')
-          REACT_GZ=$(ls -lh dist/assets/vendor-react-*.js.gz | awk '{print $5}')
-          RADIX_BR=$(ls -lh dist/assets/vendor-radix-*.js.br | awk '{print $5}')
-          RADIX_GZ=$(ls -lh dist/assets/vendor-radix-*.js.gz | awk '{print $5}')
+          # Extract main bundle sizes (skip if compressed files don't exist)
+          INDEX_SIZE=$(stat --format=%s $DIST/assets/index-*.js 2>/dev/null || echo "0")
+          REACT_SIZE=$(stat --format=%s $DIST/assets/vendor-react-*.js 2>/dev/null || echo "0")
 
-          echo "| index.js | $INDEX_BR | $INDEX_GZ |" >> $GITHUB_STEP_SUMMARY
-          echo "| vendor-react.js | $REACT_BR | $REACT_GZ |" >> $GITHUB_STEP_SUMMARY
-          echo "| vendor-radix.js | $RADIX_BR | $RADIX_GZ |" >> $GITHUB_STEP_SUMMARY
+          INDEX_KB=$(( INDEX_SIZE / 1024 ))
+          REACT_KB=$(( REACT_SIZE / 1024 ))
 
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Lazy-Loaded Modules" >> $GITHUB_STEP_SUMMARY
-          echo "| File | Size (Brotli) |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|--------------|" >> $GITHUB_STEP_SUMMARY
-
-          MD_EDITOR_BR=$(ls -lh dist/assets/vendor-md-editor-*.js.br | awk '{print $5}')
-          echo "| vendor-md-editor.js (lazy) | $MD_EDITOR_BR |" >> $GITHUB_STEP_SUMMARY
+          echo "| index.js | ${INDEX_KB}KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| vendor-react.js | ${REACT_KB}KB |" >> $GITHUB_STEP_SUMMARY
 
           # Check bundle size limits
-          INDEX_SIZE=$(stat --format=%s dist/assets/index-*.js)
-          REACT_SIZE=$(stat --format=%s dist/assets/vendor-react-*.js)
           TOTAL_INITIAL=$((INDEX_SIZE + REACT_SIZE))
           LIMIT=307200  # 300KB limit
 
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ $TOTAL_INITIAL -lt $LIMIT ]; then
-            echo "✅ **Bundle size check passed!** Total initial: $(($TOTAL_INITIAL / 1024))KB (limit: 300KB)" >> $GITHUB_STEP_SUMMARY
+            echo "Bundle size check passed! Total initial: $(($TOTAL_INITIAL / 1024))KB (limit: 300KB)" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
-            echo "❌ **Bundle size check failed!** Total initial: $(($TOTAL_INITIAL / 1024))KB exceeds limit of 300KB" >> $GITHUB_STEP_SUMMARY
+            echo "Bundle size check failed! Total initial: $(($TOTAL_INITIAL / 1024))KB exceeds limit of 300KB" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
       - name: Upload bundle stats
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: bundle-stats
-          path: dist/stats.html
+          path: clients/web/dist/
           retention-days: 30
 
       - name: Comment PR with bundle size

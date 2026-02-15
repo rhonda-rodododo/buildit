@@ -22,7 +22,7 @@ permissions:
   contents: write
 
 env:
-  BUN_VERSION: "latest"
+  BUN_VERSION: "1.1.37"
   RUST_TOOLCHAIN: "stable"
   JAVA_VERSION: "17"
 
@@ -279,6 +279,10 @@ jobs:
           printf 'storeFile=../release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
             "$ANDROID_STORE_PASSWORD" "$ANDROID_KEY_ALIAS" "$ANDROID_KEY_PASSWORD" \
             > clients/android/keystore.properties
+
+      - name: Ensure gradlew is executable
+        working-directory: clients/android
+        run: chmod +x ./gradlew
 
       - name: Build release APK
         working-directory: clients/android
