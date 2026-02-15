@@ -41,10 +41,10 @@ jobs:
         with:
           path: |
             ~/.bun/install/cache
-            tools/codegen/node_modules
-          key: bun-codegen-${{ runner.os }}-${{ hashFiles('bun.lockb', 'tools/codegen/package.json') }}
+            node_modules
+          key: bun-root-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
-            bun-codegen-${{ runner.os }}-
+            bun-root-${{ runner.os }}-
 
       - name: Install dependencies
         run: bun install
@@ -77,11 +77,10 @@ jobs:
         with:
           path: |
             ~/.bun/install/cache
-            tools/codegen/node_modules
-            clients/web/node_modules
-          key: bun-codegen-full-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
+            node_modules
+          key: bun-root-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
-            bun-codegen-full-${{ runner.os }}-
+            bun-root-${{ runner.os }}-
 
       - name: Install dependencies
         run: bun install
@@ -121,10 +120,10 @@ jobs:
         with:
           path: |
             ~/.bun/install/cache
-            tools/schema-bundle/node_modules
-          key: bun-schema-bundle-${{ runner.os }}-${{ hashFiles('bun.lockb', 'tools/schema-bundle/package.json') }}
+            node_modules
+          key: bun-root-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json') }}
           restore-keys: |
-            bun-schema-bundle-${{ runner.os }}-
+            bun-root-${{ runner.os }}-
 
       - name: Install dependencies
         run: bun install
