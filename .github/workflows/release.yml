@@ -1,0 +1,365 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.2.0). Leave empty to auto-detect from commits."
+        required: false
+        type: string
+      prerelease:
+        description: "Mark as pre-release"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run — build artifacts but skip GitHub Release"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  BUN_VERSION: "latest"
+  RUST_TOOLCHAIN: "stable"
+  JAVA_VERSION: "17"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 1. Validate that CI has already passed on HEAD
+  # ─────────────────────────────────────────────────────────────
+  validate-ci:
+    name: Validate CI Status
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check CI status on HEAD
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA="${{ github.sha }}"
+          echo "Checking CI status for commit $SHA ..."
+
+          # Look for the "CI Status" check run from ci.yml
+          STATUS=$(gh api \
+            "repos/${{ github.repository }}/commits/$SHA/check-runs" \
+            --jq '.check_runs[] | select(.name == "CI Status") | .conclusion' \
+            2>/dev/null || echo "")
+
+          if [[ "$STATUS" == "success" ]]; then
+            echo "CI Status check passed on $SHA"
+          else
+            echo "::error::CI Status check has not passed on $SHA (got: '${STATUS:-not found}'). Push to main and wait for CI to pass before releasing."
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. Determine version, bump files, tag, generate changelog
+  # ─────────────────────────────────────────────────────────────
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [validate-ci]
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Checkout (full history for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - name: Determine version
+        id: version
+        run: |
+          INPUT_VERSION="${{ inputs.version }}"
+
+          if [[ -n "$INPUT_VERSION" ]]; then
+            # Use explicitly provided version
+            VERSION="$INPUT_VERSION"
+            echo "Using provided version: $VERSION"
+          else
+            # Auto-detect from conventional commits using git-cliff
+            CURRENT=$("./scripts/get-version.sh")
+            echo "Current version: $CURRENT"
+
+            BUMPED=$(git cliff --bumped-version 2>/dev/null || echo "")
+            if [[ -n "$BUMPED" ]]; then
+              # git-cliff returns "vX.Y.Z", strip the v prefix
+              VERSION="${BUMPED#v}"
+            else
+              # Fallback: patch bump
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+              VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+            fi
+            echo "Auto-detected version: $VERSION"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version in all files
+        run: |
+          chmod +x ./scripts/bump-version.sh
+          ./scripts/bump-version.sh "${{ steps.version.outputs.version }}"
+
+      - name: Generate changelog
+        run: |
+          git cliff --tag "${{ steps.version.outputs.tag }}" --output CHANGELOG.md
+
+      - name: Commit and tag
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          git tag "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin HEAD --tags
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. Create a draft GitHub Release (all build jobs upload here)
+  # ─────────────────────────────────────────────────────────────
+  create-draft-release:
+    name: Create Draft Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [determine-version]
+    if: ${{ inputs.dry_run != true }}
+    outputs:
+      release_id: ${{ steps.create.outputs.release_id }}
+    steps:
+      - name: Create draft release
+        id: create
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.determine-version.outputs.tag }}"
+          PRERELEASE_FLAG=""
+          if [[ "${{ inputs.prerelease }}" == "true" ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
+          RELEASE_URL=$(gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --title "$TAG" \
+            --draft \
+            --generate-notes \
+            $PRERELEASE_FLAG \
+            2>&1)
+
+          # Extract release ID via API
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/$TAG" --jq '.id')
+          echo "release_id=$RELEASE_ID" >> "$GITHUB_OUTPUT"
+          echo "Created draft release $TAG (id: $RELEASE_ID)"
+
+  # ─────────────────────────────────────────────────────────────
+  # 4. Build Desktop (Linux only — AppImage + .deb)
+  # ─────────────────────────────────────────────────────────────
+  build-desktop-linux:
+    name: Build Desktop (Linux)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    needs: [determine-version, create-draft-release]
+    if: ${{ always() && needs.determine-version.result == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.dry_run != true && needs.determine-version.outputs.tag || github.sha }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install Linux system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libbluetooth-dev \
+            libdbus-1-dev
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            clients/desktop/target
+          key: cargo-release-${{ runner.os }}-${{ hashFiles('clients/desktop/Cargo.lock', 'clients/desktop/Cargo.toml') }}
+          restore-keys: |
+            cargo-release-${{ runner.os }}-
+
+      - name: Install web dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build with Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          projectPath: clients/desktop
+          tauriScript: cargo tauri
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux
+          path: |
+            clients/desktop/target/release/bundle/appimage/*.AppImage
+            clients/desktop/target/release/bundle/deb/*.deb
+          retention-days: 30
+
+      - name: Upload to release
+        if: ${{ inputs.dry_run != true && needs.create-draft-release.outputs.release_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.determine-version.outputs.tag }}"
+          for file in clients/desktop/target/release/bundle/appimage/*.AppImage \
+                      clients/desktop/target/release/bundle/deb/*.deb; do
+            if [[ -f "$file" ]]; then
+              echo "Uploading $file ..."
+              gh release upload "$TAG" "$file" --repo "${{ github.repository }}"
+            fi
+          done
+
+  # ─────────────────────────────────────────────────────────────
+  # 5. Build Android (prod release APK)
+  # ─────────────────────────────────────────────────────────────
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [determine-version, create-draft-release]
+    if: ${{ always() && needs.determine-version.result == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.dry_run != true && needs.determine-version.outputs.tag || github.sha }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Setup signing
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > clients/android/release.jks
+          printf 'storeFile=../release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$ANDROID_STORE_PASSWORD" "$ANDROID_KEY_ALIAS" "$ANDROID_KEY_PASSWORD" \
+            > clients/android/keystore.properties
+
+      - name: Build release APK
+        working-directory: clients/android
+        run: ./gradlew assembleProdRelease --no-daemon
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: clients/android/app/build/outputs/apk/prod/release/*.apk
+          retention-days: 30
+
+      - name: Upload to release
+        if: ${{ inputs.dry_run != true && needs.create-draft-release.outputs.release_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.determine-version.outputs.tag }}"
+          for file in clients/android/app/build/outputs/apk/prod/release/*.apk; do
+            if [[ -f "$file" ]]; then
+              echo "Uploading $file ..."
+              gh release upload "$TAG" "$file" --repo "${{ github.repository }}"
+            fi
+          done
+
+  # ─────────────────────────────────────────────────────────────
+  # 6. Finalize release — update body with full changelog
+  # ─────────────────────────────────────────────────────────────
+  finalize-release:
+    name: Finalize Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [determine-version, create-draft-release, build-desktop-linux, build-android]
+    if: ${{ always() && inputs.dry_run != true && needs.create-draft-release.result == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.determine-version.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - name: Generate changelog body
+        run: |
+          git cliff --latest --strip header > RELEASE_BODY.md
+
+      - name: Summarize build results
+        run: |
+          echo "" >> RELEASE_BODY.md
+          echo "---" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "### Build Status" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          echo "| Platform | Status |" >> RELEASE_BODY.md
+          echo "|----------|--------|" >> RELEASE_BODY.md
+
+          DESKTOP="${{ needs.build-desktop-linux.result }}"
+          ANDROID="${{ needs.build-android.result }}"
+
+          if [[ "$DESKTOP" == "success" ]]; then
+            echo "| Linux Desktop (AppImage, .deb) | Attached |" >> RELEASE_BODY.md
+          else
+            echo "| Linux Desktop | $DESKTOP |" >> RELEASE_BODY.md
+          fi
+
+          if [[ "$ANDROID" == "success" ]]; then
+            echo "| Android APK | Attached |" >> RELEASE_BODY.md
+          else
+            echo "| Android APK | $ANDROID |" >> RELEASE_BODY.md
+          fi
+
+      - name: Update release body
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.determine-version.outputs.tag }}"
+          gh release edit "$TAG" \
+            --repo "${{ github.repository }}" \
+            --notes-file RELEASE_BODY.md
+          echo "Updated release $TAG with changelog. Release remains a DRAFT for manual review."
