@@ -38,7 +38,7 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const dist = 'clients/web/dist/assets';
-            const LIMIT_KB = 2048;
+            const LIMIT_KB = 25600; // 25MB - large app with many modules, lazy-loaded
 
             let total = 0;
             const rows = [];

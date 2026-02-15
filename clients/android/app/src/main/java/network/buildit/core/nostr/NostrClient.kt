@@ -308,7 +308,7 @@ class NostrClient @Inject constructor(
         result: MutableList<MutableList<NostrFilter>>,
         relayUrls: List<String>,
         elements: List<String>,
-        dummies: List<String>,
+        dummies: Collection<String>,
         copyWith: (List<String>) -> NostrFilter
     ) {
         val withDummies = elements.toMutableList().apply {
