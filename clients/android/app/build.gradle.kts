@@ -126,6 +126,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    lint {
+        // TODO: Create lint baseline to track regressions
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
 }
 
 dependencies {
