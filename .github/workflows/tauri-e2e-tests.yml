@@ -107,7 +107,6 @@ jobs:
         run: bun run test:e2e:tauri
         env:
           CI: true
-          PLAYWRIGHT_BROWSERS_PATH: 0
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
@@ -174,8 +173,10 @@ jobs:
         working-directory: clients/web
         run: bunx playwright install --with-deps chromium
 
-      - name: Install tauri-driver
-        run: cargo install tauri-driver --locked
+      - name: Install Tauri CLI and driver
+        run: |
+          cargo install tauri-cli --locked
+          cargo install tauri-driver --locked
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -200,7 +201,6 @@ jobs:
         env:
           CI: true
           TAURI_MODE: true
-          PLAYWRIGHT_BROWSERS_PATH: 0
 
       - name: Upload Integration Test Report
         uses: actions/upload-artifact@v4

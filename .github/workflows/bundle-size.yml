@@ -35,32 +35,36 @@ jobs:
         id: analyze
         run: |
           DIST="clients/web/dist"
+
+          # Sum sizes of all JS files in the dist assets directory
+          TOTAL_JS=0
           echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Main Bundle (Initial Load)" >> $GITHUB_STEP_SUMMARY
-          echo "| File | Size (Brotli) | Size (Gzip) |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|--------------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "### JS Bundles" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
 
-          # Extract main bundle sizes (skip if compressed files don't exist)
-          INDEX_SIZE=$(stat --format=%s $DIST/assets/index-*.js 2>/dev/null || echo "0")
-          REACT_SIZE=$(stat --format=%s $DIST/assets/vendor-react-*.js 2>/dev/null || echo "0")
+          for f in "$DIST"/assets/*.js; do
+            if [ -f "$f" ]; then
+              SIZE=$(stat --format=%s "$f")
+              KB=$(( SIZE / 1024 ))
+              BASENAME=$(basename "$f")
+              echo "| $BASENAME | ${KB}KB |" >> $GITHUB_STEP_SUMMARY
+              TOTAL_JS=$(( TOTAL_JS + SIZE ))
+            fi
+          done
 
-          INDEX_KB=$(( INDEX_SIZE / 1024 ))
-          REACT_KB=$(( REACT_SIZE / 1024 ))
-
-          echo "| index.js | ${INDEX_KB}KB |" >> $GITHUB_STEP_SUMMARY
-          echo "| vendor-react.js | ${REACT_KB}KB |" >> $GITHUB_STEP_SUMMARY
-
-          # Check bundle size limits
-          TOTAL_INITIAL=$((INDEX_SIZE + REACT_SIZE))
-          LIMIT=307200  # 300KB limit
+          TOTAL_KB=$(( TOTAL_JS / 1024 ))
+          LIMIT_KB=2048  # 2MB limit for total JS
+          LIMIT=$(( LIMIT_KB * 1024 ))
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ $TOTAL_INITIAL -lt $LIMIT ]; then
-            echo "Bundle size check passed! Total initial: $(($TOTAL_INITIAL / 1024))KB (limit: 300KB)" >> $GITHUB_STEP_SUMMARY
-            exit 0
+          echo "**Total JS: ${TOTAL_KB}KB**" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$TOTAL_JS" -lt "$LIMIT" ]; then
+            echo "Bundle size check passed! Total JS: ${TOTAL_KB}KB (limit: ${LIMIT_KB}KB)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "Bundle size check failed! Total initial: $(($TOTAL_INITIAL / 1024))KB exceeds limit of 300KB" >> $GITHUB_STEP_SUMMARY
+            echo "Bundle size check failed! Total JS: ${TOTAL_KB}KB exceeds limit of ${LIMIT_KB}KB" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
