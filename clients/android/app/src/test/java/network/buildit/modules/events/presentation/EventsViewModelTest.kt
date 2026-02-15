@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.setMain
 import network.buildit.core.modules.ModuleResult
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.generated.schemas.events.Visibility
 import network.buildit.modules.events.domain.EventsUseCase
 import org.junit.jupiter.api.AfterEach
@@ -86,7 +86,7 @@ class EventsViewModelTest {
     )
 
     private fun createTestRsvp(
-        status: Status = Status.Going
+        status: RSVPStatus = RSVPStatus.Going
     ): Rsvp = Rsvp(
         v = "1.0.0",
         eventID = testEventId,
@@ -389,40 +389,40 @@ class EventsViewModelTest {
         @DisplayName("rsvp reloads event detail on success")
         fun rsvpReloadsOnSuccess() = testScope.runTest {
             val rsvp = createTestRsvp()
-            coEvery { eventsUseCase.rsvp(testEventId, Status.Going, null, null) } returns ModuleResult.Success(rsvp)
+            coEvery { eventsUseCase.rsvp(testEventId, RSVPStatus.Going, null, null) } returns ModuleResult.Success(rsvp)
             every { eventsUseCase.observeEvent(testEventId) } returns flowOf(createTestEvent())
             every { eventsUseCase.getRsvps(testEventId) } returns flowOf(listOf(rsvp))
             coEvery { eventsUseCase.getUserRsvp(testEventId) } returns rsvp
             coEvery { eventsUseCase.getAttendeeCount(testEventId) } returns 1
 
-            viewModel.rsvp(testEventId, Status.Going)
+            viewModel.rsvp(testEventId, RSVPStatus.Going)
             advanceUntilIdle()
 
-            coVerify { eventsUseCase.rsvp(testEventId, Status.Going, null, null) }
+            coVerify { eventsUseCase.rsvp(testEventId, RSVPStatus.Going, null, null) }
         }
 
         @Test
         @DisplayName("rsvp passes guest count and note")
         fun rsvpPassesGuestCountAndNote() = testScope.runTest {
             val rsvp = createTestRsvp()
-            coEvery { eventsUseCase.rsvp(testEventId, Status.Going, 3L, "Plus 2 friends") } returns ModuleResult.Success(rsvp)
+            coEvery { eventsUseCase.rsvp(testEventId, RSVPStatus.Going, 3L, "Plus 2 friends") } returns ModuleResult.Success(rsvp)
             every { eventsUseCase.observeEvent(testEventId) } returns flowOf(createTestEvent())
             every { eventsUseCase.getRsvps(testEventId) } returns flowOf(emptyList())
             coEvery { eventsUseCase.getUserRsvp(testEventId) } returns null
             coEvery { eventsUseCase.getAttendeeCount(testEventId) } returns 0
 
-            viewModel.rsvp(testEventId, Status.Going, 3L, "Plus 2 friends")
+            viewModel.rsvp(testEventId, RSVPStatus.Going, 3L, "Plus 2 friends")
             advanceUntilIdle()
 
-            coVerify { eventsUseCase.rsvp(testEventId, Status.Going, 3L, "Plus 2 friends") }
+            coVerify { eventsUseCase.rsvp(testEventId, RSVPStatus.Going, 3L, "Plus 2 friends") }
         }
 
         @Test
         @DisplayName("rsvp shows Error on failure")
         fun rsvpShowsError() = testScope.runTest {
-            coEvery { eventsUseCase.rsvp(testEventId, Status.Going, null, null) } returns ModuleResult.Error("RSVP failed")
+            coEvery { eventsUseCase.rsvp(testEventId, RSVPStatus.Going, null, null) } returns ModuleResult.Error("RSVP failed")
 
-            viewModel.rsvp(testEventId, Status.Going)
+            viewModel.rsvp(testEventId, RSVPStatus.Going)
             advanceUntilIdle()
 
             viewModel.eventDetailState.test {

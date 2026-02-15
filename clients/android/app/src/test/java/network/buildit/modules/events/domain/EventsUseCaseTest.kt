@@ -16,7 +16,7 @@ import network.buildit.core.nostr.NostrClient
 import network.buildit.core.nostr.NostrEvent
 import network.buildit.generated.schemas.events.Event
 import network.buildit.generated.schemas.events.Rsvp
-import network.buildit.generated.schemas.events.Status
+import network.buildit.generated.schemas.events.RSVPStatus
 import network.buildit.generated.schemas.events.Visibility
 import network.buildit.modules.events.data.EventsRepository
 import org.junit.jupiter.api.AfterEach
@@ -177,7 +177,7 @@ class EventsUseCaseTest {
         // When
         val result = useCase.rsvp(
             eventId = testEventId,
-            status = Status.Going,
+            status = RSVPStatus.Going,
             guestCount = 2,
             note = "Looking forward to it!"
         )
@@ -186,7 +186,7 @@ class EventsUseCaseTest {
         assertThat(result).isInstanceOf(ModuleResult.Success::class.java)
         val success = result as ModuleResult.Success
         assertThat(success.data.eventID).isEqualTo(testEventId)
-        assertThat(success.data.status).isEqualTo(Status.Going)
+        assertThat(success.data.status).isEqualTo(RSVPStatus.Going)
         assertThat(success.data.guestCount).isEqualTo(2)
         assertThat(success.data.note).isEqualTo("Looking forward to it!")
 
@@ -200,8 +200,8 @@ class EventsUseCaseTest {
     fun `getRsvps should return flow from repository`() = testScope.runTest {
         // Given
         val rsvps = listOf(
-            createTestRsvp(status = Status.Going),
-            createTestRsvp(status = Status.Maybe)
+            createTestRsvp(status = RSVPStatus.Going),
+            createTestRsvp(status = RSVPStatus.Maybe)
         )
 
         every { repository.getRsvpsForEvent(testEventId) } returns flowOf(rsvps)
@@ -211,8 +211,8 @@ class EventsUseCaseTest {
             // Then
             val items = awaitItem()
             assertThat(items).hasSize(2)
-            assertThat(items[0].status).isEqualTo(Status.Going)
-            assertThat(items[1].status).isEqualTo(Status.Maybe)
+            assertThat(items[0].status).isEqualTo(RSVPStatus.Going)
+            assertThat(items[1].status).isEqualTo(RSVPStatus.Maybe)
             awaitComplete()
         }
     }
@@ -308,7 +308,7 @@ class EventsUseCaseTest {
     }
 
     private fun createTestRsvp(
-        status: Status = Status.Going
+        status: RSVPStatus = RSVPStatus.Going
     ): Rsvp {
         return Rsvp(
             v = "1.0.0",

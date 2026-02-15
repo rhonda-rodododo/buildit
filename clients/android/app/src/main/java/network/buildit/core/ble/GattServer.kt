@@ -133,6 +133,7 @@ class GattServer @Inject constructor(
             }
         }
 
+        @SuppressLint("MissingPermission")
         override fun onDescriptorWriteRequest(
             device: BluetoothDevice,
             requestId: Int,
