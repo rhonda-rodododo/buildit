@@ -249,6 +249,15 @@
       "dependencies": ["federation"],
       "schemaPath": "social-publishing/v1.json",
       "coreDependency": false
+    },
+    "templates": {
+      "name": "Templates",
+      "description": "Template system for typed template interfaces across all client platforms",
+      "currentVersion": "1.0.0",
+      "versions": ["1.0.0"],
+      "dependencies": [],
+      "schemaPath": "templates/v1.json",
+      "coreDependency": false
     }
   },
 

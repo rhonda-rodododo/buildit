@@ -46,8 +46,7 @@ jobs:
           restore-keys: |
             bun-codegen-${{ runner.os }}-
 
-      - name: Install codegen dependencies
-        working-directory: tools/codegen
+      - name: Install dependencies
         run: bun install
 
       - name: Validate schemas
@@ -84,16 +83,12 @@ jobs:
           restore-keys: |
             bun-codegen-full-${{ runner.os }}-
 
-      - name: Install codegen dependencies
-        working-directory: tools/codegen
+      - name: Install dependencies
         run: bun install
 
       - name: Generate TypeScript types
         working-directory: tools/codegen
         run: bun run generate:ts
-
-      - name: Install web dependencies
-        run: bun install
 
       - name: Check TypeScript compilation
         working-directory: clients/web
@@ -131,8 +126,7 @@ jobs:
           restore-keys: |
             bun-schema-bundle-${{ runner.os }}-
 
-      - name: Install schema-bundle dependencies
-        working-directory: tools/schema-bundle
+      - name: Install dependencies
         run: bun install
 
       - name: Generate bundle (internal format)
