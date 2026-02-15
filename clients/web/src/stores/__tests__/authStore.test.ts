@@ -1,9 +1,31 @@
 /**
  * AuthStore Tests
  * Tests for identity management and authentication
+ *
+ * @vitest-environment happy-dom
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import type { EncryptedKeyData, LockState } from '@/core/crypto/SecureKeyManager';
+
+// Ensure localStorage and sessionStorage are available in test environment
+function createStoragePolyfill(): Storage {
+  const store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => { store[key] = value; },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { for (const key of Object.keys(store)) { delete store[key]; } },
+    get length() { return Object.keys(store).length; },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+  };
+}
+
+if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage.clear !== 'function') {
+  globalThis.localStorage = createStoragePolyfill();
+}
+if (typeof globalThis.sessionStorage === 'undefined' || typeof globalThis.sessionStorage.clear !== 'function') {
+  globalThis.sessionStorage = createStoragePolyfill();
+}
 
 // Use vi.hoisted to define mock before vi.mock is hoisted
 const { mockSecureKeyManager } = vi.hoisted(() => {
@@ -120,8 +142,10 @@ describe('authStore', () => {
     vi.clearAllMocks();
     mockIdentities.clear();
 
-    // Clear localStorage
-    localStorage.clear();
+    // Clear sessionStorage (implementation uses sessionStorage for security)
+    if (typeof sessionStorage !== 'undefined' && typeof sessionStorage.clear === 'function') {
+      sessionStorage.clear();
+    }
 
     // Reset mock state
     mockSecureKeyManager.lockState = 'locked';
@@ -719,8 +743,8 @@ describe('authStore', () => {
     });
   });
 
-  describe('session persistence (localStorage)', () => {
-    it('should save identity pubkey to localStorage when creating identity', async () => {
+  describe('session persistence (sessionStorage)', () => {
+    it('should save identity pubkey to sessionStorage when creating identity', async () => {
       const mockEncryptedData: EncryptedKeyData = {
         publicKey: 'new-pubkey',
         encryptedPrivateKey: 'encrypted',
@@ -737,13 +761,13 @@ describe('authStore', () => {
       const { createNewIdentity } = useAuthStore.getState();
       await createNewIdentity('Test User', 'password123');
 
-      // Verify localStorage was updated
-      const savedPubkey = localStorage.getItem(SELECTED_IDENTITY_KEY);
+      // Verify sessionStorage was updated
+      const savedPubkey = sessionStorage.getItem(SELECTED_IDENTITY_KEY);
       expect(savedPubkey).toBeTruthy();
       expect(getSavedIdentityPubkey()).toBeTruthy();
     });
 
-    it('should save identity pubkey to localStorage when importing identity', async () => {
+    it('should save identity pubkey to sessionStorage when importing identity', async () => {
       const mockEncryptedData: EncryptedKeyData = {
         publicKey: 'imported-pubkey',
         encryptedPrivateKey: 'encrypted',
@@ -760,12 +784,12 @@ describe('authStore', () => {
       const { importIdentity } = useAuthStore.getState();
       await importIdentity('nsec1test', 'Imported User', 'password123');
 
-      // Verify localStorage was updated
-      const savedPubkey = localStorage.getItem(SELECTED_IDENTITY_KEY);
+      // Verify sessionStorage was updated
+      const savedPubkey = sessionStorage.getItem(SELECTED_IDENTITY_KEY);
       expect(savedPubkey).toBeTruthy();
     });
 
-    it('should save identity pubkey to localStorage when switching identities', async () => {
+    it('should save identity pubkey to sessionStorage when switching identities', async () => {
       const identity = {
         publicKey: 'pubkey-1',
         npub: 'npub1one',
@@ -779,14 +803,14 @@ describe('authStore', () => {
       const { setCurrentIdentity } = useAuthStore.getState();
       await setCurrentIdentity('pubkey-1');
 
-      // Verify localStorage was updated
-      expect(localStorage.getItem(SELECTED_IDENTITY_KEY)).toBe('pubkey-1');
+      // Verify sessionStorage was updated
+      expect(sessionStorage.getItem(SELECTED_IDENTITY_KEY)).toBe('pubkey-1');
       expect(getSavedIdentityPubkey()).toBe('pubkey-1');
     });
 
-    it('should clear localStorage when setting identity to null', async () => {
+    it('should clear sessionStorage when setting identity to null', async () => {
       // Set up an existing identity selection
-      localStorage.setItem(SELECTED_IDENTITY_KEY, 'existing-pubkey');
+      sessionStorage.setItem(SELECTED_IDENTITY_KEY, 'existing-pubkey');
 
       const identity = {
         publicKey: 'pubkey-1',
@@ -801,18 +825,18 @@ describe('authStore', () => {
       const { setCurrentIdentity } = useAuthStore.getState();
       await setCurrentIdentity(null);
 
-      // Verify localStorage was cleared
-      expect(localStorage.getItem(SELECTED_IDENTITY_KEY)).toBeNull();
+      // Verify sessionStorage was cleared
+      expect(sessionStorage.getItem(SELECTED_IDENTITY_KEY)).toBeNull();
       expect(getSavedIdentityPubkey()).toBeNull();
     });
 
     it('getSavedIdentityPubkey should return null when no identity saved', () => {
-      localStorage.clear();
+      sessionStorage.clear();
       expect(getSavedIdentityPubkey()).toBeNull();
     });
 
     it('getSavedIdentityPubkey should return the saved pubkey', () => {
-      localStorage.setItem(SELECTED_IDENTITY_KEY, 'test-pubkey-123');
+      sessionStorage.setItem(SELECTED_IDENTITY_KEY, 'test-pubkey-123');
       expect(getSavedIdentityPubkey()).toBe('test-pubkey-123');
     });
   });

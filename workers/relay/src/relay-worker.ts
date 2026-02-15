@@ -438,7 +438,7 @@ async function handleParameterizedReplaceableEvent(event: NostrEvent, env: Env):
   const db = env.RELAY_DATABASE;
 
   // Find d-tag
-  const dTag = event.tags.find(t => t[0] === 'd')?.[1] || '';
+  const dTag = event.tags.find((t: string[]) => t[0] === 'd')?.[1] || '';
 
   // Delete older events with same kind, pubkey, and d-tag
   await db
@@ -737,7 +737,7 @@ export async function handleRequest(request: Request, env: Env): Promise<Respons
   // Database initialization (admin endpoint - requires ADMIN_SECRET)
   if (url.pathname === '/admin/init-db' && request.method === 'POST') {
     const authHeader = request.headers.get('Authorization');
-    const adminSecret = (env as Record<string, unknown>).ADMIN_SECRET as string | undefined;
+    const adminSecret = (env as unknown as Record<string, unknown>).ADMIN_SECRET as string | undefined;
     if (!adminSecret || !authHeader || authHeader !== `Bearer ${adminSecret}`) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,

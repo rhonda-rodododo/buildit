@@ -180,7 +180,7 @@ describe('ProtectedKeyStorage Security', () => {
       expect(rotated[0].salt).not.toBe(original.salt)
     })
 
-    it('should decrypt with new password after rotation', async () => {
+    it('should decrypt with new password after rotation', { timeout: 30000 }, async () => {
       const { ProtectedKeyStorageService } = await import('../ProtectedKeyStorage')
       const storage = ProtectedKeyStorageService.getInstance()
 

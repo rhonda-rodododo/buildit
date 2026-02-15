@@ -1,9 +1,5 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import {
-  generateRobotsMetaContent,
-  DEFAULT_INDEXABILITY,
-} from '@buildit/shared/types';
 import { fetchCampaignBySlug, type CampaignContent } from '../../lib/nostr';
 import { CTABanner } from '../../components/CTABanner';
 import {

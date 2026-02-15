@@ -12,6 +12,7 @@ const navLinks: NavLink[] = [
   { href: '/articles', label: 'Articles' },
   { href: '/wiki', label: 'Wiki' },
   { href: '/events', label: 'Events' },
+  { href: '/downloads', label: 'Downloads' },
 ];
 
 export function PublicHeader() {

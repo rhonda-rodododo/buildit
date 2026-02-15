@@ -1,10 +1,6 @@
 import { createFileRoute, notFound, Link } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { fetchWikiPageBySlug } from '../../lib/nostr';
-import {
-  generateRobotsMetaContent,
-  DEFAULT_INDEXABILITY,
-} from '@buildit/shared/types';
 import { CTABanner } from '../../components/CTABanner';
 import {
   generateWikiSeoMeta,

@@ -683,7 +683,7 @@ export class RelayWebSocket implements DurableObject {
       }
 
       if (filter.kinds) {
-        const blockedKinds = filter.kinds.filter(k => !isEventKindAllowed(k));
+        const blockedKinds = filter.kinds.filter((k: number) => !isEventKindAllowed(k));
         if (blockedKinds.length > 0) {
           this.sendClosed(session.webSocket, subscriptionId, `blocked: kinds ${blockedKinds.join(',')}`);
           return;
@@ -763,14 +763,14 @@ export class RelayWebSocket implements DurableObject {
     }
 
     // Verify challenge
-    const challengeTag = authEvent.tags.find(t => t[0] === 'challenge');
+    const challengeTag = authEvent.tags.find((t: string[]) => t[0] === 'challenge');
     if (!challengeTag || challengeTag[1] !== session.challenge) {
       this.sendOK(session.webSocket, authEvent.id, false, 'invalid: challenge mismatch');
       return;
     }
 
     // Verify relay URL
-    const relayTag = authEvent.tags.find(t => t[0] === 'relay');
+    const relayTag = authEvent.tags.find((t: string[]) => t[0] === 'relay');
     if (!relayTag) {
       this.sendOK(session.webSocket, authEvent.id, false, 'invalid: missing relay tag');
       return;
@@ -935,8 +935,8 @@ export class RelayWebSocket implements DurableObject {
       if (key.startsWith('#') && Array.isArray(values) && values.length > 0) {
         const tagName = key.substring(1);
         const eventTagValues = event.tags
-          .filter(t => t[0] === tagName)
-          .map(t => t[1]);
+          .filter((t: string[]) => t[0] === tagName)
+          .map((t: string[]) => t[1]);
 
         if (!values.some(v => eventTagValues.includes(v))) {
           return false;

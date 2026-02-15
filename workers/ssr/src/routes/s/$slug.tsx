@@ -13,9 +13,8 @@
  * - No third-party scripts or tracking pixels
  */
 
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router';
+import { createFileRoute, notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { buildOgImageUrl } from '../../seo';
 
 interface ShareLinkData {
   slug: string;
@@ -29,7 +28,7 @@ interface ShareLinkData {
 
 const getShareLink = createServerFn({ method: 'GET' })
   .inputValidator((slug: string) => slug)
-  .handler(async ({ data: slug }): Promise<ShareLinkData> => {
+  .handler(async ({ data: _slug }): Promise<ShareLinkData> => {
     // In production, this fetches from the relay/D1 via the federation worker.
     // For now, return not found for unknown slugs.
     // The SSR worker will query the relay for share link events (kind 40172).

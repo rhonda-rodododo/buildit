@@ -343,6 +343,10 @@ jobs:
         working-directory: workers/ssr
         run: bun run typecheck
 
+      - name: Typecheck Backend worker
+        working-directory: workers/backend
+        run: bun run typecheck
+
   # ─────────────────────────────────────────────────────────────
   # CI Status Gate (for branch protection)
   # ─────────────────────────────────────────────────────────────

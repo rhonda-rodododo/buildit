@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
@@ -24,10 +25,17 @@ import { Route as FeedXmlRouteImport } from './routes/feed.xml'
 import { Route as EventsIdRouteImport } from './routes/events/$id'
 import { Route as CampaignsSlugRouteImport } from './routes/campaigns/$slug'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
+import { Route as FeedEventsXmlRouteImport } from './routes/feed/events.xml'
+import { Route as ShareSlugRouteImport } from './routes/s/$slug'
 
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -100,18 +108,31 @@ const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   path: '/articles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedEventsXmlRoute = FeedEventsXmlRouteImport.update({
+  id: '/feed/events/xml',
+  path: '/feed/events/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareSlugRoute = ShareSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/docs': typeof DocsRoute
+  '/downloads': typeof DownloadsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/events/$id': typeof EventsIdRoute
   '/feed/xml': typeof FeedXmlRoute
+  '/feed/events/xml': typeof FeedEventsXmlRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/s/$slug': typeof ShareSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -123,12 +144,15 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/docs': typeof DocsRoute
+  '/downloads': typeof DownloadsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/events/$id': typeof EventsIdRoute
   '/feed/xml': typeof FeedXmlRoute
+  '/feed/events/xml': typeof FeedEventsXmlRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/s/$slug': typeof ShareSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles': typeof ArticlesIndexRoute
   '/events': typeof EventsIndexRoute
@@ -141,12 +165,15 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/docs': typeof DocsRoute
+  '/downloads': typeof DownloadsRoute
   '/privacy': typeof PrivacyRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/campaigns/$slug': typeof CampaignsSlugRoute
   '/events/$id': typeof EventsIdRoute
   '/feed/xml': typeof FeedXmlRoute
+  '/feed/events/xml': typeof FeedEventsXmlRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/s/$slug': typeof ShareSlugRoute
   '/wiki/$slug': typeof WikiSlugRoute
   '/articles/': typeof ArticlesIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -160,12 +187,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/docs'
+    | '/downloads'
     | '/privacy'
     | '/articles/$slug'
     | '/campaigns/$slug'
     | '/events/$id'
     | '/feed/xml'
+    | '/feed/events/xml'
     | '/publications/$slug'
+    | '/s/$slug'
     | '/wiki/$slug'
     | '/articles/'
     | '/events/'
@@ -177,12 +207,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/docs'
+    | '/downloads'
     | '/privacy'
     | '/articles/$slug'
     | '/campaigns/$slug'
     | '/events/$id'
     | '/feed/xml'
+    | '/feed/events/xml'
     | '/publications/$slug'
+    | '/s/$slug'
     | '/wiki/$slug'
     | '/articles'
     | '/events'
@@ -194,12 +227,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/docs'
+    | '/downloads'
     | '/privacy'
     | '/articles/$slug'
     | '/campaigns/$slug'
     | '/events/$id'
     | '/feed/xml'
+    | '/feed/events/xml'
     | '/publications/$slug'
+    | '/s/$slug'
     | '/wiki/$slug'
     | '/articles/'
     | '/events/'
@@ -212,12 +248,15 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   DocsRoute: typeof DocsRoute
+  DownloadsRoute: typeof DownloadsRoute
   PrivacyRoute: typeof PrivacyRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   CampaignsSlugRoute: typeof CampaignsSlugRoute
   EventsIdRoute: typeof EventsIdRoute
   FeedXmlRoute: typeof FeedXmlRoute
+  FeedEventsXmlRoute: typeof FeedEventsXmlRoute
   PublicationsSlugRoute: typeof PublicationsSlugRoute
+  ShareSlugRoute: typeof ShareSlugRoute
   WikiSlugRoute: typeof WikiSlugRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
@@ -232,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -311,6 +357,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed/events/xml': {
+      id: '/feed/events/xml'
+      path: '/feed/events/xml'
+      fullPath: '/feed/events/xml'
+      preLoaderRoute: typeof FeedEventsXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof ShareSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$id': {
       id: '/events/$id'
       path: '/events/$id'
@@ -340,12 +400,15 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   DocsRoute: DocsRoute,
+  DownloadsRoute: DownloadsRoute,
   PrivacyRoute: PrivacyRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   CampaignsSlugRoute: CampaignsSlugRoute,
   EventsIdRoute: EventsIdRoute,
   FeedXmlRoute: FeedXmlRoute,
+  FeedEventsXmlRoute: FeedEventsXmlRoute,
   PublicationsSlugRoute: PublicationsSlugRoute,
+  ShareSlugRoute: ShareSlugRoute,
   WikiSlugRoute: WikiSlugRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
   EventsIndexRoute: EventsIndexRoute,

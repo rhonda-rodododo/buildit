@@ -30,7 +30,7 @@
     "workers:deploy:ssr": "cd workers/ssr && bun run deploy",
     "workers:dev:federation": "cd workers/federation && bun run dev",
     "workers:deploy:federation": "cd workers/federation && bun run deploy",
-    "workers:typecheck": "cd workers/api && bun run typecheck && cd ../relay && bun run typecheck && cd ../ssr && bun run typecheck && cd ../federation && bun run typecheck"
+    "workers:typecheck": "cd workers/api && bun run typecheck && cd ../relay && bun run typecheck && cd ../ssr && bun run typecheck && cd ../federation && bun run typecheck && cd ../backend && bun run typecheck"
   },
   "keywords": [
     "nostr",

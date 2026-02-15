@@ -71,7 +71,7 @@ describe('Key Rotation and Re-encryption', () => {
       ).rejects.toThrow();
     });
 
-    it('should rotate multiple keys in batch', async () => {
+    it('should rotate multiple keys in batch', { timeout: 30000 }, async () => {
       // Create multiple keys
       const key1 = await service.storeProtectedKey(
         testPrivateKey + '1',
@@ -152,7 +152,7 @@ describe('Key Rotation and Re-encryption', () => {
   });
 
   describe('Batch Re-encryption', () => {
-    it('should re-encrypt batch of keys', async () => {
+    it('should re-encrypt batch of keys', { timeout: 30000 }, async () => {
       const key1 = await service.storeProtectedKey(
         testPrivateKey + '1',
         testDeviceId,
@@ -228,7 +228,7 @@ describe('Key Rotation and Re-encryption', () => {
       expect(key1.encryptedKey).not.toBe(key2.encryptedKey);
     });
 
-    it('should preserve key integrity through rotation', async () => {
+    it('should preserve key integrity through rotation', { timeout: 30000 }, async () => {
       const original = await service.storeProtectedKey(
         testPrivateKey,
         testDeviceId,

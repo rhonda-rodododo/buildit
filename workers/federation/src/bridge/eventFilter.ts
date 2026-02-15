@@ -81,7 +81,7 @@ export function shouldFederateEvent(event: NostrEvent): boolean {
 
   // For deletion events (kind 5), ensure we have targets
   if (event.kind === 5) {
-    const hasTargets = event.tags.some((t) => t[0] === 'e');
+    const hasTargets = event.tags.some((t: string[]) => t[0] === 'e');
     if (!hasTargets) return false;
   }
 

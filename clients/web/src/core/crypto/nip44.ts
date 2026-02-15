@@ -197,13 +197,24 @@ export function decryptNIP44(
 }
 
 /**
+ * Normalize a private key to Uint8Array.
+ * Accepts either a Uint8Array or a hex-encoded string.
+ */
+function normalizePrivateKey(key: Uint8Array | string): Uint8Array {
+  if (typeof key === 'string') {
+    return hexToBytes(key)
+  }
+  return key
+}
+
+/**
  * Derive conversation key from private key and recipient public key
  */
 export function deriveConversationKey(
-  privateKey: Uint8Array,
+  privateKey: Uint8Array | string,
   recipientPubkey: string
 ): Uint8Array {
-  return nip44.v2.utils.getConversationKey(privateKey, recipientPubkey)
+  return nip44.v2.utils.getConversationKey(normalizePrivateKey(privateKey), recipientPubkey)
 }
 
 /**
@@ -211,7 +222,7 @@ export function deriveConversationKey(
  */
 export function encryptDM(
   content: string,
-  senderPrivateKey: Uint8Array,
+  senderPrivateKey: Uint8Array | string,
   recipientPubkey: string
 ): string {
   const conversationKey = deriveConversationKey(senderPrivateKey, recipientPubkey)
@@ -223,7 +234,7 @@ export function encryptDM(
  */
 export function decryptDM(
   ciphertext: string,
-  recipientPrivateKey: Uint8Array,
+  recipientPrivateKey: Uint8Array | string,
   senderPubkey: string
 ): string {
   const conversationKey = deriveConversationKey(recipientPrivateKey, senderPubkey)

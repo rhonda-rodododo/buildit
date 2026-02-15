@@ -8,6 +8,7 @@ import {
   isValidPubkey,
   isValidNsec,
   isValidNpub,
+  hexToPrivateKey,
   KeyManager,
 } from '../keyManager'
 
@@ -16,8 +17,9 @@ describe('KeyManager', () => {
     it('should generate a valid key pair', () => {
       const { privateKey, publicKey } = generateKeyPair()
 
-      expect(privateKey).toBeInstanceOf(Uint8Array)
-      expect(privateKey.length).toBe(32)
+      // generateKeyPair returns hex strings per protocol KeyPair spec
+      expect(typeof privateKey).toBe('string')
+      expect(privateKey).toMatch(/^[0-9a-f]{64}$/i)
       expect(publicKey).toMatch(/^[0-9a-f]{64}$/i)
     })
 
@@ -74,7 +76,8 @@ describe('KeyManager', () => {
 
     it('should validate nsec', () => {
       const { privateKey } = generateKeyPair()
-      const nsec = exportToNsec(privateKey)
+      // generateKeyPair returns hex string; exportToNsec expects Uint8Array
+      const nsec = exportToNsec(hexToPrivateKey(privateKey!))
 
       expect(isValidNsec(nsec)).toBe(true)
       expect(isValidNsec('invalid')).toBe(false)

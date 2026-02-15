@@ -273,6 +273,7 @@ export default defineConfig(({ mode }) => ({
             '**/dist/**',
             '**/e2e/**',
             '**/tests/e2e/**',
+            '**/tests/visual/**',
             '**/*.spec.ts',
             '**/*.spec.tsx',
             // Exclude tests handled by other projects

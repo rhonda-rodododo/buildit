@@ -230,8 +230,8 @@ export class FederationBridge implements DurableObject {
 
   private getDeletionTargets(event: NostrEvent): string[] {
     return event.tags
-      .filter((t) => t[0] === 'e')
-      .map((t) => t[1]);
+      .filter((t: string[]) => t[0] === 'e')
+      .map((t: string[]) => t[1]);
   }
 
   private scheduleReconnect(): void {

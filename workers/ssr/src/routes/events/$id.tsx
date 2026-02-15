@@ -1,10 +1,6 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import type { NostrEvent } from 'nostr-tools';
-import {
-  generateRobotsMetaContent,
-  DEFAULT_INDEXABILITY,
-} from '@buildit/shared/types';
 import { fetchEventById } from '../../lib/nostr';
 import { CTABanner } from '../../components/CTABanner';
 import {

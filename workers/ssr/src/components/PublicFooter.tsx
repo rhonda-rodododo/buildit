@@ -26,6 +26,7 @@ const footerSections: FooterSection[] = [
     title: 'Platform',
     links: [
       { href: `${APP_URL}/login`, label: 'Get Started', isExternal: true },
+      { href: '/downloads', label: 'Downloads' },
       { href: '/about', label: 'About Us' },
       { href: '/privacy', label: 'Privacy' },
     ],

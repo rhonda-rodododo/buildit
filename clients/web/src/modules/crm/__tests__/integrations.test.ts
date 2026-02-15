@@ -256,7 +256,7 @@ describe('Events Integration', () => {
         ...Array(6).fill(null).map((_, i) => ({
           id: `rsvp-1-${i}`,
           eventId: `event-${i}`,
-          userPubkey: 'npub1',
+          pubkey: 'npub1',
           status: 'going' as const,
           timestamp: Date.now(),
         })),
@@ -264,7 +264,7 @@ describe('Events Integration', () => {
         ...Array(3).fill(null).map((_, i) => ({
           id: `rsvp-2-${i}`,
           eventId: `event-${10 + i}`,
-          userPubkey: 'npub2',
+          pubkey: 'npub2',
           status: 'going' as const,
           timestamp: Date.now(),
         })),
@@ -272,7 +272,7 @@ describe('Events Integration', () => {
         {
           id: 'rsvp-3-0',
           eventId: 'event-20',
-          userPubkey: 'npub3',
+          pubkey: 'npub3',
           status: 'going' as const,
           timestamp: Date.now(),
         },

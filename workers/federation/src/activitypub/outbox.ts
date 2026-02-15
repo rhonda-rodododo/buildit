@@ -58,8 +58,8 @@ export function nostrNoteToAPNote(
 
   // Extract hashtags from Nostr tags
   const hashtags = event.tags
-    .filter((t) => t[0] === 't' && t[1])
-    .map((t) => t[1].toLowerCase());
+    .filter((t: string[]) => t[0] === 't' && t[1])
+    .map((t: string[]) => t[1].toLowerCase());
 
   // Convert content: Nostr uses plain text, AP uses HTML
   let htmlContent = escapeHtml(event.content);
@@ -92,14 +92,14 @@ export function nostrNoteToAPNote(
     htmlContent = htmlContent.slice(0, AP_MAX_CONTENT_LENGTH - 3) + '...';
   }
 
-  const tags: APTag[] = hashtags.map((tag) => ({
+  const tags: APTag[] = hashtags.map((tag: string) => ({
     type: 'Hashtag',
     href: `https://${domain}/tags/${tag}`,
     name: `#${tag}`,
   }));
 
   // Check for reply
-  const replyTag = event.tags.find((t) => t[0] === 'e' && t[3] === 'reply');
+  const replyTag = event.tags.find((t: string[]) => t[0] === 'e' && t[3] === 'reply');
   const inReplyTo = replyTag
     ? `https://${domain}/ap/posts/${replyTag[1]}`
     : null;
@@ -133,19 +133,19 @@ export function nostrArticleToAPArticle(
   const actorUrl = `https://${domain}/ap/users/${username}`;
 
   // Extract article metadata from tags
-  const title = event.tags.find((t) => t[0] === 'title')?.[1] ?? 'Untitled';
-  const summary = event.tags.find((t) => t[0] === 'summary')?.[1];
-  const dTag = event.tags.find((t) => t[0] === 'd')?.[1] ?? event.id;
+  const title = event.tags.find((t: string[]) => t[0] === 'title')?.[1] ?? 'Untitled';
+  const summary = event.tags.find((t: string[]) => t[0] === 'summary')?.[1];
+  const dTag = event.tags.find((t: string[]) => t[0] === 'd')?.[1] ?? event.id;
   const articleUrl = `${actorUrl}/articles/${dTag}`;
 
   const hashtags = event.tags
-    .filter((t) => t[0] === 't' && t[1])
-    .map((t) => t[1].toLowerCase());
+    .filter((t: string[]) => t[0] === 't' && t[1])
+    .map((t: string[]) => t[1].toLowerCase());
 
   // Articles use markdown content converted to HTML
   const htmlContent = markdownToBasicHtml(event.content);
 
-  const tags: APTag[] = hashtags.map((tag) => ({
+  const tags: APTag[] = hashtags.map((tag: string) => ({
     type: 'Hashtag',
     href: `https://${domain}/tags/${tag}`,
     name: `#${tag}`,

@@ -67,7 +67,10 @@ export const languages = [
 export type LanguageCode = keyof typeof resources
 
 // Get saved language from localStorage or use default
-const savedLanguage = localStorage.getItem('i18n-language') as LanguageCode | null
+// Guard against environments where localStorage is not available (e.g. test environments)
+const savedLanguage = (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function'
+  ? localStorage.getItem('i18n-language')
+  : null) as LanguageCode | null
 const initialLanguage = savedLanguage && savedLanguage in resources ? savedLanguage : 'en'
 
 i18n

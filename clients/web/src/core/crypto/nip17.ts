@@ -1,8 +1,20 @@
 import { finalizeEvent, generateSecretKey, verifyEvent } from 'nostr-tools'
+import { hexToBytes } from '@noble/hashes/utils'
 import { encryptNIP44, decryptNIP44, deriveConversationKey } from './nip44'
 import { z } from 'zod'
 import type { Rumor, Seal, GiftWrap } from '@/types/nostr'
 import { logger } from '@/lib/logger'
+
+/**
+ * Normalize a private key to Uint8Array.
+ * Accepts either a Uint8Array or a hex-encoded string.
+ */
+function normalizePrivateKey(key: Uint8Array | string): Uint8Array {
+  if (typeof key === 'string') {
+    return hexToBytes(key)
+  }
+  return key
+}
 
 /**
  * SECURITY: Zod schemas for validating decrypted NIP-17 content
@@ -166,10 +178,12 @@ export function createRumor(
  */
 export function createSeal(
   rumor: Rumor,
-  senderPrivateKey: Uint8Array
+  senderPrivateKey: Uint8Array | string
 ): Seal {
+  const privKeyBytes = normalizePrivateKey(senderPrivateKey)
+
   // Encrypt the rumor
-  const conversationKey = deriveConversationKey(senderPrivateKey, rumor.tags.find(t => t[0] === 'p')?.[1] || '')
+  const conversationKey = deriveConversationKey(privKeyBytes, rumor.tags.find(t => t[0] === 'p')?.[1] || '')
   const encryptedContent = encryptNIP44(JSON.stringify(rumor), conversationKey)
 
   // Create and sign the seal
@@ -180,7 +194,7 @@ export function createSeal(
     tags: [],
   }
 
-  return finalizeEvent(sealTemplate, senderPrivateKey) as unknown as Seal
+  return finalizeEvent(sealTemplate, privKeyBytes) as unknown as Seal
 }
 
 /**
@@ -215,7 +229,7 @@ export function createGiftWrap(
  */
 export function createPrivateDM(
   content: string,
-  senderPrivateKey: Uint8Array,
+  senderPrivateKey: Uint8Array | string,
   recipientPubkey: string,
   tags: string[][] = []
 ): GiftWrap {
@@ -247,10 +261,12 @@ export function createPrivateDM(
  */
 export function unwrapGiftWrap(
   giftWrap: GiftWrap,
-  recipientPrivateKey: Uint8Array
+  recipientPrivateKey: Uint8Array | string
 ): UnwrappedMessage {
+  const privKeyBytes = normalizePrivateKey(recipientPrivateKey)
+
   // Decrypt the seal using the ephemeral key in the gift wrap
-  const conversationKey = deriveConversationKey(recipientPrivateKey, giftWrap.pubkey)
+  const conversationKey = deriveConversationKey(privKeyBytes, giftWrap.pubkey)
   const sealJson = decryptNIP44(giftWrap.content, conversationKey)
   // SECURITY: Validate decrypted seal against schema
   const seal = safeJsonParse<Seal>(sealJson, LocalSealSchema, 'Seal')
@@ -266,7 +282,7 @@ export function unwrapGiftWrap(
   }
 
   // Decrypt the rumor from the seal
-  const rumorConversationKey = deriveConversationKey(recipientPrivateKey, seal.pubkey)
+  const rumorConversationKey = deriveConversationKey(privKeyBytes, seal.pubkey)
   const rumorJson = decryptNIP44(seal.content, rumorConversationKey)
   // SECURITY: Validate decrypted rumor against schema
   const rumor = safeJsonParse<Rumor>(rumorJson, LocalRumorSchema, 'Rumor')
@@ -284,7 +300,7 @@ export function unwrapGiftWrap(
  */
 export function unwrapGiftWrapLegacy(
   giftWrap: GiftWrap,
-  recipientPrivateKey: Uint8Array
+  recipientPrivateKey: Uint8Array | string
 ): Rumor {
   const result = unwrapGiftWrap(giftWrap, recipientPrivateKey)
   return result.rumor
@@ -296,7 +312,7 @@ export function unwrapGiftWrapLegacy(
  */
 export function createGroupMessage(
   content: string,
-  senderPrivateKey: Uint8Array,
+  senderPrivateKey: Uint8Array | string,
   recipientPubkeys: string[],
   tags: string[][] = []
 ): GiftWrap[] {

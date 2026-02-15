@@ -275,7 +275,7 @@ export class WorkerSentry {
   /**
    * Parse a stack trace string into Sentry-compatible frames.
    */
-  private parseStack(stack: string): SentryWorkerEvent['exception'] extends { values: Array<{ stacktrace?: { frames: infer F } }> } ? F : never {
+  private parseStack(stack: string): Array<{ filename?: string; function?: string; lineno?: number; colno?: number }> {
     type Frame = { filename?: string; function?: string; lineno?: number; colno?: number };
     const frames: Frame[] = [];
 
@@ -302,8 +302,7 @@ export class WorkerSentry {
     }
 
     // Sentry expects frames in reverse order (caller first)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return frames.reverse() as any;
+    return frames.reverse();
   }
 
   /**
