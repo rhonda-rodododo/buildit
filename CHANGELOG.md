@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2026-02-15
+
+### Bug Fixes
+
+- **desktop**: Fix Tauri beforeBuildCommand path resolution
+
 ## [0.1.2] - 2026-02-15
 
 ### Bug Fixes

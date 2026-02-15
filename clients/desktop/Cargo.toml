@@ -1,6 +1,6 @@
 [package]
 name = "buildit-network-desktop"
-version = "0.1.2"
+version = "0.1.3"
 description = "BuildIt Network Desktop - Privacy-first organizing platform"
 authors = ["BuildIt Network"]
 license = "MIT"
