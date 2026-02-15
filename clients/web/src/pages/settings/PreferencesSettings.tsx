@@ -6,9 +6,22 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ModeToggle } from '@/components/mode-toggle';
 import { ColorThemePicker } from '@/components/color-theme-picker';
 import { SchemaStatusList } from '@/components/schema/SchemaStatusCard';
+import { SchemaBundleImport } from '@/components/schema/SchemaBundleImport';
+import { SchemaQRScanner } from '@/components/schema/SchemaQRScanner';
+import { importBundle } from '@/core/schema/bundleManager';
+import type { SchemaBundle } from '@/core/schema/types';
 
 export const PreferencesSettings: FC = () => {
   const { t } = useTranslation();
+
+  const handleQRBundleReady = async (bundleJson: string, _hash: string) => {
+    try {
+      const bundle = JSON.parse(bundleJson) as SchemaBundle;
+      await importBundle(bundle, 'qr');
+    } catch (err) {
+      console.error('Failed to import QR bundle:', err);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -48,6 +61,10 @@ export const PreferencesSettings: FC = () => {
           <SchemaStatusList />
         </CardContent>
       </Card>
+
+      <SchemaBundleImport />
+
+      <SchemaQRScanner onBundleReady={handleQRBundleReady} />
     </div>
   );
 };

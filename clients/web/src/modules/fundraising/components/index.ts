@@ -7,4 +7,5 @@ export * from './PublicCampaignView';
 export * from './CampaignTemplates';
 export * from './DonorManagement';
 export * from './CryptoDonation';
+export { CheckoutDialog } from './CheckoutDialog';
 export { FundraisingPage } from './FundraisingPage';

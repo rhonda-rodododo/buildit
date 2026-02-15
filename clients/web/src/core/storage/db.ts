@@ -198,6 +198,30 @@ export interface DBIdentityBackup {
 }
 
 /**
+ * Schema bundle stored locally for offline distribution and version tracking
+ */
+export interface DBSchemaBundle {
+  /** Content hash (primary key) */
+  contentHash: string;
+  /** Bundle version string */
+  version: string;
+  /** Creation timestamp */
+  createdAt: number;
+  /** When this bundle was imported locally */
+  importedAt: number;
+  /** Ed25519 signature */
+  signature: string;
+  /** Signer's public key */
+  signerPubkey: string;
+  /** Serialized bundle JSON */
+  bundleJson: string;
+  /** Source of this bundle */
+  source: 'ble' | 'qr' | 'file' | 'relay' | 'builtin';
+  /** Whether this is the currently active bundle */
+  isActive: boolean;
+}
+
+/**
  * Core database schema (always present)
  */
 const CORE_SCHEMA: TableSchema[] = [
@@ -370,6 +394,12 @@ const CORE_SCHEMA: TableSchema[] = [
     schema: 'id, identityPubkey, type, createdAt, deviceId',
     indexes: ['id', 'identityPubkey', 'type', 'createdAt'],
   },
+  // Schema versioning: Bundle storage for offline distribution
+  {
+    name: 'schemaBundles',
+    schema: 'contentHash, version, createdAt, importedAt, source, isActive',
+    indexes: ['contentHash', 'version', 'createdAt', 'importedAt', 'source', 'isActive'],
+  },
 ];
 
 /**
@@ -407,6 +437,8 @@ export class BuildItDB extends Dexie {
   deviceTransfers!: Table<DBDeviceTransfer, string>;
   bunkerConnections!: Table<DBBunkerConnection, string>;
   identityBackups!: Table<DBIdentityBackup, string>;
+  // Schema versioning bundle storage
+  schemaBundles!: Table<DBSchemaBundle, string>;
 
   // Store module schemas for reference
   private moduleSchemas: Map<string, TableSchema[]> = new Map();

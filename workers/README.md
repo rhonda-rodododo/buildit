@@ -9,6 +9,8 @@ Cloudflare Workers powering the BuildIt network infrastructure. All workers foll
 | **api** | `buildit-api` | Link preview, image proxy, oEmbed | Workers |
 | **relay** | `buildit-relay` | Nostr relay (Nosflare-based) | Workers, D1, Durable Objects |
 | **ssr** | `buildit-public` | SSR public pages for logged-out visitors | Workers, Vite + TanStack Start |
+| **federation** | `buildit-federation` | ActivityPub + AT Protocol bridge | Workers, D1, KV, Queues, Durable Objects |
+| **backend** | `buildit-backend` | Payment processing, email delivery | Workers |
 
 ## What Each Worker Does
 
@@ -47,6 +49,24 @@ Server-side rendered public pages for logged-out visitors. Built with TanStack S
 
 The SSR worker only renders publicly available, non-authenticated content.
 
+### Backend Worker (`workers/backend/`)
+
+Optional backend service for features that require server-side API keys. Communicates with clients via NIP-17 encrypted Nostr messages.
+
+- `POST /api/payments/stripe` - Create Stripe checkout session
+- `POST /api/payments/paypal` - Create PayPal checkout order
+- `POST /api/payments/webhook?provider=stripe|paypal` - Handle payment webhooks
+- `POST /api/email/send` - Send newsletter emails (SendGrid/Mailgun)
+- `GET  /api/email/unsubscribe` - One-click email unsubscribe (CAN-SPAM)
+- `GET  /health` - Health check with capability report
+
+The backend worker is stateless and self-hostable. It never stores user data. API keys are stored as Cloudflare secrets.
+
+**Required secrets** (set via `wrangler secret put`):
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` - For Stripe payments
+- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` - For PayPal payments
+- `SENDGRID_API_KEY` or `MAILGUN_API_KEY`/`MAILGUN_DOMAIN` - For email delivery
+
 ## Local Development
 
 From the repository root:
@@ -56,6 +76,7 @@ From the repository root:
 bun run workers:dev:api        # API worker on localhost:8787
 bun run workers:dev:relay      # Relay worker (requires D1 setup, see below)
 bun run workers:dev:ssr        # SSR worker
+bun run workers:dev:backend    # Backend worker (payments, email)
 
 # Type-check all workers
 bun run workers:typecheck
@@ -77,6 +98,7 @@ From the repository root:
 bun run workers:deploy:api
 bun run workers:deploy:relay
 bun run workers:deploy:ssr
+bun run workers:deploy:backend
 ```
 
 Or from each worker directory:

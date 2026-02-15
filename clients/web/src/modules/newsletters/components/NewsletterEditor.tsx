@@ -29,8 +29,9 @@ import {
   Calendar,
   Play,
 } from 'lucide-react';
-import type { NewsletterIssue, UpdateIssueInput, Newsletter } from '../types';
+import type { NewsletterIssue, UpdateIssueInput, Newsletter, NewsletterSettings } from '../types';
 import { toast } from 'sonner';
+import { EmailDeliverySettings } from './EmailDeliverySettings';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -45,6 +46,7 @@ interface NewsletterEditorProps {
   onSchedule: (scheduledAt: number) => void;
   onPreview: () => void;
   onClose: () => void;
+  onUpdateSettings?: (settings: Partial<NewsletterSettings>) => void;
   className?: string;
 }
 
@@ -56,6 +58,7 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
   onSchedule,
   onPreview,
   onClose,
+  onUpdateSettings,
   className,
 }) => {
   const { t } = useTranslation();
@@ -384,6 +387,14 @@ export const NewsletterEditor: FC<NewsletterEditorProps> = ({
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Email Delivery Settings (Epic 53B) */}
+              {onUpdateSettings && (
+                <EmailDeliverySettings
+                  newsletter={newsletter}
+                  onUpdate={onUpdateSettings}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>

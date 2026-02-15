@@ -4,7 +4,7 @@ Archive of completed epics. This document provides high-level summaries only.
 
 **For detailed implementation history**: Use `git log <tag>` or `git show <tag>`
 **For active work**: See [NEXT_ROADMAP.md](./NEXT_ROADMAP.md)
-**Last Updated**: 2026-02-05 (Epics 74-87 cross-platform feature expansion completed)
+**Last Updated**: 2026-02-14 (Epics 45, 49B, 53B, 62, 73 completed)
 
 ---
 
@@ -114,6 +114,11 @@ Archive of completed epics. This document provides high-level summaries only.
 | 85 | - | ✅ | `1c91b86` | Location Custom Field - OpenStreetMap/Leaflet, precision fuzzing, geocoding, cross-platform |
 | 86 | - | ✅ | `1c91b86` | Advanced Publishing - Custom domains, navigation editor, archives, categories, SEO, link tracking |
 | 87 | - | ✅ | `1c91b86` | Cooperative Marketplace - Listings, co-op profiles, reviews, skill exchange, resource sharing |
+| 73 | v0.73.0 | ✅ | `v0.73.0-schema-versioning` | Schema Versioning & Cross-Client Compatibility - Graceful degradation parser, bundle verification, BLE sync, bundle persistence, prerelease version handling |
+| 45 | v0.45.0 | ✅ | `v0.45.0-ux-philosophy` | Pleasure Activism UX Philosophy - Research spike mapping brown's 5 principles to UX, 12 recommendations, draft Epic 46 spec, design system additions |
+| 62 | v0.62.0 | ✅ | `v0.62.0-backend-setup` | Backend Service Setup - Cloudflare Workers backend for payments and email delivery, Stripe/PayPal/SendGrid/Mailgun integration |
+| 49B | v0.49b.0 | ✅ | `v0.49b.0-stripe-paypal` | Stripe/PayPal Payment Integration - Backend checkout sessions, webhook handling, client payment service with redirect flow |
+| 53B | v0.53b.0 | ✅ | `v0.53b.0-newsletters-email` | Newsletter Email Delivery - Backend email service (SendGrid/Mailgun), client email settings UI, CAN-SPAM/GDPR compliance |
 
 ---
 
@@ -2466,5 +2471,50 @@ Complete training and education module for organizing skill development, onboard
 **Epic 4 - Analytics & Progress Tracking**: Learning analytics dashboard with completion rates, time-on-task metrics, learner progress visualization, instructor performance reports, cohort comparisons.
 
 **Epic 5 - Default Content & Templates**: Built-in training content templates for common organizing skills (canvassing, de-escalation, legal observer, media training), customizable course templates, content library.
+
+---
+
+### Epic 73: Schema Versioning & Cross-Client Compatibility ✅
+**Tag**: `v0.73.0-schema-versioning`
+
+Completed schema versioning infrastructure for cross-client compatibility. Fixed `getCurrentSchemaVersion()` to read from generated `MODULE_VERSIONS` instead of hardcoded values. Added `getAllModuleVersions()`, `parsePrerelease()`, and `compareVersionsWithPrerelease()` utilities. Implemented bundle persistence in Dexie (`schemaBundles` table) with full lifecycle management (verify, store, notify). Created `SchemaBundleImport` component for file-based bundle import. Updated `SchemaStatusCard` and BLE sync to use dynamic module versions. All 18 schema test vectors pass.
+
+**Key Files**: `versionUtils.ts`, `bundleManager.ts`, `db.ts`, `SchemaStatusCard.tsx`, `SchemaBundleImport.tsx`, `bleSync.ts`
+
+---
+
+### Epic 45: Pleasure Activism UX Philosophy ✅
+**Tag**: `v0.45.0-ux-philosophy`
+
+Research spike applying adrienne maree brown's Pleasure Activism principles to BuildIt's UX. Created comprehensive 548-line document at `docs/PLEASURE_ACTIVISM_UX_PHILOSOPHY.md` mapping all 5 core principles to specific UX patterns. Includes 12 detailed recommendations (micro-celebrations, warm color modes, welcoming onboarding, gratitude moments, collective impact visualizations, sound/haptic feedback, rest features, community storytelling, small wins, playful empty states, expanded reactions, dignity-preserving mutual aid). Documents 6 anti-patterns to avoid. Includes full draft Epic 46 spec (5 phases, 14 tasks, 40-55 hours) with design system additions (color tokens, animation tokens, component specs).
+
+**Key Files**: `docs/PLEASURE_ACTIVISM_UX_PHILOSOPHY.md`
+
+---
+
+### Epic 62: Backend Service Setup ✅
+**Tag**: `v0.62.0-backend-setup`
+
+Set up Cloudflare Workers backend service at `workers/backend/` instead of the originally planned Bun server. Implemented routing for payments (Stripe/PayPal), email delivery (SendGrid/Mailgun), health checks with capability reporting, and CORS handling. Backend is stateless and self-hostable with secrets managed via `wrangler secret put`. Updated root `package.json` with `workers:dev:backend` and `workers:deploy:backend` scripts.
+
+**Key Files**: `workers/backend/src/index.ts`, `workers/backend/src/types.ts`, `workers/backend/wrangler.toml`
+
+---
+
+### Epic 49B: Stripe/PayPal Payment Integration ✅
+**Tag**: `v0.49b.0-stripe-paypal`
+
+Backend: Stripe Checkout session creation with HMAC-SHA256 webhook signature verification, support for one-time and recurring subscriptions. PayPal REST API v2 order creation with sandbox/production toggle, auto-capture of approved orders. Client: `paymentService.ts` with `createPaymentSession()` and `initiateCheckout()` functions. `CheckoutDialog` component with payment method selection (Stripe/PayPal radio group), amount input with validation, and redirect-to-hosted-checkout flow.
+
+**Key Files**: `workers/backend/src/payments/stripe.ts`, `workers/backend/src/payments/paypal.ts`, `clients/web/src/modules/fundraising/paymentService.ts`, `clients/web/src/modules/fundraising/components/CheckoutDialog.tsx`
+
+---
+
+### Epic 53B: Newsletter Email Delivery ✅
+**Tag**: `v0.53b.0-newsletters-email`
+
+Backend: Email delivery via SendGrid or Mailgun with batch sending (50 per batch, max 500 recipients), CAN-SPAM unsubscribe links injected into every email, rate limiting between batches. Client: Added `emailDeliveryEnabled`, `emailBackendUrl`, `fromName`, `fromEmail`, `replyToEmail` to `NewsletterSettings`. Created `EmailDeliverySettings` component with enable/disable toggle, backend URL configuration with connection test, sender information fields, and compliance note. Created `emailDeliveryService.ts` with HTML email template wrapping and `sendNewsletterViaEmail()` function. Integrated into newsletter editor settings tab.
+
+**Key Files**: `workers/backend/src/email/sender.ts`, `clients/web/src/modules/newsletters/emailDeliveryService.ts`, `clients/web/src/modules/newsletters/components/EmailDeliverySettings.tsx`, `clients/web/src/modules/newsletters/types.ts`
 
 ---

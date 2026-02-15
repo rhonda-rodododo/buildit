@@ -6,7 +6,7 @@
  */
 
 import type { SchemaBundle, DeviceSchemaInfo, SemanticVersion } from './types'
-import { compareVersions, getCurrentSchemaVersion } from './versionUtils'
+import { compareVersions, getAllModuleVersions } from './versionUtils'
 import { verifyBundleSignature } from './bundleVerifier'
 
 /**
@@ -184,16 +184,7 @@ export class BLESchemaSyncManager {
    * Get local device schema info
    */
   getLocalSchemaInfo(): DeviceSchemaInfo {
-    const schemaVersions: Record<string, SemanticVersion> = {}
-    const moduleIds = [
-      'messaging', 'events', 'documents', 'files', 'forms',
-      'crm', 'database', 'fundraising', 'publishing', 'newsletters',
-      'governance', 'mutual-aid', 'wiki', 'custom-fields'
-    ]
-
-    for (const moduleId of moduleIds) {
-      schemaVersions[moduleId] = getCurrentSchemaVersion(moduleId)
-    }
+    const schemaVersions = getAllModuleVersions()
 
     return {
       clientVersion: '0.74.0', // Would come from package.json in production

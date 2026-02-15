@@ -46,6 +46,7 @@ export const newslettersDemoSeed: ModuleSeed = {
         confirmationRequired: false,
         maxRetriesOnFailure: 3,
         rateLimitPerMinute: 30,
+        emailDeliveryEnabled: false,
       },
       subscriberCount: 47,
       totalIssuesSent: 12,

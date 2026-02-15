@@ -36,7 +36,7 @@ import {
   Smartphone,
   Monitor,
 } from 'lucide-react';
-import type { Newsletter, NewsletterIssue, CreateNewsletterInput, UpdateIssueInput } from '../types';
+import type { Newsletter, NewsletterIssue, CreateNewsletterInput, UpdateIssueInput, NewsletterSettings } from '../types';
 import { toast } from 'sonner';
 
 interface NewslettersPageProps {
@@ -69,6 +69,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
   }
   const {
     createNewsletter,
+    updateNewsletter,
     createIssue,
     updateIssue,
     deleteIssue,
@@ -226,6 +227,15 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
   const sentCount = issues.filter((i) => i.status === 'sent').length;
   const draftCount = issues.filter((i) => i.status === 'draft').length;
 
+  // Update newsletter settings handler
+  const handleUpdateSettings = (settingsUpdate: Partial<NewsletterSettings>) => {
+    if (currentNewsletter) {
+      updateNewsletter(currentNewsletter.id, {
+        settings: { ...currentNewsletter.settings, ...settingsUpdate },
+      });
+    }
+  };
+
   // Render editor view
   if (viewState.type === 'editor') {
     return (
@@ -237,6 +247,7 @@ export const NewslettersPage: FC<NewslettersPageProps> = ({
             handleSaveIssue(viewState.issue.id, updates);
           }
         }}
+        onUpdateSettings={handleUpdateSettings}
         onSend={() => {
           if (viewState.issue) {
             const latestIssue = useNewslettersStore.getState().getIssue(viewState.issue.id);

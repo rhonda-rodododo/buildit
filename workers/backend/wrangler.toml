@@ -1,0 +1,49 @@
+# BuildIt Backend Worker
+# Optional backend service for payment processing and email delivery.
+# Communicates with clients via NIP-17 encrypted Nostr messages.
+#
+# PRIVACY: This worker never sees private keys. It only handles
+# encrypted payloads received via Nostr and returns results
+# via Nostr (NIP-17 encrypted).
+#
+# Endpoints:
+#   GET  /health                     - Health check
+#   POST /api/payments/stripe        - Create Stripe checkout session
+#   POST /api/payments/paypal        - Create PayPal checkout
+#   POST /api/payments/webhook       - Handle Stripe/PayPal webhooks
+#   POST /api/email/send             - Send newsletter emails
+#   POST /api/email/unsubscribe      - Handle email unsubscribe
+#   GET  /api/email/unsubscribe      - One-click unsubscribe (CAN-SPAM)
+
+name = "buildit-backend"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+# Service name for health check identification
+SERVICE_NAME = "buildit-backend"
+
+# Secrets (set via `wrangler secret put`):
+# NOSTR_PRIVATE_KEY       - Backend's Nostr identity for NIP-17 communication
+# STRIPE_SECRET_KEY       - Stripe API secret key
+# STRIPE_WEBHOOK_SECRET   - Stripe webhook signing secret
+# PAYPAL_CLIENT_ID        - PayPal client ID
+# PAYPAL_CLIENT_SECRET    - PayPal client secret
+# SENDGRID_API_KEY        - SendGrid API key for email delivery
+# MAILGUN_API_KEY         - Mailgun API key (alternative to SendGrid)
+# MAILGUN_DOMAIN          - Mailgun sending domain
+# ADMIN_TOKEN             - Admin endpoint authentication
+
+[env.dev]
+name = "buildit-backend-dev"
+[env.dev.vars]
+ENVIRONMENT = "development"
+SERVICE_NAME = "buildit-backend-dev"
+
+[env.preview]
+name = "buildit-backend-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+SERVICE_NAME = "buildit-backend-preview"

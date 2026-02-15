@@ -35,7 +35,10 @@ export {
   isWithinSupportWindow,
   getCompatibilityStatus,
   isFromFuture,
-  getCurrentSchemaVersion
+  getCurrentSchemaVersion,
+  getAllModuleVersions,
+  parsePrerelease,
+  compareVersionsWithPrerelease
 } from './versionUtils'
 
 // Parser
@@ -58,3 +61,17 @@ export {
   type BundleChunkPayload,
   type ChunkAckPayload
 } from './bleSync'
+
+// Bundle Manager
+export {
+  importBundle,
+  getActiveBundle,
+  getStoredBundles,
+  deleteBundle,
+  getModuleVersionStatus,
+  generateLocalBundle,
+  onBundleUpdate
+} from './bundleManager'
+
+// Bundle Verifier
+export { verifyBundleSignature, type BundleVerificationResult } from './bundleVerifier'

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { CheckCircle, AlertCircle, AlertTriangle, Clock } from 'lucide-react'
 import type { ModuleVersionInfo } from '@/core/schema/types'
-import { getCurrentSchemaVersion, getCompatibilityStatus } from '@/core/schema/versionUtils'
+import { getCompatibilityStatus, getAllModuleVersions } from '@/core/schema/versionUtils'
 import { cn } from '@/lib/utils'
 
 interface SchemaStatusCardProps {
@@ -115,35 +115,23 @@ interface SchemaStatusListProps {
 }
 
 /**
- * Get all module version info from the schema registry
+ * Format a module ID as a display name (e.g., "mutual-aid" → "Mutual Aid")
+ */
+function formatModuleName(moduleId: string): string {
+  return moduleId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+/**
+ * Get all module version info from the generated schema registry
  */
 function getDefaultModuleVersionInfo(): ModuleVersionInfo[] {
-  const moduleIds: Array<{ id: string; name: string }> = [
-    { id: 'messaging', name: 'Messaging' },
-    { id: 'events', name: 'Events' },
-    { id: 'documents', name: 'Documents' },
-    { id: 'files', name: 'Files' },
-    { id: 'forms', name: 'Forms' },
-    { id: 'crm', name: 'CRM' },
-    { id: 'database', name: 'Database' },
-    { id: 'fundraising', name: 'Fundraising' },
-    { id: 'publishing', name: 'Publishing' },
-    { id: 'newsletters', name: 'Newsletters' },
-    { id: 'governance', name: 'Governance' },
-    { id: 'mutual-aid', name: 'Mutual Aid' },
-    { id: 'wiki', name: 'Wiki' },
-    { id: 'custom-fields', name: 'Custom Fields' },
-    { id: 'content', name: 'Content' },
-    { id: 'search', name: 'Search' },
-    { id: 'calling', name: 'Calling' },
-  ]
+  const allVersions = getAllModuleVersions()
 
-  return moduleIds.map(({ id, name }) => {
-    const localVersion = getCurrentSchemaVersion(id)
+  return Object.entries(allVersions).map(([id, localVersion]) => {
     const compatibility = getCompatibilityStatus(localVersion, localVersion)
     return {
       moduleId: id,
-      moduleName: name,
+      moduleName: formatModuleName(id),
       localVersion,
       hasUpdate: false,
       compatibility,

@@ -5,6 +5,7 @@
  */
 
 import type { SemanticVersion, VersionComparison, CompatibilityStatus, SchemaMetadata } from './types'
+import { MODULE_VERSIONS } from '@/generated/db/version'
 
 /**
  * Parse a semantic version string into components
@@ -165,29 +166,57 @@ export function isFromFuture(contentVersion: SemanticVersion, readerVersion: Sem
 }
 
 /**
- * Get the current app schema version for a module
+ * Get the current app schema version for a module.
+ * Reads from codegen'd MODULE_VERSIONS (generated from protocol schemas).
  */
 export function getCurrentSchemaVersion(moduleId: string): SemanticVersion {
-  // In production, this would be imported from generated types
-  // For now, return 1.0.0 as the base version
-  const versions: Record<string, SemanticVersion> = {
-    'messaging': '1.0.0',
-    'events': '1.0.0',
-    'documents': '1.0.0',
-    'files': '1.0.0',
-    'forms': '1.0.0',
-    'crm': '1.0.0',
-    'database': '1.0.0',
-    'fundraising': '1.0.0',
-    'publishing': '1.0.0',
-    'newsletters': '1.0.0',
-    'governance': '1.0.0',
-    'mutual-aid': '1.0.0',
-    'wiki': '1.0.0',
-    'custom-fields': '1.0.0',
-    'content': '1.0.0',
-    'search': '1.0.0',
-    'calling': '1.0.0'
+  return (MODULE_VERSIONS[moduleId] as SemanticVersion) ?? '1.0.0'
+}
+
+/**
+ * Get all module versions from the generated registry
+ */
+export function getAllModuleVersions(): Record<string, SemanticVersion> {
+  return Object.fromEntries(
+    Object.entries(MODULE_VERSIONS).map(([k, v]) => [k, v as SemanticVersion])
+  )
+}
+
+/**
+ * Parse a prerelease version string (e.g., "1.0.0-beta.1")
+ * Returns the base version and prerelease tag
+ */
+export function parsePrerelease(version: string): {
+  base: SemanticVersion
+  prerelease: string | null
+} {
+  const [base, ...rest] = version.split('-')
+  const prerelease = rest.length > 0 ? rest.join('-') : null
+  return {
+    base: base as SemanticVersion,
+    prerelease
   }
-  return versions[moduleId] ?? '1.0.0'
+}
+
+/**
+ * Compare versions with prerelease support.
+ * Prerelease versions are considered older than the same version without prerelease.
+ * e.g., 1.0.0-beta.1 < 1.0.0
+ */
+export function compareVersionsWithPrerelease(a: string, b: string): VersionComparison {
+  const parsedA = parsePrerelease(a)
+  const parsedB = parsePrerelease(b)
+
+  const baseComparison = compareVersions(parsedA.base, parsedB.base)
+  if (baseComparison !== 'same') return baseComparison
+
+  // Same base version - prerelease is older than release
+  if (parsedA.prerelease && !parsedB.prerelease) return 'older'
+  if (!parsedA.prerelease && parsedB.prerelease) return 'newer'
+  if (!parsedA.prerelease && !parsedB.prerelease) return 'same'
+
+  // Both prerelease - lexicographic comparison
+  if (parsedA.prerelease! < parsedB.prerelease!) return 'older'
+  if (parsedA.prerelease! > parsedB.prerelease!) return 'newer'
+  return 'same'
 }

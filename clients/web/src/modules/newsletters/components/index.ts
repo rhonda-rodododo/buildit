@@ -8,3 +8,4 @@ export { SubscriberManager } from './SubscriberManager';
 export { DeliveryProgress } from './DeliveryProgress';
 export { NewslettersPage } from './NewslettersPage';
 export { NewsletterPreviewDialog } from './NewsletterPreviewDialog';
+export { EmailDeliverySettings } from './EmailDeliverySettings';

@@ -1,0 +1,21 @@
+{
+  "name": "buildit-backend",
+  "version": "1.0.0",
+  "description": "BuildIt Backend Worker - payments (Stripe/PayPal), email delivery (SendGrid/Mailgun), NIP-17 Nostr integration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler deploy --env preview",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260118.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.59.0",
+    "vitest": "^3.2.4"
+  }
+}

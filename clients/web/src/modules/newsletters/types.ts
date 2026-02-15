@@ -86,6 +86,13 @@ export interface NewsletterSettings {
   confirmationRequired: boolean; // Require subscription confirmation
   maxRetriesOnFailure: number; // Max retry attempts for failed sends
   rateLimitPerMinute: number; // Rate limit for batch sends
+
+  // Email delivery (Epic 53B)
+  emailDeliveryEnabled: boolean; // Enable email delivery alongside Nostr DMs
+  emailBackendUrl?: string; // Backend worker URL for email sending
+  fromName?: string; // Display name for email sender
+  fromEmail?: string; // Email address for sender
+  replyToEmail?: string; // Reply-to address
 }
 
 /**
@@ -322,6 +329,7 @@ export const DEFAULT_NEWSLETTER_SETTINGS: NewsletterSettings = {
   confirmationRequired: false,
   maxRetriesOnFailure: 3,
   rateLimitPerMinute: 30, // Conservative to avoid relay throttling
+  emailDeliveryEnabled: false,
 };
 
 /**
