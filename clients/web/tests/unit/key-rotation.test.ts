@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ProtectedKeyStorageService } from '@/lib/webauthn/ProtectedKeyStorage';
 
-describe('Key Rotation and Re-encryption', () => {
+describe('Key Rotation and Re-encryption', { timeout: 30_000 }, () => {
   let service: ProtectedKeyStorageService;
   const testDeviceId = 'test-device-123';
   const testPrivateKey = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';

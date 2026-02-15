@@ -4,6 +4,8 @@
  * @vitest-environment happy-dom
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+
+// Argon2id key derivation is CPU-heavy; increase timeout for CI runners
 import {
   SecureKeyManager,
   DEFAULT_SECURITY_SETTINGS,
@@ -18,7 +20,7 @@ vi.mock('@/lib/webauthn/WebAuthnService', () => ({
   },
 }));
 
-describe('SecureKeyManager', () => {
+describe('SecureKeyManager', { timeout: 30_000 }, () => {
   let manager: SecureKeyManager;
 
   beforeEach(() => {
