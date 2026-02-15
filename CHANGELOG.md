@@ -1,0 +1,478 @@
+# Changelog
+
+## [0.1.1] - 2026-02-15
+
+### Bug Fixes
+
+- **ci**: Make Detekt continue-on-error for pre-existing issues
+- **android**: Fix 11 runtime test failures and gate release builds on tags
+- **android**: Disable lint abort on release builds
+- **ci**: Make Android lint/test non-blocking, decouple build from lint
+- **android**: Fix notification lint, forms test, schema versioning test
+- **android**: Fix Status->RSVPStatus in remaining tests, GattServer lint
+- **android**: Fix remaining test compilation and lint errors
+- **android**: Update BLE tests for privacy-preserving mesh routing API
+- **ci**: Fix Android flavor tasks, Rust fmt after codegen, frozen lockfile
+- **crypto**: Fix Rust formatting and clippy warnings
+- **ci**: Fix Android type mismatch and bundle size limit
+- **ci**: Fix schema-validation cache to use root node_modules
+- **web**: Increase timeout for CPU-heavy crypto tests
+- **ci**: Fix schema-validation deps install and add templates to registry
+- **ci**: Rewrite bundle size analysis in Node.js for reliability
+- **android**: Refactor NostrClient and Database for Detekt compliance
+- **ci**: Fix release.yml secrets context, crypto codegen, bundle size, and Tauri E2E
+- **ci**: Run codegen before tests/typecheck/build in all workflows
+- Tests
+- CI fixes, downloads page, and typecheck cleanup (Epics 88 & 89)
+- **android**: Align imports with generated schema types for successful build
+- **web**: Align governance types to protocol schema
+- **web**: Align wiki module types to protocol schema
+- **web**: Fix feed deduplication, groupId filtering, and UI bugs
+- **web**: Replace secp256k1-based key derivation with HMAC-SHA256
+- BLE memory leaks, type safety, and missing templates codegen
+- **web**: Sanitize XSS vectors and fix hardcoded pubkey
+- **web**: Template seed system and messaging bugs
+- **desktop**: Use runtime libs instead of -dev packages in deb depends
+- **desktop**: Resolve Tauri Rust compilation errors
+- Resolve build errors across Android, web, and desktop clients
+- **web**: Resolve 103 TypeScript errors across training, calling, and search modules
+- **calling**: Resolve TypeScript type errors in calling module
+- **i18n**: Fix Android resource name generation and escape literal percent signs
+- **codegen**: Use camelCase JSON keys in Swift CodingKeys
+- **android**: Replace flattened location with nested AidLocation object
+- **android**: Convert timestamps from milliseconds to seconds
+- **schema**: Add _v schema version to iOS/Android models
+- **codegen**: Add Codable conformance and CodingKeys to Swift output
+- **wiki**: Align web Wiki module with protocol schema
+- **events**: Align web Events module with protocol schema
+- **web**: Resolve UX issues from desktop app review
+- **ios**: Add QR code scanner and file attachment support
+- **web**: Resolve unused variable warnings in schema and nostr code
+- **mobile**: Complete existing TODOs for iOS and Android
+- **web**: Replace Math.random() with crypto.getRandomValues() - security hardening
+- **crypto**: Implement security audit fixes - memory zeroization, constant-time ops
+- **ble**: Encrypt mesh metadata, rotate identifiers - critical security fixes
+- **ios**: Encrypt local storage, add memory protection - critical security fix
+- **codegen**: Update for Zod 4 compatibility and fix export conflicts
+- **monorepo**: Fix broken path references and type mismatches
+- **tauri-e2e**: Fix mock implementations for realistic Tauri behavior
+- **native**: Add crypto polyfills for nostr-tools compatibility
+- Resolve expo-clipboard config plugin error and type issues
+- **native**: Fix TypeScript error in typography.ts font family access
+- Add process globals for browser compatibility
+- Use .js extension for @noble/hashes imports in relay worker
+- Resolve bun/vxrn module dependencies for native app
+- Address HIGH and MEDIUM security findings from audit
+- Resolve production build issues - remove Node.js tar dependency
+- Resolve test failures in offline queue and cache stores (Epic 51)
+- Migrate vitest config from deprecated environmentMatchGlobs to projects
+- **security**: Comprehensive security hardening for state-actor threat model
+- **security**: Comprehensive security hardening for state-actor threat model
+- **security**: Add timestamp randomization to group messages and security tests
+- Critical bugs from product audit + module dependency system (Epic 63 partial)
+- **quality**: Reduce ESLint warnings from 153 to 122
+- Resolve all remaining ESLint errors
+- Resolve additional ESLint errors
+- Resolve ESLint critical errors and add linting infrastructure
+- Module routing and test infrastructure improvements
+- **tests**: Fix test infrastructure for database and encryption
+- Remove broken localStorage persistence from moduleStore
+- Prevent infinite loop when enabling modules in ModuleSettings
+- Prevent infinite loop in CreateGroupDialog
+- Resolve critical E2E flow bugs
+- Resolve type errors and deprecations in Forms module
+- Add markdown rendering and fix post composer UI (Epic 34 follow-up)
+- Add markdown rendering and fix post composer UI (Epic 34 follow-up)
+- Subagents
+- Subagents
+- E2e test
+- Remove erroneous index.tsx files
+- Resolve critical bugs (Epic 28 - BUG-001 through BUG-007)
+- Resolve NIP-17 encryption tests and improve database cleanup
+- Resolve integration test failures and improve test infrastructure
+- Resolve module schema registration timing issue
+- Unify event kinds across modules
+- Implement two-phase database initialization for module schemas
+- Resolve infinite loop in group creation
+- Resolve Radix UI Tabs rendering issue with forceMount
+- Implement CSV export for analytics and clean up TODOs
+- Correct Nostr client filter handling for nostr-tools API
+- Correct sidebar navigation layout with flexbox
+- Delete package-lock, as we are using bun
+- Resolve tabs switching issue and migrate to bun
+- Use node environment for crypto tests
+
+### Documentation
+
+- Update roadmaps for Epics 74-87 completion
+- Consolidate vision, personas, and design docs to shared docs/
+- Clean up completed epics and update COMPLETED_ROADMAP
+- **protocol**: Add calling system epics and protocol specification
+- Add Rust generated types usage to test vectors INDEX
+- Update schema parity audit to reflect completion status
+- Update schema parity audit with iOS messaging fix
+- Update schema parity audit with Wiki module completion
+- Update schema parity audit with Events module completion
+- Add comprehensive schema parity audit report
+- Add desktop parity report and UX review
+- **security**: Add comprehensive security documentation
+- **crypto**: Add comprehensive implementation summary
+- Add Epic 73 - Schema Versioning & Cross-Client Compatibility
+- Clarify native-only distribution (no standalone web app)
+- Archive React Native code, add native apps documentation
+- Mark Epic 63 Native MVP as feature-complete
+- Mark group message view complete in roadmap
+- Update roadmap with Epic 63 progress
+- Update roadmap with Epic 63 progress
+- Update roadmap for Epic 36 and Epic 63 progress
+- Move Epic 61 to COMPLETED_ROADMAP
+- Move Epic 59 to COMPLETED_ROADMAP
+- Move Epic 60 to COMPLETED_ROADMAP
+- Complete Epic 51 Quality & Testing, move to COMPLETED_ROADMAP
+- Move Epics 56 and 57 to COMPLETED_ROADMAP
+- Mark Epic 56 Advanced Document Features as complete
+- Move Epic 58 to COMPLETED_ROADMAP
+- Complete Epic 57 - File Management Enhancement
+- Complete Epics 71-72 - move to COMPLETED_ROADMAP
+- Update security audit report with remediation status
+- Complete Epic 70 - TanStack Start SSR Public Content App
+- Update Epic 51 status with SEO improvements
+- Update Epic 51 status - quality testing mostly complete
+- Add Lighthouse audit report (Epic 51)
+- Update Epic 51 progress with logger utility
+- Update Epic 51 progress - E2E Phase 4 tests complete
+- Add autonomous and parallel execution guidance for agents
+- Comprehensive product audit findings (Epics 63-68)
+- Update roadmap - mark Epic 68 E2E tests complete
+- Update roadmap - mark Epics 63-67 complete
+- Update audit with detailed UX findings from visual review
+- Update Epic 51 progress - test infrastructure complete
+- Mark Epic 53A (Newsletter Module) and Phase 1 as complete
+- Mark Epic 52 (Long-Form Publishing) as complete
+- Mark Epic 49A (Crypto Payments) as complete
+- Mark Epic 50 as complete in roadmap
+- Finalize hybrid architecture roadmap - complete planning
+- Add hybrid architecture plan - Nostr-first with optional backend
+- Complete Epic 48 - move to COMPLETED_ROADMAP
+- Add 14 new epics (48-61) for feature completeness
+- Complete Epic 35 - move to COMPLETED_ROADMAP
+- Complete Epic 43 - move to COMPLETED_ROADMAP
+- Update NEXT_ROADMAP.md - remove completed Epics 37, 37.5, 38, 39
+- Complete Epic 37.5 - move to COMPLETED_ROADMAP
+- Complete Epic 47 - move to COMPLETED_ROADMAP
+- Mark Epic 47 Phases 1-3 complete in roadmap
+- Mark Epic 47 Phase 1 complete in roadmap
+- Add Epic 47 for E2E test coverage completion
+- Move Epic 44 Phase 1 (BLE Mesh) to COMPLETED_ROADMAP
+- Update Epic 44 - mark Phase 1 complete, Phase 2 deferred
+- Update Epic 42 completion status in MESSAGING_OVERHAUL spec
+- Complete Epic 38 - move to COMPLETED_ROADMAP
+- Complete Epic 40 - move to COMPLETED_ROADMAP
+- Add Epics 40-43 to NEXT_ROADMAP (messaging & social UX overhaul)
+- Complete Epic 34 - move to COMPLETED_ROADMAP
+- Complete Epic 33 - move to COMPLETED_ROADMAP
+- Complete Epic 28.5 - move to COMPLETED_ROADMAP
+- Complete Epic 32 - move to COMPLETED_ROADMAP
+- Complete Epic 28 - move to COMPLETED_ROADMAP
+- Complete Epic 30 - move to COMPLETED_ROADMAP
+- Complete Epic 35 - move to COMPLETED_ROADMAP
+- Complete Epic 29 - move to COMPLETED_ROADMAP
+- Update PROGRESS.md to reflect completed Epic 18 features
+- Mark Epic 23 complete with bulk operations validation
+- Mark Epic 22 complete with full analytics implementation
+- Mark Epic 21B complete with full validation checklist
+- Finalize Epic 21 completion status (80% - 4/5 sub-epics)
+- Update PROGRESS.md with Epic 21.4 completion details
+- Add comprehensive QA audit documentation
+- Epic 20 completion and MVP summary
+- Update PROGRESS.md - mark Epic 16 as complete
+- Add comprehensive implementation summary for database and CRM templates
+- Add future enhancements for Database & CRM modules
+- Align PROGRESS.md with PROMPT.md epic structure
+- Update PROGRESS.md for Epic 13.5 completion
+- Correct Epic 17 status - unit tests complete, E2E/integration pending
+- Update PROGRESS.md - Epic 17 complete (v0.17.0-testing)
+- Update PROGRESS.md - Epic 14 (14.1-14.2) complete
+- Add device management to Epic 14 (14.2)
+- Update Epic 14 to use WebAuthn instead of hardware wallets
+- Update PROGRESS.md - Epic 11 complete (shadcn/ui theming)
+- Update progress with Epic 15.1 unit test completion
+- Consolidate and update documentation
+- Update progress for Epic 13 completion
+- Update progress for Epic 10 completion
+- Update progress documentation with Epic 4-8 completion
+- Add comprehensive progress documentation
+- Initial project setup with comprehensive documentation
+
+### Features
+
+- **ci**: Add release workflow, changelog config, and version scripts
+- Schema versioning, newsletters, fundraising, backend worker, and docs
+- Content scheduling and shared type rectification
+- Implement Epics 74-87 — cross-platform feature expansion
+- Implement Epics 31, 36, 62, 73 — legal docs, translations, workers consolidation, schema versioning
+- **protocol**: Add LinkPreview as shared content primitive with cross-platform implementation
+- **desktop**: Add SQLite/SQLCipher infrastructure for Dexie migration (Phase 0)
+- **protocol**: Add x-storage annotations to all module schemas
+- **protocol**: Create shared template architecture with 39 templates across 7 modules
+- **web**: Replace training-calling placeholders with real SFU integration
+- Complete calling ecosystem with training module and cross-platform integrations
+- **calling**: Implement Epic 8 - PSTN Gateway for iOS and Android
+- **calling**: Implement Epic 8 - PSTN Gateway for web
+- **calling**: Implement conference infrastructure and features (Epic 5-6)
+- **web**: UX audit improvements for PTTView component
+- **calling**: Complete Epic 10 - PTT for iOS and Android
+- **calling**: Implement Epic 9 iOS/Android + Epic 10 PTT (web)
+- **calling**: Implement Epic 9 - Messaging Hotline & Broadcasts (web)
+- **calling**: Implement Epic 7 - Hotline Voice Calling
+- **calling**: Implement Epic 4 - Small Group Calls (Mesh Topology)
+- **mobile**: Add system call UI integration for iOS and Android
+- **android**: Add WebRTC dependency and complete calling module
+- **protocol**: Add calling module schemas and test vectors
+- **ios**: Implement WebRTC calling module with E2EE foundation
+- **web**: Implement E2EE for WebRTC calling via Insertable Streams
+- **protocol**: Add roundtrip serialization test vectors for all modules
+- **codegen**: Add TypeScript interface deduplication
+- **ios**: Add iOS localization for Forms and Publishing modules
+- **codegen**: Add Rust code generation to schema codegen tool
+- **protocol**: Add cross-client serialization test vectors
+- **ios**: Complete iOS localization for fundraising and newsletter views
+- **schema**: Add missing protocol types to iOS/Android models
+- **ios**: Continue iOS localization - detail views and forms
+- **ios**: Update module views to use L10n localized strings
+- **i18n**: Add shared localization system with codegen tool
+- **mobile**: Add background fetch, widget data, share queue, and audit reports
+- **mobile**: Add Forms, Fundraising, Publishing, Newsletter modules with platform features
+- **mobile**: Add Contact Notes and Tags module for organizer tracking
+- **mobile**: Add Wiki/Knowledge Base module to iOS and Android
+- **mobile**: Add Governance/Voting module to iOS and Android
+- **mobile**: Add Mutual Aid module to iOS and Android
+- **protocol**: Add remaining module schemas and improve validator
+- **protocol**: Add cross-version test vectors and CI validation
+- **protocol**: Add offline schema distribution
+- **web**: Implement graceful degradation parser
+- **protocol**: Add complete module schemas
+- **mobile**: Add Document viewer to iOS and Android
+- **mobile**: Add Social features to iOS and Android
+- **mobile**: Add Events module UI to Android
+- **security**: Implement comprehensive privacy protections
+- **crypto**: Replace PBKDF2 with Argon2id as default KDF - security hardening
+- **security**: Implement duress password system with decoy identity
+- **crypto**: Enhance crypto library with comprehensive test coverage
+- **android**: Implement complete module system with Events and Messaging
+- **codegen**: Replace custom codegen with quicktype
+- Add desktop window controls and status bar for Tauri
+- Expand keyboard shortcuts with sidebar toggle
+- Convert modals to full routes for better desktop UX
+- Implement external links with Tauri shell
+- Add Command Palette with cmdk
+- Add Tauri integration layer foundation
+- Add Tauri desktop support with BLE mesh and keyring integration
+- **native**: Publish group creation events to Nostr relays (Epic 63)
+- **native**: Implement NIP-29 group messaging and leave group (Epic 63)
+- **native**: Add PIN lock and join group features (Epic 63)
+- **native**: Add relay management screen (Epic 63)
+- **native**: Add edit profile, create group, share profile screens (Epic 63)
+- **native**: Add group detail page with chat, members, info tabs (Epic 63)
+- **native**: Add platform utilities and iOS/Android optimizations (Epic 63)
+- **native**: Add platform polish - app config and push notifications (Epic 63)
+- **native**: Add groups store with Nostr integration (Epic 63)
+- **native**: Add offline message queue with persistence (Epic 63)
+- **native**: Implement NIP-46 device linking service (Epic 63)
+- **native**: Add shared typography utilities from design tokens
+- **native**: Apply theme colors to screens and tabs
+- **native**: Add dark mode support with design tokens
+- **native**: Improve messaging with signing, clipboard, npub decode
+- **native**: Add i18n support with 11 languages
+- **native**: Add biometric authentication support (Epic 63)
+- Add advanced social features - polls, stories, moderation (Epic 61)
+- Optimize UX for mobile devices (Epic 59)
+- Enhance offline mode with queue and background sync (Epic 60)
+- Add folder permissions UI for inheritance (Epic 58)
+- Add access request UI and export sharing report (Epic 58)
+- Complete account recovery and backup verification system
+- Complete multi-device support and security audit
+- Complete SSR app routes for campaigns, events, publications, and RSS
+- Database Module Enhancement & Social CRM/Case Management System
+- Add Docs page and 404 Not Found component
+- Add Events, About, Privacy, and Contact pages to SSR app
+- Complete SSR public site design matching SPA theme
+- Add TanStack Start SSR app for public content
+- Optimize lazy loading with Suspense boundaries (Epic 51)
+- Add comprehensive SEO meta tags (Epic 51)
+- Add dual-scope routes to governance and wiki modules
+- Add dynamic module routes for group and app navigation
+- Add dev-only logger utility and migrate main.tsx
+- Implement real NIP-17 delivery for newsletters (Epic 53A)
+- **documents**: Add @mentions, page breaks, and headers/footers (Epic 56)
+- **sharing**: Add permission inheritance and access requests (Epic 58)
+- Add Shared Items Dashboard for centralized sharing management (Epic 58)
+- Add file management enhancements - preview, search, bulk ops (Epic 57)
+- Add advanced document features - diagrams, TOC, tags (Epic 56)
+- Add Nosflare-based Nostr relay worker
+- **security**: Add HTML sanitization and improve crypto security
+- **i18n**: Wire translations in CreateGroupDialog
+- Add SharedProject collaboration system (Epic 4)
+- Extract Friends and Security modules (Epic 3)
+- Cloudflare Pages setup with API functions
+- Enhanced Module Dependencies & Group Templates (Epics 1-2)
+- Signal-style encrypted link previews (Epic 70)
+- **embed**: Add TikTok, Twitter/X, Instagram, Twitch, Reddit, Giphy, Loom, Dailymotion, Bluesky, Threads providers
+- Shared embed infrastructure for posts and documents (Epic 69)
+- UX improvements and E2E test updates (Epic 67-68)
+- **documents**: Integrate Epic 56 advanced document features
+- **documents**: Add folder organization, comments sidebar, and sharing UI (Epic 56)
+- **documents**: Add TipTap extensions for comments, suggestions, math (Epic 56)
+- Comprehensive product audit implementation (Epics 63-67)
+- **newsletters**: Implement Newsletter module with Nostr DM delivery (Epic 53A)
+- **publishing**: Implement Long-Form Publishing module (Epic 52)
+- **fundraising**: Add crypto payment integration - Bitcoin & Ethereum (Epic 49A)
+- **microblogging**: Complete Epic 50 - Microblogging Enhancement
+- **security**: Complete Phase 4-5 of security architecture overhaul
+- **security**: Implement encrypted key storage and local DB encryption [**BREAKING**]
+- Complete Files module - add preview, sharing, and version history (Epic 48)
+- Implement Group Entity & Coalition features (Epic 43)
+- Implement Tor integration for metadata protection (Epic 39)
+- Implement Fundraising module UI and payment integration (Epic 38)
+- Implement Forms module UI and form builder (Epic 37)
+- Implement Public module UI and page editor (Epic 37.5)
+- Add 'never degrade functionality' requirement to all code-modifying agents
+- Add E2E test requirements to bug-fixer and refactorer agents
+- Enforce E2E test maintenance and coverage for ALL functionality
+- Implement Forms & Fundraising Module UI components (Epic 37 Phases 2-5)
+- Enforce mandatory E2E tests for all new modules in epic-executor
+- Implement Forms & Fundraising Module infrastructure (Epic 37 Phase 1)
+- Implement BLE mesh networking infrastructure - Epic 44 Phase 1
+- Implement messaging UX overhaul with conversation-centric model (Epic 42)
+- Implement Friend System with contacts management (Epic 41)
+- Add reactions, reposts, and bookmarks (Epic 38)
+- Implement username system with NIP-05 verification (Epic 40)
+- Implement social features - microblogging, feed, and comments (Epic 34)
+- Implement Files module with encrypted storage (Epic 33)
+- Implement Documents module with TipTap WYSIWYG editor and CRDT collaboration (Epic 32)
+- Implement Documents module with TipTap WYSIWYG editor (Epic 32)
+- Complete Epic 31 - Performance Optimization
+- Implement group-based routing with dynamic module paths (Epic 28.5)
+- Implement encryption layer and Nostr event sync
+- Implement infiltration countermeasures (Epic 27)
+- Implement anonymous engagement & privacy controls (Epic 26)
+- Implement engagement ladder and activation system (Epic 25)
+- Implement activity logging and contact history system (Epic 24)
+- Implement Epic 23 - Bulk Operations & Scaling Tools
+- Implement Epic 22 - Analytics & Reporting Dashboard
+- Implement Epic 21B - Public Pages & Outreach
+- Add comprehensive seed data for feed aggregation demo
+- Implement feed aggregation system (Epic 21.4)
+- Implement comment threading system (Epic 21.3)
+- Implement microblogging and activity feed (Epic 21.1)
+- Implement device login notifications system (Epic 18.2)
+- Implement key rotation and re-encryption system (Epic 18.1)
+- Implement proper filter merging using nostr-tools mergeFilters
+- Complete MVP v1.0.0 - PWA, deployment docs, production ready
+- Implement fully editable database tables with virtualization and CRM templates
+- Implement Epic 16 - Navigation & Routing Overhaul
+- Implement Epic 15 - Database & CRM Modules
+- Implement Epic 14.5 - comprehensive demo data & seed system
+- Add CRM template seed data with historical examples
+- Implement Epic 15 - Database & CRM Modules
+- Implement Epic 14 - Module System Refactoring
+- Complete Custom Fields UI integration and E2E tests
+- Implement Custom Fields Module (Epic 13.5)
+- Implement Epic 13.5 - Custom Fields Module (JSON Schema + react-hook-form) (13.1-13.2)
+- Implement Epic 14 - WebAuthn key protection and device management (14.1-14.2)
+- Add rich media support with encryption (Epic 12.3)
+- Implement module plugin system (Epic 13)
+- Implement social graph and user autocomplete (Epic 12.1 & 12.2)
+- Implement shadcn/ui theming system with dark mode support (Epic 11)
+- Complete Epic 10 - i18n with language switcher and RTL support
+- Rebrand to BuildN, complete Governance & Wiki modules, add i18n
+- Implement Epics 6-8 - Governance, Wiki, and CRM modules
+- Implement Epic 5 - Mutual Aid Module foundations
+- Implement Epic 4 - Events Module
+- Implement Epic 3 - Messaging & Notifications
+- Add mobile responsive design and UI enhancements
+- Implement Phase 1 (DM) and Phase 2 (Groups) foundations
+- Implement authentication system and basic UI
+- Implement Nostr client and core infrastructure
+- Initialize Vite + React + TypeScript project
+
+### Miscellaneous
+
+- Remove tracked generated files now covered by gitignore
+- Quiet codegen output and gitignore build artifacts
+- Remove personally identifying information from codebase
+- Update bun.lockb for workers workspace changes
+- Update bun.lock with codegen and schema-bundle dependencies
+- Add quicktype dependencies for codegen
+- Fix workspace config and move protocol spec to docs
+- Migrate to monorepo structure
+- Add playwright-report-tauri to .gitignore
+- Remove commented-out code and update TODO references (Epic 51)
+- Migrate core modules to dev-only logger (Epic 51)
+- Migrate all console.info/log to dev-only logger (Epic 51)
+- Migrate events and mutual-aid modules to use dev-only logger
+- Migrate module index files to use dev-only logger
+- Remove debug console.log/console.info from UI components
+- Remove unused TypeScript variables in db.ts
+
+### Performance
+
+- Implement lazy loading for modules and heavy dependencies (Epic 35)
+- Implement code splitting and bundle optimization (Epic 20.1)
+
+### Refactoring
+
+- **web**: Migrate all data access to DAL abstraction layer
+- **codegen**: Support typed db-only fields, remove wiki adapter pattern
+- **codegen**: Replace hand-rolled Zod generator with json-schema-to-zod
+- **codegen**: Split monolithic codegen and add Dexie/Zod/migration generators
+- **native**: Migrate from One Framework to Expo Router + NativeWind
+- Implement scoped debug logging (Epic 71)
+- Convert console.log to console.info
+- Complete Forms module split - separate Forms, Public, and Fundraising modules
+- Clean up debug logging from module initialization
+- Clean up TODO comments and improve code documentation
+- Use Lucide icon components instead of string mapping
+- Make db.ts completely module-agnostic with dynamic table access
+- Implement Epic 14 module refactoring - dynamic schema composition (14.1-14.2)
+
+### Testing
+
+- **web**: Add protocol test vector runners for cross-client validation
+- Expand Tauri E2E test utilities and helpers
+- Add E2E testing infrastructure for Tauri desktop app
+- **native**: Add comprehensive E2E tests for auth, messaging, biometrics (Epic 63)
+- **native**: Add E2E test infrastructure with Detox (Epic 63)
+- Add comprehensive integration tests for friends and publishing modules (Epic 51)
+- **e2e**: Fix theme tests to use correct localStorage key
+- **e2e**: Add Phase 4 E2E tests for Epic 51
+- **e2e**: Add comprehensive internationalization E2E tests
+- Expand E2E test suite with 41 new tests (Epic 68)
+- Add E2E tests for Phases 2 & 3 (Epic 47)
+- Add comprehensive E2E tests for Security Features (Epics 18/26/27)
+- Add E2E tests for 6 critical epics (Epic 47 Phase 1)
+- Add comprehensive E2E tests for Files Module (Epic 33)
+- Add comprehensive E2E tests for Forms & Fundraising module (Epic 37)
+- Implement comprehensive E2E test suite with Playwright (Epic 29)
+- Refactor integration tests to match current implementation
+- Fix test suite - all unit/integration tests now passing
+- Add comprehensive unit tests for Nostr filter merging
+- Add unit tests for Custom Fields Module
+- Add comprehensive testing suite (Epic 17)
+
+### WIP
+
+- Refactor Forms module - split into Forms, Fundraising, Public modules
+
+### I18n
+
+- Complete Epic 36 technical tasks - 11 languages, tests, contribution guide
+
+### Revert
+
+- Remove static SEO meta tags from index.html
+
+### Security
+
+- Prepare for external security audit (Epic 30)
+

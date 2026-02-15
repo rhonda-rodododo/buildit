@@ -1,6 +1,6 @@
 {
   "name": "buildit",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Privacy-first organizing platform for activist groups",
   "workspaces": [
