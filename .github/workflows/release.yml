@@ -139,6 +139,12 @@ jobs:
     outputs:
       release_id: ${{ steps.create.outputs.release_id }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.determine-version.outputs.tag }}
+          fetch-depth: 0
+
       - name: Create draft release
         id: create
         env:
@@ -150,16 +156,16 @@ jobs:
             PRERELEASE_FLAG="--prerelease"
           fi
 
-          RELEASE_URL=$(gh release create "$TAG" \
-            --repo "${{ github.repository }}" \
+          gh release create "$TAG" \
             --title "$TAG" \
             --draft \
             --generate-notes \
-            $PRERELEASE_FLAG \
-            2>&1)
+            $PRERELEASE_FLAG
 
-          # Extract release ID via API
-          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/$TAG" --jq '.id')
+          # Draft releases are NOT returned by /releases/tags/ endpoint.
+          # List all releases and filter by tag to find the draft.
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases" \
+            --jq ".[] | select(.tag_name == \"$TAG\") | .id")
           echo "release_id=$RELEASE_ID" >> "$GITHUB_OUTPUT"
           echo "Created draft release $TAG (id: $RELEASE_ID)"
 
@@ -221,7 +227,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           projectPath: clients/desktop
-          tauriScript: cargo tauri
+          tauriScript: bunx tauri
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
